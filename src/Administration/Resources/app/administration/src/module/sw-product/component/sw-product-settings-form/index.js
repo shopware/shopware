@@ -4,13 +4,11 @@
 
 import template from './sw-product-settings-form.html.twig';
 
-const { mapPropertyErrors, mapState } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         allowEdit: {
@@ -22,10 +20,13 @@ export default {
     },
 
     computed: {
-        ...mapState('swProductDetail', [
-            'product',
-            'parentProduct',
-        ]),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
+
+        parentProduct() {
+            return Shopware.Store.get('swProductDetail').parentProduct;
+        },
 
         ...mapPropertyErrors('product', [
             'releaseDate',

@@ -13,16 +13,7 @@
     </parameters>
 
     <services>
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator"/>
         <service id="Shopware\Core\Framework\DataAbstractionLayer\EntityGenerator"/>
-
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\CreateSchemaCommand">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument>%kernel.project_dir%</argument>
-
-            <tag name="console.command"/>
-        </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\CreateEntitiesCommand">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\EntityGenerator"/>

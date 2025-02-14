@@ -5,8 +5,6 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Flow\FlowEvent;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Flow\Event\Event;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 
 /**
  * @internal
@@ -25,11 +23,7 @@ class FlowEventTest extends TestCase
 
     public function testCreateFromXmlMissingFlowEvent(): void
     {
-        if (Feature::isActive('v6.7.0.0')) {
-            $this->expectException(AppException::class);
-        } else {
-            $this->expectException(XmlParsingException::class);
-        }
+        $this->expectException(AppException::class);
 
         $this->expectExceptionMessage('[ERROR 1871] Element \'flow-events\': Missing child element(s). Expected is ( flow-event ).');
 
@@ -39,11 +33,7 @@ class FlowEventTest extends TestCase
 
     public function testCreateFromXmlFlowEventMissingRequiredChild(): void
     {
-        if (Feature::isActive('v6.7.0.0')) {
-            $this->expectException(AppException::class);
-        } else {
-            $this->expectException(XmlParsingException::class);
-        }
+        $this->expectException(AppException::class);
 
         $this->expectExceptionMessage('[ERROR 1871] Element \'flow-event\': Missing child element(s). Expected is ( name ).');
 
@@ -53,11 +43,7 @@ class FlowEventTest extends TestCase
 
     public function testCreateFromXmlFlowEventMetaMissingRequiredChild(): void
     {
-        if (Feature::isActive('v6.7.0.0')) {
-            $this->expectException(AppException::class);
-        } else {
-            $this->expectException(XmlParsingException::class);
-        }
+        $this->expectException(AppException::class);
 
         $this->expectExceptionMessage('Message: [ERROR 1871] Element \'flow-event\': Missing child element(s). Expected is ( aware ).');
 

@@ -56,8 +56,6 @@
     {% endblock %}
 
     {% block sw_product_detail_cross_selling_empty_state_card %}
-    {# @deprecated tag:v6.7.0 - Block will be removed. Use `sw_product_detail_cross_selling_empty_state_card` instead. #}
-    {% block sw_product_detail_empty_state %}
     <sw-card
         v-else
         position-identifier="sw-product-detail-cross-selling-empty-state"
@@ -144,8 +142,6 @@
             </template>
 
             {% block sw_product_detail_cross_selling_empty_state_actions %}
-            {# @deprecated tag:v6.7.0 - Block will be removed. Use `sw_product_detail_cross_selling_empty_state_actions` instead. #}
-            {% block sw_product_detail_empty_state_cross_selling_add %}
             <template #actions>
                 {% block sw_product_detail_cross_selling_empty_state_actions_add %}
                 <sw-button
@@ -163,11 +159,9 @@
                 {% endblock %}
             </template>
             {% endblock %}
-            {% endblock %}
         </sw-empty-state>
         {% endblock %}
     </sw-card>
-    {% endblock %}
     {% endblock %}
 
     {% block sw_product_detail_cross_selling_modal_restore_inheritance %}

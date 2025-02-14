@@ -11,16 +11,13 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 #[Package('fundamentals@after-sales')]
 class LineItemClearanceSaleRule extends Rule
 {
     final public const RULE_NAME = 'cartLineItemClearanceSale';
 
-    /**
-     * @internal
-     */
     public function __construct(protected bool $clearanceSale = false)
     {
         parent::__construct();

@@ -13,8 +13,6 @@ const { Component } = Shopware;
 Component.register('sw-notification-center-item', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['center-close'],
 
     props: {
@@ -50,7 +48,7 @@ Component.register('sw-notification-center-item', {
         },
 
         onDelete() {
-            Shopware.State.commit('notification/removeNotification', this.notification);
+            Shopware.Store.get('notification').removeNotification(this.notification);
         },
 
         handleAction(action) {

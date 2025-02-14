@@ -14,8 +14,6 @@ const { cloneDeep } = Shopware.Utils.object;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'numberRangeService',
@@ -335,7 +333,7 @@ export default {
             return promise
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-product.list.messageSaveSuccess', 0, { name: productName }),
+                        message: this.$tc('sw-product.list.messageSaveSuccess', { name: productName }, 0),
                     });
                 })
                 .catch(() => {
@@ -355,7 +353,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').setApiLanguageId(languageId);
             this.getList();
         },
 

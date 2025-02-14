@@ -14,19 +14,9 @@ class FieldConfig extends Struct
     final public const SOURCE_DEFAULT = 'default';
     final public const SOURCE_PRODUCT_STREAM = 'product_stream';
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $source;
+    protected string $source;
 
     /**
      * @param array<mixed>|bool|float|int|string|null $value
@@ -34,8 +24,7 @@ class FieldConfig extends Struct
     public function __construct(
         string $name,
         string $source,
-        /** @deprecated tag:v6.7.0 - Will be natively typed */
-        protected $value
+        protected mixed $value
     ) {
         $this->name = $name;
         $this->source = $source;
@@ -52,11 +41,9 @@ class FieldConfig extends Struct
     }
 
     /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will return native type
-     *
      * @return array<mixed>|bool|float|int|string|null
      */
-    public function getValue()
+    public function getValue(): mixed
     {
         return $this->value;
     }

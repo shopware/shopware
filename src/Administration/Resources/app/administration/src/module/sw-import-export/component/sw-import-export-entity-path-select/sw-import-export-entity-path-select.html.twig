@@ -6,7 +6,6 @@
     v-bind="$attrs"
     @select-expanded="onSelectExpanded"
     @select-collapsed="onSelectCollapsed"
-    v-on="listeners"
 >
     {% block sw_import_export_entity_path_select_base %}
     {% block sw_import_export_entity_path_select_base_selection %}
@@ -58,7 +57,7 @@
             ref="resultsList"
             :options="visibleResults"
             :is-loading="isLoading"
-            :empty-message="$tc('global.sw-single-select.messageNoResults', 0, { term: searchInput })"
+            :empty-message="$tc('global.sw-single-select.messageNoResults', { term: searchInput }, 0)"
             :focus-el="$refs.swSelectInput"
             :popover-classes="resultListClasses"
             @paginate="$emit('paginate')"

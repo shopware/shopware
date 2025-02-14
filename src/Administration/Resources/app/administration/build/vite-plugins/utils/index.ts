@@ -1,5 +1,5 @@
 /**
- * @package framework
+ * @sw-package framework
  */
 import fs from 'fs';
 import path from 'path';
@@ -136,12 +136,12 @@ export function loadExtensions(): ExtensionDefinition[] {
                 const appEntryPath = path.resolve(
                     process.env.PROJECT_ROOT as string,
                     definition.basePath,
-                    // @ts-expect-error - We know it is defined at this point because of the filter above
-                    definition.administration.path,
+                    definition.administration?.path ?? '',
                     '../..',
                     'meteor-app',
                 );
-                return fs.existsSync(path.resolve(appEntryPath, 'index.html'));
+
+                return definition.administration?.path && fs.existsSync(path.resolve(appEntryPath, 'index.html'));
             },
         )
         .map(
@@ -215,7 +215,9 @@ export function loadExtensions(): ExtensionDefinition[] {
     return [
         ...plugins,
         ...apps,
-    ];
+    ].filter((extension) => {
+        return !process.env.hasOwnProperty('SKIP_' + extension.technicalName.toUpperCase().replace(/-/g, '_'));
+    });
 }
 
 /**

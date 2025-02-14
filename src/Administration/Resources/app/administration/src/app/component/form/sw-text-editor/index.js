@@ -9,6 +9,7 @@ const { Component } = Shopware;
  *
  * @private
  * @status ready
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-text-editor instead.
  * @example-type static
  * @description <p>A simple text editor which uses the browsers api.
  *              Pass a buttonConfig array to configure the buttons you desire.
@@ -37,8 +38,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-text-editor', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 

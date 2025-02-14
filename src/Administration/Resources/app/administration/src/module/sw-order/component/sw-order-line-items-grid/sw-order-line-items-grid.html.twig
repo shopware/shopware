@@ -339,7 +339,7 @@
                 @modal-close="onCloseDeleteModal"
             >
                 <p class="sw-order-list__confirm-delete-text">
-                    {{ $tc('sw-order.detailBase.textDeleteLineItemConfirm', 0, { label: `${item.label}` }) }}
+                    {{ $tc('sw-order.detailBase.textDeleteLineItemConfirm', { label: `${item.label}` }, 0) }}
                 </p>
 
                 <template #modal-footer>

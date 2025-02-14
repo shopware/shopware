@@ -40,19 +40,19 @@ class EntityNotExists extends Constraint
         );
 
         if (!\is_string($options['entity'] ?? null)) {
-            throw FrameworkException::missingOptions(\sprintf('Option "entity" must be given for constraint %s', self::class), ['entity']);
+            throw FrameworkException::missingOptions(\sprintf('Option "entity" must be given for constraint %s', self::class));
         }
 
         if (!($options['context'] ?? null) instanceof Context) {
-            throw FrameworkException::missingOptions(\sprintf('Option "context" must be given for constraint %s', self::class), ['context']);
+            throw FrameworkException::missingOptions(\sprintf('Option "context" must be given for constraint %s', self::class));
         }
 
         if (!($options['criteria'] ?? null) instanceof Criteria) {
-            throw FrameworkException::invalidOptions(\sprintf('Option "criteria" must be an instance of Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria for constraint %s', self::class), ['criteria']);
+            throw FrameworkException::invalidOptions(\sprintf('Option "criteria" must be an instance of Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria for constraint %s', self::class));
         }
 
         if (isset($options['primaryProperty']) && !\is_string($options['primaryProperty'])) {
-            throw FrameworkException::invalidOptions(\sprintf('Option "primaryProperty" must be a string for constraint %s', self::class), ['primaryProperty']);
+            throw FrameworkException::invalidOptions(\sprintf('Option "primaryProperty" must be a string for constraint %s', self::class));
         }
 
         parent::__construct($options);

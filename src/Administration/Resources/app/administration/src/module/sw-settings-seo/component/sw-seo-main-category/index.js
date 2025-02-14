@@ -8,8 +8,6 @@ import template from './sw-seo-main-category.html.twig';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     emits: ['main-category-add'],
@@ -58,11 +56,11 @@ export default {
         },
 
         isHeadlessSalesChannel() {
-            if (Shopware.State.get('swSeoUrl').salesChannelCollection === null) {
+            if (Shopware.Store.get('swSeoUrl').salesChannelCollection === null) {
                 return true;
             }
 
-            const salesChannel = Shopware.State.get('swSeoUrl').salesChannelCollection.find((entry) => {
+            const salesChannel = Shopware.Store.get('swSeoUrl').salesChannelCollection.find((entry) => {
                 return entry.id === this.currentSalesChannelId;
             });
 

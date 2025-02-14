@@ -182,7 +182,7 @@ describe('app/service/map-errors.service.js', () => {
     });
 
     it('mapSystemConfigErrors: it should return an object', () => {
-        Shopware.State.dispatch('error/addApiError', {
+        Shopware.Store.get('error').addApiError({
             expression: 'SYSTEM_CONFIG.testSaleChannelId.dummyKey',
             error: new ShopwareError({ code: 'dummyCode' }),
         });

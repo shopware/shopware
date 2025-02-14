@@ -29,8 +29,6 @@ const { dom } = Shopware.Utils;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inheritAttrs: false,
 
     inject: ['mediaService'],
@@ -77,15 +75,6 @@ export default {
         fileSizeFilter() {
             return Shopware.Filter.getByName('fileSize');
         },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
-        },
     },
 
     methods: {
@@ -121,9 +110,13 @@ export default {
             switch (error.code) {
                 case 'CONTENT__MEDIA_FILE_NAME_IS_TOO_LONG':
                     this.createNotificationError({
-                        message: this.$tc('global.sw-media-media-item.notification.fileNameTooLong.message', 0, {
-                            length: error.meta.parameters.maxLength,
-                        }),
+                        message: this.$tc(
+                            'global.sw-media-media-item.notification.fileNameTooLong.message',
+                            {
+                                length: error.meta.parameters.maxLength,
+                            },
+                            0,
+                        ),
                     });
                     break;
                 default:

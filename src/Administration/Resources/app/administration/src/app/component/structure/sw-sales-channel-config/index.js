@@ -12,8 +12,6 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-sales-channel-config', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'systemConfigApiService',
         'repositoryFactory',

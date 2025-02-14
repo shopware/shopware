@@ -148,7 +148,6 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             )
         );
 
-        $body = '';
         while ($productResult = $iterator->fetch()) {
             foreach ($productResult->getEntities() as $product) {
                 $data = $productContext->getContext();
@@ -161,18 +160,19 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
                     continue; // Skip variants unless they are included
                 }
 
-                $body .= $this->productExportRender->renderBody($productExport, $context, $data);
+                $content .= $this->productExportRender->renderBody($productExport, $context, $data);
             }
 
             if ($exportBehavior->batchMode()) {
                 break;
             }
         }
-        $content .= $this->seoUrlPlaceholderHandler->replace($body, $productExport->getSalesChannelDomain()->getUrl(), $context);
 
         if ($exportBehavior->generateFooter()) {
             $content .= $this->productExportRender->renderFooter($productExport, $context);
         }
+
+        $content = $this->seoUrlPlaceholderHandler->replace($content, $productExport->getSalesChannelDomain()->getUrl(), $context);
 
         $encodingEvent = $this->eventDispatcher->dispatch(
             new ProductExportChangeEncodingEvent($productExport, $content, mb_convert_encoding($content, $productExport->getEncoding()))

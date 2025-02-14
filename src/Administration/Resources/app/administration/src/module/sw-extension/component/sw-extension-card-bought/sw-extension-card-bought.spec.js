@@ -1,11 +1,11 @@
 /* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
+import { setActivePinia, createPinia } from 'pinia';
 
 import ExtensionErrorService from 'src/module/sw-extension/service/extension-error.service';
 import ShopwareExtensionService from 'src/module/sw-extension/service/shopware-extension.service';
 import ExtensionStoreActionService from 'src/module/sw-extension/service/extension-store-action.service';
 import 'src/module/sw-extension/mixin/sw-extension-error.mixin';
-import extensionStore from 'src/module/sw-extension/store/extensions.store';
 
 Shopware.Application.addServiceProvider('loginService', () => {
     return {
@@ -136,13 +136,13 @@ async function createWrapper(extension) {
  */
 describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
     beforeAll(() => {
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
         }
 
-        Shopware.State.registerModule('context', {
-            namespaced: true,
-            state: {
+        Shopware.Store.register({
+            id: 'context',
+            state: () => ({
                 app: {
                     config: {
                         settings: {
@@ -156,23 +156,20 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                         token: 'testToken',
                     },
                 },
-            },
+            }),
         });
     });
 
     beforeEach(() => {
-        if (Shopware.State.get('shopwareExtensions')) {
-            Shopware.State.unregisterModule('shopwareExtensions');
-        }
-        Shopware.State.registerModule('shopwareExtensions', extensionStore);
+        setActivePinia(createPinia());
 
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
         }
 
-        Shopware.State.registerModule('context', {
-            namespaced: true,
-            state: {
+        Shopware.Store.register({
+            id: 'context',
+            state: () => ({
                 app: {
                     config: {
                         settings: {
@@ -186,7 +183,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                         token: 'testToken',
                     },
                 },
-            },
+            }),
         });
     });
 

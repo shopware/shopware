@@ -11,8 +11,6 @@ const { EntityCollection } = Shopware.Data;
 Component.register('sw-condition-tree', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'feature',
     ],

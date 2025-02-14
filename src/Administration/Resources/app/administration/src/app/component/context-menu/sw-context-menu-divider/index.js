@@ -10,6 +10,4 @@ const { Component } = Shopware;
  */
 Component.register('sw-context-menu-divider', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 });

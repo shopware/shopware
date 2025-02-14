@@ -1,8 +1,8 @@
 import template from './sw-flow-trigger.html.twig';
 import './sw-flow-trigger.scss';
 
-const { Component, State } = Shopware;
-const { mapPropertyErrors, mapState, mapGetters } = Component.getComponentHelper();
+const { Component, Store } = Shopware;
+const { mapPropertyErrors, mapState } = Component.getComponentHelper();
 const utils = Shopware.Utils;
 const { camelCase, capitalizeString } = Shopware.Utils.string;
 const { isEmpty } = utils.types;
@@ -13,8 +13,6 @@ const { isEmpty } = utils.types;
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -94,11 +92,14 @@ export default {
             return this.$tc('sw-flow.detail.trigger.unknownTriggerPlaceholder');
         },
 
-        ...mapState('swFlowState', [
-            'flow',
-            'triggerEvents',
-        ]),
-        ...mapGetters('swFlowState', ['isSequenceEmpty']),
+        ...mapState(
+            () => Store.get('swFlow'),
+            [
+                'flow',
+                'triggerEvents',
+                'isSequenceEmpty',
+            ],
+        ),
         ...mapPropertyErrors('flow', ['eventName']),
     },
 
@@ -181,9 +182,9 @@ export default {
             document.addEventListener('keydown', this.handleGeneralKeyEvents);
 
             this.isLoading = true;
-            Shopware.State.dispatch('swFlowState/fetchTriggerActions');
-            State.commit('swFlowState/setTriggerEvent', this.getDataByEvent(this.eventName));
-            State.dispatch('swFlowState/setRestrictedRules', this.eventName);
+            Store.get('swFlow').fetchTriggerActions();
+            Store.get('swFlow').triggerEvent = this.getDataByEvent(this.eventName);
+            Store.get('swFlow').restrictedRules = this.eventName;
 
             this.isLoading = false;
         },
@@ -294,17 +295,13 @@ export default {
             // when user has tree open
             const actualSelection = this.findTreeItemVNodeById();
 
-            const actualSelectionItem = this.isCompatEnabled('INSTANCE_CHILDREN')
-                ? actualSelection?.item
-                : actualSelection?.component?.proxy?.item;
+            const actualSelectionItem = actualSelection?.component?.proxy?.item;
 
             switch (key) {
                 case 'arrowdown': {
                     // check if actual selection was found
                     if (actualSelectionItem?.id) {
-                        const actualSelectionOpened = this.isCompatEnabled('INSTANCE_CHILDREN')
-                            ? actualSelection?.opened
-                            : actualSelection?.component?.proxy?.opened;
+                        const actualSelectionOpened = actualSelection?.component?.proxy?.opened;
 
                         // when selection is open
                         if (actualSelectionOpened) {
@@ -344,14 +341,10 @@ export default {
                         // when selection is first item in folder
                         const parent = this.findTreeItemVNodeById(actualSelectionItem?.parentId);
 
-                        const parentItemFirstChildrenId = this.isCompatEnabled('INSTANCE_CHILDREN')
-                            ? parent?.item?.children[0].id
-                            : parent?.component?.proxy?.item?.children[0].id;
+                        const parentItemFirstChildrenId = parent?.component?.proxy?.item?.children[0].id;
                         if (parentItemFirstChildrenId === actualSelectionItem?.id) {
                             // then get the parent folder
-                            const newSelection = this.isCompatEnabled('INSTANCE_CHILDREN')
-                                ? parent.item
-                                : parent.component.proxy.item;
+                            const newSelection = parent.component.proxy.item;
 
                             if (newSelection) {
                                 // update the selected item
@@ -384,9 +377,7 @@ export default {
                         const parent = this.findTreeItemVNodeById(actualSelectionItem?.parentId);
 
                         if (parent) {
-                            const parentItem = this.isCompatEnabled('INSTANCE_CHILDREN')
-                                ? parent.item
-                                : parent.component.proxy.item;
+                            const parentItem = parent.component.proxy.item;
                             this.selectedTreeItem = parentItem;
                         }
                     }
@@ -408,9 +399,7 @@ export default {
                 return nextParent;
             }
 
-            const parentItemParentId = this.isCompatEnabled('INSTANCE_CHILDREN')
-                ? parent?.item?.parentId
-                : parent?.component?.proxy?.item?.parentId;
+            const parentItemParentId = parent?.component?.proxy?.item?.parentId;
 
             if (!parentItemParentId) {
                 return null;
@@ -499,16 +488,7 @@ export default {
         toggleSelectedTreeItem(shouldOpen) {
             const vnode = this.findTreeItemVNodeById();
 
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                if (vnode?.openTreeItem && vnode.opened !== shouldOpen) {
-                    vnode.openTreeItem();
-                    return true;
-                }
-            } else if (
-                !this.isCompatEnabled('INSTANCE_CHILDREN') &&
-                vnode?.component?.proxy?.openTreeItem &&
-                vnode?.component?.proxy?.opened !== shouldOpen
-            ) {
+            if (vnode?.component?.proxy?.openTreeItem && vnode?.component?.proxy?.opened !== shouldOpen) {
                 vnode.component.proxy.openTreeItem();
                 return true;
             }
@@ -518,9 +498,7 @@ export default {
 
         findTreeItemVNodeById(
             itemId = this.selectedTreeItem.id,
-            children = this.isCompatEnabled('INSTANCE_CHILDREN')
-                ? this.$refs?.flowTriggerTree?.$children
-                : this.$refs.flowTriggerTree?.$?.subTree?.children,
+            children = this.$refs.flowTriggerTree?.$?.subTree?.children,
         ) {
             let found = false;
             if (!children) {
@@ -529,19 +507,13 @@ export default {
 
             if (Array.isArray(children)) {
                 found = children.find((child) => {
-                    if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                        if (child?.item?.id) {
-                            return child.item.id === itemId;
-                        }
-                    } else if (!this.isCompatEnabled('INSTANCE_CHILDREN') && child.component?.proxy?.item?.id) {
+                    if (child.component?.proxy?.item?.id) {
                         return child.component?.proxy?.item?.id === itemId;
                     }
 
                     return false;
                 });
-            } else if (this.isCompatEnabled('INSTANCE_CHILDREN') && children?.item?.id) {
-                found = children.item.id === itemId;
-            } else if (!this.isCompatEnabled('INSTANCE_CHILDREN') && children.component?.proxy?.item?.id) {
+            } else if (children.component?.proxy?.item?.id) {
                 found = children.component?.proxy?.item?.id === itemId;
             }
 
@@ -558,14 +530,10 @@ export default {
                     continue;
                 }
 
-                if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                    foundInChildren = this.findTreeItemVNodeById(itemId, children[i].$children);
-                } else {
-                    const childrenToIterate = children[i].component
-                        ? children[i].component?.subTree?.children
-                        : children[i].children;
-                    foundInChildren = this.findTreeItemVNodeById(itemId, childrenToIterate ?? null);
-                }
+                const childrenToIterate = children[i].component
+                    ? children[i].component?.subTree?.children
+                    : children[i].children;
+                foundInChildren = this.findTreeItemVNodeById(itemId, childrenToIterate ?? null);
                 // stop when found in children
                 if (foundInChildren) {
                     break;
@@ -612,8 +580,8 @@ export default {
             if (this.isSequenceEmpty) {
                 const { id } = item.data;
 
-                State.commit('swFlowState/setTriggerEvent', this.getDataByEvent(id));
-                State.dispatch('swFlowState/setRestrictedRules', id);
+                Store.get('swFlow').triggerEvent = this.getDataByEvent(id);
+                Store.get('swFlow').restrictedRules = id;
                 this.$emit('option-select', id);
             } else {
                 this.showConfirmModal = this.flow.eventName !== item.id;
@@ -622,8 +590,8 @@ export default {
         },
 
         onConfirm() {
-            State.commit('swFlowState/setTriggerEvent', this.triggerSelect);
-            State.dispatch('swFlowState/setRestrictedRules', this.triggerSelect.name);
+            Store.get('swFlow').triggerEvent = this.triggerSelect;
+            Store.get('swFlow').restrictedRules = this.triggerSelect.name;
             this.$emit('option-select', this.triggerSelect.name);
         },
 
@@ -739,8 +707,8 @@ export default {
 
             if (this.isSequenceEmpty) {
                 this.$emit('option-select', item.name);
-                State.commit('swFlowState/setTriggerEvent', item);
-                State.dispatch('swFlowState/setRestrictedRules', item.name);
+                Store.get('swFlow').triggerEvent = item;
+                Store.get('swFlow').restrictedRules = item.name;
             } else {
                 this.showConfirmModal = true;
                 this.triggerSelect = item;

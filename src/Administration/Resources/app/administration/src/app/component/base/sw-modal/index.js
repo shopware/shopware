@@ -19,8 +19,6 @@ const utils = Shopware.Utils;
 Component.register('sw-modal', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inheritAttrs: false,
 
     inject: ['shortcutService'],
@@ -133,7 +131,7 @@ Component.register('sw-modal', {
         },
 
         showHelpSidebar() {
-            return Shopware.State.get('adminHelpCenter').showHelpSidebar;
+            return Shopware.Store.get('adminHelpCenter').showHelpSidebar;
         },
     },
 

@@ -11,33 +11,13 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class LicenseDomainStruct extends Struct
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $domain;
+    protected string $domain;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $verified = false;
+    protected bool $verified = false;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $edition = 'Community Edition';
+    protected string $edition = 'Community Edition';
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $active = false;
+    protected bool $active = false;
 
     public function getDomain(): string
     {

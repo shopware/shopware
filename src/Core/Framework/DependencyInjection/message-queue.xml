@@ -57,7 +57,6 @@
 
         <service id="Shopware\Core\Framework\MessageQueue\Middleware\RoutingOverwriteMiddleware">
             <argument>%shopware.messenger.routing_overwrite%</argument>
-            <argument type="collection"></argument>
         </service>
     </services>
 </container>

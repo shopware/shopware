@@ -169,7 +169,7 @@ With every test scenario our goal is to create a well-structured and comprehensi
 We achieve this by using a lightweight actor pattern on top of Playwright which enables us to write test scenarios in a readable way, that non-tech people are able to understand. We describe the concept in more detail in the following section.
 
 #### Write meaningful test descriptions
-Playwright already comes with a great feature to write meaningful test descriptions. 
+Playwright provides a powerful feature, `test.step`, to write meaningful and structured test descriptions.
 You can use the `test.step` method to describe the test steps in a human-readable way. This will help you to understand the test scenario and also to debug failing tests.
 - Descriptive Names: Use clear and descriptive names for each step. Each step's name should explain what the step is doing and/or what it's verifying.
 - Logical Grouping: Group related actions and assertions into a single step. This could be navigating to a page, filling out a form, or verifying a set of conditions.

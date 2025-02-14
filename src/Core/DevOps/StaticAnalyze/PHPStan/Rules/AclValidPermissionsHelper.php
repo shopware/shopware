@@ -10,6 +10,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class AclValidPermissionsHelper
 {
+    public const INVALID_KEY_ERROR_MESSAGE = 'Permission "%s" is not a valid backend ACL key. If it\'s an entity based permission, please check if entity is listed in the entity-schema.json. If it\'s a custom permissions, please check if it should be added to the allowlist.';
+
+    public const MISSING_SCHEMA_ERROR_MESSAGE = 'The entity-schema.json file is missing. Please make sure to generate it first via the administration command. Could not look up permission "%s" in the schema.';
+
     private const SCHEMA_FILE = __DIR__ . '/../../../../../Administration/Resources/app/administration/test/_mocks_/entity-schema.json';
 
     private const CUSTOM_PERMISSIONS = [
@@ -53,7 +57,7 @@ class AclValidPermissionsHelper
     public function aclKeyValid(string $key): bool
     {
         if ($this->permissions === null) {
-            return true;
+            throw new \RuntimeException('Entity schema file not found');
         }
 
         return \in_array($key, $this->permissions, true);

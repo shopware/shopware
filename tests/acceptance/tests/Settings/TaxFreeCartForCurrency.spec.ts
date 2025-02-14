@@ -16,10 +16,7 @@ test(
     SelectInvoicePaymentOption,
     SelectStandardShippingOption,
     SubmitOrder,
-    InstanceMeta,
 }) => {
-    test.skip(InstanceMeta.features['ACCESSIBILITY_TWEAKS'], 'Blocked by accessibility flag: https://shopware.atlassian.net/browse/NEXT-40636');
-
     const product = await TestDataService.createBasicProduct();
     const currency = await TestDataService.createCurrency({ taxFreeFrom: 5 });
     const customer = await TestDataService.createCustomer();
@@ -29,10 +26,10 @@ test(
 
     await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
     await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.isoCode));
-    await ShopCustomer.expects(StorefrontProductDetail.productSinglePrice).toHaveText(currency.isoCode+' 24.00*');
+    await ShopCustomer.expects(StorefrontProductDetail.productSinglePrice).toHaveText(currency.isoCode+' 24.00');
 
     await ShopCustomer.attemptsTo(AddProductToCart(product));
-    await ShopCustomer.expects(StorefrontProductDetail.offCanvasSummaryTotalPrice).toHaveText(currency.isoCode+' 20.16*');
+    await ShopCustomer.expects(StorefrontProductDetail.offCanvasSummaryTotalPrice).toHaveText(currency.isoCode+' 20.16');
 
     await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
 

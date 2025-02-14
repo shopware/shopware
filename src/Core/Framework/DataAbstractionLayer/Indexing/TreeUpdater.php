@@ -32,15 +32,10 @@ class TreeUpdater
     }
 
     /**
-     * @deprecated tag:v6.7.0 - reason:new-optional-parameter - Parameter bool $recursive = false will be added
-     *
-     * @param bool $recursive
      * @param array<string> $updateIds
      */
-    public function batchUpdate(array $updateIds, string $entity, Context $context/* , bool $recursive = false */): void
+    public function batchUpdate(array $updateIds, string $entity, Context $context, bool $recursive = false): void
     {
-        $recursive = \func_num_args() > 3 ? func_get_arg(3) : false;
-
         $updateIds = Uuid::fromHexToBytesList(array_unique($updateIds));
         if (empty($updateIds)) {
             return;

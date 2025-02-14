@@ -157,4 +157,48 @@ class PromotionIndividualCodeRedeemerTest extends TestCase
             ],
         ]]], $codeRepository->updates);
     }
+
+    public function testPayloadWithoutTypeIsSkipped(): void
+    {
+        /** @var StaticEntityRepository<PromotionIndividualCodeCollection> $codeRepository */
+        $codeRepository = new StaticEntityRepository([]);
+
+        $redeemer = new PromotionIndividualCodeRedeemer(
+            $codeRepository,
+            $this->createMock(EntityRepository::class)
+        );
+
+        $customer = new OrderCustomerEntity();
+        $customer->setId(Uuid::randomHex());
+        $customer->setFirstName('foo');
+        $customer->setLastName('bar');
+        $customer->setCustomerId(Uuid::randomHex());
+
+        $lineItem = new OrderLineItemEntity();
+        $lineItem->setId(Uuid::randomHex());
+
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+        $order->setLineItems(new OrderLineItemCollection([$lineItem]));
+        $order->setOrderCustomer($customer);
+
+        $lineItem->setOrderId($order->getId());
+
+        $context = Generator::generateSalesChannelContext();
+
+        $payload = $lineItem->jsonSerialize();
+        unset($payload['type']);
+
+        $event = new EntityWrittenEvent(
+            'order_line_item',
+            [
+                new EntityWriteResult($lineItem->getId(), $payload, OrderLineItemDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
+            ],
+            $context->getContext()
+        );
+
+        $redeemer->onOrderLineItemWritten($event);
+
+        static::assertEmpty($codeRepository->updates);
+    }
 }

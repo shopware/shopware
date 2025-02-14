@@ -126,7 +126,7 @@ class AclValidPermissionsInRouteAttributesRule implements Rule
 
                         try {
                             if (!$this->permissionsHelper->aclKeyValid($permission)) {
-                                $errors[] = RuleErrorBuilder::message(\sprintf(AclValidPermissionsHelper::ERROR_MESSAGE, $permission))
+                                $errors[] = RuleErrorBuilder::message(\sprintf(AclValidPermissionsHelper::INVALID_KEY_ERROR_MESSAGE, $permission))
                                     ->line($permissionNode->getStartLine() ?: 0)
                                     ->identifier('shopware.aclKey')
                                     ->build();

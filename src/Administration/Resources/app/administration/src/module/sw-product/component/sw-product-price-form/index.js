@@ -79,13 +79,17 @@ export default {
                 name: 'sw.settings.tax.index',
             };
 
-            return this.$tc('sw-product.priceForm.taxRateHelpText.label', 0, {
-                link: `<sw-internal-link
+            return this.$tc(
+                'sw-product.priceForm.taxRateHelpText.label',
+                {
+                    link: `<sw-internal-link
                            :router-link=${JSON.stringify(link)}
                            :inline="true">
                            ${this.$tc('sw-product.priceForm.taxRateHelpText.linkText')}
                       </sw-internal-link>`,
-            });
+                },
+                0,
+            );
         },
 
         prices: {

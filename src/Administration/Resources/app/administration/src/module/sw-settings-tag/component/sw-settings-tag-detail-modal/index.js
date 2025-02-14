@@ -85,9 +85,13 @@ export default {
         title() {
             return this.tag.isNew()
                 ? this.$tc('sw-settings-tag.list.buttonAddTag')
-                : this.$tc('sw-settings-tag.detail.editTitle', 0, {
-                      name: this.tag.name,
-                  });
+                : this.$tc(
+                      'sw-settings-tag.detail.editTitle',
+                      {
+                          name: this.tag.name,
+                      },
+                      0,
+                  );
         },
 
         allowSave() {

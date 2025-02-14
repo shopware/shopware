@@ -155,9 +155,13 @@ Component.register('sw-entity-advanced-selection-modal', {
 
     computed: {
         modalTitle() {
-            return this.$tc('global.sw-entity-advanced-selection-modal.title', 1, {
-                entity: this.entityDisplayText,
-            });
+            return this.$tc(
+                'global.sw-entity-advanced-selection-modal.title',
+                {
+                    entity: this.entityDisplayText,
+                },
+                1,
+            );
         },
 
         entityRepository() {

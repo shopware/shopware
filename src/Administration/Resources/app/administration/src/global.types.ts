@@ -39,6 +39,11 @@ import type {
 import type { mapActions, mapState } from 'pinia';
 import type * as mapErrors from 'src/app/service/map-errors.service';
 import type JsonApiParserService from 'src/core/service/jsonapi-parser.service';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// Needed for the Editor types
+import type { Editor as CoreEditor, EditorOptions } from '@tiptap/core';
+import type Link from '@tiptap/extension-link';
+/* eslint-enable @typescript-eslint/no-unused-vars */
 import type { ComponentConfig } from './core/factory/async-component.factory';
 import type StoreApiService from './core/service/api/store.api.service';
 import type ShopwareDiscountCampaignService from './app/service/discount-campaign.service';
@@ -462,7 +467,8 @@ interface CustomProperties extends ServiceContainer {
     $router: Router;
     $store: Store<VuexRootState>;
     $route: RouteLocationNormalizedLoaded;
-    $tc: I18n<{}, {}, {}, string, true>['global']['tc'];
+    $te: I18n<{}, {}, {}, string, true>['global']['te'];
+    $tc: I18n<{}, {}, {}, string, true>['global']['t'];
     $t: I18n<{}, {}, {}, string, true>['global']['t'];
     $dataScope: () => ComponentInternalInstance['proxy'];
 }

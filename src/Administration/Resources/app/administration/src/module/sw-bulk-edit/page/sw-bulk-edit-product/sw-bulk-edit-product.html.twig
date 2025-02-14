@@ -178,7 +178,7 @@
                             @click="displayAdvancePricesModal = true"
                             @keydown.enter="displayAdvancePricesModal = true"
                         >
-                            {{ $tc('sw-bulk-edit.product.advancedPrices.newAdvancedPrices', 0, { count: entity[formField.name] ? Object.keys(priceRuleGroups).length : 0 }) }}
+                            {{ $tc('sw-bulk-edit.product.advancedPrices.newAdvancedPrices', { count: entity[formField.name] ? Object.keys(priceRuleGroups).length : 0 }, 0) }}
                             <sw-icon
                                 name="regular-long-arrow-right"
                                 small

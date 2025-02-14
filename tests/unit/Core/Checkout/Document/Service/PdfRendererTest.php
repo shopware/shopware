@@ -18,7 +18,6 @@ use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -50,8 +49,7 @@ class PdfRendererTest extends TestCase
             new ExtensionDispatcher($dispatcher),
         );
 
-        // @deprecated tag:v6.7.0 - html argument will be removed
-        $rendered = new RenderedDocument('html', '1001', InvoiceRenderer::TYPE);
+        $rendered = new RenderedDocument('', '1001', InvoiceRenderer::TYPE);
         $rendered->setContext(Context::createDefaultContext());
         $rendered->setOrder($this->getOrder());
 
@@ -66,67 +64,8 @@ class PdfRendererTest extends TestCase
         $renderer->render($rendered);
     }
 
-    #[DisabledFeatures(['v6.7.0.0'])]
-    public function testRender(): void
-    {
-        $html = '
-            <!DOCTYPE html>
-            <html lang="en-GB">
-                <head>
-                    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-                    <title>Delivery note 1000 for Order 10000</title>
-                </head>
-                <body>
-                    <footer>
-                        <div class="page-count">
-                            Page <span class="pagenum"></span> / DOMPDF_PAGE_COUNT_PLACEHOLDER
-                        </div>
-                    </footer>
-                </body>
-            </html>
-        ';
-
-        // @deprecated tag:v6.7.0 - html argument will be removed
-        $rendered = new RenderedDocument(
-            $html,
-            '1001',
-            InvoiceRenderer::TYPE,
-        );
-
-        $rendered->setContext(Context::createDefaultContext());
-        $rendered->setOrder($this->getOrder());
-
-        static::assertStringContainsString('<html lang="en-GB">', $rendered->getHtml());
-        static::assertStringContainsString('</html>', $rendered->getHtml());
-        static::assertStringContainsString('DOMPDF_PAGE_COUNT_PLACEHOLDER', $rendered->getHtml());
-
-        $documentTemplateRenderer = $this->createMock(DocumentTemplateRenderer::class);
-        $documentTemplateRenderer->expects(static::never())
-            ->method('render');
-
-        $pdfRenderer = new PdfRenderer(
-            [
-                'isRemoteEnabled' => true,
-                'isHtml5ParserEnabled' => true,
-            ],
-            $documentTemplateRenderer,
-            '',
-            new ExtensionDispatcher(new EventDispatcher()),
-        );
-
-        $generatorOutput = $pdfRenderer->render($rendered);
-        static::assertNotEmpty($generatorOutput);
-
-        static::assertSame($rendered->getFileExtension(), PdfRenderer::FILE_EXTENSION);
-        static::assertSame($rendered->getContentType(), PdfRenderer::FILE_CONTENT_TYPE);
-
-        $finfo = new \finfo(\FILEINFO_MIME_TYPE);
-        static::assertEquals('application/pdf', $finfo->buffer($generatorOutput));
-    }
-
     public function testRenderWithoutHtml(): void
     {
-        // @deprecated tag:v6.7.0 - html argument will be removed
         $rendered = new RenderedDocument(
             '',
             '1001',
@@ -165,7 +104,6 @@ class PdfRendererTest extends TestCase
     {
         $this->expectException(DocumentException::class);
 
-        // @deprecated tag:v6.7.0 - html argument will be removed
         $rendered = new RenderedDocument(
             '',
             '1001',

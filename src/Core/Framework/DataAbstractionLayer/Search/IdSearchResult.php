@@ -17,17 +17,13 @@ class IdSearchResult extends Struct
 
     /**
      * @var array<string, array<string, mixed>>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $data;
+    protected array $data;
 
     /**
      * @var list<string>|list<array<string, string>>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $ids;
+    protected array $ids;
 
     /**
      * @param array<array<string, mixed>> $data

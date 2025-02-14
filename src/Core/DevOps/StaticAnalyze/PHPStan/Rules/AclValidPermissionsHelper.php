@@ -34,20 +34,28 @@ class AclValidPermissionsHelper
     ];
 
     /**
-     * @var array<string>
+     * @var ?array<string>
      */
-    private array $permissions = [];
+    private ?array $permissions = null;
 
     public function __construct(string $schemaPath = self::SCHEMA_FILE)
     {
+        if (!file_exists($schemaPath)) {
+            return;
+        }
+
         $this->permissions = $this->preparePermissions($schemaPath);
         if ($this->permissions === []) {
-            throw new \RuntimeException('Could not load permissions from schema');
+            throw new \RuntimeException('Could not load permissions from entity schema');
         }
     }
 
     public function aclKeyValid(string $key): bool
     {
+        if ($this->permissions === null) {
+            return true;
+        }
+
         return \in_array($key, $this->permissions, true);
     }
 
@@ -77,10 +85,6 @@ class AclValidPermissionsHelper
      */
     private function getEntitiesFromSchema(string $path): ?array
     {
-        if (!file_exists($path)) {
-            return null;
-        }
-
         $content = file_get_contents($path);
         if ($content === false) {
             return null;

@@ -1,8 +1,10 @@
 name: Add needs-triage label to new PullRequests and Issues
 
 on:
-  schedule:
-    - cron: "*/15 * * * *"
+  pull_request:
+    types: [opened]
+  issues:
+    types: [opened]
 
 jobs:
   label:

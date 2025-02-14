@@ -26,11 +26,19 @@ test(
 
     await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
     await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.isoCode));
-    await ShopCustomer.expects(StorefrontProductDetail.productSinglePrice).toHaveText(currency.isoCode+' 24.00');
 
+    // eslint-disable-next-line playwright/no-conditional-in-test
+    const isAccessibilityTweaksEnabled = InstanceMeta.features['ACCESSIBILITY_TWEAKS'] || false;
+
+    // eslint-disable-next-line playwright/no-conditional-in-test
+    const expectedSuffix = isAccessibilityTweaksEnabled ? '' : '*';
+    const productPrice = `${currency.isoCode} 24.00${expectedSuffix}`;
+    const totalPrice = `${currency.isoCode} 20.16${expectedSuffix}`;
+
+    await ShopCustomer.expects(StorefrontProductDetail.productSinglePrice).toHaveText(productPrice);
     await ShopCustomer.attemptsTo(AddProductToCart(product));
-    await ShopCustomer.expects(StorefrontProductDetail.offCanvasSummaryTotalPrice).toHaveText(currency.isoCode+' 20.16');
-
+    await ShopCustomer.expects(StorefrontProductDetail.offCanvasSummaryTotalPrice).toHaveText(totalPrice);
+        
     await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
 
     await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());

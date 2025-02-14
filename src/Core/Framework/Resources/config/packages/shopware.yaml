@@ -506,7 +506,6 @@ shopware:
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'
         invalidation:
-            delay: 0
             delay_options:
                 storage: mysql
             http_cache: ['logged-in', 'cart-filled']

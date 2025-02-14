@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
@@ -75,15 +76,6 @@ AND #table#.id IN (:ids)
 #version_aware#
 SQL;
 
-        $resetTemplate = <<<'SQL'
-UPDATE #table# SET #table#.#storage_name# = NULL
-WHERE #table#.id IN (:ids)
-SQL;
-
-        if ($definition->isVersionAware()) {
-            $resetTemplate .= ' AND #table#.version_id = :version';
-        }
-
         $bytes = array_map(fn ($id) => Uuid::fromHexToBytes($id), $ids);
 
         /** @var ManyToManyIdField $field */
@@ -92,7 +84,7 @@ SQL;
             $association = $definition->getFields()->get($field->getAssociationName());
 
             if (!$association instanceof ManyToManyAssociationField) {
-                throw new \RuntimeException(\sprintf('Can not find association by property name %s', $field->getAssociationName()));
+                throw DataAbstractionLayerException::missingAssociation($definition->getEntityName(), $field->getAssociationName());
             }
             $parameters = ['ids' => $bytes];
 
@@ -123,20 +115,6 @@ SQL;
                 $replacement,
                 $tableTemplate
             );
-
-            $resetSql = str_replace(
-                array_keys($replacement),
-                $replacement,
-                $resetTemplate
-            );
-
-            RetryableQuery::retryable($this->connection, function () use ($resetSql, $parameters): void {
-                $this->connection->executeStatement(
-                    $resetSql,
-                    $parameters,
-                    ['ids' => ArrayParameterType::BINARY]
-                );
-            });
 
             RetryableQuery::retryable($this->connection, function () use ($sql, $parameters): void {
                 $this->connection->executeStatement(

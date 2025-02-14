@@ -1,5 +1,5 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 
 import { mount } from '@vue/test-utils';
@@ -112,7 +112,26 @@ const inactiveStorefront = {
     },
 };
 
+let repositoryFactoryMock;
+
 async function createWrapper(salesChannels = []) {
+    repositoryFactoryMock = {
+        search: jest.fn((criteria, context) => {
+            const salesChannelsWithLimit = salesChannels.slice(0, criteria.limit);
+
+            return Promise.resolve(
+                new EntityCollection(
+                    'sales-channel',
+                    'sales_channel',
+                    context,
+                    criteria,
+                    salesChannelsWithLimit,
+                    salesChannels.length,
+                    null,
+                ),
+            );
+        }),
+    };
     const router = createRouter({
         history: createWebHistory(),
         routes: [
@@ -166,23 +185,7 @@ async function createWrapper(salesChannels = []) {
                     getDomainLink: getDomainLink,
                 },
                 repositoryFactory: {
-                    create: () => ({
-                        search: jest.fn((criteria, context) => {
-                            const salesChannelsWithLimit = salesChannels.slice(0, criteria.limit);
-
-                            return Promise.resolve(
-                                new EntityCollection(
-                                    'sales-channel',
-                                    'sales_channel',
-                                    context,
-                                    criteria,
-                                    salesChannelsWithLimit,
-                                    salesChannels.length,
-                                    null,
-                                ),
-                            );
-                        }),
-                    }),
+                    create: () => repositoryFactoryMock,
                 },
             },
         },
@@ -219,7 +222,7 @@ Shopware.Application.addServiceProvider('salesChannelFavorites', () => {
 describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu', () => {
     beforeEach(async () => {
         Shopware.Service('salesChannelFavorites').state.favorites = [];
-        Shopware.State.get('session').languageId = defaultAdminLanguageId;
+        Shopware.Store.get('session').languageId = defaultAdminLanguageId;
         global.repositoryFactoryMock.showError = false;
     });
 
@@ -315,7 +318,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
     it('takes first domain link if neither default language nor admin language exists', async () => {
         window.open = jest.fn();
-        Shopware.State.get('session').languageId = Shopware.Utils.createId();
+        Shopware.Store.get('session').languageId = Shopware.Utils.createId();
 
         const wrapper = await createWrapper([storefrontWithoutDefaultDomain]);
 

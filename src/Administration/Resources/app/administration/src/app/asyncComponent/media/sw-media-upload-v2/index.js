@@ -11,7 +11,7 @@ const INPUT_TYPE_URL_UPLOAD = 'url-upload';
  * @status ready
  * @description The <u>sw-media-upload-v2</u> component is used wherever an upload is needed. It supports drag & drop-,
  * file- and url-upload and comes in various forms.
- * @package content
+ * @sw-package discovery
  * @example-type code-only
  * @component-example
  * <sw-media-upload-v2
@@ -24,8 +24,6 @@ const INPUT_TYPE_URL_UPLOAD = 'url-upload';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -210,9 +208,6 @@ export default {
         },
 
         hasOpenMediaButtonListener() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return Object.keys(this.$listeners).includes('mediaUploadSidebarOpen');
-            }
             return !!this.onMediaUploadSidebarOpen;
         },
 
@@ -531,10 +526,14 @@ export default {
             }
 
             this.createNotificationError({
-                message: this.$tc('global.sw-media-upload-v2.notification.invalidFileSize.message', 0, {
-                    name: file.name || file.fileName,
-                    limit: fileSize(this.maxFileSize),
-                }),
+                message: this.$tc(
+                    'global.sw-media-upload-v2.notification.invalidFileSize.message',
+                    {
+                        name: file.name || file.fileName,
+                        limit: fileSize(this.maxFileSize),
+                    },
+                    0,
+                ),
             });
             return false;
         },
@@ -566,10 +565,14 @@ export default {
             }
 
             this.createNotificationError({
-                message: this.$tc('global.sw-media-upload-v2.notification.invalidFileType.message', 0, {
-                    name: file.name,
-                    supportedTypes: this.extensionAccept || this.fileAccept,
-                }),
+                message: this.$tc(
+                    'global.sw-media-upload-v2.notification.invalidFileType.message',
+                    {
+                        name: file.name,
+                        supportedTypes: this.extensionAccept || this.fileAccept,
+                    },
+                    0,
+                ),
             });
 
             return false;

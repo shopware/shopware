@@ -4,12 +4,10 @@ import './sw-cms-missing-element-modal.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'modal-close',
@@ -37,9 +35,9 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         title() {
-            return this.$tc('sw-cms.components.cmsMissingElementModal.title', this.missingElements.length, {
+            return this.$tc('sw-cms.components.cmsMissingElementModal.title', {
                 element: this.element,
-            });
+            }, this.missingElements.length);
         },
     },
 

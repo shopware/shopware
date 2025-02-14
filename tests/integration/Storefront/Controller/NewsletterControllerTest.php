@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
@@ -25,7 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 class NewsletterControllerTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
@@ -163,10 +162,6 @@ class NewsletterControllerTest extends TestCase
             'salutationId' => $this->getValidSalutationId(),
             'customerNumber' => '12345',
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $this->customerData['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         /** @var EntityRepository<CustomerCollection> $repo */
         $repo = static::getContainer()->get('customer.repository');

@@ -23,7 +23,7 @@ use Shopware\Core\System\User\UserEntity;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@framework')]
 class UserRecoveryServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

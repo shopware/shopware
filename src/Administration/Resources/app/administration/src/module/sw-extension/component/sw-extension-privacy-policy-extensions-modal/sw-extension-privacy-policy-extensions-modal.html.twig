@@ -1,20 +1,16 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_extension_privacy_policy_extensions_modal %}
 <sw-modal
     class="sw-extension-privacy-policy-extensions-modal"
     :title="title"
     @modal-close="close"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_privacy_policy_extensions_modal_content %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_privacy_policy_extensions_modal_intro %}
     <div class="sw-extension-privacy-policy-extensions-modal__intro">
         <p>{{ $tc('sw-extension-store.component.sw-extension-privacy-policy-extensions-modal.intro') }}</p>
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_privacy_policy_extensions_modal_text %}
     <div class="sw-extension-privacy-policy-extensions-modal__text">
         <p>{{ privacyPolicyExtension }}</p>
@@ -22,12 +18,9 @@
     {% endblock %}
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_permissions_modal_footer %}
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_permissions_modal_footer_inner %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_permissions_modal_footer_close %}
         <sw-button
             class="sw-extension-privacy-policy-extensions-modal__close-button"

@@ -1,14 +1,11 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_number_range_detail %}
 <sw-page class="sw-settings-number-range-detail">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_number_range_detail_header %}
     <template #smart-bar-header>
         <h2>{{ placeholder(numberRange, 'name', $tc('sw-settings-number-range.detail.textHeadline')) }}</h2>
     </template>
     {% endblock %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_number_range_detail_language_switch %}
     <template #language-switch>
         <sw-language-switch
@@ -18,10 +15,8 @@
         />
     </template>
     {% endblock %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_number_range_detail_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_number_range_detail_actions_abort %}
         <sw-button
             v-tooltip.bottom="tooltipCancel"
@@ -32,7 +27,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_number_range_detail_actions_save %}
         <sw-button-process
             v-tooltip.bottom="tooltipSave"
@@ -50,7 +44,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_number_range_detail_content %}
     <template #content>
         <sw-card-view>
@@ -60,26 +53,23 @@
             </template>
 
             <template v-else>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_number_range_detail_language_info %}
                 <sw-language-info :entity-description="identifier" />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_number_range_detail_content_card %}
                 <sw-card
                     :title="$tc('sw-settings-number-range.detail.configCard')"
                     position-identifier="sw-settings-number-range-detail-content"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_number_range_detail_content_global_warning %}
                     <sw-alert
                         v-if="numberRange && numberRange.type && numberRange.type.global"
                         class="sw-number_range-quickinfo__alert-global-type"
                         variant="warning"
-                        :title="$tc('sw-settings-number-range.general.infoGlobalTypeTitle', 0, {typeName: numberRange.type.typeName})"
+                        :title="$tc('sw-settings-number-range.general.infoGlobalTypeTitle', {typeName: numberRange.type.typeName}, 0)"
                     >
-                        {{ $tc('sw-settings-number-range.general.infoGlobalType', 0, {typeName: numberRange.type.typeName}) }}
+                        {{ $tc('sw-settings-number-range.general.infoGlobalType', {typeName: numberRange.type.typeName}, 0) }}
                     </sw-alert>
                     {% endblock %}
 
@@ -88,7 +78,6 @@
                         gap="0px 30px"
                     >
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_number_range_detail_content_field_name %}
                         <sw-text-field
                             v-model:value="numberRange.name"
@@ -102,7 +91,6 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_number_range_detail_content_field_description %}
                         <sw-text-field
                             v-model:value="numberRange.description"
@@ -118,7 +106,6 @@
                         columns="repeat(auto-fit, minmax(200px, 1fr))"
                         gap="0px 30px"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_number_range_detail_content_field_prefix %}
                         <sw-text-field
                             v-model:value="prefix"
@@ -130,7 +117,6 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_number_range_detail_content_field_start %}
                         <sw-number-field
                             v-model:value="numberRange.start"
@@ -145,7 +131,6 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_number_range_detail_content_field_suffix %}
                         <sw-text-field
                             v-model:value="suffix"
@@ -157,7 +142,6 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_number_range_detail_content_field_pattern %}
                         <sw-text-field
                             v-if="advanced"
@@ -176,7 +160,6 @@
                         columns="1fr 1fr"
                         gap="0px 30px"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_number_range_detail_content_field_default %}
                         <div class="sw-settings-number-range-detail__field_default">
                             <sw-switch-field
@@ -198,7 +181,6 @@
                         columns="repeat(auto-fit, minmax(250px, 1fr))"
                         gap="0px 30px"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_number_range_detail_content_field_current_number %}
                         <sw-text-field
                             v-if="state"
@@ -210,7 +192,6 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_number_range_detail_content_field_preview %}
                         <sw-text-field
                             v-model:value="preview"
@@ -223,22 +204,20 @@
                 </sw-card>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_number_range_detail_assignment_card %}
                 <sw-card
                     :title="$tc('sw-settings-number-range.detail.assignmentCard')"
                     position-identifier="sw-settings-number-range-detail-assignment"
                     class="sw-settings-number-range-detail-assignment"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_number_range_detail_assignment_card_global_warning %}
                     <sw-alert
                         v-if="numberRange !== null && numberRange.global"
                         class="sw-number_range-quickinfo__alert-global-type"
                         variant="info"
-                        :title="$tc('sw-settings-number-range.general.infoGlobalTitle', 0, {name: numberRange.name})"
+                        :title="$tc('sw-settings-number-range.general.infoGlobalTitle', {name: numberRange.name}, 0)"
                     >
-                        {{ $tc('sw-settings-number-range.general.infoGlobal', 0, {name: numberRange.name}) }}
+                        {{ $tc('sw-settings-number-range.general.infoGlobal', {name: numberRange.name}, 0) }}
                     </sw-alert>
                     <sw-alert
                         v-if="
@@ -248,17 +227,15 @@
                         class="sw-number_range-quickinfo__alert-global-type"
                         variant="warning"
                     >
-                        {{ $tc('sw-settings-number-range.general.infoSalesChannelBound', 0, {name: numberRange.name}) }}
+                        {{ $tc('sw-settings-number-range.general.infoSalesChannelBound', {name: numberRange.name}, 0) }}
                     </sw-alert>
                     {% endblock %}
                     <sw-container
                         columns="repeat(auto-fit, minmax(100%, 1fr))"
                         gap="0px 30px"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_number_range_detail_content_global_product_warning %}
                         {% endblock %}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_sales_channel_detail_base_general_input_type %}
                         <sw-entity-single-select
                             v-if="numberRange.type"
@@ -278,7 +255,6 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_sales_channel_detail_base_general_input_sales_channel %}
                         <sw-multi-select
                             v-if="numberRange && (!numberRange.global || numberRange.global === false)"
@@ -298,7 +274,6 @@
                 </sw-card>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_number_range_detail_custom_field_sets %}
                 <sw-card
                     v-if="showCustomFields"

@@ -3,12 +3,10 @@ import './sw-cms-preview-text-on-image.scss';
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     computed: {
         assetFilter() {

@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  * @module core/in-app-purchase
  * A registry containing a list of all in-app purchases
  */
@@ -14,7 +14,7 @@ class InAppPurchase {
     }
 
     public all(): Record<string, string[]> {
-        return Shopware.State.get('context').app.config.inAppPurchases;
+        return Shopware.Store.get('context').app.config.inAppPurchases;
     }
 
     public getByExtension(extensionName: string): string[] {

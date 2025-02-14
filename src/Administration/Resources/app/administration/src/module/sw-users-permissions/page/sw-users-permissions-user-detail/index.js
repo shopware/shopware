@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 import template from './sw-users-permissions-user-detail.html.twig';
 import './sw-users-permissions-user-detail.scss';
@@ -13,8 +13,6 @@ const { ShopwareError } = Shopware.Classes;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'userService',
@@ -171,7 +169,7 @@ export default {
         },
 
         languageId() {
-            return Shopware.State.get('session').languageId;
+            return Shopware.Store.get('session').languageId;
         },
 
         tooltipSave() {
@@ -232,7 +230,7 @@ export default {
 
             this.timezoneOptions = Shopware.Service('timezoneService').getTimezoneOptions();
             const languagePromise = new Promise((resolve) => {
-                Shopware.State.commit('context/setApiLanguageId', this.languageId);
+                Shopware.Store.get('context').api.languageId = this.languageId;
                 resolve(this.languageId);
             });
 
@@ -399,7 +397,7 @@ export default {
                                 detail: this.$tc('sw-users-permissions.users.user-detail.errorEmailUsed'),
                             });
 
-                            Shopware.State.commit('error/addApiError', {
+                            Shopware.Store.get('error').addApiError({
                                 expression,
                                 error,
                             });
@@ -411,8 +409,8 @@ export default {
                         const titleSaveError = this.$tc('global.default.error');
                         const messageSaveError = this.$tc(
                             'sw-users-permissions.users.user-detail.notification.saveError.message',
-                            0,
                             { name: this.fullName },
+                            0,
                         );
 
                         return this.userRepository
@@ -451,7 +449,7 @@ export default {
                 const data = response.data;
                 delete data.password;
 
-                return Shopware.State.commit('setCurrentUser', data);
+                return Shopware.Store.get('session').setCurrentUser(data);
             });
         },
 
@@ -461,19 +459,11 @@ export default {
 
         setPassword(password) {
             if (typeof password === 'string' && password.length <= 0) {
-                if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                    this.$delete(this.user, 'password');
-                } else {
-                    delete this.user.password;
-                }
+                delete this.user.password;
                 return;
             }
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.user, 'password', password);
-            } else {
-                this.user.password = password;
-            }
+            this.user.password = password;
         },
 
         onShowDetailModal(id) {

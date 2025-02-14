@@ -27,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
+use Shopware\Core\Test\Stub\Doctrine\QueryBuilderDataExtractor;
 
 /**
  * @internal
@@ -82,7 +83,7 @@ class CriteriaQueryBuilderTest extends TestCase
             CompositeExpression::and(
                 '`order`.`name` LIKE :param_018f75fcb173706bb1e5a16110f13c1d OR `order`.`description` LIKE :param_018f766366cf70ce8e487d3cc1b513a6',
             ),
-            $queryBuilder->getQueryPart('where'),
+            QueryBuilderDataExtractor::getWhere($queryBuilder),
         );
     }
 
@@ -117,7 +118,7 @@ class CriteriaQueryBuilderTest extends TestCase
         $definition->compile($this->createMock(DefinitionInstanceRegistry::class));
         $builder->build($queryBuilder, $definition, $criteria, Context::createDefaultContext());
 
-        static::assertEmpty($queryBuilder->getQueryPart('where'));
+        static::assertNull(QueryBuilderDataExtractor::getWhere($queryBuilder));
     }
 
     private function returnMockDefinition(): EntityDefinition

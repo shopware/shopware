@@ -6,9 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
 
 /**
- * @internal We might break this in v6.2
+ * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class SupportedFeaturesService
 {
     /**

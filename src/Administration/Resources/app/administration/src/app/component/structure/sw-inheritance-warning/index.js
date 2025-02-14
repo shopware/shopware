@@ -4,7 +4,7 @@ import './sw-inheritance-warning.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description
@@ -17,8 +17,6 @@ const { Component } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-inheritance-warning', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         name: {

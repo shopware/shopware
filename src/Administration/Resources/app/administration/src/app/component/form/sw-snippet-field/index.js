@@ -3,12 +3,11 @@ import './sw-snippet-field.scss';
 
 const {
     Component,
-    State,
     Data: { Criteria },
 } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Input field that allows you to easily edit and translate snippet in a modal.
@@ -19,8 +18,6 @@ const {
  */
 Component.register('sw-snippet-field', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'snippetSetService',
@@ -117,7 +114,7 @@ Component.register('sw-snippet-field', {
                 return;
             }
 
-            const currentLocale = State.get('session').currentLocale;
+            const currentLocale = Shopware.Store.get('session').currentLocale;
             let translation = this.getTranslationByLocale(currentLocale);
             if (translation) {
                 this.textValue = translation.value;

@@ -1,18 +1,15 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_search_searchable_content %}
 <sw-card
     class="sw-settings-search-searchable-content"
     position-identifier="sw-settings-search-searchable-content"
     :title="$tc('sw-settings-search.generalTab.labelSearchableContent')"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_searchable_content_title %}
     <span class="sw-field sw-settings-search__searchable-content-title">
         {{ $tc('sw-settings-search.generalTab.textDescriptionSearchableContent') }}
     </span>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_searchable_actions %}
     <sw-container
         class="sw-field"
@@ -21,7 +18,6 @@
         gap="0px 30px"
     >
         <div class="sw-settings-search__searchable-content-button-group">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_searchable_add_item %}
             <sw-button
                 v-if="defaultTab !== tabNames.generalTab"
@@ -35,7 +31,6 @@
             </sw-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_searchable_reset_default %}
             <sw-button
                 v-if="defaultTab !== tabNames.customTab"
@@ -49,13 +44,10 @@
             {% endblock %}
         </div>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_searchable_show_example %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_searchable_show_example_link %}
         <div class="sw-settings-search__searchable-content-link-text">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_searchable_show_example_link_element %}
             <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <a
@@ -85,7 +77,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_searchable_show_example_modal %}
         <sw-settings-search-example-modal
             v-if="showExampleModal"
@@ -96,14 +87,12 @@
     </sw-container>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_searchable_content_tabs %}
     <sw-tabs
         :default-item="defaultTab"
         position-identifier="sw-settings-search-searchable-content"
     >
         <template #default="{ active }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_searchable_content_general_tab_title %}
             <sw-tabs-item
                 v-bind="$props"
@@ -128,7 +117,6 @@
         </template>
 
         <template #content="{ active }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_searchable_content_general_tab_item %}
             <sw-settings-search-searchable-content-general
                 v-if="active === tabNames.generalTab"

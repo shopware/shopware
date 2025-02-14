@@ -1,22 +1,22 @@
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-el-preview-vimeo-video', () => import('./preview'));
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-el-config-vimeo-video', () => import('./config'));
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-el-vimeo-video', () => import('./component'));
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'vimeo-video',

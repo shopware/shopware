@@ -8,8 +8,6 @@ import './sw-first-run-wizard-store.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['extensionHelperService'],
 
     emits: [

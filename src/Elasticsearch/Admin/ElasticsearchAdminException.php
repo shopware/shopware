@@ -6,7 +6,7 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('services-settings')]
+#[Package('inventory')]
 class ElasticsearchAdminException extends HttpException
 {
     public const ADMIN_ELASTIC_SEARCH_NOT_ENABLED = 'ELASTICSEARCH__ADMIN_ES_NOT_ENABLED';

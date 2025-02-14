@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\ImportExport\Processing\Reader;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 abstract class AbstractReader
 {
     /**

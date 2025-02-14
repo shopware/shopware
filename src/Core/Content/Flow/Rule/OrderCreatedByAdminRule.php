@@ -8,14 +8,14 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('after-sales')]
+/**
+ * @internal
+ */
+#[Package('fundamentals@after-sales')]
 class OrderCreatedByAdminRule extends FlowRule
 {
     final public const RULE_NAME = 'orderCreatedByAdmin';
 
-    /**
-     * @internal
-     */
     public function __construct(protected bool $shouldOrderBeCreatedByAdmin = true)
     {
         parent::__construct();

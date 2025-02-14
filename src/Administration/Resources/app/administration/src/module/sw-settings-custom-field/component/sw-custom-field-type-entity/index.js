@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import template from './sw-custom-field-type-entity.html.twig';
 
@@ -8,8 +8,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -110,11 +108,7 @@ export default {
     methods: {
         createdComponent() {
             if (this.currentCustomField.config.hasOwnProperty('options')) {
-                if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                    this.$delete(this.currentCustomField.config, 'options');
-                } else {
-                    delete this.currentCustomField.config.options;
-                }
+                delete this.currentCustomField.config.options;
             }
 
             const componentName = this.currentCustomField.config.componentName;
@@ -135,11 +129,7 @@ export default {
         onChangeEntityType(entity) {
             const entityType = this.entityTypes.find((type) => type.value === entity);
 
-            if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                this.$delete(this.currentCustomField.config, 'labelProperty');
-            } else {
-                delete this.currentCustomField.config.labelProperty;
-            }
+            delete this.currentCustomField.config.labelProperty;
 
             // pass the label property into the custom field's config to allow different / multiple labelProperties
             if (entityType.hasOwnProperty('config') && entityType.config.hasOwnProperty('labelProperty')) {

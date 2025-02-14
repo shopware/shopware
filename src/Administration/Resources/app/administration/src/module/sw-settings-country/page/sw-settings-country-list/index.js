@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package fundamentals@discovery
  */
 import template from './sw-settings-country-list.html.twig';
 import './sw-settings-country-list.scss';
@@ -10,8 +10,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -82,7 +80,7 @@ export default {
             promise
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-country.detail.messageSaveSuccess', 0, { name: country.name }),
+                        message: this.$tc('sw-settings-country.detail.messageSaveSuccess', { name: country.name }, 0),
                     });
                 })
                 .catch(() => {
@@ -94,7 +92,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').api.languageId = languageId;
             this.getList();
         },
 

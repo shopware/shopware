@@ -6,12 +6,10 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 
@@ -80,25 +78,15 @@ export default {
 
             this.element.config.product.value = productId;
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.element.data, 'productId', productId);
-                this.$set(this.element.data, 'product', product);
-            } else {
-                this.element.data.productId = productId;
-                this.element.data.product = product;
-            }
+            this.element.data.productId = productId;
+            this.element.data.product = product;
         },
 
         deleteProduct() {
             this.element.config.product.value = null;
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.element.data, 'productId', null);
-                this.$set(this.element.data, 'product', null);
-            } else {
-                this.element.data.productId = null;
-                this.element.data.product = null;
-            }
+            this.element.data.productId = null;
+            this.element.data.product = null;
         },
     },
 };

@@ -1,7 +1,7 @@
 const { Application } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @module core/service/shopware-updates-listener
  */
@@ -67,7 +67,7 @@ export default function addShopwareUpdatesListener(loginService, serviceContaine
             autoClose: false,
         };
 
-        Shopware.State.dispatch('notification/createNotification', notification);
+        Shopware.Store.get('notification').createNotification(notification);
     }
 
     function getApplicationRootReference() {

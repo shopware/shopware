@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -14,7 +13,9 @@ use Shopware\Core\Framework\Struct\StateAwareTrait;
  *
  * @template TEntityCollection of EntityCollection
  *
- * @extends EntityCollection<Entity>
+ * @phpstan-type TElement template-type<TEntityCollection, EntityCollection, 'TElement'>
+ *
+ * @extends EntityCollection<TElement>
  */
 #[Package('framework')]
 class EntitySearchResult extends EntityCollection
@@ -23,33 +24,9 @@ class EntitySearchResult extends EntityCollection
 
     protected AggregationResultCollection $aggregations;
 
-    /**
-     * @var Criteria
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $criteria;
+    protected int $page;
 
-    /**
-     * @var Context
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $context;
-
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $page;
-
-    /**
-     * @var int|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $limit;
+    protected ?int $limit = null;
 
     /**
      * @param TEntityCollection $entities
@@ -59,11 +36,9 @@ class EntitySearchResult extends EntityCollection
         protected int $total,
         protected EntityCollection $entities,
         ?AggregationResultCollection $aggregations,
-        Criteria $criteria,
-        Context $context
+        protected Criteria $criteria,
+        protected Context $context
     ) {
-        $this->criteria = $criteria;
-        $this->context = $context;
         $this->aggregations = $aggregations ?? new AggregationResultCollection();
         $this->limit = $criteria->getLimit();
         $this->page = !$criteria->getLimit() ? 1 : (int) ceil((($criteria->getOffset() ?? 0) + 1) / $criteria->getLimit());
@@ -172,13 +147,16 @@ class EntitySearchResult extends EntityCollection
     }
 
     /**
-     * @return Entity|null
+     * @return TElement|null
      */
     public function getAt(int $position)
     {
         return $this->entities->getAt($position);
     }
 
+    /**
+     * @param iterable<TElement> $elements
+     */
     protected function createNew(iterable $elements = []): static
     {
         if (!($elements instanceof EntityCollection)) {

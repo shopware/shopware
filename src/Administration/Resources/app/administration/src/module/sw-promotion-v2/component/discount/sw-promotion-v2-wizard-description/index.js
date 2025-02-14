@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 import template from './sw-promotion-v2-wizard-description.html.twig';
 import './sw-promotion-v2-wizard-description.scss';
@@ -7,6 +7,4 @@ import './sw-promotion-v2-wizard-description.scss';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 };

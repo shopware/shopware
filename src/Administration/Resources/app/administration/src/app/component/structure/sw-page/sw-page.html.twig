@@ -1,38 +1,32 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_page %}
 <div
     class="sw-page"
     :class="pageClasses"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_page_head_area %}
     <div
         v-if="showHeadArea"
         class="sw-page__head-area"
         :style="headerStyles"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_page_search_bar %}
         <div
             v-if="showSearchBar"
             class="sw-page__search-bar"
         >
             <slot name="search-bar">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_page_slot_search_bar %}
                 <sw-search-bar />
                 {% endblock %}
             </slot>
         </div>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_page_top_bar_actions %}
         <div
             class="sw-page__top-bar-actions"
             :style="topBarActionStyles"
         >
             <sw-app-topbar-button />
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_page_notification_center %}
             <sw-notification-center />
             {% endblock %}
@@ -42,10 +36,8 @@
         {% endblock %}
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_page_smart_bar %}
         <template v-if="showSmartBar">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_page_smart_bar_divider %}
             <div
                 v-if="showSmartBar && showSearchBar"
@@ -53,14 +45,12 @@
             ></div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_page_smart_bar_back_btn %}
             <div
                 class="sw-page__back-btn-container"
                 :style="smartBarContentStyle"
             >
                 <slot name="smart-bar-back">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_page_slot_smart_bar_back %}
                     <router-link
                         v-if="parentRoute"
@@ -85,17 +75,14 @@
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_page_smart_bar_content %}
             <div
                 class="smart-bar__content"
                 :style="smartBarContentStyle"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_page_smart_bar_content_header %}
                 <div class="smart-bar__header">
                     <slot name="smart-bar-header">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_page_slot_smart_bar_header %}
                         <h2 v-if="module && module.title">
                             {{ $t(module.title) }}
@@ -105,26 +92,21 @@
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_page_smart_bar_content_language_switch %}
                 <div class="smart-bar__language-switch">
                     <slot name="language-switch">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_page_slot_language_switch%}{% endblock %}
                     </slot>
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_page_smart_bar_content_app_actions %}
                 <sw-app-actions />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_page_smart_bar_content_actions %}
                 <div class="smart-bar__actions">
                     <slot name="smart-bar-actions">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_page_slot_smart_bar_actions %}{% endblock %}
                     </slot>
                 </div>
@@ -136,7 +118,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_page_content %}
     <div
         ref="swPageContent"
@@ -149,7 +130,6 @@
         >
             <div class="sw-page__side-content-inner">
                 <slot name="side-content">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_page_slot_side_content %}{% endblock %}
                 </slot>
             </div>
@@ -163,23 +143,19 @@
             <div
                 class="sw-page__main-content-inner"
                 v-bind="$attrs"
-                v-on="additionalEventListeners"
             >
                 <slot name="content">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_page_slot_content %}{% endblock %}
                 </slot>
             </div>
         </main>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_page_content_sidebar %}
         <div
             v-if="hasSidebarSlot"
             class="sw-page__sidebar"
         >
             <slot name="sidebar">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_page_sidebar_slot %}{% endblock %}
             </slot>
         </div>

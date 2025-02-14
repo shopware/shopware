@@ -6,7 +6,7 @@ const utils = Shopware.Utils;
 
 /**
  * @private
- * @package services-settings
+ * @sw-package inventory
  * @memberOf module:app/service/product-stream-condition
  * @constructor
  * @method conditionService

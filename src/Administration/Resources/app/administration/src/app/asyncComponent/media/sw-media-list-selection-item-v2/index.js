@@ -5,12 +5,10 @@ import './sw-media-list-selection-item-v2.scss';
  * @private
  * @description Component which renders an image.
  * @status ready
- * @package content
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'click',

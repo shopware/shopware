@@ -44,7 +44,7 @@ const defaultScrollOnDragConf = {
 } as ScrollOnDragConf;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -62,8 +62,6 @@ const defaultScrollOnDragConf = {
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sortable-list', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         items: {

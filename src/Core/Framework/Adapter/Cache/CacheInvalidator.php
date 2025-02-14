@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\AbstractInvalidatorStorage;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
@@ -24,7 +23,6 @@ class CacheInvalidator
      * @param CacheItemPoolInterface[] $adapters
      */
     public function __construct(
-        private readonly int $delay,
         private readonly array $adapters,
         private readonly AbstractInvalidatorStorage $cache,
         private readonly EventDispatcherInterface $dispatcher,
@@ -45,27 +43,13 @@ class CacheInvalidator
             return;
         }
 
-        if (Feature::isActive('cache_rework')) {
-            if ($force || $this->shouldForceInvalidate()) {
-                $this->purge($tags);
-
-                return;
-            }
-
-            $this->cache->store($tags);
+        if ($force || $this->shouldForceInvalidate()) {
+            $this->purge($tags);
 
             return;
         }
 
-        $delay = $this->delay > 0 && !$force;
-
-        if ($delay) {
-            $this->cache->store($tags);
-
-            return;
-        }
-
-        $this->purge($tags);
+        $this->cache->store($tags);
     }
 
     /**

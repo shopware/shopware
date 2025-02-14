@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 const { Criteria } = Shopware.Data;
 
@@ -82,7 +82,7 @@ export default class FeatureGridTranslationService {
         }
 
         if (item.type === 'customField') {
-            const language = Shopware.State.get('session').currentLocale;
+            const language = Shopware.Store.get('session').currentLocale;
             const fallback = Shopware.Context.app.fallbackLocale;
 
             return this.entities.customField

@@ -11,9 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryExcep
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -137,8 +135,6 @@ class DataAbstractionLayerExceptionTest extends TestCase
 
     public function testDecodeHandledByHydrator(): void
     {
-        Feature::skipTestIfInActive('v6.7.0.0', $this);
-
         $field = new ManyToManyAssociationField(
             'galleries',
             'MediaGallery',
@@ -158,22 +154,8 @@ class DataAbstractionLayerExceptionTest extends TestCase
         static::assertEquals(DataAbstractionLayerException::DECODE_HANDLED_BY_HYDRATOR, $e->getErrorCode());
     }
 
-    #[DisabledFeatures(['v6.7.0.0'])]
-    public function testFkFieldByStorageNameNotFound66(): void
-    {
-        $e = DataAbstractionLayerException::fkFieldByStorageNameNotFound(ProductDefinition::class, 'taxId');
-
-        static::assertEquals(
-            'Could not find FK field "taxId" from definition "Shopware\Core\Content\Product\ProductDefinition"',
-            $e->getMessage()
-        );
-    }
-
     public function testFkFieldByStorageNameNotFound(): void
     {
-        Feature::skipTestIfInActive('v6.7.0.0', $this);
-
-        /** @var DataAbstractionLayerException $e */
         $e = DataAbstractionLayerException::fkFieldByStorageNameNotFound(ProductDefinition::class, 'taxId');
 
         static::assertEquals(
@@ -185,22 +167,8 @@ class DataAbstractionLayerExceptionTest extends TestCase
         static::assertEquals(DataAbstractionLayerException::REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND, $e->getErrorCode());
     }
 
-    #[DisabledFeatures(['v6.7.0.0'])]
-    public function testLanguageFieldByStorageNameNotFound66(): void
-    {
-        $e = DataAbstractionLayerException::languageFieldByStorageNameNotFound(ProductDefinition::class, 'taxId');
-
-        static::assertEquals(
-            'Could not find language field "taxId" in definition "Shopware\Core\Content\Product\ProductDefinition"',
-            $e->getMessage()
-        );
-    }
-
     public function testLanguageFieldByStorageNameNotFound(): void
     {
-        Feature::skipTestIfInActive('v6.7.0.0', $this);
-
-        /** @var DataAbstractionLayerException $e */
         $e = DataAbstractionLayerException::languageFieldByStorageNameNotFound(ProductDefinition::class, 'taxId');
 
         static::assertEquals(
@@ -211,22 +179,8 @@ class DataAbstractionLayerExceptionTest extends TestCase
         static::assertEquals(DataAbstractionLayerException::REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND, $e->getErrorCode());
     }
 
-    #[DisabledFeatures(['v6.7.0.0'])]
-    public function testDefinitionFieldDoesNotExist66(): void
-    {
-        $e = DataAbstractionLayerException::definitionFieldDoesNotExist(ProductDefinition::class, 'taxId');
-
-        static::assertEquals(
-            'Could not find reference field "taxId" from definition "Shopware\Core\Content\Product\ProductDefinition"',
-            $e->getMessage()
-        );
-    }
-
     public function testDefinitionFieldDoesNotExist(): void
     {
-        Feature::skipTestIfInActive('v6.7.0.0', $this);
-
-        /** @var DataAbstractionLayerException $e */
         $e = DataAbstractionLayerException::definitionFieldDoesNotExist(ProductDefinition::class, 'taxId');
 
         static::assertEquals(

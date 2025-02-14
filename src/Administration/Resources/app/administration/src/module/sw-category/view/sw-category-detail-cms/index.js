@@ -2,13 +2,11 @@ import template from './sw-category-detail-cms.html.twig';
 import './sw-category-detail-cms.scss';
 
 /**
- * @package discovery
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['acl'],
 
@@ -21,7 +19,7 @@ export default {
 
     computed: {
         category() {
-            return Shopware.State.get('swCategoryDetail').category;
+            return Shopware.Store.get('swCategoryDetail').category;
         },
 
         cmsPage() {

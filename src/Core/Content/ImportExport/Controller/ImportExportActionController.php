@@ -33,7 +33,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ImportExportActionController extends AbstractController
 {
     /**
@@ -83,7 +83,7 @@ class ImportExportActionController extends AbstractController
                 $request->request->has('dryRun')
             );
 
-            unlink($file->getPathname());
+            unlink($file->getRealPath());
         } else {
             $this->checkAllowedReadPrivileges($profile, $context);
 

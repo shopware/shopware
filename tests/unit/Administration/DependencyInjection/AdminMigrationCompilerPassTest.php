@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * @internal
  */
-#[Package('administration')]
+#[Package('framework')]
 #[CoversClass(AdministrationMigrationCompilerPass::class)]
 class AdminMigrationCompilerPassTest extends TestCase
 {

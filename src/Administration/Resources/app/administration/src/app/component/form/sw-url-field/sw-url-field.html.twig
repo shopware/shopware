@@ -1,6 +1,5 @@
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# New mt-url-field component #}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_url_field %}
 <mt-url-field
     v-if="useMeteorComponent"
@@ -22,13 +21,11 @@
 
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# Deprecated component #}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_url_field_deprecated %}
 <sw-url-field-deprecated
     v-else
     v-bind="$attrs"
     v-model:value="realValue"
-    v-on="listeners"
 >
     <template
         v-for="(index, name) in getSlots()"

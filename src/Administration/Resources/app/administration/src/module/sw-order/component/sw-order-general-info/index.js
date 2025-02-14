@@ -2,19 +2,16 @@ import './sw-order-general-info.scss';
 import template from './sw-order-general-info.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
-const { Mixin } = Shopware;
+const { Mixin, Store } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
-const { mapGetters, mapState } = Shopware.Component.getComponentHelper();
 const { cloneDeep } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: {
         swOrderDetailOnSaveEdits: {
@@ -71,13 +68,9 @@ export default {
     },
 
     computed: {
-        ...mapGetters('swOrderDetail', [
-            'isLoading',
-        ]),
+        isLoading: () => Store.get('swOrderDetail').isLoading,
 
-        ...mapState('swOrderDetail', [
-            'savedSuccessful',
-        ]),
+        savedSuccessful: () => Store.get('swOrderDetail').savedSuccessful,
 
         lastChangedUser() {
             if (this.liveOrder) {
@@ -280,7 +273,7 @@ export default {
         },
 
         getTransitionOptions() {
-            Shopware.State.commit('swOrderDetail/setLoading', [
+            Store.get('swOrderDetail').setLoading([
                 'states',
                 true,
             ]);
@@ -332,7 +325,7 @@ export default {
                     return Promise.resolve();
                 })
                 .finally(() => {
-                    Shopware.State.commit('swOrderDetail/setLoading', [
+                    Store.get('swOrderDetail').setLoading([
                         'states',
                         false,
                     ]);

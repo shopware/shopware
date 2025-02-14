@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Events;
 
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRouteResponse;
 use Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheTagsEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -12,6 +13,10 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('inventory')]
 class ProductListingRouteCacheTagsEvent extends StoreApiRouteCacheTagsEvent
 {
+    /**
+     * @param array<string|null> $tags
+     * @param ProductListingRouteResponse $response
+     */
     public function __construct(
         array $tags,
         protected string $categoryId,

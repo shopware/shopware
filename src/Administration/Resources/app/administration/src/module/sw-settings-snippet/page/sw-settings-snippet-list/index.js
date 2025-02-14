@@ -1,5 +1,5 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 import Sanitizer from 'src/core/helper/sanitizer.helper';
 import template from './sw-settings-snippet-list.html.twig';
@@ -13,8 +13,6 @@ const {
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'snippetSetService',
@@ -662,11 +660,7 @@ export default {
             this.appliedAuthors = [];
 
             Object.keys(this.filterSettings).forEach((key) => {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.filterSettings, key, false);
-                } else {
-                    this.filterSettings[key] = false;
-                }
+                this.filterSettings[key] = false;
             });
 
             this.initializeSnippetSet({});

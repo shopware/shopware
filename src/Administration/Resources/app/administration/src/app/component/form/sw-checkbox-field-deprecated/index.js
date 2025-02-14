@@ -6,7 +6,7 @@ const { Component, Mixin } = Shopware;
 const utils = Shopware.Utils;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Boolean input field based on checkbox.
@@ -19,8 +19,6 @@ Component.register('sw-checkbox-field-deprecated', {
     template,
 
     inheritAttrs: false,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 

@@ -1,6 +1,4 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_text_field %}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_email_field %}
 <sw-contextual-field
     class="sw-field--email"
@@ -8,16 +6,13 @@
     :name="formFieldName"
     @inheritance-restore="$emit('inheritance-restore', $event)"
     @inheritance-remove="$emit('inheritance-remove', $event)"
-    v-on="listeners"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_email_field_prefix %}
     <template
         v-if="hasPrefix"
         #sw-contextual-field-prefix="{ disabled, identification }"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_email_field_prefix_inner %}
         <slot
             name="prefix"
@@ -27,12 +22,10 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_email_field_input %}
     <template
         #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass, hasSuffix, hasPrefix }"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_email_field_input_inner %}
         <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
         <input
@@ -47,19 +40,16 @@
             @change="onChange"
             @focus="setFocusClass"
             @blur="removeFocusClass"
-            v-on="additionalListeners"
         >
         {% endblock %}
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_email_field_copyable %}
     <template
         v-if="copyable || hasSuffix"
         #sw-contextual-field-suffix="{disabled, identification}"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_email_field_copyable_inner %}
         <slot
             name="suffix"

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import StateStyleService from 'src/app/service/state-style.service';

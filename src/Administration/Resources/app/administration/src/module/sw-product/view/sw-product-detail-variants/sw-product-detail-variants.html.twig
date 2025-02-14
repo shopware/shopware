@@ -1,8 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_detail_variants %}
 <div class="sw-product-detail-variants">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_variants_sw_card_generated_variants %}
     <sw-card
         class="sw-product-detail-variants__generated-variants"
@@ -46,7 +44,6 @@
 
         <sw-skeleton v-if="isLoading" />
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_variants_sw_card_empty_state %}
         <sw-empty-state
             v-else-if="!propertiesAvailable"
@@ -57,7 +54,6 @@
         >
 
             <template #icon>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_properties_empty_state_image %}
                 <img
                     :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
@@ -67,7 +63,6 @@
             </template>
 
             <template #actions>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_properties_empty_state_button_property %}
                 <sw-button
                     v-tooltip="{
@@ -86,7 +81,6 @@
         </sw-empty-state>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_variants_sw_card_empty_state_variant %}
         <sw-empty-state
             v-if="!isLoading && propertiesAvailable && variants.length === 0"
@@ -97,7 +91,6 @@
         >
 
             <template #icon>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_properties_empty_state_image %}
                 <img
                     :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
@@ -107,7 +100,6 @@
             </template>
 
             <template #actions>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_properties_empty_state_button %}
                 <sw-button
                     v-tooltip="{
@@ -127,7 +119,6 @@
         </sw-empty-state>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_variants_sw_card_generated_variants_overview %}
         <sw-product-variants-overview
             v-if="product.id"
@@ -146,7 +137,6 @@
     </sw-card>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_variants_modal_variant_generation %}
     <sw-product-modal-variant-generation
         v-if="activeModal === 'variantGeneration'"
@@ -159,7 +149,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_variants_modal_delivery %}
     <sw-product-modal-delivery
         v-if="activeModal === 'deliveryModal'"
@@ -170,7 +159,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_properties_add_properties_modal %}
     <sw-product-add-properties-modal
         v-if="showAddPropertiesModal"

@@ -9,12 +9,10 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -247,16 +245,8 @@ export default Shopware.Component.wrapComponentConfig({
                     });
 
                     if (pages.length > 0) {
-                        if (this.isCompatEnabled('INSTANCE_SET')) {
-                            this.$set(this.selectedShopPages, this.shopPageSalesChannelId!, pages);
-                        } else {
-                            this.selectedShopPages[this.shopPageSalesChannelId!] = pages;
-                        }
-                    } else if (this.isCompatEnabled('INSTANCE_SET')) {
-                        this.$set(this.selectedShopPages, this.shopPageSalesChannelId!, null);
-                    } else {
-                        this.selectedShopPages[this.shopPageSalesChannelId!] = null;
-                    }
+                        this.selectedShopPages[this.shopPageSalesChannelId!] = pages;
+                    } else this.selectedShopPages[this.shopPageSalesChannelId!] = null;
 
                     this.previousShopPages = cloneDeep(this.selectedShopPages);
                 })

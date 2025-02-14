@@ -4,7 +4,7 @@ import template from './sw-order-create-general-info.html.twig';
 import type { Cart, SalesChannelContext } from '../../order.types';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Component, Mixin } = Shopware;
@@ -14,8 +14,6 @@ const { Component, Mixin } = Shopware;
  */
 export default Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'acl',

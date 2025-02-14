@@ -1,10 +1,8 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_sidebar %}
 <div
     class="sw-media-sidebar"
     :class="mediaSidebarClasses"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_sidebar_headline %}
     <h3
         v-if="headLine"
@@ -14,16 +12,13 @@
     </h3>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_sidebar_item_quickinfo_content %}
     <div class="sw-media-sidebar__quickinfo-scroll-container">
         <sw-media-quickinfo
             v-if="isSingleFile && firstEntity.getEntityName() === 'media'"
             :item="firstEntity"
             :editable="editable"
-            v-bind="filteredAttributes"
-            v-on="listeners"
-            @update:item="onFirstItemUpdated"
+            v-bind="filteredAttributes" @update:item="onFirstItemUpdated"
         />
 
         <sw-media-folder-info
@@ -31,7 +26,6 @@
             :media-folder="firstEntity"
             :editable="editable"
             v-bind="filteredAttributes"
-            v-on="listeners"
         />
 
         <sw-media-quickinfo-multiple
@@ -39,7 +33,6 @@
             :editable="editable"
             :items="items"
             v-bind="filteredAttributes"
-            v-on="listeners"
         />
 
         <sw-media-folder-info
@@ -48,7 +41,6 @@
             :editable="editable"
             v-bind="filteredAttributes"
             @media-folder-renamed="onMediaFolderRenamed"
-            v-on="listeners"
         />
 
         <sw-empty-state

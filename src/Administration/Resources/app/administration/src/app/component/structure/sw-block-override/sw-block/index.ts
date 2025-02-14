@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  *
  */
 import { computed, onBeforeUnmount, provide, ref, type ComponentInternalInstance, type PropType, type Slot } from 'vue';
@@ -57,7 +57,6 @@ import useBlockContext from '../../../../composables/use-block-context';
  * </sw-block>
  */
 Shopware.Component.register('sw-block', {
-    compatConfig: Shopware.compatConfig,
     props: {
         name: {
             type: String,

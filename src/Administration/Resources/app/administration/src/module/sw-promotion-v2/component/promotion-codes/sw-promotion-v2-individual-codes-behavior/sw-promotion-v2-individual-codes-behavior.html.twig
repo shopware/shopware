@@ -1,8 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_promotion_v2_individual_codes_behavior %}
 <div class="sw-promotion-v2-individual-codes-behavior">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_individual_codes_behavior_card %}
     <sw-card
         v-if="promotion.individualCodes && promotion.individualCodes.length > 0"
@@ -10,11 +8,9 @@
         position-identifier="sw-promotion-individual-codes-behavior"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_individual_codes_behavior_toolbar %}
         <template #toolbar>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_individual_codes_behavior_toolbar_filter %}
             <sw-card-filter
                 :placeholder="$tc('sw-promotion-v2.detail.base.codes.individual.searchPlaceholder')"
@@ -22,7 +18,6 @@
             >
                 <template #filter>
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_promotion_v2_individual_codes_behavior_toolbar_filter_add_codes %}
                     <sw-button
                         class="sw-promotion-v2-individual-codes-behavior__add-codes-action"
@@ -35,7 +30,6 @@
                     </sw-button>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_promotion_v2_individual_codes_behavior_toolbar_filter_generate_codes %}
                     <sw-button
                         class="sw-promotion-v2-individual-codes-behavior__generate-codes-action"
@@ -54,7 +48,6 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_individual_codes_behavior_grid %}
         <template #grid>
             <sw-one-to-many-grid
@@ -70,13 +63,10 @@
                 @items-delete-finish="$emit('delete-finish')"
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_individual_codes_behavior_grid_redeemed %}
                 <template #column-payload="{ item }">
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_promotion_v2_individual_codes_behavior_grid_redeemed_icon %}
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_promotion_v2_individual_codes_behavior_grid_redeemed_icon_true %}
                     <sw-icon
                         v-if="!!item.payload"
@@ -86,7 +76,6 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_promotion_v2_individual_codes_behavior_grid_redeemed_icon_false %}
                     <sw-icon
                         v-else
@@ -100,11 +89,9 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_individual_codes_behavior_grid_redeemed_customer %}
                 <template #column-payload.customerName="{ item }">
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_promotion_v2_individual_codes_behavior_grid_redeemed_customer_link %}
                     <a
                         v-if="item.payload && item.payload.customerId"
@@ -127,11 +114,9 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_individual_codes_behavior_grid_actions %}
                 <template #actions="{ item }">
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_promotion_v2_individual_codes_behavior_grid_actions_route_to_customer %}
                     <sw-context-menu-item
                         class="sw-promotion-v2-individual-codes-behavior__customer-route-action"
@@ -142,7 +127,6 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_promotion_v2_individual_codes_behavior_grid_actions_delete %}
                     <sw-context-menu-item
                         class="sw-promotion-v2-individual-codes-behavior__code-delete-action"
@@ -157,11 +141,9 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_individual_codes_behavior_grid_actions_bulk %}
                 <template #bulk>
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_promotion_v2_individual_codes_behavior_grid_actions_bulk_delete %}
                     <span
                         class="sw-promotion-v2-individual-codes-behavior__code-bulk-delete-action link link-danger"
@@ -177,17 +159,15 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_individual_codes_behavior_grid_action_modals %}
                 <template #action-modals="{ item }">
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_promotion_v2_individual_codes_behavior_grid_action_delete_modal %}
                     <sw-confirm-modal
                         v-if="codeDeleteModal === item.id"
                         class="sw-promotion-v2-individual-codes-behavior__confirm-delete-modal"
                         type="delete"
-                        :text="$tc('sw-promotion-v2.detail.base.codes.individual.textDeleteConfirm', 1, { code: item.code })"
+                        :text="$tc('sw-promotion-v2.detail.base.codes.individual.textDeleteConfirm', { code: item.code }, 1)"
                         @confirm="onConfirmCodeDelete(item.id)"
                         @close="onCloseDeleteModal"
                         @cancel="onCloseDeleteModal"
@@ -208,7 +188,6 @@
         position-identifier="sw-promotion-individual-codes-behavior-empty-state"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_individual_codes_behavior_empty_state %}
         <sw-empty-state
             class="sw-promotion-v2-individual-codes-behavior__empty-state"
@@ -216,7 +195,6 @@
             :absolute="false"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_individual_codes_behavior_empty_state_icon %}
             <template #icon>
                 <img
@@ -227,7 +205,6 @@
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_individual_codes_behavior_empty_state_actions %}
             <template #actions>
                 <sw-button
@@ -245,7 +222,6 @@
         {% endblock %}
     </sw-card>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_individual_codes_behavior_delete_bulk_modal %}
     <sw-confirm-modal
         v-if="codeBulkDeleteModal"
@@ -258,7 +234,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_individual_codes_behavior_generate_codes_modal %}
     <sw-promotion-v2-generate-codes-modal
         v-if="generateCodesModal"
@@ -268,7 +243,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_individual_codes_behavior_add_codes_modal %}
     <sw-modal
         v-if="addCodesModal"
@@ -278,18 +252,15 @@
         @modal-close="onCloseAddCodesModal"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_individual_codes_behavior_add_codes_modal_content %}
         <div class="sw-promotion-v2-individual-codes-behavior__content">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_individual_codes_behavior_add_codes_modal_description %}
             <p class="sw-promotion-v2-individual-codes-behavior__description">
                 {{ $tc('sw-promotion-v2.detail.base.codes.individual.addCodesModal.description') }}
             </p>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_individual_codes_behavior_add_codes_modal_code_amount %}
             <sw-number-field
                 v-model:value="newCodeAmount"
@@ -302,11 +273,9 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_individual_codes_behavior_add_codes_modal_footer %}
         <template #modal-footer>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_individual_codes_behavior_add_codes_modal_footer_cancel %}
             <sw-button
                 class="sw-promotion-v2-individual-codes-behavior__add-codes-button-cancel"
@@ -317,7 +286,6 @@
             </sw-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_individual_codes_behavior_add_codes_modal_footer_confirm %}
             <sw-button-process
                 class="sw-promotion-v2-individual-codes-behavior__add-codes-button-confirm"

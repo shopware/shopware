@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_flow_set_entity_custom_field_modal %}
 <sw-modal
     class="sw-flow-set-entity-custom-field-modal"
@@ -6,10 +5,8 @@
     :closable="false"
     @modal-close="onClose"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_set_entity_custom_field_modal_content %}
     <div class="sw-flow-set-entity-custom-field-modal__content">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_tag_modal_to_field %}
         <sw-single-select
             v-model:value="entity"
@@ -25,7 +22,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_set_entity_custom_field_modal_category %}
         <sw-entity-single-select
             v-model:value="customFieldSetId"
@@ -51,7 +47,6 @@
         </sw-entity-single-select>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_set_entity_custom_field_modal_field_name %}
         <sw-entity-single-select
             v-model:value="customFieldId"
@@ -77,7 +72,6 @@
         </sw-entity-single-select>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_set_entity_custom_field_modal_field_value_options %}
         <sw-single-select
             v-if="customFieldId"
@@ -90,7 +84,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_set_entity_custom_field_modal_field_value %}
         <sw-form-field-renderer
             v-if="showFieldValue"
@@ -110,14 +103,11 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_set_entity_custom_field_modal_custom %}
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_set_entity_custom_field_modal_footer %}
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_set_entity_custom_field_modal_footer_cancel_button %}
         <sw-button
             class="sw-flow-set-entity-custom-field-modal__cancel-button"
@@ -127,7 +117,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_set_entity_custom_field_modal_footer_save_button %}
         <sw-button
             class="sw-flow-set-entity-custom-field-modal__save-button"

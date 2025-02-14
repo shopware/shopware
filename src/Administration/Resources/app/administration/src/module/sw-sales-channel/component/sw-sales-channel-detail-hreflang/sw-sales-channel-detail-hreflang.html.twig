@@ -1,27 +1,22 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sales_channel_detail_hreflang %}
 <sw-card
     :title="$tc('sw-sales-channel.detail.hreflang.title')"
     class="sw-sales-channel-detail-hreflang"
     position-identifier="sw-sales-channel-detail-hreflang"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_hreflang_title %}
     <h4>
         <span class="sw-sales-channel-detail-domains__headline-text sw-sales-channel-detail-base__headline-text">{{ $tc('sw-sales-channel.detail.hreflang.titleCard') }}</span>
     </h4>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_hreflang_content %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_hreflang_content_description %}
     <div class="sw-sales-channel-detail-base__description-text">
         {{ $tc('sw-sales-channel.detail.hreflang.titleDescription') }}
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_hreflang_content_enable %}
     <sw-switch-field
         v-model:value="salesChannel.hreflangActive"
@@ -31,7 +26,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_hreflang_content_domain %}
     <sw-entity-single-select
         v-model:value="salesChannel.hreflangDefaultDomainId"

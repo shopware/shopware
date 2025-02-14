@@ -22,14 +22,12 @@ interface TreeItem {
 }
 
 /**
- * @package buyers-experience
+ * @sw-package fundamentals@discovery
  *
  * @private
  */
 Component.register('sw-settings-country-new-snippet-modal', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         selections: {
@@ -78,16 +76,6 @@ Component.register('sw-settings-country-new-snippet-modal', {
     computed: {
         selection(): string[] {
             return this.addressFormat[this.currentPosition];
-        },
-
-        listeners() {
-            const listeners = {};
-
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return listeners;
         },
     },
 

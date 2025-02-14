@@ -6,11 +6,12 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\Command\MigrationCommand;
 use Shopware\Core\Framework\Migration\Command\MigrationDestructiveCommand;
-use Shopware\Core\Framework\Migration\Exception\MigrateException;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
+use Shopware\Core\Framework\Migration\MigrationException;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Framework\Test\Migration\MigrationTestBehaviour;
@@ -55,7 +56,12 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getCommand();
 
-        $this->expectException(\InvalidArgumentException::class);
+        if (Feature::isActive('v6.7.0.0')) {
+            $this->expectException(MigrationException::class);
+        } else {
+            $this->expectException(\InvalidArgumentException::class);
+        }
+        $this->expectExceptionMessage('missing timestamp cap or --all option');
         $command->run(new ArrayInput([]), new BufferedOutput());
     }
 
@@ -96,7 +102,12 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getCommand();
 
-        $this->expectException(\InvalidArgumentException::class);
+        if (Feature::isActive('v6.7.0.0')) {
+            $this->expectException(MigrationException::class);
+        } else {
+            $this->expectException(\InvalidArgumentException::class);
+        }
+        $this->expectExceptionMessage('Running migrations for multiple identifiers without --all option or with --limit option is not supported.');
         $command->run(new ArrayInput(['identifier' => [self::INTEGRATION_IDENTIFIER(), '_test_migrations_valid_run_time'], '--until' => \PHP_INT_MAX]), new BufferedOutput());
     }
 
@@ -106,7 +117,12 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getCommand();
 
-        $this->expectException(\InvalidArgumentException::class);
+        if (Feature::isActive('v6.7.0.0')) {
+            $this->expectException(MigrationException::class);
+        } else {
+            $this->expectException(\InvalidArgumentException::class);
+        }
+        $this->expectExceptionMessage('Running migrations for multiple identifiers without --all option or with --limit option is not supported.');
         $command->run(new ArrayInput(['identifier' => [self::INTEGRATION_IDENTIFIER(), '_test_migrations_valid_run_time'], '--all' => true, '--limit' => 10]), new BufferedOutput());
     }
 
@@ -131,7 +147,7 @@ class MigrationCommandTest extends TestCase
 
         try {
             $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
-        } catch (MigrateException) {
+        } catch (MigrationException) {
             // nth
         }
 
@@ -144,7 +160,12 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getDestructiveCommand();
 
-        $this->expectException(\InvalidArgumentException::class);
+        if (Feature::isActive('v6.7.0.0')) {
+            $this->expectException(MigrationException::class);
+        } else {
+            $this->expectException(\InvalidArgumentException::class);
+        }
+        $this->expectExceptionMessage('missing timestamp cap or --all option');
         $command->run(new ArrayInput([]), new BufferedOutput());
     }
 
@@ -180,7 +201,7 @@ class MigrationCommandTest extends TestCase
 
         try {
             $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
-        } catch (MigrateException) {
+        } catch (MigrationException) {
             // nth
         }
 
@@ -188,7 +209,7 @@ class MigrationCommandTest extends TestCase
 
         try {
             $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
-        } catch (MigrateException) {
+        } catch (MigrationException) {
             // nth
         }
 
@@ -213,11 +234,13 @@ class MigrationCommandTest extends TestCase
         $connection = $this->getConnection();
         $loader = $this->getMockBuilder(MigrationCollectionLoader::class)->disableOriginalConstructor()->getMock();
 
+        $nullLogger = new NullLogger();
         $loader->expects(static::once())->method('collect')->willReturn(
             new MigrationCollection(
                 new MigrationSource(''),
-                new MigrationRuntime($connection, new NullLogger()),
-                $connection
+                new MigrationRuntime($connection, $nullLogger),
+                $connection,
+                $nullLogger,
             )
         );
 

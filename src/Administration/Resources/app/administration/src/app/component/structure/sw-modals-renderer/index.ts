@@ -1,11 +1,11 @@
 import type { buttonProps } from '@shopware-ag/meteor-admin-sdk/es/ui/modal';
-import type { ModalItemEntry } from 'src/app/state/modals.store';
+import type { ModalItemEntry } from 'src/app/store/modals.store';
 import template from './sw-modals-renderer.html.twig';
 
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */
@@ -13,17 +13,15 @@ const { Component } = Shopware;
 Component.register('sw-modals-renderer', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     computed: {
         modals(): ModalItemEntry[] {
-            return Shopware.State.get('modals').modals;
+            return Shopware.Store.get('modals').modals;
         },
     },
 
     methods: {
         closeModal(locationId: string) {
-            Shopware.State.commit('modals/closeModal', locationId);
+            Shopware.Store.get('modals').closeModal(locationId);
         },
 
         buttonProps(button: buttonProps) {

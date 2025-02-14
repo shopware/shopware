@@ -1,5 +1,5 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 import template from './sw-settings-snippet-filter-switch.html.twig';
 import './sw-settings-snippet-filter-switch.scss';
@@ -7,8 +7,6 @@ import './sw-settings-snippet-filter-switch.scss';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['update:value'],
 

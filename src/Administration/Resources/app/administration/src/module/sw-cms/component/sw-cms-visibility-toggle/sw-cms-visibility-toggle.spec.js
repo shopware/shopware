@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import 'src/app/component/base/sw-icon';
 
 /**
- * @package discovery
+ * @sw-package discovery
  */
 
 async function createWrapper() {

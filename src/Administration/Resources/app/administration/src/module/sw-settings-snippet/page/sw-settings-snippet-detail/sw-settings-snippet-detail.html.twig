@@ -1,8 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_snippet_detail %}
 <sw-page class="sw-settings-snippet-detail">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_snippet_detail_smart_bar %}
     <template #smart-bar-back>
         <router-link
@@ -23,7 +21,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_snippet_detail_header %}
     <template #smart-bar-header>
         <h2 v-if="translationKey">
@@ -35,10 +32,8 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_snippet_detail_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_snippet_detail_actions_abort %}
         <sw-button
             :disabled="isLoading"
@@ -48,7 +43,6 @@
         </sw-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_snippet_detail_actions_save %}
         <sw-button-process
             v-tooltip="getNoPermissionsTooltip('snippet.editor')"
@@ -66,14 +60,11 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_snippet_detail_content %}
     <template #content>
         <sw-card-view>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_snippet_set_detail_card %}
             <div class="sw-settings-snippet-set-detail-card">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_snippet_set_detail_card_information %}
                 <sw-card
                     position-identifier="sw-settings-snippet-detail-information"
@@ -81,7 +72,6 @@
                     :is-loading="isLoading"
                 >
                     <div class="snippet-general-card">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_snippet_set_detail_card_information_key %}
                         <sw-text-field
                             v-model:value="translationKey"
@@ -98,7 +88,6 @@
                 </sw-card>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_snippet_set_detail_card_snippets %}
                 <sw-card
                     position-identifier="sw-settings-snippet-detail-snippets"
@@ -106,7 +95,6 @@
                     :is-loading="isLoading || isLoadingSnippets"
                 >
                     <div class="snippet-overview-card">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_snippet_set_detail_card_snippets_fields %}
                         <sw-text-field
                             v-for="(snippet, index) in snippets"
@@ -116,7 +104,7 @@
                             name="sw-field--snippet-value"
                             :class="`sw-settings-snippet-detail__translation-field--${index}`"
                             :disabled="!acl.can('snippet.editor') || isLoadingSnippets"
-                            :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: sets.get(snippet.setId).name })"
+                            :label="$tc('sw-settings-snippet.detail.labelContent', { name: sets.get(snippet.setId).name }, 0)"
                             :placeholder="snippet.origin || $tc('sw-settings-snippet.general.placeholderValue')"
                             @update:value="onChange"
                         />

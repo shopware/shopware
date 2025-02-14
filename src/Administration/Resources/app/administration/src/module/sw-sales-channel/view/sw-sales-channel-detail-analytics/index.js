@@ -1,5 +1,5 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 
 import template from './sw-sales-channel-detail-analytics.html.twig';
@@ -13,8 +13,6 @@ const { Context } = Shopware;
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',

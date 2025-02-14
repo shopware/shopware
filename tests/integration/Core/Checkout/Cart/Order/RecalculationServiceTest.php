@@ -33,6 +33,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceEntity;
@@ -44,7 +45,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
@@ -58,7 +58,7 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
+use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 use Shopware\Core\Test\Stub\Rule\TrueRule;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
@@ -331,27 +331,14 @@ class RecalculationServiceTest extends TestCase
         $cart = $this->generateDemoCart();
         $orderId = $this->persistCart($cart)['orderId'];
 
+        static::expectException(OrderException::class);
+        static::expectExceptionMessage("Order with id $orderId can not be recalculated because it is in the live version. Please create a new version");
+
         $service = static::getContainer()->get(RecalculationService::class);
 
-        /** @var OrderEntity|null $order */
-        $order = (new \ReflectionClass($service))
+        (new \ReflectionClass($service))
             ->getMethod('fetchOrder')
             ->invoke($service, $orderId, $this->context);
-
-        static::assertNotNull($order);
-
-        static::assertNotNull($order->getLineItems());
-        $lineItem = $order->getLineItems()->first();
-        static::assertNotNull($lineItem);
-        static::assertNotNull($lineItem->getDownloads());
-
-        static::assertNotNull($order->getDeliveries());
-        $delivery = $order->getDeliveries()->first();
-        static::assertNotNull($delivery);
-        static::assertNotNull($delivery->getShippingMethod());
-        static::assertNotNull($delivery->getShippingMethod()->getTax());
-        static::assertNotNull($delivery->getShippingOrderAddress());
-        static::assertNotNull($delivery->getShippingOrderAddress()->getCountry());
     }
 
     public function testRecalculationWithDeletedCustomer(): void
@@ -1435,10 +1422,6 @@ class RecalculationServiceTest extends TestCase
             ],
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
         static::getContainer()->get('customer.repository')->upsert([$customer], $this->context);
 
         return $customerId;
@@ -2273,7 +2256,7 @@ class RecalculationServiceTest extends TestCase
 
         $data = [
             'id' => $paymentMethodId,
-            'handlerIdentifier' => SyncTestPaymentHandler::class,
+            'handlerIdentifier' => TestPaymentHandler::class,
             'name' => 'Payment',
             'technicalName' => 'payment_test',
             'active' => true,

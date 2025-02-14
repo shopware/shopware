@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 import Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 import template from './sw-settings-units-detail.html.twig';
@@ -13,8 +13,6 @@ const { Component, Mixin } = Shopware;
  */
 export default Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     mixins: [
         Mixin.getByName('notification'),

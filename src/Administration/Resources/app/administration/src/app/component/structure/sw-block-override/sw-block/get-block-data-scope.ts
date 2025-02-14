@@ -1,7 +1,7 @@
 import { getCurrentInstance } from 'vue';
 
 /**
- * @package admin
+ * @sw-package framework
  * @private
  */
 export default function getBlockDataScope() {

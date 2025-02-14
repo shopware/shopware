@@ -4,7 +4,7 @@ async function createWrapper(props) {
     return mount(await wrapTestComponent('sw-extension-privacy-policy-extensions-modal', { sync: true }), {
         global: {
             mocks: {
-                $tc: (path, choice, values) => {
+                $tc: (path, values, choice) => {
                     if (values) {
                         return JSON.stringify({ path, choice, values });
                     }
@@ -34,7 +34,7 @@ async function createWrapper(props) {
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('src/module/sw-extension/component/sw-extension-privacy-policy-extensions-modal', () => {
     it('should display the values', async () => {

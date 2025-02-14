@@ -1,20 +1,17 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import Criteria from 'src/core/data/criteria.data';
 import template from './sw-product-detail-base.html.twig';
 import './sw-product-detail-base.scss';
 
-const { Component, Context, Utils, Mixin } = Shopware;
-const { mapState, mapGetters } = Component.getComponentHelper();
+const { Context, Utils, Mixin } = Shopware;
 const { isEmpty } = Utils.types;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -41,21 +38,33 @@ export default {
     },
 
     computed: {
-        ...mapState('swProductDetail', [
-            'product',
-            'parentProduct',
-            'customFieldSets',
-            'loading',
-        ]),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
 
-        ...mapGetters('swProductDetail', [
-            'isLoading',
-            'showModeSetting',
-            'showProductCard',
-            'productStates',
-        ]),
+        parentProduct() {
+            return Shopware.Store.get('swProductDetail').parentProduct;
+        },
 
-        ...mapState('swProductDetail', {}),
+        customFieldSets() {
+            return Shopware.Store.get('swProductDetail').customFieldSets;
+        },
+
+        loading() {
+            return Shopware.Store.get('swProductDetail').loading;
+        },
+
+        isLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
+
+        showModeSetting() {
+            return Shopware.Store.get('swProductDetail').showModeSetting;
+        },
+
+        productStates() {
+            return Shopware.Store.get('swProductDetail').productStates;
+        },
 
         mediaFormVisible() {
             return (
@@ -94,6 +103,10 @@ export default {
             this.getMediaDefaultFolderId().then((mediaDefaultFolderId) => {
                 this.mediaDefaultFolderId = mediaDefaultFolderId;
             });
+        },
+
+        showProductCard(key) {
+            return Shopware.Store.get('swProductDetail').showProductCard(key);
         },
 
         getMediaDefaultFolderId() {
@@ -165,7 +178,7 @@ export default {
             media.forEach((item) => {
                 this.addMedia(item).catch(({ fileName }) => {
                     this.createNotificationError({
-                        message: this.$tc('sw-product.mediaForm.errorMediaItemDuplicated', 0, { fileName }),
+                        message: this.$tc('sw-product.mediaForm.errorMediaItemDuplicated', { fileName }, 0),
                     });
                 });
             });

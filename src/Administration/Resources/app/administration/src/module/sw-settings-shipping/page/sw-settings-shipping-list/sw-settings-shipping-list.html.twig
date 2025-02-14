@@ -1,8 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_shipping_index %}
 <sw-page class="sw-settings-shipping-list">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shipping_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -14,13 +12,10 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shipping_list_smart_bar_header %}
     <template #smart-bar-header>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_list_smart_bar_header_title %}
         <h2>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_shipping_list_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }} <sw-icon
                 name="regular-chevron-right-xs"
@@ -28,7 +23,6 @@
             /> {{ $tc('sw-settings-shipping.list.textHeadline') }}
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_shipping_list_smart_bar_header_amount %}
             <span
                 v-if="!isLoading"
@@ -42,10 +36,8 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shipping_list_smart_bar_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_list_smart_bar_actions_add %}
         <sw-button
             :router-link="{ name: 'sw.settings.shipping.create' }"
@@ -58,7 +50,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shipping_list_language_switch %}
     <template #language-switch>
         <sw-language-switch @on-change="onChangeLanguage" />
@@ -66,10 +57,8 @@
     {% endblock %}
 
     <template #content>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_list_content %}
         <div class="sw-settings-shipping-list__content">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_shipping_list_grid %}
             <sw-entity-listing
                 v-if="entitySearchable"
@@ -89,14 +78,11 @@
                 :is-loading="isLoading"
                 @column-sort="onSortColumn"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_setting_shipping_list_grid_columns %}
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_shipping_list_grid_columns_active %}
                 <template
                     #column-active="{ item, isInlineEdit }"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_shipping_list_grid_columns_active_inline_edit %}
                     <template v-if="isInlineEdit">
                         <sw-checkbox-field
@@ -105,7 +91,6 @@
                     </template>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_shipping_list_grid_columns_active_content %}
                     <template v-else>
                         <sw-icon
@@ -125,10 +110,8 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_shipping_list_grid_columns_tax_type %}
                 <template #column-taxType="{ item, isInlineEdit }">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_shipping_list_grid_columns_tax_type_inline_edit %}
                     <template v-if="isInlineEdit">
                         <sw-single-select
@@ -142,7 +125,6 @@
                     </template>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_shipping_list_grid_columns_tax_type_content %}
                     <template v-else>
                         {{ shippingTaxTypeLabel(item.taxType) }}
@@ -151,10 +133,8 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_shipping_list_grid_columns_actions %}
                 <template #actions="{ item }">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_shipping_list_grid_columns_actions_edit %}
                     <sw-context-menu-item
                         :router-link="{ name: 'sw.settings.shipping.detail', params: { id: item.id, edit: 'edit' }}"
@@ -165,7 +145,6 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_shipping_list_grid_columns_actions_delete %}
                     <sw-context-menu-item
                         variant="danger"
@@ -178,10 +157,8 @@
                 </template>
                 {% endblock %}
                 {% endblock %}
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_shipping_list_grid_action_modals %}
                 <template #action-modals="{ item }">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_shipping_list_delete_modal %}
                     <sw-modal
                         v-if="showDeleteModal === item.id"
@@ -189,17 +166,14 @@
                         variant="small"
                         @modal-close="onCloseDeleteModal"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_shipping_list_delete_modal_confirm_delete_text %}
                         <p class="sw-settings-shipping-list__confirm-delete-text">
-                            {{ $tc('sw-settings-shipping.list.textDeleteConfirm', 0, { name: item.name }) }}
+                            {{ $tc('sw-settings-shipping.list.textDeleteConfirm', { name: item.name }, 0) }}
                         </p>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_shipping_list_delete_modal_footer %}
                         <template #modal-footer>
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_shipping_list_delete_modal_cancel %}
                             <sw-button
                                 size="small"
@@ -209,7 +183,6 @@
                             </sw-button>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_shipping_list_delete_modal_confirm %}
                             <sw-button
                                 variant="danger"
@@ -228,7 +201,6 @@
             </sw-entity-listing>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_shipping_list_empty_state %}
             <template v-if="!isLoading && !total">
                 <sw-empty-state
@@ -257,11 +229,9 @@
         {% endblock %}
     </template>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shipping_list_sidebar %}
     <template #sidebar>
         <sw-sidebar>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_shipping_list_sidebar_refresh %}
             <sw-sidebar-item
                 icon="regular-undo"

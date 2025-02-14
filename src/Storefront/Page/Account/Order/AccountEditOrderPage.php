@@ -11,47 +11,17 @@ use Shopware\Storefront\Page\Page;
 #[Package('checkout')]
 class AccountEditOrderPage extends Page
 {
-    /**
-     * @var OrderEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $order;
+    protected OrderEntity $order;
 
-    /**
-     * @var PaymentMethodCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $paymentMethods;
+    protected PaymentMethodCollection $paymentMethods;
 
-    /**
-     * @var PromotionCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $activePromotions;
+    protected PromotionCollection $activePromotions;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $deepLinkCode;
+    protected ?string $deepLinkCode;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $paymentChangeable = true;
+    protected bool $paymentChangeable = true;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $errorCode;
+    protected ?string $errorCode;
 
     public function getOrder(): OrderEntity
     {

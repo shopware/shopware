@@ -6,24 +6,15 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\DataResolver\Element\AbstractCmsElementResolver;
-use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageSliderItemStruct;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageSliderStruct;
-use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\DataAbstractionLayer\TestEntityDefinition;
@@ -178,77 +169,6 @@ class AbstractCmsElementResolverTest extends TestCase
         } catch (\Exception) {
             static::fail('Entity value is not a valid date time');
         }
-    }
-
-    public function testResolveDefinitionField(): void
-    {
-        $actual = (new TestCmsElementResolver())->runResolveDefinitionField($this->definition, 'id');
-        static::assertInstanceOf(IdField::class, $actual);
-    }
-
-    public function testResolveCriteriaForLazyLoadedRelationsReturnsNullWithoutAssociations(): void
-    {
-        $context = $this->getEntityResolverContext();
-        $config = new FieldConfig('config', FieldConfig::SOURCE_DEFAULT, 'id');
-
-        $actual = (new TestCmsElementResolver())->runResolveCriteriaForLazyLoadedRelations($context, $config);
-        static::assertNull($actual);
-    }
-
-    public function testResolveCriteriaForLazyLoadedRelationsHandlesAssociations(): void
-    {
-        $associationField = $this->getMockBuilder(OneToManyAssociationField::class)
-            ->setConstructorArgs(['downloads', ProductDownloadDefinition::class, 'product_id'])
-            ->onlyMethods(['getReferenceDefinition'])
-            ->getMock();
-
-        $definition = $this->getMockBuilder(ProductDefinition::class)
-            ->onlyMethods(['defineFields'])
-            ->getMock();
-
-        $referenceDefinition = $this->getReferenceDefinition();
-
-        $associationField->method('getReferenceDefinition')->willReturn($referenceDefinition);
-        $associationField->compile($this->registry);
-
-        $definition->method('defineFields')->willReturn(new FieldCollection([$associationField]));
-        $definition->compile($this->registry);
-
-        $context = $this->getEntityResolverContext(definition: $definition);
-
-        $config = new FieldConfig('config', FieldConfig::SOURCE_DEFAULT, 'product.downloads');
-
-        $actual = (new TestCmsElementResolver())->runResolveCriteriaForLazyLoadedRelations($context, $config);
-        static::assertInstanceOf(Criteria::class, $actual);
-
-        $filters = $actual->getFilters();
-        static::assertCount(1, $filters);
-
-        $filter = array_shift($filters);
-        static::assertInstanceOf(EqualsFilter::class, $filter);
-        static::assertSame('product_download.downloads.id', $filter->getField());
-    }
-
-    private function getReferenceDefinition(): ProductDownloadDefinition&MockObject
-    {
-        $associationField = $this->getMockBuilder(ManyToOneAssociationField::class)
-            ->setConstructorArgs(['downloads', ProductDownloadDefinition::class, 'product_id'])
-            ->onlyMethods(['getReferenceDefinition'])
-            ->getMock();
-
-        $definition = $this->getMockBuilder(ProductDownloadDefinition::class)
-            ->onlyMethods(['defineFields'])
-            ->getMock();
-
-        $associationField->method('getReferenceDefinition')->willReturn($definition);
-        $associationField->compile($this->registry);
-
-        $definition->method('defineFields')
-            ->willReturn(new FieldCollection([$associationField]));
-
-        $definition->compile($this->registry);
-
-        return $definition;
     }
 
     private function getEntityResolverContext(

@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 import template from './sw-product-variants-configurator-selection.html.twig';
@@ -10,8 +10,6 @@ const { Mixin } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 
@@ -25,14 +23,6 @@ export default {
         product: {
             type: Object,
             required: true,
-        },
-        /**
-         * @deprecated tag:v6.7.0 - The disabled props will be removed.
-         */
-        disabled: {
-            type: Boolean,
-            required: false,
-            default: false,
         },
     },
 

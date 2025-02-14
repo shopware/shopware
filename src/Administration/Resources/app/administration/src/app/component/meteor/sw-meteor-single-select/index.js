@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import './sw-meteor-single-select.scss';
@@ -13,8 +13,6 @@ const { debounce, get } = Shopware.Utils;
  */
 Component.register('sw-meteor-single-select', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 

@@ -1,8 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_type_base_content %}
 {% parent() %}
 
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_type_select_multi %}
 <sw-switch-field
     v-model:value="multiSelectSwitch"
@@ -13,20 +11,17 @@
 />
 {% endblock %}
 
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_type_select_options %}
 <div
     v-for="(option, index) in currentCustomField.config.options"
     :key="index"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_type_select_options_label %}
     <span>
-        {{ $tc('sw-settings-custom-field.customField.detail.labelOption', 0, { count: (index+1) }) }}
+        {{ $tc('sw-settings-custom-field.customField.detail.labelOption', { count: (index+1) }, 0) }}
     </span>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_type_select_options_delete %}
     <sw-button
         class="sw-custom-field-type-select__delete-option-button"
@@ -37,14 +32,12 @@
     </sw-button>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_type_select_options_container %}
     <sw-container
         class="sw-custom-field-type-select__option-container"
         columns="1fr 1fr"
         gap="20px"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_type_select_options_container_technical_name %}
         <sw-text-field
             v-model:value="option.value"
@@ -52,7 +45,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_type_select_options_container_labels %}
         <div>
             <sw-text-field
@@ -69,7 +61,6 @@
 </div>
 {% endblock %}
 
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_type_select_add_option %}
 <sw-button
     v-if="isOptionAddable"

@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_modal_variant_generation %}
 <sw-modal
     v-if="!showUploadModal"
@@ -7,19 +6,15 @@
     @modal-close="$emit('modal-close')"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_modal_variant_generation_sidebar %}
     <div class="sw-product-modal-variant-generation__sidebar">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_modal_variant_generation_sidebar_tabs %}
         <sw-tabs
             is-vertical
             position-identifier="sw-product-modal-variant-generation"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_modal_variant_generation_sidebar_tabs_items %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_modal_variant_generation_sidebar_tabs_item_options %}
             <sw-tabs-item
                 class="sw-variant-modal__option-selection"
@@ -30,7 +25,6 @@
             </sw-tabs-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_modal_variant_generation_sidebar_tabs_item_prices %}
             <sw-tabs-item
                 v-show="variantsNumber"
@@ -42,7 +36,6 @@
             </sw-tabs-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_modal_variant_generation_sidebar_tabs_item_restrictions %}
             <sw-tabs-item
                 v-show="variantsNumber"
@@ -58,13 +51,10 @@
         </sw-tabs>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_modal_variant_generation_sidebar_descriptions %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_modal_variant_generation_sidebar_descriptions_options %}
         <div v-if="activeTab == 'options'">
             <p>{{ $tc('sw-product.variations.configuratorModal.selectOptionsExplanation') }}</p>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_modal_variant_generation_sidebar_add_only_selected %}
             <sw-switch-field
                 v-model:value="isAddOnly"
@@ -74,14 +64,12 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_modal_variant_generation_sidebar_descriptions_restrictions %}
         <p v-else-if="activeTab == 'restrictions'">
             {{ $tc('sw-product.variations.configuratorModal.selectRestrictionsExplanation') }}
         </p>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_modal_variant_generation_sidebar_descriptions_prices %}
         <p v-else-if="activeTab == 'prices'">
             {{ $tc('sw-product.variations.configuratorModal.selectPricesExplanation') }}
@@ -92,11 +80,8 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_modal_variant_generation_main %}
     <div class="sw-product-modal-variant-generation__main">
-        {# @deprecated tag:v6.7.0 - The property :disabled will be removed, use isAddOnly instead #}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_modal_variant_generation_main_configurator_selection %}
         <sw-product-variants-configurator-selection
             v-show="activeTab == 'options'"
@@ -104,14 +89,12 @@
             :options="product.configuratorSettings"
             :overlay="false"
             :collapsible="false"
-            :disabled="isAddOnly"
             :is-add-only="isAddOnly"
             @variations-finish-generate="$emit('variations-finish-generate')"
             @option-select="calcVariantsNumber()"
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_modal_variant_generation_main_configurator_prices %}
         <sw-product-variants-configurator-prices
             v-if="activeTab == 'prices'"
@@ -120,7 +103,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_modal_variant_generation_main_configurator_restrictions %}
         <sw-product-variants-configurator-restrictions
             v-if="activeTab == 'restrictions'"
@@ -131,10 +113,8 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_modal_variant_generation_footer %}
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_modal_variant_generation_footer_cancel %}
         <sw-button
             size="small"
@@ -143,7 +123,6 @@
             {{ $tc('global.default.cancel') }}
         </sw-button>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_modal_variant_generation_footer_generate %}
         <sw-button
             class="sw-product-variant-generation__next-action"

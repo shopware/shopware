@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('after-sales')]
@@ -45,7 +44,7 @@ final class OrderDocumentCriteriaFactory
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
         $criteria->getAssociation('deliveries')->addSorting(new FieldSorting('createdAt'));
 
-        if ($documentType && Feature::isActive('v6.7.0.0')) {
+        if ($documentType) {
             $criteria->addAssociation('documents.documentType');
             $criteria->getAssociation('documents')
                 ->addFilter(new EqualsFilter('documentType.technicalName', $documentType))

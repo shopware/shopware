@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_context_button %}
 <button
     ref="swContextButton"
@@ -8,7 +7,6 @@
     @click="onClickButton"
     @keydown.enter="onClickButton"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_context_button_button %}
     <slot name="button">
         <div
@@ -24,7 +22,6 @@
     </slot>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_context_button_menu %}
     <sw-popover
         v-if="showMenu"
@@ -38,7 +35,6 @@
             :style="menuStyles"
         >
             <slot>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_context_button_menu_slot_default %}{% endblock %}
             </slot>
         </sw-context-menu>

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class DaysSinceRuleFixture extends DaysSinceRule
 {
     final public const RULE_NAME = 'fixtureDaysSince';

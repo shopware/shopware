@@ -7,12 +7,10 @@ const EXTENSION_POSTFIX = 'SwCategories';
 
 /**
  * @private
- * @package inventory
+ * @sw-package inventory
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -56,7 +54,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         category(): Entity<'category'> | null {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            return Shopware.State.get('swCategoryDetail').category as Entity<'category'> | null;
+            return Shopware.Store.get('swCategoryDetail').category as Entity<'category'> | null;
         },
 
         customEntityCriteria(): Criteria {

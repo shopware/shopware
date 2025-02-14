@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description
@@ -21,8 +21,6 @@ Shopware.Component.register('sw-error-boundary', {
     },
 
     inject: ['repositoryFactory'],
-
-    compatConfig: Shopware.compatConfig,
 
     computed: {
         logEntryRepository() {

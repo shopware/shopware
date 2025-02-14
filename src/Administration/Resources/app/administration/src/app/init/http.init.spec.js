@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import initializeHttpClient from 'src/app/init/http.init';
 

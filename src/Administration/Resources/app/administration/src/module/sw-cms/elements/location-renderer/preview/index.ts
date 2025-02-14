@@ -6,12 +6,10 @@ const { Component } = Shopware;
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 Component.register('sw-cms-el-preview-location-renderer', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         elementData: {

@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { ShopwareError } = Shopware.Classes;
@@ -34,14 +34,14 @@ async function createWrapper() {
                     'sw-one-to-many-grid': {
                         props: ['collection'],
                         template: `
-                    <div>
+                    <table>
                         <tbody>
                             <td v-for="item in collection">
                                 <slot name="column-lastName" v-bind="{ item }"></slot>
                                 <slot name="actions" v-bind="{ item }"></slot>
                             </td>
                         </tbody>
-                    </div>
+                    </table>
                 `,
                     },
                     'sw-context-menu-item': {
@@ -162,11 +162,11 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
             },
         });
 
-        expect(Shopware.State.getters['error/getApiError'](entityMock, 'street')).toBeNull();
+        expect(Shopware.Store.get('error').getApiError(entityMock, 'street')).toBeNull();
 
         await wrapper.vm.onSaveAddress();
 
-        expect(Shopware.State.getters['error/getApiError'](entityMock, 'street')).toBeInstanceOf(ShopwareError);
+        expect(Shopware.Store.get('error').getApiError(entityMock, 'street')).toBeInstanceOf(ShopwareError);
     });
 
     it('should clone address line correctly', async () => {

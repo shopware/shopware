@@ -20,6 +20,9 @@ use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
+ * covered with integration tests/integration/Storefront/Framework/HealthCheck/SaleChannelsReadinessCheckTest.php
  */
 #[Package('framework')]
 class SaleChannelsReadinessCheck extends BaseCheck
@@ -136,7 +139,12 @@ class SaleChannelsReadinessCheck extends BaseCheck
 
     private function whileTrustingAllHosts(callable $callback): Result
     {
-        $trustedHosts = Request::getTrustedHosts();
+        // Remove '{' from start and '}i' from end, applied by Request::setTrustedHosts.
+        $trustedHosts = array_map(
+            fn (string $pattern) => preg_replace('/^\{(.*)\}i$/', '$1', $pattern),
+            Request::getTrustedHosts()
+        );
+
         Request::setTrustedHosts([]);
         try {
             return $callback();

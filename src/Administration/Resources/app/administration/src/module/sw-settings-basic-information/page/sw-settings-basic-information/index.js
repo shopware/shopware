@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 import template from './sw-settings-basic-information.html.twig';
 
@@ -8,8 +8,6 @@ const { Mixin } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     mixins: [
         Mixin.getByName('notification'),
@@ -74,7 +72,7 @@ export default {
          * @deprecated tag:v6.7.0 - Will be removed
          */
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').api.languageId = languageId;
 
             this.$refs.systemConfig.createdComponent();
         },

@@ -5,12 +5,10 @@ const { Mixin } = Shopware;
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['element-update'],
 
@@ -108,13 +106,6 @@ export default {
         },
 
         updateElementData(media = null) {
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.element.data, 'previewMediaId', media === null ? null : media.id);
-                this.$set(this.element.data, 'previewMedia', media);
-
-                return;
-            }
-
             this.element.data.previewMediaId = media === null ? null : media.id;
             this.element.data.previewMedia = media;
         },

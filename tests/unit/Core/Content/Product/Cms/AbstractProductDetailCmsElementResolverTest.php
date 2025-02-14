@@ -37,11 +37,14 @@ class AbstractProductDetailCmsElementResolverTest extends TestCase
         $slot->setId('slot-1');
         $slot->setFieldConfig($config);
 
+        $product = new SalesChannelProductEntity();
+        $product->setId('product-id-1');
+
         $context = new EntityResolverContext(
             Generator::generateSalesChannelContext(),
             new Request(),
             new SalesChannelProductDefinition(),
-            new SalesChannelProductEntity()
+            $product,
         );
 
         $resolver = new TestProductDetailCmsElementResolver();

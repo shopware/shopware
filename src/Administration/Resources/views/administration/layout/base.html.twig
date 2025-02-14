@@ -24,11 +24,7 @@
 
     {% block administration_head_scripts %}{% endblock %}
 
-    {% if feature('ADMIN_VITE') %}
-        {{ vite_entry_link_tags('app') }}
-    {% else %}
-        <link rel="stylesheet" href="{{ asset('static/css/app.css', '@Administration') }}">
-    {% endif %}
+    {{ vite_entry_link_tags('app') }}
 </head>
 <body>
 

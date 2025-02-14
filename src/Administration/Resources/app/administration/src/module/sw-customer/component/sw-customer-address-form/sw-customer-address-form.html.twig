@@ -1,13 +1,10 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_customer_address_form %}
 <div class="sw-customer-address-form">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_address_form_container %}
     <sw-container
         columns="repeat(auto-fit, minmax(250px, 1fr))"
         gap="0px 30px"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_company_field %}
         <sw-text-field
             v-model:value="address.company"
@@ -20,7 +17,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_department_field %}
         <sw-text-field
             v-model:value="address.department"
@@ -32,9 +28,7 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_salutation_title_container %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_salutation_field %}
         <sw-entity-single-select
             v-model:value="address.salutationId"
@@ -50,7 +44,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_title_field %}
         <sw-text-field
             v-model:value="address.title"
@@ -63,7 +56,6 @@
         {% endblock %}
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_first_name_field %}
         <sw-text-field
             v-model:value="address.firstName"
@@ -77,7 +69,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_last_name_field %}
         <sw-text-field
             v-model:value="address.lastName"
@@ -91,7 +82,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_street_field %}
         <sw-text-field
             v-model:value="address.street"
@@ -105,7 +95,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_additional_address_line_1_field %}
         <sw-text-field
             v-model:value="address.additionalAddressLine1"
@@ -117,7 +106,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_additional_address_line_2_field %}
         <sw-text-field
             v-model:value="address.additionalAddressLine2"
@@ -129,9 +117,7 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_zipcode_city_container %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_zipcode_field %}
         <sw-text-field
             v-model:value="address.zipcode"
@@ -145,7 +131,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_city_field %}
         <sw-text-field
             v-model:value="address.city"
@@ -160,7 +145,6 @@
         {% endblock %}
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_country_field %}
         <sw-entity-single-select
             v-model:value="countryId"
@@ -178,7 +162,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_state_field %}
         <div
             v-if="countryId && hasStates"
@@ -200,7 +183,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_phone_number_field %}
         <sw-text-field
             v-model:value="address.phoneNumber"
@@ -213,7 +195,6 @@
         {% endblock %}
 
         <slot v-bind="{ disabled }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_address_form_extension_slot %}
             {% endblock %}
         </slot>

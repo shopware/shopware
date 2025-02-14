@@ -1,7 +1,7 @@
 import template from './sw-password-field.html.twig';
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -10,8 +10,6 @@ import template from './sw-password-field.html.twig';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-password-field', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         value: {
@@ -36,7 +34,7 @@ Shopware.Component.register('sw-password-field', {
     computed: {
         useMeteorComponent() {
             // Use new meteor component in major
-            if (Shopware.Feature.isActive('v6.7.0.0')) {
+            if (Shopware.Feature.isActive('ENABLE_METEOR_COMPONENTS')) {
                 return true;
             }
 
@@ -59,26 +57,11 @@ Shopware.Component.register('sw-password-field', {
                 this.$emit('update:modelValue', value);
             },
         },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
-        },
     },
 
     methods: {
         getSlots() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return {
-                    ...this.$slots,
-                    ...this.$scopedSlots,
-                };
-            }
 
             return this.$slots;
         },

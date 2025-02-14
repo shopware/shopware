@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { email } from 'src/core/service/validation.service';
@@ -12,8 +12,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-login-recovery', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['userRecoveryService'],
 

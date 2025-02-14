@@ -1,0 +1,51 @@
+{
+  "sw-settings-state-machine": {
+    "general": {
+      "mainMenuItemGeneral": "Statusmaschinen"
+    },
+    "list": {
+      "grid": {
+        "columnName": "Name",
+        "columnTechnicalName": "Technischer Name"
+      }
+    },
+    "detail": {
+      "stateMachineCardTitle": "Statusmaschine",
+      "fieldLabels": {
+        "name": "Name",
+        "technicalName": "Technischer Name"
+      }
+    },
+    "notification": {
+      "successMessage": "Statusmaschine wurde gespeichert.",
+      "errorMessage": "Statusmaschine konnte nicht gespeichert werden. Bitte füllen Sie alle Pflichtfelder aus."
+    },
+    "state": {
+      "list": {
+        "stateMachineStateCardTitle": "Status",
+        "grid": {
+          "columnName": "Name",
+          "columnTechnicalName": "Technischer Name"
+        }
+      },
+      "detail": {
+        "stateMachineStateCardTitle": "Statusmaschinen-Status",
+        "labelName": "Name",
+        "labelTechnicalName": "Technischer Name",
+        "buttonCancel": "Abbrechen",
+        "buttonSave": "Speichern"
+      },
+      "notification": {
+        "successMessage": "Statusmaschinen-Status wurde gespeichert.",
+        "errorMessage": "Statusmaschinen-Status konnte nicht gespeichert werden. Bitte füllen Sie alle Pflichtfelder aus."
+      }
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "state_machine": {
+        "label": "Statusmaschinen"
+      }
+    }
+  }
+}

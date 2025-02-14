@@ -1,13 +1,10 @@
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# New mt-number-field component #}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_number_field %}
 <mt-number-field
     v-if="useMeteorComponent"
     v-bind="$attrs"
-    :model-value="currentValue"
-    v-on="listeners"
-    @change="currentValue = $event"
+    v-model="currentValue"
 >
     <template
         v-for="(index, name) in getSlots()"
@@ -25,13 +22,11 @@
 
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# Deprecated component #}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_number_field_deprecated %}
 <sw-number-field-deprecated
     v-else
     v-bind="$attrs"
     :value="value"
-    v-on="listeners"
 >
     <template
         v-for="(index, name) in getSlots()"

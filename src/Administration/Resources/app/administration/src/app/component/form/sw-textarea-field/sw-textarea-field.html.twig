@@ -1,13 +1,11 @@
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# New mt-textarea component #}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_textarea_field %}
 <mt-textarea
     v-if="useMeteorComponent"
     v-bind="$attrs"
     v-model="realValue"
     :placeholder="placeholder"
-    v-on="listeners"
 >
     <template
         v-for="(index, name) in getSlots()"
@@ -24,7 +22,6 @@
 
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# Deprecated component #}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_textarea_field_deprecated %}
 <sw-textarea-field-deprecated
     v-else
@@ -32,7 +29,6 @@
     v-model:value="realValue"
     :value="value"
     :placeholder="placeholder"
-    v-on="listeners"
 >
     <template
         v-for="(index, name) in getSlots()"

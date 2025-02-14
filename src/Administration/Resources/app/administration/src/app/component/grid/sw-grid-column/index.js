@@ -4,14 +4,12 @@ import template from './sw-grid-column.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */
 Component.register('sw-grid-column', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: {
         feature: {
@@ -68,27 +66,13 @@ Component.register('sw-grid-column', {
 
     computed: {
         parentGrid() {
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                return this.$parent.$parent.$parent.$parent;
-            }
-
             return undefined;
-        },
-
-        listeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 
     watch: {
         label(newLabel, oldLabel) {
-            const parentGridColumns = this.isCompatEnabled('INSTANCE_CHILDREN')
-                ? this.parentGrid?.columns
-                : this.swGridColumns;
+            const parentGridColumns = this.swGridColumns;
 
             const index = parentGridColumns.findIndex((col) => col.label === oldLabel);
 
@@ -112,9 +96,7 @@ Component.register('sw-grid-column', {
         },
 
         registerColumn() {
-            const parentGridColumns = this.isCompatEnabled('INSTANCE_CHILDREN')
-                ? this.parentGrid?.columns
-                : this.swGridColumns;
+            const parentGridColumns = this.swGridColumns;
 
             const hasColumn = parentGridColumns.some((column) => {
                 return column.label === this.label;

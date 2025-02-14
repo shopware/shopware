@@ -5,7 +5,7 @@ const { Component, Context, Filter } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */
@@ -16,8 +16,6 @@ const LOCAL_STORAGE_SAVE_SELECTION = 'sw-duplicate-media-resolve-save-selection'
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-duplicated-media-v2', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',

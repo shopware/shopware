@@ -3,7 +3,7 @@ import './sw-image-preview-modal.scss';
 
 const { Component } = Shopware;
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -18,8 +18,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-image-preview-modal', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['modal-close'],
 

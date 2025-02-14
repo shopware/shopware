@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
-use Doctrine\DBAL\Query\QueryBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\Log\Package;
 
 /**

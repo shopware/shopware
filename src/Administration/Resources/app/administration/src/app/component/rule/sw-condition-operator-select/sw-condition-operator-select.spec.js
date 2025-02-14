@@ -1,3 +1,7 @@
+/**
+ * @sw-package fundamentals@after-sales
+ */
+
 import { shallowMount } from '@vue/test-utils';
 
 async function createWrapper(customProps = {}) {

@@ -3,13 +3,11 @@ import './sw-extension-card-bought.scss';
 import extensionErrorHandler from '../../service/extension-error-handler.service';
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     mixins: ['sw-extension-error'],
 

@@ -8,8 +8,6 @@ import './sw-first-run-wizard-shopware-account.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['firstRunWizardService'],
 
     emits: [
@@ -47,7 +45,7 @@ export default {
         },
 
         updateButtons() {
-            const disabledExtensionManagement = Shopware.State.get('context').app.config.settings.disableExtensionManagement;
+            const disabledExtensionManagement = Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
             const prevRoute = disabledExtensionManagement ? 'mailer.selection' : 'plugins';
             const skipRoute = disabledExtensionManagement ? 'finish' : 'store';
 

@@ -1,5 +1,5 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 
 import template from './sw-sales-channel-product-assignment-categories.html.twig';
@@ -11,8 +11,6 @@ const { EntityCollection, Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sales-channel-product-assignment-categories', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 

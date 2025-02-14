@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -50,7 +49,7 @@ class EntityLoadedEventFactoryTest extends TestCase
 
         $this->productRepository->create([$builder->build()], Context::createDefaultContext());
 
-        $criteria = new Criteria();
+        $criteria = new Criteria([$this->ids->get('p1')]);
         $criteria->addAssociations([
             'manufacturer',
             'prices',
@@ -71,24 +70,13 @@ class EntityLoadedEventFactoryTest extends TestCase
         $createdEvents = $events->getEvents()->map(fn (EntityLoadedEvent $event): string => $event->getName());
         sort($createdEvents);
 
-        if (Feature::isActive('v6.7.0.0')) {
-            static::assertEquals([
-                'category.loaded',
-                'language.loaded',
-                'product.loaded',
-                'product_manufacturer.loaded',
-                'product_price.loaded',
-            ], $createdEvents);
-        } else {
-            static::assertEquals([
-                'category.loaded',
-                'language.loaded',
-                'product.loaded',
-                'product_manufacturer.loaded',
-                'product_price.loaded',
-                'tax.loaded',
-            ], $createdEvents);
-        }
+        static::assertEquals([
+            'category.loaded',
+            'language.loaded',
+            'product.loaded',
+            'product_manufacturer.loaded',
+            'product_price.loaded',
+        ], $createdEvents);
     }
 
     public function testCollectionWithEntitiesMixed(): void

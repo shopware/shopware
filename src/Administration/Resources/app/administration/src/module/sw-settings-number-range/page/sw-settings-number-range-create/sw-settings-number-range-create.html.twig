@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_number_range_detail_language_switch %}
 <!-- eslint-disable-next-line vue/valid-v-slot -->
 <template #language-switch>
@@ -6,15 +5,14 @@
 </template>
 {% endblock %}
 
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_number_range_detail_content_global_product_warning %}
 <sw-alert
     v-if="isShowProductWarning"
     class="sw-number_range-quickinfo__alert-global-type sw-number_range-quickinfo__product-alert"
     variant="warning"
-    :title="$tc('sw-settings-number-range.general.infoGlobalTypeTitle', 0, { typeName: 'Product'})"
+    :title="$tc('sw-settings-number-range.general.infoGlobalTypeTitle', { typeName: 'Product'}, 0)"
 >
-    {{ $tc('sw-settings-number-range.general.infoGlobalType', 0, { typeName: 'Product' }) }}
+    {{ $tc('sw-settings-number-range.general.infoGlobalType', { typeName: 'Product' }, 0) }}
 </sw-alert>
 {% endblock %}
 

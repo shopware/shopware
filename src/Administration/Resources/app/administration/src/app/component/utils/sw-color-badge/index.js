@@ -4,7 +4,7 @@ import './sw-color-badge.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description
@@ -24,8 +24,6 @@ const { Component } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-color-badge', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         variant: {

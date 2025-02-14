@@ -1,12 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_media_item %}
 <sw-media-base-item
     class="sw-media-media-item"
     v-bind="$attrs"
-    v-on="listeners"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_media_item_preview %}
     <template #preview="{ item }">
         <sw-media-preview-v2
@@ -17,7 +14,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_media_item_name_container %}
     <template #name="{ item, isInlineEdit, startInlineEdit, endInlineEdit }">
         <sw-text-field
@@ -48,7 +44,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_media_item_metadata %}
     <template #metadata="{ item }">
         <div class="sw-media-media-item__metadata">
@@ -57,18 +52,14 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_media_item_context_menu %}
     <template #context-menu="{ item, startInlineEdit, allowEdit, allowDelete }">
         <slot>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_media_item_additional_context_menu_slot %}{% endblock %}
         </slot>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_media_item_context_group_quick_actions %}
         <div :class="defaultContextMenuClass">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_media_item_context_item_rename_item %}
             <sw-context-menu-item
                 :disabled="!item.hasFile || item.private || !allowEdit"
@@ -78,7 +69,6 @@
             </sw-context-menu-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_media_item_context_item_copy_item_link %}
             <sw-context-menu-item
                 v-if="item.hasFile"
@@ -88,7 +78,6 @@
             </sw-context-menu-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_media_item_context_item_replace %}
             <sw-context-menu-item
                 :disabled="item.private || !allowEdit"
@@ -99,7 +88,6 @@
             </sw-context-menu-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_media_item_context_item_move %}
             <sw-context-menu-item
                 :disabled="!allowEdit"
@@ -110,7 +98,6 @@
             </sw-context-menu-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_media_item_context_item_delete %}
             <sw-context-menu-item
                 :disabled="item.private || !allowDelete"
@@ -127,7 +114,6 @@
     {% endblock %}
 
     <template #modal-windows="{ item, allowEdit, allowDelete }">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_media_item_modal_replace %}
         <sw-media-modal-replace
             v-if="showModalReplace && allowEdit"
@@ -137,7 +123,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_media_item_delete_modal %}
         <sw-media-modal-delete
             v-if="showModalDelete && allowDelete"
@@ -147,7 +132,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_media_item_move_modal %}
         <sw-media-modal-move
             v-if="showModalMove && allowEdit"

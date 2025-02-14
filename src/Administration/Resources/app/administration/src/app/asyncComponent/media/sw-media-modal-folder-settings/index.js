@@ -7,12 +7,10 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @private
- * @package content
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 

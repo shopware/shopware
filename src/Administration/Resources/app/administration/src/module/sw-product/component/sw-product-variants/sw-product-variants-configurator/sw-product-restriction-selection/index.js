@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import template from './sw-product-restriction-selection.html.twig';
@@ -8,8 +8,6 @@ import './sw-product-restriction-selection.scss';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['restriction-delete'],
 

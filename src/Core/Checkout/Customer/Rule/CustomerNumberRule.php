@@ -11,14 +11,15 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('services-settings')]
+/**
+ * @internal
+ */
+#[Package('fundamentals@after-sales')]
 class CustomerNumberRule extends Rule
 {
     final public const RULE_NAME = 'customerCustomerNumber';
 
     /**
-     * @internal
-     *
      * @param list<string>|null $numbers
      */
     public function __construct(

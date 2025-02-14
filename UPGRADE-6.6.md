@@ -360,6 +360,8 @@ The global `showStagingBanner` Twig variable has been deprecated. Use `shopware.
 ## New constructor parameter in FooterPagelet
 The new optional parameter `serviceMenu` of type `\Shopware\Core\Content\Category\CategoryCollection` has been added to `\Shopware\Storefront\Pagelet\Footer\FooterPagelet`.
 You can already add it to your implementation to prevent breaking changes, as it will be required in the next major version.
+
+## Deprecated CSS declarations
 * Deprecated custom CSS declarations for selectors `.header-cart-total`, `.header-logo-col`, `.header-search`, `.header-logo-main-link`, `.header-logo-main` and `.header-logo-picture`  and replaced them by Bootstrap helper classes in the corresponding templates.
 ## App System
 Use `sw_macro_function` instead of usual `macro` in app scripts if you return values (`sw_macro_function` will be the new default in Shopware Version 6.8.0)

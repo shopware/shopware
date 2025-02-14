@@ -111,7 +111,7 @@ require_core_version() {
   if [ "${package_lower}" != "core" ]; then
     if [[ $type != "tag" ]]; then
       # version like add dev at the end
-      if grep -q -E '^[0-9]'; then
+      if echo -n "${version}" | grep -q -E '^[0-9]'; then
         version="${version}-dev"
       else
         version="dev-${version}"
@@ -219,7 +219,7 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     set -o errexit
     set -o pipefail
 
-    if [ -n "${DEBUG:-}" ]; then
+    if [ -n "${DEBUG:-}" ] || [ -n "${ACTIONS_STEP_DEBUG:-}" ]; then
         set -x
     fi
 

@@ -34,7 +34,7 @@ test(
     });
 
     await test.step('Navigate to the product page and verify the cookie banner', async () => {
-        const productListItemLocators = await StorefrontHome.getListingItemByProductId(product.id);
+        const productListItemLocators = await StorefrontHome.getListingItemByProductName(product.name);
         await productListItemLocators.productImage.click();
         await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).toBeVisible();
     });

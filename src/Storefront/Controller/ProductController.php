@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
@@ -11,27 +10,21 @@ use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoade
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\Exception\StorefrontException;
-use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Product\ProductPageLoadedHook;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader;
 use Shopware\Storefront\Page\Product\QuickView\ProductQuickViewWidgetLoadedHook;
-use Shopware\Storefront\Page\Product\Review\ProductReviewsLoadedEvent as StorefrontProductReviewsLoadedEvent;
-use Shopware\Storefront\Page\Product\Review\ProductReviewsWidgetLoadedHook as StorefrontProductReviewsWidgetLoadedHook;
-use Shopware\Storefront\Page\Product\Review\ReviewLoaderResult;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -52,7 +45,6 @@ class ProductController extends StorefrontController
         private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
         private readonly AbstractProductReviewLoader $productReviewLoader,
         private readonly SystemConfigService $systemConfigService,
-        private readonly EventDispatcherInterface $eventDispatcher
     ) {
     }
 
@@ -162,30 +154,6 @@ class ProductController extends StorefrontController
         $reviews = $this->productReviewLoader->load($request, $context, $productId, $request->get('parentId'));
 
         $this->hook(new ProductReviewsWidgetLoadedHook($reviews, $context));
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            /** @var StorefrontSearchResult<ProductReviewCollection> $storefrontReviews */
-            $storefrontReviews = new StorefrontSearchResult(
-                $reviews->getEntity(),
-                $reviews->getTotal(),
-                $reviews->getEntities(),
-                $reviews->getAggregations(),
-                $reviews->getCriteria(),
-                $reviews->getContext()
-            );
-
-            $this->eventDispatcher->dispatch(new StorefrontProductReviewsLoadedEvent($storefrontReviews, $context, $request));
-
-            $reviewResult = ReviewLoaderResult::createFrom($storefrontReviews);
-            $reviewResult->setMatrix($reviews->getMatrix());
-            $reviewResult->setCustomerReview($reviews->getCustomerReview());
-            $reviewResult->setTotalReviews($reviews->getTotal());
-            $reviewResult->setTotalReviewsInCurrentLanguage($reviews->getTotalReviewsInCurrentLanguage());
-            $reviewResult->setProductId($reviews->getProductId());
-            $reviewResult->setParentId($reviews->getParentId());
-
-            $this->hook(new StorefrontProductReviewsWidgetLoadedHook($reviewResult, $context));
-        }
 
         return $this->renderStorefront('storefront/component/review/review.html.twig', [
             'reviews' => $reviews,

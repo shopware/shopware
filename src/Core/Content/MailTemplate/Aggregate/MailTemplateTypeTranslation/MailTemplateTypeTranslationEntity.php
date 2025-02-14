@@ -12,26 +12,11 @@ class MailTemplateTypeTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $mailTemplateTypeId;
+    protected string $mailTemplateTypeId;
 
-    /**
-     * @var MailTemplateTypeEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $mailTemplateType;
+    protected ?MailTemplateTypeEntity $mailTemplateType = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected ?string $name = null;
 
     public function getMailTemplateTypeId(): string
     {

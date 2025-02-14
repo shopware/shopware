@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 
@@ -18,8 +17,6 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegis
 #[Package('framework')]
 class ExtensionRegistry
 {
-    private bool $is67;
-
     /**
      * @internal
      *
@@ -30,7 +27,6 @@ class ExtensionRegistry
         private readonly iterable $extensions,
         private readonly iterable $bulks
     ) {
-        $this->is67 = Feature::isActive('v6.7.0.0');
     }
 
     public function configureExtensions(DefinitionInstanceRegistry $registry, SalesChannelDefinitionInstanceRegistry $salesChannelRegistry): void
@@ -120,20 +116,8 @@ class ExtensionRegistry
 
     private function getInstance(DefinitionInstanceRegistry $registry, EntityExtension $extension): EntityDefinition
     {
-        if ($this->is67) {
-            $entity = $extension->getEntityName();
+        $entity = $extension->getEntityName();
 
-            return $registry->getByEntityName($entity);
-        }
-
-        if (!empty($extension->getEntityName())) {
-            $entity = $extension->getEntityName();
-
-            return $registry->getByEntityName($entity);
-        }
-
-        $class = $extension->getDefinitionClass();
-
-        return $registry->get($class);
+        return $registry->getByEntityName($entity);
     }
 }

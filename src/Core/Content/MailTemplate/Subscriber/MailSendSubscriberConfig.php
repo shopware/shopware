@@ -2,43 +2,23 @@
 
 namespace Shopware\Core\Content\MailTemplate\Subscriber;
 
-use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 #[Package('after-sales')]
 class MailSendSubscriberConfig extends Struct
 {
-    /**
-     * @deprecated tag:v6.7.0 - Will be removed use `Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction::ACTION_NAME` instead
-     */
-    final public const ACTION_NAME = SendMailAction::ACTION_NAME;
-
-    /**
-     * @deprecated tag:v6.7.0 - Will be removed use `Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction::MAIL_CONFIG_EXTENSION` instead
-     */
-    final public const MAIL_CONFIG_EXTENSION = SendMailAction::MAIL_CONFIG_EXTENSION;
-
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $skip;
+    protected bool $skip;
 
     /**
      * @var array<string>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $documentIds = [];
+    protected array $documentIds = [];
 
     /**
      * @var array<string>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $mediaIds = [];
+    protected array $mediaIds = [];
 
     /**
      * @param array<string> $documentIds

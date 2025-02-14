@@ -49,7 +49,7 @@ class AclValidPermissionsHelper
         }
 
         $this->permissions = $this->preparePermissions($schemaPath);
-        if ($this->permissions === []) {
+        if ($this->permissions === null) {
             throw new \RuntimeException('Could not load permissions from entity schema');
         }
     }
@@ -64,13 +64,13 @@ class AclValidPermissionsHelper
     }
 
     /**
-     * @return array<string>
+     * @return ?array<string>
      */
-    private function preparePermissions(string $schemaPath): array
+    private function preparePermissions(string $schemaPath): ?array
     {
         $entities = $this->getEntitiesFromSchema($schemaPath);
         if ($entities === null) {
-            return [];
+            return null;
         }
 
         $permissions = [];

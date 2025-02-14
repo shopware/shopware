@@ -66,7 +66,7 @@ class UrlEncodingTwigFilter extends AbstractExtension
         if ($media === null || !$media->hasFile()) {
             return null;
         }
-        if (!Feature::isActive('v6.7.0.0')) {
+        if (!Feature::isActive('v6.8.0')) {
             return $media->getUrl();
         }
         return $this->encodeUrl($media->getUrl());

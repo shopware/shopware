@@ -115,7 +115,9 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
 
     public function serialize(Config $config, EntityDefinition $definition, $entity): iterable
     {
-        $entity = \is_array($entity) ? $entity : iterator_to_array($entity);
+        if ($entity instanceof \Traversable) {
+            $entity = iterator_to_array($entity);
+        }
 
         if (isset($entity['url'])) {
             $urlEncodingTwig = new UrlEncodingTwigFilter();

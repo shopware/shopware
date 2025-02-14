@@ -364,11 +364,13 @@ class ProductControllerTest extends TestCase
     private function createDetailRequest(SalesChannelContext $context, string $productId): Request
     {
         $request = Request::create((string) EnvironmentHelper::getVariable('APP_URL'));
-        $request->attributes->set(RequestTransformer::STOREFRONT_URL, $_SERVER['APP_URL']);
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $context->getSalesChannelId());
-        $request->attributes->set('productId', $productId);
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST, true);
+        $request->attributes->add([
+            RequestTransformer::STOREFRONT_URL => $_SERVER['APP_URL'],
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $context,
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $context->getSalesChannelId(),
+            'productId' => $productId,
+            SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+        ]);
 
         static::getContainer()->get('request_stack')->push($request);
 

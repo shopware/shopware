@@ -124,6 +124,10 @@ export default {
                 return false;
             }
 
+            if (!this.customer.active) {
+                return false;
+            }
+
             if (this.customer.boundSalesChannel) {
                 if (this.customer.boundSalesChannel.typeId !== Defaults.storefrontSalesChannelTypeId) {
                     return false;
@@ -135,6 +139,28 @@ export default {
             }
 
             return this.acl.can('api_proxy_imitate-customer');
+        },
+
+        customerImitationWarning() {
+            if (this.customer.guest) {
+                return this.$tc('sw-customer.card.tooltipImitateCustomerGuest');
+            }
+
+            if (!this.customer.active) {
+                return this.$tc('sw-customer.card.tooltipImitateCustomerInactive');
+            }
+
+            if (this.customer.boundSalesChannel) {
+                if (this.customer.boundSalesChannel.typeId !== Defaults.storefrontSalesChannelTypeId) {
+                    return this.$tc('sw-customer.card.tooltipImitateCustomerNoStorefront');
+                }
+
+                if (!this.customer.boundSalesChannel.domains?.length) {
+                    return this.$tc('sw-customer.card.tooltipImitateCustomerNoDomain');
+                }
+            }
+
+            return this.$tc('sw-privileges.tooltip.warning');
         },
 
         hasSingleBoundSalesChannelUrl() {

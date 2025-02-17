@@ -265,3 +265,53 @@ await shopCustomer.attemptsTo(AddPromotionCodeToCart(promotionName, promotionCod
 ```
 
 This will execute the test code of the task. In addition, it will automatically wrap the execution in a Playwright test step, that will use the actor pattern to add meaningful description to the generated report of the test suite. When debugging your tests you can easily identify in which task an issue occurred.
+
+## Playwright Visual Tests
+
+Visual testing ensures that your application's UI remains consistent and free from unintended changes. Playwright also provides built-in capabilities for visual regression testing. 
+
+Playwright has the option to generate and compare images using function
+```JavaScript
+ await expect(page).toHaveScreenshot() 
+```
+**toHaveScreenshot** method can be extended with multiple option attributes. You can check the list of available options in the official Playwright [documentation](https://playwright.dev/docs/api/class-pageassertions#page-assertions-to-have-screenshot-1)
+
+**Note:** When running the tests for the first time you may receive an error like below but this is expected as Playwright has any image to compare.
+```
+Error: A snapshot doesn't exist at {TEST_OUTPUT_PATH}, writing actual.
+```
+
+### Updating screenshots
+From time to time it may be necessary to update reference screenshot (base image), for example when the page content changes.
+To update the reference screenshot you can use the **--update-snapshots** flag (or **-u**) flag.
+
+```
+npx playwright test --update-snapshots
+```
+
+You can also update only some specifix snapshots using test name:
+
+```
+npx playwright test -u "**/test_name*.spec.ts"
+```
+
+### Debug visual tests
+The best solution for debugging visual tests is reviewing the "Actual" and "Expected" views from  HTML report or any reporting tool implemented in the tests
+The “Diff” view offers a stark comparison between the expected and actual screenshots.
+
+
+### Configuring the sensitivity of Visual Tests
+By default visual tests can detect a difference of even 1 pixel, which may determine whether the tests pass or not, so it is important to adjust certain parameters depending on your own design needs:
+- maxDiffPixelRatio - An acceptable ratio of pixels that are different to the total amount of pixels, between 0 and 1 
+- maxDiffPixels - An acceptable amount of pixels that could be different 
+- threshold - How much must a single pixel vary for it to be considered different. Values are a percentage from `0` to `1`, with `0.2` as the default.
+
+You can set all these options per test or globally in the **playwright.config.ts** file
+
+
+### Best Practices for Visual Testing 
+- use **mask** function or custom stylesheet to manipulate and hide dynamic or volatile elements on your page
+- ensure environmental compatibility for generated and compared images (matching the OS of your test runner with your local dev environment, ensuring your time zones match)
+- adjust the sensitivity of **maxDiff Pixels** to suit your project
+- handling lazy loaded images (you can use additional timeout extend toHaveScreenshot function)
+- be sure before using the toHaveScreenshot method that the page is in the target state (use the scroll to element option if necessary)

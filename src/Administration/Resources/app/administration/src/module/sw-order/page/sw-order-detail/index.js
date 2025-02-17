@@ -87,6 +87,7 @@ export default {
             'orderAddressIds',
             'editing',
             'loading',
+            'savedSuccessful',
         ]),
 
         orderIdentifier() {
@@ -586,7 +587,7 @@ export default {
 
         async onAskAndSaveEditsConfirm() {
             await this.onSaveEdits();
-            this.askForSaveBeforehand.resolve(Store.get('swOrderDetail').savedSuccessful);
+            this.askForSaveBeforehand.resolve(this.savedSuccessful);
             this.askForSaveBeforehand = null;
         },
 

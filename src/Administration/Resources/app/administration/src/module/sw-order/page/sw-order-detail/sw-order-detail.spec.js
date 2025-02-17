@@ -491,7 +491,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.vm.askForSaveBeforehand).toBeTruthy();
 
         wrapper.vm.onAskAndSaveEditsConfirm();
-        Shopware.Store.get('swOrderDetail').savedSuccessful = true;
+        Shopware.State.commit('swOrderDetail/setSavedSuccessful', true);
         expect(await promise).toBe(true);
         expect(onSaveEditsSpy).toHaveBeenCalled();
     });

@@ -8,6 +8,8 @@ import template from './sw-order-save-changes-beforehand-modal.html.twig';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     emits: [
         'confirm',
         'cancel',

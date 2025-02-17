@@ -17,6 +17,7 @@ class ApiClient implements ClientEntityInterface
     public function __construct(
         private readonly string $identifier,
         private readonly bool $writeAccess,
+        private readonly bool $confidential,
         string $name = ''
     ) {
         $this->name = $name;
@@ -37,6 +38,6 @@ class ApiClient implements ClientEntityInterface
 
     public function isConfidential(): bool
     {
-        return true;
+        return $this->confidential;
     }
 }

@@ -3,7 +3,7 @@ set -eu
 
 set -o pipefail
 
-if [ -n "${DEBUG:-}" ]; then
+if [ -n "${DEBUG:-}" ] || [ -n "${ACTIONS_STEP_DEBUG:-}" ]; then
     set -x
 fi
 

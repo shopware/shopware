@@ -68,7 +68,7 @@ class ClientRepository implements ClientRepositoryInterface
         return new ApiClient(
             $clientIdentifier,
             true,
-            $values['label'] ?? Uuid::fromBytesToHex((string) $values['user_id']),
+            name: $values['label'] ?? Uuid::fromBytesToHex((string) $values['user_id']),
             confidential: true
         );
     }

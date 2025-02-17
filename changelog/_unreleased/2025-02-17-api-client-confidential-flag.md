@@ -10,7 +10,16 @@ ___
 # Upgrade Information
 ## ApiClient confidential flag
 
-The `confidential` flag of `\Shopware\Core\Framework\Api\OAuth\Client\ApiClient` will be required and will be moved to position three. You can update your implementations to pass the correct value, but you will still need to update your implementation when the parameter position changes.
+The `confidential` flag of `\Shopware\Core\Framework\Api\OAuth\Client\ApiClient` will be required and will be moved to position three. You can update your implementations to pass the correct value and use named parameters to avoid having to update the implementation again when the deprecations are fixed:
+
+```php
+$client = new \Shopware\Core\Framework\Api\OAuth\Client\ApiClient(
+    'my-identifier',
+    true,
+    name: 'My Client',
+    confidential: true
+);     
+```
 ___
 # Next Major Version Changes
 ## ApiClient confidential flag

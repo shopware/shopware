@@ -87,11 +87,11 @@ class ExtensionRegistry
             return null;
         }
 
-        return new class($fields, $definition->getClass(), $entity) extends EntityExtension {
+        return new class($fields, $entity) extends EntityExtension {
             /**
              * @param list<Field> $fields
              */
-            public function __construct(private readonly array $fields, private readonly string $class, private readonly string $entity)
+            public function __construct(private readonly array $fields, private readonly string $entity)
             {
             }
 
@@ -100,11 +100,6 @@ class ExtensionRegistry
                 foreach ($this->fields as $field) {
                     $collection->add($field);
                 }
-            }
-
-            public function getDefinitionClass(): string
-            {
-                return $this->class;
             }
 
             public function getEntityName(): string

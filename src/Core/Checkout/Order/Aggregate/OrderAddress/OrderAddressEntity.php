@@ -62,6 +62,8 @@ class OrderAddressEntity extends Entity
 
     protected string $orderVersionId;
 
+    protected ?string $hash;
+
     public function getCountryId(): string
     {
         return $this->countryId;
@@ -280,5 +282,15 @@ class OrderAddressEntity extends Entity
     public function setOrderVersionId(string $orderVersionId): void
     {
         $this->orderVersionId = $orderVersionId;
+    }
+
+    public function getHash(): ?string
+    {
+        return $this->hash;
+    }
+
+    public function setHash(string $hash): void
+    {
+        $this->hash = $hash;
     }
 }

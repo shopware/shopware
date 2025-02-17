@@ -133,7 +133,7 @@ branch() {
   local name="${2}"
   local commit_id=$(git -C "${PLATFORM_DIR}/repos/${package_lower}" log -n1 --format="%H")
 
-  git -C "${PLATFORM_DIR}/repos/${package_lower}" branch "${name}" "${commit_id}"
+  git -C "${PLATFORM_DIR}/repos/${package_lower}" branch -M "${name}" "${commit_id}"
 }
 
 # Commits additional files in a split repository of a subpackage of platform.

@@ -19,6 +19,7 @@ export default {
         'orderStateMachineService',
         'stateMachineService',
         'stateStyleDataProviderService',
+        'swOrderDetailAskAndSaveEdits',
     ],
 
     emits: [
@@ -184,9 +185,14 @@ export default {
             return options;
         },
 
-        onStateSelected(stateType, actionName) {
+        async onStateSelected(stateType, actionName) {
             if (!stateType || !actionName) {
                 this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
+                return;
+            }
+
+            const proceed = await this.swOrderDetailAskAndSaveEdits();
+            if (!proceed) {
                 return;
             }
 

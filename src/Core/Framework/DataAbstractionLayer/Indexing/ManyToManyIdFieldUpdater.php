@@ -65,15 +65,15 @@ class ManyToManyIdFieldUpdater
         }
 
         $template = <<<'SQL'
-UPDATE #table#, #mapping_table# SET #table#.#storage_name# = (
+UPDATE #table#
+SET #table#.#storage_name# = (
     SELECT CONCAT('[', GROUP_CONCAT(JSON_QUOTE(LOWER(HEX(#mapping_table#.#reference_column#)))), ']')
     FROM #mapping_table#
     WHERE #mapping_table#.#mapping_column# = #table#.#join_column#
-    #version_aware#
+    #mapping_version_aware#
 )
-WHERE #mapping_table#.#mapping_column# = #table#.#join_column#
-AND #table#.id IN (:ids)
-#version_aware#
+WHERE #table#.id IN (:ids)
+#table_version_aware#
 SQL;
 
         $bytes = array_map(fn ($id) => Uuid::fromHexToBytes($id), $ids);
@@ -100,15 +100,19 @@ SQL;
             if ($definition->isInheritanceAware() && $association->is(Inherited::class)) {
                 $replacement['#join_column#'] = EntityDefinitionQueryHelper::escape($association->getPropertyName());
             }
-            $versionCondition = '';
+
+            $tableVersionCondition = '';
+            $mappingVersionCondition = '';
             if ($definition->isVersionAware()) {
-                $versionCondition = 'AND #table#.version_id = #mapping_table#.#unescaped_table#_version_id AND #table#.version_id = :version';
+                $tableVersionCondition = 'AND #table#.version_id = :version';
+                $mappingVersionCondition = 'AND #table#.version_id = #mapping_table#.#unescaped_table#_version_id AND #table#.version_id = :version';
 
                 $parameters['version'] = Uuid::fromHexToBytes($context->getVersionId());
                 $replacement['#unescaped_table#'] = $definition->getEntityName();
             }
 
-            $tableTemplate = str_replace('#version_aware#', $versionCondition, $template);
+            $tableTemplate = str_replace('#table_version_aware#', $tableVersionCondition, $template);
+            $tableTemplate = str_replace('#mapping_version_aware#', $mappingVersionCondition, $tableTemplate);
 
             $sql = str_replace(
                 array_keys($replacement),

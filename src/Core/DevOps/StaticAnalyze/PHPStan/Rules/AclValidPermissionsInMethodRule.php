@@ -26,8 +26,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class AclValidPermissionsInMethodRule implements Rule
 {
-    private const ERROR_MESSAGE = 'Permission "%s" is not a valid backend ACL key. If it\'s an entity based permission, please check if entity is listed in the entity-schema.json. If it\'s a custom permissions, please check if it should be added to the allowlist.';
-
     private AclValidPermissionsHelper $permissionsHelper;
 
     public function __construct(AclValidPermissionsHelper $permissionsHelper)
@@ -53,10 +51,17 @@ class AclValidPermissionsInMethodRule implements Rule
             $args = $node->args;
             if (isset($args[0]) && $args[0] instanceof Arg && $args[0]->value instanceof String_) {
                 $permission = $args[0]->value->value;
-                if (!$this->permissionsHelper->aclKeyValid($permission)) {
-                    $errors[] = RuleErrorBuilder::message(\sprintf(self::ERROR_MESSAGE, $permission))
+                try {
+                    if (!$this->permissionsHelper->aclKeyValid($permission)) {
+                        $errors[] = RuleErrorBuilder::message(\sprintf(AclValidPermissionsHelper::INVALID_KEY_ERROR_MESSAGE, $permission))
+                            ->line($args[0]->getStartLine() ?: 0)
+                            ->identifier('shopware.aclKey')
+                            ->build();
+                    }
+                } catch (\RuntimeException $e) {
+                    $errors[] = RuleErrorBuilder::message(\sprintf(AclValidPermissionsHelper::MISSING_SCHEMA_ERROR_MESSAGE, $permission))
                         ->line($args[0]->getStartLine() ?: 0)
-                        ->identifier('shopware.aclKey')
+                        ->identifier('shopware.aclKey.missingSchema')
                         ->build();
                 }
             }

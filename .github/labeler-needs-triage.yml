@@ -3,9 +3,5 @@ appendOnly: true
 labels:
 - label: "needs-triage"
   type: "pull_request"
-  age-range:
-    at-most: 20m
 - label: "needs-triage"
   type: "issue"
-  age-range:
-    at-most: 20m

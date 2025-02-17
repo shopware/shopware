@@ -54,6 +54,7 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
             ->method('getInt')
             ->willReturn(1);
 
+<<<<<<< HEAD
         $service = new DeleteUnusedGuestCustomerService(
 <<<<<<< HEAD
             $customerRepository,
@@ -63,6 +64,12 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
 >>>>>>> f6a23e0d02 (Format files)
             $configService
         );
+=======
+        /** @var StaticEntityRepository<CustomerCollection> */
+        $customerRepository = new StaticEntityRepository([[$this->createCustomer(), $this->createCustomer()]]);
+
+        $service = new DeleteUnusedGuestCustomerService($customerRepository, $configService);
+>>>>>>> ef9765c608 (Fix failing test)
 
         $result = $service->countUnusedCustomers(Context::createDefaultContext());
 

@@ -153,18 +153,23 @@ class OrderAddressServiceTest extends TestCase
                 return $this->createMock(EntityWrittenContainerEvent::class);
             });
 
+        /** @var StaticEntityRepository<CustomerAddressCollection> */
+        $customerAddressRepository = new StaticEntityRepository([new CustomerAddressCollection([$customerAddress]), new CustomerAddressCollection([$customerAddress])]);
+
         $orderDeliveryRepository = $this->createMock(EntityRepository::class);
         $orderDeliveryRepository
             ->expects(static::once())
             ->method('update');
 
         $order = $this->createOrderEntity();
+
+        /** @var StaticEntityRepository<OrderCollection> */
+        $orderRepository = new StaticEntityRepository([new OrderCollection([$order])]);
+
         $orderAddressService = new OrderAddressService(
-            /** @var StaticEntityRepository<OrderCollection> */
-            new StaticEntityRepository([new OrderCollection([$order])]),
+            $orderRepository,
             $orderAddressRepository,
-            /** @var StaticEntityRepository<CustomerAddressCollection> */
-            new StaticEntityRepository([new CustomerAddressCollection([$customerAddress]), new CustomerAddressCollection([$customerAddress])]),
+            $customerAddressRepository,
             $orderDeliveryRepository
         );
 

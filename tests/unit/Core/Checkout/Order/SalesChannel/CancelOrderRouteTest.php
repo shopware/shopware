@@ -74,11 +74,10 @@ class CancelOrderRouteTest extends TestCase
             ->method('getCustomerId')
             ->willReturn($customer->getId());
 
-        $route = new CancelOrderRoute(
-            $this->createMock(OrderService::class),
-            /** @var StaticEntityRepository<OrderCollection> */
-            new StaticEntityRepository([[]]),
-        );
+        /** @var StaticEntityRepository<OrderCollection> */
+        $orderRepository = new StaticEntityRepository([[]]);
+
+        $route = new CancelOrderRoute($this->createMock(OrderService::class), $orderRepository);
 
         $route->cancel(new Request(['orderId' => Uuid::randomHex()]), $salesChannelContext);
     }
@@ -109,11 +108,10 @@ class CancelOrderRouteTest extends TestCase
             ->with($orderId, 'cancel', new ParameterBag(), Context::createDefaultContext())
             ->willReturn(new StateMachineStateEntity());
 
-        $route = new CancelOrderRoute(
-            $orderService,
-            /** @var StaticEntityRepository<OrderCollection> */
-            new StaticEntityRepository([[Uuid::randomHex()]]),
-        );
+        /** @var StaticEntityRepository<OrderCollection> */
+        $orderRepository = new StaticEntityRepository([[]]);
+
+        $route = new CancelOrderRoute($orderService, $orderRepository);
 
         $route->cancel(new Request(['orderId' => $orderId]), $salesChannelContext);
     }

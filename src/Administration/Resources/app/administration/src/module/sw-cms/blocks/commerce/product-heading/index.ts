@@ -21,9 +21,9 @@ Shopware.Service('cmsService').registerCmsBlock({
     previewComponent: 'sw-cms-preview-product-heading',
     defaultConfig: {
         marginTop: '20px',
-        marginLeft: '20px',
+        marginLeft: null,
         marginBottom: '20px',
-        marginRight: '20px',
+        marginRight: null,
         sizingMode: 'boxed',
     },
     slots: {

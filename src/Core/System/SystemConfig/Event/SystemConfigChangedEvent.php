@@ -15,7 +15,7 @@ class SystemConfigChangedEvent extends Event
      */
     public function __construct(
         private readonly string $key,
-        private mixed $value,
+        private array|bool|float|int|string|null $value,
         private readonly ?string $salesChannelId
     ) {
     }
@@ -28,7 +28,7 @@ class SystemConfigChangedEvent extends Event
     /**
      * @return array<string, mixed>|bool|float|int|string|null
      */
-    public function getValue(): mixed
+    public function getValue(): array|bool|float|int|string|null
     {
         return $this->value;
     }

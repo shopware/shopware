@@ -17,7 +17,7 @@ class SystemConfigEntity extends Entity
     /**
      * @var array<mixed>|bool|float|int|string|null
      */
-    protected mixed $configurationValue;
+    protected array|bool|float|int|string|null $configurationValue;
 
     protected ?string $salesChannelId = null;
 
@@ -36,7 +36,7 @@ class SystemConfigEntity extends Entity
     /**
      * @return array<mixed>|bool|float|int|string|null
      */
-    public function getConfigurationValue()
+    public function getConfigurationValue(): array|bool|float|int|string|null
     {
         return $this->configurationValue;
     }
@@ -44,7 +44,7 @@ class SystemConfigEntity extends Entity
     /**
      * @param array<mixed>|bool|float|int|string|null $configurationValue
      */
-    public function setConfigurationValue($configurationValue): void
+    public function setConfigurationValue(array|bool|float|int|string|null $configurationValue): void
     {
         $this->configurationValue = $configurationValue;
     }

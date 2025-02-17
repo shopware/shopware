@@ -1,5 +1,3 @@
-{% set cmsPath = feature('ACCESSIBILITY_TWEAKS') ? 'frontend.cms.page.full' : 'frontend.cms.page' %}
-
 {% block layout_footer_inner_container %}
     <div class="container">
         {% block layout_footer_navigation %}
@@ -38,6 +36,7 @@
                         {% endblock %}
 
                         {% block layout_footer_navigation_hotline_content %}
+                            {% set cmsPath = feature('ACCESSIBILITY_TWEAKS') ? 'frontend.cms.page.full' : 'frontend.cms.page' %}
                             <div id="collapseFooterHotline"
                                  class="footer-column-content collapse js-footer-column-content footer-contact"
                                  aria-labelledby="collapseFooterHotlineTitle"
@@ -211,6 +210,7 @@
             {% endblock %}
 
             {% block layout_footer_vat %}
+                {% set cmsPath = feature('ACCESSIBILITY_TWEAKS') ? 'frontend.cms.page.full' : 'frontend.cms.page' %}
                 {% if showVatNotice or showVatNotice is not defined %}
                     <div class="footer-vat">
                         {%- if feature('ACCESSIBILITY_TWEAKS') -%}

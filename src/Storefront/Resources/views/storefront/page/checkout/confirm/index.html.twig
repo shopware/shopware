@@ -42,7 +42,6 @@
             <div class="confirm-tos">
                 <div class="card checkout-card">
                     <div class="card-body">
-                        {% set cmsPath = 'frontend.cms.page' %}
 
                         {% block page_checkout_confirm_tos_header %}
                             <div class="card-title">
@@ -51,6 +50,7 @@
                         {% endblock %}
 
                         {% block page_checkout_confirm_revocation_notice %}
+                            {% set cmsPath = 'frontend.cms.page' %}
                             <p class="revocation-notice">
                                 {% set revocationSnippetKey = 'checkout.confirmRevocationNotice' %}
 
@@ -73,6 +73,7 @@
 
                                 {% block page_checkout_confirm_tos_control_label %}
                                     {% set tosSnippetKey = 'checkout.confirmTermsText' %}
+                                    {% set cmsPath = 'frontend.cms.page' %}
                                     <label for="tos"
                                            class="checkout-confirm-tos-label custom-control-label">
                                         {{ tosSnippetKey|trans({

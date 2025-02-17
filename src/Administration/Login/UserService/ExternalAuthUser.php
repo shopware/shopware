@@ -17,6 +17,9 @@ use Symfony\Component\Validator\Validation;
 #[Package('after-sales')]
 final class ExternalAuthUser implements UserEntityInterface
 {
+    /**
+     * @param non-empty-string $userId
+     */
     private function __construct(
         public readonly string $id,
         public readonly string $userId,

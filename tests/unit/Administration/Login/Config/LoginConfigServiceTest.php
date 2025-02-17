@@ -35,8 +35,8 @@ class LoginConfigServiceTest extends TestCase
             'client_secret' => 'clientSecret',
             'redirect_uri' => 'http://redirect.url',
             'base_url' => 'http://base.url',
-            'authorize_endpoint' => '/authorize',
-            'token_endpoint' => '/token',
+            'authorize_path' => '/authorize',
+            'token_path' => '/token',
         ];
 
         $configService = new LoginConfigService($rawConfig, 'http://app.url', '/admin');
@@ -49,12 +49,12 @@ class LoginConfigServiceTest extends TestCase
         static::assertSame($rawConfig['client_secret'], $config->clientSecret);
         static::assertSame($rawConfig['redirect_uri'], $config->redirectUri);
         static::assertSame($rawConfig['base_url'], $config->baseUrl);
-        static::assertSame($rawConfig['authorize_endpoint'], $config->authorizeEndpoint);
-        static::assertSame($rawConfig['token_endpoint'], $config->tokenEndpoint);
+        static::assertSame($rawConfig['authorize_path'], $config->authorizeEndpoint);
+        static::assertSame($rawConfig['token_path'], $config->tokenEndpoint);
     }
 
     /**
-     * @param array{use_default: bool, client_id: non-empty-string, client_secret: non-empty-string, redirect_uri: non-empty-string, base_url: non-empty-string} $rawConfig
+     * @param array{use_default: bool, client_id: non-empty-string, client_secret: non-empty-string, redirect_uri: non-empty-string, base_url: non-empty-string, authorize_path: non-empty-string, token_path: non-empty-string} $rawConfig
      */
     #[DataProvider('getConfigErrorsTestDataProvider')]
     public function testGetConfigErrors(array $rawConfig, string $exceptionMessage): void
@@ -70,6 +70,8 @@ class LoginConfigServiceTest extends TestCase
 
             return;
         }
+
+        static::fail('Exception should have been thrown.');
     }
 
     /**
@@ -84,8 +86,8 @@ class LoginConfigServiceTest extends TestCase
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => 'http://redirect.url',
                     'base_url' => 'http://base.url',
-                    'authorize_endpoint' => '/authorize',
-                    'token_endpoint' => '/token',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [use_default] is missing',
             ],
@@ -97,8 +99,8 @@ class LoginConfigServiceTest extends TestCase
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => 'http://redirect.url',
                     'base_url' => 'http://base.url',
-                    'authorize_endpoint' => '/authorize',
-                    'token_endpoint' => '/token',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [use_default] is null',
             ],
@@ -110,8 +112,8 @@ class LoginConfigServiceTest extends TestCase
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => 'http://redirect.url',
                     'base_url' => 'http://base.url',
-                    'authorize_endpoint' => '/authorize',
-                    'token_endpoint' => '/token',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [use_default] is not a boolean',
             ],
@@ -122,8 +124,8 @@ class LoginConfigServiceTest extends TestCase
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => 'http://redirect.url',
                     'base_url' => 'http://base.url',
-                    'authorize_endpoint' => '/authorize',
-                    'token_endpoint' => '/token',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_id] is missing',
             ],
@@ -135,8 +137,8 @@ class LoginConfigServiceTest extends TestCase
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => 'http://redirect.url',
                     'base_url' => 'http://base.url',
-                    'authorize_endpoint' => '/authorize',
-                    'token_endpoint' => '/token',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_id] is null, [client_id] is blank',
             ],
@@ -148,8 +150,8 @@ class LoginConfigServiceTest extends TestCase
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => 'http://redirect.url',
                     'base_url' => 'http://base.url',
-                    'authorize_endpoint' => '/authorize',
-                    'token_endpoint' => '/token',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_id] is blank',
             ],
@@ -161,8 +163,8 @@ class LoginConfigServiceTest extends TestCase
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => 'http://redirect.url',
                     'base_url' => 'http://base.url',
-                    'authorize_endpoint' => '/authorize',
-                    'token_endpoint' => '/token',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_id] is invalid string',
             ],
@@ -173,8 +175,8 @@ class LoginConfigServiceTest extends TestCase
                     'client_id' => 'clientId',
                     'redirect_uri' => 'http://redirect.url',
                     'base_url' => 'http://base.url',
-                    'authorize_endpoint' => '/authorize',
-                    'token_endpoint' => '/token',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_secret] is missing',
             ],
@@ -186,8 +188,8 @@ class LoginConfigServiceTest extends TestCase
                     'client_secret' => null,
                     'redirect_uri' => 'http://redirect.url',
                     'base_url' => 'http://base.url',
-                    'authorize_endpoint' => '/authorize',
-                    'token_endpoint' => '/token',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_secret] is null, [client_secret] is blank',
             ],
@@ -199,8 +201,8 @@ class LoginConfigServiceTest extends TestCase
                     'client_secret' => '',
                     'redirect_uri' => 'http://redirect.url',
                     'base_url' => 'http://base.url',
-                    'authorize_endpoint' => '/authorize',
-                    'token_endpoint' => '/token',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_secret] is blank',
             ],
@@ -212,8 +214,8 @@ class LoginConfigServiceTest extends TestCase
                     'client_secret' => 12,
                     'redirect_uri' => 'http://redirect.url',
                     'base_url' => 'http://base.url',
-                    'authorize_endpoint' => '/authorize',
-                    'token_endpoint' => '/token',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_secret] is invalid string',
             ],
@@ -224,8 +226,8 @@ class LoginConfigServiceTest extends TestCase
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
                     'base_url' => 'http://base.url',
-                    'authorize_endpoint' => '/authorize',
-                    'token_endpoint' => '/token',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [redirect_uri] is missing',
             ],
@@ -237,8 +239,8 @@ class LoginConfigServiceTest extends TestCase
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => null,
                     'base_url' => 'http://base.url',
-                    'authorize_endpoint' => '/authorize',
-                    'token_endpoint' => '/token',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [redirect_uri] is null, [redirect_uri] is blank',
             ],
@@ -250,8 +252,8 @@ class LoginConfigServiceTest extends TestCase
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => '',
                     'base_url' => 'http://base.url',
-                    'authorize_endpoint' => '/authorize',
-                    'token_endpoint' => '/token',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [redirect_uri] is blank',
             ],
@@ -263,8 +265,8 @@ class LoginConfigServiceTest extends TestCase
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => 12,
                     'base_url' => 'http://base.url',
-                    'authorize_endpoint' => '/authorize',
-                    'token_endpoint' => '/token',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [redirect_uri] is invalid string, [redirect_uri] is invalid URL',
             ],
@@ -276,8 +278,8 @@ class LoginConfigServiceTest extends TestCase
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => 'redirectUri',
                     'base_url' => 'http://base.url',
-                    'authorize_endpoint' => '/authorize',
-                    'token_endpoint' => '/token',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [redirect_uri] is invalid URL',
             ],
@@ -288,8 +290,8 @@ class LoginConfigServiceTest extends TestCase
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => 'http://redirect.url',
-                    'authorize_endpoint' => '/authorize',
-                    'token_endpoint' => '/token',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] is missing',
             ],
@@ -301,8 +303,8 @@ class LoginConfigServiceTest extends TestCase
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => 'http://redirect.url',
                     'base_url' => null,
-                    'authorize_endpoint' => '/authorize',
-                    'token_endpoint' => '/token',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] is null, [base_url] is blank',
             ],
@@ -314,8 +316,8 @@ class LoginConfigServiceTest extends TestCase
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => 'http://redirect.url',
                     'base_url' => '',
-                    'authorize_endpoint' => '/authorize',
-                    'token_endpoint' => '/token',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] is blank',
             ],
@@ -327,8 +329,8 @@ class LoginConfigServiceTest extends TestCase
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => 'http://redirect.url',
                     'base_url' => 12,
-                    'authorize_endpoint' => '/authorize',
-                    'token_endpoint' => '/token',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] is invalid string, [base_url] is invalid URL',
             ],
@@ -340,86 +342,125 @@ class LoginConfigServiceTest extends TestCase
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => 'http://redirect.url',
                     'base_url' => 'baseUrl',
-                    'authorize_endpoint' => '/authorize',
-                    'token_endpoint' => '/token',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] is invalid URL',
             ],
 
-            'authorize_endpoint is null' => [
+            'base_url ends with slash' => [
                 'config' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'token_endpoint' => '/token',
+                    'base_url' => 'http://base.url/',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
                 ],
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_endpoint] is missing',
+                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] should not end with "/"',
             ],
 
-            'authorize_endpoint is blank' => [
+            'authorize_path is null' => [
                 'config' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => 'http://redirect.url',
                     'base_url' => 'http://base.url',
-                    'authorize_endpoint' => '',
-                    'token_endpoint' => '/token',
+                    'token_path' => '/token',
                 ],
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_endpoint] is blank',
+                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_path] is missing',
             ],
 
-            'authorize_endpoint is not a string' => [
+            'authorize_path is blank' => [
                 'config' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => 'http://redirect.url',
                     'base_url' => 'http://base.url',
-                    'authorize_endpoint' => 12,
-                    'token_endpoint' => '/token',
+                    'authorize_path' => '',
+                    'token_path' => '/token',
                 ],
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_endpoint] is invalid string',
+                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_path] is blank',
             ],
 
-            'token_endpoint is null' => [
+            'authorize_path is not a string' => [
                 'config' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => 'http://redirect.url',
                     'base_url' => 'http://base.url',
-                    'authorize_endpoint' => '/authorize',
+                    'authorize_path' => 12,
+                    'token_path' => '/token',
                 ],
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [token_endpoint] is missing',
+                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_path] is invalid string, [authorize_path] is invalid path. Requires to start with "/"',
             ],
 
-            'token_endpoint is blank' => [
+            'authorize_path not start with slash' => [
                 'config' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => 'http://redirect.url',
                     'base_url' => 'http://base.url',
-                    'authorize_endpoint' => '/authorize',
-                    'token_endpoint' => '',
+                    'authorize_path' => 'http://authorize',
+                    'token_path' => '/token',
                 ],
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [token_endpoint] is blank',
+                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_path] is invalid path. Requires to start with "/"',
             ],
 
-            'token_endpoint is not a string' => [
+            'token_path is null' => [
                 'config' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => 'http://redirect.url',
                     'base_url' => 'http://base.url',
-                    'authorize_endpoint' => '/authorize',
-                    'token_endpoint' => 24,
+                    'authorize_path' => '/authorize',
                 ],
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [token_endpoint] is invalid string',
+                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [token_path] is missing',
+            ],
+
+            'token_path is blank' => [
+                'config' => [
+                    'use_default' => false,
+                    'client_id' => 'clientId',
+                    'client_secret' => 'clientSecret',
+                    'redirect_uri' => 'http://redirect.url',
+                    'base_url' => 'http://base.url',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '',
+                ],
+                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [token_path] is blank',
+            ],
+
+            'token_path is not a string' => [
+                'config' => [
+                    'use_default' => false,
+                    'client_id' => 'clientId',
+                    'client_secret' => 'clientSecret',
+                    'redirect_uri' => 'http://redirect.url',
+                    'base_url' => 'http://base.url',
+                    'authorize_path' => '/authorize',
+                    'token_path' => 24,
+                ],
+                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [token_path] is invalid string, [token_path] is invalid path. Requires to start with "/"',
+            ],
+
+            'token_path not start with slash' => [
+                'config' => [
+                    'use_default' => false,
+                    'client_id' => 'clientId',
+                    'client_secret' => 'clientSecret',
+                    'redirect_uri' => 'http://redirect.url',
+                    'base_url' => 'http://base.url',
+                    'authorize_path' => '/authorize',
+                    'token_path' => 'any/token',
+                ],
+                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [token_path] is invalid path. Requires to start with "/"',
             ],
         ];
     }
@@ -442,8 +483,8 @@ class LoginConfigServiceTest extends TestCase
             'client_secret' => 'clientSecret',
             'redirect_uri' => 'http://redirect.url',
             'base_url' => 'http://base.url',
-            'authorize_endpoint' => '/authorize',
-            'token_endpoint' => '/token',
+            'authorize_path' => '/authorize',
+            'token_path' => '/token',
         ];
 
         $configService = new LoginConfigService($rawConfig, 'http://app.url', '/admin');
@@ -464,8 +505,8 @@ class LoginConfigServiceTest extends TestCase
             'client_secret' => 'clientSecret',
             'redirect_uri' => 'http://redirect.url',
             'base_url' => 'http://base.url',
-            'authorize_endpoint' => '/authorize',
-            'token_endpoint' => '/token',
+            'authorize_path' => '/authorize',
+            'token_path' => '/token',
         ];
 
         $configService = new LoginConfigService($rawConfig, 'http://app.url', $adminPath);

@@ -11,7 +11,6 @@ use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use Shopware\Administration\Login\ShopwareGrantType;
 use Shopware\Administration\Login\TokenService\ExternalTokenService;
 use Shopware\Administration\Login\UserService\UserService;
-use Shopware\Core\Framework\Api\OAuth\BearerTokenValidator;
 use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiContextRouteScopeDependant;

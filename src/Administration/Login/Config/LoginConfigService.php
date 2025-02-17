@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Constraints\Url;
 use Symfony\Component\Validator\Validation;
@@ -18,7 +19,7 @@ use Symfony\Component\Validator\Validation;
 final class LoginConfigService
 {
     /**
-     * @param array{use_default: bool, client_id: non-empty-string, client_secret: non-empty-string, redirect_uri: non-empty-string, base_url: non-empty-string, authorize_endpoint: non-empty-string, token_endpoint: non-empty-string} $rawConfig
+     * @param array{use_default: bool, client_id: non-empty-string, client_secret: non-empty-string, redirect_uri: non-empty-string, base_url: non-empty-string, authorize_path: non-empty-string, token_path: non-empty-string} $rawConfig
      */
     public function __construct(
         private readonly array $rawConfig,
@@ -41,8 +42,8 @@ final class LoginConfigService
             $this->rawConfig['client_secret'],
             $this->rawConfig['redirect_uri'],
             $this->rawConfig['base_url'],
-            $this->rawConfig['authorize_endpoint'],
-            $this->rawConfig['token_endpoint'],
+            $this->rawConfig['authorize_path'],
+            $this->rawConfig['token_path'],
         );
     }
 
@@ -90,6 +91,7 @@ final class LoginConfigService
         $notBlankMessage = 'is blank';
         $invalidStringMessage = 'is invalid string';
         $invalidUrlMessage = 'is invalid URL';
+        $invalidPath = 'is invalid path. Requires to start with "/"';
 
         $constraints = new Collection(
             [
@@ -118,16 +120,19 @@ final class LoginConfigService
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
                     new Url(null, $invalidUrlMessage),
+                    new Regex('/\w+(?!\/)$/', 'should not end with "/"'),
                 ],
-                'authorize_endpoint' => [
+                'authorize_path' => [
                     new NotNull(null, $isNullMessage),
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
+                    new Regex('/^[\/].+$/', $invalidPath), // path should start with "/"
                 ],
-                'token_endpoint' => [
+                'token_path' => [
                     new NotNull(null, $isNullMessage),
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
+                    new Regex('/^[\/].+$/', $invalidPath), // path should start with "/"
                 ],
             ],
             null,

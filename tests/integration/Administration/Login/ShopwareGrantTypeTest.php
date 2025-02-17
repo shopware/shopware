@@ -121,8 +121,8 @@ class ShopwareGrantTypeTest extends TestCase
                 'redirect_uri' => 'http://redirect.uri',
                 'base_url' => 'http://base.uri',
                 'session_key' => 'session_key',
-                'authorize_endpoint' => '/authorize',
-                'token_endpoint' => '/token',
+                'authorize_path' => '/authorize',
+                'token_path' => '/token',
             ],
             '',
             ''

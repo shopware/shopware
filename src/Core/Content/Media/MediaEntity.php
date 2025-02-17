@@ -330,6 +330,11 @@ class MediaEntity extends Entity
      */
     protected ?array $config;
 
+    /**
+     * @internal
+     */
+    protected ?string $fileHash = null;
+
     public function get(string $property)
     {
         if ($property === 'hasFile') {
@@ -836,5 +841,15 @@ class MediaEntity extends Entity
     public function isSpatialObject(): bool
     {
         return $this->mediaType instanceof SpatialObjectType;
+    }
+
+    public function getFileHash(): ?string
+    {
+        return $this->fileHash;
+    }
+
+    private function setFileHash(): never
+    {
+        throw new \BadMethodCallException('The file hash is a computed field and cannot be set');
     }
 }

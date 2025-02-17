@@ -75,7 +75,6 @@ export default {
 
         flowCriteria() {
             const criteria = new Criteria(1, 25);
-
             criteria.addAssociation('sequences.rule');
             criteria
                 .getAssociation('sequences')
@@ -98,6 +97,7 @@ export default {
         documentTypeCriteria() {
             const criteria = new Criteria(1, 100);
             criteria.addSorting(Criteria.sort('name', 'ASC'));
+
             return criteria;
         },
 
@@ -117,6 +117,7 @@ export default {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('mailTemplateType');
             criteria.addFilter(Criteria.equalsAny('id', this.mailTemplateIds));
+
             return criteria;
         },
 
@@ -127,12 +128,14 @@ export default {
         customerGroupCriteria() {
             const criteria = new Criteria(1, 100);
             criteria.addSorting(Criteria.sort('name', 'ASC'));
+
             return criteria;
         },
 
         appFlowActionCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('app');
+
             return criteria;
         },
 
@@ -158,12 +161,14 @@ export default {
         customFieldSetCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equalsAny('id', this.customFieldSetIds));
+
             return criteria;
         },
 
         customFieldCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equalsAny('id', this.customFieldIds));
+
             return criteria;
         },
 
@@ -266,7 +271,9 @@ export default {
         },
 
         routeDetailTab(tabName) {
-            if (!tabName) return {};
+            if (!tabName) {
+                return {};
+            }
 
             if (this.isNewFlow) {
                 if (this.$route.params.flowTemplateId) {
@@ -300,6 +307,7 @@ export default {
             flow.id = Utils.createId();
             flow.priority = 0;
             flow.eventName = '';
+            flow.sequences = [];
 
             return Store.get('swFlow').setFlow(flow);
         },
@@ -356,12 +364,20 @@ export default {
             // Remove selector sequence type before saving
             this.removeAllSelectors();
 
+            if (!this.flow?.name  || !this.flow?.eventName) {
+                this.createNotificationWarning({
+                    message: this.$tc('sw-flow.flowNotification.emptyFields.general'),
+                });
+
+                return;
+            }
+
             // Validate condition sequence which has empty rule or action sequence has empty action name
             const invalidSequences = this.validateEmptySequence();
 
             if (invalidSequences.length) {
                 this.createNotificationWarning({
-                    message: this.$tc('sw-flow.flowNotification.messageRequiredEmptyFields'),
+                    message: this.$tc('sw-flow.flowNotification.emptyFields.sequences'),
                 });
 
                 return;
@@ -396,14 +412,14 @@ export default {
                             name: 'sw.flow.detail',
                             params: { id: this.flow.id },
                         });
-                    } else {
-                        this.getDetailFlow();
+
+                        return;
                     }
 
+                    this.getDetailFlow();
                     this.isSaveSuccessful = true;
                 })
-                .catch((err) => {
-                    console.error(err);
+                .catch(() => {
                     this.createNotificationError({
                         message: this.$tc('sw-flow.flowNotification.messageSaveError'),
                     });
@@ -513,7 +529,10 @@ export default {
         validateEmptySequence() {
             const invalidSequences = this.sequences.reduce((result, sequence) => {
                 if (sequence.ruleId === '' || sequence.actionName === '') {
-                    result.push(sequence.id);
+                    return [
+                        ...result,
+                        sequence.id,
+                    ];
                 }
 
                 return result;
@@ -643,6 +662,7 @@ export default {
 
         createSequenceEntity(flowSequence) {
             const entity = this.flowSequenceRepository.create();
+
             Object.keys(flowSequence).forEach((key) => {
                 if (key === 'trueCase') {
                     entity[key] = Boolean(flowSequence[key]);

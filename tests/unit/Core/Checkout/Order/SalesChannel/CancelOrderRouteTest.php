@@ -109,7 +109,7 @@ class CancelOrderRouteTest extends TestCase
             ->willReturn(new StateMachineStateEntity());
 
         /** @var StaticEntityRepository<OrderCollection> */
-        $orderRepository = new StaticEntityRepository([[]]);
+        $orderRepository = new StaticEntityRepository([[Uuid::randomHex()]]);
 
         $route = new CancelOrderRoute($orderService, $orderRepository);
 

@@ -106,9 +106,14 @@ class OrderConverterTest extends TestCase
             $this->expectException($exceptionClass);
         }
 
+        $orderAddressRepositorySearchResult = [];
+        if ($exceptionClass !== AddressNotFoundException::class) {
+            $orderAddressRepositorySearchResult = [$this->getOrderAddress()];
+        }
+
         $orderConverter = $this->getOrderConverter(
             [$this->getCustomer(false)],
-            [$this->getBillingAddress()],
+            $orderAddressRepositorySearchResult,
             function (string $randomId, string $salesChannelId, array $options): SalesChannelContext {
                 $expectedOptions = [
                     SalesChannelContextService::CURRENCY_ID => 'order-currency-id',
@@ -140,6 +145,13 @@ class OrderConverterTest extends TestCase
             [
                 OrderException::class,
                 'order-no-transactions',
+            ],
+            [
+                OrderException::class,
+                'order-no-order-customer',
+            ],
+            [
+                AddressNotFoundException::class,
             ],
             [
                 '',
@@ -724,7 +736,7 @@ class OrderConverterTest extends TestCase
         $orderDelivery->setShippingDateEarliest(new \DateTimeImmutable());
         $orderDelivery->setShippingDateLatest(new \DateTimeImmutable());
         $orderDelivery->setShippingMethodId('order-delivery-shipping-method-id');
-        $orderAddress = $this->getShippingAddress();
+        $orderAddress = $this->getOrderAddress();
         $orderDelivery->setShippingOrderAddress($orderAddress);
         $orderDelivery->setShippingOrderAddressId($orderAddress->getId());
         static::assertIsString($orderAddress->getVersionId());
@@ -944,16 +956,7 @@ class OrderConverterTest extends TestCase
         return $customer;
     }
 
-    private function getBillingAddress(): OrderAddressEntity
-    {
-        $address = new OrderAddressEntity();
-        $address->setId('order-address-id');
-        $address->setCountryStateId('order-address-country-state-id');
-
-        return $address;
-    }
-
-    private function getShippingAddress(): OrderAddressEntity
+    private function getOrderAddress(): OrderAddressEntity
     {
         $country = new CountryEntity();
         $country->setId('country-id');

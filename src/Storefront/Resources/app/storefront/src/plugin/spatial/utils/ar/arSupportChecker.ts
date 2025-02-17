@@ -20,7 +20,7 @@ export async function supportsAr(): Promise<boolean> {
 export function supportQuickLook(): boolean {
     // Native IOS Support (Safari)
     const a = document.createElement('a');
-    if(a.relList.supports('ar')) {
+    if (a.relList.supports('ar')) {
         return true;
     }
 

@@ -9,10 +9,8 @@ use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Storefront\Framework\Media\Exception\FileTypeNotAllowedException;
 use Shopware\Storefront\Framework\Media\Exception\MediaValidatorMissingException;
 use Shopware\Storefront\Framework\Media\StorefrontMediaUploader;
 use Shopware\Storefront\Framework\Media\StorefrontMediaValidatorRegistry;
@@ -41,11 +39,7 @@ class StorefrontMediaUploaderTest extends TestCase
 
     public function testUploadDocumentFailIllegalFileType(): void
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            $this->expectException(FileTypeNotAllowedException::class);
-        } else {
-            $this->expectException(StorefrontFrameworkException::class);
-        }
+        $this->expectException(StorefrontFrameworkException::class);
         $this->expectExceptionMessage('Type "application/vnd.ms-excel" of provided file is not allowed for documents');
 
         $file = $this->getUploadFixture('empty.xls');
@@ -73,11 +67,7 @@ class StorefrontMediaUploaderTest extends TestCase
 
     public function testUploadDocumentFailIllegalImageType(): void
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            $this->expectException(FileTypeNotAllowedException::class);
-        } else {
-            $this->expectException(StorefrontFrameworkException::class);
-        }
+        $this->expectException(StorefrontFrameworkException::class);
         $this->expectExceptionMessage('Type "image/webp" of provided file is not allowed for images');
 
         $file = $this->getUploadFixture('image.webp');

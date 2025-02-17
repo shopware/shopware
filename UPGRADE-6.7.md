@@ -2496,6 +2496,17 @@ We made some changes in the configuration and setup, which might affect your pro
 <details>
   <summary>Detailed Changes</summary>
 
+## XKeys module is now required for Varnish
+
+The XKeys module is now required for Varnish. If you are using Varnish, you need to ensure that the XKeys module is installed and enabled.
+Storing the cache tags for varnish inside redis is not possible anymore, as that solution let to serious scaling issues where the redis tag storage become the bottleneck.
+
+For more information take a look inside the [docs](https://developer.shopware.com/docs/guides/hosting/infrastructure/reverse-http-cache.html#configure-varnish).
+
+This means that the following configuration keys are no longer available:
+* `shopware.http_cache.reverse_proxy.use_varnish_xkey`
+* `shopware.http_cache.reverse_proxy.redis_url`
+
 ## Config keys changes due to improved redis connection handling
 
 Next configuration keys are deprecated and will be removed in the next major version:

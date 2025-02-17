@@ -8,17 +8,14 @@ use Shopware\Core\Checkout\Document\Event\DeliveryNoteOrdersEvent;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
-use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Language\LanguageEntity;
-use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -29,14 +26,14 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
 
     /**
      * @internal
+     *
+     * @param EntityRepository<OrderCollection> $orderRepository
      */
     public function __construct(
         private readonly EntityRepository $orderRepository,
         private readonly DocumentConfigLoader $documentConfigLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly DocumentTemplateRenderer $documentTemplateRenderer,
         private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
-        private readonly string $rootDir,
         private readonly Connection $connection,
         private readonly DocumentFileRendererRegistry $fileRendererRegistry,
     ) {
@@ -112,16 +109,10 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
                     ]);
 
                     if ($operation->isStatic()) {
-                        // @deprecated tag:v6.7.0 - html argument will be removed
                         $doc = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
                         $result->addSuccess($orderId, $doc);
 
                         continue;
-                    }
-
-                    $deliveries = null;
-                    if ($order->getDeliveries()) {
-                        $deliveries = $order->getDeliveries()->first();
                     }
 
                     /** @var LanguageEntity|null $language */
@@ -130,30 +121,8 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
                         throw DocumentException::generationError('Can not generate credit note document because no language exists. OrderId: ' . $operation->getOrderId());
                     }
 
-                    /** @var LocaleEntity $locale */
-                    $locale = $language->getLocale();
-
-                    $html = '';
-                    if (!Feature::isActive('v6.7.0.0')) {
-                        $html = $this->documentTemplateRenderer->render(
-                            $template,
-                            [
-                                'order' => $order,
-                                'orderDelivery' => $deliveries,
-                                'config' => $config,
-                                'rootDir' => $this->rootDir,
-                                'context' => $context,
-                            ],
-                            $context,
-                            $order->getSalesChannelId(),
-                            $order->getLanguageId(),
-                            $locale->getCode(),
-                        );
-                    }
-
-                    // @deprecated tag:v6.7.0 - html argument will be removed
                     $doc = new RenderedDocument(
-                        $html,
+                        '',
                         $number,
                         $config->buildName(),
                         $operation->getFileType(),
@@ -163,10 +132,7 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
                     $doc->setTemplate($template);
                     $doc->setOrder($order);
                     $doc->setContext($context);
-
-                    if (Feature::isActive('v6.7.0.0')) {
-                        $doc->setContent($this->fileRendererRegistry->render($doc));
-                    }
+                    $doc->setContent($this->fileRendererRegistry->render($doc));
 
                     $result->addSuccess($orderId, $doc);
                 } catch (\Throwable $exception) {

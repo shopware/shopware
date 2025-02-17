@@ -134,6 +134,7 @@ class AttributeEntityIntegrationTest extends TestCase
                 'id' => $ids->create('first-key'),
                 'string' => 'string',
                 'emptyString' => '',
+                'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
                 'transString' => 'transString',
                 'differentName' => 'storageString',
             ],
@@ -155,6 +156,7 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertSame($ids->get('first-key'), $record->id);
         static::assertSame('string', $record->string);
+        static::assertSame('<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>', $record->htmlString);
         static::assertSame('transString', $record->getTranslation('transString'));
         static::assertSame('storageString', $record->differentName);
 
@@ -208,6 +210,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $data = [
             'id' => $ids->get('first-key'),
             'string' => 'string',
+            'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
             'emptyString' => '',
             'text' => 'text',
             'int' => 1,
@@ -333,6 +336,7 @@ class AttributeEntityIntegrationTest extends TestCase
             'translations' => null,
             'customFields' => null,
             'emptyString' => '',
+            'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
         ], $json);
     }
 
@@ -362,6 +366,7 @@ class AttributeEntityIntegrationTest extends TestCase
             'id' => $ids->get('first-key'),
             'string' => 'string',
             'emptyString' => '',
+            'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
             'transString' => 'transString',
             'follow' => self::currency($ids->get('currency-1'), 'ABC'),
         ];
@@ -416,6 +421,7 @@ class AttributeEntityIntegrationTest extends TestCase
             'string' => 'string',
             'emptyString' => '',
             'transString' => 'transString',
+            'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
             'aggs' => [
                 ['id' => $ids->get('agg-1'), 'number' => 'agg-1'],
                 ['id' => $ids->get('agg-2'), 'number' => 'agg-2'],
@@ -483,6 +489,7 @@ class AttributeEntityIntegrationTest extends TestCase
             'string' => 'string',
             'emptyString' => '',
             'transString' => 'transString',
+            'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
             'currency' => self::currency($ids->get('currency-1'), 'ABC'),
         ];
 
@@ -569,6 +576,7 @@ class AttributeEntityIntegrationTest extends TestCase
             'string' => 'string',
             'emptyString' => '',
             'transString' => 'transString',
+            'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
             'currencies' => [
                 self::currency($ids->get('currency-1'), 'ABC'),
                 self::currency($ids->get('currency-2'), 'DEF'),
@@ -630,6 +638,7 @@ class AttributeEntityIntegrationTest extends TestCase
             'string' => 'string',
             'emptyString' => '',
             'transString' => 'transString',
+            'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
             'stateId' => $stateId,
         ];
 
@@ -705,6 +714,7 @@ class AttributeEntityIntegrationTest extends TestCase
             'id' => $ids->get('first-key'),
             'string' => 'string',
             'emptyString' => '',
+            'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
             'transString' => [
                 'en-GB' => 'transString',
                 'de-DE' => 'transString-de',
@@ -760,6 +770,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $data = [
             'id' => $ids->get('first-key'),
             'string' => 'string',
+            'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
             'emptyString' => '',
             'transString' => 'transString',
         ];
@@ -809,6 +820,7 @@ class AttributeEntityIntegrationTest extends TestCase
             'string' => 'string',
             'emptyString' => '',
             'transString' => 'transString',
+            'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
             'orders' => [
                 self::order($ids->get('order-1'), $this->getStateMachineState(), $this->getValidCountryId()),
                 self::order($ids->get('order-2'), $this->getStateMachineState(), $this->getValidCountryId()),

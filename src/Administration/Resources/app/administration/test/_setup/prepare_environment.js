@@ -20,7 +20,6 @@ import {
     MtDatepicker,
     MtEmailField,
     MtEmptyState,
-    MtExternalLink,
     MtFloatingUi,
     MtIcon,
     MtLink,
@@ -38,9 +37,9 @@ import {
     MtTabs,
     MtTextField,
     MtTextarea,
-    MtToast,
-    MtUrlField,
+    MtToast, MtTextEditor,
 } from '@shopware-ag/meteor-component-library';
+import {createI18n} from "vue-i18n";
 import aclService from './_mocks_/acl.service.mock';
 import feature from './_mocks_/feature.service.mock';
 import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
@@ -211,7 +210,6 @@ config.global.stubs = {
     'mt-datepicker': MtDatepicker,
     'mt-email-field': MtEmailField,
     'mt-empty-state': MtEmptyState,
-    'mt-external-link': MtExternalLink,
     'mt-floating-ui': MtFloatingUi,
     'mt-icon': MtIcon,
     'mt-link': MtLink,
@@ -230,14 +228,33 @@ config.global.stubs = {
     'mt-text-field': MtTextField,
     'mt-textarea': MtTextarea,
     'mt-toast': MtToast,
-    'mt-url-field': MtUrlField,
+    'mt-text-editor': MtTextEditor,
     ...config.global.stubs,
 };
+
+const i18n = createI18n({
+    legacy: false,
+    locale: 'en',
+    fallbackLocale: 'en',
+    silentFallbackWarn: true,
+    sync: true,
+    messages: {},
+    allowComposition: true,
+    // Custom message resolver to avoid console warnings
+    messageResolver: (obj, path) => {
+        if (obj[path]) {
+            return obj[path];
+        }
+
+        return path;
+    }
+})
 
 // Add global plugins
 config.global.plugins = [
     VirtualCallStackPlugin,
     MeteorSdkDataPlugin,
+    i18n,
 ];
 
 // Add global directives

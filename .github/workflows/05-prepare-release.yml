@@ -132,6 +132,10 @@ jobs:
         if: github.ref_type != 'tag' && !github.ref_protected
         run: |
           bash .github/bin/split.bash branch "${{ matrix.package }}" "tmp-${{ github.sha }}"
+      - name: Create named branch
+        if: github.ref_type != 'tag' && github.ref_protected
+        run: |
+          bash .github/bin/split.bash branch "${{ matrix.package }}" "${{ github.ref_name }}"
       - name: Push
         if: github.ref_type == 'tag' || github.ref_protected
         run: |

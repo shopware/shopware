@@ -14,8 +14,6 @@ class SalesChannelRule extends Rule
     final public const RULE_NAME = 'salesChannel';
 
     /**
-     * @internal
-     *
      * @param list<string>|null $salesChannelIds
      */
     public function __construct(

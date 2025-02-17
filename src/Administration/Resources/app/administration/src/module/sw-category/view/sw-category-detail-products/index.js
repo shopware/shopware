@@ -126,13 +126,17 @@ export default {
                 name: 'sw.product.stream.index',
             };
 
-            const helpText = this.$tc('sw-category.base.products.dynamicProductGroupHelpText.label', 0, {
-                link: `<sw-internal-link
+            const helpText = this.$tc(
+                'sw-category.base.products.dynamicProductGroupHelpText.label',
+                {
+                    link: `<sw-internal-link
                            :router-link=${JSON.stringify(link)}
                            :inline="true">
                            ${this.$tc('sw-category.base.products.dynamicProductGroupHelpText.linkText')}
                        </sw-internal-link>`,
-            });
+                },
+                0,
+            );
 
             try {
                 // eslint-disable-next-line no-new

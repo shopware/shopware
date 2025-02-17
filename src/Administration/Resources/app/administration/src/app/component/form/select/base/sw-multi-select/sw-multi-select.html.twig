@@ -48,7 +48,7 @@
             ref="swSelectResultList"
             :options="visibleResults"
             :is-loading="isLoading"
-            :empty-message="$tc('global.sw-multi-select.messageNoResults', 0, { term: searchTerm })"
+            :empty-message="$tc('global.sw-multi-select.messageNoResults', { term: searchTerm }, 0)"
             :focus-el="$refs.selectionList.getFocusEl()"
             @paginate="$emit('paginate')"
             @item-select="addItem"

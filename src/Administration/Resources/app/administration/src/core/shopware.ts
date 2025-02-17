@@ -43,7 +43,6 @@ import AppContextFactory from 'src/core/factory/app-context.factory';
 import RouterFactory from 'src/core/factory/router.factory';
 import ApiServices from 'src/core/service/api';
 import ModuleFilterFactory from 'src/core/data/filter-factory.data';
-import type { VueI18n } from 'vue-i18n';
 import Store from 'src/app/store';
 import { createExtendableSetup, overrideComponentSetup } from 'src/app/adapter/composition-extension-system';
 import * as Vue from 'vue';
@@ -257,10 +256,13 @@ class ShopwareClass implements CustomShopwareProperties {
 
     public Data = data;
 
-    public get Snippet(): VueI18n {
-        // @ts-expect-error - type is currently not available
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
-        return Shopware.Application.view.i18n.global;
+    public get Snippet() {
+        return {
+            // @ts-expect-error - type is currently not available
+            ...Shopware.Application.view.i18n.global,
+            // @ts-expect-error - type is currently not available
+            tc: Shopware.Application.view.i18n.global.t,
+        };
     }
 
     public Classes = {

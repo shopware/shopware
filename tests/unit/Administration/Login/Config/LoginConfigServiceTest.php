@@ -49,8 +49,8 @@ class LoginConfigServiceTest extends TestCase
         static::assertSame($rawConfig['client_secret'], $config->clientSecret);
         static::assertSame($rawConfig['redirect_uri'], $config->redirectUri);
         static::assertSame($rawConfig['base_url'], $config->baseUrl);
-        static::assertSame($rawConfig['authorize_path'], $config->authorizeEndpoint);
-        static::assertSame($rawConfig['token_path'], $config->tokenEndpoint);
+        static::assertSame($rawConfig['authorize_path'], $config->authorizePath);
+        static::assertSame($rawConfig['token_path'], $config->tokenPath);
     }
 
     /**

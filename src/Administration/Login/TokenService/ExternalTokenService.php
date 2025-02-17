@@ -27,7 +27,7 @@ final class ExternalTokenService
             throw LoginException::configurationNotFound();
         }
 
-        $tokenResponse = $this->client->request('POST', $loginConfig->baseUrl . $loginConfig->tokenEndpoint, [
+        $tokenResponse = $this->client->request('POST', $loginConfig->baseUrl . $loginConfig->tokenPath, [
             'body' => [
                 'grant_type' => 'authorization_code',
                 'scope' => 'openid',

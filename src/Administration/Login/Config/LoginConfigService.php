@@ -62,7 +62,7 @@ final class LoginConfigService
         return \sprintf(
             '%s%s?client_id=%s&redirect_uri=%s&response_type=code&scope=openid&state=%s',
             $loginConfig->baseUrl,
-            $loginConfig->authorizeEndpoint,
+            $loginConfig->authorizePath,
             $loginConfig->clientId,
             \urlencode($loginConfig->redirectUri ?? ''),
             \urlencode($state)

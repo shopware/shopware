@@ -99,7 +99,7 @@ class UserServiceTest extends TestCase
         $connection = $this->getContainer()->get(Connection::class);
 
         $result = $connection->createQueryBuilder()
-            ->select(...['id', 'user_id', 'user_sub', 'refresh_token', 'expiry'])
+            ->select('id', 'user_id', 'user_sub', 'refresh_token', 'expiry')
             ->from('token_user')
             ->where('user_sub = :subject')
             ->setParameter('subject', $subject)

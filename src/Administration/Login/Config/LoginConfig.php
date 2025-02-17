@@ -15,8 +15,8 @@ final class LoginConfig
      * @param non-empty-string $clientSecret
      * @param non-empty-string $redirectUri
      * @param non-empty-string $baseUrl
-     * @param non-empty-string $authorizeEndpoint
-     * @param non-empty-string $tokenEndpoint
+     * @param non-empty-string $authorizePath
+     * @param non-empty-string $tokenPath
      */
     public function __construct(
         public readonly bool $useDefault,
@@ -24,8 +24,8 @@ final class LoginConfig
         public readonly string $clientSecret,
         public readonly string $redirectUri,
         public readonly string $baseUrl,
-        public readonly string $authorizeEndpoint,
-        public readonly string $tokenEndpoint,
+        public readonly string $authorizePath,
+        public readonly string $tokenPath,
     ) {
     }
 }

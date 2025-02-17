@@ -843,13 +843,24 @@ class MediaEntity extends Entity
         return $this->mediaType instanceof SpatialObjectType;
     }
 
+    /**
+     * @internal
+     */
     public function getFileHash(): ?string
     {
         return $this->fileHash;
     }
 
-    private function setFileHash(): never
+    /**
+     * @internal
+     */
+    protected function setFileHash(?string $fileHash): void
     {
-        throw new \BadMethodCallException('The file hash is a computed field and cannot be set');
+        if ($fileHash === null) {
+            unset($this->metaData['file_hash']);
+        } else {
+            $this->metaData['file_hash'] = $fileHash;
+        }
+        $this->fileHash = $fileHash;
     }
 }

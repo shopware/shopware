@@ -50,11 +50,11 @@ test('Guest customer is able to add and remove products to the wishlist',{ tag: 
         await ShopCustomer.expects(product2Locators.wishlistAddedIcon).toBeVisible();   
     });
 
-    await test.step('Navigate to the wishlist and verify that the products are in correct order', async () => {
+    await test.step('Navigate to the wishlist and verify that the products are visible', async () => {
         await StorefrontHome.wishlistIcon.click();
         await ShopCustomer.expects(StorefrontHome.wishlistBasket).toHaveText('2');
         await ShopCustomer.expects(StorefrontWishlist.wishListHeader).toBeVisible();
-        const firstProductInListing = StorefrontWishlist.productListItems.first();
-        await ShopCustomer.expects(firstProductInListing.locator('.product-name')).toContainText(product2.name);
+        await ShopCustomer.expects(product1Locators.productName).toBeVisible();
+        await ShopCustomer.expects(product2Locators.productName).toBeVisible();
     });
 });

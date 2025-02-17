@@ -154,7 +154,7 @@ class ConfigurationServiceTest extends TestCase
 
     public function testEmptyConfigThrowsError(): void
     {
-        $this->expectExceptionObject(SystemConfigException::configurationNotFound());
+        $this->expectExceptionObject(SystemConfigException::configurationNotFound('SwagExampleTest'));
 
         $this->getConfiguration([]);
     }

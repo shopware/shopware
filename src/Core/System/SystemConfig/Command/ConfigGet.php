@@ -51,7 +51,7 @@ class ConfigGet extends Command
     {
         $format = $input->getOption('format');
         if (!\in_array($format, self::ALLOWED_FORMATS, true)) {
-            throw new \RuntimeException("{$format} is not a valid choice as output format");
+            throw new \InvalidArgumentException("{$format} is not a valid choice as output format");
         }
 
         $configKey = $input->getArgument('key');
@@ -62,7 +62,7 @@ class ConfigGet extends Command
 
         if ($format === self::FORMAT_SCALAR) {
             if (\is_array($value)) {
-                throw new \RuntimeException('Value is an array, please specify the config key to point to a scalar, when using the scalar format.');
+                throw new \InvalidArgumentException('Value is an array, please specify the config key to point to a scalar, when using the scalar format.');
             }
 
             $this->writeConfigScalar($output, $this->getScalarValue($value));
@@ -93,11 +93,17 @@ class ConfigGet extends Command
         $output->writeln($config);
     }
 
+    /**
+     * @param array<mixed> $config
+     */
     private function writeConfigJson(OutputInterface $output, array $config, int $flags): void
     {
         $output->writeln((string) \json_encode($config, $flags));
     }
 
+    /**
+     * @param array<string, mixed> $config
+     */
     private function writeConfigDefault(OutputInterface $output, array $config, int $level = 1): void
     {
         ksort($config);

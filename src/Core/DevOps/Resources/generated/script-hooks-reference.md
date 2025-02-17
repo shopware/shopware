@@ -341,20 +341,6 @@ All available Hooks that can be used to load additional data.
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>[request](./miscellaneous-script-services-reference.md#RequestFacade)<br> |
 | **Stoppable**          | `false`                  |
 
-#### product-reviews-loaded
-
-**Deprecated:** Class "Shopware\Storefront\Page\Product\Review\ProductReviewsWidgetLoadedHook" is deprecated and will be removed in v6.7.0.0. Use "Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook" instead.
-
-| <!-- -->               | <!-- -->                                |
-|:-----------------------|:----------------------------------------|
-| **Name**               | product-reviews-loaded                         |
-| **Since**              | 6.4.8.0                        |
-| **Class**              | `Shopware\Storefront\Page\Product\Review\ProductReviewsWidgetLoadedHook`                      |
-| **Description**        | Triggered when the ProductReviewsWidget is loaded<br>                  |
-| **Available Data**     | reviews: [`Shopware\Storefront\Page\Product\Review\ReviewLoaderResult`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Product/Review/ReviewLoaderResult.php)<br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php)<br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php)<br>        |
-| **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>[request](./miscellaneous-script-services-reference.md#RequestFacade)<br> |
-| **Stoppable**          | `false`                  |
-
 #### search-page-loaded
 
 | <!-- -->               | <!-- -->                                |

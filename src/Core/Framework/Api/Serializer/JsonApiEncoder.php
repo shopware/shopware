@@ -91,7 +91,7 @@ class JsonApiEncoder
 
             try {
                 $relationData = $entity->get($propertyName);
-            } catch (PropertyNotFoundException|\InvalidArgumentException) {
+            } catch (PropertyNotFoundException) {
                 continue;
             }
 

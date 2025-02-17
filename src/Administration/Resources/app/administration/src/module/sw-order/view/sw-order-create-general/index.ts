@@ -66,16 +66,20 @@ export default Component.wrapComponentConfig({
 
             const calcTaxes = this.sortByTaxRate(this.cartDelivery.shippingCosts.calculatedTaxes);
             const decorateCalcTaxes = calcTaxes.map((item: CalculatedTax) => {
-                return this.$tc('sw-order.createBase.shippingCostsTax', 0, {
-                    taxRate: item.taxRate,
-                    tax: format.currency(
-                        item.tax,
-                        this.currency.isoCode,
-                        // eslint-disable-next-line max-len
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-explicit-any
-                        (this.currency.totalRounding as any)?.decimals,
-                    ),
-                });
+                return this.$t(
+                    'sw-order.createBase.shippingCostsTax',
+                    {
+                        taxRate: item.taxRate,
+                        tax: format.currency(
+                            item.tax,
+                            this.currency.isoCode,
+                            // eslint-disable-next-line max-len
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-explicit-any
+                            (this.currency.totalRounding as any)?.decimals,
+                        ),
+                    },
+                    0,
+                );
             });
 
             return `${this.$tc('sw-order.createBase.tax')}<br>${decorateCalcTaxes.join('<br>')}`;

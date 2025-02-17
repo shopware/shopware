@@ -183,7 +183,7 @@
                             v-else
                             class="sw-settings-snippet-list__delete-modal-confirm-delete-text"
                         >
-                            {{ $tc('sw-settings-snippet.list.textDeleteConfirm', 0, { key: item[metaId].translationKey }) }}
+                            {{ $tc('sw-settings-snippet.list.textDeleteConfirm', { key: item[metaId].translationKey }, 0) }}
                         </span>
                         {% endblock %}
 

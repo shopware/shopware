@@ -83,11 +83,6 @@ class SalesChannelEntityCompilerPassTest extends TestCase
  */
 class ProductEntityExtension extends EntityExtension
 {
-    public function getDefinitionClass(): string
-    {
-        return ProductDefinition::class;
-    }
-
     public function extendFields(FieldCollection $collection): void
     {
         $collection->add(

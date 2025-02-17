@@ -10,39 +10,15 @@ use Shopware\Core\Framework\Log\Package;
 class JsonField extends Field implements StorageAware
 {
     /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $storageName;
-
-    /**
-     * @var list<Field>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $propertyMapping;
-
-    /**
-     * @var array<mixed>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $default;
-
-    /**
      * @param list<Field> $propertyMapping
      * @param array<mixed>|null $default
      */
     public function __construct(
-        string $storageName,
+        protected string $storageName,
         string $propertyName,
-        array $propertyMapping = [],
-        ?array $default = null
+        protected array $propertyMapping = [],
+        protected ?array $default = null
     ) {
-        $this->storageName = $storageName;
-        $this->propertyMapping = $propertyMapping;
-        $this->default = $default;
         parent::__construct($propertyName);
     }
 

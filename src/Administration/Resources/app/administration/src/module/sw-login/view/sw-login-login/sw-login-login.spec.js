@@ -121,7 +121,7 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
         expect(setTimeout).toHaveBeenCalledTimes(2);
         expect(setTimeout).toHaveBeenLastCalledWith(expect.any(Function), 1000);
 
-        expect(wrapper.get('.sw-alert__message').text()).toBe('["sw-login.index.messageAuthThrottled",0,{"seconds":1}]');
+        expect(wrapper.get('.sw-alert__message').text()).toBe('["sw-login.index.messageAuthThrottled",{"seconds":1},0]');
 
         // advance the timer to make the warning disappear
         jest.advanceTimersByTime(1001);

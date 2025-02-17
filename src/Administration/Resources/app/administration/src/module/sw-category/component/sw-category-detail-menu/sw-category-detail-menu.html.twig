@@ -48,7 +48,7 @@
     {% endblock %}
 
     {% block sw_category_detail_menu_description %}
-    <sw-text-editor
+    <mt-text-editor
         :key="category.id + 'description'"
         v-model:value="category.description"
         class="sw-category-detail-base__description"

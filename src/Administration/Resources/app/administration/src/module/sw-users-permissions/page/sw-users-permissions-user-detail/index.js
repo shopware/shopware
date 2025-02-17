@@ -409,8 +409,8 @@ export default {
                         const titleSaveError = this.$tc('global.default.error');
                         const messageSaveError = this.$tc(
                             'sw-users-permissions.users.user-detail.notification.saveError.message',
-                            0,
                             { name: this.fullName },
+                            0,
                         );
 
                         return this.userRepository

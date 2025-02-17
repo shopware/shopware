@@ -19,9 +19,9 @@ final class RenderedDocument extends Struct
     private ?Context $context = null;
 
     /**
-     * @param array<string, mixed> $config
-     *
      * @deprecated tag:v6.7.0 - reason:parameter-change - html argument will be removed
+     *
+     * @param array<string, mixed> $config
      */
     public function __construct(
         private readonly string $html = '',

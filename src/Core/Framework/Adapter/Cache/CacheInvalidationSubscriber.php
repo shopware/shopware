@@ -64,7 +64,7 @@ use Shopware\Core\System\Tax\TaxDefinition;
 
 #[Package('framework')]
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be considered internal
+ * @internal
  */
 class CacheInvalidationSubscriber
 {

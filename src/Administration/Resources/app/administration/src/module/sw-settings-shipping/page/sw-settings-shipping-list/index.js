@@ -152,12 +152,12 @@ export default {
                 .save(item)
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-shipping.list.messageSaveSuccess', 0, { name }),
+                        message: this.$tc('sw-settings-shipping.list.messageSaveSuccess', { name }, 0),
                     });
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-shipping.list.messageSaveError', 0, { name }),
+                        message: this.$tc('sw-settings-shipping.list.messageSaveError', { name }, 0),
                     });
                 })
                 .finally(() => {
@@ -177,12 +177,12 @@ export default {
                 .delete(id)
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-shipping.list.messageDeleteSuccess', 0, { name }),
+                        message: this.$tc('sw-settings-shipping.list.messageDeleteSuccess', { name }, 0),
                     });
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-shipping.list.messageDeleteError', 0, { name }),
+                        message: this.$tc('sw-settings-shipping.list.messageDeleteError', { name }, 0),
                     });
                 })
                 .finally(() => {

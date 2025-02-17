@@ -135,10 +135,14 @@ Component.register('sw-file-input', {
 
             this.createNotificationError({
                 title: this.$tc('global.default.error'),
-                message: this.$tc('global.sw-file-input.notification.invalidFileSize.message', 0, {
-                    name: file.name,
-                    limit: fileSize(this.maxFileSize),
-                }),
+                message: this.$tc(
+                    'global.sw-file-input.notification.invalidFileSize.message',
+                    {
+                        name: file.name,
+                        limit: fileSize(this.maxFileSize),
+                    },
+                    0,
+                ),
             });
             return false;
         },
@@ -150,10 +154,14 @@ Component.register('sw-file-input', {
 
             this.createNotificationError({
                 title: this.$tc('global.default.error'),
-                message: this.$tc('global.sw-file-input.notification.invalidFileType.message', 0, {
-                    name: file.name,
-                    supportedTypes: this.allowedMimeTypes.join(', '),
-                }),
+                message: this.$tc(
+                    'global.sw-file-input.notification.invalidFileType.message',
+                    {
+                        name: file.name,
+                        supportedTypes: this.allowedMimeTypes.join(', '),
+                    },
+                    0,
+                ),
             });
             return false;
         },

@@ -8,7 +8,7 @@
 
     {% block sw_bulk_edit_customer_smart_bar_header %}
     <template #smart-bar-header>
-        <h2>{{ $tc('sw-bulk-edit.customer.textTitle', selectedIds.length, { customerTotal: selectedIds.length }) }}</h2>
+        <h2>{{ $tc('sw-bulk-edit.customer.textTitle', { customerTotal: selectedIds.length }), selectedIds.length }}</h2>
     </template>
     {% endblock %}
 

@@ -53,7 +53,6 @@ class OrderTrackingCodeRuleTest extends TestCase
         $order->setDeliveries($orderDeliveryCollection);
 
         $cart = new Cart('token');
-        $context = $this->createMock(SalesChannelContext::class);
 
         $match = $rule->match(new FlowRuleScope(
             $order,

@@ -13,6 +13,9 @@ class SalesChannelDefinitionInstanceRegistry extends DefinitionInstanceRegistry
 {
     /**
      * @internal
+     *
+     * @param array<string, string|class-string<EntityDefinition>> $definitionMap
+     * @param array<string, string> $repositoryMap
      */
     public function __construct(
         private readonly string $prefix,

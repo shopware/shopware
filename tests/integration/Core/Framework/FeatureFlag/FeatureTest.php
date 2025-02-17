@@ -132,7 +132,7 @@ class FeatureTest extends TestCase
     public function testConfigGetAllReturnsAllAndTracksState(): void
     {
         $currentConfig = array_keys(Feature::getAll(false));
-        $featureFlags = array_keys(static::getContainer()->getParameter('shopware.feature.flags'));
+        $featureFlags = array_keys(self::$features);
 
         static::assertEquals(\array_map(Feature::normalizeName(...), $featureFlags), \array_map(Feature::normalizeName(...), $currentConfig));
 

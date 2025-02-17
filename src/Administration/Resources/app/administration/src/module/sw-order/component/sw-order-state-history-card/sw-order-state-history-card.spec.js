@@ -42,6 +42,7 @@ async function createWrapper() {
                         search: () => Promise.resolve([]),
                     }),
                 },
+                swOrderDetailAskAndSaveEdits: () => Promise.resolve(true),
             },
         },
         props: {

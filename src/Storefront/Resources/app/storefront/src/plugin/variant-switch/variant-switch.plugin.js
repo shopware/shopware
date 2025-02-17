@@ -4,7 +4,6 @@
 
 import Plugin from 'src/plugin-system/plugin.class';
 import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading-indicator.util';
-import DomAccess from 'src/helper/dom-access.helper';
 import HttpClient from 'src/service/http-client.service';
 
 /**
@@ -24,8 +23,8 @@ export default class VariantSwitchPlugin extends Plugin {
 
     init() {
         this._httpClient = new HttpClient();
-        this._radioFields = DomAccess.querySelectorAll(this.el, this.options.radioFieldSelector, false);
-        this._selectFields = DomAccess.querySelectorAll(this.el, this.options.selectFieldSelector, false);
+        this._radioFields = this.el.querySelectorAll(this.options.radioFieldSelector);
+        this._selectFields = this.el.querySelectorAll(this.options.selectFieldSelector);
         this._elementId = this.options.elementId;
         this._pageType = this.options.pageType;
 

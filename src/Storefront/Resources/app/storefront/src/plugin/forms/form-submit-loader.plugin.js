@@ -1,4 +1,3 @@
-import DomAccess from 'src/helper/dom-access.helper';
 import ButtonLoadingIndicator from 'src/utility/loading-indicator/button-loading-indicator.util';
 import Plugin from 'src/plugin-system/plugin.class';
 import {INDICATOR_POSITION} from 'src/utility/loading-indicator/loading-indicator.util';
@@ -65,16 +64,12 @@ export default class FormSubmitLoaderPlugin extends Plugin {
      * @private
      */
     _getSubmitButtons() {
-        this._submitButtons = Array.from(DomAccess.querySelectorAll(this._form, 'button[type=submit]', false));
+        this._submitButtons = Array.from(this._form.querySelectorAll('button[type=submit]'));
 
         const formId = this._form.id;
         if (formId) {
             this._submitButtons = this._submitButtons.concat(Array.from(
-                DomAccess.querySelectorAll(
-                    this._form.closest(this.options.formWrapperSelector),
-                    `:not(form) > button[type=submit][form="${formId}"]`,
-                    false
-                )
+                this._form.closest(this.options.formWrapperSelector).querySelectorAll(`:not(form) > button[type=submit][form="${formId}"]`)
             ));
         }
 

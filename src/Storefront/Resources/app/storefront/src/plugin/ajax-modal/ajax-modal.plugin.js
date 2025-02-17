@@ -1,7 +1,6 @@
 import HttpClient from 'src/service/http-client.service';
 import Plugin from 'src/plugin-system/plugin.class';
 import LoadingIndicatorUtil from 'src/utility/loading-indicator/loading-indicator.util';
-import DomAccess from 'src/helper/dom-access.helper';
 import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
 
 const PSEUDO_MODAL_TEMPLATE_CONTENT_CLASS = 'js-pseudo-modal-template-content-element';
@@ -71,7 +70,7 @@ export default class AjaxModalPlugin extends Plugin {
             window.focusHandler.resumeFocusState('ajax-modal');
         });
 
-        const modalBodyEl = DomAccess.querySelector(pseudoModal._modal, `.${PSEUDO_MODAL_TEMPLATE_CONTENT_CLASS}`);
+        const modalBodyEl = pseudoModal._modal.querySelector(`.${PSEUDO_MODAL_TEMPLATE_CONTENT_CLASS}`);
         modalBodyEl.classList.add(this.options.centerLoadingIndicatorClass);
 
         this._loadModalContent(pseudoModal, modalBodyEl);
@@ -85,7 +84,7 @@ export default class AjaxModalPlugin extends Plugin {
      * @private
      */
     _openModal(pseudoModalUtil) {
-        const modalClasses = [DomAccess.getAttribute(this.el, this.options.modalClassAttribute, false), this.options.modalClass];
+        const modalClasses = [this.el.getAttribute(this.options.modalClassAttribute), this.options.modalClass];
         pseudoModalUtil.open(this._onModalOpen.bind(this, pseudoModalUtil, modalClasses), 0);
     }
 
@@ -101,7 +100,7 @@ export default class AjaxModalPlugin extends Plugin {
         const loadingIndicatorUtil = new LoadingIndicatorUtil(modalBodyEl);
         loadingIndicatorUtil.create();
 
-        const url = DomAccess.getAttribute(this.el, this.options.urlAttribute);
+        const url = this.el.getAttribute(this.options.urlAttribute);
 
         modalBodyEl.classList.add(this.options.centerLoadingIndicatorClass);
 
@@ -137,13 +136,13 @@ export default class AjaxModalPlugin extends Plugin {
      * @private
      */
     _renderBackButton(pseudoModalUtil) {
-        const prevUrl = DomAccess.getAttribute(this.el, this.options.prevUrlAttribute, false);
+        const prevUrl = this.el.getAttribute(this.options.prevUrlAttribute);
 
         if (!prevUrl) {
             return;
         }
 
-        const buttonTemplate = DomAccess.querySelector(document, '.js-pseudo-modal-back-btn-template', false);
+        const buttonTemplate = document.querySelector('.js-pseudo-modal-back-btn-template');
         if (!buttonTemplate) {
             return;
         }
@@ -157,7 +156,7 @@ export default class AjaxModalPlugin extends Plugin {
         backButton.children[0].setAttribute('data-url', prevUrl);
         backButton.children[0].style.marginLeft = '20px';
 
-        const modalBodyEl = DomAccess.querySelector(pseudoModalUtil._modal, `.${PSEUDO_MODAL_TEMPLATE_CONTENT_CLASS}`);
+        const modalBodyEl = pseudoModalUtil._modal.querySelector(`.${PSEUDO_MODAL_TEMPLATE_CONTENT_CLASS}`);
         modalBodyEl.prepend(backButton);
     }
 

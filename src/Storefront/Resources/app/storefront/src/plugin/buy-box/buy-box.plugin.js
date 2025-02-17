@@ -4,7 +4,6 @@ import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-l
 import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading-indicator.util';
 import ElementReplaceHelper from 'src/helper/element-replace.helper';
 import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
-import DomAccess from 'src/helper/dom-access.helper';
 
 export default class BuyBoxPlugin extends Plugin {
 
@@ -62,7 +61,7 @@ export default class BuyBoxPlugin extends Plugin {
      * @private
      */
     _initModalTriggerEvent() {
-        this._modalTrigger = DomAccess.querySelector(this.el, this.options.modalTriggerSelector, false);
+        this._modalTrigger = this.el.querySelector(this.options.modalTriggerSelector);
         this._modalTrigger.addEventListener('click', this._onClickHandleAjaxModal.bind(this));
     }
 
@@ -75,7 +74,7 @@ export default class BuyBoxPlugin extends Plugin {
      */
     _onClickHandleAjaxModal(event) {
         const trigger = event.currentTarget;
-        const url = DomAccess.getAttribute(trigger, this.options.urlAttribute);
+        const url = trigger.getAttribute(this.options.urlAttribute);
 
         PageLoadingIndicatorUtil.create();
         this._httpClient.get(url, response => {

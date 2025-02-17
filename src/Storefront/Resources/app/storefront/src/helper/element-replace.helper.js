@@ -1,4 +1,4 @@
-import DomAccess from 'src/helper/dom-access.helper';
+
 
 /**
  * @sw-package framework
@@ -42,11 +42,11 @@ class ElementReplaceHelperSingleton {
      */
     replaceElement(src, target, strict = true) {
         if (typeof src === 'string') {
-            src = DomAccess.querySelectorAll(document, src, strict);
+            src = document.querySelectorAll(src);
         }
 
         if (typeof target === 'string') {
-            target = DomAccess.querySelectorAll(document, target, strict);
+            target = document.querySelectorAll(target);
         }
 
         if (src instanceof NodeList && target instanceof NodeList && target.length > src.length) {
@@ -99,8 +99,8 @@ class ElementReplaceHelperSingleton {
      */
     _replaceSelectors(src, selectors, strict) {
         selectors.forEach((selector) => {
-            const srcElements = DomAccess.querySelectorAll(src, selector, strict);
-            const targetElements = DomAccess.querySelectorAll(document, selector, strict);
+            const srcElements = src.querySelectorAll(selector);
+            const targetElements = document.querySelectorAll(selector);
 
             this.replaceElement(srcElements, targetElements, strict);
         });

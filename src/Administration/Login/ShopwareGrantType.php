@@ -32,7 +32,7 @@ class ShopwareGrantType extends AbstractGrant implements GrantTypeInterface
         $this->refreshTokenRepository = $refreshTokenRepository;
     }
 
-    public function getIdentifier()
+    public function getIdentifier(): string
     {
         return self::TYPE;
     }

@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Validation;
 final class LoginConfigService
 {
     /**
-     * @param array{use_default: bool, client_id: non-empty-string, client_secret: non-empty-string, redirect_uri: non-empty-string, base_url: non-empty-string} $rawConfig
+     * @param array{use_default: bool, client_id: non-empty-string, client_secret: non-empty-string, redirect_uri: non-empty-string, base_url: non-empty-string, authorize_endpoint: non-empty-string, token_endpoint: non-empty-string} $rawConfig
      */
     public function __construct(
         private readonly array $rawConfig,
@@ -41,6 +41,8 @@ final class LoginConfigService
             $this->rawConfig['client_secret'],
             $this->rawConfig['redirect_uri'],
             $this->rawConfig['base_url'],
+            $this->rawConfig['authorize_endpoint'],
+            $this->rawConfig['token_endpoint'],
         );
     }
 
@@ -57,8 +59,9 @@ final class LoginConfigService
         $state = \sprintf('%s/api/oauth/sso/code?rdm=%s', $this->appUrl, $random);
 
         return \sprintf(
-            '%s/oauth/authorize?client_id=%s&redirect_uri=%s&response_type=code&scope=openid&state=%s',
+            '%s%s?client_id=%s&redirect_uri=%s&response_type=code&scope=openid&state=%s',
             $loginConfig->baseUrl,
+            $loginConfig->authorizeEndpoint,
             $loginConfig->clientId,
             \urlencode($loginConfig->redirectUri ?? ''),
             \urlencode($state)
@@ -115,6 +118,16 @@ final class LoginConfigService
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
                     new Url(null, $invalidUrlMessage),
+                ],
+                'authorize_endpoint' => [
+                    new NotNull(null, $isNullMessage),
+                    new NotBlank(null, $notBlankMessage),
+                    new Type('string', $invalidStringMessage),
+                ],
+                'token_endpoint' => [
+                    new NotNull(null, $isNullMessage),
+                    new NotBlank(null, $notBlankMessage),
+                    new Type('string', $invalidStringMessage),
                 ],
             ],
             null,

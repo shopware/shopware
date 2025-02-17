@@ -52,7 +52,7 @@ final class UserService
     private function searchBySub(ParsedIdToken $parsedToken, string $refreshToken): ?ExternalAuthUser
     {
         $tokenUserData = $this->connection->createQueryBuilder()
-            ->select(['token_user.id', 'token_user.user_id', 'token_user.user_sub', 'token_user.refresh_token', 'token_user.expiry', 'user.email'])
+            ->select(...['token_user.id', 'token_user.user_id', 'token_user.user_sub', 'token_user.refresh_token', 'token_user.expiry', 'user.email'])
             ->from('token_user', 'token_user')
             ->join('token_user', 'user', 'user', 'token_user.user_id = user.id')
             ->where('token_user.user_sub = :sub')
@@ -78,7 +78,7 @@ final class UserService
     private function searchByEmail(ParsedIdToken $parsedToken, string $refreshToken): ?ExternalAuthUser
     {
         $userData = $this->connection->createQueryBuilder()
-            ->select(['user.id', 'user.email'])
+            ->select(...['user.id', 'user.email'])
             ->from('user', 'user')
             ->where('user.email = :email')
             ->setParameter('email', $parsedToken->email)

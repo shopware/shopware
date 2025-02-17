@@ -16,7 +16,7 @@ class StoreApiRouteScope extends AbstractRouteScope implements SalesChannelConte
     final public const ID = DefinitionService::STORE_API;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $allowedPaths = [DefinitionService::STORE_API];
 

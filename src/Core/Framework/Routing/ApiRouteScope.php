@@ -15,7 +15,7 @@ class ApiRouteScope extends AbstractRouteScope implements ApiContextRouteScopeDe
     final public const ID = 'api';
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $allowedPaths = ['api', 'sw-domain-hash.html'];
 

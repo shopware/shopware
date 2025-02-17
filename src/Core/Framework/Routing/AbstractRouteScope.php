@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 abstract class AbstractRouteScope
 {
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $allowedPaths = [];
 
@@ -24,6 +24,9 @@ abstract class AbstractRouteScope
 
     abstract public function getId(): string;
 
+    /**
+     * @return list<string>
+     */
     public function getRoutePrefixes(): array
     {
         return $this->allowedPaths;

@@ -453,9 +453,8 @@ class CheckoutControllerTest extends TestCase
         $contextToken = Uuid::randomHex();
 
         $cart = $this->fillCart($contextToken);
-        $salesChannelContext = $this->createSalesChannelContext($contextToken, $cart->getTransactions()->first()?->getPaymentMethodId());
-        static::getContainer()->get(CartPersister::class)->save($cart, $salesChannelContext);
 
+        $salesChannelContext = $this->createSalesChannelContext($contextToken, $cart->getTransactions()->first()?->getPaymentMethodId());
         $request = $this->createRequest($salesChannelContext);
 
         static::getContainer()->get(CheckoutController::class)->confirmPage($request, $salesChannelContext);
@@ -546,8 +545,6 @@ class CheckoutControllerTest extends TestCase
 
     public function testCheckoutInfoWidgetSkipsCalculationAndRenderIfCartIsEmpty(): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
         $contextToken = Uuid::randomHex();
 
         $cartService = static::getContainer()->get(CartService::class);

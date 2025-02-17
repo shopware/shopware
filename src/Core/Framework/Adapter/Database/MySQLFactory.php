@@ -44,6 +44,14 @@ class MySQLFactory
             ],
         ], $parameters); // adding parameters that are not in the DSN
 
+        $initCommands = [
+            'SET @@session.time_zone = \'+00:00\'',
+            'SET @@group_concat_max_len = CAST(IF(@@group_concat_max_len > 320000, @@group_concat_max_len, 320000) AS UNSIGNED)',
+            'SET sql_mode=(SELECT REPLACE(@@sql_mode,\'ONLY_FULL_GROUP_BY\',\'\'))',
+        ];
+
+        $parameters['driverOptions'][\PDO::MYSQL_ATTR_INIT_COMMAND] = \implode(';', $initCommands);
+
         if ($sslCa = EnvironmentHelper::getVariable('DATABASE_SSL_CA')) {
             $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_CA] = $sslCa;
         }

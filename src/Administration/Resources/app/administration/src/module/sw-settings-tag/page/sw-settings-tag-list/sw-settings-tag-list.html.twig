@@ -363,7 +363,7 @@
                             >
                                 {% block sw_settings_tag_list_delete_modal_confirm_delete_text %}
                                 <p class="sw-settings-tag-list__confirm-delete-text">
-                                    {{ $tc('sw-settings-tag.list.textDeleteConfirm', 0, { name: item.name }) }}
+                                    {{ $tc('sw-settings-tag.list.textDeleteConfirm', { name: item.name }, 0) }}
                                 </p>
                                 {% endblock %}
 

@@ -140,18 +140,26 @@ export default {
                 .delete(role.id, context)
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-users-permissions.roles.role-grid.notification.deleteSuccess.message', 0, {
-                            name: role.name,
-                        }),
+                        message: this.$tc(
+                            'sw-users-permissions.roles.role-grid.notification.deleteSuccess.message',
+                            {
+                                name: role.name,
+                            },
+                            0,
+                        ),
                     });
 
                     this.$emit('get-list');
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-users-permissions.roles.role-grid.notification.deleteError.message', 0, {
-                            name: role.name,
-                        }),
+                        message: this.$tc(
+                            'sw-users-permissions.roles.role-grid.notification.deleteError.message',
+                            {
+                                name: role.name,
+                            },
+                            0,
+                        ),
                     });
                 });
         },

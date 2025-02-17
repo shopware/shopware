@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\ImportExportException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,15 +20,11 @@ class ImportExportExceptionTest extends TestCase
     #[DataProvider('exceptionProvider')]
     public function testExceptions(
         \Closure $exceptionFunction,
-        bool $deprecated,
         int $statusCode,
         string $errorCode,
         string $message
     ): void {
         $exception = $exceptionFunction();
-        if (!Feature::isActive('v6.7.0.0') && $deprecated) {
-            static::markTestSkipped();
-        }
 
         static::assertInstanceOf(ShopwareHttpException::class, $exception);
         static::assertSame($statusCode, $exception->getStatusCode());
@@ -44,7 +39,6 @@ class ImportExportExceptionTest extends TestCase
     {
         yield [
             'exceptionFunction' => fn () => ImportExportException::invalidFileAccessToken(),
-            'deprecated' => false,
             'statusCode' => Response::HTTP_BAD_REQUEST,
             'errorCode' => 'CONTENT__IMPORT_EXPORT_FILE_INVALID_ACCESS_TOKEN',
             'message' => 'Access to file denied due to invalid access token',
@@ -52,7 +46,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::fileNotFound('notFoundFile'),
-            'deprecated' => false,
             'statusCode' => Response::HTTP_NOT_FOUND,
             'errorCode' => 'CONTENT__IMPORT_EXPORT_FILE_NOT_FOUND',
             'message' => 'Cannot find import/export file with id notFoundFile',
@@ -60,7 +53,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::processingError('Cannot merge file'),
-            'deprecated' => false,
             'statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR,
             'errorCode' => 'CONTENT__IMPORT_EXPORT_PROCESSING_EXCEPTION',
             'message' => 'Cannot merge file',
@@ -68,7 +60,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::requiredByUser('foo'),
-            'deprecated' => false,
             'statusCode' => Response::HTTP_BAD_REQUEST,
             'errorCode' => 'CONTENT__IMPORT_EXPORT_REQUIRED_BY_USER',
             'message' => 'foo is set to required by the user but has no value',
@@ -76,7 +67,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::invalidIdentifier('foo'),
-            'deprecated' => false,
             'statusCode' => Response::HTTP_BAD_REQUEST,
             'errorCode' => 'CONTENT__IMPORT_EXPORT_INVALID_IDENTIFIER',
             'message' => 'The identifier of foo should not contain pipe character.',
@@ -84,7 +74,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::decorationPattern('foo'),
-            'deprecated' => false,
             'statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR,
             'errorCode' => '500',
             'message' => 'The getDecorated() function of core class foo cannot be used. This class is the base class.',
@@ -92,7 +81,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::profileNotFound('null'),
-            'deprecated' => false,
             'statusCode' => Response::HTTP_NOT_FOUND,
             'errorCode' => 'CONTENT__IMPORT_EXPORT_PROFILE_NOT_FOUND',
             'message' => 'Cannot find import/export profile with id null',
@@ -100,7 +88,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::couldNotOpenFile('foo'),
-            'deprecated' => false,
             'statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR,
             'errorCode' => 'CONTENT__IMPORT_EXPORT__COULD_NOT_OPEN_FILE',
             'message' => 'Could not open file at: foo',
@@ -108,7 +95,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::couldNotCreateFile('foo'),
-            'deprecated' => false,
             'statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR,
             'errorCode' => 'CONTENT__IMPORT_EXPORT__COULD_NOT_CREATE_FILE',
             'message' => 'Could not create file in directory: foo',
@@ -116,7 +102,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::couldNotCopyFile('foo'),
-            'deprecated' => false,
             'statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR,
             'errorCode' => 'CONTENT__IMPORT_EXPORT__COULD_NOT_COPY_FILE',
             'message' => 'Could not copy file from buffer to "foo"',
@@ -124,7 +109,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::couldNotWriteToBuffer(),
-            'deprecated' => false,
             'statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR,
             'errorCode' => 'CONTENT__IMPORT_EXPORT__COULD_NOT_WRITE_TO_BUFFER',
             'message' => 'Could not write to buffer',
@@ -132,7 +116,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::fieldCannotBeExported('foo'),
-            'deprecated' => false,
             'statusCode' => Response::HTTP_BAD_REQUEST,
             'errorCode' => 'IMPORT_EXPORT__FIELD_CANNOT_BE_EXPORTED',
             'message' => 'Field of type foo cannot be exported.',
@@ -140,7 +123,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::fileEmpty('foo'),
-            'deprecated' => true,
             'statusCode' => Response::HTTP_BAD_REQUEST,
             'errorCode' => 'CONTENT__IMPORT_EXPORT_FILE_EMPTY',
             'message' => 'The file foo is empty.',
@@ -148,7 +130,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::fileNotReadable('foo'),
-            'deprecated' => true,
             'statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR,
             'errorCode' => 'CONTENT__IMPORT_FILE_IS_NOT_READABLE',
             'message' => 'Import file is not readable at foo.',
@@ -156,7 +137,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::filePathNotFound(),
-            'deprecated' => false,
             'statusCode' => Response::HTTP_BAD_REQUEST,
             'errorCode' => 'CONTENT__IMPORT_EXPORT__FILE_PATH_NOT_FOUND',
             'message' => 'File path does not exist.',
@@ -164,7 +144,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::invalidFileContent('foo'),
-            'deprecated' => true,
             'statusCode' => Response::HTTP_BAD_REQUEST,
             'errorCode' => 'CONTENT__IMPORT_EXPORT_INVALID_FILE_CONTENT',
             'message' => 'The content of the file foo is invalid.',
@@ -172,7 +151,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::logEntityNotFound('bar'),
-            'deprecated' => false,
             'statusCode' => Response::HTTP_BAD_REQUEST,
             'errorCode' => 'CONTENT__IMPORT_EXPORT__LOG_ENTITY_NOT_FOUND',
             'message' => 'Import/Export log "bar" not found.',
@@ -180,7 +158,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::profileWithoutMappings('bar'),
-            'deprecated' => false,
             'statusCode' => Response::HTTP_BAD_REQUEST,
             'errorCode' => 'CONTENT__IMPORT_EXPORT_PROFILE_WITHOUT_MAPPINGS',
             'message' => 'Import/Export profile "bar" has no mappings.',
@@ -188,7 +165,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::profileWrongType('bar', 'foo'),
-            'deprecated' => true,
             'statusCode' => Response::HTTP_NOT_FOUND,
             'errorCode' => 'CONTENT__IMPORT_EXPORT_PROFILE_WRONG_TYPE',
             'message' => 'The import/export profile with id bar can only be used for foo',
@@ -196,7 +172,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::unexpectedFileType('foo', 'bar'),
-            'deprecated' => true,
             'statusCode' => Response::HTTP_BAD_REQUEST,
             'errorCode' => 'CONTENT__IMPORT_FILE_HAS_UNEXPECTED_TYPE',
             'message' => 'Given file does not match MIME-Type for selected profile. Given: foo. Expected: bar',
@@ -204,7 +179,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::unknownActivity('foo'),
-            'deprecated' => false,
             'statusCode' => Response::HTTP_BAD_REQUEST,
             'errorCode' => 'CONTENT__IMPORT_EXPORT__UNKNOWN_ACTIVITY',
             'message' => 'The activity "foo" could not be processed.',
@@ -212,7 +186,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::invalidRequestParameter('foo'),
-            'deprecated' => false,
             'statusCode' => Response::HTTP_BAD_REQUEST,
             'errorCode' => 'CONTENT__IMPORT_EXPORT__INVALID_REQUEST_PARAMETER',
             'message' => 'The parameter "foo" is invalid.',
@@ -220,7 +193,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::missingPrivilege(['foo', 'bar']),
-            'deprecated' => false,
             'statusCode' => Response::HTTP_FORBIDDEN,
             'errorCode' => 'CONTENT__IMPORT_EXPORT__MISSING_PRIVILEGE',
             'message' => 'Missing privilege: ["foo","bar"]',
@@ -228,7 +200,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::profileSearchEmpty(),
-            'deprecated' => false,
             'statusCode' => Response::HTTP_NOT_FOUND,
             'errorCode' => 'CONTENT__IMPORT_EXPORT__PROFILE_SEARCH_EMPTY',
             'message' => 'The search for profiles returned no results.',
@@ -236,7 +207,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::importCommandFailed('Some message that explains the error.'),
-            'deprecated' => false,
             'statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR,
             'errorCode' => 'CONTENT__IMPORT_EXPORT__COMMAND_FAILED',
             'message' => 'Some message that explains the error.',
@@ -244,7 +214,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::duplicateTechnicalName('foo'),
-            'deprecated' => false,
             'statusCode' => Response::HTTP_BAD_REQUEST,
             'errorCode' => 'CONTENT__IMPORT_EXPORT__DUPLICATE_TECHNICAL_NAME',
             'message' => 'The technical name "foo" is not unique.',
@@ -252,7 +221,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::deserializationFailed('id', 'foo', 'bar'),
-            'deprecated' => false,
             'statusCode' => Response::HTTP_BAD_REQUEST,
             'errorCode' => 'CONTENT__IMPORT_EXPORT__DESERIALIZE_FAILED',
             'message' => 'Deserialization failed for field "id" with value "foo" to type "bar"',
@@ -260,7 +228,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::deserializationFailed('id', null, 'bar'),
-            'deprecated' => false,
             'statusCode' => Response::HTTP_BAD_REQUEST,
             'errorCode' => 'CONTENT__IMPORT_EXPORT__DESERIALIZE_FAILED',
             'message' => 'Deserialization failed for field "id" with value "" to type "bar"',
@@ -268,7 +235,6 @@ class ImportExportExceptionTest extends TestCase
 
         yield [
             'exceptionFunction' => fn () => ImportExportException::invalidInstanceType('foo', 'bar'),
-            'deprecated' => true,
             'statusCode' => Response::HTTP_BAD_REQUEST,
             'errorCode' => 'CONTENT__IMPORT_EXPORT__INVALID_INSTANCE_TYPE',
             'message' => 'Expected "foo" to be an instance of "bar".',

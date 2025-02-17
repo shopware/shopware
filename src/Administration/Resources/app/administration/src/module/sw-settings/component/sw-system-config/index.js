@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
+import { deepCloneWithEntity } from 'src/core/service/extension-api-data.service';
 import template from './sw-system-config.html.twig';
 import './sw-system-config.scss';
 
@@ -252,7 +253,11 @@ export default {
         },
 
         getInheritedValue(element) {
-            const value = this.actualConfigData.null[element.name];
+            let value = this.actualConfigData.null[element.name];
+
+            if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
+                value = deepCloneWithEntity(value);
+            }
 
             if (value) {
                 return value;

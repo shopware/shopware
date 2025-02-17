@@ -68,21 +68,24 @@ copy_assets() {
 }
 
 # Returns a list of mandatory assets for the Administration package.
-admin_assets_list() {
-  cat <<EOF | tr -d '[:blank:]'
-    ${PLATFORM_DIR}/repos/administration/Resources/public/static/js/app.js
-    ${PLATFORM_DIR}/repos/administration/Resources/public/static/css/app.css
-EOF
+check_admin_assets() {
+  [[ "$(find ${PLATFORM_DIR}/repos/administration/Resources/public -iname "*.js"  | wc -l)" -gt 0 ]]
+  [[ "$(find ${PLATFORM_DIR}/repos/administration/Resources/public -iname "*.css"  | wc -l)" -gt 0 ]]
 }
 
 # Returns a list of mandatory assets for the Storefront package.
 storefront_assets_list() {
   cat <<EOF | tr -d '[:blank:]'
     ${PLATFORM_DIR}/repos/storefront/Resources/app/storefront/dist/storefront/storefront.js
-    ${PLATFORM_DIR}/repos/storefront/Resources/public/administration/js/storefront.js
-    ${PLATFORM_DIR}/repos/storefront/Resources/public/administration/css/storefront.css
     ${PLATFORM_DIR}/repos/storefront/Resources/app/storefront/vendor/bootstrap/package.json
 EOF
+}
+
+check_storefront_assets() {
+    stat -t $(storefront_assets_list) > /dev/null
+
+    [[ "$(find ${PLATFORM_DIR}/repos/storefront/Resources/public/administration/assets/ -iname "*.js"  | wc -l)" -gt 0 ]]
+    [[ "$(find ${PLATFORM_DIR}/repos/storefront/Resources/public/administration/assets/ -iname "*.css"  | wc -l)" -gt 0 ]]
 }
 
 # Checks whether all mandatory assets have been generated and copied to the
@@ -91,24 +94,12 @@ check_assets() {
   local package=$(lowercase "${1:-""}")
 
   if [[ ${package} == "" || ${package} == "storefront" ]]; then
-    stat -t $(storefront_assets_list) > /dev/null
+    check_storefront_assets
   fi
 
   if [[ ${package} == "" || ${package} == "administration" ]]; then
-    stat -t $(admin_assets_list) > /dev/null
+    check_admin_assets
   fi
-}
-
-# Removes certain asset-related entries from the admin .gitignore.
-include_admin_assets() {
-  sed -i -E '/[/]?public([/]?|.*)/d' "${PLATFORM_DIR}/repos/administration/Resources/.gitignore"
-}
-
-# Removes certain asset-related entries from the storefront .gitignore.
-include_storefront_assets() {
-  sed -i -E '/[/]?Resources[/]app[/]storefront[/]vendor([/]?|.*)/d' "${PLATFORM_DIR}/repos/storefront/.gitignore"
-  sed -i -E '/[/]?app[/]storefront[/]dist([/]?|.*)/d' "${PLATFORM_DIR}/repos/storefront/Resources/.gitignore"
-  sed -i -E '/[/]?public([/]?|.*)/d' "${PLATFORM_DIR}/repos/storefront/Resources/.gitignore"
 }
 
 require_core_version() {
@@ -120,7 +111,7 @@ require_core_version() {
   if [ "${package_lower}" != "core" ]; then
     if [[ $type != "tag" ]]; then
       # version like add dev at the end
-      if grep -q -E '^[0-9]'; then
+      if echo -n "${version}" | grep -q -E '^[0-9]'; then
         version="${version}-dev"
       else
         version="dev-${version}"
@@ -195,6 +186,18 @@ push() {
   fi
 }
 
+# Removes certain asset-related entries from the admin .gitignore.
+include_admin_assets() {
+  sed -i -E '/[/]?public([/]?|.*)/d' "${PLATFORM_DIR}/repos/administration/Resources/.gitignore"
+}
+
+# Removes certain asset-related entries from the storefront .gitignore.
+include_storefront_assets() {
+  sed -i -E '/[/]?Resources[/]app[/]storefront[/]vendor([/]?|.*)/d' "${PLATFORM_DIR}/repos/storefront/.gitignore"
+  sed -i -E '/[/]?app[/]storefront[/]dist([/]?|.*)/d' "${PLATFORM_DIR}/repos/storefront/Resources/.gitignore"
+  sed -i -E '/[/]?public([/]?|.*)/d' "${PLATFORM_DIR}/repos/storefront/Resources/.gitignore"
+}
+
 include_assets() {
   local package=$(lowercase "${1}")
 
@@ -216,7 +219,7 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     set -o errexit
     set -o pipefail
 
-    if [ -n "${DEBUG:-}" ]; then
+    if [ -n "${DEBUG:-}" ] || [ -n "${ACTIONS_STEP_DEBUG:-}" ]; then
         set -x
     fi
 

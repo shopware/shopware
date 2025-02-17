@@ -81,7 +81,7 @@ class PaymentProcessor
 
             return $response;
         } catch (\Throwable $e) {
-            $this->logger->error('An error occurred during processing the payment', ['orderTransactionId' => $transaction->getId(), 'exceptionMessage' => $e->getMessage()]);
+            $this->logger->error('An error occurred during processing the payment', ['orderTransactionId' => $transaction->getId(), 'exceptionMessage' => $e->getMessage(), 'exceptionTrace' => $e->getTraceAsString(), 'exception' => $e]);
             $this->transactionStateHandler->fail($transaction->getId(), $salesChannelContext->getContext());
             if ($errorUrl !== null) {
                 $errorCode = $e instanceof HttpException ? $e->getErrorCode() : PaymentException::PAYMENT_PROCESS_ERROR;

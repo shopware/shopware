@@ -436,7 +436,7 @@
 
                 {% block sw_cms_list_rename_modal_confirm_rename_input %}
                 <div class="sw_tree__confirm-rename-text">
-                    {{ $tc('sw-cms.components.cmsListItem.modal.textRenameConfirm', 0, { pageName: currentPage.translated.name || currentPage.name }) }}
+                    {{ $tc('sw-cms.components.cmsListItem.modal.textRenameConfirm', { pageName: currentPage.translated.name || currentPage.name }, 0) }}
                 </div>
                 <sw-text-field
                     v-model:value="newName"
@@ -480,7 +480,7 @@
 
                 {% block sw_cms_list_delete_modal_confirm_delete_text %}
                 <div class="sw_tree__confirm-delete-text">
-                    {{ $tc('sw-cms.components.cmsListItem.modal.textDeleteConfirm', 0, { pageName: currentPage.translated.name || currentPage.name }) }}
+                    {{ $tc('sw-cms.components.cmsListItem.modal.textDeleteConfirm', { pageName: currentPage.translated.name || currentPage.name }, 0) }}
                 </div>
                 {% endblock %}
 

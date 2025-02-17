@@ -291,9 +291,13 @@ export default {
                 .then(() => {
                     this.isSaveSuccessful = true;
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-customer.detail.messageSaveSuccess', 0, {
-                            name: `${this.customer.firstName} ${this.customer.lastName}`,
-                        }),
+                        message: this.$tc(
+                            'sw-customer.detail.messageSaveSuccess',
+                            {
+                                name: `${this.customer.firstName} ${this.customer.lastName}`,
+                            },
+                            0,
+                        ),
                     });
                 })
                 .catch((exception) => {

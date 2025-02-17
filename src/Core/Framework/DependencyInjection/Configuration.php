@@ -531,7 +531,6 @@ class Configuration implements ConfigurationInterface
                             ->end()
                         ->arrayNode('config')
                             ->children()
-                                ->scalarNode('dsn')->end()
                                 ->scalarNode('connection')->defaultValue(null)->end()
                             ->end()
                     ->end()
@@ -553,7 +552,6 @@ class Configuration implements ConfigurationInterface
                 ->end()
             ->arrayNode('config')
                 ->children()
-                    ->scalarNode('dsn')->end()
                     ->scalarNode('connection')->defaultValue(null)->end()
                 ->end()
             ->end();
@@ -859,7 +857,6 @@ class Configuration implements ConfigurationInterface
                             ->scalarPrototype()->end()
                         ->end()
                         ->integerNode('max_parallel_invalidations')->defaultValue(2)->end()
-                        ->scalarNode('redis_url')->end()
                         ->scalarNode('ban_method')->defaultValue('BAN')->end()
                         ->arrayNode('ban_headers')->performNoDeepMerging()->defaultValue([])
                             ->scalarPrototype()->end()

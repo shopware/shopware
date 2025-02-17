@@ -91,6 +91,15 @@
             @page-leave-confirm="onLeaveModalConfirm"
         />
         {% endblock %}
+        {% block sw_order_detail_content_save_changes_beforehand_modal %}
+        <sw-order-save-changes-beforehand-modal
+            v-if="askForSaveBeforehand"
+            @cancel="onAskAndSaveEditsCancel"
+            @confirm="onAskAndSaveEditsConfirm"
+        >
+            {{ askForSaveBeforehand.reason }}
+        </sw-order-save-changes-beforehand-modal>
+        {% endblock %}
         <sw-card-view>
 
             <sw-alert

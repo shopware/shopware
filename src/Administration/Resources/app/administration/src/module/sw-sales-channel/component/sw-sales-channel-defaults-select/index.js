@@ -180,9 +180,13 @@ export default {
                 const domain = this.getDomainUsingValue(removed);
                 if (domain !== null) {
                     this.createNotificationError({
-                        message: this.$tc('sw-sales-channel.sw-sales-channel-defaults-select.messageError', 0, {
-                            url: domain.url,
-                        }),
+                        message: this.$tc(
+                            'sw-sales-channel.sw-sales-channel-defaults-select.messageError',
+                            {
+                                url: domain.url,
+                            },
+                            0,
+                        ),
                     });
                     return;
                 }

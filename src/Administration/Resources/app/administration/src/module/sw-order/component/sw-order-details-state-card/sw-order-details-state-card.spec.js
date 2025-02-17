@@ -105,6 +105,7 @@ async function createWrapper() {
                         };
                     },
                 },
+                swOrderDetailAskAndSaveEdits: () => Promise.resolve(true),
             },
             stubs: {
                 'sw-order-state-select-v2': true,

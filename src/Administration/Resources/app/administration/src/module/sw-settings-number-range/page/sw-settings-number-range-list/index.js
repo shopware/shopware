@@ -133,9 +133,13 @@ export default {
             promise
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-number-range.detail.messageSaveSuccess', 0, {
-                            name: numberRange.name,
-                        }),
+                        message: this.$tc(
+                            'sw-settings-number-range.detail.messageSaveSuccess',
+                            {
+                                name: numberRange.name,
+                            },
+                            0,
+                        ),
                     });
                 })
                 .catch(() => {

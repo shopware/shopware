@@ -177,7 +177,6 @@ class CmsSlotsDataResolver
     private function fetchByCriteria(array $searches, SalesChannelContext $context): array
     {
         $searchResults = [];
-
         foreach ($searches as $definitionClass => $criteriaObjects) {
             foreach ($criteriaObjects as $criteriaHash => $criteria) {
                 $definition = $this->definitionRegistry->get($definitionClass);
@@ -296,7 +295,6 @@ class CmsSlotsDataResolver
     private function flattenCriteriaCollections(array $criteriaCollections): array
     {
         $flattened = [];
-
         $criteriaCollections = array_values($criteriaCollections);
 
         foreach ($criteriaCollections as $collections) {

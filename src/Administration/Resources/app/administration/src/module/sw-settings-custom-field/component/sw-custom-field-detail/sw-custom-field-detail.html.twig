@@ -91,7 +91,7 @@
 
         {% block sw_custom_field_detail_modal_snippet_info  %}
         <sw-alert class="sw-custom-field-detail__info">
-            {{ $tc('sw-settings-custom-field.customField.detail.infoText', 0, { name: currentCustomField.name }) }}
+            {{ $tc('sw-settings-custom-field.customField.detail.infoText', { name: currentCustomField.name }, 0) }}
         </sw-alert>
         {% endblock %}
     </sw-container>

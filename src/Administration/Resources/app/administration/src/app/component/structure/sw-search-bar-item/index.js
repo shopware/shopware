@@ -128,9 +128,13 @@ Component.register('sw-search-bar-item', {
             }
 
             return action
-                ? this.$tc('global.sw-search-bar-item.addNewEntity', 0, {
-                      entity: label?.toLowerCase() ?? this.$tc(`global.entities.${entity}`).toLowerCase(),
-                  })
+                ? this.$tc(
+                      'global.sw-search-bar-item.addNewEntity',
+                      {
+                          entity: label?.toLowerCase() ?? this.$tc(`global.entities.${entity}`).toLowerCase(),
+                      },
+                      0,
+                  )
                 : label;
         },
 

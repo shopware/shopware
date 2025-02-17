@@ -7,7 +7,9 @@ use Doctrine\DBAL\Driver\PDO\Exception as DbalPdoException;
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -46,7 +48,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tag\TagEntity;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -60,6 +61,54 @@ class FlowExecutorTest extends TestCase
     private const ACTION_ADD_CUSTOMER_TAG = 'action.add.customer.tag';
     private const ACTION_STOP_FLOW = 'action.stop.flow';
 
+    private FlowExecutor $flowExecutor;
+
+    private MockObject&EventDispatcherInterface $eventDispatcherMock;
+
+    private MockObject&AppFlowActionProvider $appFlowActionProviderMock;
+
+    private MockObject&AbstractRuleLoader $ruleLoaderMock;
+
+    private MockObject&FlowRuleScopeBuilder $scopeBuilderMock;
+
+    private MockObject&Connection $connectionMock;
+
+    private MockObject&LoggerInterface $loggerMock;
+
+    private MockObject&AddOrderTagAction $addOrderTagActionMock;
+
+    private MockObject&AddCustomerTagAction $addCustomerTagActionMock;
+
+    private MockObject&StopFlowAction $stopFlowActionMock;
+
+    protected function setUp(): void
+    {
+        $this->eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);
+        $this->appFlowActionProviderMock = $this->createMock(AppFlowActionProvider::class);
+        $this->ruleLoaderMock = $this->createMock(AbstractRuleLoader::class);
+        $this->scopeBuilderMock = $this->createMock(FlowRuleScopeBuilder::class);
+        $this->connectionMock = $this->createMock(Connection::class);
+        $this->loggerMock = $this->createMock(LoggerInterface::class);
+        $this->addOrderTagActionMock = $this->createMock(AddOrderTagAction::class);
+        $this->addCustomerTagActionMock = $this->createMock(AddCustomerTagAction::class);
+        $this->stopFlowActionMock = $this->createMock(StopFlowAction::class);
+
+        $this->flowExecutor = new FlowExecutor(
+            $this->eventDispatcherMock,
+            $this->appFlowActionProviderMock,
+            $this->ruleLoaderMock,
+            $this->scopeBuilderMock,
+            $this->connectionMock,
+            new ExtensionDispatcher($this->eventDispatcherMock),
+            $this->loggerMock,
+            [
+                self::ACTION_ADD_ORDER_TAG => $this->addOrderTagActionMock,
+                self::ACTION_ADD_CUSTOMER_TAG => $this->addCustomerTagActionMock,
+                self::ACTION_STOP_FLOW => $this->stopFlowActionMock,
+            ]
+        );
+    }
+
     /**
      * @param array<int, mixed> $actionSequencesExecuted
      * @param array<int, mixed> $actionSequencesTrueCase
@@ -68,24 +117,9 @@ class FlowExecutorTest extends TestCase
      * @throws ExecuteSequenceException
      */
     #[DataProvider('actionsProvider')]
-    public function testExecute(array $actionSequencesExecuted, array $actionSequencesTrueCase, array $actionSequencesFalseCase, ?string $appAction = null): void
+    public function testExecuteFlows(array $actionSequencesExecuted, array $actionSequencesTrueCase, array $actionSequencesFalseCase, ?string $appAction = null): void
     {
         $ids = new IdsCollection();
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $appFlowActionProvider = $this->createMock(AppFlowActionProvider::class);
-        $ruleLoader = $this->createMock(AbstractRuleLoader::class);
-        $scopeBuilder = $this->createMock(FlowRuleScopeBuilder::class);
-        $connection = $this->createMock(Connection::class);
-
-        $addOrderTagAction = $this->createMock(AddOrderTagAction::class);
-        $addCustomerTagAction = $this->createMock(AddCustomerTagAction::class);
-        $stopFlowAction = $this->createMock(StopFlowAction::class);
-        $actions = [
-            self::ACTION_ADD_ORDER_TAG => $addOrderTagAction,
-            self::ACTION_ADD_CUSTOMER_TAG => $addCustomerTagAction,
-            self::ACTION_STOP_FLOW => $stopFlowAction,
-        ];
-
         $actionSequences = [];
         if ($actionSequencesExecuted !== []) {
             foreach ($actionSequencesExecuted as $actionSequenceExecuted) {
@@ -97,13 +131,13 @@ class FlowExecutorTest extends TestCase
             }
         }
 
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
         if ($actionSequencesTrueCase !== []) {
             $condition = new IfSequence();
             $condition->sequenceId = $ids->get('true_case');
             $condition->ruleId = $ids->get('ruleId');
 
-            $context = Context::createDefaultContext();
+            $context = Context::createCLIContext();
             $context->setRuleIds([$ids->get('ruleId')]);
 
             foreach ($actionSequencesTrueCase as $actionSequenceTrueCase) {
@@ -122,7 +156,7 @@ class FlowExecutorTest extends TestCase
             $condition->sequenceId = $ids->get('false_case');
             $condition->ruleId = $ids->get('ruleId');
 
-            $context = Context::createDefaultContext();
+            $context = Context::createCLIContext();
 
             foreach ($actionSequencesFalseCase as $actionSequenceFalseCase) {
                 $actionSequence = new ActionSequence();
@@ -135,46 +169,254 @@ class FlowExecutorTest extends TestCase
             $actionSequences[] = $condition;
         }
 
+        $flow = new Flow($ids->get('flowId'), $actionSequences);
+
+        $storableFlow = new StorableFlow('', $context);
+
         if ($appAction) {
             $appActionSequence = new ActionSequence();
             $appActionSequence->appFlowActionId = $ids->get('AppActionId');
             $appActionSequence->sequenceId = $ids->get('AppActionSequenceId');
             $appActionSequence->action = 'app.action';
-            $appFlowActionProvider->expects(static::once())->method('getWebhookPayloadAndHeaders')->willReturn([
-                'headers' => [],
-                'payload' => [],
-            ]);
-            $eventDispatcher->expects(static::once())->method('dispatch')->with(
-                new AppFlowActionEvent('app.action', [], []),
-                'app.action'
-            );
             $actionSequences[] = $appActionSequence;
+            $flow = new Flow($ids->get('flowId'), $actionSequences);
+            $this->appFlowActionProviderMock->expects(static::once())
+                ->method('getWebhookPayloadAndHeaders')->willReturn([
+                    'headers' => [],
+                    'payload' => [],
+                ]);
+            $invocations = static::exactly(3);
+            $this->eventDispatcherMock->expects($invocations)
+                ->method('dispatch')
+                ->with(
+                    static::callback(
+                        static function (object $event, ?string $_ = null) use ($flow, $storableFlow, $invocations): bool {
+                            match ($invocations->numberOfInvocations()) {
+                                1 => static::assertEquals(new FlowExecutorExtension($flow, $storableFlow), $event),
+                                2 => static::assertEquals(new AppFlowActionEvent('app.action', [], []), $event),
+                                3 => static::assertEquals(new FlowExecutorExtension($flow, $storableFlow), $event),
+                                default => static::fail('Unexpected number of invocations'),
+                            };
+
+                            return true;
+                        }
+                    ),
+                );
+        }
+
+        if (\in_array(self::ACTION_ADD_ORDER_TAG, array_merge_recursive($actionSequencesExecuted, $actionSequencesTrueCase, $actionSequencesFalseCase), true)) {
+            $this->addOrderTagActionMock->expects(static::once())->method('handleFlow')->with($storableFlow);
+        } else {
+            $this->addOrderTagActionMock->expects(static::never())->method('handleFlow');
+        }
+
+        if (\in_array(self::ACTION_ADD_CUSTOMER_TAG, array_merge_recursive($actionSequencesExecuted, $actionSequencesTrueCase, $actionSequencesFalseCase), true)) {
+            $this->addCustomerTagActionMock->expects(static::once())->method('handleFlow')->with($storableFlow);
+        } else {
+            $this->addCustomerTagActionMock->expects(static::never())->method('handleFlow');
+        }
+
+        if (\in_array(self::ACTION_STOP_FLOW, array_merge_recursive($actionSequencesExecuted, $actionSequencesTrueCase, $actionSequencesFalseCase), true)) {
+            $this->stopFlowActionMock->expects(static::once())->method('handleFlow')->with($storableFlow);
+        } else {
+            $this->stopFlowActionMock->expects(static::never())->method('handleFlow');
+        }
+
+        $this->flowExecutor->executeFlows(
+            [
+                [
+                    'id' => $ids->get('flowId'),
+                    'name' => 'flow',
+                    'payload' => $flow,
+                ],
+            ],
+            $storableFlow,
+        );
+    }
+
+    public function testExecuteFlowsLogsSequenceExceptions(): void
+    {
+        $ids = new IdsCollection();
+        $actionSequences = [new ActionSequence()];
+        $flow = new Flow($ids->get('flowId'), $actionSequences);
+        $storableFlow = new StorableFlow('', Context::createCLIContext());
+
+        $this->eventDispatcherMock->method('dispatch')
+            ->willThrowException(new ExecuteSequenceException(
+                'some-flow-id',
+                'some-sequence-id',
+                'error',
+            ));
+
+        $this->loggerMock->expects(static::once())
+            ->method('error')
+            ->with(
+                'Could not execute flow with error message:' . "\n"
+                . 'Flow name: flow' . "\n"
+                . 'Flow id: ' . $ids->get('flowId') . "\n"
+                . 'Sequence id: some-sequence-id' . "\n"
+                . 'error' . "\n"
+                . 'Error Code: 0' . "\n",
+            );
+
+        $this->flowExecutor->executeFlows(
+            [
+                [
+                    'id' => $ids->get('flowId'),
+                    'name' => 'flow',
+                    'payload' => $flow,
+                ],
+            ],
+            $storableFlow,
+        );
+    }
+
+    public function testExecuteFlowsLogsGenericExceptions(): void
+    {
+        $ids = new IdsCollection();
+        $actionSequences = [new ActionSequence()];
+        $flow = new Flow($ids->get('flowId'), $actionSequences);
+        $storableFlow = new StorableFlow('', Context::createCLIContext());
+
+        $this->eventDispatcherMock->method('dispatch')
+            ->willThrowException(new \Exception('error'));
+
+        $this->loggerMock->expects(static::once())
+            ->method('error')
+            ->with(
+                'Could not execute flow with error message:' . "\n"
+                . 'Flow name: flow' . "\n"
+                . 'Flow id: ' . $ids->get('flowId') . "\n"
+                . 'error' . "\n"
+                . 'Error Code: 0' . "\n",
+            );
+
+        $this->flowExecutor->executeFlows(
+            [
+                [
+                    'id' => $ids->get('flowId'),
+                    'name' => 'flow',
+                    'payload' => $flow,
+                ],
+            ],
+            $storableFlow,
+        );
+    }
+
+    /**
+     * @param array<int, mixed> $actionSequencesExecuted
+     * @param array<int, mixed> $actionSequencesTrueCase
+     * @param array<int, mixed> $actionSequencesFalseCase
+     *
+     * @throws ExecuteSequenceException
+     */
+    #[DataProvider('actionsProvider')]
+    public function testExecute(array $actionSequencesExecuted, array $actionSequencesTrueCase, array $actionSequencesFalseCase, ?string $appAction = null): void
+    {
+        $ids = new IdsCollection();
+        $actionSequences = [];
+        if ($actionSequencesExecuted !== []) {
+            foreach ($actionSequencesExecuted as $actionSequenceExecuted) {
+                $actionSequence = new ActionSequence();
+                $actionSequence->sequenceId = $ids->get($actionSequenceExecuted);
+                $actionSequence->action = $actionSequenceExecuted;
+
+                $actionSequences[] = $actionSequence;
+            }
+        }
+
+        $context = Context::createCLIContext();
+        if ($actionSequencesTrueCase !== []) {
+            $condition = new IfSequence();
+            $condition->sequenceId = $ids->get('true_case');
+            $condition->ruleId = $ids->get('ruleId');
+
+            $context = Context::createCLIContext();
+            $context->setRuleIds([$ids->get('ruleId')]);
+
+            foreach ($actionSequencesTrueCase as $actionSequenceTrueCase) {
+                $actionSequence = new ActionSequence();
+                $actionSequence->sequenceId = $ids->get($actionSequenceTrueCase);
+                $actionSequence->action = $actionSequenceTrueCase;
+
+                $condition->trueCase = $actionSequence;
+            }
+
+            $actionSequences[] = $condition;
+        }
+
+        if ($actionSequencesFalseCase !== []) {
+            $condition = new IfSequence();
+            $condition->sequenceId = $ids->get('false_case');
+            $condition->ruleId = $ids->get('ruleId');
+
+            $context = Context::createCLIContext();
+
+            foreach ($actionSequencesFalseCase as $actionSequenceFalseCase) {
+                $actionSequence = new ActionSequence();
+                $actionSequence->sequenceId = $ids->get($actionSequenceFalseCase);
+                $actionSequence->action = $actionSequenceFalseCase;
+
+                $condition->falseCase = $actionSequence;
+            }
+
+            $actionSequences[] = $condition;
         }
 
         $flow = new Flow($ids->get('flowId'), $actionSequences);
 
         $storableFlow = new StorableFlow('', $context);
 
+        if ($appAction) {
+            $appActionSequence = new ActionSequence();
+            $appActionSequence->appFlowActionId = $ids->get('AppActionId');
+            $appActionSequence->sequenceId = $ids->get('AppActionSequenceId');
+            $appActionSequence->action = 'app.action';
+            $actionSequences[] = $appActionSequence;
+            $flow = new Flow($ids->get('flowId'), $actionSequences);
+            $this->appFlowActionProviderMock->expects(static::once())
+                ->method('getWebhookPayloadAndHeaders')->willReturn([
+                    'headers' => [],
+                    'payload' => [],
+                ]);
+            $invocations = static::exactly(3);
+            $this->eventDispatcherMock->expects($invocations)
+                ->method('dispatch')
+                ->with(
+                    static::callback(
+                        static function (object $event, ?string $_ = null) use ($flow, $storableFlow, $invocations): bool {
+                            match ($invocations->numberOfInvocations()) {
+                                1 => static::assertEquals(new FlowExecutorExtension($flow, $storableFlow), $event),
+                                2 => static::assertEquals(new AppFlowActionEvent('app.action', [], []), $event),
+                                3 => static::assertEquals(new FlowExecutorExtension($flow, $storableFlow), $event),
+                                default => static::fail('Unexpected number of invocations'),
+                            };
+
+                            return true;
+                        }
+                    ),
+                );
+        }
+
         if (\in_array(self::ACTION_ADD_ORDER_TAG, array_merge_recursive($actionSequencesExecuted, $actionSequencesTrueCase, $actionSequencesFalseCase), true)) {
-            $addOrderTagAction->expects(static::once())->method('handleFlow')->with($storableFlow);
+            $this->addOrderTagActionMock->expects(static::once())->method('handleFlow')->with($storableFlow);
         } else {
-            $addOrderTagAction->expects(static::never())->method('handleFlow');
+            $this->addOrderTagActionMock->expects(static::never())->method('handleFlow');
         }
 
         if (\in_array(self::ACTION_ADD_CUSTOMER_TAG, array_merge_recursive($actionSequencesExecuted, $actionSequencesTrueCase, $actionSequencesFalseCase), true)) {
-            $addCustomerTagAction->expects(static::once())->method('handleFlow')->with($storableFlow);
+            $this->addCustomerTagActionMock->expects(static::once())->method('handleFlow')->with($storableFlow);
         } else {
-            $addCustomerTagAction->expects(static::never())->method('handleFlow');
+            $this->addCustomerTagActionMock->expects(static::never())->method('handleFlow');
         }
 
         if (\in_array(self::ACTION_STOP_FLOW, array_merge_recursive($actionSequencesExecuted, $actionSequencesTrueCase, $actionSequencesFalseCase), true)) {
-            $stopFlowAction->expects(static::once())->method('handleFlow')->with($storableFlow);
+            $this->stopFlowActionMock->expects(static::once())->method('handleFlow')->with($storableFlow);
         } else {
-            $stopFlowAction->expects(static::never())->method('handleFlow');
+            $this->stopFlowActionMock->expects(static::never())->method('handleFlow');
         }
 
-        $flowExecutor = new FlowExecutor($eventDispatcher, $appFlowActionProvider, $ruleLoader, $scopeBuilder, $connection, new ExtensionDispatcher(new EventDispatcher()), $actions);
-        $flowExecutor->execute($flow, $storableFlow);
+        $this->flowExecutor->execute($flow, $storableFlow);
     }
 
     public static function actionsProvider(): \Generator
@@ -223,12 +465,6 @@ class FlowExecutorTest extends TestCase
 
     public function testExecuteIfWithRuleEvaluation(): void
     {
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $appFlowActionProvider = $this->createMock(AppFlowActionProvider::class);
-        $ruleLoader = $this->createMock(AbstractRuleLoader::class);
-        $scopeBuilder = $this->createMock(FlowRuleScopeBuilder::class);
-        $connection = $this->createMock(Connection::class);
-
         $trueCaseSequence = new Sequence();
         $trueCaseSequence->assign(['sequenceId' => 'foobar']);
         $ruleId = Uuid::randomHex();
@@ -241,11 +477,11 @@ class FlowExecutorTest extends TestCase
         $tag->setId($tagId);
         $order->setTags(new TagCollection([$tag]));
 
-        $flow = new StorableFlow('bar', Context::createDefaultContext());
+        $flow = new StorableFlow('bar', Context::createCLIContext());
         $flow->setFlowState(new FlowState());
         $flow->setData(OrderAware::ORDER, $order);
 
-        $scopeBuilder->method('build')->willReturn(
+        $this->scopeBuilderMock->method('build')->willReturn(
             new FlowRuleScope($order, new Cart('test'), $this->createMock(SalesChannelContext::class))
         );
 
@@ -254,10 +490,9 @@ class FlowExecutorTest extends TestCase
         $ruleEntity->setId($ruleId);
         $ruleEntity->setPayload($rule);
         $ruleEntity->setAreas([RuleAreas::FLOW_AREA]);
-        $ruleLoader->method('load')->willReturn(new RuleCollection([$ruleEntity]));
+        $this->ruleLoaderMock->method('load')->willReturn(new RuleCollection([$ruleEntity]));
 
-        $flowExecutor = new FlowExecutor($eventDispatcher, $appFlowActionProvider, $ruleLoader, $scopeBuilder, $connection, new ExtensionDispatcher(new EventDispatcher()), []);
-        $flowExecutor->executeIf($ifSequence, $flow);
+        $this->flowExecutor->executeIf($ifSequence, $flow);
 
         static::assertEquals($trueCaseSequence, $flow->getFlowState()->currentSequence);
     }
@@ -265,12 +500,6 @@ class FlowExecutorTest extends TestCase
     public function testActionExecutedInTransactionWhenItImplementsTransactional(): void
     {
         $ids = new IdsCollection();
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $appFlowActionProvider = $this->createMock(AppFlowActionProvider::class);
-        $ruleLoader = $this->createMock(AbstractRuleLoader::class);
-        $scopeBuilder = $this->createMock(FlowRuleScopeBuilder::class);
-        $connection = $this->createMock(Connection::class);
-
         $action = new class extends FlowAction implements TransactionalAction {
             public bool $handled = false;
 
@@ -294,19 +523,28 @@ class FlowExecutorTest extends TestCase
         $actionSequence->sequenceId = $ids->get($action::class);
         $actionSequence->action = $action::class;
 
-        $connection->expects(static::once())
+        $this->connectionMock->expects(static::once())
             ->method('beginTransaction');
 
-        $connection->expects(static::once())
+        $this->connectionMock->expects(static::once())
             ->method('commit');
 
-        $flow = new StorableFlow('some-flow', Context::createDefaultContext());
+        $flow = new StorableFlow('some-flow', Context::createCLIContext());
         $flow->setFlowState(new FlowState());
 
-        $flowExecutor = new FlowExecutor($eventDispatcher, $appFlowActionProvider, $ruleLoader, $scopeBuilder, $connection, new ExtensionDispatcher(new EventDispatcher()), [
-            $action::class => $action,
-        ]);
-        $flowExecutor->executeAction($actionSequence, $flow);
+        $this->flowExecutor = new FlowExecutor(
+            $this->eventDispatcherMock,
+            $this->appFlowActionProviderMock,
+            $this->ruleLoaderMock,
+            $this->scopeBuilderMock,
+            $this->connectionMock,
+            new ExtensionDispatcher($this->eventDispatcherMock),
+            $this->loggerMock,
+            [
+                $action::class => $action,
+            ],
+        );
+        $this->flowExecutor->executeAction($actionSequence, $flow);
 
         static::assertTrue($action->handled);
     }
@@ -314,12 +552,6 @@ class FlowExecutorTest extends TestCase
     public function testTransactionCommitFailureExceptionIsWrapped(): void
     {
         $ids = new IdsCollection();
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $appFlowActionProvider = $this->createMock(AppFlowActionProvider::class);
-        $ruleLoader = $this->createMock(AbstractRuleLoader::class);
-        $scopeBuilder = $this->createMock(FlowRuleScopeBuilder::class);
-        $connection = $this->createMock(Connection::class);
-
         $action = new class extends FlowAction implements TransactionalAction {
             public function requirements(): array
             {
@@ -340,7 +572,7 @@ class FlowExecutorTest extends TestCase
         $actionSequence->sequenceId = $ids->get($action::class);
         $actionSequence->action = $action::class;
 
-        $connection->expects(static::once())
+        $this->connectionMock->expects(static::once())
             ->method('beginTransaction');
 
         $e = new TableNotFoundException(
@@ -348,22 +580,31 @@ class FlowExecutorTest extends TestCase
             null
         );
 
-        $connection->expects(static::once())
+        $this->connectionMock->expects(static::once())
             ->method('commit')
             ->willThrowException($e);
 
-        $connection->expects(static::once())
+        $this->connectionMock->expects(static::once())
             ->method('rollBack');
 
-        $flow = new StorableFlow('some-flow', Context::createDefaultContext());
+        $flow = new StorableFlow('some-flow', Context::createCLIContext());
         $flow->setFlowState(new FlowState());
 
-        $flowExecutor = new FlowExecutor($eventDispatcher, $appFlowActionProvider, $ruleLoader, $scopeBuilder, $connection, new ExtensionDispatcher(new EventDispatcher()), [
-            $action::class => $action,
-        ]);
+        $this->flowExecutor = new FlowExecutor(
+            $this->eventDispatcherMock,
+            $this->appFlowActionProviderMock,
+            $this->ruleLoaderMock,
+            $this->scopeBuilderMock,
+            $this->connectionMock,
+            new ExtensionDispatcher($this->eventDispatcherMock),
+            $this->loggerMock,
+            [
+                $action::class => $action,
+            ],
+        );
 
         try {
-            $flowExecutor->executeAction($actionSequence, $flow);
+            $this->flowExecutor->executeAction($actionSequence, $flow);
             static::fail(FlowException::class . ' should be thrown');
         } catch (FlowException $e) {
             static::assertSame(FlowException::FLOW_ACTION_TRANSACTION_COMMIT_FAILED, $e->getErrorCode());
@@ -374,12 +615,6 @@ class FlowExecutorTest extends TestCase
     public function testTransactionAbortExceptionIsWrapped(): void
     {
         $ids = new IdsCollection();
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $appFlowActionProvider = $this->createMock(AppFlowActionProvider::class);
-        $ruleLoader = $this->createMock(AbstractRuleLoader::class);
-        $scopeBuilder = $this->createMock(FlowRuleScopeBuilder::class);
-        $connection = $this->createMock(Connection::class);
-
         $action = new class extends FlowAction implements TransactionalAction {
             public function requirements(): array
             {
@@ -401,21 +636,30 @@ class FlowExecutorTest extends TestCase
         $actionSequence->sequenceId = $ids->get($action::class);
         $actionSequence->action = $action::class;
 
-        $connection->expects(static::once())
+        $this->connectionMock->expects(static::once())
             ->method('beginTransaction');
 
-        $connection->expects(static::once())
+        $this->connectionMock->expects(static::once())
             ->method('rollBack');
 
-        $flow = new StorableFlow('some-flow', Context::createDefaultContext());
+        $flow = new StorableFlow('some-flow', Context::createCLIContext());
         $flow->setFlowState(new FlowState());
 
-        $flowExecutor = new FlowExecutor($eventDispatcher, $appFlowActionProvider, $ruleLoader, $scopeBuilder, $connection, new ExtensionDispatcher(new EventDispatcher()), [
-            $action::class => $action,
-        ]);
+        $this->flowExecutor = new FlowExecutor(
+            $this->eventDispatcherMock,
+            $this->appFlowActionProviderMock,
+            $this->ruleLoaderMock,
+            $this->scopeBuilderMock,
+            $this->connectionMock,
+            new ExtensionDispatcher($this->eventDispatcherMock),
+            $this->loggerMock,
+            [
+                $action::class => $action,
+            ],
+        );
 
         try {
-            $flowExecutor->executeAction($actionSequence, $flow);
+            $this->flowExecutor->executeAction($actionSequence, $flow);
             static::fail(FlowException::class . ' should be thrown');
         } catch (FlowException $e) {
             static::assertSame(FlowException::FLOW_ACTION_TRANSACTION_ABORTED, $e->getErrorCode());
@@ -426,12 +670,6 @@ class FlowExecutorTest extends TestCase
     public function testTransactionWithUncaughtExceptionIsWrapped(): void
     {
         $ids = new IdsCollection();
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $appFlowActionProvider = $this->createMock(AppFlowActionProvider::class);
-        $ruleLoader = $this->createMock(AbstractRuleLoader::class);
-        $scopeBuilder = $this->createMock(FlowRuleScopeBuilder::class);
-        $connection = $this->createMock(Connection::class);
-
         $action = new class extends FlowAction implements TransactionalAction {
             public function requirements(): array
             {
@@ -454,21 +692,30 @@ class FlowExecutorTest extends TestCase
         $actionSequence->sequenceId = $ids->get($action::class);
         $actionSequence->action = $action::class;
 
-        $connection->expects(static::once())
+        $this->connectionMock->expects(static::once())
             ->method('beginTransaction');
 
-        $connection->expects(static::once())
+        $this->connectionMock->expects(static::once())
             ->method('rollBack');
 
-        $flow = new StorableFlow('some-flow', Context::createDefaultContext());
+        $flow = new StorableFlow('some-flow', Context::createCLIContext());
         $flow->setFlowState(new FlowState());
 
-        $flowExecutor = new FlowExecutor($eventDispatcher, $appFlowActionProvider, $ruleLoader, $scopeBuilder, $connection, new ExtensionDispatcher(new EventDispatcher()), [
-            $action::class => $action,
-        ]);
+        $this->flowExecutor = new FlowExecutor(
+            $this->eventDispatcherMock,
+            $this->appFlowActionProviderMock,
+            $this->ruleLoaderMock,
+            $this->scopeBuilderMock,
+            $this->connectionMock,
+            new ExtensionDispatcher($this->eventDispatcherMock),
+            $this->loggerMock,
+            [
+                $action::class => $action,
+            ],
+        );
 
         try {
-            $flowExecutor->executeAction($actionSequence, $flow);
+            $this->flowExecutor->executeAction($actionSequence, $flow);
             static::fail(FlowException::class . ' should be thrown');
         } catch (FlowException $e) {
             static::assertSame(FlowException::FLOW_ACTION_TRANSACTION_UNCAUGHT_EXCEPTION, $e->getErrorCode());
@@ -478,17 +725,8 @@ class FlowExecutorTest extends TestCase
 
     public function testExtensionIsDispatched(): void
     {
-        $dispatcher = new EventDispatcher();
-
-        $executor = new FlowExecutor(
-            $dispatcher,
-            $this->createMock(AppFlowActionProvider::class),
-            $this->createMock(AbstractRuleLoader::class),
-            $this->createMock(FlowRuleScopeBuilder::class),
-            $this->createMock(Connection::class),
-            new ExtensionDispatcher($dispatcher),
-            []
-        );
+        $flow = new Flow('test', []);
+        $storableFlow = new StorableFlow('', Context::createCLIContext());
 
         $pre = $this->createMock(CallableClass::class);
         $pre->expects(static::once())->method('__invoke');
@@ -496,9 +734,29 @@ class FlowExecutorTest extends TestCase
         $post = $this->createMock(CallableClass::class);
         $post->expects(static::once())->method('__invoke');
 
-        $dispatcher->addListener(FlowExecutorExtension::NAME . '.pre', $pre);
-        $dispatcher->addListener(FlowExecutorExtension::NAME . '.post', $post);
+        $invocations = static::exactly(2);
+        $this->eventDispatcherMock->expects($invocations)
+            ->method('dispatch')
+            ->with(
+                static::callback(
+                    static function (object $event, ?string $_ = null) use ($flow, $storableFlow, $invocations, $pre, $post): bool {
+                        match ($invocations->numberOfInvocations()) {
+                            1 => static::assertEquals(new FlowExecutorExtension($flow, $storableFlow), $event),
+                            2 => static::assertEquals(new FlowExecutorExtension($flow, $storableFlow), $event),
+                            default => static::fail('Unexpected number of invocations'),
+                        };
 
-        $executor->execute(new Flow('test', []), new StorableFlow('', Context::createDefaultContext()));
+                        match ($invocations->numberOfInvocations()) {
+                            1 => $pre->__invoke(),
+                            2 => $post->__invoke(),
+                            default => static::fail('Unexpected number of invocations'),
+                        };
+
+                        return true;
+                    }
+                ),
+            );
+
+        $this->flowExecutor->execute($flow, $storableFlow);
     }
 }

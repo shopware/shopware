@@ -176,18 +176,26 @@ export default {
 
                 this.createNotificationSuccess({
                     title: this.$root.$tc('global.default.success'),
-                    message: this.$root.$tc('global.sw-media-modal-move.notification.successSingle.message', 1, {
-                        mediaName: this.mediaNameFilter(item),
-                    }),
+                    message: this.$root.$tc(
+                        'global.sw-media-modal-move.notification.successSingle.message',
+                        {
+                            mediaName: this.mediaNameFilter(item),
+                        },
+                        1,
+                    ),
                 });
 
                 return item.id;
             } catch {
                 this.createNotificationError({
                     title: this.$root.$tc('global.default.error'),
-                    message: this.$root.$tc('global.sw-media-modal-move.notification.errorSingle.message', 1, {
-                        mediaName: this.mediaNameFilter(item),
-                    }),
+                    message: this.$root.$tc(
+                        'global.sw-media-modal-move.notification.errorSingle.message',
+                        {
+                            mediaName: this.mediaNameFilter(item),
+                        },
+                        1,
+                    ),
                 });
 
                 return null;

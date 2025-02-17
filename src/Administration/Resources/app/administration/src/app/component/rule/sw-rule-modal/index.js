@@ -176,10 +176,10 @@ Component.register('sw-rule-modal', {
             }
 
             const titleSaveSuccess = this.$tc('global.default.success');
-            const messageSaveSuccess = this.$tc('sw-rule-modal.messageSaveSuccess', 0, { name: this.rule.name });
+            const messageSaveSuccess = this.$tc('sw-rule-modal.messageSaveSuccess', { name: this.rule.name }, 0);
 
             const titleSaveError = this.$tc('global.default.error');
-            const messageSaveError = this.$tc('sw-rule-modal.messageSaveError', 0, { name: this.rule.name });
+            const messageSaveError = this.$tc('sw-rule-modal.messageSaveError', { name: this.rule.name }, 0);
 
             this.isLoading = true;
             return this.ruleRepository

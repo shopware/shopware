@@ -12,7 +12,7 @@ use Shopware\Core\Content\ProductExport\Event\ProductExportRenderHeaderContextEv
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Content\ProductExport\Service\ProductExportRenderer;
-use Shopware\Core\Framework\Adapter\Twig\Exception\StringTemplateRenderingException;
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -97,7 +97,7 @@ class ProductExportRendererTest extends TestCase
         $dispatcher->expects(static::exactly(2))->method('dispatch')->willReturnOnConsecutiveCalls($event, $loggingEvent);
 
         $twigRenderer = $this->createMock(StringTemplateRenderer::class);
-        $twigRenderer->expects(static::once())->method('render')->willThrowException(new StringTemplateRenderingException('error'));
+        $twigRenderer->expects(static::once())->method('render')->willThrowException(AdapterException::renderingTemplateFailed('error'));
 
         $renderer = new ProductExportRenderer(
             $twigRenderer,
@@ -201,7 +201,7 @@ class ProductExportRendererTest extends TestCase
         $dispatcher->expects(static::exactly(2))->method('dispatch')->willReturnOnConsecutiveCalls($event, $loggingEvent);
 
         $twigRenderer = $this->createMock(StringTemplateRenderer::class);
-        $twigRenderer->expects(static::once())->method('render')->willThrowException(new StringTemplateRenderingException('error'));
+        $twigRenderer->expects(static::once())->method('render')->willThrowException(AdapterException::renderingTemplateFailed('error'));
 
         $renderer = new ProductExportRenderer(
             $twigRenderer,
@@ -252,7 +252,7 @@ class ProductExportRendererTest extends TestCase
         $dispatcher->expects(static::once())->method('dispatch')->willReturn($loggingEvent);
 
         $twigRenderer = $this->createMock(StringTemplateRenderer::class);
-        $twigRenderer->expects(static::once())->method('render')->willThrowException(new StringTemplateRenderingException('error'));
+        $twigRenderer->expects(static::once())->method('render')->willThrowException(AdapterException::renderingTemplateFailed('error'));
 
         $renderer = new ProductExportRenderer(
             $twigRenderer,

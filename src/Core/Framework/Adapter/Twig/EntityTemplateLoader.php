@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -93,11 +92,6 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
      */
     private function findDatabaseTemplate(string $name): ?array
     {
-        // @deprecated tag:v6.7.0 - remove if condition
-        if (EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false)) {
-            return null;
-        }
-
         /*
          * In dev env app templates are directly loaded over the filesystem
          * @see TwigLoaderConfigCompilerPass::addAppTemplatePaths()

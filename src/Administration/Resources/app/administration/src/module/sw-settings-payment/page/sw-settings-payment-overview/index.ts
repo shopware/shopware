@@ -187,16 +187,16 @@ export default Shopware.Component.wrapComponentConfig({
 
         showActivationSuccessNotification(name: string, active: boolean) {
             const message = active
-                ? this.$tc('sw-settings-payment.overview.notification.activationSuccess', 0, { name })
-                : this.$tc('sw-settings-payment.overview.notification.deactivationSuccess', 0, { name });
+                ? this.$t('sw-settings-payment.overview.notification.activationSuccess', { name }, 0)
+                : this.$t('sw-settings-payment.overview.notification.deactivationSuccess', { name }, 0);
 
             this.createNotificationSuccess({ message });
         },
 
         showActivationErrorNotification(name: string, active: boolean) {
             const message = active
-                ? this.$tc('sw-settings-payment.overview.notification.activationError', 0, { name })
-                : this.$tc('sw-settings-payment.overview.notification.deactivationError', 0, { name });
+                ? this.$t('sw-settings-payment.overview.notification.activationError', { name }, 0)
+                : this.$t('sw-settings-payment.overview.notification.deactivationError', { name }, 0);
 
             this.createNotificationError({ message });
         },

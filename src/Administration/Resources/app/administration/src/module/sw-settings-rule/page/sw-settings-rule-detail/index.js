@@ -406,13 +406,17 @@ export default {
                 );
 
                 if (restrictions.isRestricted) {
-                    const message = this.$tc('sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip', 0, {
-                        conditions: this.ruleConditionDataProviderService.getTranslatedConditionViolationList(
-                            restrictions.equalsAnyNotMatched,
-                            'sw-restricted-rules.or',
-                        ),
-                        entityLabel: this.$tc(restrictions.assignmentSnippet, 2),
-                    });
+                    const message = this.$tc(
+                        'sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip',
+                        {
+                            conditions: this.ruleConditionDataProviderService.getTranslatedConditionViolationList(
+                                restrictions.equalsAnyNotMatched,
+                                'sw-restricted-rules.or',
+                            ),
+                            entityLabel: this.$tc(restrictions.assignmentSnippet, 2),
+                        },
+                        0,
+                    );
 
                     this.createNotificationError({ message });
                     isValid = false;
@@ -532,7 +536,7 @@ export default {
 
         showErrorNotification() {
             this.createNotificationError({
-                message: this.$tc('sw-settings-rule.detail.messageSaveError', 0, { name: this.rule.name }),
+                message: this.$tc('sw-settings-rule.detail.messageSaveError', { name: this.rule.name }, 0),
             });
             this.isLoading = false;
         },

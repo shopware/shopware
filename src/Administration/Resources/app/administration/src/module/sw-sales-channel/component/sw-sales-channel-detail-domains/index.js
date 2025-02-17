@@ -312,9 +312,13 @@ export default {
         onConfirmDeleteDomain(domain) {
             if (domain.productExports.length > 0) {
                 this.createNotificationError({
-                    message: this.$tc('sw-sales-channel.detail.messageDeleteDomainError', 0, {
-                        url: this.unicodeUriFilter(domain.url),
-                    }),
+                    message: this.$tc(
+                        'sw-sales-channel.detail.messageDeleteDomainError',
+                        {
+                            url: this.unicodeUriFilter(domain.url),
+                        },
+                        0,
+                    ),
                 });
 
                 this.deleteDomain = null;

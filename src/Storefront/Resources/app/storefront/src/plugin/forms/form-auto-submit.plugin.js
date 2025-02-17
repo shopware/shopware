@@ -3,7 +3,6 @@ import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading
 import FormSerializeUtil from 'src/utility/form/form-serialize.util';
 import HttpClient from 'src/service/http-client.service';
 import DomAccess from 'src/helper/dom-access.helper';
-import querystring from 'query-string';
 import Debouncer from 'src/helper/debouncer.helper';
 
 /**
@@ -198,7 +197,7 @@ export default class FormAutoSubmitPlugin extends Plugin {
     }
 
     _updateRedirectParameters() {
-        const params = querystring.parse(window.location.search);
+        const params = Object.fromEntries(new URLSearchParams(window.location.search).entries());
         const formData = FormSerializeUtil.serialize(this._form);
 
         Object.keys(params)

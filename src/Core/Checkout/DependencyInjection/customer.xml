@@ -96,6 +96,10 @@
             <argument type="tagged_iterator" tag="shopware.legacy_encoder" />
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Subscriber\AddressHashSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerMetaFieldSubscriber">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 

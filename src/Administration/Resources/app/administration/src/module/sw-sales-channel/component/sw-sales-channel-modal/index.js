@@ -27,9 +27,13 @@ export default {
     computed: {
         modalTitle() {
             if (this.detailType) {
-                return this.$tc('sw-sales-channel.modal.titleDetailPrefix', 0, {
-                    name: this.detailType.name,
-                });
+                return this.$tc(
+                    'sw-sales-channel.modal.titleDetailPrefix',
+                    {
+                        name: this.detailType.name,
+                    },
+                    0,
+                );
             }
 
             return this.$tc('sw-sales-channel.modal.title');

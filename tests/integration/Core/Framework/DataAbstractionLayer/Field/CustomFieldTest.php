@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestDefinition;
@@ -258,75 +257,6 @@ class CustomFieldTest extends TestCase
         static::assertNotNull($actual);
         static::assertEquals($patch['name'], $actual->get('name'));
         static::assertEquals($patch['custom'], $actual->get('custom'));
-    }
-
-    public function testKeyWithDot(): void
-    {
-        Feature::skipTestIfActive('v6.7.0.0', $this);
-
-        $this->addCustomFields(['foo.bar' => CustomFieldTypes::TEXT]);
-
-        $dotId = Uuid::randomHex();
-        $entities = [
-            [
-                'id' => $dotId,
-                'name' => 'foo\'bar',
-                'custom' => [
-                    'foo.bar' => 'baz',
-                ],
-            ],
-        ];
-
-        $repo = $this->getTestRepository();
-        $repo->create($entities, Context::createDefaultContext());
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('custom."foo.bar"', 'baz'));
-        $result = $repo->search($criteria, Context::createDefaultContext());
-        static::assertEquals([$dotId], array_values($result->getIds()));
-    }
-
-    public function testSortingHyphenatedJson(): void
-    {
-        Feature::skipTestIfActive('v6.7.0.0', $this);
-
-        $this->addCustomFields(['hyphenated-property' => CustomFieldTypes::JSON]);
-
-        $entities = [
-            [
-                'id' => Uuid::randomHex(),
-                'name' => 'foo',
-                'custom' => [
-                    'hyphenated-property' => [
-                        'hyphenated-child' => 'bar',
-                    ],
-                ],
-            ],
-            [
-                'id' => Uuid::randomHex(),
-                'name' => 'bar',
-                'custom' => [
-                    'hyphenated-property' => [
-                        'hyphenated-child' => 'foo',
-                    ],
-                ],
-            ],
-        ];
-        $repo = $this->getTestRepository();
-        $repo->create($entities, Context::createDefaultContext());
-
-        $criteria = new Criteria();
-        $criteria->addSorting(new FieldSorting('custom.hyphenated-property.hyphenated-child', FieldSorting::DESCENDING));
-        $result = $repo->search($criteria, Context::createDefaultContext());
-
-        static::assertCount(2, $result);
-
-        $first = $result->first();
-        $last = $result->last();
-        static::assertNotNull($first);
-        static::assertNotNull($last);
-        static::assertEquals('foo', $first->get('custom')['hyphenated-property']['hyphenated-child']);
-        static::assertEquals('bar', $last->get('custom')['hyphenated-property']['hyphenated-child']);
     }
 
     public function testSortingInt(): void
@@ -823,40 +753,6 @@ class CustomFieldTest extends TestCase
         static::assertNotNull($event);
         static::assertCount(1, $event->getPayloads());
         $expected = ['id' => $id, 'custom' => $update['custom']];
-        $payload = $event->getPayloads()[0];
-        unset($payload['updatedAt']);
-
-        static::assertEquals($expected, $payload);
-
-        $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
-        static::assertNotNull($first);
-        static::assertEquals($update['custom'], $first->get('custom'));
-    }
-
-    public function testUpdateCustomFieldWithDot(): void
-    {
-        Feature::skipTestIfActive('v6.7.0.0', $this);
-
-        $this->addCustomFields(['foo.bar' => CustomFieldTypes::TEXT]);
-
-        $id = Uuid::randomHex();
-        $entity = ['id' => $id, 'custom' => []];
-        $repo = $this->getTestRepository();
-        $repo->create([$entity], Context::createDefaultContext());
-
-        $update = [
-            'id' => $id,
-            'custom' => [
-                'foo.bar' => 'foo dot bar',
-            ],
-        ];
-        $result = $repo->update([$update], Context::createDefaultContext());
-        $event = $result->getEventByEntityName(CustomFieldTestDefinition::ENTITY_NAME);
-        static::assertNotNull($event);
-        static::assertCount(1, $event->getPayloads());
-        $expected = $update;
-        $expected['custom'] = $update['custom'];
-
         $payload = $event->getPayloads()[0];
         unset($payload['updatedAt']);
 

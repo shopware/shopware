@@ -409,17 +409,6 @@ export default {
             };
         },
 
-        /* @deprecated: tag:v6.7.0 - Will be removed without replacement */
-        showCountriesSelect() {
-            if (!this.isShowDisplayNoteDelivery) {
-                return false;
-            }
-
-            const documentConfig = cloneDeep(this.documentConfig);
-
-            return documentConfig.config?.displayAdditionalNoteDelivery;
-        },
-
         documentBaseConfig() {
             return this.documentConfig;
         },

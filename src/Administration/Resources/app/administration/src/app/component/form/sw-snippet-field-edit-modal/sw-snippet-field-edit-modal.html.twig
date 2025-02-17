@@ -23,7 +23,7 @@
             class="sw-snippet-field-edit-modal__translation-field"
             :class="`sw-snippet-field-edit-modal__translation-field--${index}`"
             :disabled="!acl.can('snippet.editor')"
-            :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: snippetSets.get(snippet.setId).name })"
+            :label="$tc('sw-settings-snippet.detail.labelContent', { name: snippetSets.get(snippet.setId).name }, 0)"
             :placeholder="snippet.origin || $tc('sw-settings-snippet.general.placeholderValue')"
         />
     </template>
@@ -37,7 +37,7 @@
             class="sw-snippet-field-edit-modal__translation-field"
             :class="`sw-snippet-field-edit-modal__translation-field--${index}`"
             :disabled="!acl.can('snippet.editor')"
-            :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: snippetSets.get(snippet.setId).name })"
+            :label="$tc('sw-settings-snippet.detail.labelContent', { name: snippetSets.get(snippet.setId).name }, 0)"
             :placeholder="snippet.origin || $tc('sw-settings-snippet.general.placeholderValue')"
         />
     </template>

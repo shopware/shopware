@@ -48,9 +48,13 @@ export default {
         // Settings Listing mixin override
         messageSaveSuccess() {
             if (this.deleteEntity) {
-                return this.$tc('sw-settings-custom-field.set.list.messageDeleteSuccess', 0, {
-                    name: this.getInlineSnippet(this.deleteEntity.config.label) || this.deleteEntity.name,
-                });
+                return this.$tc(
+                    'sw-settings-custom-field.set.list.messageDeleteSuccess',
+                    {
+                        name: this.getInlineSnippet(this.deleteEntity.config.label) || this.deleteEntity.name,
+                    },
+                    0,
+                );
             }
             return '';
         },

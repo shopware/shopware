@@ -67,9 +67,9 @@
                         v-if="numberRange && numberRange.type && numberRange.type.global"
                         class="sw-number_range-quickinfo__alert-global-type"
                         variant="warning"
-                        :title="$tc('sw-settings-number-range.general.infoGlobalTypeTitle', 0, {typeName: numberRange.type.typeName})"
+                        :title="$tc('sw-settings-number-range.general.infoGlobalTypeTitle', {typeName: numberRange.type.typeName}, 0)"
                     >
-                        {{ $tc('sw-settings-number-range.general.infoGlobalType', 0, {typeName: numberRange.type.typeName}) }}
+                        {{ $tc('sw-settings-number-range.general.infoGlobalType', {typeName: numberRange.type.typeName}, 0) }}
                     </sw-alert>
                     {% endblock %}
 
@@ -215,9 +215,9 @@
                         v-if="numberRange !== null && numberRange.global"
                         class="sw-number_range-quickinfo__alert-global-type"
                         variant="info"
-                        :title="$tc('sw-settings-number-range.general.infoGlobalTitle', 0, {name: numberRange.name})"
+                        :title="$tc('sw-settings-number-range.general.infoGlobalTitle', {name: numberRange.name}, 0)"
                     >
-                        {{ $tc('sw-settings-number-range.general.infoGlobal', 0, {name: numberRange.name}) }}
+                        {{ $tc('sw-settings-number-range.general.infoGlobal', {name: numberRange.name}, 0) }}
                     </sw-alert>
                     <sw-alert
                         v-if="
@@ -227,7 +227,7 @@
                         class="sw-number_range-quickinfo__alert-global-type"
                         variant="warning"
                     >
-                        {{ $tc('sw-settings-number-range.general.infoSalesChannelBound', 0, {name: numberRange.name}) }}
+                        {{ $tc('sw-settings-number-range.general.infoSalesChannelBound', {name: numberRange.name}, 0) }}
                     </sw-alert>
                     {% endblock %}
                     <sw-container

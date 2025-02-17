@@ -6,10 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
+use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
 use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
 use Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSwitchDefaultAddressRoute;
@@ -19,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\Test\Generator;
@@ -254,5 +257,155 @@ class AccountServiceTest extends TestCase
 
         $this->expectException(WriteException::class);
         $accountService->getCustomerByLogin('user', 'password', $salesChannelContext);
+    }
+
+    public function testSetDefaultBillingAddress(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $customer = $context->getCustomer();
+
+        static::assertNotNull($customer);
+
+        $switcher = $this->createMock(AbstractSwitchDefaultAddressRoute::class);
+        $switcher
+            ->expects(static::once())
+            ->method('swap')
+            ->with('billing-address-id', AbstractSwitchDefaultAddressRoute::TYPE_BILLING, $context, $customer);
+
+        $accountService = new AccountService(
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(LegacyPasswordVerifier::class),
+            $switcher,
+            $this->createMock(CartRestorer::class),
+        );
+
+        $accountService->setDefaultBillingAddress('billing-address-id', $context, $customer);
+    }
+
+    public function testSetDefaultShippingAddress(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $customer = $context->getCustomer();
+
+        static::assertNotNull($customer);
+
+        $switcher = $this->createMock(AbstractSwitchDefaultAddressRoute::class);
+        $switcher
+            ->expects(static::once())
+            ->method('swap')
+            ->with('shipping-address-id', AbstractSwitchDefaultAddressRoute::TYPE_SHIPPING, $context, $customer);
+
+        $accountService = new AccountService(
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(LegacyPasswordVerifier::class),
+            $switcher,
+            $this->createMock(CartRestorer::class),
+        );
+
+        $accountService->setDefaultShippingAddress('shipping-address-id', $context, $customer);
+    }
+
+    public function testLoginById(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+        $customer->setActive(true);
+        $customer->setBoundSalesChannelId($context->getSalesChannel()->getId());
+        $customer->setEmail('foo@bar.de');
+
+        $repo = $this->createMock(EntityRepository::class);
+        $repo
+            ->expects(static::once())
+            ->method('search')
+            ->willReturn(new EntitySearchResult(
+                CustomerDefinition::ENTITY_NAME,
+                1,
+                new CustomerCollection([$customer]),
+                null,
+                new Criteria(),
+                $context->getContext()
+            ));
+
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher
+            ->expects(static::exactly(2))
+            ->method('dispatch')
+            ->with(static::callback(static function ($event) use ($context, $customer): bool {
+                if ($event instanceof CustomerBeforeLoginEvent) {
+                    static::assertSame($context, $event->getSalesChannelContext());
+                    static::assertSame($customer->getEmail(), $event->getEmail());
+
+                    return true;
+                }
+
+                if ($event instanceof CustomerLoginEvent) {
+                    static::assertSame($customer, $event->getCustomer());
+
+                    return true;
+                }
+
+                return false;
+            }));
+
+        $accountService = new AccountService(
+            $repo,
+            $dispatcher,
+            $this->createMock(LegacyPasswordVerifier::class),
+            $this->createMock(AbstractSwitchDefaultAddressRoute::class),
+            $this->createMock(CartRestorer::class),
+        );
+
+        $accountService->loginById($customer->getId(), $context);
+    }
+
+    public function testLoginByIdWithNonValidId(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $accountService = new AccountService(
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(LegacyPasswordVerifier::class),
+            $this->createMock(AbstractSwitchDefaultAddressRoute::class),
+            $this->createMock(CartRestorer::class),
+        );
+
+        $this->expectException(BadCredentialsException::class);
+
+        $accountService->loginById('foo', $context);
+    }
+
+    public function testLoginByIdNotFound(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $repo = $this->createMock(EntityRepository::class);
+        $repo
+            ->expects(static::once())
+            ->method('search')
+            ->willReturn(new EntitySearchResult(
+                CustomerDefinition::ENTITY_NAME,
+                0,
+                new CustomerCollection(),
+                null,
+                new Criteria(),
+                $context->getContext()
+            ));
+
+        $accountService = new AccountService(
+            $repo,
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(LegacyPasswordVerifier::class),
+            $this->createMock(AbstractSwitchDefaultAddressRoute::class),
+            $this->createMock(CartRestorer::class),
+        );
+
+        $this->expectException(CustomerNotFoundByIdException::class);
+
+        $accountService->loginById(Uuid::randomHex(), $context);
     }
 }

@@ -8,32 +8,14 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('discovery')]
 class MissingSnippetStruct extends Struct
 {
-    protected string $keyPath;
-
-    protected string $filePath;
-
-    protected string $availableISO;
-
-    protected string $availableTranslation;
-
-    protected string $missingForISO;
-
-    protected ?string $translation = null;
-
     public function __construct(
-        string $keyPath,
-        string $filePath,
-        string $availableISO,
-        string $availableTranslation,
-        string $missingForISO,
-        ?string $translation = null
+        protected string $keyPath,
+        protected string $filePath,
+        protected string $availableISO,
+        protected string $availableTranslation,
+        protected string $missingForISO,
+        protected ?string $translation = null
     ) {
-        $this->keyPath = $keyPath;
-        $this->filePath = $filePath;
-        $this->availableISO = $availableISO;
-        $this->availableTranslation = $availableTranslation;
-        $this->missingForISO = $missingForISO;
-        $this->translation = $translation;
     }
 
     public function getKeyPath(): string

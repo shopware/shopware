@@ -16,8 +16,16 @@ General styling for cms sections
         @extend .container;
     }
 
+    .full-width {
+        @extend .container-fluid;
+    }
+
     .cms-section-sidebar {
         display: flex;
+
+        & > .row {
+            --#{$prefix}gutter-x: 60px;
+        }
     }
 }
 

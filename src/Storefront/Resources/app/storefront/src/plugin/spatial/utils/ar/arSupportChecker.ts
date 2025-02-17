@@ -35,9 +35,7 @@ export function supportQuickLook(): boolean {
     const isEdge = /EdgiOS/.test(navigator.userAgent);
     const isDuckDuckGo = /Ddg/.test(navigator.userAgent);
 
-    if(isChromeOrVivaldi || isEdge || isDuckDuckGo) {
-        return true;
-    }
+    return isChromeOrVivaldi || isEdge || isDuckDuckGo;
 }
 
 /**

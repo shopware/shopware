@@ -38,9 +38,7 @@ use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPage;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader;
 use Shopware\Storefront\Page\Product\QuickView\ProductQuickViewWidgetLoadedHook;
-use Shopware\Storefront\Page\Product\Review\ProductReviewsWidgetLoadedHook as StorefrontProductReviewsWidgetLoadedHook;
 use Shopware\Tests\Unit\Storefront\Controller\Stub\ProductControllerStub;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -85,7 +83,6 @@ class ProductControllerTest extends TestCase
             $this->seoUrlPlaceholderHandlerMock,
             $this->productReviewLoaderMock,
             $this->systemConfigServiceMock,
-            $this->createMock(EventDispatcher::class),
         );
     }
 
@@ -350,10 +347,6 @@ class ProductControllerTest extends TestCase
             $this->controller->renderStorefrontParameters
         );
 
-        if (Feature::isActive('v6.7.0.0')) {
-            static::assertInstanceOf(ProductReviewsWidgetLoadedHook::class, $this->controller->calledHook);
-        } else {
-            static::assertInstanceOf(StorefrontProductReviewsWidgetLoadedHook::class, $this->controller->calledHook);
-        }
+        static::assertInstanceOf(ProductReviewsWidgetLoadedHook::class, $this->controller->calledHook);
     }
 }

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal We might break this in v6.2
+ * @internal
  */
 #[Package('fundamentals@after-sales')]
 class DeleteExpiredFilesService

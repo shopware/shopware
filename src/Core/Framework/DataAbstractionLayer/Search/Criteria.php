@@ -45,108 +45,60 @@ class Criteria extends Struct implements \Stringable
 
     /**
      * @var list<FieldSorting>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $sorting = [];
+    protected array $sorting = [];
 
     /**
      * @var array<array-key, Filter>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $filters = [];
+    protected array $filters = [];
 
     /**
      * @var list<Filter>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $postFilters = [];
+    protected array $postFilters = [];
 
     /**
      * @var array<string, Aggregation>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $aggregations = [];
+    protected array $aggregations = [];
 
     /**
      * @var list<ScoreQuery>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $queries = [];
+    protected array $queries = [];
 
     /**
      * @var list<FieldGrouping>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $groupFields = [];
+    protected array $groupFields = [];
 
-    /**
-     * @var int|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $offset;
+    protected ?int $offset = null;
 
-    /**
-     * @var int|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $limit;
+    protected ?int $limit = null;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $totalCountMode = self::TOTAL_COUNT_MODE_NONE;
+    protected int $totalCountMode = self::TOTAL_COUNT_MODE_NONE;
 
     /**
      * @var array<string, Criteria>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $associations = [];
+    protected array $associations = [];
 
     /**
      * @var array<string>|array<int, array<string>>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $ids = [];
+    protected array $ids = [];
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $inherited = false;
+    protected bool $inherited = false;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $term;
+    protected ?string $term = null;
 
     /**
      * @var array<string, array<string, string>>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $includes;
+    protected ?array $includes = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $title;
+    protected ?string $title = null;
 
     /**
      * @var list<string>

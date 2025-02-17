@@ -366,13 +366,17 @@ export default {
                 name: 'sw.settings.tax.index',
             };
 
-            return this.$tc('sw-sales-channel.detail.helpTextTaxCalculation.label', 0, {
-                link: `<sw-internal-link
+            return this.$tc(
+                'sw-sales-channel.detail.helpTextTaxCalculation.label',
+                {
+                    link: `<sw-internal-link
                            :router-link=${JSON.stringify(link)}
                            :inline="true">
                            ${this.$tc('sw-sales-channel.detail.helpTextTaxCalculation.linkText')}
                       </sw-internal-link>`,
-            });
+                },
+                0,
+            );
         },
 
         taxCalculationTypeOptions() {
@@ -565,9 +569,13 @@ export default {
 
                 this.salesChannel.active = false;
                 this.createNotificationError({
-                    message: this.$tc('sw-sales-channel.detail.messageActivateWithoutThemeError', 0, {
-                        name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name'),
-                    }),
+                    message: this.$tc(
+                        'sw-sales-channel.detail.messageActivateWithoutThemeError',
+                        {
+                            name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name'),
+                        },
+                        0,
+                    ),
                 });
             });
         },
@@ -739,7 +747,7 @@ export default {
                 name: collection.first().translated[property].replaceAll('|', '&vert;'),
                 addition:
                     collection.length > 2
-                        ? this.$tc('sw-sales-channel.detail.warningDisabledAddition', 1, { amount: collection.length - 1 })
+                        ? this.$tc('sw-sales-channel.detail.warningDisabledAddition', { amount: collection.length - 1 }, 1)
                         : collection.last().translated[property].replaceAll('|', '&vert;'),
             };
 

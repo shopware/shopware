@@ -76,8 +76,7 @@
         :label="$tc('sw-product.basicForm.labelDescription')"
     >
         <template #content="{ currentValue, updateCurrentValue, isInherited }">
-
-            <sw-text-editor
+            <mt-text-editor
                 :key="isInherited"
                 :placeholder="placeholder(product, 'description', $tc('sw-product.basicForm.placeholderDescriptionLong'))"
                 :error="productDescriptionError"
@@ -87,7 +86,6 @@
                 sanitize-field-name="product_translation.description"
                 @update:value="updateCurrentValue"
             />
-
         </template>
     </sw-inherit-wrapper>
     {% endblock %}

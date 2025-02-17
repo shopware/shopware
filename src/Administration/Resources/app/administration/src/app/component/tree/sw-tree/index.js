@@ -357,18 +357,16 @@ Component.register('sw-tree', {
             }
 
             /* Check recursively if any tree item is active, if yes, focus on it.
-             * If no tree item is active, focus on the first tree item
+             * If no tree item is active, focus on the tree item closest to the event target.
              */
             const activeTreeItem = this.$el.querySelector('.sw-tree-item[aria-current="page"]');
 
             if (activeTreeItem) {
                 activeTreeItem.focus();
             } else {
-                const firstTreeItem = this.$el.querySelector('.sw-tree-item');
+                const closestTreeItem = event.target.closest('.sw-tree-item') || this.$el.querySelector('.sw-tree-item');
 
-                if (firstTreeItem) {
-                    firstTreeItem.focus();
-                }
+                closestTreeItem?.focus();
             }
         },
 

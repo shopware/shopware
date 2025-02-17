@@ -97,8 +97,11 @@ class OrderGenerator implements DemodataGeneratorInterface
             foreach ($this->faker->randomElements($productLineItems, random_int(3, 5)) as $lineItem) {
                 $cart->add($lineItem);
             }
-            foreach ($this->faker->randomElements($promotionLineItems, random_int(0, 3)) as $lineItem) {
-                $cart->add($lineItem);
+
+            if ($promotionLineItems) {
+                foreach ($this->faker->randomElements($promotionLineItems, random_int(0, 3)) as $lineItem) {
+                    $cart->add($lineItem);
+                }
             }
 
             $cart = $this->cartCalculator->calculate($cart, $salesChannelContext);

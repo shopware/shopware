@@ -51,17 +51,25 @@ export default {
 
                 this.createNotificationSuccess({
                     title: this.$root.$tc('global.default.success'),
-                    message: this.$root.$tc('global.sw-media-modal-folder-dissolve.notification.successSingle.message', 1, {
-                        folderName: item.name,
-                    }),
+                    message: this.$root.$tc(
+                        'global.sw-media-modal-folder-dissolve.notification.successSingle.message',
+                        {
+                            folderName: item.name,
+                        },
+                        1,
+                    ),
                 });
                 return item.id;
             } catch {
                 this.createNotificationError({
                     title: this.$root.$tc('global.default.error'),
-                    message: this.$root.$tc('global.sw-media-modal-folder-dissolve.notification.errorSingle.message', 1, {
-                        folderName: item.name,
-                    }),
+                    message: this.$root.$tc(
+                        'global.sw-media-modal-folder-dissolve.notification.errorSingle.message',
+                        {
+                            folderName: item.name,
+                        },
+                        1,
+                    ),
                 });
 
                 return null;

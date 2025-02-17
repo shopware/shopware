@@ -205,7 +205,6 @@ class OrderSerializerTest extends TestCase
                     'order' => null,
                     'stateMachineState' => [
                         'extensions' => [],
-                        '_uniqueIdentifier' => null,
                         'versionId' => null,
                         'translated' => [],
                         'createdAt' => null,
@@ -222,7 +221,6 @@ class OrderSerializerTest extends TestCase
                         'fromStateMachineHistoryEntries' => null,
                         'toStateMachineHistoryEntries' => null,
                         'customFields' => null,
-                        'id' => null,
                         'translations' => null,
                     ],
                     'captures' => null,
@@ -316,7 +314,6 @@ class OrderSerializerTest extends TestCase
                     'order' => null,
                     'stateMachineState' => [
                         'extensions' => [],
-                        '_uniqueIdentifier' => null,
                         'versionId' => null,
                         'translated' => [],
                         'createdAt' => null,
@@ -333,7 +330,6 @@ class OrderSerializerTest extends TestCase
                         'fromStateMachineHistoryEntries' => null,
                         'toStateMachineHistoryEntries' => null,
                         'customFields' => null,
-                        'id' => null,
                         'translations' => null,
                     ],
                     'captures' => null,
@@ -366,7 +362,7 @@ class OrderSerializerTest extends TestCase
                 new TaxRuleCollection(),
             ),
             'currencyId' => '',
-            'currencyFactor' => 0,
+            'currencyFactor' => 0.0,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'customerComment' => null,
             'affiliateCode' => null,
@@ -470,11 +466,9 @@ class OrderSerializerTest extends TestCase
     private static function getExpected(array $overrided = []): array
     {
         return array_merge([
-            'id' => null,
             'updatedBy' => null,
             'updatedById' => null,
             'customFields' => null,
-            '_uniqueIdentifier' => null,
             'translated' => [],
             'extensions' => [],
             'versionId' => null,
@@ -508,7 +502,7 @@ class OrderSerializerTest extends TestCase
                 new TaxRuleCollection(),
             ),
             'currencyId' => '',
-            'currencyFactor' => 0,
+            'currencyFactor' => 0.0,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'customerComment' => null,
             'affiliateCode' => null,

@@ -260,7 +260,7 @@ export default {
 
         createInlineSuccessNote(name) {
             this.createNotificationSuccess({
-                message: this.$tc('sw-settings-snippet.setList.inlineEditSuccessMessage', 0, { name }),
+                message: this.$tc('sw-settings-snippet.setList.inlineEditSuccessMessage', { name }, 0),
             });
         },
 

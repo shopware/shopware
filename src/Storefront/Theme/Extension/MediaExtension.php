@@ -25,11 +25,6 @@ class MediaExtension extends EntityExtension
         );
     }
 
-    public function getDefinitionClass(): string
-    {
-        return MediaDefinition::class;
-    }
-
     public function getEntityName(): string
     {
         return MediaDefinition::ENTITY_NAME;

@@ -8,7 +8,7 @@ use Shopware\Core\Content\ProductExport\Event\ProductExportRenderFooterContextEv
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderHeaderContextEvent;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ProductExportException;
-use Shopware\Core\Framework\Adapter\Twig\Exception\StringTemplateRenderingException;
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -50,11 +50,15 @@ class ProductExportRenderer implements ProductExportRendererInterface
                 $headerContext->getContext(),
                 $salesChannelContext->getContext()
             ) . \PHP_EOL;
-        } catch (StringTemplateRenderingException $exception) {
-            $renderHeaderException = ProductExportException::renderHeaderException($exception->getMessage());
-            $this->logException($salesChannelContext->getContext(), $renderHeaderException);
+        } catch (AdapterException $exception) {
+            if ($exception->getErrorCode() === AdapterException::STRING_TEMPLATE_RENDERING_FAILED) {
+                $renderHeaderException = ProductExportException::renderHeaderException($exception->getMessage());
+                $this->logException($salesChannelContext->getContext(), $renderHeaderException);
 
-            throw $renderHeaderException;
+                throw $renderHeaderException;
+            }
+
+            throw $exception;
         }
     }
 
@@ -81,7 +85,7 @@ class ProductExportRenderer implements ProductExportRendererInterface
                 $footerContext->getContext(),
                 $salesChannelContext->getContext()
             ) . \PHP_EOL;
-        } catch (StringTemplateRenderingException $exception) {
+        } catch (AdapterException $exception) {
             $renderFooterException = ProductExportException::renderFooterException($exception->getMessage());
             $this->logException($salesChannelContext->getContext(), $renderFooterException);
 
@@ -108,7 +112,7 @@ class ProductExportRenderer implements ProductExportRendererInterface
                 $data,
                 $salesChannelContext->getContext()
             ) . \PHP_EOL;
-        } catch (StringTemplateRenderingException $exception) {
+        } catch (AdapterException $exception) {
             $renderProductException = ProductExportException::renderProductException($exception->getMessage());
             $this->logException($salesChannelContext->getContext(), $renderProductException);
 

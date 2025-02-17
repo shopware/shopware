@@ -14,14 +14,6 @@ use Shopware\Core\Framework\Plugin\PluginDefinition;
  */
 class PluginProtectionExtension extends EntityExtension
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getDefinitionClass(): string
-    {
-        return PluginDefinition::class;
-    }
-
     public function extendProtections(EntityProtectionCollection $protections): void
     {
         $protections->add(new ReadProtection(Context::SYSTEM_SCOPE, Context::USER_SCOPE));

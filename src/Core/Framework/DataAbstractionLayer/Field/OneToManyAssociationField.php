@@ -9,12 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class OneToManyAssociationField extends AssociationField
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $localField;
+    protected string $localField;
 
     public function __construct(
         string $propertyName,

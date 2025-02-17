@@ -105,7 +105,7 @@ SQL;
             $mappingVersionCondition = '';
             if ($definition->isVersionAware()) {
                 $tableVersionCondition = 'AND #table#.version_id = :version';
-                $mappingVersionCondition = 'AND #table#.version_id = #mapping_table#.#unescaped_table#_version_id AND #table#.version_id = :version';
+                $mappingVersionCondition = 'AND #table#.version_id = #mapping_table#.#unescaped_table#_version_id';
 
                 $parameters['version'] = Uuid::fromHexToBytes($context->getVersionId());
                 $replacement['#unescaped_table#'] = $definition->getEntityName();

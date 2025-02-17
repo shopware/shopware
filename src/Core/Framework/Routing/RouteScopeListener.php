@@ -67,7 +67,6 @@ class RouteScopeListener implements EventSubscriberInterface
             }
         }
 
-        var_dump($masterRequest->getPathInfo());
         throw new InvalidRouteScopeException($masterRequest->attributes->get('_route'));
     }
 

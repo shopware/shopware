@@ -453,8 +453,9 @@ class CheckoutControllerTest extends TestCase
         $contextToken = Uuid::randomHex();
 
         $cart = $this->fillCart($contextToken);
-
         $salesChannelContext = $this->createSalesChannelContext($contextToken, $cart->getTransactions()->first()?->getPaymentMethodId());
+        static::getContainer()->get(CartPersister::class)->save($cart, $salesChannelContext);
+
         $request = $this->createRequest($salesChannelContext);
 
         static::getContainer()->get(CheckoutController::class)->confirmPage($request, $salesChannelContext);

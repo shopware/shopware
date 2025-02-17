@@ -52,14 +52,7 @@ Module.register('sw-settings-language', {
     },
 
     settingsItem: {
-        group: function () {
-            // @deprecated tag:v6.7.0 - Remove condition and function callback
-            if (!Feature.isActive('v6.7.0.0')) {
-                return 'shop';
-            }
-
-            return 'general';
-        },
+        group: 'general',
         to: 'sw.settings.language.index',
         icon: 'regular-flag',
         privilege: 'language.viewer',

@@ -129,6 +129,10 @@ export default {
             }
 
             if (this.customer.boundSalesChannel) {
+                if (!this.customer.boundSalesChannel.active) {
+                    return false;
+                }
+
                 if (this.customer.boundSalesChannel.typeId !== Defaults.storefrontSalesChannelTypeId) {
                     return false;
                 }
@@ -151,6 +155,10 @@ export default {
             }
 
             if (this.customer.boundSalesChannel) {
+                if (!this.customer.boundSalesChannel.active) {
+                    return this.$tc('sw-customer.card.tooltipImitateCustomerInactiveSalesChannel');
+                }
+
                 if (this.customer.boundSalesChannel.typeId !== Defaults.storefrontSalesChannelTypeId) {
                     return this.$tc('sw-customer.card.tooltipImitateCustomerNoStorefront');
                 }

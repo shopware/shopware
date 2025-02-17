@@ -55,7 +55,12 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
             ->willReturn(1);
 
         $service = new DeleteUnusedGuestCustomerService(
+<<<<<<< HEAD
             $customerRepository,
+=======
+            /** @var StaticEntityRepository<CustomerCollection> */
+            new StaticEntityRepository([[$this->createCustomer(), $this->createCustomer()]]),
+>>>>>>> f6a23e0d02 (Format files)
             $configService
         );
 

@@ -160,8 +160,10 @@ class OrderAddressServiceTest extends TestCase
 
         $order = $this->createOrderEntity();
         $orderAddressService = new OrderAddressService(
+            /** @var StaticEntityRepository<OrderCollection> */
             new StaticEntityRepository([new OrderCollection([$order])]),
             $orderAddressRepository,
+            /** @var StaticEntityRepository<CustomerAddressCollection> */
             new StaticEntityRepository([new CustomerAddressCollection([$customerAddress]), new CustomerAddressCollection([$customerAddress])]),
             $orderDeliveryRepository
         );

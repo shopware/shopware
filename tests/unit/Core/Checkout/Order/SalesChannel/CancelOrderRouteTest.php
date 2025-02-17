@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Order\SalesChannel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\SalesChannel\CancelOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
@@ -75,6 +76,7 @@ class CancelOrderRouteTest extends TestCase
 
         $route = new CancelOrderRoute(
             $this->createMock(OrderService::class),
+            /** @var StaticEntityRepository<OrderCollection> */
             new StaticEntityRepository([[]]),
         );
 
@@ -109,6 +111,7 @@ class CancelOrderRouteTest extends TestCase
 
         $route = new CancelOrderRoute(
             $orderService,
+            /** @var StaticEntityRepository<OrderCollection> */
             new StaticEntityRepository([[Uuid::randomHex()]]),
         );
 

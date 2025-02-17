@@ -185,7 +185,6 @@ parameters:
                 - src/Core/Service/**
                 - src/Core/System/**
                 - src/Core/Test/**
-                - tests/integration/Core/Checkout/**
                 - tests/integration/Core/Content/**
                 - tests/integration/Core/Framework/**
                 - tests/integration/Core/System/**

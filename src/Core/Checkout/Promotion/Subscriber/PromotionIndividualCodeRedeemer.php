@@ -114,16 +114,9 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
             new EqualsAnyFilter('code', $codes)
         );
 
-<<<<<<< HEAD
         $promotions = $this->codesRepository->search($criteria, $context)->getEntities();
-
-        if (!($promotions instanceof PromotionIndividualCodeCollection) || $promotions->count() === 0) {
+        if ($promotions->count() === 0) {
             throw PromotionException::promotionCodesNotFound($codes);
-=======
-        $promotion = $this->codesRepository->search($criteria, $context)->getEntities()->first();
-        if (!$promotion) {
-            throw PromotionException::promotionCodeNotFound($code);
->>>>>>> ab137add89 (Improve core checkout domain search usage)
         }
 
         return $promotions;

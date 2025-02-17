@@ -192,7 +192,7 @@ class RegisterRoute extends AbstractRegisterRoute
         $criteria = new Criteria([$customer['id']]);
 
         $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->getEntities()->first();
-        assert($customerEntity !== null);
+        \assert($customerEntity !== null);
 
         if ($customerEntity->getDoubleOptInRegistration()) {
             $this->eventDispatcher->dispatch(

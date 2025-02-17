@@ -44,8 +44,3 @@ parameters:
             message: '#^.*$#'
             count: 30
             path: tests/integration/Core/Checkout/Document/Service/PdfRendererTest.php
-
-        - # issue 6556
-            message: '#^.*$#'
-            count: 3
-            path: tests/unit/Elasticsearch/Product/ProductSearchQueryBuilderTest.php

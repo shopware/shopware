@@ -534,6 +534,7 @@ class Criteria extends Struct implements \Stringable
 
     /**
      * @deprecated tag:v6.8.0 - reason:return-type-change - Return type will be native
+     *
      * @return array<string, list<string>>|null
      */
     public function getIncludes()

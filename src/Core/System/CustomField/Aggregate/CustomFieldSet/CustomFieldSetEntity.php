@@ -17,6 +17,9 @@ class CustomFieldSetEntity extends Entity
 
     protected string $name;
 
+    /**
+     * @var array<string, mixed>|null
+     */
     protected ?array $config = null;
 
     protected bool $active;
@@ -45,11 +48,17 @@ class CustomFieldSetEntity extends Entity
         $this->name = $name;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getConfig(): ?array
     {
         return $this->config;
     }
 
+    /**
+     * @param array<string, mixed>|null $config
+     */
     public function setConfig(?array $config): void
     {
         $this->config = $config;

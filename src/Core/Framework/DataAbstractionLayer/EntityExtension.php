@@ -28,13 +28,5 @@ abstract class EntityExtension
     {
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - Implement `getEntityName` instead or use `BulkEntityExtension`
-     * Defines which entity definition should be extended by this class.
-     *
-     * When removing this method. Make sure to remove all child implementations
-     */
-    abstract public function getDefinitionClass(): string;
-
     abstract public function getEntityName(): string;
 }

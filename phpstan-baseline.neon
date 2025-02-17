@@ -3666,21 +3666,6 @@ parameters:
 			path: src/Storefront/Page/Navigation/Error/ErrorPageLoader.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Page\\\\Sitemap\\\\SitemapPage\\:\\:getSitemaps\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Page/Sitemap/SitemapPage.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Page\\\\Sitemap\\\\SitemapPage\\:\\:setSitemaps\\(\\) has parameter \\$sitemaps with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Page/Sitemap/SitemapPage.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Page\\\\Sitemap\\\\SitemapPage\\:\\:\\$sitemaps type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Page/Sitemap/SitemapPage.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\AbstractResolvedConfigLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/AbstractResolvedConfigLoader.php

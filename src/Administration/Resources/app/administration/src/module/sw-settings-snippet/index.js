@@ -70,14 +70,7 @@ Module.register('sw-settings-snippet', {
     },
 
     settingsItem: {
-        group: function () {
-            // @deprecated tag:v6.7.0 - Remove condition and function callback
-            if (!Feature.isActive('v6.7.0.0')) {
-                return 'shop';
-            }
-
-            return 'localization';
-        },
+        group: 'localization',
         to: 'sw.settings.snippet.index',
         icon: 'regular-globe-stand',
         privilege: 'snippet.viewer',

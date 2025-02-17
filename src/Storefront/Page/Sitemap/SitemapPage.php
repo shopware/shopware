@@ -10,12 +10,12 @@ use Shopware\Core\Framework\Struct\Struct;
 class SitemapPage extends Struct
 {
     /**
-     * @var list<Sitemap>
+     * @var array<Sitemap>
      */
     protected array $sitemaps;
 
     /**
-     * @return list<Sitemap>
+     * @return array<Sitemap>
      */
     public function getSitemaps(): array
     {
@@ -23,7 +23,7 @@ class SitemapPage extends Struct
     }
 
     /**
-     * @param list<Sitemap> $sitemaps
+     * @param array<Sitemap> $sitemaps
      */
     public function setSitemaps(array $sitemaps): void
     {

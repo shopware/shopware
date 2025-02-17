@@ -10,8 +10,6 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     emits: ['element-update'],
@@ -181,13 +179,8 @@ export default {
         },
 
         updateElementData(media = null) {
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.element.data, 'previewMediaId', media === null ? null : media.id);
-                this.$set(this.element.data, 'previewMedia', media);
-            } else {
-                this.element.data.previewMediaId = media === null ? null : media.id;
-                this.element.data.previewMedia = media;
-            }
+            this.element.data.previewMediaId = media === null ? null : media.id;
+            this.element.data.previewMedia = media;
         },
 
         onOpenMediaModal() {

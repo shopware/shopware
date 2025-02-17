@@ -31,8 +31,6 @@ const IFRAME_KEY = 'app.action_button.iframe';
 Component.register('sw-app-actions', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     extensionApiDevtoolInformation: {
         property: 'ui.actionButton',
         entity: (currentComponent) => `${currentComponent.entity}`,
@@ -84,7 +82,7 @@ Component.register('sw-app-actions', {
         },
 
         params() {
-            return Shopware.State.get('shopwareApps').selectedIds;
+            return Shopware.Store.get('shopwareApps').selectedIds;
         },
 
         userConfigRepository() {
@@ -92,7 +90,7 @@ Component.register('sw-app-actions', {
         },
 
         currentUser() {
-            return Shopware.State.get('session').currentUser;
+            return Shopware.Store.get('session').currentUser;
         },
 
         userConfigCriteria() {
@@ -105,7 +103,7 @@ Component.register('sw-app-actions', {
         },
 
         extensionSdkButtons() {
-            return Shopware.State.get('actionButtons').buttons.filter((button) => {
+            return Shopware.Store.get('actionButtons').buttons.filter((button) => {
                 return button.entity === this.entity && button.view === this.view;
             });
         },
@@ -131,7 +129,7 @@ Component.register('sw-app-actions', {
         // that the actions are executed on the wrong entities.
         // Only reset when a entity exists
         if (this.entity) {
-            Shopware.State.commit('shopwareApps/setSelectedIds', []);
+            Shopware.Store.get('shopwareApps').selectedIds = [];
         }
     },
 

@@ -9,8 +9,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     computed: {
         smartBarHeading() {
             return this.productSortingEntity && this.productSortingEntity.label
@@ -37,7 +35,7 @@ export default {
         createdComponent() {
             this.fetchCustomFields().then(() => {
                 this.productSortingEntity = this.createProductSortingEntity();
-                Shopware.State.commit('context/resetLanguageToDefault');
+                Shopware.Store.get('context').resetLanguageToDefault();
             });
         },
 

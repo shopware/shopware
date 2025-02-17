@@ -8,8 +8,6 @@ import './sw-extension-store-landing-page.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['extensionHelperService'],
 
     props: {

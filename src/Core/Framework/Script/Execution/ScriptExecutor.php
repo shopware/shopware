@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Script\Execution;
 
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PcreExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
 use Shopware\Core\Framework\Adapter\Twig\Filter\ReplaceRecursiveFilter;
@@ -43,11 +42,6 @@ class ScriptExecutor
 
     public function execute(Hook $hook): void
     {
-        // @deprecated tag:v6.7.0 - remove if condition
-        if (EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false)) {
-            return;
-        }
-
         if ($hook instanceof InterfaceHook) {
             throw ScriptException::interfaceHookExecutionNotAllowed($hook::class);
         }

@@ -1,10 +1,20 @@
 import { mount } from '@vue/test-utils';
+import { nextTick } from 'vue';
 
 /**
  * @sw-package checkout
  */
 
 async function createWrapper(order = {}) {
+    const repositoryFactoryMock = {
+        search: () => Promise.resolve([]),
+        hasChanges: () => false,
+        deleteVersion: () => Promise.resolve([]),
+        createVersion: () => Promise.resolve({ versionId: 'newVersionId' }),
+        get: () => Promise.resolve(order),
+        save: () => Promise.resolve({}),
+    };
+
     return mount(await wrapTestComponent('sw-order-detail', { sync: true }), {
         global: {
             mocks: {
@@ -61,19 +71,13 @@ async function createWrapper(order = {}) {
                 'sw-icon': true,
                 'sw-language-switch': true,
                 'sw-order-leave-page-modal': true,
+                'sw-order-save-changes-beforehand-modal': true,
                 'sw-extension-component-section': true,
                 'router-link': true,
             },
             provide: {
                 repositoryFactory: {
-                    create: () => ({
-                        search: () => Promise.resolve([]),
-                        hasChanges: () => false,
-                        deleteVersion: () => Promise.resolve([]),
-                        createVersion: () => Promise.resolve({ versionId: 'newVersionId' }),
-                        get: () => Promise.resolve(order),
-                        save: () => Promise.resolve({}),
-                    }),
+                    create: () => repositoryFactoryMock,
                 },
                 orderService: {},
             },
@@ -118,9 +122,10 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         wrapper = await createWrapper();
         await wrapper.setData({ identifier: '1', createdById: '2' });
 
-        await Shopware.State.commit('swOrderDetail/setOrder', {
+        Shopware.Store.get('swOrderDetail').order = {
             orderNumber: 1,
-        });
+        };
+        await nextTick();
 
         expect(wrapper.find('.sw-order-detail__manual-order-label').exists()).toBeTruthy();
     });
@@ -462,6 +467,36 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         });
 
         expect(createNewVersionIdMock).toHaveBeenCalled();
-        expect(Shopware.State.getters['swOrderDetail/isLoading']).toBe(false);
+        expect(Shopware.Store.get('swOrderDetail').isLoading).toBe(false);
+    });
+
+    it('should ask for saving confirmation before continuing', async () => {
+        wrapper = await createWrapper();
+        const onSaveEditsSpy = jest.fn();
+        wrapper.vm.onSaveEdits = onSaveEditsSpy;
+
+        let promise = wrapper.vm.askAndSaveEdits();
+
+        expect(wrapper.vm.askForSaveBeforehand).toBeFalsy();
+        expect(await promise).toBe(true);
+        expect(onSaveEditsSpy).not.toHaveBeenCalled();
+
+        wrapper.vm.hasOrderDeepEdit = true;
+        await flushPromises();
+
+        promise = wrapper.vm.askAndSaveEdits();
+        expect(wrapper.vm.askForSaveBeforehand).toBeTruthy();
+
+        wrapper.vm.onAskAndSaveEditsCancel();
+        expect(await promise).toBe(false);
+        expect(onSaveEditsSpy).not.toHaveBeenCalled();
+
+        promise = wrapper.vm.askAndSaveEdits();
+        expect(wrapper.vm.askForSaveBeforehand).toBeTruthy();
+
+        wrapper.vm.onAskAndSaveEditsConfirm();
+        Shopware.Store.get('swOrderDetail').savedSuccessful = true;
+        expect(await promise).toBe(true);
+        expect(onSaveEditsSpy).toHaveBeenCalled();
     });
 });

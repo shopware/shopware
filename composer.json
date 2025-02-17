@@ -40,8 +40,8 @@
             "forward-command": false
         },
         "branch-alias": {
-            "dev-master": "6.6.x-dev",
-            "dev-trunk": "6.6.x-dev"
+            "dev-master": "6.7.x-dev",
+            "dev-trunk": "6.7.x-dev"
         }
     },
     "config": {
@@ -53,10 +53,14 @@
         "allow-plugins": {
             "bamarni/composer-bin-plugin": true,
             "composer/package-versions-deprecated": true,
-            "phpstan/extension-installer": true,
             "cweagans/composer-patches": true,
+            "php-http/discovery": false,
+            "phpstan/extension-installer": true,
             "symfony/runtime": true
         }
+    },
+    "conflict": {
+        "league/oauth2-server": "9.2.0"
     },
     "require": {
         "php": "~8.2.0 || ~8.3.0 || ~8.4.0",
@@ -79,22 +83,23 @@
         "composer-runtime-api": "^2.1",
         "async-aws/core": "^1.22",
         "cocur/slugify": "^4.3.0",
-        "composer/composer": "^2.8.0",
+        "composer/composer": "^2.8.5",
         "composer/semver": "^3.4.0",
-        "doctrine/dbal": "^3.9",
+        "doctrine/dbal": "^4.2",
         "doctrine/inflector": "^2.0",
-        "dompdf/dompdf": "2.0.4",
+        "dompdf/dompdf": "3.1.0",
         "dragonmantank/cron-expression": "^3.3",
         "erusev/parsedown-extra": "^0.8.1",
         "ezyang/htmlpurifier": "^4.16",
         "guzzlehttp/guzzle": "^7.5.0",
         "guzzlehttp/psr7": "^2.4",
+        "horstoeko/zugferd": "^1.0.104",
         "lcobucci/clock": "^3.1.0",
         "lcobucci/jwt": "^5.5",
         "league/flysystem": "^3.10.3",
         "league/flysystem-memory": "^3.10.3",
         "league/mime-type-detection": "^1.13.0",
-        "league/oauth2-server": "^8.5",
+        "league/oauth2-server": "^9.1",
         "meyfa/php-svg": "^0.14.0",
         "monolog/monolog": "^3.3.1",
         "nyholm/psr7": "^1.5",
@@ -228,9 +233,7 @@
         "admin:generate-position-identifier-list": "Generate the list of all position identifiers. Used to track breaking changes.",
         "admin:generate-data-set-list": "Generate the list of all data sets. Used to track breaking changes.",
         "admin:unit": "Launches the jest unit test-suite for the Admin",
-        "admin:unit:disabled-compat": "Launches the jest unit test-suite for the Admin with disabled compat mode",
         "admin:unit:watch": "Launches the interactive jest unit test-suite watcher for the Admin",
-        "admin:unit:watch:disabled-compat": "Launches the interactive jest unit test-suite watcher for the Admin with disabled compat mode",
         "bc-check": "Checks for backwards compatibility breaks in the current branch",
         "build:js": "Builds Administration & Storefront",
         "build:js:admin": "Builds the Administration",
@@ -312,17 +315,6 @@
             "@framework:schema:dump",
             "@npm:admin run unit-setup",
             "@npm:admin run unit-watch"
-        ],
-        "admin:unit:disabled-compat": [
-            "Composer\\Config::disableProcessTimeout",
-            "@framework:schema:dump",
-            "@npm:admin run unit-setup",
-            "@npm:admin run unit:disabled-compat"
-        ],
-        "admin:unit:watch:disabled-compat": [
-            "Composer\\Config::disableProcessTimeout",
-            "@framework:schema:dump",
-            "@npm:admin run unit-watch:disabled-compat"
         ],
         "bc-check": [
             "@php vendor-bin/roave-backward-compatibility-check/bin/verify-version.php",
@@ -443,7 +435,6 @@
         ],
         "setup": [
             "@composer install -o",
-            "mkdir -p config/jwt || true",
             "mkdir -p custom/plugins || true",
             "@init:db",
             "@init:js",

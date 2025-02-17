@@ -4,269 +4,107 @@ namespace Shopware\Core\Checkout\Document;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\System\Country\CountryEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[\AllowDynamicProperties]
 #[Package('after-sales')]
 class DocumentConfiguration extends Struct
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $id;
+    protected string $id;
 
     /**
      * @var array<string>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $deliveryCountries;
+    protected array $deliveryCountries = [];
 
-    /**
-     * @var bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $displayPrices;
+    protected ?bool $displayPrices = null;
 
     /**
      * @var array<string, mixed>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $logo;
+    protected ?array $logo = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $filenamePrefix;
+    protected ?string $filenamePrefix = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $filenameSuffix;
+    protected ?string $filenameSuffix = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentNumber;
+    protected ?string $documentNumber = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentDate;
+    protected ?string $documentDate = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentComment;
+    protected ?string $documentComment = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $pageOrientation;
+    protected ?string $pageOrientation = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $pageSize;
+    protected ?string $pageSize = null;
 
-    /**
-     * @var bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $displayFooter;
+    protected ?bool $displayFooter = null;
 
-    /**
-     * @var bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $displayHeader;
+    protected ?bool $displayHeader = null;
 
-    /**
-     * @var bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $displayLineItems;
+    protected ?bool $displayLineItems = null;
 
-    /**
-     * @var bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $displayLineItemPosition;
+    protected ?bool $displayLineItemPosition = null;
 
-    /**
-     * @var int|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $itemsPerPage;
+    protected ?int $itemsPerPage = null;
 
-    /**
-     * @var bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $displayPageCount;
+    protected ?bool $displayPageCount = null;
 
-    /**
-     * @var bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $displayCompanyAddress;
+    protected ?bool $displayCompanyAddress = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $title;
+    protected ?string $title = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $companyAddress;
+    protected ?string $companyName = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $companyName;
+    protected string $companyStreet = '';
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $companyEmail;
+    protected string $companyZipcode = '';
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $companyPhone;
+    protected string $companyCity = '';
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $companyUrl;
+    protected string $companyCountryId = '';
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $taxNumber;
+    protected ?CountryEntity $companyCountry = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $taxOffice;
+    protected string $paymentDueDate = '';
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $vatId;
+    protected ?string $companyEmail = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $bankName;
+    protected ?string $companyPhone = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $bankIban;
+    protected ?string $companyUrl = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $bankBic;
+    protected ?string $taxNumber = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $placeOfJurisdiction;
+    protected ?string $taxOffice = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $placeOfFulfillment;
+    protected ?string $vatId = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $executiveDirector;
+    protected ?string $bankName = null;
+
+    protected ?string $bankIban = null;
+
+    protected ?string $bankBic = null;
+
+    protected ?string $placeOfJurisdiction = null;
+
+    protected ?string $placeOfFulfillment = null;
+
+    protected ?string $executiveDirector = null;
 
     /**
      * @var array<string, mixed>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $custom = [];
+    protected array $custom = [];
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $diplayLineItemPosition;
+    protected bool $diplayLineItemPosition;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $displayInCustomerAccount;
+    protected bool $displayInCustomerAccount;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentTypeId;
+    protected string $documentTypeId;
 
     /**
      * @var array<string>
@@ -365,6 +203,201 @@ class DocumentConfiguration extends Struct
     public function setPageSize(?string $pageSize): void
     {
         $this->pageSize = $pageSize;
+    }
+
+    public function getCompanyName(): ?string
+    {
+        return $this->companyName;
+    }
+
+    public function setCompanyName(?string $companyName): void
+    {
+        $this->companyName = $companyName;
+    }
+
+    public function getCompanyStreet(): string
+    {
+        return $this->companyStreet;
+    }
+
+    public function setCompanyStreet(string $companyStreet): void
+    {
+        $this->companyStreet = $companyStreet;
+    }
+
+    public function getCompanyZipcode(): string
+    {
+        return $this->companyZipcode;
+    }
+
+    public function setCompanyZipcode(string $companyZipcode): void
+    {
+        $this->companyZipcode = $companyZipcode;
+    }
+
+    public function getCompanyCity(): string
+    {
+        return $this->companyCity;
+    }
+
+    public function setCompanyCity(string $companyCity): void
+    {
+        $this->companyCity = $companyCity;
+    }
+
+    public function getCompanyCountryId(): string
+    {
+        return $this->companyCountryId;
+    }
+
+    public function setCompanyCountryId(string $companyCountryId): void
+    {
+        $this->companyCountryId = $companyCountryId;
+    }
+
+    public function getCompanyCountry(): ?CountryEntity
+    {
+        return $this->companyCountry;
+    }
+
+    public function setCompanyCountry(?CountryEntity $companyCountry): void
+    {
+        $this->companyCountry = $companyCountry;
+    }
+
+    public function getCompanyPhone(): ?string
+    {
+        return $this->companyPhone;
+    }
+
+    public function setCompanyPhone(?string $companyPhone): void
+    {
+        $this->companyPhone = $companyPhone;
+    }
+
+    public function getCompanyEmail(): ?string
+    {
+        return $this->companyEmail;
+    }
+
+    public function setCompanyEmail(?string $companyEmail): void
+    {
+        $this->companyEmail = $companyEmail;
+    }
+
+    public function getCompanyUrl(): ?string
+    {
+        return $this->companyUrl;
+    }
+
+    public function setCompanyUrl(?string $companyUrl): void
+    {
+        $this->companyUrl = $companyUrl;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getAddressParts(): array
+    {
+        $parts = [
+            $this->getCompanyName() ?? '',
+            $this->getCompanyStreet(),
+            $this->getCompanyZipcode() . ' ' . $this->getCompanyCity(),
+            $this->getCompanyCountry()?->getTranslation('name') ?? '',
+        ];
+
+        return array_filter($parts, static fn ($part) => !empty(\trim($part)));
+    }
+
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    public function setId(string $id): void
+    {
+        $this->id = $id;
+    }
+
+    public function getExecutiveDirector(): ?string
+    {
+        return $this->executiveDirector;
+    }
+
+    public function setExecutiveDirector(?string $executiveDirector): void
+    {
+        $this->executiveDirector = $executiveDirector;
+    }
+
+    public function getPaymentDueDate(): string
+    {
+        return $this->paymentDueDate;
+    }
+
+    public function setPaymentDueDate(string $paymentDueDate): void
+    {
+        $this->paymentDueDate = $paymentDueDate;
+    }
+
+    public function getTaxNumber(): ?string
+    {
+        return $this->taxNumber;
+    }
+
+    public function setTaxNumber(?string $taxNumber): void
+    {
+        $this->taxNumber = $taxNumber;
+    }
+
+    public function getBankName(): ?string
+    {
+        return $this->bankName;
+    }
+
+    public function setBankName(?string $bankName): void
+    {
+        $this->bankName = $bankName;
+    }
+
+    public function getBankIban(): ?string
+    {
+        return $this->bankIban;
+    }
+
+    public function setBankIban(?string $bankIban): void
+    {
+        $this->bankIban = $bankIban;
+    }
+
+    public function getBankBic(): ?string
+    {
+        return $this->bankBic;
+    }
+
+    public function setBankBic(?string $bankBic): void
+    {
+        $this->bankBic = $bankBic;
+    }
+
+    public function getVatId(): ?string
+    {
+        return $this->vatId;
+    }
+
+    public function setVatId(?string $vatId): void
+    {
+        $this->vatId = $vatId;
+    }
+
+    public function getTaxOffice(): ?string
+    {
+        return $this->taxOffice;
+    }
+
+    public function setTaxOffice(?string $taxOffice): void
+    {
+        $this->taxOffice = $taxOffice;
     }
 
     /**

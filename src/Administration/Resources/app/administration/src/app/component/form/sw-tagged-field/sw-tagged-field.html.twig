@@ -3,7 +3,6 @@
     class="sw-tagged-field"
     :class="taggedFieldClasses"
     v-bind="$attrs"
-    v-on="listeners"
 >
     <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
         {% block sw_tagged_field_inner %}

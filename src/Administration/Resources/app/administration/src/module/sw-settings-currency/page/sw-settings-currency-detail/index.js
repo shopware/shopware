@@ -13,8 +13,6 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
@@ -207,7 +205,7 @@ export default {
                 ]);
             }
 
-            Shopware.State.commit('context/resetLanguageToDefault');
+            Shopware.Store.get('context').resetLanguageToDefault();
             this.isLoading = true;
             this.currency = this.currencyRepository.create();
             // defaults for rounding

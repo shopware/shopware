@@ -6,6 +6,4 @@ import template from './sw-cms-el-config-category-navigation.html.twig';
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 };

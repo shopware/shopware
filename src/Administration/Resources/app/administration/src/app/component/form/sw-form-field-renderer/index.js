@@ -72,8 +72,6 @@ Component.register('sw-form-field-renderer', {
 
     inheritAttrs: false,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'feature',
@@ -120,18 +118,12 @@ Component.register('sw-form-field-renderer', {
         bind() {
             let bind = {};
 
-            if (!this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                // Filter all listeners from the $attrs object
-                Object.keys(this.$attrs).forEach((key) => {
-                    if (!['onUpdate:value'].includes(key)) {
-                        bind[key] = this.$attrs[key];
-                    }
-                });
-            } else {
-                bind = {
-                    ...this.$attrs,
-                };
-            }
+            // Filter all listeners from the $attrs object
+            Object.keys(this.$attrs).forEach((key) => {
+                if (!['onUpdate:value'].includes(key)) {
+                    bind[key] = this.$attrs[key];
+                }
+            });
 
             bind = {
                 ...bind,
@@ -368,12 +360,6 @@ Component.register('sw-form-field-renderer', {
         },
 
         getScopedSlots() {
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return {
-                    ...this.$scopedSlots,
-                };
-            }
-
             return this.$slots;
         },
     },

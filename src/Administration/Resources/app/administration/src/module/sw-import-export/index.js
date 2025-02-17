@@ -6,8 +6,6 @@ import ImportExportProfileMappingService from './service/importExportProfileMapp
 import ImportExportProfileUpdateByService from './service/importExportUpdateByMapping.service';
 import './acl';
 
-const { Feature } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Service().register('importExport', () => {
     return new ImportExportService(Shopware.Application.getContainer('init').httpClient, Shopware.Service('loginService'));
@@ -141,14 +139,7 @@ Shopware.Module.register('sw-import-export', {
     },
 
     settingsItem: {
-        group: function () {
-            // @deprecated tag:v6.7.0 - Remove condition and function callback
-            if (!Feature.isActive('v6.7.0.0')) {
-                return 'shop';
-            }
-
-            return 'automation';
-        },
+        group: 'automation',
         to: 'sw.import.export.index',
         icon: 'regular-database',
         privilege: 'system.import_export',

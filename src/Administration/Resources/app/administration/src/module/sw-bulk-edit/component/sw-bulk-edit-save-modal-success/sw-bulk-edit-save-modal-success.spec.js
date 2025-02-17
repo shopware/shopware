@@ -2,9 +2,12 @@
  * @sw-package fundamentals@framework
  */
 import { mount } from '@vue/test-utils';
-import swBulkEditState from 'src/module/sw-bulk-edit/state/sw-bulk-edit.state';
 
-async function createWrapper() {
+async function createWrapper(
+    repositoryMocks = {
+        search: () => Promise.resolve([]),
+    },
+) {
     return mount(
         await wrapTestComponent('sw-bulk-edit-save-modal-success', {
             sync: true,
@@ -20,7 +23,7 @@ async function createWrapper() {
                     repositoryFactory: {
                         create: () => {
                             return {
-                                search: () => Promise.resolve([]),
+                                search: repositoryMocks.search,
                             };
                         },
                     },
@@ -42,8 +45,7 @@ describe('sw-bulk-edit-save-modal-success', () => {
     let wrapper;
 
     beforeAll(() => {
-        Shopware.State.registerModule('swBulkEdit', swBulkEditState);
-        Shopware.State.commit('shopwareApps/setSelectedIds', ['orderId']);
+        Shopware.Store.get('shopwareApps').selectedIds = ['orderId'];
     });
 
     beforeEach(async () => {
@@ -64,7 +66,7 @@ describe('sw-bulk-edit-save-modal-success', () => {
     });
 
     it('should not be able to get latest documents', async () => {
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'download',
             isChanged: false,
         });
@@ -75,42 +77,47 @@ describe('sw-bulk-edit-save-modal-success', () => {
     });
 
     it('should be able to get latest documents', async () => {
-        wrapper.vm.documentRepository.search = jest.fn(() => {
-            return Promise.resolve([
-                {
-                    id: '1',
-                    documentTypeId: '1',
-                    orderId: '1',
-                    createdAt: '2020-01-01',
-                    deepLinkCode: '123',
-                    fileType: 'pdf',
-                    orderVersionId: '1',
-                },
-                {
-                    id: '2',
-                    documentTypeId: '1',
-                    orderId: '1',
-                    createdAt: '2020-01-01',
-                    deepLinkCode: '123',
-                    fileType: 'pdf',
-                    orderVersionId: '1',
-                },
-                {
-                    id: '3',
-                    documentTypeId: '2',
-                    orderId: '1',
-                    createdAt: '2020-01-01',
-                    deepLinkCode: '123',
-                    fileType: 'pdf',
-                    orderVersionId: '1',
-                },
-            ]);
+        wrapper.unmount();
+
+        wrapper = await createWrapper({
+            search: () => {
+                return Promise.resolve([
+                    {
+                        id: '1',
+                        documentTypeId: '1',
+                        orderId: '1',
+                        createdAt: '2020-01-01',
+                        deepLinkCode: '123',
+                        fileType: 'pdf',
+                        orderVersionId: '1',
+                    },
+                    {
+                        id: '2',
+                        documentTypeId: '1',
+                        orderId: '1',
+                        createdAt: '2020-01-01',
+                        deepLinkCode: '123',
+                        fileType: 'pdf',
+                        orderVersionId: '1',
+                    },
+                    {
+                        id: '3',
+                        documentTypeId: '2',
+                        orderId: '1',
+                        createdAt: '2020-01-01',
+                        deepLinkCode: '123',
+                        fileType: 'pdf',
+                        orderVersionId: '1',
+                    },
+                ]);
+            },
         });
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
+
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'download',
             isChanged: true,
         });
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsValue', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
             type: 'download',
             value: [
                 {
@@ -142,7 +149,6 @@ describe('sw-bulk-edit-save-modal-success', () => {
                 credit_note: expect.arrayContaining(['3']),
             }),
         );
-        wrapper.vm.documentRepository.search.mockRestore();
     });
 
     it('should be able to download documents', async () => {
@@ -219,17 +225,17 @@ describe('sw-bulk-edit-save-modal-success', () => {
     });
 
     it('should compute selectedDocumentTypes correctly', async () => {
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'download',
             isChanged: true,
         });
 
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'invoice',
             isChanged: true,
         });
 
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsValue', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
             type: 'invoice',
             value: {
                 documentDate: 'documentDate',
@@ -237,14 +243,14 @@ describe('sw-bulk-edit-save-modal-success', () => {
             },
         });
 
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsValue', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
             type: 'download',
             value: [],
         });
 
         expect(wrapper.vm.selectedDocumentTypes).toStrictEqual([]);
 
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsValue', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
             type: 'download',
             value: [
                 {

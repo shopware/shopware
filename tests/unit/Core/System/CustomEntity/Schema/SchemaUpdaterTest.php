@@ -193,11 +193,14 @@ class SchemaUpdaterTest extends TestCase
     {
         static::assertTrue($schema->hasTable($table), \sprintf('Table %s do not exists', $table));
 
-        $existing = \array_keys($schema->getTable($table)->getColumns());
+        $table = $schema->getTable($table);
 
         foreach ($columns as $column) {
             // strtolower required for assertContains
-            static::assertContains(\strtolower($column), $existing, 'Column ' . $column . ' not found in table ' . $table . ': ' . \print_r($existing, true));
+            static::assertTrue(
+                $table->hasColumn($column),
+                \sprintf('Column %s not found in table %s: %s', $column, $table->getName(), \print_r($table->getColumns(), true))
+            );
         }
     }
 }

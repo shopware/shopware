@@ -209,7 +209,7 @@ export default function SearchPreferencesService({ userConfigRepository: _userCo
      * @private
      */
     function _getCurrentUser() {
-        return Shopware.State.get('session').currentUser;
+        return Shopware.Store.get('session').currentUser;
     }
 
     /**

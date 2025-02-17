@@ -145,7 +145,7 @@ $sw-login-error-animation-duration: 0.15s;
         flex-direction: row;
         overflow: hidden;
         background-color: lighten($sw-login-color-background, 10%);
-        background-image: url("https://login-image.shopware.com/login/login.jpg"), url("../img/sw-login-background.png");
+        background-image: url("https://login-image.shopware.com/login/login.jpg"), url("./assets/sw-login-background.png");
         background-position: center center;
         background-size: cover;
         opacity: 1;

@@ -102,6 +102,13 @@
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Order\OrderAddressService">
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="order_address.repository"/>
+            <argument type="service" id="customer_address.repository"/>
+            <argument type="service" id="order_delivery.repository"/>
+        </service>
+
         <!-- controller -->
         <service id="Shopware\Core\Checkout\Order\Api\OrderActionController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService" />
@@ -148,13 +155,6 @@
         <service id="Shopware\Core\Checkout\Order\Subscriber\OrderSalutationSubscriber">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Order\OrderAddressService">
-            <argument type="service" id="order.repository"/>
-            <argument type="service" id="order_address.repository"/>
-            <argument type="service" id="customer_address.repository"/>
-            <argument type="service" id="order_delivery.repository"/>
         </service>
     </services>
 </container>

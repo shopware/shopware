@@ -25,8 +25,6 @@ const INPUT_TYPE_URL_UPLOAD = 'url-upload';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'mediaService',
@@ -210,9 +208,6 @@ export default {
         },
 
         hasOpenMediaButtonListener() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return Object.keys(this.$listeners).includes('mediaUploadSidebarOpen');
-            }
             return !!this.onMediaUploadSidebarOpen;
         },
 
@@ -531,10 +526,14 @@ export default {
             }
 
             this.createNotificationError({
-                message: this.$tc('global.sw-media-upload-v2.notification.invalidFileSize.message', 0, {
-                    name: file.name || file.fileName,
-                    limit: fileSize(this.maxFileSize),
-                }),
+                message: this.$tc(
+                    'global.sw-media-upload-v2.notification.invalidFileSize.message',
+                    {
+                        name: file.name || file.fileName,
+                        limit: fileSize(this.maxFileSize),
+                    },
+                    0,
+                ),
             });
             return false;
         },
@@ -566,10 +565,14 @@ export default {
             }
 
             this.createNotificationError({
-                message: this.$tc('global.sw-media-upload-v2.notification.invalidFileType.message', 0, {
-                    name: file.name,
-                    supportedTypes: this.extensionAccept || this.fileAccept,
-                }),
+                message: this.$tc(
+                    'global.sw-media-upload-v2.notification.invalidFileType.message',
+                    {
+                        name: file.name,
+                        supportedTypes: this.extensionAccept || this.fileAccept,
+                    },
+                    0,
+                ),
             });
 
             return false;

@@ -10,8 +10,6 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
@@ -65,7 +63,7 @@ export default {
 
     computed: {
         currentUserId() {
-            return Shopware.State.get('session').currentUser.id;
+            return Shopware.Store.get('session').currentUser.id;
         },
 
         currencyTaxFreeDependentRepository() {

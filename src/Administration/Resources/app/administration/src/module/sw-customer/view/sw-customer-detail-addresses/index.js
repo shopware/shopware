@@ -14,8 +14,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     mixins: [
@@ -253,7 +251,7 @@ export default {
 
                 isValid = false;
 
-                Shopware.State.dispatch('error/addApiError', {
+                Shopware.Store.get('error').addApiError({
                     expression: `customer_address.${this.currentAddress.id}.${field}`,
                     error: new ShopwareError({
                         code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',

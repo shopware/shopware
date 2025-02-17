@@ -69,7 +69,7 @@
 
     {% block sw_category_detail_entry_point %}
     <sw-category-entry-point-card
-        v-if="(category.type === 'folder' || category.type === 'page') && !category.isColumn"
+        v-if="(category.type === 'folder' || category.type === 'page') && !isCategoryColumn"
         v-bind="{ category, isLoading }"
     />
     {% endblock %}

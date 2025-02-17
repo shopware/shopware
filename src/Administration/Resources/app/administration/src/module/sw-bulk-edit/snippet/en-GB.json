@@ -363,10 +363,6 @@
           "label": "Change: Customer group",
           "placeholder": "Select customer group..."
         },
-        "defaultPaymentMethod": {
-          "label": "Change: Default payment method",
-          "placeholder": "Select default payment method..."
-        },
         "status": {
           "label": "Change: Account status"
         },

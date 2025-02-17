@@ -1,7 +1,7 @@
 import type { Plugin } from 'vite';
 
 /**
- * @package framework
+ * @sw-package framework
  *
  * This plugin allows to load html.twig template files.
  */

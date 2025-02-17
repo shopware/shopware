@@ -4,13 +4,11 @@ import template from './sw-order-detail-documents.html.twig';
  * @sw-package checkout
  */
 
-const { mapGetters, mapState } = Shopware.Component.getComponentHelper();
+const { Store } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'save-and-reload',
@@ -29,14 +27,11 @@ export default {
     },
 
     computed: {
-        ...mapGetters('swOrderDetail', [
-            'isLoading',
-        ]),
+        isLoading: () => Store.get('swOrderDetail').isLoading,
 
-        ...mapState('swOrderDetail', [
-            'order',
-            'versionContext',
-        ]),
+        order: () => Store.get('swOrderDetail').order,
+
+        versionContext: () => Store.get('swOrderDetail').versionContext,
     },
 
     methods: {

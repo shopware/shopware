@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
-import flowState from 'src/module/sw-flow/state/flow.state';
 import EntityCollection from 'src/core/data/entity-collection.data';
+import { createPinia, setActivePinia } from 'pinia';
 
 /**
  * @sw-package after-sales
@@ -102,9 +102,12 @@ function getSequencesCollection(collection = []) {
     );
 }
 
+const pinia = createPinia();
+
 async function createWrapper(privileges = []) {
     return mount(await wrapTestComponent('sw-flow-detail-flow', { sync: true }), {
         global: {
+            plugins: [pinia],
             stubs: {
                 'sw-icon': {
                     template: '<div class="sw-icon"></div>',
@@ -164,75 +167,69 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
-    beforeAll(() => {
-        Shopware.State.registerModule('swFlowState', {
-            ...flowState,
-            state: {
-                flow: {
-                    name: 'Flow 1',
-                    eventName: '',
-                    sequences: getSequencesCollection(),
-                },
-                invalidSequences: [],
-                triggerActions: [
-                    {
-                        name: 'action.add.order.tag',
-                        requirements: [
-                            'Shopware\\Core\\Framework\\Event\\OrderAware',
-                        ],
-                        extensions: [],
-                    },
-                    {
-                        name: 'action.add.customer.tag',
-                        requirements: [
-                            'Shopware\\Core\\Framework\\Event\\CustomerAware',
-                        ],
-                        extensions: [],
-                    },
-                    {
-                        name: 'action.remove.customer.tag',
-                        requirements: [
-                            'Shopware\\Core\\Framework\\Event\\CustomerAware',
-                        ],
-                        extensions: [],
-                    },
-                    {
-                        name: 'action.remove.order.tag',
-                        requirements: [
-                            'Shopware\\Core\\Framework\\Event\\OrderAware',
-                        ],
-                        extensions: [],
-                    },
-                    {
-                        name: 'action.mail.send',
-                        requirements: [
-                            'Shopware\\Core\\Framework\\Event\\MailAware',
-                        ],
-                        extensions: [],
-                    },
-                    {
-                        name: 'action.set.order.state',
-                        requirements: [
-                            'Shopware\\Core\\Framework\\Event\\OrderAware',
-                        ],
-                        extensions: [],
-                    },
-                    {
-                        name: 'telegram.send.message',
-                        requirements: [
-                            'Shopware\\Core\\Framework\\Event\\CustomerAware',
-                        ],
-                        extensions: [],
-                    },
-                    {
-                        name: 'action.stop.flow',
-                        requirements: [],
-                        extensions: [],
-                    },
-                ],
-                originAvailableActions: [],
-            },
+    beforeEach(() => {
+        setActivePinia(pinia);
+        Shopware.Store.get('swFlow').setFlow({
+            name: 'Flow 1',
+            eventName: '',
+            sequences: getSequencesCollection(),
         });
+        Shopware.Store.get('swFlow').triggerActions = [
+            {
+                name: 'action.add.order.tag',
+                requirements: [
+                    'Shopware\\Core\\Framework\\Event\\OrderAware',
+                ],
+                extensions: [],
+            },
+            {
+                name: 'action.add.customer.tag',
+                requirements: [
+                    'Shopware\\Core\\Framework\\Event\\CustomerAware',
+                ],
+                extensions: [],
+            },
+            {
+                name: 'action.remove.customer.tag',
+                requirements: [
+                    'Shopware\\Core\\Framework\\Event\\CustomerAware',
+                ],
+                extensions: [],
+            },
+            {
+                name: 'action.remove.order.tag',
+                requirements: [
+                    'Shopware\\Core\\Framework\\Event\\OrderAware',
+                ],
+                extensions: [],
+            },
+            {
+                name: 'action.mail.send',
+                requirements: [
+                    'Shopware\\Core\\Framework\\Event\\MailAware',
+                ],
+                extensions: [],
+            },
+            {
+                name: 'action.set.order.state',
+                requirements: [
+                    'Shopware\\Core\\Framework\\Event\\OrderAware',
+                ],
+                extensions: [],
+            },
+            {
+                name: 'telegram.send.message',
+                requirements: [
+                    'Shopware\\Core\\Framework\\Event\\CustomerAware',
+                ],
+                extensions: [],
+            },
+            {
+                name: 'action.stop.flow',
+                requirements: [],
+                extensions: [],
+            },
+        ];
     });
 
     it('should show create an selector when select initially', async () => {
@@ -262,7 +259,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
     });
 
     it('should render flow correctly', async () => {
-        Shopware.State.commit('swFlowState/setFlow', {
+        Shopware.Store.get('swFlow').setFlow({
             eventName: 'checkout.customer',
             name: 'Flow 1',
             sequences: getSequencesCollection(sequencesFixture),
@@ -283,7 +280,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
     });
 
     it('should able to add new sequence', async () => {
-        Shopware.State.commit('swFlowState/setFlow', {
+        Shopware.Store.get('swFlow').setFlow({
             eventName: 'checkout.customer',
             name: 'Flow 1',
             sequences: getSequencesCollection(sequencesFixture),
@@ -302,7 +299,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
         const selectorSequence = sequences.at(4).find('sw-flow-sequence-selector-stub');
         expect(selectorSequence.exists()).toBeTruthy();
 
-        const sequencesState = Shopware.State.getters['swFlowState/sequences'];
+        const sequencesState = Shopware.Store.get('swFlow').sequences;
         expect(sequencesState).toHaveLength(6);
         expect(sequencesState[sequencesState.length - 1].displayGroup).toBe(3);
         expect(sequencesState[sequencesState.length - 1].position).toBe(1);
@@ -310,7 +307,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
     });
 
     it('should be able to show warning alert when has invalid action', async () => {
-        Shopware.State.commit('swFlowState/setFlow', {
+        Shopware.Store.get('swFlow').setFlow({
             eventName: 'checkout.customer',
             name: 'Flow 1',
             sequences: [
@@ -336,7 +333,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
     });
 
     it('should not able to edit flow template', async () => {
-        Shopware.State.commit('swFlowState/setFlow', {
+        Shopware.Store.get('swFlow').setFlow({
             eventName: 'checkout.customer',
             name: 'Flow 1',
             sequences: [
@@ -369,7 +366,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
         ]);
         await flushPromises();
 
-        Shopware.State.commit('swFlowState/setFlow', {
+        Shopware.Store.get('swFlow').setFlow({
             eventName: 'checkout.customer',
             name: 'Flow 1',
             sequences: [],

@@ -27,18 +27,15 @@ class PasswordFieldSerializer extends AbstractFieldSerializer
         PasswordField::FOR_ADMIN => 'core.userPermission.passwordMinLength',
     ];
 
-    private SystemConfigService $configService;
-
     /**
      * @internal
      */
     public function __construct(
         ValidatorInterface $validator,
         DefinitionInstanceRegistry $definitionRegistry,
-        SystemConfigService $configService
+        private SystemConfigService $configService
     ) {
         parent::__construct($validator, $definitionRegistry);
-        $this->configService = $configService;
     }
 
     public function encode(

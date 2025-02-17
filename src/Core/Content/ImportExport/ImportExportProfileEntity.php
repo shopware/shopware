@@ -6,7 +6,6 @@ use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLog
 use Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('fundamentals@after-sales')]
@@ -18,143 +17,48 @@ class ImportExportProfileEntity extends Entity
     final public const TYPE_EXPORT = 'export';
     final public const TYPE_IMPORT_EXPORT = 'import-export';
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be replaced by technical name
-     *
-     * @var string|null
-     */
-    protected $name;
+    protected string $technicalName;
 
-    /**
-     * @deprecated tag:v6.7.0 - will not be nullable
-     */
-    protected ?string $technicalName = null;
+    protected string $label;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $label;
+    protected bool $systemDefault;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $systemDefault;
+    protected string $sourceEntity;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $sourceEntity;
+    protected string $fileType;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $fileType;
+    protected ?string $delimiter = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $delimiter;
+    protected ?string $enclosure = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $enclosure;
-
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $type;
+    protected string $type;
 
     /**
      * @var list<array{key: string, mappedKey: string}>|array<Mapping>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $mapping;
+    protected ?array $mapping = null;
 
     /**
      * @var array<string, mixed>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $updateBy;
+    protected ?array $updateBy = [];
 
-    /**
-     * @var ImportExportLogCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $importExportLogs;
+    protected ?ImportExportLogCollection $importExportLogs;
 
     /**
      * @var array<string, mixed>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $config;
+    protected array $config;
 
-    /**
-     * @var ImportExportProfileTranslationCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translations;
+    protected ?ImportExportProfileTranslationCollection $translations;
 
-    /**
-     * @deprecated tag:v6.7.0 - Method will be removed
-     */
-    public function getName(): ?string
+    public function getTechnicalName(): string
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Method will be removed. Use technicalName instead.');
-
-        return $this->name;
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Method will be removed
-     */
-    public function setName(string $name): void
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Method will be removed. Use technicalName instead.');
-
-        $this->name = $name;
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - return type will not be nullable
-     */
-    public function getTechnicalName(): ?string
-    {
-        if (!$this->technicalName) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `technical_name` will be required');
-        }
-
         return $this->technicalName;
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:parameter-type-change - parameter type will not be nullable
-     */
-    public function setTechnicalName(?string $technicalName): void
+    public function setTechnicalName(string $technicalName): void
     {
-        if (!$technicalName) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `technical_name` will be required');
-        }
-
         $this->technicalName = $technicalName;
     }
 

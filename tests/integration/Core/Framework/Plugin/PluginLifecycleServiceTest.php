@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
-use Shopware\Core\Framework\Plugin\Exception\PluginComposerRequireException;
 use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
@@ -35,7 +34,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
-use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -298,7 +296,6 @@ class PluginLifecycleServiceTest extends TestCase
             $this->systemConfigService,
             $this->container->get(CustomEntityPersister::class),
             $this->container->get(CustomEntitySchemaUpdater::class),
-            $this->container->get(CustomEntityLifecycleService::class),
             $this->container->get(PluginService::class),
             $this->container->get(VersionSanitizer::class),
         );
@@ -470,30 +467,6 @@ class PluginLifecycleServiceTest extends TestCase
             'Test with keep data' => [true],
             'Test without keep data' => [false],
         ];
-    }
-
-    public function testInstallationOfPluginWhichExecutesComposerCommandsWithPreviouslyInstalledPluginThatShipsVendorDirectory(): void
-    {
-        $this->addTestPluginToKernel(
-            $this->fixturePath . 'plugins/SwagTestShipsVendorDirectory',
-            'SwagTestShipsVendorDirectory'
-        );
-        $this->addTestPluginToKernel(
-            $this->fixturePath . 'plugins/SwagTestExecuteComposerCommands',
-            'SwagTestExecuteComposerCommands'
-        );
-
-        $this->pluginService->refreshPlugins($this->context, new NullIO());
-
-        $pluginWithVendor = $this->pluginService->getPluginByName('SwagTestShipsVendorDirectory', $this->context);
-        $this->pluginLifecycleService->installPlugin($pluginWithVendor, $this->context);
-
-        $pluginWithExecuteComposer = $this->pluginService->getPluginByName('SwagTestExecuteComposerCommands', $this->context);
-
-        // Expected fail on executing the composer command, as the plugin is not in the default plugin directory and could therefore not be found
-        $this->expectException(PluginComposerRequireException::class);
-        $this->expectExceptionMessageMatches('/Your requirements could not be resolved to an installable set of packages/');
-        $this->pluginLifecycleService->installPlugin($pluginWithExecuteComposer, $this->context);
     }
 
     private function installNotSupportedPlugin(string $name): PluginEntity
@@ -803,7 +776,6 @@ class PluginLifecycleServiceTest extends TestCase
             $this->systemConfigService,
             $this->container->get(CustomEntityPersister::class),
             $this->container->get(CustomEntitySchemaUpdater::class),
-            $this->container->get(CustomEntityLifecycleService::class),
             $pluginService,
             $this->container->get(VersionSanitizer::class),
         );

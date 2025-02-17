@@ -217,7 +217,7 @@ export default {
             promise
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-customer.detail.messageSaveSuccess', 0, { name: this.salutation(customer) }),
+                        message: this.$tc('sw-customer.detail.messageSaveSuccess', { name: this.salutation(customer) }, 0),
                     });
                 })
                 .catch(() => {

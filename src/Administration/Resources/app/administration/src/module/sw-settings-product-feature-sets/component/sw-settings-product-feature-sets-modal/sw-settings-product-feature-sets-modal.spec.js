@@ -5,7 +5,7 @@ import { mount } from '@vue/test-utils';
  */
 
 // Turn off known errors
-import { unknownOptionError } from 'src/../test/_helper_/allowedErrors';
+import { unknownOptionError } from 'test/_helper_/allowedErrors';
 
 global.allowedErrors = [
     ...global.allowedErrors,

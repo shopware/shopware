@@ -1,6 +1,6 @@
 import './acl';
 
-const { Module, Feature } = Shopware;
+const { Module } = Shopware;
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-mail-template-list', () => import('./component/sw-mail-template-list'));
@@ -82,14 +82,7 @@ Module.register('sw-mail-template', {
     },
 
     settingsItem: {
-        group: function () {
-            // @deprecated tag:v6.7.0 - Remove condition and function callback
-            if (!Feature.isActive('v6.7.0.0')) {
-                return 'shop';
-            }
-
-            return 'content';
-        },
+        group: 'content',
         to: 'sw.mail.template.index',
         icon: 'regular-envelope',
         privilege: 'mail_templates.viewer',

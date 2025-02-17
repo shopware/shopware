@@ -293,7 +293,7 @@
                             >
                                 {% block sw_settings_snippet_set_list_delete_modal_confirm_delete_text %}
                                 <p class="sw-settings-snippet-set-list__confirm-delete-text">
-                                    {{ $tc('sw-settings-snippet.setList.textDeleteConfirm', 0, { name: item.name }) }}
+                                    {{ $tc('sw-settings-snippet.setList.textDeleteConfirm', { name: item.name }, 0) }}
                                 </p>
                                 {% endblock %}
 
@@ -331,7 +331,7 @@
                             >
                                 {% block sw_settings_snippet_set_list_clone_modal_confirm_delete_text %}
                                 <p class="sw-settings-snippet-set-list__confirm-delete-text">
-                                    {{ $tc('sw-settings-snippet.setList.textCloneConfirm', 0, { name: item.name }) }}
+                                    {{ $tc('sw-settings-snippet.setList.textCloneConfirm', { name: item.name }, 0) }}
                                 </p>
                                 {% endblock %}
 

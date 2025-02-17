@@ -40,19 +40,14 @@ final class DocumentRoute extends AbstractDocumentRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - Parameter $fileType will be added - reason:new-optional-parameter
-     */
     #[Route(path: '/store-api/document/download/{documentId}/{deepLinkCode}', name: 'store-api.document.download', methods: ['GET', 'POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true, '_entity' => 'document'])]
     public function download(
         string $documentId,
         Request $request,
         SalesChannelContext $context,
         string $deepLinkCode = '',
-        /* , string $fileType = PdfRenderer::FILE_EXTENSION */
+        string $fileType = PdfRenderer::FILE_EXTENSION
     ): Response {
-        $fileType = \func_get_args()[4] ?? PdfRenderer::FILE_EXTENSION;
-
         if (!$context->getCustomer()) {
             $this->checkGuestAuth($documentId, $request, $context->getContext());
         }

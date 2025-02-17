@@ -65,16 +65,16 @@
                                 />
                                 <sw-icon
                                     v-else-if="noEntityError.includes(seoUrlTemplate.id)"
-                                    v-tooltip="$tc('sw-seo-url-template-card.general.textUrlNoEntitiesForPreview', 0, {
+                                    v-tooltip="$tc('sw-seo-url-template-card.general.textUrlNoEntitiesForPreview', {
                                         entity: $tc(`global.entities.${seoUrlTemplate.entityName}`, 0)
-                                    })"
+                                    }, 0)"
                                     name="regular-exclamation-triangle"
                                 />
                                 <sw-icon
                                     v-else-if="!props.currentValue"
-                                    v-tooltip="$tc('sw-seo-url-template-card.general.textUrlPreviewEmptyTemplate', 1, {
+                                    v-tooltip="$tc('sw-seo-url-template-card.general.textUrlPreviewEmptyTemplate', {
                                         entity: $tc(`global.entities.${seoUrlTemplate.entityName}`, 0)
-                                    })"
+                                    }, 1)"
                                     name="regular-exclamation-triangle"
                                 />
                                 <sw-icon
@@ -123,7 +123,7 @@
                         {{ $tc('sw-seo-url-template-card.general.textUrlPreviewNotPossible') }}
                     </span>
                     <span v-if="noEntityError.includes(seoUrlTemplate.id)">
-                        {{ $tc('sw-seo-url-template-card.general.textUrlNoEntitiesForPreview', 0, { entity: $tc(`global.entities.${seoUrlTemplate.entityName}`, 0) }) }}
+                        {{ $tc('sw-seo-url-template-card.general.textUrlNoEntitiesForPreview', { entity: $tc(`global.entities.${seoUrlTemplate.entityName}`, 0) }, 0) }}
                     </span>
                 </div>
                 {% endblock %}

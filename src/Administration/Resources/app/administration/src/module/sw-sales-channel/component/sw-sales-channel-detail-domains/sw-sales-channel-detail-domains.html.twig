@@ -215,7 +215,7 @@
     >
 
         {% block sw_sales_channel_detail_domains_delete_modal_confirm_text %}
-        {{ $tc('sw-sales-channel.detail.textConfirmDeleteDomain', 0, { url: unicodeUriFilter(deleteDomain.url) }) }}
+        {{ $tc('sw-sales-channel.detail.textConfirmDeleteDomain', { url: unicodeUriFilter(deleteDomain.url) }, 0) }}
         {% endblock %}
 
         {% block sw_sales_channel_detail_domains_delete_modal_footer %}

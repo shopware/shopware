@@ -35,9 +35,9 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         title() {
-            return this.$tc('sw-cms.components.cmsMissingElementModal.title', this.missingElements.length, {
+            return this.$tc('sw-cms.components.cmsMissingElementModal.title', {
                 element: this.element,
-            });
+            }, this.missingElements.length);
         },
     },
 

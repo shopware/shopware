@@ -46,6 +46,9 @@ class UpsertAddressRouteTest extends TestCase
 
     private IdsCollection $ids;
 
+    /**
+     * @var EntityRepository<CustomerAddressCollection>
+     */
     private EntityRepository $addressRepository;
 
     protected function setUp(): void

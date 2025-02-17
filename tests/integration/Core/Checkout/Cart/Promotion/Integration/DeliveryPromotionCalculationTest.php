@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -34,6 +35,9 @@ class DeliveryPromotionCalculationTest extends TestCase
     use PromotionTestFixtureBehaviour;
     use ShippingMethodPricesTestBehaviour;
 
+    /**
+     * @var EntityRepository<PromotionCollection>
+     */
     private EntityRepository $promotionRepository;
 
     private CartService $cartService;

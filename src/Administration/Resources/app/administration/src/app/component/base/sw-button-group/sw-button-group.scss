@@ -10,12 +10,12 @@
         display: flex;
     }
 
-    .sw-tooltip--wrapper > button.sw-button {
+    .sw-tooltip--wrapper > button.mt-button {
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
     }
 
-    .sw-button {
+    .mt-button {
         border-radius: 0;
         margin-left: -1px;
         position: relative;
@@ -35,8 +35,8 @@
             margin-left: -1px;
         }
 
-        &.sw-button--primary,
-        &.sw-button--danger,
+        &.mt-button--primary,
+        &.sw-button--critical,
         &.sw-button--contrast {
             position: static;
             margin-left: 0;
@@ -44,16 +44,16 @@
     }
 
     .sw-context-button {
-        .sw-button {
+        .mt-button {
             border-radius: 0;
         }
 
-        &:first-child .sw-button {
+        &:first-child .mt-button {
             border-top-left-radius: $border-radius-default;
             border-bottom-left-radius: $border-radius-default;
         }
 
-        &:last-child .sw-button {
+        &:last-child .mt-button {
             border-top-right-radius: $border-radius-default;
             border-bottom-right-radius: $border-radius-default;
         }
@@ -64,18 +64,18 @@
     }
 
     &.sw-button-group--split {
-        > .sw-button {
-            &.sw-button--primary,
-            &.sw-button--danger,
+        > .mt-button {
+            &.mt-button--primary,
+            &.sw-button--critical,
             &.sw-button--contrast {
                 position: relative;
                 margin-left: 8px;
             }
         }
 
-        .sw-context-button > .sw-button {
-            &.sw-button--primary,
-            &.sw-button--danger,
+        .sw-context-button > .mt-button {
+            &.mt-button--primary,
+            &.sw-button--critical,
             &.sw-button--contrast {
                 border-left: 1px solid rgba(0, 0, 0, 20%);
             }
@@ -84,5 +84,11 @@
         .icon--small-arrow-medium-down {
             padding-bottom: 2px;
         }
+    }
+
+    .mt-button.mt-button--square {
+        height: 100%;
+        width: auto;
+        aspect-ratio: 1;
     }
 }

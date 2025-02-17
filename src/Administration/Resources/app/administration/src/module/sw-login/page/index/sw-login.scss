@@ -65,7 +65,7 @@ $sw-login-error-animation-duration: 0.15s;
         font-weight: $font-weight-semi-bold;
     }
 
-    .sw-button {
+    .mt-button {
         @media screen and (max-width: 600px) {
             display: block;
         }
@@ -124,12 +124,12 @@ $sw-login-error-animation-duration: 0.15s;
     .sw-login__submit {
         text-align: right;
 
-        .sw-button {
+        .mt-button {
             display: inline-block;
         }
 
         @media screen and (max-width: 500px) {
-            .sw-button {
+            .mt-button {
                 display: block;
             }
 

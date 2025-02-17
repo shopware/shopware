@@ -119,7 +119,7 @@ class OrderConverterTest extends TestCase
                     SalesChannelContextService::CURRENCY_ID => 'order-currency-id',
                     SalesChannelContextService::LANGUAGE_ID => 'order-language-id',
                     SalesChannelContextService::CUSTOMER_ID => 'customer-id',
-                    SalesChannelContextService::COUNTRY_STATE_ID => 'order-address-country-state-id',
+                    SalesChannelContextService::COUNTRY_STATE_ID => 'country-state-id',
                     SalesChannelContextService::CUSTOMER_GROUP_ID => 'customer-group-id',
                     SalesChannelContextService::PERMISSIONS => OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS,
                     SalesChannelContextService::VERSION_ID => Defaults::LIVE_VERSION,
@@ -961,10 +961,20 @@ class OrderConverterTest extends TestCase
         $country = new CountryEntity();
         $country->setId('country-id');
         $country->setName('country-name');
+        $country->setPosition(0);
+        $country->setActive(true);
+        $country->setShippingAvailable(true);
+        $country->setDisplayStateInRegistration(true);
+        $country->setForceStateInRegistration(true);
+        $country->setCheckVatIdPattern(false);
 
         $countryState = new CountryStateEntity();
         $countryState->setId('country-state-id');
         $countryState->setName('country-state-name');
+        $countryState->setCountryId($country->getId());
+        $countryState->setShortCode('CSN');
+        $countryState->setPosition(0);
+        $countryState->setActive(true);
 
         $address = new OrderAddressEntity();
         $address->setId('order-address-id');
@@ -975,8 +985,8 @@ class OrderConverterTest extends TestCase
         $address->setStreet('order-address-street');
         $address->setZipcode('order-address-zipcode');
         $address->setCity('order-address-city');
-        $address->setCountryId('order-address-country-id');
-        $address->setCountryStateId('order-address-country-state-id');
+        $address->setCountryId($country->getId());
+        $address->setCountryStateId($countryState->getId());
         $address->setCountry($country);
         $address->setCountryState($countryState);
 
@@ -1126,7 +1136,13 @@ class OrderConverterTest extends TestCase
                         'country' => [
                             'name' => 'country-name',
                             'iso' => null,
+                            'position' => 0,
+                            'active' => true,
+                            'shippingAvailable' => true,
                             'iso3' => null,
+                            'displayStateInRegistration' => true,
+                            'forceStateInRegistration' => true,
+                            'checkVatIdPattern' => false,
                             'vatIdPattern' => null,
                             'vatIdRequired' => null,
                             'states' => null,
@@ -1149,7 +1165,11 @@ class OrderConverterTest extends TestCase
                             'defaultPostalCodePattern' => null,
                         ],
                         'state' => [
+                            'countryId' => 'country-id',
+                            'shortCode' => 'CSN',
                             'name' => 'country-state-name',
+                            'position' => 0,
+                            'active' => true,
                             'country' => null,
                             'translations' => null,
                             'customerAddresses' => null,

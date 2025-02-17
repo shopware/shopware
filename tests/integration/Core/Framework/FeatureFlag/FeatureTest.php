@@ -49,15 +49,6 @@ class FeatureTest extends TestCase
         KernelLifecycleManager::bootKernel(true, self::$customCacheId);
     }
 
-    public static function tearDownAfterClass(): void
-    {
-        $_SERVER['FEATURE_ALL'] = self::$featureAllValue;
-        $_ENV['FEATURE_ALL'] = $_SERVER['FEATURE_ALL'];
-        $_SERVER['APP_ENV'] = self::$appEnvValue;
-        $_ENV['APP_ENV'] = $_SERVER['APP_ENV'];
-        KernelLifecycleManager::bootKernel(true, self::$customCacheId);
-    }
-
     protected function setUp(): void
     {
         $_SERVER['FEATURE_ALL'] = 'false';

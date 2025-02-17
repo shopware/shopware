@@ -154,7 +154,7 @@
                             >
                                 {% block sw_settings_number_range_list_delete_modal_confirm_delete_text %}
                                 <p class="sw-settings-number-range-list__confirm-delete-text">
-                                    {{ $tc('sw-settings-number-range.list.textDeleteConfirm', 0, { name: item.name }) }}
+                                    {{ $tc('sw-settings-number-range.list.textDeleteConfirm', { name: item.name }, 0) }}
                                 </p>
                                 {% endblock %}
 

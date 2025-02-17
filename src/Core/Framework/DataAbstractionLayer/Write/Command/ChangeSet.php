@@ -8,26 +8,11 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('framework')]
 class ChangeSet extends Struct
 {
-    /**
-     * @var array
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $state = [];
+    protected array $state = [];
 
-    /**
-     * @var array
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $after = [];
+    protected array $after = [];
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $isDelete;
+    protected bool $isDelete;
 
     public function __construct(
         array $state,

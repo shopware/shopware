@@ -103,21 +103,6 @@
                 </template>
                 {% endblock %}
 
-                {% block sw_settings_rule_list_grid_column_assignments %}
-                <template
-                    v-for="(propertyName, index) in assignmentProperties"
-                    :key="index"
-                    #[`column-${propertyName}`]="{ item }"
-                >
-                    <span
-                        class="sw-data-grid__cell-value"
-                    >
-                        {{ getCounts(propertyName, item.id) }}
-                        {{ $tc(`sw-settings-rule.list.assignments.${propertyName}`, getCounts(propertyName, item.id)) }}
-                    </span>
-                </template>
-                {% endblock %}
-
                 <template #column-invalid="{item}">
                     <template v-if="item.invalid">
                         {{ $tc('sw-settings-rule.list.invalid') }}

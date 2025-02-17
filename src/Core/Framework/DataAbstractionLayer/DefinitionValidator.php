@@ -27,7 +27,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\String\Inflector\EnglishInflector;
@@ -228,21 +227,6 @@ class DefinitionValidator
         $violations = array_merge_recursive($violations, $this->findNotRegisteredTables($tableSchemas));
 
         return array_filter($violations);
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Will be removed without replacement, as it has no purpose
-     *
-     * @return array{}
-     */
-    public function getNotices(): array
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0')
-        );
-
-        return [];
     }
 
     /**

@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(NewsletterException::class)]
 class NewsletterExceptionTest extends TestCase
 {
-    public function testRecipientNotFoundn(): void
+    public function testRecipientNotFound(): void
     {
         $exception = NewsletterException::recipientNotFound('id-1', 'value-1');
 

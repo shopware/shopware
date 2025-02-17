@@ -1146,6 +1146,41 @@
       "code-switch": "Switch edit modes"
     }
   },
+  "mt-text-editor-toolbar-button-link": {
+    "label": "Link"
+  },
+  "sw-text-editor-toolbar-button-link": {
+    "modalTitle": "Insert/Edit link",
+    "linkTo": "Link to",
+    "linkUrl": "URL",
+    "linkPhone": "Phone number",
+    "linkPhonePrefix": "tel:",
+    "linkDetail": "Product",
+    "linkEmail": "Email",
+    "linkEmailPlaceholder": "Enter email address...",
+    "detailPlaceholder": "Select a product...",
+    "categoryPlaceholder": "Select a category...",
+    "displayAsButton": "Display as button",
+    "openInNewTab": "Open in new tab",
+    "applyLink": "Apply",
+    "linkType": "Link type",
+    "removeLink": "Remove link",
+    "linkOptions": {
+      "link": "URL",
+      "product": "Product",
+      "category": "Category",
+      "media": "File",
+      "email": "Email",
+      "phoneNumber": "Phone number"
+    },
+    "buttonVariantPrimary": "Primary",
+    "buttonVariantSecondary": "Secondary",
+    "buttonVariantPrimarySmall": "Primary (small)",
+    "buttonVariantSecondarySmall": "Secondary (small)"
+  },
+  "sw-text-editor-toolbar-button-cms-data-mapping": {
+    "label": "Insert variable"
+  },
   "sw-tree": {
     "general": {
       "placeholderSearch": "Search...",

@@ -44,7 +44,7 @@ class RecordTest extends TestCase
                     'data' => [],
                 ],
             ],
-            'meta' => null,
+            'meta' => [],
         ], $record->jsonSerialize());
     }
 
@@ -84,7 +84,7 @@ class RecordTest extends TestCase
                     ]],
                 ],
             ],
-            'meta' => null,
+            'meta' => [],
         ], $record->jsonSerialize());
     }
 

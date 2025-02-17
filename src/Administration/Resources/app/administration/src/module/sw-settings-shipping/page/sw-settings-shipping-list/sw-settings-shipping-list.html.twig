@@ -168,7 +168,7 @@
                     >
                         {% block sw_settings_shipping_list_delete_modal_confirm_delete_text %}
                         <p class="sw-settings-shipping-list__confirm-delete-text">
-                            {{ $tc('sw-settings-shipping.list.textDeleteConfirm', 0, { name: item.name }) }}
+                            {{ $tc('sw-settings-shipping.list.textDeleteConfirm', { name: item.name }, 0) }}
                         </p>
                         {% endblock %}
 

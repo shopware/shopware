@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @psalm-type CheckoutGatewayCommand = array{command: string, payload: array<mixed>}
+ * @phpstan-type CheckoutGatewayCommand array{command: string, payload: array<mixed>}
  *
  * @internal only for use by the app-system
  */

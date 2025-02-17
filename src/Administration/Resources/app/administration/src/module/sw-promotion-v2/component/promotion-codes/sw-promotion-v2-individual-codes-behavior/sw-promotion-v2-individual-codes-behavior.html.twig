@@ -167,7 +167,7 @@
                         v-if="codeDeleteModal === item.id"
                         class="sw-promotion-v2-individual-codes-behavior__confirm-delete-modal"
                         type="delete"
-                        :text="$tc('sw-promotion-v2.detail.base.codes.individual.textDeleteConfirm', 1, { code: item.code })"
+                        :text="$tc('sw-promotion-v2.detail.base.codes.individual.textDeleteConfirm', { code: item.code }, 1)"
                         @confirm="onConfirmCodeDelete(item.id)"
                         @close="onCloseDeleteModal"
                         @cancel="onCloseDeleteModal"

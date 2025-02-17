@@ -32,7 +32,7 @@ Component.extend('sw-entity-tag-select', 'sw-entity-multi-select', {
                 if (!this.tagExists) {
                     // Create dummy entity with id -1
                     const newTag = this.repository.create(this.entityCollection.context, -1);
-                    newTag.name = this.$tc('global.sw-tag-field.listItemAdd', 0, { term: this.searchTerm });
+                    newTag.name = this.$tc('global.sw-tag-field.listItemAdd', { term: this.searchTerm }, 0);
 
                     this.resultCollection.unshift(newTag);
                     // Reset active item position, so that the "Add Tag" element gets focus

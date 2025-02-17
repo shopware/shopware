@@ -409,17 +409,6 @@ export default {
             };
         },
 
-        /* @deprecated: tag:v6.7.0 - Will be removed without replacement */
-        showCountriesSelect() {
-            if (!this.isShowDisplayNoteDelivery) {
-                return false;
-            }
-
-            const documentConfig = cloneDeep(this.documentConfig);
-
-            return documentConfig.config?.displayAdditionalNoteDelivery;
-        },
-
         documentBaseConfig() {
             return this.documentConfig;
         },
@@ -574,20 +563,6 @@ export default {
                     this.documentConfig.salesChannels.remove(salesChannelAssoc.id);
                 }
             });
-        },
-
-        abortOnLanguageChange() {
-            return this.documentBaseConfigRepository.hasChanges(this.documentConfig);
-        },
-
-        saveOnLanguageChange() {
-            return this.onSave();
-        },
-
-        onChangeLanguage(languageId) {
-            Shopware.Store.get('context').api.languageId = languageId;
-
-            return this.loadEntityData();
         },
 
         async saveFinish() {

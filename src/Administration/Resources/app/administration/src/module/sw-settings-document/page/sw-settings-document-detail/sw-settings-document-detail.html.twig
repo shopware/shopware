@@ -40,14 +40,6 @@
     </template>
     {% endblock %}
 
-    <template #language-switch>
-        <sw-language-switch
-            :save-changes-function="saveOnLanguageChange"
-            :abort-change-function="abortOnLanguageChange"
-            @on-change="onChangeLanguage"
-        />
-    </template>
-
     {% block sw_settings_document_detail_content %}
     <template #content>
         <sw-card-view>

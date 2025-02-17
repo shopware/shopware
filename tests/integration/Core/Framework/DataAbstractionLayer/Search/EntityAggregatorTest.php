@@ -1252,7 +1252,7 @@ class EntityAggregatorTest extends TestCase
                     '2020-09-30 00:00:00' => 1,
                     '2021-12-10 00:00:00' => 1,
                     '2024-12-12 00:00:00' => 1,
-                ], null, 'Asia/Saigon'),
+                ], null, 'Asia/Ho_Chi_Minh'),
             ] : [],
         ]);
     }

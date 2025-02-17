@@ -25,7 +25,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader;
 use Shopware\Tests\Unit\Storefront\Controller\Stub\ProductControllerStub;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -54,7 +53,6 @@ class ProductReviewsWidgetLoadedHookTest extends TestCase
             $this->createMock(SeoUrlPlaceholderHandlerInterface::class),
             $this->productReviewLoaderMock,
             $this->systemConfigServiceMock,
-            $this->createMock(EventDispatcher::class),
         );
     }
 

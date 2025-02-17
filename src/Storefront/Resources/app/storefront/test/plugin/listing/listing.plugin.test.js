@@ -31,9 +31,7 @@ describe('ListingPlugin tests', () => {
             </div>
         `;
 
-        /** @deprecated tag:v6.7.0 - Remove the Feature init. ACCESSIBILITY_TWEAKS will become the default. */
         window.Feature = Feature;
-        window.Feature.init({ 'ACCESSIBILITY_TWEAKS': true });
 
         // mock listing plugins
         listingPlugin = new ListingPlugin(document.querySelector('[data-listing="true"]'));
@@ -354,53 +352,5 @@ describe('ListingPlugin tests', () => {
 
         expect(activeFilterElements[2].textContent).toMatch('Pommes Spezial');
         expect(activeFilterElements[2].getAttribute('aria-label')).toBe('Remove filter: Pommes Spezial');
-    });
-
-    /** @deprecated tag:v6.7.0 - Remove this test case. */
-    test('builds the labels for the active filters and renders them inside the filter panel (old implementation without ACCESSIBILITY_TWEAKS)', () => {
-        window.Feature.init({ 'ACCESSIBILITY_TWEAKS': false });
-
-        listingPlugin.httpClient = {
-            get: jest.fn((url, callback) => {
-                callback(`
-                <div class="cms-element-product-listing-wrapper" data-listing="true">
-                    <div class="cms-element-product-listing">
-                        <div class="row cms-listing-row js-listing-wrapper" data-aria-live-text="Showing 2 products.">
-                            <div class="card product-box box-standard"></div>
-                            <div class="card product-box box-standard"></div>
-                        </div>
-                    </div>
-                </div>
-                `);
-            }),
-        };
-
-        const MockBooleanFilter = {
-            getLabels: () => [{ label: 'Free shipping', id: 'shipping-free' }],
-            getValues: () => { return { 'shipping-free': '1' }; },
-        };
-
-        const MockMultiSelectFilter = {
-            getLabels: () => [{ label: 'Balistreri-Johns', id: '0190da2684cb710aac3d3291a340b3e3' }, { label: 'Pommes Spezial', id: '0190da2684cb710aac3d32919db761bb' }],
-            getValues: () => { return { 'manufacturer': ['0190da2684cb710aac3d3291a340b3e3', '0190da2684cb710aac3d32919db761bb'] }; },
-        };
-
-        // Register filters so that the labels can be built later
-        listingPlugin.registerFilter(MockBooleanFilter);
-        listingPlugin.registerFilter(MockMultiSelectFilter);
-
-        listingPlugin.changeListing(true);
-
-        const activeFilterElements = document.querySelectorAll('.filter-panel-active-container .filter-active');
-
-        // Verify active filters are generated inside the DOM with correct aria-labels
-        expect(activeFilterElements[0].querySelector('[aria-hidden="true"]').textContent).toBe('Free shipping');
-        expect(activeFilterElements[0].querySelector('.filter-active-remove').getAttribute('aria-label')).toBe('Remove filter: Free shipping');
-
-        expect(activeFilterElements[1].querySelector('[aria-hidden="true"]').textContent).toBe('Balistreri-Johns');
-        expect(activeFilterElements[1].querySelector('.filter-active-remove').getAttribute('aria-label')).toBe('Remove filter: Balistreri-Johns');
-
-        expect(activeFilterElements[2].querySelector('[aria-hidden="true"]').textContent).toBe('Pommes Spezial');
-        expect(activeFilterElements[2].querySelector('.filter-active-remove').getAttribute('aria-label')).toBe('Remove filter: Pommes Spezial');
     });
 });

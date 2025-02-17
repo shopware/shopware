@@ -636,7 +636,6 @@
                         "apiAlias": "shopware_core_content_product_sales_channel_review_rating_matrix"
                       },
                       "customerReview": null,
-                      "totalReviews": 1,
                       "entity": "product_review",
                       "total": 1,
                       "aggregations": {

@@ -1,6 +1,6 @@
 import './acl';
 
-const { Module, Feature } = Shopware;
+const { Module } = Shopware;
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register(
@@ -115,14 +115,7 @@ Module.register('sw-settings-rule', {
     },
 
     settingsItem: {
-        group: function () {
-            // @deprecated tag:v6.7.0 - Remove condition and function callback
-            if (!Feature.isActive('v6.7.0.0')) {
-                return 'shop';
-            }
-
-            return 'automation';
-        },
+        group: 'automation',
         to: 'sw.settings.rule.index',
         icon: 'regular-rule',
         privilege: 'rule.viewer',

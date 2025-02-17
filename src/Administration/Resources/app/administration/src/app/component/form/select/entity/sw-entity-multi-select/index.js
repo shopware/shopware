@@ -17,8 +17,6 @@ Component.register('sw-entity-multi-select', {
 
     inheritAttrs: false,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'feature',
@@ -181,15 +179,6 @@ Component.register('sw-entity-multi-select', {
     },
 
     computed: {
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
-        },
-
         repository() {
             return this.repositoryFactory.create(this.entityName || this.entityCollection.entity);
         },

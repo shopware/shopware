@@ -6,33 +6,26 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
-use Shopware\Core\Content\Flow\Dispatching\TransactionFailedException;
 use Shopware\Core\Content\Test\Flow\OrderActionTrait;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
@@ -221,47 +214,6 @@ class SetOrderStateActionTest extends TestCase
         static::assertSame('shipped', $oderDeliveryForShippingCosts->getStateMachineState()?->getTechnicalName());
     }
 
-    public function testThrowsWhenEntityNotFoundAndInsideATransactionWithoutSavepointNesting(): void
-    {
-        $this->connection->executeStatement('DELETE FROM `sales_channel` WHERE id = :id', ['id' => Uuid::fromHexToBytes($this->ids->get('sales-channel'))]);
-        $this->connection->executeStatement('DELETE FROM `shipping_method` WHERE id = :id', ['id' => Uuid::fromHexToBytes($this->ids->get('shipping-method'))]);
-
-        // Because this test needs to change savepoint nesting we need to commit the current transaction, as we cannot
-        // change this property inside a running transaction.
-        $this->connection->commit();
-        $this->connection->setNestTransactionsWithSavepoints(false);
-        $this->connection->beginTransaction();
-
-        $orderId = Uuid::randomHex();
-        $context = Generator::generateSalesChannelContext();
-
-        $orderData = $this->getOrderData($orderId, $context->getContext());
-        $orderData[0]['deliveries'] = [];
-        $this->orderRepository->create($orderData, $context->getContext());
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $context->getContext())->first();
-
-        static::assertInstanceOf(OrderEntity::class, $order);
-
-        $event = new CheckoutOrderPlacedEvent($context, $order);
-
-        $subscriber = new SetOrderStateAction(
-            static::getContainer()->get(Connection::class),
-            static::getContainer()->get(OrderService::class),
-        );
-
-        /** @var FlowFactory $flowFactory */
-        $flowFactory = static::getContainer()->get(FlowFactory::class);
-        $flow = $flowFactory->create($event);
-        $flow->setConfig(['order_delivery' => 'cancelled']);
-
-        static::expectException(TransactionFailedException::class);
-        static::expectExceptionMessage('Transaction failed because an exception occurred');
-
-        $this->connection->transactional(function () use ($subscriber, $flow): void {
-            $subscriber->handleFlow($flow);
-        });
-    }
-
     /**
      * @param array<int|string, mixed> $payload
      *
@@ -370,146 +322,6 @@ class SetOrderStateActionTest extends TestCase
             ',
             ['id' => $orderId]
         );
-    }
-
-    /**
-     * @return array<int, mixed>
-     */
-    private function getOrderData(string $orderId, Context $context): array
-    {
-        $addressId = Uuid::randomHex();
-        $countryStateId = Uuid::randomHex();
-        $salutation = $this->getValidSalutationId();
-
-        $order = [
-            [
-                'id' => $orderId,
-                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-                'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
-                'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                'stateId' => static::getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE),
-                'paymentMethodId' => $this->getValidPaymentMethodId(),
-                'currencyId' => Defaults::CURRENCY,
-                'currencyFactor' => 1,
-                'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                'orderNumber' => Uuid::randomHex(),
-                'transactions' => [
-                    [
-                        'id' => Uuid::randomHex(),
-                        'paymentMethodId' => $this->getPrePaymentMethodId(),
-                        'stateId' => $this->getStateMachineState(OrderTransactionStates::STATE_MACHINE, OrderTransactionStates::STATE_OPEN),
-                        'amount' => [
-                            'unitPrice' => 5.0,
-                            'totalPrice' => 15.0,
-                            'quantity' => 3,
-                            'calculatedTaxes' => [],
-                            'taxRules' => [],
-                        ],
-                    ],
-                ],
-                'deliveries' => [
-                    [
-                        'stateId' => static::getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),
-                        'shippingMethodId' => $this->getValidShippingMethodId(),
-                        'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                        'shippingDateEarliest' => date(\DATE_ATOM),
-                        'shippingDateLatest' => date(\DATE_ATOM),
-                        'shippingOrderAddress' => [
-                            'salutationId' => $salutation,
-                            'firstName' => 'Floy',
-                            'lastName' => 'Glover',
-                            'zipcode' => '59438-0403',
-                            'city' => 'Stellaberg',
-                            'street' => 'street',
-                            'country' => [
-                                'name' => 'kasachstan',
-                                'id' => $this->getValidCountryId(),
-                            ],
-                        ],
-                    ],
-                ],
-                'lineItems' => [],
-                'deepLinkCode' => 'BwvdEInxOHBbwfRw6oHF1Q_orfYeo9RY',
-                'orderCustomer' => [
-                    'email' => 'test@example.com',
-                    'firstName' => 'Noe',
-                    'lastName' => 'Hill',
-                    'salutationId' => $salutation,
-                    'title' => 'Doc',
-                    'customerNumber' => 'Test',
-                    'customer' => [
-                        'email' => 'test@example.com',
-                        'firstName' => 'Noe',
-                        'lastName' => 'Hill',
-                        'salutationId' => $salutation,
-                        'title' => 'Doc',
-                        'customerNumber' => 'Test',
-                        'guest' => true,
-                        'group' => ['name' => 'testse2323'],
-                        'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                        'defaultBillingAddressId' => $addressId,
-                        'defaultShippingAddressId' => $addressId,
-                        'addresses' => [
-                            [
-                                'id' => $addressId,
-                                'salutationId' => $salutation,
-                                'firstName' => 'Floy',
-                                'lastName' => 'Glover',
-                                'zipcode' => '59438-0403',
-                                'city' => 'Stellaberg',
-                                'street' => 'street',
-                                'countryStateId' => $countryStateId,
-                                'country' => [
-                                    'name' => 'kasachstan',
-                                    'id' => $this->getValidCountryId(),
-                                    'states' => [
-                                        [
-                                            'id' => $countryStateId,
-                                            'name' => 'oklahoma',
-                                            'shortCode' => 'OH',
-                                        ],
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-                'billingAddressId' => $addressId,
-                'addresses' => [
-                    [
-                        'salutationId' => $salutation,
-                        'firstName' => 'Floy',
-                        'lastName' => 'Glover',
-                        'zipcode' => '59438-0403',
-                        'city' => 'Stellaberg',
-                        'street' => 'street',
-                        'countryId' => $this->getValidCountryId(),
-                        'id' => $addressId,
-                    ],
-                ],
-            ],
-        ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $order[0]['orderCustomer']['customer']['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
-        return $order;
-    }
-
-    private function getPrePaymentMethodId(): string
-    {
-        /** @var EntityRepository $repository */
-        $repository = static::getContainer()->get('payment_method.repository');
-
-        $criteria = (new Criteria())
-            ->setLimit(1)
-            ->addFilter(new EqualsFilter('active', true))
-            ->addFilter(new EqualsFilter('handlerIdentifier', PrePayment::class));
-
-        return $repository->searchIds($criteria, Context::createDefaultContext())->firstId() ?: '';
     }
 
     private function getStateMachineState(string $stateMachine = OrderStates::STATE_MACHINE, string $state = OrderStates::STATE_OPEN): string

@@ -10,8 +10,6 @@ import './sw-first-run-wizard-finish.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['firstRunWizardService'],
 
     emits: [
@@ -50,7 +48,7 @@ export default {
         },
 
         buttonConfig() {
-            const disabledExtensionManagement = Shopware.State.get('context').app.config.settings.disableExtensionManagement;
+            const disabledExtensionManagement = Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
             const prevRoute = disabledExtensionManagement ? 'shopware.account' : 'store';
 
             return [

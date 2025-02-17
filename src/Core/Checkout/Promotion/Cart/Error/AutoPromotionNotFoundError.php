@@ -10,17 +10,8 @@ class AutoPromotionNotFoundError extends Error
 {
     private const KEY = 'auto-promotion-not-found';
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
-
-    public function __construct(string $name)
+    public function __construct(protected string $name)
     {
-        $this->name = $name;
-
         $this->message = \sprintf('Promotion %s was no longer valid!', $this->name);
 
         parent::__construct($this->message);

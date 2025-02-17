@@ -14,8 +14,6 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'mailService',
         'entityMappingService',
@@ -296,7 +294,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').setApiLanguageId(languageId);
             this.loadEntityData();
         },
 
@@ -335,7 +333,7 @@ export default {
 
                         this.createNotificationError({
                             message:
-                                this.$tc('sw-mail-template.detail.messageSaveError', 0, { subject: mailTemplateSubject }) +
+                                this.$tc('sw-mail-template.detail.messageSaveError', { subject: mailTemplateSubject }, 0) +
                                 errormsg,
                         });
                     }),
@@ -418,9 +416,13 @@ export default {
                         });
                     } else {
                         this.createNotificationError({
-                            message: this.$tc('sw-mail-template.general.notificationSyntaxValidationErrorMessage', 0, {
-                                errorMsg: error.response?.data?.errors?.[0]?.detail,
-                            }),
+                            message: this.$tc(
+                                'sw-mail-template.general.notificationSyntaxValidationErrorMessage',
+                                {
+                                    errorMsg: error.response?.data?.errors?.[0]?.detail,
+                                },
+                                0,
+                            ),
                         });
                     }
                 })
@@ -649,11 +651,7 @@ export default {
 
         addVariables(variables) {
             variables.forEach((variable) => {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.availableVariables, variable.id, variable);
-                } else {
-                    this.availableVariables[variable.id] = variable;
-                }
+                this.availableVariables[variable.id] = variable;
             });
         },
 

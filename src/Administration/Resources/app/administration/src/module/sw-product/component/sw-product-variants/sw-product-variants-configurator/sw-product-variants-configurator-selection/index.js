@@ -11,8 +11,6 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     emits: ['option-select'],
@@ -25,14 +23,6 @@ export default {
         product: {
             type: Object,
             required: true,
-        },
-        /**
-         * @deprecated tag:v6.7.0 - The disabled props will be removed.
-         */
-        disabled: {
-            type: Boolean,
-            required: false,
-            default: false,
         },
     },
 

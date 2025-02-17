@@ -21,8 +21,6 @@ Component.register('sw-price-field', {
     template,
     inheritAttrs: false,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['feature'],
 
     emits: [
@@ -201,10 +199,6 @@ Component.register('sw-price-field', {
         },
 
         attributesWithoutListeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$attrs;
-            }
-
             const attributes = {};
 
             // Filter all listeners from the $attrs object

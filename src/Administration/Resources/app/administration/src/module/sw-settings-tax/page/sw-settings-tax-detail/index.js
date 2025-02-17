@@ -12,14 +12,11 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
         'customFieldDataProviderService',
         'systemConfigApiService',
-        'feature',
     ],
 
     mixins: [
@@ -211,7 +208,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').api.languageId = languageId;
             this.createdComponent();
         },
 

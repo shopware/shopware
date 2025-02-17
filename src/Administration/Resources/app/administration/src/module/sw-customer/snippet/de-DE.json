@@ -255,10 +255,6 @@
         "label": "Status",
         "placeholder": "Status auswählen ..."
       },
-      "defaultPaymentMethod": {
-        "label": "Standardzahlungsart",
-        "placeholder": "Standardzahlungsart auswählen ..."
-      },
       "customerGroup": {
         "label": "Kundengruppe",
         "placeholder": "Kundengruppe auswählen ..."

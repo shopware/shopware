@@ -48,7 +48,7 @@
 
         {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_text %}
         <p class="sw-first-run-wizard-welcome__modal-text">
-            {{ $tc('sw-first-run-wizard.welcome.switchLanguageMessage', {}, { pluginName: latestTouchedPlugin.name }) }}
+            {{ $tc('sw-first-run-wizard.welcome.switchLanguageMessage', { pluginName: latestTouchedPlugin.name }, {}) }}
         </p>
         <sw-select-field
             v-model:value="user.localeId"

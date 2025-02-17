@@ -58,7 +58,7 @@ class OrderSalutationSubscriberTest extends TestCase
             [],
         );
 
-        $this->connection->expects(static::never())->method('executeUpdate');
+        $this->connection->expects(static::never())->method('executeStatement');
 
         $this->salutationSubscriber->setDefaultSalutation($event);
     }
@@ -78,7 +78,7 @@ class OrderSalutationSubscriberTest extends TestCase
 
         $this->connection->expects(static::once())
             ->method('executeStatement')
-            ->willReturnCallback(function ($sql, $params) use ($orderAddressId): void {
+            ->willReturnCallback(function ($sql, $params) use ($orderAddressId): int {
                 static::assertSame($params, [
                     'id' => Uuid::fromHexToBytes($orderAddressId),
                     'notSpecified' => 'not_specified',
@@ -94,6 +94,8 @@ class OrderSalutationSubscriberTest extends TestCase
                 )
                 WHERE `id` = :id AND `salutation_id` is NULL
             ', $sql);
+
+                return 1;
             });
 
         $this->salutationSubscriber->setDefaultSalutation($event);

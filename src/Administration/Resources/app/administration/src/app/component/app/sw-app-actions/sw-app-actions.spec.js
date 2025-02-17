@@ -104,9 +104,9 @@ describe('sw-app-actions', () => {
     });
 
     beforeEach(async () => {
-        Shopware.State.commit('shopwareApps/setSelectedIds', [
+        Shopware.Store.get('shopwareApps').selectedIds = [
             Shopware.Utils.createId(),
-        ]);
+        ];
     });
 
     afterEach(() => {
@@ -133,9 +133,9 @@ describe('sw-app-actions', () => {
     it('creates an sw-app-action-button per action', async () => {
         wrapper = await createWrapper(router);
 
-        Shopware.State.commit('shopwareApps/setSelectedIds', [
+        Shopware.Store.get('shopwareApps').selectedIds = [
             Shopware.Utils.createId(),
-        ]);
+        ];
 
         router.push({ name: 'sw.product.detail' });
         await flushPromises();
@@ -152,7 +152,7 @@ describe('sw-app-actions', () => {
     });
 
     it('should reset the selectedIds on creation when entity exists', async () => {
-        expect(Shopware.State.get('shopwareApps').selectedIds).toEqual([
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
             expect.any(String),
         ]);
 
@@ -161,18 +161,18 @@ describe('sw-app-actions', () => {
 
         wrapper = await createWrapper(router);
 
-        expect(Shopware.State.get('shopwareApps').selectedIds).toEqual([]);
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([]);
     });
 
     it('should not reset the selectedIds on creation when entity exists', async () => {
-        expect(Shopware.State.get('shopwareApps').selectedIds).toEqual([
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
             expect.any(String),
         ]);
 
         wrapper = await createWrapper(router);
         await flushPromises();
 
-        expect(Shopware.State.get('shopwareApps').selectedIds).toEqual([
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
             expect.any(String),
         ]);
     });
@@ -221,9 +221,9 @@ describe('sw-app-actions', () => {
     it('calls appActionButtonService.runAction if triggered by context menu button', async () => {
         wrapper = await createWrapper(router);
 
-        Shopware.State.commit('shopwareApps/setSelectedIds', [
+        Shopware.Store.get('shopwareApps').selectedIds = [
             Shopware.Utils.createId(),
-        ]);
+        ];
 
         router.push({ name: 'sw.product.detail' });
         await flushPromises();
@@ -249,12 +249,12 @@ describe('sw-app-actions', () => {
         expect(runActionsMock.mock.calls).toHaveLength(2);
         expect(runActionsMock.mock.calls[0]).toEqual([
             actionButtonData[0].id,
-            { ids: Shopware.State.get('shopwareApps').selectedIds },
+            { ids: Shopware.Store.get('shopwareApps').selectedIds },
         ]);
 
         expect(runActionsMock.mock.calls[1]).toEqual([
             actionButtonData[1].id,
-            { ids: Shopware.State.get('shopwareApps').selectedIds },
+            { ids: Shopware.Store.get('shopwareApps').selectedIds },
         ]);
     });
 
@@ -262,9 +262,9 @@ describe('sw-app-actions', () => {
         wrapper = await createWrapper(router);
         wrapper.vm.createNotification = jest.fn();
 
-        Shopware.State.commit('shopwareApps/setSelectedIds', [
+        Shopware.Store.get('shopwareApps').selectedIds = [
             Shopware.Utils.createId(),
-        ]);
+        ];
 
         router.push({ name: 'sw.product.detail' });
         await flushPromises();
@@ -297,9 +297,9 @@ describe('sw-app-actions', () => {
         };
         wrapper = await createWrapper(router, openModalResponseData);
 
-        Shopware.State.commit('shopwareApps/setSelectedIds', [
+        Shopware.Store.get('shopwareApps').selectedIds = [
             Shopware.Utils.createId(),
-        ]);
+        ];
 
         router.push({ name: 'sw.product.detail' });
         await flushPromises();

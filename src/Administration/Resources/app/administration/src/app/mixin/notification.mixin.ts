@@ -2,20 +2,9 @@
  * @sw-package framework
  */
 import { defineComponent } from 'vue';
+import type { NotificationType, NotificationVariant } from '../store/notification.store';
 
 const { Mixin } = Shopware;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export type NotificationType = 'info' | 'warning' | 'error' | 'success';
-
-interface notification {
-    variant?: NotificationType;
-    title?: string;
-    message?: string;
-    system?: boolean;
-
-    [key: string]: string | boolean | undefined;
-}
 
 /**
  * @private
@@ -24,13 +13,13 @@ export default Mixin.register(
     'notification',
     defineComponent({
         methods: {
-            createNotification(notification: notification): Promise<unknown> {
-                return Shopware.State.dispatch('notification/createNotification', notification);
+            createNotification(notification: NotificationType): string | null {
+                return Shopware.Store.get('notification').createNotification(notification);
             },
 
-            createNotificationSuccess(config: notification): void {
+            createNotificationSuccess(config: NotificationType): void {
                 const notification = {
-                    variant: 'success' as NotificationType,
+                    variant: 'success' as NotificationVariant,
                     title: this.$tc('global.default.success'),
                     ...config,
                 };
@@ -38,9 +27,9 @@ export default Mixin.register(
                 void this.createNotification(notification);
             },
 
-            createNotificationInfo(config: notification): void {
+            createNotificationInfo(config: NotificationType): void {
                 const notification = {
-                    variant: 'info' as NotificationType,
+                    variant: 'info' as NotificationVariant,
                     title: this.$tc('global.default.info'),
                     ...config,
                 };
@@ -48,9 +37,9 @@ export default Mixin.register(
                 void this.createNotification(notification);
             },
 
-            createNotificationWarning(config: notification): void {
+            createNotificationWarning(config: NotificationType): void {
                 const notification = {
-                    variant: 'warning' as NotificationType,
+                    variant: 'warning' as NotificationVariant,
                     title: this.$tc('global.default.warning'),
                     ...config,
                 };
@@ -58,9 +47,9 @@ export default Mixin.register(
                 void this.createNotification(notification);
             },
 
-            createNotificationError(config: notification): void {
+            createNotificationError(config: NotificationType): void {
                 const notification = {
-                    variant: 'error' as NotificationType,
+                    variant: 'error' as NotificationVariant,
                     title: this.$tc('global.default.error'),
                     ...config,
                 };
@@ -68,9 +57,9 @@ export default Mixin.register(
                 void this.createNotification(notification);
             },
 
-            createSystemNotificationSuccess(config: notification): void {
+            createSystemNotificationSuccess(config: NotificationType): void {
                 const notification = {
-                    variant: 'success' as NotificationType,
+                    variant: 'success' as NotificationVariant,
                     system: true,
                     ...config,
                 };
@@ -78,9 +67,9 @@ export default Mixin.register(
                 void this.createNotification(notification);
             },
 
-            createSystemNotificationInfo(config: notification): void {
+            createSystemNotificationInfo(config: NotificationType): void {
                 const notification = {
-                    variant: 'info' as NotificationType,
+                    variant: 'info' as NotificationVariant,
                     system: true,
                     ...config,
                 };
@@ -88,9 +77,9 @@ export default Mixin.register(
                 void this.createNotification(notification);
             },
 
-            createSystemNotificationWarning(config: notification): void {
+            createSystemNotificationWarning(config: NotificationType): void {
                 const notification = {
-                    variant: 'warning' as NotificationType,
+                    variant: 'warning' as NotificationVariant,
                     system: true,
                     ...config,
                 };
@@ -98,9 +87,9 @@ export default Mixin.register(
                 void this.createNotification(notification);
             },
 
-            createSystemNotificationError(config: notification): void {
+            createSystemNotificationError(config: NotificationType): void {
                 const notification = {
-                    variant: 'error' as NotificationType,
+                    variant: 'error' as NotificationVariant,
                     system: true,
                     ...config,
                 };
@@ -108,7 +97,7 @@ export default Mixin.register(
                 void this.createNotification(notification);
             },
 
-            createSystemNotification(config: notification): void {
+            createSystemNotification(config: NotificationType): void {
                 const notification = { system: true, ...config };
 
                 void this.createNotification(notification);

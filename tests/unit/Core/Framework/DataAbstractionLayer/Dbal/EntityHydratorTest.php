@@ -93,7 +93,6 @@ class EntityHydratorTest extends TestCase
         $structs = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', Context::createDefaultContext());
         static::assertCount(1, $structs);
 
-        /** @var ArrayEntity|null $first */
         $first = $structs->first();
 
         static::assertInstanceOf(ArrayEntity::class, $first);
@@ -104,7 +103,6 @@ class EntityHydratorTest extends TestCase
         static::assertSame(Uuid::fromBytesToHex($normal), $first->get('normalFk'));
 
         static::assertTrue($first->hasExtension(EntityReader::FOREIGN_KEYS));
-        /** @var ArrayStruct<string, mixed>|null $foreignKeys */
         $foreignKeys = $first->getExtension(EntityReader::FOREIGN_KEYS);
 
         static::assertInstanceOf(ArrayStruct::class, $foreignKeys);

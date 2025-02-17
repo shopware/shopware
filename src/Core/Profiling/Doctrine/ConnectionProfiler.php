@@ -20,8 +20,8 @@ use Symfony\Component\VarDumper\Cloner\Data;
  * @phpstan-import-type Backtrace from BacktraceDebugDataHolder
  * @phpstan-import-type QueryInfo from BacktraceDebugDataHolder
  *
- * @phpstan-type SanitizedQueryInfo array{sql: string, executionMS: float, types: array<(int | string), int>, params: Data, runnable: bool, explainable: bool, backtrace?: Backtrace}
- * @phpstan-type SanitizedQueryInfoGroup array{sql: string, executionMS: float, types: array<(int | string), int>, params: Data, runnable: bool, explainable: bool, backtrace?: Backtrace, count: int, index: int, executionPercent?: float}
+ * @phpstan-type SanitizedQueryInfo array{sql: string, executionMS: float, types: array<(int | string), \Doctrine\DBAL\ParameterType|int>, params: Data, runnable: bool, explainable: bool, backtrace?: Backtrace}
+ * @phpstan-type SanitizedQueryInfoGroup array{sql: string, executionMS: float, types: array<(int | string), \Doctrine\DBAL\ParameterType|int>, params: Data, runnable: bool, explainable: bool, backtrace?: Backtrace, count: int, index: int, executionPercent?: float}
  */
 #[Package('framework')]
 class ConnectionProfiler extends DataCollector implements LateDataCollectorInterface
@@ -233,7 +233,7 @@ class ConnectionProfiler extends DataCollector implements LateDataCollectorInter
 
                     try {
                         $param = $type->convertToDatabaseValue($param, $this->connection->getDatabasePlatform());
-                    } catch (\TypeError $e) { // @phpstan-ignore-line
+                    } catch (\TypeError $e) {
                     } catch (ConversionException $e) {
                     }
                 }

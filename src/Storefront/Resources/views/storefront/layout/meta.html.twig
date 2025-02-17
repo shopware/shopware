@@ -152,6 +152,8 @@
             {# Register all routes that will be needed in JavaScript to the window.router object #}
             <script>
                 window.activeNavigationId = '{{ shopware.navigation.id }}';
+                window.activeRoute = '{{ activeRoute }}';
+                window.activeRouteParameters = '{{ app.request.attributes.get('_route_params')|json_encode|raw }}';
                 window.router = {
                     'frontend.cart.offcanvas': '{{ path('frontend.cart.offcanvas') }}',
                     'frontend.cookie.offcanvas': '{{ path('frontend.cookie.offcanvas') }}',
@@ -196,13 +198,6 @@
 
         {# jQuery is removed from the default Storefront since tag:v6.5.0 - This block should be used to add jQuery as a `<script>` if needed. #}
         {% block layout_head_javascript_jquery %}
-        {% endblock %}
-
-        {# @deprecated tag:v6.7.0 - This block will be removed #}
-        {% block layout_head_javascript_assets_public_path %}
-            <script>
-                window.themeAssetsPublicPath = '{{ asset('assets/', 'theme') }}';
-            </script>
         {% endblock %}
 
         {% block layout_head_form_validation_messages %}

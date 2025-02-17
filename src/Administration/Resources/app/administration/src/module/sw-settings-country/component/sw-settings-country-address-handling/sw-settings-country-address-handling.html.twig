@@ -41,7 +41,7 @@
                     class="sw-settings-country-address-handling__option-items"
                     :disabled="!acl.can('country.editor') || disabledAdvancedPostalCodePattern || undefined"
                     :label="$tc('sw-settings-country.detail.labelCheckAdvancedPostalCodePattern')"
-                    :help-text="$tc('sw-settings-country.detail.helpTextAdvancedPostalCodePattern', 0, {5: '{5}', 4: '{4}', 2: '{2}'})"
+                    :help-text="$tc('sw-settings-country.detail.helpTextAdvancedPostalCodePattern', {5: '{5}', 4: '{4}', 2: '{2}'}, 0)"
                     @update:value="updateCountry('checkAdvancedPostalCodePattern', $event)"
                 />
 

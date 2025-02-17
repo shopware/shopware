@@ -109,10 +109,10 @@ class CategoryUrlProvider extends AbstractUrlProvider
         $query = $iterator->getQuery();
         $query->setMaxResults($limit);
 
-        $query->addSelect([
+        $query->addSelect(
             '`category`.created_at',
             '`category`.updated_at',
-        ]);
+        );
 
         $wheres = [];
         $categoryIds = array_filter([

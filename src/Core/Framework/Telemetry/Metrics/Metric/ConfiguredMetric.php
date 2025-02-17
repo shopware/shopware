@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
  * All objects instantiated from this class should map to a metric that's preconfigured in `config/packages/telemetry.yaml`.
  * The mapping is done via the `name` property as an identifier.
  *
- * @experimental feature:TELEMETRY_METRICS stableVersion:v6.7.0
+ * @experimental feature:TELEMETRY_METRICS stableVersion:v6.8.0
  */
 #[Package('framework')]
 readonly class ConfiguredMetric

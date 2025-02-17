@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Framework\Routing\NotFound;
 
-use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
@@ -47,15 +46,13 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
     /**
      * @internal
      *
-     * @param AbstractCacheTracer<Response> $cacheTracer
      * @param array{name?: string} $sessionOptions
      */
     public function __construct(
         private readonly HttpKernelInterface $httpKernel,
         private readonly SalesChannelContextServiceInterface $contextService,
-        private bool $kernelDebug,
+        private bool $kernelDebug, // Do not change to readonly, as it is used in tests
         private readonly CacheInterface $cache,
-        private readonly AbstractCacheTracer $cacheTracer,
         private readonly EntityCacheKeyGenerator $generator,
         private readonly CacheInvalidator $cacheInvalidator,
         private readonly EventDispatcherInterface $eventDispatcher,
@@ -118,10 +115,7 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
         $key = $this->generateKey($salesChannelId, $domainId, $languageId, $request, $context);
 
         $response = $this->cache->get($key, function (ItemInterface $item) use ($event, $name, $context, $request) {
-            /** @var Response $response */
-            $response = $this->cacheTracer->trace($name, function () use ($event, $request, $context) {
-                return $this->renderErrorPage($request, $event->getThrowable(), $context->getContext());
-            });
+            $response = $this->renderErrorPage($request, $event->getThrowable(), $context->getContext());
 
             $item->tag($this->generateTags($name, $event->getRequest(), $context));
 
@@ -173,12 +167,7 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
      */
     private function generateTags(string $name, Request $request, SalesChannelContext $context): array
     {
-        $tags = array_merge(
-            $this->cacheTracer->get($name),
-            [$name, self::ALL_TAG]
-        );
-
-        $event = new NotFoundPageTagsEvent($tags, $request, $context);
+        $event = new NotFoundPageTagsEvent([$name, self::ALL_TAG], $request, $context);
 
         $this->eventDispatcher->dispatch($event);
 

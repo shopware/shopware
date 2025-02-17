@@ -87,10 +87,6 @@ class PdfRenderer extends AbstractDocumentTypeRenderer
 
     private function getHtml(RenderedDocument $document): string
     {
-        if ($document->getHtml() !== '') {
-            return $document->getHtml();
-        }
-
         $document->setContentType(self::FILE_CONTENT_TYPE);
         $document->setFileExtension(self::FILE_EXTENSION);
 

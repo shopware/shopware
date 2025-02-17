@@ -8,13 +8,10 @@ import './sw-product-modal-variant-generation.scss';
 
 const { Criteria } = Shopware.Data;
 const { Mixin, Context } = Shopware;
-const { mapState } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -78,9 +75,9 @@ export default {
     },
 
     computed: {
-        ...mapState('swProductDetail', [
-            'currencies',
-        ]),
+        currencies() {
+            return Shopware.Store.get('swProductDetail').currencies;
+        },
 
         productRepository() {
             return this.repositoryFactory.create('product');

@@ -7,7 +7,7 @@ on:
   workflow_call:
 
 env:
-  COMPOSER_ROOT_VERSION: 6.6.9999999.9999999
+  COMPOSER_ROOT_VERSION: 6.7.9999999-dev
 
 jobs:
   lint:
@@ -203,7 +203,7 @@ jobs:
         run: php src/Core/TestBootstrap.php
 
       - name: Run PHPUnit with coverage
-        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.suite }}" --coverage-cobertura coverage.xml
+        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.suite }}" --coverage-cobertura coverage.xml --log-junit junit.xml
 
       - name: Upload coverage
         uses: codecov/codecov-action@v5
@@ -212,6 +212,12 @@ jobs:
         with:
           files: coverage.xml
           flags: phpunit-${{ matrix.suite }}
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   license-check:
     runs-on: ubuntu-24.04
@@ -260,6 +266,8 @@ jobs:
     - phpunit
     - license-check
     - composer-audit
+    # add after first RC
+    # bc-checker
 
     runs-on: Ubuntu-latest
     steps:

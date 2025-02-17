@@ -1,5 +1,6 @@
 import { defineComponent, type PropType } from 'vue';
 import { type RuntimeSlot } from '../service/cms.service';
+import '../../sw-category/page/sw-category-detail/store';
 
 const { Mixin } = Shopware;
 const { types } = Shopware.Utils;
@@ -51,7 +52,7 @@ export default Mixin.register(
 
             category(): EntitySchema.Entities['category'] {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                return Shopware.State.get('swCategoryDetail')?.category as EntitySchema.Entities['category'];
+                return Shopware.Store.get('swCategoryDetail')?.category as EntitySchema.Entities['category'];
             },
         },
 

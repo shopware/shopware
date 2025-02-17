@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Framework\Util;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Exception\UtilXmlParsingException;
-use Shopware\Core\System\SystemConfig\Exception\XmlElementNotFoundException;
-use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('framework')]
@@ -42,10 +39,6 @@ class UtilException extends HttpException
 
     public static function xmlElementNotFound(string $element): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new XmlElementNotFoundException($element);
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::XML_ELEMENT_NOT_FOUND,
@@ -54,15 +47,8 @@ class UtilException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function xmlParsingException(string $file, string $message): self|XmlParsingException
+    public static function xmlParsingException(string $file, string $message): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new XmlParsingException($file, $message);
-        }
-
         return new UtilXmlParsingException($file, $message);
     }
 

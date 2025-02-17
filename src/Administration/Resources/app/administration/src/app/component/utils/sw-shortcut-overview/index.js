@@ -14,8 +14,6 @@ const utils = Shopware.Utils;
 Component.register('sw-shortcut-overview', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'shortcut-open',
         'shortcut-close',

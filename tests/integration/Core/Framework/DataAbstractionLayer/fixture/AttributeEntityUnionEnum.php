@@ -19,5 +19,8 @@ class AttributeEntityUnionEnum extends EntityStruct
     public string $id;
 
     #[Field(type: FieldType::ENUM)]
+    /**
+     * @phpstan-ignore property.unresolvableNativeType (we want to explicitly test this case)
+     */
     public StringEnum&IntEnum $enum;
 }

@@ -12,8 +12,6 @@ const { Filter, Store } = Shopware;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['block-overlay-click'],
 
     props: {

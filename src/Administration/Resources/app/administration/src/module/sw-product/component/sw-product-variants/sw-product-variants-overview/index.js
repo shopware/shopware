@@ -7,13 +7,10 @@ import './sw-products-variants-overview.scss';
 
 const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -69,19 +66,37 @@ export default {
     },
 
     computed: {
-        ...mapState('swProductDetail', [
-            'product',
-            'currencies',
-            'taxes',
-            'variants',
-        ]),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
 
-        ...mapGetters('swProductDetail', [
-            'isLoading',
-            'defaultPrice',
-            'defaultCurrency',
-            'productTaxRate',
-        ]),
+        currencies() {
+            return Shopware.Store.get('swProductDetail').currencies;
+        },
+
+        taxes() {
+            return Shopware.Store.get('swProductDetail').taxes;
+        },
+
+        variants() {
+            return Shopware.Store.get('swProductDetail').variants;
+        },
+
+        isLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
+
+        defaultPrice() {
+            return Shopware.Store.get('swProductDetail').defaultPrice;
+        },
+
+        defaultCurrency() {
+            return Shopware.Store.get('swProductDetail').defaultCurrency;
+        },
+
+        productTaxRate() {
+            return Shopware.Store.get('swProductDetail').productTaxRate;
+        },
 
         productRepository() {
             return this.repositoryFactory.create('product');
@@ -248,16 +263,13 @@ export default {
                 newDownload.productId = item.id;
                 newDownload.media = media;
 
-                Shopware.State.commit(
-                    'swProductDetail/setVariants',
-                    this.variants.map((variant) => {
-                        if (variant.id === item.id) {
-                            variant.downloads.push(newDownload);
-                            this.productRepository.save(variant);
-                        }
-                        return variant;
-                    }),
-                );
+                Shopware.Store.get('swProductDetail').variants = this.variants.map((variant) => {
+                    if (variant.id === item.id) {
+                        variant.downloads.push(newDownload);
+                        this.productRepository.save(variant);
+                    }
+                    return variant;
+                });
             });
         },
 
@@ -278,7 +290,7 @@ export default {
                     return;
                 }
 
-                Shopware.State.commit('swProductDetail/setLoading', [
+                Shopware.Store.get('swProductDetail').setLoading([
                     'variants',
                     true,
                 ]);
@@ -335,8 +347,8 @@ export default {
                 // Start search
                 this.productRepository.search(searchCriteria).then((res) => {
                     this.total = res.total;
-                    Shopware.State.commit('swProductDetail/setVariants', res);
-                    Shopware.State.commit('swProductDetail/setLoading', [
+                    Shopware.Store.get('swProductDetail').variants = res;
+                    Shopware.Store.get('swProductDetail').setLoading([
                         'variants',
                         false,
                     ]);
@@ -522,11 +534,7 @@ export default {
             });
 
             if (foundVariantIndex >= 0) {
-                if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                    this.$delete(variant.price, foundVariantIndex);
-                } else {
-                    delete variant.price[foundVariantIndex];
-                }
+                delete variant.price[foundVariantIndex];
             }
 
             if (variant.price.length <= 0 || Object.keys(variant.price).length <= 0) {
@@ -562,11 +570,7 @@ export default {
             };
 
             // add new price currency to variant
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(variant.price, variant.price.length, newPrice);
-            } else {
-                variant.price.push(newPrice);
-            }
+            variant.price.push(newPrice);
         },
 
         onMediaInheritanceRestore(variant, isInlineEdit) {
@@ -637,9 +641,13 @@ export default {
                 .then(() => {
                     // create success notification
                     const titleSaveSuccess = this.$tc('global.default.success');
-                    const messageSaveSuccess = this.$tc('sw-product.detail.messageSaveSuccess', 0, {
-                        name: productName,
-                    });
+                    const messageSaveSuccess = this.$tc(
+                        'sw-product.detail.messageSaveSuccess',
+                        {
+                            name: productName,
+                        },
+                        0,
+                    );
 
                     this.createNotificationSuccess({
                         title: titleSaveSuccess,

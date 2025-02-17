@@ -8,7 +8,7 @@ interface ApiError {
     title: string;
     detail: string;
     meta: {
-        parameters: object;
+        parameters: Record<string, string>;
     };
     status: string;
     source?: {
@@ -45,7 +45,7 @@ export default class ErrorResolverSystemConfig {
     }
 
     public cleanWriteErrors() {
-        void Shopware.State.dispatch('error/resetApiErrors');
+        void Shopware.Store.get('error').resetApiErrors();
     }
 
     private reduceErrorsByWriteIndex(errors: ApiError[]) {
@@ -62,7 +62,6 @@ export default class ErrorResolverSystemConfig {
         errors.forEach((current) => {
             if (!current.source || !current.source.pointer) {
                 const systemError = new ShopwareError({
-                    // @ts-expect-error
                     code: current.code,
                     meta: current.meta,
                     detail: current.detail,
@@ -106,13 +105,13 @@ export default class ErrorResolverSystemConfig {
 
     private addSystemErrors(errors: ShopwareError[]) {
         errors.forEach((error) => {
-            void Shopware.State.dispatch('error/addSystemError', error);
+            void Shopware.Store.get('error').addSystemError({ error });
         });
     }
 
     private handleErrors(errors: { [key: string]: ShopwareError }) {
         Object.keys(errors).forEach((key: string) => {
-            void Shopware.State.dispatch('error/addApiError', {
+            void Shopware.Store.get('error').addApiError({
                 expression: this.getErrorPath(key),
                 error: errors[key],
             });

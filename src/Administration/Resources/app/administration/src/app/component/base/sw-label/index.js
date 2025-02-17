@@ -17,8 +17,6 @@ const { Component } = Shopware;
 Component.register('sw-label', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'selected',
         'dismiss',
@@ -132,10 +130,6 @@ Component.register('sw-label', {
             ];
         },
         showDismissable() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return !!this.$listeners.dismiss && this.dismissable;
-            }
-
             return !!this.$props.onDismiss && this.dismissable;
         },
     },

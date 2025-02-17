@@ -14,16 +14,18 @@ use Shopware\Core\System\User\UserEntity;
  */
 class TestCollectionWithToOneRelationship extends SerializationFixture
 {
+    private const USER_ID = '6f51622eb3814c75ae0263cece27ce72';
+    private const LOCALE_ID = '0195146acfbd71038508c63b798b23b2';
+    private const MEDIA_ID_1 = '3e352be2d85846dd97529c0f6b544870';
+    private const MEDIA_ID_2 = 'f1ad1d0c02454a40abf250f764d16248';
+
     /**
      * @return MediaCollection|MediaEntity
      */
     public function getInput(): EntityCollection|Entity
     {
-        $mediaCollection = new MediaCollection();
-        $userId = '6f51622eb3814c75ae0263cece27ce72';
-
         $user = new UserEntity();
-        $user->setId($userId);
+        $user->setId(self::USER_ID);
         $user->setFirstName('Manufacturer');
         $user->setLastName('');
         $user->setPassword('password');
@@ -33,11 +35,12 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
         $user->setEmail('user1@shop.de');
         $user->setCreatedAt(new \DateTime('2018-01-15T08:01:16.000+00:00'));
         $user->internalSetEntityData('user', new FieldVisibility([]));
+        $user->setLocaleId(self::LOCALE_ID);
 
         $media1 = new MediaEntity();
-        $media1->setId('3e352be2d85846dd97529c0f6b544870');
+        $media1->setId(self::MEDIA_ID_1);
         $media1->setUser($user);
-        $media1->setUserId($userId);
+        $media1->setUserId(self::USER_ID);
         $media1->setMimeType('image/jpg');
         $media1->setFileExtension('jpg');
         $media1->setFileSize(18921);
@@ -47,9 +50,9 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
         $media1->internalSetEntityData('media', new FieldVisibility([]));
 
         $media2 = new MediaEntity();
-        $media2->setId('f1ad1d0c02454a40abf250f764d16248');
+        $media2->setId(self::MEDIA_ID_2);
         $media2->setUser($user);
-        $media2->setUserId($userId);
+        $media2->setUserId(self::USER_ID);
         $media2->setMimeType('image/jpg');
         $media2->setFileExtension('jpg');
         $media2->setFileSize(155633);
@@ -58,10 +61,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
         $media2->setTitle('Jasmine-Lotus-Cover');
         $media2->internalSetEntityData('media', new FieldVisibility([]));
 
-        $mediaCollection->add($media1);
-        $mediaCollection->add($media2);
-
-        return $mediaCollection;
+        return new MediaCollection([$media1, $media2]);
     }
 
     /**
@@ -72,10 +72,10 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
         return [
             'data' => [
                 [
-                    'id' => '3e352be2d85846dd97529c0f6b544870',
+                    'id' => self::MEDIA_ID_1,
                     'type' => 'media',
                     'attributes' => [
-                        'userId' => '6f51622eb3814c75ae0263cece27ce72',
+                        'userId' => self::USER_ID,
                         'mediaFolderId' => null,
                         'mimeType' => 'image/jpg',
                         'fileExtension' => 'jpg',
@@ -95,139 +95,139 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                         'private' => false,
                     ],
                     'links' => [
-                        'self' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870', $baseUrl),
+                        'self' => \sprintf('%s/media/%s', $baseUrl, self::MEDIA_ID_1),
                     ],
                     'relationships' => [
                         'user' => [
                             'data' => [
                                 'type' => 'user',
-                                'id' => '6f51622eb3814c75ae0263cece27ce72',
+                                'id' => self::USER_ID,
                             ],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/user', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/user', $baseUrl, self::MEDIA_ID_1),
                             ],
                         ],
                         'categories' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/categories', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/categories', $baseUrl, self::MEDIA_ID_1),
                             ],
                         ],
                         'productManufacturers' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/product-manufacturers', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/product-manufacturers', $baseUrl, self::MEDIA_ID_1),
                             ],
                         ],
                         'productMedia' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/product-media', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/product-media', $baseUrl, self::MEDIA_ID_1),
                             ],
                         ],
                         'avatarUsers' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/avatar-users', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/avatar-users', $baseUrl, self::MEDIA_ID_1),
                             ],
                         ],
                         'translations' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/translations', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/translations', $baseUrl, self::MEDIA_ID_1),
                             ],
                         ],
                         'thumbnails' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/thumbnails', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/thumbnails', $baseUrl, self::MEDIA_ID_1),
                             ],
                         ],
                         'mediaFolder' => [
                             'data' => null,
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/media-folder', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/media-folder', $baseUrl, self::MEDIA_ID_1),
                             ],
                         ],
                         'propertyGroupOptions' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/property-group-options', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/property-group-options', $baseUrl, self::MEDIA_ID_1),
                             ],
                         ],
                         'tags' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/tags', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/tags', $baseUrl, self::MEDIA_ID_1),
                             ],
                         ],
                         'mailTemplateMedia' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/mail-template-media', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/mail-template-media', $baseUrl, self::MEDIA_ID_1),
                             ],
                         ],
                         'documentBaseConfigs' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/document-base-configs', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/document-base-configs', $baseUrl, self::MEDIA_ID_1),
                             ],
                         ],
                         'shippingMethods' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/shipping-methods', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/shipping-methods', $baseUrl, self::MEDIA_ID_1),
                             ],
                         ],
                         'paymentMethods' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/payment-methods', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/payment-methods', $baseUrl, self::MEDIA_ID_1),
                             ],
                         ],
                         'productConfiguratorSettings' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/product-configurator-settings', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/product-configurator-settings', $baseUrl, self::MEDIA_ID_1),
                             ],
                         ],
                         'orderLineItems' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/order-line-items', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/order-line-items', $baseUrl, self::MEDIA_ID_1),
                             ],
                         ],
                         'cmsBlocks' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/cms-blocks', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/cms-blocks', $baseUrl, self::MEDIA_ID_1),
                             ],
                         ],
                         'cmsSections' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/cms-sections', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/cms-sections', $baseUrl, self::MEDIA_ID_1),
                             ],
                         ],
                         'cmsPages' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/cms-pages', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/cms-pages', $baseUrl, self::MEDIA_ID_1),
                             ],
                         ],
                         'documents' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/documents', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/documents', $baseUrl, self::MEDIA_ID_1),
                             ],
                         ],
                     ],
                     'meta' => [],
                 ], [
-                    'id' => 'f1ad1d0c02454a40abf250f764d16248',
+                    'id' => self::MEDIA_ID_2,
                     'type' => 'media',
                     'attributes' => [
-                        'userId' => '6f51622eb3814c75ae0263cece27ce72',
+                        'userId' => self::USER_ID,
                         'mediaFolderId' => null,
                         'mimeType' => 'image/jpg',
                         'fileExtension' => 'jpg',
@@ -247,130 +247,130 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                         'private' => false,
                     ],
                     'links' => [
-                        'self' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248', $baseUrl),
+                        'self' => \sprintf('%s/media/%s', $baseUrl, self::MEDIA_ID_2),
                     ],
                     'relationships' => [
                         'user' => [
                             'data' => [
                                 'type' => 'user',
-                                'id' => '6f51622eb3814c75ae0263cece27ce72',
+                                'id' => self::USER_ID,
                             ],
                             'links' => [
-                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/user', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/user', $baseUrl, self::MEDIA_ID_2),
                             ],
                         ],
                         'categories' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/categories', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/categories', $baseUrl, self::MEDIA_ID_2),
                             ],
                         ],
                         'productManufacturers' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/product-manufacturers', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/product-manufacturers', $baseUrl, self::MEDIA_ID_2),
                             ],
                         ],
                         'productMedia' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/product-media', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/product-media', $baseUrl, self::MEDIA_ID_2),
                             ],
                         ],
                         'avatarUsers' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/avatar-users', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/avatar-users', $baseUrl, self::MEDIA_ID_2),
                             ],
                         ],
                         'translations' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/translations', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/translations', $baseUrl, self::MEDIA_ID_2),
                             ],
                         ],
                         'thumbnails' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/thumbnails', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/thumbnails', $baseUrl, self::MEDIA_ID_2),
                             ],
                         ],
                         'mediaFolder' => [
                             'data' => null,
                             'links' => [
-                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/media-folder', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/media-folder', $baseUrl, self::MEDIA_ID_2),
                             ],
                         ],
                         'propertyGroupOptions' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/property-group-options', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/property-group-options', $baseUrl, self::MEDIA_ID_2),
                             ],
                         ],
                         'tags' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/tags', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/tags', $baseUrl, self::MEDIA_ID_2),
                             ],
                         ],
                         'mailTemplateMedia' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/mail-template-media', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/mail-template-media', $baseUrl, self::MEDIA_ID_2),
                             ],
                         ],
                         'documentBaseConfigs' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/document-base-configs', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/document-base-configs', $baseUrl, self::MEDIA_ID_2),
                             ],
                         ],
                         'shippingMethods' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/shipping-methods', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/shipping-methods', $baseUrl, self::MEDIA_ID_2),
                             ],
                         ],
                         'paymentMethods' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/payment-methods', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/payment-methods', $baseUrl, self::MEDIA_ID_2),
                             ],
                         ],
                         'productConfiguratorSettings' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/product-configurator-settings', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/product-configurator-settings', $baseUrl, self::MEDIA_ID_2),
                             ],
                         ],
                         'orderLineItems' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/order-line-items', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/order-line-items', $baseUrl, self::MEDIA_ID_2),
                             ],
                         ],
                         'cmsBlocks' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/cms-blocks', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/cms-blocks', $baseUrl, self::MEDIA_ID_2),
                             ],
                         ],
                         'cmsSections' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/cms-sections', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/cms-sections', $baseUrl, self::MEDIA_ID_2),
                             ],
                         ],
                         'cmsPages' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/cms-pages', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/cms-pages', $baseUrl, self::MEDIA_ID_2),
                             ],
                         ],
                         'documents' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/documents', $baseUrl),
+                                'related' => \sprintf('%s/media/%s/documents', $baseUrl, self::MEDIA_ID_2),
                             ],
                         ],
                     ],
@@ -379,10 +379,10 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
             ],
             'included' => [
                 [
-                    'id' => '6f51622eb3814c75ae0263cece27ce72',
+                    'id' => self::USER_ID,
                     'type' => 'user',
                     'attributes' => [
-                        'localeId' => null,
+                        'localeId' => self::LOCALE_ID,
                         'avatarId' => null,
                         'username' => 'user1',
                         'firstName' => 'Manufacturer',
@@ -396,55 +396,55 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                         'title' => null,
                     ],
                     'links' => [
-                        'self' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72', $baseUrl),
+                        'self' => \sprintf('%s/user/%s', $baseUrl, self::USER_ID),
                     ],
                     'relationships' => [
                         'locale' => [
                             'data' => null,
                             'links' => [
-                                'related' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/locale', $baseUrl),
+                                'related' => \sprintf('%s/user/%s/locale', $baseUrl, self::USER_ID),
                             ],
                         ],
                         'avatarMedia' => [
                             'data' => null,
                             'links' => [
-                                'related' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/avatar-media', $baseUrl),
+                                'related' => \sprintf('%s/user/%s/avatar-media', $baseUrl, self::USER_ID),
                             ],
                         ],
                         'media' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/media', $baseUrl),
+                                'related' => \sprintf('%s/user/%s/media', $baseUrl, self::USER_ID),
                             ],
                         ],
                         'accessKeys' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/access-keys', $baseUrl),
+                                'related' => \sprintf('%s/user/%s/access-keys', $baseUrl, self::USER_ID),
                             ],
                         ],
                         'stateMachineHistoryEntries' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/state-machine-history-entries', $baseUrl),
+                                'related' => \sprintf('%s/user/%s/state-machine-history-entries', $baseUrl, self::USER_ID),
                             ],
                         ],
                         'importExportLogEntries' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/import-export-log-entries', $baseUrl),
+                                'related' => \sprintf('%s/user/%s/import-export-log-entries', $baseUrl, self::USER_ID),
                             ],
                         ],
                         'recoveryUser' => [
                             'data' => null,
                             'links' => [
-                                'related' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/recovery-user', $baseUrl),
+                                'related' => \sprintf('%s/user/%s/recovery-user', $baseUrl, self::USER_ID),
                             ],
                         ],
                         'aclRoles' => [
                             'data' => [],
                             'links' => [
-                                'related' => \sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72/acl-roles', $baseUrl),
+                                'related' => \sprintf('%s/user/%s/acl-roles', $baseUrl, self::USER_ID),
                             ],
                         ],
                     ],
@@ -461,8 +461,8 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
     {
         return [
             [
-                'id' => '3e352be2d85846dd97529c0f6b544870',
-                'userId' => '6f51622eb3814c75ae0263cece27ce72',
+                'id' => self::MEDIA_ID_1,
+                'userId' => self::USER_ID,
                 'mimeType' => 'image/jpg',
                 'fileExtension' => 'jpg',
                 'fileSize' => 18921,
@@ -474,8 +474,8 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                 'url' => '',
                 'fileName' => null,
                 'user' => [
-                    'id' => '6f51622eb3814c75ae0263cece27ce72',
-                    'localeId' => null,
+                    'id' => self::USER_ID,
+                    'localeId' => self::LOCALE_ID,
                     'avatarId' => null,
                     'username' => 'user1',
                     'firstName' => 'Manufacturer',
@@ -490,7 +490,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                     'importExportLogEntries' => null,
                     'recoveryUser' => null,
                     'customFields' => null,
-                    '_uniqueIdentifier' => '6f51622eb3814c75ae0263cece27ce72',
+                    '_uniqueIdentifier' => self::USER_ID,
                     'versionId' => null,
                     'translated' => [],
                     'createdAt' => '2018-01-15T08:01:16.000+00:00',
@@ -524,7 +524,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                 'cmsSections' => null,
                 'cmsPages' => null,
                 'documents' => null,
-                '_uniqueIdentifier' => '3e352be2d85846dd97529c0f6b544870',
+                '_uniqueIdentifier' => self::MEDIA_ID_1,
                 'versionId' => null,
                 'translated' => [],
                 'createdAt' => '2012-08-15T00:00:00.000+00:00',
@@ -532,8 +532,8 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                 'extensions' => [],
                 'apiAlias' => 'media',
             ], [
-                'id' => 'f1ad1d0c02454a40abf250f764d16248',
-                'userId' => '6f51622eb3814c75ae0263cece27ce72',
+                'id' => self::MEDIA_ID_2,
+                'userId' => self::USER_ID,
                 'mimeType' => 'image/jpg',
                 'fileExtension' => 'jpg',
                 'fileSize' => 155633,
@@ -545,8 +545,8 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                 'url' => '',
                 'fileName' => null,
                 'user' => [
-                    'id' => '6f51622eb3814c75ae0263cece27ce72',
-                    'localeId' => null,
+                    'id' => self::USER_ID,
+                    'localeId' => self::LOCALE_ID,
                     'avatarId' => null,
                     'username' => 'user1',
                     'firstName' => 'Manufacturer',
@@ -561,7 +561,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                     'importExportLogEntries' => null,
                     'recoveryUser' => null,
                     'customFields' => null,
-                    '_uniqueIdentifier' => '6f51622eb3814c75ae0263cece27ce72',
+                    '_uniqueIdentifier' => self::USER_ID,
                     'versionId' => null,
                     'translated' => [],
                     'createdAt' => '2018-01-15T08:01:16.000+00:00',
@@ -595,7 +595,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                 'cmsSections' => null,
                 'cmsPages' => null,
                 'documents' => null,
-                '_uniqueIdentifier' => 'f1ad1d0c02454a40abf250f764d16248',
+                '_uniqueIdentifier' => self::MEDIA_ID_2,
                 'versionId' => null,
                 'translated' => [],
                 'createdAt' => '2012-08-17T00:00:00.000+00:00',

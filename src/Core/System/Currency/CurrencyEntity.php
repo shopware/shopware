@@ -43,7 +43,7 @@ class CurrencyEntity extends Entity
 
     protected ?SalesChannelDomainCollection $salesChannelDomains = null;
 
-    protected PromotionDiscountPriceCollection $promotionDiscountPrices;
+    protected ?PromotionDiscountPriceCollection $promotionDiscountPrices = null;
 
     protected ?bool $isSystemDefault = null;
 

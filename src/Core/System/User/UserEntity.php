@@ -47,7 +47,7 @@ class UserEntity extends Entity
 
     protected bool $admin;
 
-    protected AclRoleCollection $aclRoles;
+    protected ?AclRoleCollection $aclRoles = null;
 
     protected ?LocaleEntity $locale = null;
 
@@ -278,7 +278,7 @@ class UserEntity extends Entity
         $this->admin = $admin;
     }
 
-    public function getAclRoles(): AclRoleCollection
+    public function getAclRoles(): ?AclRoleCollection
     {
         return $this->aclRoles;
     }

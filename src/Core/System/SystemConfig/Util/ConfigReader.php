@@ -12,9 +12,6 @@ class ConfigReader extends XmlReader
 {
     private const FALLBACK_LOCALE = 'en-GB';
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected string $xsdFile = __DIR__ . '/../Schema/config.xsd';
 
     /**

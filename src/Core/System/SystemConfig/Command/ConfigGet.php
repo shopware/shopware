@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\SystemConfig\Command;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -23,17 +22,12 @@ class ConfigGet extends Command
     private const FORMAT_SCALAR = 'scalar';
     private const FORMAT_JSON = 'json';
     private const FORMAT_JSON_PRETTY = 'json-pretty';
-    /**
-     * @deprecated tag:v6.7.0 - the legacy format will be removed, new default will be `self::FORMAT_DEFAULT`
-     */
-    private const FORMAT_LEGACY = 'legacy';
 
     private const ALLOWED_FORMATS = [
         self::FORMAT_DEFAULT,
         self::FORMAT_SCALAR,
         self::FORMAT_JSON,
         self::FORMAT_JSON_PRETTY,
-        self::FORMAT_LEGACY,
     ];
 
     /**
@@ -49,7 +43,7 @@ class ConfigGet extends Command
         $this
             ->addArgument('key', InputArgument::REQUIRED)
             ->addOption('salesChannelId', 's', InputOption::VALUE_OPTIONAL)
-            ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'Supported formats: ' . implode(', ', self::ALLOWED_FORMATS), Feature::isActive('v6.7.0.0') ? self::FORMAT_DEFAULT : self::FORMAT_LEGACY)
+            ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'Supported formats: ' . implode(', ', self::ALLOWED_FORMATS), self::FORMAT_DEFAULT)
         ;
     }
 
@@ -65,14 +59,6 @@ class ConfigGet extends Command
             $configKey,
             $input->getOption('salesChannelId')
         );
-
-        if ($format === self::FORMAT_LEGACY) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The legacy format will be removed');
-
-            $this->writeConfigLegacy($output, $value);
-
-            return self::SUCCESS;
-        }
 
         if ($format === self::FORMAT_SCALAR) {
             if (\is_array($value)) {
@@ -105,20 +91,6 @@ class ConfigGet extends Command
     private function writeConfigScalar(OutputInterface $output, string $config): void
     {
         $output->writeln($config);
-    }
-
-    /**
-     * @param array|bool|float|int|string|null $config
-     */
-    private function writeConfigLegacy(OutputInterface $output, $config): void
-    {
-        if (\is_array($config)) {
-            ksort($config);
-
-            $output->writeln($config);
-        } else {
-            $output->writeln((string) $config);
-        }
     }
 
     private function writeConfigJson(OutputInterface $output, array $config, int $flags): void

@@ -12,33 +12,16 @@ class SystemConfigEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $configurationKey;
+    protected string $configurationKey;
 
     /**
      * @var array|bool|float|int|string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $configurationValue;
+    protected mixed $configurationValue;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannelId;
+    protected ?string $salesChannelId = null;
 
-    /**
-     * @var SalesChannelEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
     public function getConfigurationKey(): string
     {

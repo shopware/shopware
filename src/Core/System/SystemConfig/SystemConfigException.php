@@ -2,10 +2,8 @@
 
 namespace Shopware\Core\System\SystemConfig;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -39,15 +37,8 @@ class SystemConfigException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function configurationNotFound(string $scope): self|ConfigurationNotFoundException
+    public static function configurationNotFound(string $scope): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new ConfigurationNotFoundException($scope);
-        }
-
         return new self(
             Response::HTTP_NOT_FOUND,
             self::CONFIG_NOT_FOUND,

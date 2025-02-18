@@ -6,7 +6,6 @@ author_github: @BrocksiNet
 ---
 # Storefront
 * Changed dependency `@swc/core` from `1.3.101` to `1.10.14`
-* Changed dependency `bootstrap` from `5.3.2` to `5.3.3`
 * Changed dependency `copy-webpack-plugin` from `11.0.0` to `12.0.2` (major upgrade)
 * Changed dependency `core-js` from `3.35.0` to `3.40.0`
 * Changed dependency `css-loader` from `6.8.1` to `7.1.2` (major upgrade)

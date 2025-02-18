@@ -15,63 +15,24 @@ class MediaFolderConfigurationEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var MediaFolderCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $mediaFolders;
+    protected MediaFolderCollection $mediaFolders;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $createThumbnails;
+    protected bool $createThumbnails;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $keepAspectRatio;
+    protected bool $keepAspectRatio;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $thumbnailQuality;
+    protected int $thumbnailQuality;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $private;
+    protected bool $private;
 
-    /**
-     * @var bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $noAssociation;
+    protected ?bool $noAssociation = null;
 
-    /**
-     * @var MediaThumbnailSizeCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $mediaThumbnailSizes;
+    protected ?MediaThumbnailSizeCollection $mediaThumbnailSizes = null;
 
     /**
      * @internal
-     *
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $mediaThumbnailSizesRo;
+    protected ?string $mediaThumbnailSizesRo = null;
 
     public function getMediaFolders(): ?MediaFolderCollection
     {

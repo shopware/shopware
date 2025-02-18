@@ -21,7 +21,6 @@ use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
-use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
@@ -91,9 +90,6 @@ class InvoiceRendererTest extends TestCase
 
         $orderRepositoryMock = $this->createMock(EntityRepository::class);
         $orderRepositoryMock->method('search')->willReturn($orderSearchResult);
-
-        $documentTemplateRenderer = $this->createMock(DocumentTemplateRenderer::class);
-        $documentTemplateRenderer->method('render')->willReturn('HTML');
 
         $invoiceRenderer = new InvoiceRenderer(
             $orderRepositoryMock,
@@ -180,9 +176,6 @@ class InvoiceRendererTest extends TestCase
             return $orderSearchResult;
         });
 
-        $documentTemplateRenderer = $this->createMock(DocumentTemplateRenderer::class);
-        $documentTemplateRenderer->method('render')->willReturn('HTML');
-
         $invoiceRenderer = new InvoiceRenderer(
             $orderRepositoryMock,
             new DocumentConfigLoader($this->createMock(EntityRepository::class), $this->createMock(EntityRepository::class)),
@@ -232,9 +225,6 @@ class InvoiceRendererTest extends TestCase
 
         $orderRepositoryMock = $this->createMock(EntityRepository::class);
         $orderRepositoryMock->method('search')->willReturn($orderSearchResult);
-
-        $documentTemplateRenderer = $this->createMock(DocumentTemplateRenderer::class);
-        $documentTemplateRenderer->expects(static::never())->method('render');
 
         $documentConfigLoaderMock = new DocumentConfigLoader($this->createMock(EntityRepository::class), $this->createMock(EntityRepository::class));
 

@@ -44,7 +44,6 @@ async function createWrapper() {
                 'sw-bulk-edit-save-modal-confirm': await wrapTestComponent('sw-bulk-edit-save-modal-confirm'),
                 'sw-loader': true,
                 'sw-switch-field': true,
-                'sw-alert': true,
                 'router-link': true,
             },
             mocks: {

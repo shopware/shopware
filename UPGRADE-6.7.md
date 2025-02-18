@@ -2562,4 +2562,9 @@ The fine-grained caching mechanism for system-config, snippets and theme config 
 * `shopware.cache.tagging.each_snippet`
 * `shopware.cache.tagging.each_theme_config`
 
+## `SQL_SET_DEFAULT_SESSION_VARIABLE` has no effect anymore
+
+Removed `SQL_SET_DEFAULT_SESSION_VARIABLES` env variable. It has no effect anymore. 
+The previously optional performance tweaks to MySQL are now enforced on connection buildup inside the `\Shopware\Core\Framework\Adapter\Database\MySQLFactory`.
+
 </details>

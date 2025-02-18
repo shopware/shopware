@@ -505,7 +505,7 @@ function messageQueueNotification(
                 delete foreground.uuid;
                 delete foreground.isLoading;
                 foreground.growl = true;
-                foreground.variant = 'success';
+                foreground.variant = 'positive';
                 void notification.create(foreground);
 
                 ids[key] = {

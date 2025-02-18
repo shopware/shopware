@@ -139,7 +139,7 @@ async function createWrapper() {
                     },
                 },
                 'sw-bulk-edit-modal': true,
-                'sw-alert': true,
+
                 'sw-data-grid-inline-edit': true,
                 'sw-data-grid-column-boolean': true,
                 'sw-select-field': true,

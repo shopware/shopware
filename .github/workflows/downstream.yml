@@ -1,7 +1,7 @@
 name: Downstream
 
 on:
-  pull_request_target:
+  pull_request:
   merge_group:
   workflow_dispatch:
     inputs:
@@ -21,7 +21,7 @@ jobs:
   rufus:
     name: Rufus
     runs-on: ubuntu-24.04
-    if: ${{ !github.event.pull_request && github.event_name != 'merge_group'}}
+    if: ${{ startsWith(github.repository, 'shopware/') && !github.event.pull_request && github.event_name != 'merge_group'}}
     steps:
       - name: Rufus
         uses: shopware/github-actions/downstream@main
@@ -38,6 +38,7 @@ jobs:
   commercial:
     name: Commercial
     runs-on: ubuntu-24.04
+    if: startsWith(github.repository, 'shopware/')
     steps:
       - name: Commercial
         uses: shopware/github-actions/downstream@main

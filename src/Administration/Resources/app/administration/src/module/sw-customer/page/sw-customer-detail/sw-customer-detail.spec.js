@@ -38,9 +38,6 @@ async function createWrapper(privileges = [], editMode = false) {
                     },
                     'sw-tabs-item': true,
                     'router-view': true,
-                    'sw-alert': {
-                        template: '<div><slot></slot></div>',
-                    },
                     'sw-customer-card': {
                         template: '<div></div>',
                     },

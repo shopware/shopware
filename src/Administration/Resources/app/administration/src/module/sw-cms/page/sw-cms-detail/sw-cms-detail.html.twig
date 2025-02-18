@@ -145,12 +145,12 @@
                         v-if="page.locked"
                         class="sw-cms-detail__page-notification"
                     >
-                        <sw-alert
+                        <mt-banner
                             class="sw-cms-detail__page-notification-alert"
                             variant="info"
                         >
                             {{ $tc('sw-cms.detail.label.lockedNotification') }}
-                        </sw-alert>
+                        </mt-banner>
                     </div>
                     {% endblock %}
 
@@ -173,9 +173,9 @@
                         v-if="hasPageErrors"
                         class="sw-cms-detail__page-notification"
                     >
-                        <sw-alert
+                        <mt-banner
                             class="sw-cms-detail__page-notification-alert is--error"
-                            variant="error"
+                            variant="critical"
                         >
                             {{ $tc('sw-cms.detail.notification.errorCollectionText') }}
                             <li
@@ -184,7 +184,7 @@
                             >
                                 {{ error.detail }}
                             </li>
-                        </sw-alert>
+                        </mt-banner>
                     </div>
                     {% endblock %}
 
@@ -193,9 +193,9 @@
                         v-if="validationWarnings.length > 0"
                         class="sw-cms-detail__page-notification"
                     >
-                        <sw-alert
+                        <mt-banner
                             class="sw-cms-detail__page-notification-alert is--warning"
-                            variant="warning"
+                            variant="attention"
                         >
                             {{ $tc('sw-cms.detail.notification.warningCollectionText') }}
                             <li
@@ -204,7 +204,7 @@
                             >
                                 {{ warning }}
                             </li>
-                        </sw-alert>
+                        </mt-banner>
                     </div>
                     {% endblock %}
 
@@ -213,12 +213,12 @@
                         v-if="page.locked"
                         class="sw-cms-detail__page-notification is--info"
                     >
-                        <sw-alert
+                        <mt-banner
                             class="sw-cms-detail__page-notification-alert"
                             variant="info"
                         >
                             {{ $tc('sw-cms.detail.label.lockedNotification') }}
-                        </sw-alert>
+                        </mt-banner>
                     </div>
                     {% endblock %}
                     {% endblock %}

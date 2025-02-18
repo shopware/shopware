@@ -11,26 +11,11 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('framework')]
 class SalesChannelContextTokenChangeEvent extends Event implements ShopwareSalesChannelEvent
 {
-    /**
-     * @var SalesChannelContext
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannelContext;
+    protected SalesChannelContext $salesChannelContext;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $previousToken;
+    protected string $previousToken;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currentToken;
+    protected string $currentToken;
 
     public function __construct(
         SalesChannelContext $salesChannelContext,

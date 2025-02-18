@@ -306,12 +306,12 @@
                 class="sw-mail-template-detail__test-mail-sidebar"
             >
                 <div class="sw-mail-template-detail__test-mail-sidebar-container">
-                    <sw-alert
+                    <mt-banner
                         v-if="showLanguageNotAssignedToSalesChannelWarning"
-                        variant="warning"
+                        variant="attention"
                     >
                         {{ $tc('sw-mail-template.detail.sidebar.languageNotAssignedToSalesChannel') }}
-                    </sw-alert>
+                    </mt-banner>
 
                     {% block sw_mail_template_mail_text_form_test_mail_field %}
                     <sw-text-field

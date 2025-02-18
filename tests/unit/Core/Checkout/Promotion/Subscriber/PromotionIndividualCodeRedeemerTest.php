@@ -160,8 +160,11 @@ class PromotionIndividualCodeRedeemerTest extends TestCase
 
     public function testPayloadWithoutTypeIsSkipped(): void
     {
+        /** @var StaticEntityRepository<PromotionIndividualCodeCollection> $codeRepository */
+        $codeRepository = new StaticEntityRepository([]);
+
         $redeemer = new PromotionIndividualCodeRedeemer(
-            $this->createMock(EntityRepository::class),
+            $codeRepository,
             $this->createMock(EntityRepository::class)
         );
 
@@ -195,5 +198,7 @@ class PromotionIndividualCodeRedeemerTest extends TestCase
         );
 
         $redeemer->onOrderLineItemWritten($event);
+
+        static::assertEmpty($codeRepository->updates);
     }
 }

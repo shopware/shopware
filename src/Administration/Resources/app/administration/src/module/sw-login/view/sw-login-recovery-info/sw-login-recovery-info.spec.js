@@ -68,6 +68,6 @@ describe('module/sw-login/recovery-info.spec.js', () => {
         const alerts = wrapper.findAll('.sw-alert');
 
         expect(alerts).toHaveLength(1);
-        expect(alerts.at(0).text()).toBe('["global.error-codes.FRAMEWORK__RATE_LIMIT_EXCEEDED",0,{"seconds":1}]');
+        expect(alerts.at(0).text()).toBe('["global.error-codes.FRAMEWORK__RATE_LIMIT_EXCEEDED",{"seconds":1},0]');
     });
 });

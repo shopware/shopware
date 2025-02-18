@@ -19,6 +19,8 @@ use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
+use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -62,8 +64,6 @@ class CreditNoteRendererTest extends TestCase
 
     protected function setUp(): void
     {
-        static::markTestSkipped('#6556');
-
         parent::setUp();
 
         $this->context = Context::createDefaultContext();
@@ -120,6 +120,7 @@ class CreditNoteRendererTest extends TestCase
             'itemsPerPage' => 10,
             'displayFooter' => true,
             'displayHeader' => true,
+            'fileTypes' => [HtmlRenderer::FILE_EXTENSION, PdfRenderer::FILE_EXTENSION],
         ];
 
         if (!empty($additionalConfig)) {
@@ -128,7 +129,7 @@ class CreditNoteRendererTest extends TestCase
 
         $operation = new DocumentGenerateOperation(
             $orderId,
-            FileTypes::PDF,
+            HtmlRenderer::FILE_EXTENSION,
             $config,
             $invoiceId
         );
@@ -159,8 +160,8 @@ class CreditNoteRendererTest extends TestCase
             static::assertNotEmpty($processedTemplate->getSuccess());
             static::assertArrayHasKey($orderId, $processedTemplate->getSuccess());
             $rendered = $processedTemplate->getSuccess()[$orderId];
-            static::assertStringContainsString('<html lang="en-GB">', $rendered->getHtml());
-            static::assertStringContainsString('</html>', $rendered->getHtml());
+            static::assertStringContainsString('<html lang="en-GB">', $rendered->getContent());
+            static::assertStringContainsString('</html>', $rendered->getContent());
 
             if ($successCallback) {
                 $successCallback($rendered);
@@ -201,19 +202,19 @@ class CreditNoteRendererTest extends TestCase
             [-100, -200, -300],
             function (RenderedDocument $rendered): void {
                 foreach ([-100, -200, -300] as $price) {
-                    static::assertStringContainsString('credit' . $price, $rendered->getHtml());
+                    static::assertStringContainsString('credit' . $price, $rendered->getContent());
                 }
 
                 foreach ([7, 19, 22] as $possibleTax) {
                     static::assertStringContainsString(
                         \sprintf('plus %d%% VAT', $possibleTax),
-                        $rendered->getHtml()
+                        $rendered->getContent()
                     );
                 }
 
                 static::assertStringContainsString(
                     \sprintf('€%s', number_format((float) -array_sum([-100, -200, -300]), 2)),
-                    $rendered->getHtml()
+                    $rendered->getContent()
                 );
             },
             null,
@@ -281,7 +282,7 @@ class CreditNoteRendererTest extends TestCase
             [7, 19],
             [-100, -200],
             function (RenderedDocument $rendered): void {
-                $rendered = $rendered->getHtml();
+                $rendered = $rendered->getContent();
 
                 static::assertStringContainsString('Credit note 1000 for Invoice no. 1001', $rendered);
             },

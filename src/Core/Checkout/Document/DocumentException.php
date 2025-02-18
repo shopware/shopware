@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Document;
 
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -79,9 +78,9 @@ class DocumentException extends HttpException
         );
     }
 
-    public static function customerNotLoggedIn(): CustomerNotLoggedInException
+    public static function customerNotLoggedIn(): self
     {
-        return new CustomerNotLoggedInException(
+        return new self(
             Response::HTTP_FORBIDDEN,
             CartException::CUSTOMER_NOT_LOGGED_IN_CODE,
             'Customer is not logged in.'

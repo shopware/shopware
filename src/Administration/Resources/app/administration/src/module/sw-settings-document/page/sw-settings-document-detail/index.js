@@ -188,15 +188,6 @@ export default {
                     },
                 },
                 {
-                    name: 'companyAddress',
-                    type: 'text',
-                    config: {
-                        type: 'text',
-                        label: this.$tc('sw-settings-document.detail.labelCompanyAddress'),
-                        helpText: this.$tc('sw-settings-document.detail.helpTextCompanyAddress'),
-                    },
-                },
-                {
                     name: 'companyStreet',
                     type: 'text',
                     config: {
@@ -407,17 +398,6 @@ export default {
                 message: 'ESC',
                 appearance: 'light',
             };
-        },
-
-        /* @deprecated: tag:v6.7.0 - Will be removed without replacement */
-        showCountriesSelect() {
-            if (!this.isShowDisplayNoteDelivery) {
-                return false;
-            }
-
-            const documentConfig = cloneDeep(this.documentConfig);
-
-            return documentConfig.config?.displayAdditionalNoteDelivery;
         },
 
         documentBaseConfig() {

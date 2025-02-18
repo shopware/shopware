@@ -12,13 +12,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityNotExists;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LocaleDefinition;
 use Symfony\Component\Validator\Constraints\All;
-use Symfony\Component\Validator\Exception\InvalidOptionsException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Validator\ValidatorBuilder;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -63,11 +61,7 @@ class EntityNotExistsValidatorTest extends TestCase
 
     public function testPrimaryPropertyIsNotString(): void
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            static::expectException(InvalidOptionsException::class);
-        } else {
-            static::expectException(FrameworkException::class);
-        }
+        static::expectException(FrameworkException::class);
 
         $context = Context::createDefaultContext();
         /* @phpstan-ignore-next-line wrong type for testing */

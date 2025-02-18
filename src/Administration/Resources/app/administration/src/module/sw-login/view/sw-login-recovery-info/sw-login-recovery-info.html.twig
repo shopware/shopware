@@ -27,7 +27,7 @@
     </template>
     <template v-else>
         <sw-alert variant="info">
-            {{ $tc('global.error-codes.FRAMEWORK__RATE_LIMIT_EXCEEDED', 0, { seconds: rateLimitTime }) }}
+            {{ $tc('global.error-codes.FRAMEWORK__RATE_LIMIT_EXCEEDED', { seconds: rateLimitTime }, 0) }}
         </sw-alert>
     </template>
     {% endblock %}

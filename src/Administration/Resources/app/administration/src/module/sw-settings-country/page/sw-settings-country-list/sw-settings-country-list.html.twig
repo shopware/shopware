@@ -153,7 +153,7 @@
                             >
                                 {% block sw_settings_country_list_delete_modal_confirm_delete_text %}
                                 <p class="sw-settings-country-list__confirm-delete-text">
-                                    {{ $tc('sw-settings-country.list.textDeleteConfirm', 0, { name: item.name }) }}
+                                    {{ $tc('sw-settings-country.list.textDeleteConfirm', { name: item.name }, 0) }}
                                 </p>
                                 {% endblock %}
 

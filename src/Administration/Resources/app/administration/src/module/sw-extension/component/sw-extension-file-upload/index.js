@@ -118,7 +118,7 @@ export default {
         },
 
         showStoreError(error) {
-            const docLink = this.$tc('sw-extension.errors.messageToTheShopwareDocumentation', 0, error.parameters);
+            const docLink = this.$tc('sw-extension.errors.messageToTheShopwareDocumentation', error.parameters, 0);
             this.createNotificationError({
                 message: `${error.message} ${docLink}`,
                 autoClose: false,

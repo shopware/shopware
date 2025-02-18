@@ -302,6 +302,12 @@
       "confirmButton": "Leave page",
       "cancelButton": "Stay on page"
     },
+    "saveChangesBeforehandModal": {
+      "headline": "Warning",
+      "statusDescription": "Before changing the status, your changes need to be saved. Do you want to save the changes now?",
+      "confirmButton": "Save changes",
+      "cancelButton": "Cancel"
+    },
     "stateCard": {
       "cardTitle": "Status",
       "headlineOrderState": "Order status",

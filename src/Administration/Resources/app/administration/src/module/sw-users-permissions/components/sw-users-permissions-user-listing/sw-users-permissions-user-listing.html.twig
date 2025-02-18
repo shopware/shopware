@@ -136,7 +136,7 @@
             >
                 {% block sw_settings_user_list_delete_modal_confirm_delete_text %}
                 <p class="sw-settings-user-list__confirm-delete-text">
-                    {{ $tc('sw-users-permissions.users.user-grid.textModalDelete', 0, { name: salutation(item) }) }}
+                    {{ $tc('sw-users-permissions.users.user-grid.textModalDelete', { name: salutation(item) }, 0) }}
                 </p>
                 {% endblock %}
 

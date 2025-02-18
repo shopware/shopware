@@ -493,8 +493,11 @@ class AddressControllerTest extends TestCase
     {
         $addressId = Uuid::randomHex();
 
-        $dataBag = new RequestDataBag();
-        $dataBag->set('id', $addressId);
+        $dataBag = new RequestDataBag([
+            'address' => [
+                'id' => $addressId,
+            ],
+        ]);
 
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
@@ -529,8 +532,11 @@ class AddressControllerTest extends TestCase
     {
         $addressId = Uuid::randomHex();
 
-        $dataBag = new RequestDataBag();
-        $dataBag->set('id', $addressId);
+        $dataBag = new RequestDataBag([
+            'address' => [
+                'id' => $addressId,
+            ],
+        ]);
 
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
@@ -565,8 +571,11 @@ class AddressControllerTest extends TestCase
     {
         $addressId = Uuid::randomHex();
 
-        $dataBag = new RequestDataBag();
-        $dataBag->set('id', $addressId);
+        $dataBag = new RequestDataBag([
+            'address' => [
+                'id' => $addressId,
+            ],
+        ]);
 
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
@@ -601,8 +610,11 @@ class AddressControllerTest extends TestCase
     {
         $addressId = Uuid::randomHex();
 
-        $dataBag = new RequestDataBag();
-        $dataBag->set('id', $addressId);
+        $dataBag = new RequestDataBag([
+            'address' => [
+                'id' => $addressId,
+            ],
+        ]);
 
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());

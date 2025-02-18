@@ -20,11 +20,6 @@ class SalesChannelExtension extends EntityExtension
         );
     }
 
-    public function getDefinitionClass(): string
-    {
-        return SalesChannelDefinition::class;
-    }
-
     public function getEntityName(): string
     {
         return SalesChannelDefinition::ENTITY_NAME;

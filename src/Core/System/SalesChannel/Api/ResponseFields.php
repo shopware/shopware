@@ -10,10 +10,8 @@ class ResponseFields
 {
     /**
      * @var array<mixed>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $includes;
+    protected ?array $includes = null;
 
     /**
      * @param array<mixed>|null $includes

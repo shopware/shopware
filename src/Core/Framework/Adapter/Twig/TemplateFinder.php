@@ -109,7 +109,7 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
 
     public function reset(): void
     {
-        $this->namespaceHierarchy = [];
+        $this->namespaceHierarchy = null;
     }
 
     private function getSourceBundleName(string $source): ?string

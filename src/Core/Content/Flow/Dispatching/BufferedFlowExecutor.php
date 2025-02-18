@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal not intended for decoration or replacement
  *
+ * @phpstan-import-type TFlows from AbstractFlowLoader
+ * @phpstan-import-type EventGroupedTFlows from AbstractFlowLoader
+ *
  * @experimental stableVersion:v6.8.0 feature:FLOW_EXECUTION_AFTER_BUSINESS_PROCESS
  */
 #[Package('after-sales')]
@@ -38,13 +41,13 @@ class BufferedFlowExecutor
 
             foreach ($bufferedFlows as $bufferedFlow) {
                 $storableFlow = $this->flowFactory->create($bufferedFlow);
-                $flows = $this->getFlowsForEvent($storableFlow->getName(), $flows);
+                $eventFlows = $this->getFlowsForEvent($storableFlow->getName(), $flows);
 
-                if (empty($flows)) {
+                if (empty($eventFlows)) {
                     continue;
                 }
 
-                $this->flowExecutor->executeFlows($flows, $storableFlow);
+                $this->flowExecutor->executeFlows($eventFlows, $storableFlow);
             }
 
             ++$flowExecutionDepth;
@@ -64,15 +67,15 @@ class BufferedFlowExecutor
     }
 
     /**
-     * @param array<string, array<array{id: string, name: string, payload: array<mixed>}>> $flowList
+     * @param EventGroupedTFlows $flows
      *
-     * @return array<int, array{id: string, name: string, payload: array<mixed>}>
+     * @return TFlows
      */
-    private function getFlowsForEvent(string $eventName, array $flowList): array
+    private function getFlowsForEvent(string $eventName, array $flows): array
     {
         $result = [];
-        if (\array_key_exists($eventName, $flowList)) {
-            $result = $flowList[$eventName];
+        if (\array_key_exists($eventName, $flows)) {
+            $result[] = $flows[$eventName];
         }
 
         return $result;

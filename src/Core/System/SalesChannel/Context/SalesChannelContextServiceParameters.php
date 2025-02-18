@@ -9,47 +9,17 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('framework')]
 class SalesChannelContextServiceParameters extends Struct
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannelId;
+    protected string $salesChannelId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $token;
+    protected string $token;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $languageId;
+    protected ?string $languageId = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currencyId;
+    protected ?string $currencyId = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $domainId;
+    protected ?string $domainId = null;
 
-    /**
-     * @var Context|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $originalContext;
+    protected ?Context $originalContext = null;
 
     public function __construct(
         string $salesChannelId,

@@ -1,9 +1,6 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 import { satisfies } from 'compare-versions';
 
-// Annotate entire file as serial run.
-test.describe.configure({ mode: 'serial' });
-
 test(
     'As a customer, I expect to see and use a basic captcha function on the contact form.',
     { tag: '@form @contact' },
@@ -45,9 +42,10 @@ test(
             const contactFormResponse = await contactFormPromise;
             expect(contactFormResponse.ok()).toBeTruthy();
 
-            if (satisfies(InstanceMeta.version, '<6.7')) {
-                await ShopCustomer.expects(StorefrontContactForm.basicCaptchaInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
-            } else {
+            await ShopCustomer.expects(StorefrontContactForm.basicCaptchaInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
+
+            // eslint-disable-next-line playwright/no-conditional-in-test
+            if (InstanceMeta.features['ACCESSIBILITY_TWEAKS']) {
                 await ShopCustomer.expects(StorefrontContactForm.formAlert).toBeVisible();
                 await ShopCustomer.expects(StorefrontContactForm.formAlert).toContainText('Incorrect input. Please try again.');
             }

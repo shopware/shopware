@@ -42,277 +42,92 @@ class MediaEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $userId;
+    protected ?string $userId = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $mimeType;
+    protected ?string $mimeType = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $fileExtension;
+    protected ?string $fileExtension = null;
 
-    /**
-     * @var int|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $fileSize;
+    protected ?int $fileSize = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $title;
+    protected ?string $title = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $metaDataRaw;
+    protected ?string $metaDataRaw = null;
 
     /**
      * @internal
-     *
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $mediaTypeRaw;
+    protected ?string $mediaTypeRaw = null;
 
     /**
      * @var array<string, mixed>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $metaData;
+    protected ?array $metaData = null;
 
-    /**
-     * @var MediaType|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $mediaType;
+    protected ?MediaType $mediaType = null;
 
-    /**
-     * @var \DateTimeInterface|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $uploadedAt;
+    protected ?\DateTimeInterface $uploadedAt = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $alt;
+    protected ?string $alt = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $url = '';
+    protected string $url = '';
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $fileName;
+    protected ?string $fileName = null;
 
-    /**
-     * @var UserEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $user;
+    protected ?UserEntity $user = null;
 
-    /**
-     * @var MediaTranslationCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translations;
+    protected ?MediaTranslationCollection $translations = null;
 
-    /**
-     * @var CategoryCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $categories;
+    protected ?CategoryCollection $categories = null;
 
-    /**
-     * @var ProductManufacturerCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productManufacturers;
+    protected ?ProductManufacturerCollection $productManufacturers = null;
 
-    /**
-     * @var ProductMediaCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productMedia;
+    protected ?ProductMediaCollection $productMedia = null;
 
-    /**
-     * @var UserCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $avatarUsers;
+    protected ?UserCollection $avatarUsers = null;
 
-    /**
-     * @var MediaThumbnailCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $thumbnails;
+    protected ?MediaThumbnailCollection $thumbnails = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $mediaFolderId;
+    protected ?string $mediaFolderId = null;
 
-    /**
-     * @var MediaFolderEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $mediaFolder;
+    protected ?MediaFolderEntity $mediaFolder = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $hasFile = false;
+    protected bool $hasFile = false;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $private = false;
+    protected bool $private = false;
 
-    /**
-     * @var PropertyGroupOptionCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $propertyGroupOptions;
+    protected ?PropertyGroupOptionCollection $propertyGroupOptions = null;
 
-    /**
-     * @var MailTemplateMediaCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $mailTemplateMedia;
+    protected ?MailTemplateMediaCollection $mailTemplateMedia = null;
 
-    /**
-     * @var TagCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $tags;
+    protected ?TagCollection $tags = null;
 
     /**
      * @internal
-     *
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $thumbnailsRo;
+    protected ?string $thumbnailsRo = null;
 
     protected ?string $path = null;
 
-    /**
-     * @var DocumentBaseConfigCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentBaseConfigs;
+    protected ?DocumentBaseConfigCollection $documentBaseConfigs = null;
 
-    /**
-     * @var ShippingMethodCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingMethods;
+    protected ?ShippingMethodCollection $shippingMethods = null;
 
-    /**
-     * @var PaymentMethodCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $paymentMethods;
+    protected ?PaymentMethodCollection $paymentMethods = null;
 
-    /**
-     * @var ProductConfiguratorSettingCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productConfiguratorSettings;
+    protected ?ProductConfiguratorSettingCollection $productConfiguratorSettings = null;
 
-    /**
-     * @var OrderLineItemCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderLineItems;
+    protected ?OrderLineItemCollection $orderLineItems = null;
 
-    /**
-     * @var CmsBlockCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cmsBlocks;
+    protected ?CmsBlockCollection $cmsBlocks = null;
 
-    /**
-     * @var CmsSectionCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cmsSections;
+    protected ?CmsSectionCollection $cmsSections = null;
 
-    /**
-     * @var CmsBlockCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cmsPages;
+    protected ?CmsBlockCollection $cmsPages = null;
 
-    /**
-     * @var DocumentCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documents;
+    protected ?DocumentCollection $documents = null;
 
-    /**
-     * @var AppPaymentMethodCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $appPaymentMethods;
+    protected ?AppPaymentMethodCollection $appPaymentMethods = null;
 
     /**
      * @var EntityCollection<AppShippingMethodEntity>|null

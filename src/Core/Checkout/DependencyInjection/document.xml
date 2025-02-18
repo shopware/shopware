@@ -152,10 +152,6 @@
             <tag name="document_type.renderer" key="html"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Document\Service\XmlRenderer">
-            <tag name="document_type.renderer" key="xml"/>
-        </service>
-
         <service id="Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry">
             <argument type="tagged_iterator" tag="document_type.renderer" index-by="key"/>
         </service>

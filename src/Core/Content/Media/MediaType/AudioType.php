@@ -7,8 +7,5 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('discovery')]
 class AudioType extends MediaType
 {
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name = 'AUDIO';
+    protected string $name = 'AUDIO';
 }

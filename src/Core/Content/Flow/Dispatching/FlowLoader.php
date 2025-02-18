@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal not intended for decoration or replacement
  *
- * @phpstan-import-type EventGroupedTFlows from AbstractFlowLoader
+ * @phpstan-import-type EventGroupedFlowHolders from AbstractFlowLoader
  */
 #[Package('after-sales')]
 class FlowLoader extends AbstractFlowLoader
@@ -54,7 +54,7 @@ class FlowLoader extends AbstractFlowLoader
         /** @var list<array<string, string>> $flows */
         $result = FetchModeHelper::group($flows);
 
-        /** @var EventGroupedTFlows $result */
+        /** @var EventGroupedFlowHolders $result */
         return $result;
     }
 }

@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal not intended for decoration or replacement
  *
- * @phpstan-import-type TFlows from AbstractFlowLoader
- * @phpstan-import-type EventGroupedTFlows from AbstractFlowLoader
+ * @phpstan-import-type FlowHolders from AbstractFlowLoader
+ * @phpstan-import-type EventGroupedFlowHolders from AbstractFlowLoader
  *
  * @experimental stableVersion:v6.8.0 feature:FLOW_EXECUTION_AFTER_BUSINESS_PROCESS
  */
@@ -37,17 +37,17 @@ class BufferedFlowExecutor
         // events to the buffer, so we execute them as well.
         while (!$this->bufferedFlowQueue->isEmpty() && $flowExecutionDepth < self::MAXIMUM_EXECUTION_DEPTH) {
             $bufferedFlows = $this->bufferedFlowQueue->dequeueFlows();
-            $flows = $this->flowLoader->load();
+            $eventGroupedFlowHolders = $this->flowLoader->load();
 
             foreach ($bufferedFlows as $bufferedFlow) {
                 $storableFlow = $this->flowFactory->create($bufferedFlow);
-                $eventFlows = $this->getFlowsForEvent($storableFlow->getName(), $flows);
+                $flowHolders = $this->getFlowHoldersForEvent($storableFlow->getName(), $eventGroupedFlowHolders);
 
-                if (empty($eventFlows)) {
+                if (empty($flowHolders)) {
                     continue;
                 }
 
-                $this->flowExecutor->executeFlows($eventFlows, $storableFlow);
+                $this->flowExecutor->executeFlows($flowHolders, $storableFlow);
             }
 
             ++$flowExecutionDepth;
@@ -67,17 +67,17 @@ class BufferedFlowExecutor
     }
 
     /**
-     * @param EventGroupedTFlows $flows
+     * @param EventGroupedFlowHolders $eventGroupedFlowHolders
      *
-     * @return TFlows
+     * @return FlowHolders
      */
-    private function getFlowsForEvent(string $eventName, array $flows): array
+    private function getFlowHoldersForEvent(string $eventName, array $eventGroupedFlowHolders): array
     {
-        $result = [];
-        if (\array_key_exists($eventName, $flows)) {
-            $result[] = $flows[$eventName];
+        $flowHolders = [];
+        if (\array_key_exists($eventName, $eventGroupedFlowHolders)) {
+            $flowHolders = $eventGroupedFlowHolders[$eventName];
         }
 
-        return $result;
+        return $flowHolders;
     }
 }

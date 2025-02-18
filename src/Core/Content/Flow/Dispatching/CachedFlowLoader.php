@@ -13,7 +13,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @internal not intended for decoration or replacement
  *
- * @phpstan-import-type EventGroupedTFlows from AbstractFlowLoader
+ * @phpstan-import-type EventGroupedFlowHolders from AbstractFlowLoader
  */
 #[Package('after-sales')]
 class CachedFlowLoader extends AbstractFlowLoader implements EventSubscriberInterface, ResetInterface
@@ -21,7 +21,7 @@ class CachedFlowLoader extends AbstractFlowLoader implements EventSubscriberInte
     final public const KEY = 'flow-loader';
 
     /**
-     * @var EventGroupedTFlows
+     * @var EventGroupedFlowHolders
      */
     private ?array $flows = null;
 

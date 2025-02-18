@@ -8,15 +8,15 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal not intended for decoration or replacement
  *
- * @phpstan-type TFlow array{id: string, name: string, payload: Flow}
- * @phpstan-type TFlows array<TFlow>
- * @phpstan-type EventGroupedTFlows array<string, TFlow>
+ * @phpstan-type FlowHolder array{id: string, name: string, payload: Flow}
+ * @phpstan-type FlowHolders array<FlowHolder>
+ * @phpstan-type EventGroupedFlowHolders array<string, FlowHolders>
  */
 #[Package('after-sales')]
 abstract class AbstractFlowLoader
 {
     /**
-     * @return EventGroupedTFlows
+     * @return EventGroupedFlowHolders
      */
     abstract public function load(): array;
 }

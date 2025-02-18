@@ -27,13 +27,13 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal not intended for decoration or replacement
  *
- * @phpstan-import-type TFlows from AbstractFlowLoader
+ * @phpstan-import-type FlowHolders from AbstractFlowLoader
  */
 #[Package('after-sales')]
 class FlowExecutor
 {
     /**
-     * @var array<string, mixed>
+     * @var array<string, FlowAction>
      */
     private readonly array $actions;
 
@@ -54,16 +54,16 @@ class FlowExecutor
     }
 
     /**
-     * @param TFlows $flowPayloads
+     * @param FlowHolders $flowHolders
      *
      * @experimental stableVersion:v6.8.0 feature:FLOW_EXECUTION_AFTER_BUSINESS_PROCESS
      */
-    public function executeFlows(array $flowPayloads, StorableFlow $event): void
+    public function executeFlows(array $flowHolders, StorableFlow $event): void
     {
-        foreach ($flowPayloads as $flowPayload) {
-            $flow = $flowPayload['payload'];
-            $id = $flowPayload['id'];
-            $name = $flowPayload['name'];
+        foreach ($flowHolders as $flowHolder) {
+            $flow = $flowHolder['payload'];
+            $id = $flowHolder['id'];
+            $name = $flowHolder['name'];
 
             try {
                 $this->extensions->publish(

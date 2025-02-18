@@ -24,6 +24,7 @@ class CartException extends HttpException
     public const CUSTOMER_NOT_LOGGED_IN_CODE = 'CHECKOUT__CUSTOMER_NOT_LOGGED_IN';
     public const INSUFFICIENT_PERMISSION_CODE = 'CHECKOUT__INSUFFICIENT_PERMISSION';
     public const CART_DELIVERY_NOT_FOUND_CODE = 'CHECKOUT__CART_DELIVERY_POSITION_NOT_FOUND';
+    public const CART_DELIVERY_DATE_NOT_SUPPORTED_UNIT = 'CHECKOUT__CART_DELIVERY_DATE_NOT_SUPPORTED_UNIT';
     public const CART_INVALID_CODE = 'CHECKOUT__CART_INVALID';
     public const CART_INVALID_LINE_ITEM_PAYLOAD_CODE = 'CHECKOUT__CART_INVALID_LINE_ITEM_PAYLOAD';
     public const CART_INVALID_LINE_ITEM_QUANTITY_CODE = 'CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY';
@@ -205,6 +206,16 @@ class CartException extends HttpException
             self::CART_DELIVERY_NOT_FOUND_CODE,
             'Delivery with identifier {{ id }} not found.',
             ['id' => $id]
+        );
+    }
+
+    public static function deliveryDateNotSupportedUnit(string $unit): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CART_DELIVERY_DATE_NOT_SUPPORTED_UNIT,
+            'Not supported unit {{ unit }}',
+            ['unit' => $unit]
         );
     }
 

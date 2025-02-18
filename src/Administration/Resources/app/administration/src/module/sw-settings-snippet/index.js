@@ -3,7 +3,7 @@
  */
 import './acl';
 
-const { Module, Feature } = Shopware;
+const { Module } = Shopware;
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-snippet-set-list', () => import('./page/sw-settings-snippet-set-list'));

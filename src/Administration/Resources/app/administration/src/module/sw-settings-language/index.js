@@ -8,7 +8,7 @@ Shopware.Component.register('sw-settings-language-list', () => import('./page/sw
 Shopware.Component.register('sw-settings-language-detail', () => import('./page/sw-settings-language-detail'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
-const { Module, Feature } = Shopware;
+const { Module } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-language', {

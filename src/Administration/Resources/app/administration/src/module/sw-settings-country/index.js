@@ -8,7 +8,7 @@ import './component/sw-settings-country-preview-template';
 
 import './acl';
 
-const { Module, Feature } = Shopware;
+const { Module } = Shopware;
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-country-list', () => import('./page/sw-settings-country-list'));

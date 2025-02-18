@@ -39,7 +39,6 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
-use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Shopware\Storefront\Theme\Subscriber\ThemeCompilerEnrichScssVarSubscriber;
 use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeFileResolver;
@@ -729,7 +728,7 @@ PHP_EOL;
     /**
      * @param array<int, Plugin> $plugins
      */
-    private function getStorefrontPluginRegistry(array $plugins): StorefrontPluginRegistryInterface
+    private function getStorefrontPluginRegistry(array $plugins): StorefrontPluginRegistry
     {
         $kernel = $this->createMock(Kernel::class);
         $kernel

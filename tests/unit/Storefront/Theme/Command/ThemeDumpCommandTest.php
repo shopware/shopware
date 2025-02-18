@@ -13,7 +13,7 @@ use Shopware\Storefront\Theme\Command\ThemeDumpCommand;
 use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigDumper;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
-use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
+use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeFileResolver;
@@ -29,7 +29,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(ThemeDumpCommand::class)]
 class ThemeDumpCommandTest extends TestCase
 {
-    private StorefrontPluginRegistryInterface&MockObject $pluginRegistry;
+    private StorefrontPluginRegistry&MockObject $pluginRegistry;
 
     private ThemeFileResolver&MockObject $themeFileResolver;
 
@@ -42,7 +42,7 @@ class ThemeDumpCommandTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->pluginRegistry = $this->createMock(StorefrontPluginRegistryInterface::class);
+        $this->pluginRegistry = $this->createMock(StorefrontPluginRegistry::class);
         $this->themeFileResolver = $this->createMock(ThemeFileResolver::class);
         $this->themeRepository = $this->createMock(EntityRepository::class);
         $staticFileConfigDumper = $this->createMock(StaticFileConfigDumper::class);

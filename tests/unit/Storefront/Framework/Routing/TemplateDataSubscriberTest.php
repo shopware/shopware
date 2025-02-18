@@ -18,7 +18,6 @@ use Shopware\Storefront\Framework\Routing\TemplateDataSubscriber;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
-use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -31,7 +30,7 @@ class TemplateDataSubscriberTest extends TestCase
 
     private ShopIdProvider&MockObject $shopIdProvider;
 
-    private StorefrontPluginRegistryInterface&MockObject $themeRegistry;
+    private StorefrontPluginRegistry&MockObject $themeRegistry;
 
     private ActiveAppsLoader&MockObject $activeAppsLoader;
 
@@ -41,7 +40,7 @@ class TemplateDataSubscriberTest extends TestCase
     {
         $this->hreflangLoader = $this->createMock(HreflangLoaderInterface::class);
         $this->shopIdProvider = $this->createMock(ShopIdProvider::class);
-        $this->themeRegistry = $this->createMock(StorefrontPluginRegistryInterface::class);
+        $this->themeRegistry = $this->createMock(StorefrontPluginRegistry::class);
         $this->activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
 
         $this->subscriber = new TemplateDataSubscriber(

@@ -22,7 +22,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
-use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
+use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeLifecycleHandler;
@@ -46,7 +46,7 @@ class ThemeLifecycleHandlerTest extends TestCase
 
     private MockObject&ThemeService $themeServiceMock;
 
-    private MockObject&StorefrontPluginRegistryInterface $configurationRegistryMock;
+    private MockObject&StorefrontPluginRegistry $configurationRegistryMock;
 
     private ThemeLifecycleHandler $themeLifecycleHandler;
 
@@ -56,7 +56,7 @@ class ThemeLifecycleHandlerTest extends TestCase
     {
         $this->themeServiceMock = $this->createMock(ThemeService::class);
 
-        $this->configurationRegistryMock = $this->createMock(StorefrontPluginRegistryInterface::class);
+        $this->configurationRegistryMock = $this->createMock(StorefrontPluginRegistry::class);
 
         $this->themeLifecycleHandler = new ThemeLifecycleHandler(
             static::getContainer()->get(ThemeLifecycleService::class),

@@ -23,7 +23,6 @@ use Shopware\Core\System\Salutation\AbstractSalutationsSorter;
 use Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
-use Shopware\Storefront\Page\MetaInformation;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -76,13 +75,7 @@ class AddressDetailPageLoader
 
     protected function setMetaInformation(AddressDetailPage $page, Request $request): void
     {
-        if ($page->getMetaInformation()) {
-            $page->getMetaInformation()->setRobots('noindex,follow');
-        }
-
-        if ($page->getMetaInformation() === null) {
-            $page->setMetaInformation(new MetaInformation());
-        }
+        $page->getMetaInformation()?->setRobots('noindex,follow');
 
         if ($request->attributes->get('_route') === 'frontend.account.address.create.page') {
             $page->getMetaInformation()?->setMetaTitle(

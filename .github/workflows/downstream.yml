@@ -1,7 +1,7 @@
 name: Downstream
 
 on:
-  pull_request:
+  pull_request_target:
   merge_group:
   workflow_dispatch:
     inputs:
@@ -38,7 +38,6 @@ jobs:
   commercial:
     name: Commercial
     runs-on: ubuntu-24.04
-    if: ${{ !github.event.pull_request }}
     steps:
       - name: Commercial
         uses: shopware/github-actions/downstream@main

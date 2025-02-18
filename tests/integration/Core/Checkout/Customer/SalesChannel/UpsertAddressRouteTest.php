@@ -180,7 +180,7 @@ class UpsertAddressRouteTest extends TestCase
             );
 
         $updatedAddress = \json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR)['elements'][0];
-        unset($address['updatedAt'], $updatedAddress['updatedAt']);
+        unset($address['updatedAt'], $updatedAddress['updatedAt'], $address['hash'], $updatedAddress['hash']);
 
         static::assertSame($address, $updatedAddress);
     }

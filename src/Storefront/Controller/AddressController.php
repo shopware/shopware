@@ -181,60 +181,6 @@ class AddressController extends StorefrontController
         );
     }
 
-    /*
-    * @deprecated tag:v6.7.0 - Will be removed. Use `AddressController::addressManager` instead
-    */
-    #[Route(path: '/widgets/account/address-book', name: 'frontend.account.addressbook', options: ['seo' => true], defaults: ['XmlHttpRequest' => true, '_loginRequired' => true, '_loginRequiredAllowGuest' => true], methods: ['POST'])]
-    public function addressBook(Request $request, RequestDataBag $dataBag, SalesChannelContext $context, CustomerEntity $customer): Response
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedMethodMessage(
-                __CLASS__,
-                __METHOD__,
-                'v6.7.0.0',
-                'AddressController::addressManager'
-            )
-        );
-
-        $viewData = new AddressEditorModalStruct();
-        $params = [];
-
-        try {
-            $page = $this->addressListingPageLoader->load($request, $context, $customer);
-            $this->hook(new AddressBookWidgetLoadedHook($page, $context));
-            $viewData->setPage($page);
-
-            $this->handleChangeableAddresses($viewData, $dataBag, $context, $customer);
-            $this->handleAddressCreation($viewData, $dataBag, $context, $customer);
-            $this->handleAddressSelection($viewData, $dataBag, $context, $customer);
-            $this->handleCustomerVatIds($dataBag, $context, $customer);
-        } catch (ConstraintViolationException $formViolations) {
-            $params['formViolations'] = $formViolations;
-            $params['postedData'] = $dataBag->get('address');
-        } catch (\Exception) {
-            $viewData->setSuccess(false);
-            $viewData->setMessages([
-                'type' => self::DANGER,
-                'text' => $this->trans('error.message-default'),
-            ]);
-        }
-
-        if ($request->get('redirectTo') || $request->get('forwardTo')) {
-            return $this->createActionResponse($request);
-        }
-        $params = array_merge($params, $viewData->getVars());
-
-        $response = $this->renderStorefront(
-            '@Storefront/storefront/component/address/address-editor-modal.html.twig',
-            $params
-        );
-
-        $response->headers->set('x-robots-tag', 'noindex');
-
-        return $response;
-    }
-
     #[Route(path: '/account/address/delete/{addressId}', name: 'frontend.account.address.delete', options: ['seo' => false], defaults: ['XmlHttpRequest' => true, '_loginRequired' => true], methods: ['POST'])]
     public function deleteAddress(string $addressId, Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {

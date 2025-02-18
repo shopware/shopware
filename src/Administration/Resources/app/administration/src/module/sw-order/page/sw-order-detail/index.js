@@ -36,6 +36,7 @@ export default {
             swOrderDetailOnReloadEntityData: this.reloadEntityData,
             swOrderDetailOnSaveAndReload: this.onSaveAndReload,
             swOrderDetailOnSaveEdits: this.onSaveEdits,
+            swOrderDetailAskAndSaveEdits: this.askAndSaveEdits,
             swOrderDetailOnError: this.onError,
         };
     },
@@ -69,6 +70,7 @@ export default {
             missingProductLineItems: [],
             promotionsToDelete: [],
             deliveryDiscountsToDelete: [],
+            askForSaveBeforehand: null,
         };
     },
 
@@ -85,6 +87,7 @@ export default {
             'orderAddressIds',
             'editing',
             'loading',
+            'savedSuccessful',
         ]),
 
         orderIdentifier() {
@@ -561,6 +564,36 @@ export default {
             });
 
             return this.orderRepository.save(this.order, this.versionContext);
+        },
+
+        /**
+         * Asks the user to save pending edits before e.g. doing a status change.
+         * @returns Promise<bool> - `true` if it's safe to proceed (e.g. edits were saved)
+         *  or `false` if the user wants to cancel the action.
+         */
+        askAndSaveEdits(reason = 'status') {
+            if (!this.isOrderEditing) {
+                return Promise.resolve(true);
+            }
+
+            return new Promise((resolve, reject) => {
+                this.askForSaveBeforehand = {
+                    reason: this.$tc(`sw-order.saveChangesBeforehandModal.${reason}Description`),
+                    resolve,
+                    reject,
+                };
+            });
+        },
+
+        async onAskAndSaveEditsConfirm() {
+            await this.onSaveEdits();
+            this.askForSaveBeforehand.resolve(this.savedSuccessful);
+            this.askForSaveBeforehand = null;
+        },
+
+        onAskAndSaveEditsCancel() {
+            this.askForSaveBeforehand.resolve(false);
+            this.askForSaveBeforehand = null;
         },
     },
 };

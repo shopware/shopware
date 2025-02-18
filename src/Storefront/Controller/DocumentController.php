@@ -35,7 +35,6 @@ class DocumentController extends StorefrontController
         $fileType = $request->get('fileType', PdfRenderer::FILE_EXTENSION);
 
         try {
-            /** @phpstan-ignore-next-line This ignore should be removed when the deprecated method signature is updated */
             return $this->documentRoute->download($documentId, $request, $context, $request->get('deepLinkCode'), $fileType);
         } catch (GuestNotAuthenticatedException|WrongGuestCredentialsException|CustomerAuthThrottledException $exception) {
             return $this->redirectToRoute(

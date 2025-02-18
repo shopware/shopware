@@ -141,7 +141,7 @@
                             name="sw-field--currency-taxFreeFrom"
                             :min="0"
                             :label="$tc('sw-settings-currency.detail.taxFreeFrom')"
-                            :help-text="$tc('sw-settings-currency.detail.taxFreeFromHelpText', 0 , { currencyName: `${currency.name}` })"
+                            :help-text="$tc('sw-settings-currency.detail.taxFreeFromHelpText', { currencyName: `${currency.name}` }, 0)"
                             :disabled="!currency.factor"
                         >
                             <template #suffix>

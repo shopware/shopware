@@ -1,4 +1,5 @@
 import { test } from '@fixtures/AcceptanceTest';
+import { satisfies } from 'compare-versions';
 
 test('As a new customer, I must be able to register in the Storefront.', { tag: '@Registration' }, async ({
     ShopCustomer,
@@ -37,9 +38,8 @@ test('As a new customer, I should not be able to register with empty postal code
         await ShopCustomer.expects(StorefrontAccountLogin.postalCodeInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
 
         // eslint-disable-next-line playwright/no-conditional-in-test
-        if (InstanceMeta.features['V6_7_0_0']) {
+        if (!satisfies(InstanceMeta.version, '<6.7')) {
             await ShopCustomer.expects(StorefrontAccountLogin.page.locator('.invalid-feedback')).toContainText('Input should not be empty.');
         }
-
     });
 });

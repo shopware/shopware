@@ -73,14 +73,13 @@ class MyTraitEntity extends Entity
     use EntityCustomFieldsTrait;
 
     /**
-     * @param string $_uniqueIdentifier
      * @param array<string, mixed>|null $customFields
      */
     public function __construct(
-        /** @deprecated tag:v6.7.0 - Will be natively typed */
-        protected $_uniqueIdentifier,
-        /** @deprecated tag:v6.7.0 - Will be natively typed */
-        protected $customFields = []
+        string $_uniqueIdentifier,
+        ?array $customFields = []
     ) {
+        $this->_uniqueIdentifier = $_uniqueIdentifier;
+        $this->customFields = $customFields;
     }
 }

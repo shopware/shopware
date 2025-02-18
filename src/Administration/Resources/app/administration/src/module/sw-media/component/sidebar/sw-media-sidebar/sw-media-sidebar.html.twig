@@ -18,7 +18,8 @@
             v-if="isSingleFile && firstEntity.getEntityName() === 'media'"
             :item="firstEntity"
             :editable="editable"
-            v-bind="filteredAttributes" @update:item="onFirstItemUpdated"
+            v-bind="filteredAttributes"
+            @update:item="onFirstItemUpdated"
         />
 
         <sw-media-folder-info

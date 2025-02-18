@@ -28,7 +28,7 @@ async function createWrapper() {
                 'sw-cms-mapping-field': true,
                 'sw-media-upload-v2': true,
                 'sw-media-modal-v2': true,
-                'sw-alert': true,
+
                 'sw-upload-listener': true,
             },
         },

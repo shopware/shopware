@@ -220,31 +220,6 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         expect(Object.keys(listFilters)).toContain('tags');
     });
 
-    it('should get counts', async () => {
-        const wrapper = await createWrapper(['rule.creator']);
-        await flushPromises();
-
-        await wrapper.setData({
-            rules: {
-                aggregations: {
-                    productPrices: {
-                        buckets: [
-                            {
-                                key: '1',
-                                productPrices: {
-                                    count: 100,
-                                },
-                            },
-                        ],
-                    },
-                },
-            },
-        });
-
-        expect(wrapper.vm.getCounts('productPrices', '1')).toBe(100);
-        expect(wrapper.vm.getCounts('productPrices', '2')).toBe(0);
-    });
-
     it('should return filters from filter registry', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -272,24 +247,6 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
 
         expect(metaInfo.title).toBe('Title');
         expect(wrapper.vm.$createTitle).toHaveBeenNthCalledWith(1);
-    });
-
-    it('should consider assignmentProperties when it contains the sortBy property', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        const assignemntProperties = wrapper.vm.assignmentProperties;
-        expect(assignemntProperties).not.toHaveLength(0);
-
-        await wrapper.setData({
-            sortBy: assignemntProperties[0],
-        });
-
-        const listCriteriaSortings = wrapper.vm.listCriteria.sortings;
-        expect(listCriteriaSortings).toHaveLength(1);
-        const sorting = listCriteriaSortings[0];
-        expect(sorting.type).toBe('count');
-        expect(sorting.field).toMatch(/\.id$/);
     });
 
     it('should notify on inline edit save error', async () => {

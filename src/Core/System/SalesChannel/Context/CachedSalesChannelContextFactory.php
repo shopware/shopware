@@ -2,9 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Context;
 
-use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -18,13 +16,10 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
 
     /**
      * @internal
-     *
-     * @param AbstractCacheTracer<SalesChannelContext> $tracer
      */
     public function __construct(
         private readonly AbstractSalesChannelContextFactory $decorated,
         private readonly CacheInterface $cache,
-        private readonly AbstractCacheTracer $tracer
     ) {
     }
 
@@ -46,24 +41,11 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
         $key = implode('-', [$name, Hasher::hash($options)]);
 
         $value = $this->cache->get($key, function (ItemInterface $item) use ($name, $token, $salesChannelId, $options) {
-            if (Feature::isActive('cache_rework')) {
-                $item->tag([$name, self::ALL_TAG]);
+            $item->tag([$name, self::ALL_TAG]);
 
-                return CacheValueCompressor::compress(
-                    $this->decorated->create($token, $salesChannelId, $options)
-                );
-            }
-
-            $context = $this->tracer->trace($name, fn () => $this->getDecorated()->create($token, $salesChannelId, $options));
-
-            $keys = array_unique(array_merge(
-                $this->tracer->get($name),
-                [$name, self::ALL_TAG]
-            ));
-
-            $item->tag($keys);
-
-            return CacheValueCompressor::compress($context);
+            return CacheValueCompressor::compress(
+                $this->decorated->create($token, $salesChannelId, $options)
+            );
         });
 
         $context = CacheValueCompressor::uncompress($value);

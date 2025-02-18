@@ -4,7 +4,8 @@
     :is-loading="isLoading"
     :error="errorObject"
     :disabled="disabled"
-    v-bind="$attrs" @select-expanded="setDropDown(true)"
+    v-bind="$attrs"
+    @select-expanded="setDropDown(true)"
     @select-collapsed="setDropDown(false)"
 >
     {% block sw_multi_tag_select_base %}

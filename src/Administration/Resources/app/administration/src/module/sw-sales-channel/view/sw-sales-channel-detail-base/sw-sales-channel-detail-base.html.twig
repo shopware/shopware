@@ -159,13 +159,13 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_disabled_countries_warning %}
-        <sw-alert
+        <mt-banner
             v-if="disabledCountries.length > 0"
             :variant="disabledCountryVariant"
             :title="$tc('global.default.' + disabledCountryVariant)"
         >
             <span v-html="buildDisabledPaymentAlert('sw-sales-channel.detail.warningDisabledCountries', disabledCountries)"></span>
-        </sw-alert>
+        </mt-banner>
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_general_input_countries %}
@@ -184,13 +184,13 @@
         />
         {% endblock %}
 
-        <sw-alert
+        <mt-banner
             v-if="unservedLanguages.length > 0"
             :variant="unservedLanguageVariant"
             :title="$tc('global.default.' + unservedLanguageVariant)"
         >
             <span v-html="buildUnservedLanguagesAlert('sw-sales-channel.detail.warningUnservedLanguage', unservedLanguages)"></span>
-        </sw-alert>
+        </mt-banner>
 
         {% block sw_sales_channel_detail_base_general_input_languages %}
         <sw-sales-channel-defaults-select
@@ -215,13 +215,13 @@
         :title="$tc('sw-sales-channel.detail.titleShippingPayment')"
     >
         {% block sw_sales_channel_detail_base_disabled_payments_methods_warning %}
-        <sw-alert
+        <mt-banner
             v-if="disabledPaymentMethods.length > 0"
             :variant="disabledPaymentMethodVariant"
             :title="$tc('global.default.' + disabledPaymentMethodVariant)"
         >
             <span v-html="buildDisabledPaymentAlert('sw-sales-channel.detail.warningDisabledPaymentMethod', disabledPaymentMethods, 'distinguishableName')"></span>
-        </sw-alert>
+        </mt-banner>
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_general_input_payments_methods %}
@@ -240,13 +240,13 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_disabled_shipping_methods_warning %}
-        <sw-alert
+        <mt-banner
             v-if="disabledShippingMethods.length > 0"
             :variant="disabledShippingMethodVariant"
             :title="$tc('global.default.' + disabledShippingMethodVariant)"
         >
             <span v-html="buildDisabledShippingAlert('sw-sales-channel.detail.warningDisabledShippingMethod', disabledShippingMethods)"></span>
-        </sw-alert>
+        </mt-banner>
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_general_input_shipping_methods %}

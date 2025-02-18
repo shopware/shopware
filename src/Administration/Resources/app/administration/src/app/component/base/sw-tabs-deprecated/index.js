@@ -118,10 +118,8 @@ Component.register('sw-tabs-deprecated', {
         },
 
         sliderLength() {
-            const children = Shopware.Utils.VueHelper.getCompatChildren();
-
-            if (children[this.activeItem]) {
-                const activeChildren = children[this.activeItem];
+            if (this.registeredTabItems[this.activeItem]) {
+                const activeChildren = this.registeredTabItems[this.activeItem];
                 return this.isVertical ? activeChildren.$el.offsetHeight : activeChildren.$el.offsetWidth;
             }
 
@@ -144,10 +142,8 @@ Component.register('sw-tabs-deprecated', {
         },
 
         sliderMovement() {
-            const children = Shopware.Utils.VueHelper.getCompatChildren();
-
-            if (children[this.activeItem]) {
-                const activeChildren = children[this.activeItem];
+            if (this.registeredTabItems[this.activeItem]) {
+                const activeChildren = this.registeredTabItems[this.activeItem];
                 return this.isVertical ? activeChildren.$el.offsetTop : activeChildren.$el.offsetLeft;
             }
 

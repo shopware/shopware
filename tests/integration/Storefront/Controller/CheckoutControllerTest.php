@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -36,6 +37,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -79,11 +81,6 @@ class CheckoutControllerTest extends TestCase
     private const PRODUCT_STOCK_REACHED_ERROR_CONTENT = 'The product "Test product" is not available any more';
 
     private ?string $customerId = null;
-
-    protected function setUp(): void
-    {
-        static::markTestSkipped('#6556');
-    }
 
     /**
      * @param string|float|int|bool|null $customerComment
@@ -456,8 +453,9 @@ class CheckoutControllerTest extends TestCase
         $contextToken = Uuid::randomHex();
 
         $cart = $this->fillCart($contextToken);
-
         $salesChannelContext = $this->createSalesChannelContext($contextToken, $cart->getTransactions()->first()?->getPaymentMethodId());
+        static::getContainer()->get(CartPersister::class)->save($cart, $salesChannelContext);
+
         $request = $this->createRequest($salesChannelContext);
 
         static::getContainer()->get(CheckoutController::class)->confirmPage($request, $salesChannelContext);
@@ -825,11 +823,12 @@ class CheckoutControllerTest extends TestCase
 
     private function createRequest(?SalesChannelContext $context = null): Request
     {
-        $request = new Request();
+        $request = Request::create((string) EnvironmentHelper::getVariable('APP_URL'));
         $request->setSession($this->getSession());
 
         $request->attributes->add([
             RequestTransformer::STOREFRONT_URL => EnvironmentHelper::getVariable('APP_URL'),
+            SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
         ]);
 
         if ($context instanceof SalesChannelContext) {

@@ -12,7 +12,6 @@ use Shopware\Core\Checkout\Document\Extension\PdfRendererExtension;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
@@ -88,10 +87,6 @@ class PdfRenderer extends AbstractDocumentTypeRenderer
 
     private function getHtml(RenderedDocument $document): string
     {
-        if (!Feature::isActive('v6.7.0.0') && $document->getHtml() !== '') {
-            return $document->getHtml();
-        }
-
         $document->setContentType(self::FILE_CONTENT_TYPE);
         $document->setFileExtension(self::FILE_EXTENSION);
 
@@ -106,14 +101,18 @@ class PdfRenderer extends AbstractDocumentTypeRenderer
 
         $language = $document->getOrder()->getLanguage();
 
+        $parameters = [
+            ...$document->getParameters(),
+            'order' => $document->getOrder(),
+            'config' => $config,
+            'rootDir' => $this->rootDir,
+            'context' => $document->getContext(),
+            ...$document->getExtensions(),
+        ];
+
         return $this->documentTemplateRenderer->render(
             $document->getTemplate(),
-            [
-                'order' => $document->getOrder(),
-                'config' => $config,
-                'rootDir' => $this->rootDir,
-                'context' => $document->getContext(),
-            ],
+            $parameters,
             $document->getContext(),
             $document->getOrder()->getSalesChannelId(),
             $document->getOrder()->getLanguageId(),

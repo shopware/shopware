@@ -108,9 +108,9 @@
                     @modal-close="onCloseDeleteModal"
                 >
                     {% block sw_flow_list_grid_action_modal_confirm_delete_text %}
-                    <sw-alert variant="warning">
+                    <mt-banner variant="attention">
                         {{ deleteWarningMessage() }}
-                    </sw-alert>
+                    </mt-banner>
                     {% endblock %}
 
                     <template #modal-footer>
@@ -136,9 +136,9 @@
 
             {% block sw_flow_list_grid_bulk_modal_delete_confirm_text %}
             <template #bulk-modal-delete-confirm-text="{ selectionCount }">
-                <sw-alert variant="warning">
+                <mt-banner variant="attention">
                     {{ bulkDeleteWarningMessage(selectionCount) }}
-                </sw-alert>
+                </mt-banner>
             </template>
             {% endblock %}
         </sw-entity-listing>

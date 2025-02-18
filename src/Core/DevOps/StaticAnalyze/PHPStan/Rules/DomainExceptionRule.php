@@ -14,7 +14,6 @@ use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\FastlyReverseProxyGateway;
-use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\RedisReverseProxyGateway;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyException;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\VarnishReverseProxyGateway;
 use Shopware\Core\Framework\Framework;
@@ -61,7 +60,6 @@ class DomainExceptionRule implements Rule
         Framework::class => FrameworkException::class,
         VarnishReverseProxyGateway::class => ReverseProxyException::class,
         FastlyReverseProxyGateway::class => ReverseProxyException::class,
-        RedisReverseProxyGateway::class => ReverseProxyException::class,
         Migration1672931011ReviewFormMailTemplate::class => MigrationException::class,
         Migration1632721037OrderDocumentMailTemplate::class => MigrationException::class,
         StateMachineMigrationImporter::class => MigrationException::class,

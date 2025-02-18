@@ -139,7 +139,7 @@ async function createWrapper() {
                     },
                 },
                 'sw-bulk-edit-modal': true,
-                'sw-alert': true,
+
                 'sw-data-grid-inline-edit': true,
                 'sw-data-grid-column-boolean': true,
                 'sw-select-field': true,
@@ -183,7 +183,13 @@ async function createWrapper() {
                 },
             },
             mocks: {
-                $tc: (key, number, value) => {
+                $tc: (key, value) => {
+                    if (!value) {
+                        return key;
+                    }
+                    return key + JSON.stringify(value);
+                },
+                $t: (key, value) => {
                     if (!value) {
                         return key;
                     }

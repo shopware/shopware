@@ -139,7 +139,7 @@
             v-if="!extensionManagementDisabled && isUpdateable"
             @click="updateExtension(false)"
         >
-            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.updateLabel', 0, { version: extension.latestVersion }) }}
+            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.updateLabel', { version: extension.latestVersion }, 0) }}
         </sw-context-menu-item>
 
         {% block sw_extension_card_base_context_menu_actions_additional %}{% endblock %}

@@ -12,8 +12,5 @@ class ImageType extends MediaType
     final public const VECTOR_GRAPHIC = 'vectorGraphic';
     final public const ICON = 'image/x-icon';
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name = 'IMAGE';
+    protected string $name = 'IMAGE';
 }

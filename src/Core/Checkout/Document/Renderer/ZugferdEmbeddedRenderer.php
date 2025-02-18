@@ -6,7 +6,6 @@ use horstoeko\zugferd\ZugferdDocumentPdfMerger;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
@@ -39,34 +38,7 @@ class ZugferdEmbeddedRenderer extends AbstractDocumentRenderer
     {
         $invoice = $this->invoiceRenderer->render($operations, $context, $rendererConfig);
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            return $invoice;
-        }
-
         return $this->embedXMLIntoPDF($operations, $context, $rendererConfig, $invoice);
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed without replacement
-     */
-    public function finalize(DocumentGenerateOperation $operation, Context $context, DocumentRendererConfig $rendererConfig, RendererResult $result): void
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Method will be removed without replacement');
-
-        $invoiceResult = new RendererResult();
-        $successDocument = $result->getOrderSuccess($operation->getOrderId());
-        if (!$successDocument) {
-            throw DocumentException::generationError('Success document not found');
-        }
-
-        $invoiceResult->addSuccess($operation->getOrderId(), $successDocument);
-
-        $embeddedResult = $this->embedXMLIntoPDF([$operation->getOrderId() => $operation], $context, $rendererConfig, $result);
-
-        $orderError = $embeddedResult->getOrderError($operation->getOrderId());
-        if ($orderError) {
-            throw $orderError;
-        }
     }
 
     /**

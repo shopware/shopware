@@ -10,15 +10,15 @@
     {% endblock %}
 
     {% block sw_login_login_alert %}
-    <sw-alert
+    <mt-banner
         v-if="showLoginAlert"
         variant="info"
-        appearance="default"
+
         :show-icon="true"
         :closable="false"
     >
         {{ loginAlertMessage }}
-    </sw-alert>
+    </mt-banner>
     {% endblock %}
 
     {% block sw_login_login_user_field %}

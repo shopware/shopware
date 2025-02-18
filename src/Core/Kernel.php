@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Util\VersionParser;
-use Shopware\Core\Service\Service;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Loader\LoaderInterface;
@@ -134,11 +133,6 @@ class Kernel extends HttpKernel
             }
         }
 
-        if ((!Feature::has('v6.7.0.0') || !Feature::isActive('v6.7.0.0')) && !isset($bundles[Service::class])) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', \sprintf('The %s bundle should be added to config/bundles.php', Service::class));
-            yield new Service();
-        }
-
         yield from $this->pluginLoader->getBundles($kernelParameters, $instanciatedBundleNames);
     }
 
@@ -184,8 +178,6 @@ class Kernel extends HttpKernel
                 fwrite(\STDERR, 'Warning: Failed to load plugins. Message: ' . $e->getMessage() . \PHP_EOL);
             }
         }
-
-        $this->initializeDatabaseConnectionVariables();
 
         parent::boot();
     }
@@ -350,42 +342,14 @@ class Kernel extends HttpKernel
         ]);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - removed: all connection variables are configured in MySQLFactory
+     */
     protected function initializeDatabaseConnectionVariables(): void
     {
-        /**
-         * @deprecated tag:v6.7.0 - remove if-clause, we have already SQL_SET_DEFAULT_SESSION_VARIABLES which is documented does the same
-         */
-        $shopwareSkipConnectionVariables = EnvironmentHelper::getVariable('SHOPWARE_SKIP_CONNECTION_VARIABLES', false);
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'The method initializeDatabaseConnectionVariables is deprecated and will be removed in 6.8.0.0. All MySQL connection variables are configured in ' . MySQLFactory::class);
 
-        if ($shopwareSkipConnectionVariables) {
-            return;
-        }
-
-        $connection = self::getConnection();
-
-        try {
-            $setSessionVariables = (bool) EnvironmentHelper::getVariable('SQL_SET_DEFAULT_SESSION_VARIABLES', true);
-            $connectionVariables = [];
-
-            /**
-             * @deprecated tag:v6.7.0 - remove if clause and enforce timezone setting
-             */
-            $timeZoneSupportEnabled = (bool) EnvironmentHelper::getVariable('SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED', Feature::isActive('v6.7.0.0'));
-            if ($timeZoneSupportEnabled && $setSessionVariables) {
-                $connectionVariables[] = 'SET @@session.time_zone = "+00:00"';
-            }
-
-            if ($setSessionVariables) {
-                $connectionVariables[] = 'SET @@group_concat_max_len = CAST(IF(@@group_concat_max_len > 320000, @@group_concat_max_len, 320000) AS UNSIGNED)';
-                $connectionVariables[] = 'SET sql_mode=(SELECT REPLACE(@@sql_mode,\'ONLY_FULL_GROUP_BY\',\'\'))';
-            }
-
-            if (empty($connectionVariables)) {
-                return;
-            }
-            $connection->executeQuery(implode(';', $connectionVariables));
-        } catch (\Throwable) {
-        }
+        self::$connection = self::getConnection();
     }
 
     /**

@@ -177,7 +177,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                         'sw-empty-state': true,
                         'sw-data-grid-column-boolean': true,
                         'sw-context-button': true,
-                        'sw-alert': true,
+
                         'sw-radio-field': true,
                         'sw-ai-copilot-badge': true,
                         'sw-context-menu-item': true,

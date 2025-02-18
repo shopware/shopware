@@ -16,89 +16,29 @@ class MediaFolderEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $parentId;
+    protected ?string $parentId = null;
 
-    /**
-     * @var MediaFolderEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $parent;
+    protected ?MediaFolderEntity $parent = null;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $childCount;
+    protected int $childCount;
 
-    /**
-     * @var MediaCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $media;
+    protected ?MediaCollection $media = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $configurationId;
+    protected ?string $configurationId = null;
 
-    /**
-     * @var MediaFolderConfigurationEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $configuration;
+    protected ?MediaFolderConfigurationEntity $configuration = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $useParentConfiguration;
+    protected bool $useParentConfiguration;
 
-    /**
-     * @var MediaFolderCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $children;
+    protected ?MediaFolderCollection $children = null;
 
-    /**
-     * @var MediaDefaultFolderEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $defaultFolder;
+    protected ?MediaDefaultFolderEntity $defaultFolder = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $defaultFolderId;
+    protected ?string $defaultFolderId = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $path;
+    protected ?string $path = null;
 
     public function getName(): string
     {
@@ -140,8 +80,15 @@ class MediaFolderEntity extends Entity
         $this->childCount = $childCount;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable and condition will be removed
+     */
     public function getMedia(): MediaCollection
     {
+        if ($this->media === null) {
+            $this->media = new MediaCollection();
+        }
+
         return $this->media;
     }
 

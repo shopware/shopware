@@ -28,12 +28,10 @@
                     gutter: 30
                 }%}
 
-                {% if feature('v6.7.0.0') %}
-                    {% set productSliderOptionsSlider = productSliderOptionsSlider|merge({
-                        loop: false,
-                        rewind: true,
-                    }) %}
-                {% endif %}
+                {% set productSliderOptionsSlider = productSliderOptionsSlider|merge({
+                    loop: false,
+                    rewind: true,
+                }) %}
 
                 {% set productSliderOptions = {
                     productboxMinWidth: sliderConfig.elMinWidth.value ? sliderConfig.elMinWidth.value : '',

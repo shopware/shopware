@@ -4,6 +4,7 @@
 /* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
+import { MtUrlField } from '@shopware-ag/meteor-component-library';
 import { kebabCase } from 'lodash';
 import uuid from 'test/_helper_/uuid';
 import 'src/app/filter/media-name.filter';
@@ -80,7 +81,7 @@ async function createWrapper(defaultValues = {}) {
                 'sw-text-editor': await wrapTestComponent('sw-text-field'),
                 'sw-extension-component-section': true,
                 'sw-ai-copilot-badge': true,
-                'sw-alert': true,
+
                 'sw-context-button': true,
                 'sw-product-variant-info': true,
                 'sw-help-text': true,
@@ -93,6 +94,7 @@ async function createWrapper(defaultValues = {}) {
                 'sw-media-modal-replace': true,
                 'sw-media-modal-delete': true,
                 'sw-media-modal-move': true,
+                'mt-url-field': MtUrlField,
             },
             provide: {
                 systemConfigApiService: {

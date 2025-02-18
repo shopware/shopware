@@ -96,7 +96,7 @@
                                 :key="index"
                             >
                                 <dt>
-                                    {{ $tc('sw-order.createBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}
+                                    {{ $tc('sw-order.createBase.summaryLabelTaxes', { taxRate: calculatedTax.taxRate }, 1) }}
                                 </dt>
                                 <dd>
                                     {{ currencyFilter(calculatedTax.tax, currency.isoCode, currency.totalRounding.decimals) }}

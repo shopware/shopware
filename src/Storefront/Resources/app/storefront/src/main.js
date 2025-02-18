@@ -80,7 +80,6 @@ PluginManager.register('Magnifier', () => import('src/plugin/magnifier/magnifier
 PluginManager.register('SpeculationRules', SpeculationRulesPlugin, '[data-speculation-rules]');
 PluginManager.register('VariantSwitch', () => import('src/plugin/variant-switch/variant-switch.plugin'), '[data-variant-switch]');
 PluginManager.register('RemoteClick', () => import('src/plugin/remote-click/remote-click.plugin'), '[data-remote-click]');
-PluginManager.register('AddressEditor', () => import('src/plugin/address-editor/address-editor.plugin'), '[data-address-editor]');
 PluginManager.register('AddressManager', () => import('src/plugin/address-manager/address-manager.plugin'), '[data-address-manager]');
 PluginManager.register('AddressSearch', () => import('src/plugin/address-search/address-search.plugin'), '[data-address-search]');
 PluginManager.register('SetBrowserClass', SetBrowserClassPlugin, 'html');

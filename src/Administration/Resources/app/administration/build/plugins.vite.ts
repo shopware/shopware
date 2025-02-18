@@ -115,6 +115,7 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
                     replacement: '$1',
                 },
             ],
+            preserveSymlinks: true,
         },
 
         ...(isDev

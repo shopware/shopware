@@ -17,7 +17,6 @@ use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryDefinition;
@@ -160,11 +159,7 @@ class CheckoutCartPageLoaderTest extends TestCase
             $this->getContextWithDummyCustomer()
         );
 
-        if (Feature::isActive('v6.7.0.0')) {
-            static::assertEmpty($page->getCountries());
-        } else {
-            static::assertSame($countries, $page->getCountries());
-        }
+        static::assertEmpty($page->getCountries());
     }
 
     private function createLoader(

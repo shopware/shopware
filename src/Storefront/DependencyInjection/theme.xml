@@ -36,7 +36,6 @@
             <argument type="service" id="Shopware\Storefront\Theme\ScssPhpCompiler"/>
             <argument type="service" id="messenger.default_bus"/>
             <argument>%storefront.theme.file_delete_delay%</argument>
-            <argument>%storefront.theme.auto_prefix_css%</argument>
             <argument>%storefront.theme.allowed_scss_values%</argument>
             <argument>%storefront.theme.validate_on_compile%</argument>
         </service>

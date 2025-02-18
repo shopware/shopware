@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Controller\Exception;
 
-use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -86,7 +85,7 @@ class StorefrontException extends HttpException
         );
     }
 
-    public static function reviewNotActive(): self|ReviewNotActiveExeption
+    public static function reviewNotActive(): self
     {
         return new self(
             Response::HTTP_FORBIDDEN,

@@ -16,7 +16,6 @@ use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
@@ -64,8 +63,6 @@ class ThemeCompilerTest extends TestCase
 
     private ThemeCompiler $themeCompiler;
 
-    private ThemeCompiler $themeCompilerAutoPrefix;
-
     private string $mockSalesChannelId;
 
     private EventDispatcherInterface $eventDispatcher;
@@ -95,25 +92,6 @@ class ThemeCompilerTest extends TestCase
             static::getContainer()->get(ScssPhpCompiler::class),
             new MessageBus(),
             0,
-            false
-        );
-
-        $this->themeCompilerAutoPrefix = new ThemeCompiler(
-            $mockFilesystem,
-            $mockFilesystem,
-            new CopyBatchInputFactory(),
-            $themeFileResolver,
-            true,
-            $this->eventDispatcher,
-            static::getContainer()->get(ThemeFilesystemResolver::class),
-            ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
-            static::getContainer()->get(CacheInvalidator::class),
-            $this->createMock(LoggerInterface::class),
-            new MD5ThemePathBuilder(),
-            static::getContainer()->get(ScssPhpCompiler::class),
-            new MessageBus(),
-            0,
-            true
         );
     }
 
@@ -457,7 +435,6 @@ PHP_EOL;
             static::getContainer()->get(ScssPhpCompiler::class),
             new MessageBus(),
             0,
-            false
         );
 
         try {
@@ -562,31 +539,6 @@ PHP_EOL;
         }
 
         static::assertSame($expectedCssOutputNoAutoPrefix, trim((string) $actual));
-
-        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
-
-        $this->eventDispatcher->addSubscriber($subscriber);
-
-        if (Feature::isActive('v6.7.0.0')) {
-            $this->expectException(FeatureException::class);
-            $this->expectExceptionMessage('Tried to access deprecated functionality: Autoprefixer is deprecated and will be removed without replacement, including the config storefront.theme.auto_prefix_css.');
-        }
-
-        try {
-            $actual = $compileStyles->invoke(
-                $this->themeCompilerAutoPrefix,
-                $testScss,
-                new StorefrontPluginConfiguration('test'),
-                [],
-                '1337',
-                'themeId',
-                Context::createDefaultContext()
-            );
-        } finally {
-            $this->eventDispatcher->removeSubscriber($subscriber);
-        }
-
-        static::assertSame($expectedCssOutput, trim((string) $actual));
     }
 
     public function testOutputsOnlyExpectedCssWhenUsingFeatureFlagFunction(): void

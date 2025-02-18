@@ -81,19 +81,19 @@
             variant="small"
             @modal-close="updateModalShown = false"
         >
-            <sw-alert
+            <mt-banner
                 v-if="displayUnknownPluginsWarning"
-                variant="warning"
+                variant="attention"
             >
                 {{ $tc('sw-settings-shopware-updates.updateModal.messageNotInStore') }}
-            </sw-alert>
+            </mt-banner>
 
-            <sw-alert
+            <mt-banner
                 v-if="displayIncompatiblePluginsWarning"
-                variant="warning"
+                variant="attention"
             >
                 {{ $tc('sw-settings-shopware-updates.updateModal.messageIncompatible') }}
-            </sw-alert>
+            </mt-banner>
 
             <sw-radio-field
                 v-if="displayIncompatiblePluginsWarning"

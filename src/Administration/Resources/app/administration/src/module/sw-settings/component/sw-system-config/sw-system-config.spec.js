@@ -81,7 +81,7 @@ async function createWrapper(defaultValues = {}) {
                 'sw-text-editor': await wrapTestComponent('sw-text-field'),
                 'sw-extension-component-section': true,
                 'sw-ai-copilot-badge': true,
-                'sw-alert': true,
+
                 'sw-context-button': true,
                 'sw-product-variant-info': true,
                 'sw-help-text': true,

@@ -79,7 +79,7 @@ async function createWrapper(customCmsElementConfig) {
                     'sw-block-field': true,
                     'sw-product-stream-modal-preview': true,
                     'sw-entity-single-select': true,
-                    'sw-alert': true,
+
                     'sw-number-field': true,
                     'sw-icon': true,
                     'sw-loader': true,

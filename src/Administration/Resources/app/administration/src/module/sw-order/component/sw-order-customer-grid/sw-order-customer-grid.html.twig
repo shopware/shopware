@@ -151,13 +151,13 @@
                 {% endblock %}
 
                 {% block sw_order_customer_grid_sales_channel_notification_alert %}
-                <sw-alert
+                <mt-banner
                     class="sw-order-customer-grid__sales-channel-selection--notification-alert"
-                    variant="warning"
+                    variant="attention"
                     :show-icon="false"
                 >
                     {{ $tc('sw-order.initialModal.customerGrid.alertSelectSalesChannel') }}
-                </sw-alert>
+                </mt-banner>
                 {% endblock %}
             </template>
 

@@ -128,7 +128,6 @@ async function createWrapper(privileges = []) {
                         class="sw-flow-trigger" />
                 `,
                 },
-                'sw-alert': true,
             },
             provide: {
                 repositoryFactory: {

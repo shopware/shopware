@@ -49,9 +49,9 @@
     </template>
 
     <template v-else-if="hashValid === false">
-        <sw-alert variant="error">
+        <mt-banner variant="critical">
             {{ $tc('sw-login.recovery.recovery.errorMessage') }}
-        </sw-alert>
+        </mt-banner>
     </template>
 
     <template v-else>

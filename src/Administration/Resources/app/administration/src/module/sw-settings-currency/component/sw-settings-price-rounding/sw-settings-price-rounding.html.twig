@@ -1,13 +1,13 @@
 {% block sw_settings_price_rounding %}
 <div class="sw-settings-price-rounding">
     {% block sw_settings_price_rounding_header_warning %}
-    <sw-alert
+    <mt-banner
         v-if="showHeaderWarning"
         class="sw-settings-price-rounding__header-warning"
-        variant="warning"
+        variant="attention"
     >
         {{ $tc('sw-settings-currency.price-rounding.headerWarning') }}
-    </sw-alert>
+    </mt-banner>
     {% endblock %}
 
     {% block sw_settings_price_rounding_header_items %}
@@ -95,13 +95,13 @@
     {% endblock %}
 
     {% block sw_settings_price_rounding_header_info %}
-    <sw-alert
+    <mt-banner
         v-if="showHeaderInfo"
         class="sw-settings-price-rounding__header-info"
         variant="info"
     >
         {{ $tc('sw-settings-currency.price-rounding.headerInfo') }}
-    </sw-alert>
+    </mt-banner>
     {% endblock %}
 
     {% block sw_settings_price_rounding_container_grand %}

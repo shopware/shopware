@@ -69,7 +69,6 @@ async function createWrapper(propsOverride) {
                     'router-link': true,
                     'sw-context-menu-item': true,
                     'sw-context-button': true,
-                    'sw-alert': true,
                 },
             },
         },

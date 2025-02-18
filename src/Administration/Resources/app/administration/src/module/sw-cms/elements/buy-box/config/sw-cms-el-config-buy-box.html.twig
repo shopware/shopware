@@ -36,13 +36,13 @@
                 class="sw-cms-el-config-buy-box__tab-content"
             >
                 {% block sw_cms_element_buy_box_config_content_warning %}
-                <sw-alert
+                <mt-banner
                     v-if="isProductPage"
                     class="sw-cms-el-config-buy-box__warning"
                     variant="info"
                 >
                     {{ $tc('sw-cms.elements.buyBox.infoText.tooltipSettingDisabled') }}
-                </sw-alert>
+                </mt-banner>
                 {% endblock %}
 
                 {% block sw_cms_element_buy_box_config_product_select %}

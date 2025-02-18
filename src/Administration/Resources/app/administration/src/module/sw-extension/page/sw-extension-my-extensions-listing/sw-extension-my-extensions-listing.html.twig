@@ -8,10 +8,10 @@
         v-else
         class="sw-extension-my-extensions-listing__listing-grid"
     >
-        <sw-alert
+        <mt-banner
             v-if="!isAppUrlReachable"
             class="sw-extension-my-extensions-listing__app-url-warning"
-            variant="warning"
+            variant="attention"
             :title="$tc('sw-app.component.sw-app-wrong-app-url-modal.title')"
         >
 
@@ -24,22 +24,14 @@
                 </div>
             </template>
 
-            <template #actions>
-                <sw-button
-                    class="sw-app-wrong-app-url-modal__content-link-button"
-                    variant="ghost"
-                    :link="$tc('sw-app.component.sw-app-wrong-app-url-modal.linkToDocsArticle')"
-                >
-                    {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.labelLearnMoreButton') }}
-                </sw-button>
-            </template>
+            <!-- Slot "actions" was removed and has no replacement. -->
 
-        </sw-alert>
+        </mt-banner>
 
-        <sw-alert
+        <mt-banner
             v-if="extensionManagementDisabled"
             class="sw-extension-my-extensions-listing__runtime-extension-warning"
-            variant="warning"
+            variant="attention"
             :title="$tc('sw-extension-store.component.sw-extension-my-extensions-listing.alertExtensionManagement.title')"
         >
             <template #default>
@@ -48,14 +40,8 @@
                 </div>
             </template>
 
-            <template #actions>
-                <sw-external-link
-                    href="https://developer.shopware.com/docs/guides/hosting/installation-updates/extension-managment.html"
-                >
-                    {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.labelLearnMoreButton') }}
-                </sw-external-link>
-            </template>
-        </sw-alert>
+            <!-- Slot "actions" was removed and has no replacement. -->
+        </mt-banner>
 
         {% block sw_extension_my_extensions_list_empty_state %}
 

@@ -86,7 +86,7 @@ async function createWrapper() {
                         template: '<div class="sw-entity-single-select"></div>',
                         props: ['disabled'],
                     },
-                    'sw-alert': true,
+
                     'sw-skeleton': true,
                     'sw-language-switch': true,
                     'sw-custom-field-set-renderer': true,

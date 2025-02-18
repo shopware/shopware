@@ -13,11 +13,11 @@
     </template>
 
     {% block sw_seo_url_template_card_info_box %}
-    <sw-alert
+    <mt-banner
         :title="$tc('sw-seo-url-template-card.general.headlineInfoMessageBoxEmptyProperties')"
     >
         <span>{{ $tc('sw-seo-url-template-card.general.textInfoMessageBoxEmptyProperties') }}</span>
-    </sw-alert>
+    </mt-banner>
     {% endblock %}
 
     {% block sw_seo_url_template_card_entries %}

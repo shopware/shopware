@@ -25,6 +25,7 @@ use Shopware\Core\Kernel;
 use Shopware\Core\Migration\Traits\StateMachineMigrationImporter;
 use Shopware\Core\Migration\V6_4\Migration1632721037OrderDocumentMailTemplate;
 use Shopware\Core\Migration\V6_5\Migration1672931011ReviewFormMailTemplate;
+use Symfony\Component\Console\Command\Command;
 
 /**
  * @internal
@@ -114,6 +115,11 @@ class DomainExceptionRule implements Rule
         $exceptionClass = $node->expr->class->toString();
 
         if (\in_array($exceptionClass, $this->validExceptionClasses, true)) {
+            return [];
+        }
+
+        // Allow InvalidArgumentException in commands to validate user input
+        if ($scope->getClassReflection()->isSubclassOf(Command::class) && $exceptionClass === 'InvalidArgumentException') {
             return [];
         }
 

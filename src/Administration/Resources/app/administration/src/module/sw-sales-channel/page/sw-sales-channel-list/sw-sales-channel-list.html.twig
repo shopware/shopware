@@ -92,14 +92,6 @@
                         </template>
                         {% endblock %}
 
-                        {# @deprecated tag:v6.7.0 - Remove block #}
-                        {% block sw_sales_channel_list_grid_column_product_visibilites %}
-                        <template #column-product_visibilities="{ item }">
-                            {{ getCountForSalesChannel(item.id) }}
-                            {{ $tc('sw-sales-channel.list.productsCount', getCountForSalesChannel(item.id)) }}
-                        </template>
-                        {% endblock %}
-
                         {% block sw_sales_channel_list_grid_column_status %}
                         <template #column-status="{ item }">
                             <template v-if="item.maintenance">

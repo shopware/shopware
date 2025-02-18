@@ -10,12 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('discovery')]
 class SuggestPageLoadedEvent extends PageLoadedEvent
 {
-    /**
-     * @var SuggestPage
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $page;
+    protected SuggestPage $page;
 
     public function __construct(
         SuggestPage $page,

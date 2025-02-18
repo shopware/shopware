@@ -43,26 +43,9 @@ class Kernel extends HttpKernel
 
     protected static ?Connection $connection = null;
 
-    /**
-     * @var KernelPluginLoader
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $pluginLoader;
+    protected string $shopwareVersion;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shopwareVersion;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shopwareVersionRevision;
+    protected ?string $shopwareVersionRevision;
 
     private bool $rebooting = false;
 
@@ -74,7 +57,7 @@ class Kernel extends HttpKernel
     public function __construct(
         string $environment,
         bool $debug,
-        KernelPluginLoader $pluginLoader,
+        protected KernelPluginLoader $pluginLoader,
         private string $cacheId,
         string $version,
         Connection $connection,
@@ -84,8 +67,6 @@ class Kernel extends HttpKernel
 
         parent::__construct($environment, $debug);
         self::$connection = $connection;
-
-        $this->pluginLoader = $pluginLoader;
 
         $version = VersionParser::parseShopwareVersion($version);
         $this->shopwareVersion = $version['version'];

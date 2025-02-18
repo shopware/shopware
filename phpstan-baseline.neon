@@ -1351,64 +1351,9 @@ parameters:
 			path: src/Core/Content/Sitemap/Commands/SitemapGenerateCommand.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Sitemap\\\\ConfigHandler\\\\ConfigHandlerInterface\\:\\:getSitemapConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Sitemap/ConfigHandler/ConfigHandlerInterface.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Sitemap\\\\ConfigHandler\\\\File\\:\\:__construct\\(\\) has parameter \\$sitemapConfig with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Sitemap/ConfigHandler/File.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Sitemap\\\\ConfigHandler\\\\File\\:\\:getSitemapConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Sitemap/ConfigHandler/File.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Sitemap\\\\ConfigHandler\\\\File\\:\\:getSitemapCustomUrls\\(\\) has parameter \\$customUrls with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Sitemap/ConfigHandler/File.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Sitemap\\\\ConfigHandler\\\\File\\:\\:getSitemapCustomUrls\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Sitemap/ConfigHandler/File.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Sitemap\\\\ConfigHandler\\\\File\\:\\:\\$customUrls type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Sitemap/ConfigHandler/File.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Sitemap\\\\ConfigHandler\\\\File\\:\\:\\$excludedUrls type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Sitemap/ConfigHandler/File.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Sitemap\\\\Provider\\\\CustomUrlProvider\\:\\:isAvailableForSalesChannel\\(\\) has parameter \\$url with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Sitemap/Provider/CustomUrlProvider.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Sitemap\\\\Service\\\\ConfigHandler\\:\\:addUrls\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Sitemap/Service/ConfigHandler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Sitemap\\\\Service\\\\ConfigHandler\\:\\:addUrls\\(\\) has parameter \\$urls with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Sitemap/Service/ConfigHandler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Sitemap\\\\Service\\\\ConfigHandler\\:\\:addUrls\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Sitemap/Service/ConfigHandler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Sitemap\\\\Service\\\\ConfigHandler\\:\\:get\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Sitemap/Service/ConfigHandler.php
 
 		-
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
@@ -1682,13 +1627,8 @@ parameters:
 
 		-
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 2
-			path: src/Core/Framework/Api/Command/DumpClassSchemaCommand.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 1
-			path: src/Core/Framework/Api/Command/DumpSchemaCommand.php
+			path: src/Core/Framework/Api/Command/DumpClassSchemaCommand.php
 
 		-
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
@@ -1764,11 +1704,6 @@ parameters:
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 3
 			path: src/Core/Framework/App/Command/CreateAppCommand.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 1
-			path: src/Core/Framework/App/Command/UninstallAppCommand.php
 
 		-
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
@@ -2464,11 +2399,6 @@ parameters:
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 1
 			path: src/Core/Framework/Demodata/Generator/ProductGenerator.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 1
-			path: src/Core/Framework/Demodata/PersonalData/CleanPersonalDataCommand.php
 
 		-
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
@@ -3311,31 +3241,6 @@ parameters:
 			path: src/Core/System/SystemConfig/CachedSystemConfigLoader.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Command\\\\ConfigGet\\:\\:writeConfigDefault\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/Command/ConfigGet.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Command\\\\ConfigGet\\:\\:writeConfigJson\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/Command/ConfigGet.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Command\\\\ConfigGet\\:\\:writeConfigLegacy\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/Command/ConfigGet.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 2
-			path: src/Core/System/SystemConfig/Command/ConfigGet.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Command\\\\ConfigSet\\:\\:handleDecode\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/Command/ConfigSet.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Event\\\\SystemConfigDomainLoadedEvent\\:\\:__construct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/SystemConfig/Event/SystemConfigDomainLoadedEvent.php
@@ -3396,21 +3301,6 @@ parameters:
 			path: src/Core/System/SystemConfig/Store/MemoizedSystemConfigStore.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\SystemConfigEntity\\:\\:getConfigurationValue\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/SystemConfigEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\SystemConfigEntity\\:\\:setConfigurationValue\\(\\) has parameter \\$configurationValue with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/SystemConfigEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\SystemConfig\\\\SystemConfigEntity\\:\\:\\$configurationValue type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/SystemConfigEntity.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\SystemConfigLoader\\:\\:buildSystemConfigArray\\(\\) has parameter \\$systemConfigs with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/SystemConfig/SystemConfigLoader.php
@@ -3459,11 +3349,6 @@ parameters:
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 6
 			path: src/Core/System/SystemConfig/SystemConfigService.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 1
-			path: src/Core/System/SystemConfig/Util/ConfigReader.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Tax\\\\Aggregate\\\\TaxRule\\\\TaxRuleEntity\\:\\:getData\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -3664,21 +3549,6 @@ parameters:
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 1
 			path: src/Storefront/Page/Navigation/Error/ErrorPageLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Page\\\\Sitemap\\\\SitemapPage\\:\\:getSitemaps\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Page/Sitemap/SitemapPage.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Page\\\\Sitemap\\\\SitemapPage\\:\\:setSitemaps\\(\\) has parameter \\$sitemaps with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Page/Sitemap/SitemapPage.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Page\\\\Sitemap\\\\SitemapPage\\:\\:\\$sitemaps type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Page/Sitemap/SitemapPage.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\AbstractResolvedConfigLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"

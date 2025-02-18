@@ -9,7 +9,7 @@ import Debouncer from 'src/helper/debouncer.helper';
  * This plugin automatically submits a form,
  * when the element or the form itself has changed.
  *
- * @package content
+ * @package framework
  */
 export default class FormAutoSubmitPlugin extends Plugin {
     static options = {

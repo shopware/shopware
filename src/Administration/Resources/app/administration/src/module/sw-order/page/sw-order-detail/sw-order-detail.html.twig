@@ -102,18 +102,18 @@
         {% endblock %}
         <sw-card-view>
 
-            <sw-alert
+            <mt-banner
                 v-if="isOrderEditing"
                 class="sw-order-detail__alert"
-                variant="warning"
+                variant="attention"
             >
                 {{ $tc('sw-order.detail.textUnsavedOrderWarning') }}
-            </sw-alert>
+            </mt-banner>
 
-            <sw-alert
+            <mt-banner
                 v-if="missingProductLineItems.length > 0"
                 class="sw-order-detail__alert"
-                variant="warning"
+                variant="attention"
             >
                 {{ $tc('sw-order.detailBase.textMissingProductLineItems') }}
 
@@ -127,9 +127,9 @@
                 </ul>
 
                 {{ $tc('sw-order.detailBase.textMissingProductLineItemsDescription') }}
-            </sw-alert>
+            </mt-banner>
 
-            <sw-alert
+            <mt-banner
                 v-if="convertedProductLineItems.length > 0"
                 class="sw-order-detail__alert"
                 variant="info"
@@ -146,7 +146,7 @@
                 </ul>
 
                 {{ $tc('sw-order.detailBase.textConvertedProductLineItemsDescription') }}
-            </sw-alert>
+            </mt-banner>
 
             {% block sw_order_detail_content_tabs %}
             <sw-tabs

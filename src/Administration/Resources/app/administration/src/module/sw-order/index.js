@@ -38,7 +38,10 @@ Shopware.Component.register('sw-order-saveable-field', () => import('./component
 Shopware.Component.register('sw-order-address-modal', () => import('./component/sw-order-address-modal'));
 Shopware.Component.register('sw-order-address-selection', () => import('./component/sw-order-address-selection'));
 Shopware.Component.register('sw-order-leave-page-modal', () => import('./component/sw-order-leave-page-modal'));
-Shopware.Component.register('sw-order-save-changes-beforehand-modal', () => import('./component/sw-order-save-changes-beforehand-modal'));
+Shopware.Component.register(
+    'sw-order-save-changes-beforehand-modal',
+    () => import('./component/sw-order-save-changes-beforehand-modal'),
+);
 Shopware.Component.register(
     'sw-order-state-change-modal-attach-documents',
     () => import('./component/sw-order-state-change-modal/sw-order-state-change-modal-attach-documents'),

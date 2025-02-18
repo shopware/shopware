@@ -68,7 +68,7 @@ async function createWrapper(activeTab = 'sorting') {
                     'sw-pagination': true,
                     'sw-container': true,
                     'sw-tabs-item': true,
-                    'sw-alert': true,
+
                     'sw-empty-state': true,
                     'sw-tabs': {
                         data() {

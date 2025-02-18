@@ -47,7 +47,7 @@ async function createWrapper(methods = [], cards = [], privileges = []) {
                     'sw-card-view': true,
                     'sw-context-menu-item': true,
                     'sw-internal-link': true,
-                    'sw-alert': true,
+
                     'sw-payment-card': true,
                     'sw-empty-state': true,
                     'sw-extension-component-section': true,

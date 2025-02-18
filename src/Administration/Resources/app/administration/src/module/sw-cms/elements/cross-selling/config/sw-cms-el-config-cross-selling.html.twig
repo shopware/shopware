@@ -35,13 +35,13 @@
                 class="sw-cms-el-config-cross-selling__tab-content"
             >
                 {% block sw_cms_element_cross_selling_config_content_warning_text %}
-                <sw-alert
+                <mt-banner
                     v-if="isProductPageType"
                     class="sw-cms-el-config-cross-selling__warning-text"
                     variant="info"
                 >
                     {{ $tc('sw-cms.elements.crossSelling.config.infoText.productDetailElement') }}
-                </sw-alert>
+                </mt-banner>
                 {% endblock %}
 
                 {% block sw_cms_element_cross_selling_config_content_products %}

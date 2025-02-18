@@ -49,7 +49,7 @@ class ConfigSet extends Command
     /**
      * @return array<mixed>|bool|float|int|string|null $value
      */
-    protected function handleDecode(InputInterface $input): mixed
+    protected function handleDecode(InputInterface $input): array|bool|float|int|string|null
     {
         $value = $input->getArgument('value');
         if ($input->getOption('json')) {

@@ -163,22 +163,4 @@ class UsageDataExceptionTest extends TestCase
         static::assertEquals('SYSTEM__USAGE_DATA_FAILED_TO_LOAD_DEFAULT_ALLOW_LIST', $exception->getErrorCode());
         static::assertEquals('Failed to load default allow list', $exception->getMessage());
     }
-
-    #[DisabledFeatures(['v6.7.0.0'])]
-    public function testShopIdChanged(): void
-    {
-        $exception = UsageDataException::shopIdChanged();
-
-        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
-        static::assertEquals('SYSTEM__USAGE_DATA_SHOP_ID_CHANGED', $exception->getErrorCode());
-        static::assertEquals('shopId changed', $exception->getMessage());
-    }
-
-    public function testShopIdChangedIsDeprecated(): void
-    {
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage(Feature::deprecatedMethodMessage(UsageDataException::class, 'shopIdChanged', '6.7.0.0'));
-
-        UsageDataException::shopIdChanged();
-    }
 }

@@ -127,21 +127,4 @@ class UsageDataException extends HttpException
             'Failed to load default allow list',
         );
     }
-
-    /**
-     * @deprecated tag:v6.7.0 will be removed with no replacement
-     */
-    public static function shopIdChanged(): self
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, '6.7.0.0')
-        );
-
-        return new ShopIdChangedException(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::SYSTEM__USAGE_DATA_SHOP_ID_CHANGED,
-            'shopId changed'
-        );
-    }
 }

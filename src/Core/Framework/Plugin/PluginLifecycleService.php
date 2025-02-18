@@ -9,6 +9,7 @@ use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -86,6 +87,7 @@ class PluginLifecycleService
         private readonly CustomEntitySchemaUpdater $customEntitySchemaUpdater,
         private readonly PluginService $pluginService,
         private readonly VersionSanitizer $versionSanitizer,
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
     ) {
     }
 
@@ -600,6 +602,10 @@ class PluginLifecycleService
             }
         }
 
+        if (!$plugin->getActive()) {
+            $this->clearEntityExtensions($plugin->getBaseClass());
+        }
+
         /*
          * Reboot kernel with $plugin active=true.
          *
@@ -617,6 +623,19 @@ class PluginLifecycleService
 
         $this->container = $newContainer;
         $this->eventDispatcher = $newContainer->get('event_dispatcher');
+    }
+
+    private function clearEntityExtensions(string $pluginBaseClassString): void
+    {
+        $namespace = substr($pluginBaseClassString, 0, strrpos($pluginBaseClassString, '\\'));
+        if ($namespace === '') {
+            return;
+        }
+
+        $definitions = $this->definitionRegistry->getDefinitions();
+        foreach ($definitions as $definition) {
+            $definition->removeExtensions($namespace);
+        }
     }
 
     private function getPluginInstance(string $pluginBaseClassString): Plugin

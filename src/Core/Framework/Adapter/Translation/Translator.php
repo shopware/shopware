@@ -120,23 +120,73 @@ class Translator extends AbstractTranslator
     {
         $catalog = $this->translator->getCatalogue($locale);
 
-        $fallbackLocale = $this->getFallbackLocale($catalog->getLocale());
-        if ($this->isShopwareLocaleCatalogue($catalog) && !$this->isFallbackLocaleCatalogue($catalog, $fallbackLocale)) {
-            $catalog->addFallbackCatalogue($this->translator->getCatalogue($fallbackLocale));
-        } else {
-            /**
-             * fallback locale and current locale has the same localization -> reset fallback
-             * or locale is symfony style locale, so we shouldn't add shopware fallbacks as it may lead to circular references
-             */
-            $fallbackLocale = null;
+        // get base language
+        $baseFallback = $this->getFallbackLocale($catalog->getLocale());
+        $primaryFallbackCatalogue = $this->translator->getCatalogue($baseFallback);
+
+        // build dynamically the chain based on main fallback
+        $fallbackChain = $this->getDynamicFallbackLocales($baseFallback);
+        foreach ($fallbackChain as $fallback) {
+            if (!$this->hasFallback($catalog, $fallback)) {
+                $primaryFallbackCatalogue->addFallbackCatalogue($this->translator->getCatalogue($fallback));
+            }
         }
 
-        // disable fallback logic to display symfony warnings
-        if ($this->environment !== 'prod') {
-            $fallbackLocale = null;
+        $catalog->addFallbackCatalogue($primaryFallbackCatalogue);
+
+        // for customization catalogue, use the first fallback of the dynamic chain as the fallbackLocale parameter.
+        $dynamicChain = $this->getDynamicFallbackLocales($catalog->getLocale());
+        $firstFallback = $this->environment === 'prod' ? reset($dynamicChain) : null;
+
+        return $this->getCustomizedCatalogue($catalog, $firstFallback);
+    }
+
+    private function getDynamicFallbackLocales(?string $locale): array
+    {
+        if (!$locale) {
+            return ['en'];
         }
 
-        return $this->getCustomizedCatalogue($catalog, $fallbackLocale);
+        // if the locale does not contain a dash, it's a base language.
+        if (!str_contains($locale, '-')) {
+            if ($locale === 'en') {
+                return ['en'];
+            }
+            // for other base languages (e.g. "de"), return the base followed by temporary and 'en' fallbacks.
+            /** @deprecated tag:v6.8.0 - Remove temporary fallback (en-GB) in 6.8.  */
+            return [$locale, $this->getTemporaryFallbackLocale(), 'en'];
+        }
+
+        // otherwise, for variant locales (like "de-DE")
+        $parts = explode('-', $locale);
+        $base = $parts[0];
+        /** @deprecated tag:v6.8.0 - Remove temporary fallback (en-GB) in 6.8.  */
+        return [$base, $this->getTemporaryFallbackLocale(), 'en'];
+    }
+
+
+
+    /**
+     * Returns en-GB as a temporary fallback locale.
+     *
+     * This value is used as an intermediate fallback layer.
+     *
+     * @deprecated tag:v6.8.0 - The temporary fallback locale will be removed in 6.8.
+     */
+    private function getTemporaryFallbackLocale(): string
+    {
+        return 'en-GB';
+    }
+
+    private function hasFallback(MessageCatalogueInterface $catalog, string $fallbackLocale): bool
+    {
+        while ($catalog !== null) {
+            if ($catalog->getLocale() === $fallbackLocale) {
+                return true;
+            }
+            $catalog = $catalog->getFallbackCatalogue();
+        }
+        return false;
     }
 
     public static function tag(?string $id): string
@@ -292,7 +342,7 @@ class Translator extends AbstractTranslator
 
     private function isFallbackLocaleCatalogue(MessageCatalogueInterface $catalog, string $fallbackLocale): bool
     {
-        return mb_strpos($catalog->getLocale(), $fallbackLocale) === 0;
+        return $catalog->getLocale() === $fallbackLocale;
     }
 
     /**
@@ -343,10 +393,10 @@ class Translator extends AbstractTranslator
     private function loadSnippets(MessageCatalogueInterface $catalog, string $snippetSetId, ?string $fallbackLocale): array
     {
         $this->resolveSalesChannelId();
+        $currentLocale = $catalog->getLocale();
+        $key = sprintf('translation.catalog.%s.%s', $this->salesChannelId ?: 'DEFAULT', $snippetSetId . '-' . $currentLocale);
 
-        $key = \sprintf('translation.catalog.%s.%s', $this->salesChannelId ?: 'DEFAULT', $snippetSetId);
-
-        return $this->cache->get($key, function (ItemInterface $item) use ($catalog, $snippetSetId, $fallbackLocale) {
+        return $this->cache->get($key, function (ItemInterface $item) use ($catalog, $snippetSetId, $currentLocale) {
             if (Feature::isActive('cache_rework')) {
                 $item->tag(self::ALL_CACHE_TAG);
                 $item->tag(self::tag($snippetSetId));
@@ -356,7 +406,7 @@ class Translator extends AbstractTranslator
                 $item->tag(\sprintf('translation.catalog.%s', $this->salesChannelId ?: 'DEFAULT'));
             }
 
-            return $this->snippetService->getStorefrontSnippets($catalog, $snippetSetId, $fallbackLocale, $this->salesChannelId);
+            return $this->snippetService->getStorefrontSnippets($catalog, $snippetSetId, $currentLocale, $this->salesChannelId);
         });
     }
 

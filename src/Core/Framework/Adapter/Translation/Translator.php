@@ -343,10 +343,10 @@ class Translator extends AbstractTranslator
     private function loadSnippets(MessageCatalogueInterface $catalog, string $snippetSetId, ?string $fallbackLocale): array
     {
         $this->resolveSalesChannelId();
-        $currentLocale = $catalog->getLocale();
-        $key = \sprintf('translation.catalog.%s.%s', $this->salesChannelId ?: 'DEFAULT', $snippetSetId . '-' . $currentLocale);
+        $effectiveLocale = $fallbackLocale ?? $catalog->getLocale();
+        $key = \sprintf('translation.catalog.%s.%s', $this->salesChannelId ?: 'DEFAULT', $snippetSetId . '-' . $effectiveLocale);
 
-        return $this->cache->get($key, function (ItemInterface $item) use ($catalog, $snippetSetId, $currentLocale) {
+        return $this->cache->get($key, function (ItemInterface $item) use ($catalog, $snippetSetId, $effectiveLocale) {
             if (Feature::isActive('cache_rework')) {
                 $item->tag(self::ALL_CACHE_TAG);
                 $item->tag(self::tag($snippetSetId));
@@ -356,7 +356,7 @@ class Translator extends AbstractTranslator
                 $item->tag(\sprintf('translation.catalog.%s', $this->salesChannelId ?: 'DEFAULT'));
             }
 
-            return $this->snippetService->getStorefrontSnippets($catalog, $snippetSetId, $currentLocale, $this->salesChannelId);
+            return $this->snippetService->getStorefrontSnippets($catalog, $snippetSetId, $effectiveLocale, $this->salesChannelId);
         });
     }
 

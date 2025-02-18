@@ -35,10 +35,10 @@ use Symfony\Component\Messenger\Stamp\DelayStamp;
 class ThemeCompiler implements ThemeCompilerInterface
 {
     /**
+     * @internal
+     *
      * @param array<string, AssetPackage> $packages
      * @param array<int, string> $customAllowedRegex
-     *
-     *@internal
      */
     public function __construct(
         private readonly FilesystemOperator $filesystem,

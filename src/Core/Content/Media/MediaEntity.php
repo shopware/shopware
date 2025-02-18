@@ -665,17 +665,4 @@ class MediaEntity extends Entity
     {
         return $this->fileHash;
     }
-
-    /**
-     * @internal
-     */
-    protected function setFileHash(?string $fileHash): void
-    {
-        if ($fileHash === null) {
-            unset($this->metaData['file_hash']);
-        } else {
-            $this->metaData['file_hash'] = $fileHash;
-        }
-        $this->fileHash = $fileHash;
-    }
 }

@@ -350,7 +350,7 @@ class PluginLifecycleService
 
         // only skip rebuild if plugin has overwritten rebuildContainer method and source is system source (CLI)
         if ($pluginBaseClass->rebuildContainer() || !$shopwareContext->getSource() instanceof SystemSource) {
-            $this->rebuildContainerWithNewPluginState($plugin);
+            $this->rebuildContainerWithNewPluginState($plugin, $pluginBaseClass->getNamespace());
         }
 
         $pluginBaseClass = $this->getPluginInstance($pluginBaseClassString);
@@ -437,7 +437,7 @@ class PluginLifecycleService
 
             // only skip rebuild if plugin has overwritten rebuildContainer method and source is system source (CLI)
             if ($pluginBaseClass->rebuildContainer() || !$shopwareContext->getSource() instanceof SystemSource) {
-                $this->rebuildContainerWithNewPluginState($plugin);
+                $this->rebuildContainerWithNewPluginState($plugin, $pluginBaseClass->getNamespace());
             }
 
             $this->updatePluginData(
@@ -584,7 +584,7 @@ class PluginLifecycleService
         $this->pluginRepo->update([$pluginData], $context);
     }
 
-    private function rebuildContainerWithNewPluginState(PluginEntity $plugin): void
+    private function rebuildContainerWithNewPluginState(PluginEntity $plugin, string $pluginNamespace): void
     {
         $kernel = $this->container->get('kernel');
 
@@ -603,7 +603,7 @@ class PluginLifecycleService
         }
 
         if (!$plugin->getActive()) {
-            $this->clearEntityExtensions($plugin->getBaseClass());
+            $this->clearEntityExtensions($pluginNamespace);
         }
 
         /*
@@ -625,16 +625,15 @@ class PluginLifecycleService
         $this->eventDispatcher = $newContainer->get('event_dispatcher');
     }
 
-    private function clearEntityExtensions(string $pluginBaseClassString): void
+    private function clearEntityExtensions(string $pluginNamespace): void
     {
-        $namespace = substr($pluginBaseClassString, 0, strrpos($pluginBaseClassString, '\\'));
-        if ($namespace === '') {
+        if ($pluginNamespace === '') {
             return;
         }
 
         $definitions = $this->definitionRegistry->getDefinitions();
         foreach ($definitions as $definition) {
-            $definition->removeExtensions($namespace);
+            $definition->removeExtensions($pluginNamespace);
         }
     }
 

@@ -175,7 +175,27 @@ tester.run('no-deprecated-components', rule, {
             <template>
                 <mt-floating-ui />
             </template>`
-        }
+        },
+        {
+            name: '"sw-button" usage is allowed when not in the activatedComponents list',
+            filename: 'test.html.twig',
+            options: [{
+                fix: true,
+                activatedComponents: ['sw-icon'],
+            }],
+            code: `
+<template>
+    <sw-button>Hello</sw-button>
+</template>`,
+            output: `
+<template>
+    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+    <mt-button>Hello</mt-button>
+</template>`,
+            errors: [{
+                message: '"sw-button" is deprecated. Please use "mt-button" instead.',
+            }]
+        },
     ],
     invalid: [
         {
@@ -195,9 +215,31 @@ tester.run('no-deprecated-components', rule, {
             }]
         },
         {
+            name: '"sw-button" usage is not allowed when in the activatedComponents list',
+            filename: 'test.html.twig',
+            options: [{
+                fix: true,
+                activatedComponents: ['sw-button'],
+            }],
+            code: `
+<template>
+    <sw-button>Hello</sw-button>
+</template>`,
+            output: `
+<template>
+    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+    <mt-button>Hello</mt-button>
+</template>`,
+            errors: [{
+                message: '"sw-button" is deprecated. Please use "mt-button" instead.',
+            }]
+        },
+        {
             name: '"sw-button" usage is not allowed [disableFix]',
             filename: 'test.html.twig',
-            options: ['disableFix'],
+            options: [{
+                fix: false,
+            }],
             code: `
 <template>
     <sw-button>Hello</sw-button>
@@ -225,7 +267,9 @@ tester.run('no-deprecated-components', rule, {
         {
             name: '"sw-icon" usage is not allowed [disableFix]',
             filename: 'test.html.twig',
-            options: ['disableFix'],
+            options: [{
+                fix: false,
+            }],
             code: `
 <template>
     <sw-icon name="regular-times-s" />
@@ -253,7 +297,9 @@ tester.run('no-deprecated-components', rule, {
         {
             name: '"sw-card" usage is not allowed [disableFix]',
             filename: 'test.html.twig',
-            options: ['disableFix'],
+            options: [{
+                fix: false,
+            }],
             code: `
 <template>
     <sw-card>Hello</sw-card>
@@ -281,7 +327,9 @@ tester.run('no-deprecated-components', rule, {
         {
             name: '"sw-text-field" usage is not allowed [disableFix]',
             filename: 'test.html.twig',
-            options: ['disableFix'],
+            options: [{
+                fix: false,
+            }],
             code: `
 <template>
     <sw-text-field />
@@ -309,7 +357,9 @@ tester.run('no-deprecated-components', rule, {
         {
             name: '"sw-colorpicker" usage is not allowed [disableFix]',
             filename: 'test.html.twig',
-            options: ['disableFix'],
+            options: [{
+                fix: false,
+            }],
             code: `
 <template>
     <sw-colorpicker />
@@ -337,7 +387,9 @@ tester.run('no-deprecated-components', rule, {
         {
             name: '"sw-switch-field" usage is not allowed [disableFix]',
             filename: 'test.html.twig',
-            options: ['disableFix'],
+            options: [{
+                fix: false,
+            }],
             code: `
 <template>
     <sw-switch-field>Hello</sw-switch-field>
@@ -365,7 +417,9 @@ tester.run('no-deprecated-components', rule, {
         {
             name: '"sw-number-field" usage is not allowed [disableFix]',
             filename: 'test.html.twig',
-            options: ['disableFix'],
+            options: [{
+                fix: false,
+            }],
             code: `
 <template>
     <sw-number-field />
@@ -393,7 +447,9 @@ tester.run('no-deprecated-components', rule, {
         {
             name: '"sw-loader" usage is not allowed [disableFix]',
             filename: 'test.html.twig',
-            options: ['disableFix'],
+            options: [{
+                fix: false,
+            }],
             code: `
 <template>
     <sw-loader />
@@ -421,7 +477,9 @@ tester.run('no-deprecated-components', rule, {
         {
             name: '"sw-checkbox-field" usage is not allowed [disableFix]',
             filename: 'test.html.twig',
-            options: ['disableFix'],
+            options: [{
+                fix: false,
+            }],
             code: `
 <template>
     <sw-checkbox-field />
@@ -449,7 +507,9 @@ tester.run('no-deprecated-components', rule, {
         {
             name: '"sw-tabs" usage is not allowed [disableFix]',
             filename: 'test.html.twig',
-            options: ['disableFix'],
+            options: [{
+                fix: false,
+            }],
             code: `
 <template>
     <sw-tabs />
@@ -477,7 +537,9 @@ tester.run('no-deprecated-components', rule, {
         {
             name: '"sw-select-field" usage is not allowed [disableFix]',
             filename: 'test.html.twig',
-            options: ['disableFix'],
+            options: [{
+                fix: false,
+            }],
             code: `
 <template>
     <sw-select-field />
@@ -505,7 +567,9 @@ tester.run('no-deprecated-components', rule, {
         {
             name: '"sw-textarea-field" usage is not allowed [disableFix]',
             filename: 'test.html.twig',
-            options: ['disableFix'],
+            options: [{
+                fix: false,
+            }],
             code: `
 <template>
     <sw-textarea-field />
@@ -533,7 +597,9 @@ tester.run('no-deprecated-components', rule, {
         {
             name: '"sw-alert" usage is not allowed [disableFix]',
             filename: 'test.html.twig',
-            options: ['disableFix'],
+            options: [{
+                fix: false,
+            }],
             code: `
 <template>
     <sw-alert>Hello</sw-alert>
@@ -561,7 +627,9 @@ tester.run('no-deprecated-components', rule, {
         {
             name: '"sw-email-field" usage is not allowed [disableFix]',
             filename: 'test.html.twig',
-            options: ['disableFix'],
+            options: [{
+                fix: false,
+            }],
             code: `
 <template>
     <sw-email-field />
@@ -589,7 +657,9 @@ tester.run('no-deprecated-components', rule, {
         {
             name: '"sw-skeleton-bar" usage is not allowed [disableFix]',
             filename: 'test.html.twig',
-            options: ['disableFix'],
+            options: [{
+                fix: false,
+            }],
             code: `
 <template>
     <sw-skeleton-bar />
@@ -617,7 +687,9 @@ tester.run('no-deprecated-components', rule, {
         {
             name: '"sw-password-field" usage is not allowed [disableFix]',
             filename: 'test.html.twig',
-            options: ['disableFix'],
+            options: [{
+                fix: false,
+            }],
             code: `
 <template>
     <sw-password-field />
@@ -645,7 +717,9 @@ tester.run('no-deprecated-components', rule, {
         {
             name: '"sw-url-field" usage is not allowed [disableFix]',
             filename: 'test.html.twig',
-            options: ['disableFix'],
+            options: [{
+                fix: false,
+            }],
             code: `
 <template>
     <sw-url-field />
@@ -673,7 +747,9 @@ tester.run('no-deprecated-components', rule, {
         {
             name: '"sw-progress-bar" usage is not allowed [disableFix]',
             filename: 'test.html.twig',
-            options: ['disableFix'],
+            options: [{
+                fix: false,
+            }],
             code: `
 <template>
     <sw-progress-bar />
@@ -701,7 +777,9 @@ tester.run('no-deprecated-components', rule, {
         {
             name: '"sw-data-grid" usage is not allowed [disableFix]',
             filename: 'test.html.twig',
-            options: ['disableFix'],
+            options: [{
+                fix: false,
+            }],
             code: `
 <template>
     <sw-data-grid />
@@ -729,7 +807,9 @@ tester.run('no-deprecated-components', rule, {
         {
             name: '"sw-popover" usage is not allowed [disableFix]',
             filename: 'test.html.twig',
-            options: ['disableFix'],
+            options: [{
+                fix: false,
+            }],
             code: `
 <template>
     <sw-popover />

@@ -166,7 +166,7 @@ async function createWrapper(privileges = []) {
                 'sw-modal': true,
                 'sw-text-field': true,
                 'sw-context-menu-item': true,
-                'sw-alert': true,
+
                 'sw-code-editor': {
                     props: [
                         'disabled',

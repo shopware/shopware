@@ -63,7 +63,7 @@ async function createWrapper(order = {}) {
                             <slot></slot>
                         </div>`,
                 },
-                'sw-alert': true,
+
                 'sw-loader': true,
                 'router-view': true,
                 'sw-tabs': true,

@@ -166,13 +166,13 @@
                     {% endblock %}
 
                     {% block sw_integration_list_detail_modal_inner_helptext %}
-                    <sw-alert
+                    <mt-banner
                         v-if="showSecretAccessKey"
-                        variant="warning"
+                        variant="attention"
                         class="sw-integration-list__secret-help-text-alert"
                     >
                         {{ $tc('sw-integration.detail.secretHelpText') }}
-                    </sw-alert>
+                    </mt-banner>
                     {% endblock %}
 
                     {% block sw_integration_list_detail_modal_inner_footer %}

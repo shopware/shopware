@@ -46,7 +46,7 @@ async function createWrapper() {
                 'sw-sales-channel-detail-domains': true,
                 'sw-category-tree-field': true,
                 'mt-select': true,
-                'sw-alert': true,
+
                 'sw-custom-field-set-renderer': true,
             },
             provide: {

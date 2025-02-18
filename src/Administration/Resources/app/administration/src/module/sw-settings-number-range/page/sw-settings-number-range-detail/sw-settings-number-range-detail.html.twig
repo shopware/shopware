@@ -63,14 +63,14 @@
                     position-identifier="sw-settings-number-range-detail-content"
                 >
                     {% block sw_settings_number_range_detail_content_global_warning %}
-                    <sw-alert
+                    <mt-banner
                         v-if="numberRange && numberRange.type && numberRange.type.global"
                         class="sw-number_range-quickinfo__alert-global-type"
-                        variant="warning"
+                        variant="attention"
                         :title="$tc('sw-settings-number-range.general.infoGlobalTypeTitle', {typeName: numberRange.type.typeName}, 0)"
                     >
                         {{ $tc('sw-settings-number-range.general.infoGlobalType', {typeName: numberRange.type.typeName}, 0) }}
-                    </sw-alert>
+                    </mt-banner>
                     {% endblock %}
 
                     <sw-container
@@ -211,24 +211,24 @@
                     class="sw-settings-number-range-detail-assignment"
                 >
                     {% block sw_settings_number_range_detail_assignment_card_global_warning %}
-                    <sw-alert
+                    <mt-banner
                         v-if="numberRange !== null && numberRange.global"
                         class="sw-number_range-quickinfo__alert-global-type"
                         variant="info"
                         :title="$tc('sw-settings-number-range.general.infoGlobalTitle', {name: numberRange.name}, 0)"
                     >
                         {{ $tc('sw-settings-number-range.general.infoGlobal', {name: numberRange.name}, 0) }}
-                    </sw-alert>
-                    <sw-alert
+                    </mt-banner>
+                    <mt-banner
                         v-if="
                             numberRange.type !== null &&
                                 numberRange.numberRangeSalesChannels &&
                                 numberRange.numberRangeSalesChannels.length > 0"
                         class="sw-number_range-quickinfo__alert-global-type"
-                        variant="warning"
+                        variant="attention"
                     >
                         {{ $tc('sw-settings-number-range.general.infoSalesChannelBound', {name: numberRange.name}, 0) }}
-                    </sw-alert>
+                    </mt-banner>
                     {% endblock %}
                     <sw-container
                         columns="repeat(auto-fit, minmax(100%, 1fr))"

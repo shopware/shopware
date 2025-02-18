@@ -139,7 +139,7 @@ async function createWrapper(privileges = []) {
                     'sw-switch-field': true,
                     'sw-multi-select': true,
                     'sw-context-button': true,
-                    'sw-alert': true,
+
                     'sw-label': true,
                     'sw-text-field': true,
                     'sw-settings-tag-detail-modal': true,

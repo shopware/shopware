@@ -16,7 +16,6 @@ async function createWrapper() {
                 },
                 stubs: {
                     'sw-code-editor': true,
-                    'sw-alert': true,
                 },
             },
             props: {

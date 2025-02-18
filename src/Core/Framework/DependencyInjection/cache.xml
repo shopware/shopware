@@ -162,13 +162,6 @@
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\Event\BeforeSendResponseEvent" />
         </service>
 
-        <service id="shopware.cache.reverse_proxy.redis" class="Redis">
-            <factory service="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory" method="create"/>
-            <argument>%shopware.http_cache.reverse_proxy.redis_url%</argument>
-
-            <deprecated package="shopware/core" version="6.7.0.0">tag:v6.7.0 - The %service_id% service will be removed in v6.7.0.0 without replacement.</deprecated>
-        </service>
-
         <service id="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCache">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway"/>
             <argument>%shopware.cache.invalidation.http_cache%</argument>
@@ -195,7 +188,7 @@
 
         <service id="shopware.reverse_proxy.http_client" class="GuzzleHttp\Client"/>
 
-        <service id="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\VarnishReverseProxyGateway">
+        <service id="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway" class="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\VarnishReverseProxyGateway">
             <argument>%shopware.http_cache.reverse_proxy.hosts%</argument>
             <argument>%shopware.http_cache.reverse_proxy.max_parallel_invalidations%</argument>
             <argument type="service" id="shopware.reverse_proxy.http_client"/>

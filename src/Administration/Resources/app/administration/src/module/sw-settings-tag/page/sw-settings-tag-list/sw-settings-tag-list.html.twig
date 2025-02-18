@@ -202,9 +202,9 @@
                                     name="bulk-modal-merge-confirm-text"
                                     v-bind="{ selection, ids }"
                                 >
-                                    <sw-alert variant="info">
+                                    <mt-banner variant="info">
                                         {{ $tc('sw-settings-tag.list.bulkMergeNotice') }}
-                                    </sw-alert>
+                                    </mt-banner>
                                     <p class="sw-settings-tag-list__confirm-bulk-merge-text">
                                         <span v-if="!bulkMergeProgress.isRunning">
                                             {{ $tc('sw-settings-tag.list.bulkMergeMessage') }}

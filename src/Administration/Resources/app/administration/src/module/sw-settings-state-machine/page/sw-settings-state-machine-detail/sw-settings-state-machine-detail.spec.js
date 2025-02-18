@@ -187,7 +187,6 @@ describe('module/sw-settings-state-machine/page/sw-settings-state-machine-detail
 
         await wrapper.vm.onSave();
 
-
         expect(wrapper.vm.stateMachineRepository.save).toHaveBeenCalled();
         expect(wrapper.vm.loadStateMachine).toHaveBeenCalled();
 

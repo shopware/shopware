@@ -6,7 +6,7 @@
     @modal-close="onCancel"
 >
     {% block sw_customer_imitate_customer_modal_alert %}
-    <sw-alert>
+    <mt-banner>
         <i18n-t
             keypath="sw-customer.imitateCustomerModal.modalInfo"
             tag="p"
@@ -15,7 +15,7 @@
                 <b>{{ $tc('sw-customer.imitateCustomerModal.modalInfoLogout') }}</b>
             </template>
         </i18n-t>
-    </sw-alert>
+    </mt-banner>
     {% endblock %}
 
     {% block sw_customer_imitate_customer_modal_description %}

@@ -14,36 +14,23 @@ $sw-notifications-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     max-height: calc(100% - #{$sw-notifications-gap});
     overflow: hidden;
 
-    .sw-alert {
+    .sw-notification__alert--system {
+        color-scheme: dark;
+    }
+
+    .mt-banner__message {
         width: 100%;
+    }
 
-        &--info {
-            .sw-alert__title,
-            .sw-alert__message {
-                color: $color-darkgray-200;
-            }
-        }
+    .mt-button {
+        flex: 1;
+    }
 
-        &--success {
-            .sw-alert__title,
-            .sw-alert__message {
-                color: $color-darkgray-200;
-            }
-        }
-
-        &--error {
-            .sw-alert__title,
-            .sw-alert__message {
-                color: $color-darkgray-200;
-            }
-        }
-
-        &--warning {
-            .sw-alert__title,
-            .sw-alert__message {
-                color: $color-darkgray-200;
-            }
-        }
+    &__actions {
+        margin-top: 12px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
     }
 }
 

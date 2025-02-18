@@ -12,7 +12,6 @@ async function createWrapper() {
                 'sw-button': true,
                 'sw-icon': true,
                 'sw-password-field': true,
-                'sw-alert': true,
             },
             provide: {
                 userRecoveryService: {

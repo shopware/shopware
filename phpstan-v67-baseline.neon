@@ -17,35 +17,5 @@ parameters:
 
         - # issue 6556
             message: '#^.*$#'
-            count: 33
-            path: tests/integration/Core/Checkout/Document/Renderer/CreditNoteRendererTest.php
-
-        - # issue 6556
-            message: '#^.*$#'
-            count: 29
-            path: tests/integration/Core/Checkout/Document/Renderer/DeliveryNoteRendererTest.php
-
-        - # issue 6556
-            message: '#^.*$#'
-            count: 35
-            path: tests/integration/Core/Checkout/Document/Renderer/InvoiceRendererTest.php
-
-        - # issue 6556
-            message: '#^.*$#'
-            count: 32
-            path: tests/integration/Core/Checkout/Document/Renderer/StornoRendererTest.php
-
-        - # issue 6556
-            message: '#^.*$#'
-            count: 39
-            path: tests/integration/Core/Checkout/Document/Service/DocumentGeneratorTest.php
-
-        - # issue 6556
-            message: '#^.*$#'
-            count: 30
-            path: tests/integration/Core/Checkout/Document/Service/PdfRendererTest.php
-
-        - # issue 6556
-            message: '#^.*$#'
             count: 3
             path: tests/unit/Elasticsearch/Product/ProductSearchQueryBuilderTest.php

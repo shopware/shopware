@@ -46,7 +46,6 @@ async function createWrapper() {
                 'router-link': true,
                 'sw-context-menu-item': true,
                 'sw-context-button': true,
-                'sw-alert': true,
             },
         },
         props: {

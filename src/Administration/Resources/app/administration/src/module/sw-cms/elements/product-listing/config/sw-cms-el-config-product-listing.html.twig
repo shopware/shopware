@@ -56,9 +56,9 @@
                 {% endblock %}
 
                 {% block sw_cms_element_product_listing_config_info %}
-                <sw-alert variant="info">
+                <mt-banner variant="info">
                     {{ $tc('sw-cms.elements.general.config.infoText.listingElement') }}
-                </sw-alert>
+                </mt-banner>
                 {% endblock %}
             </template>
 
@@ -154,9 +154,9 @@
 
             <template v-if="active === 'filter'">
                 {% block sw_cms_element_product_listing_config_filter_info %}
-                <sw-alert variant="info">
+                <mt-banner variant="info">
                     {{ $tc('sw-cms.elements.productListing.config.filter.infoText') }}
-                </sw-alert>
+                </mt-banner>
                 {% endblock %}
 
                 {% block sw_cms_element_product_listing_config_filter_by_wrapper %}

@@ -36,7 +36,7 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
                     'sw-icon': true,
                     'sw-tabs': true,
                     'sw-sales-channel-switch': true,
-                    'sw-alert': true,
+
                     'sw-form-field-renderer': true,
                     'sw-inherit-wrapper': true,
                     'sw-card': true,

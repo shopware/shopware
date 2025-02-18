@@ -2528,6 +2528,19 @@ To prepare for migration:
 * `shopware.cart.redis_url` -> `cart.storage.config.connection`
 * `cart.storage.config.dsn` -> `cart.storage.config.connection`
 
+## Service bundle needs to be enabled explicitly
+
+The services bundle now needs to be enabled explicitly in your `config/bundles.php`, to do that add the following line:
+```diff
+$bundles = [
+    ...
+    Shopware\Elasticsearch\Elasticsearch::class => ['all' => true],
++    Shopware\Core\Service\Service::class => ['all' => true],
+];
+```
+
+When you use a [symfony flex setup](https://developer.shopware.com/docs/guides/installation/template.html#symfony-flex) it should pick up the change automatically and apply [that change](https://github.com/shopware/recipes/blob/main/shopware/core/6.7/manifest.json#L34) during the shopware update. 
+
 ## Search server now provides OpenSearch/Elasticsearch shards and replicas
 
 Previously we had a default configuration of three shards and three replicas. With 6.7 we removed this default configuration and now the search server is responsible for providing the correct configuration.

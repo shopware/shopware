@@ -53,6 +53,10 @@
 
         {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
         {% block cms_form_privacy_opt_in_label %}
+            {# Keep the next 3 variable assignments although being declared already for templates importing this block #}
+            {% set generalPrivacyNoticeSnippet = 'general.privacyNoticeText' %}
+            {% set contactPrivacyNoticeSnippet = 'contact.privacyNoticeText' %}
+            {% set cmsPath = 'frontend.cms.page' %}
             <label for="{% if feature('ACCESSIBILITY_TWEAKS') %}{{ formPrefix }}-{% endif %}{{ identifierTemplate|format(_key) }}" class="form-check-label">
                 {% if requiresTermsOfService == true %}
                     {{ generalPrivacyNoticeSnippet|trans({

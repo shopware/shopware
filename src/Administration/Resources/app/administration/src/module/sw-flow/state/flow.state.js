@@ -217,19 +217,6 @@ export default {
                     return;
                 }
 
-                const actionType = Service('flowBuilderService').mapActionType(action.name);
-
-                if (actionType) {
-                    // check if the action is already in the available actions list by typeq
-                    const hasDuplicateAction = availableActions.find(
-                        (option) => Service('flowBuilderService').mapActionType(option) === actionType,
-                    );
-
-                    if (hasDuplicateAction !== undefined) {
-                        return;
-                    }
-                }
-
                 availableActions.push(action.name);
             });
 

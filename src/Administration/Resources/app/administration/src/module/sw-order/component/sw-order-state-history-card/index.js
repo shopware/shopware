@@ -14,6 +14,7 @@ export default {
     compatConfig: Shopware.compatConfig,
 
     inject: [
+        'swOrderDetailAskAndSaveEdits',
         'orderService',
         'stateMachineService',
         'orderStateMachineService',
@@ -305,9 +306,14 @@ export default {
             return options;
         },
 
-        onOrderStateSelected(actionName) {
+        async onOrderStateSelected(actionName) {
             if (!actionName) {
                 this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
+                return;
+            }
+
+            const proceed = await this.swOrderDetailAskAndSaveEdits();
+            if (!proceed) {
                 return;
             }
 
@@ -326,9 +332,14 @@ export default {
             this.showModal = false;
         },
 
-        onTransactionStateSelected(actionName) {
+        async onTransactionStateSelected(actionName) {
             if (!actionName) {
                 this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
+                return;
+            }
+
+            const proceed = await this.swOrderDetailAskAndSaveEdits();
+            if (!proceed) {
                 return;
             }
 
@@ -342,9 +353,14 @@ export default {
             this.modalConfirmed = false;
         },
 
-        onDeliveryStateSelected(actionName) {
+        async onDeliveryStateSelected(actionName) {
             if (!actionName) {
                 this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
+                return;
+            }
+
+            const proceed = await this.swOrderDetailAskAndSaveEdits();
+            if (!proceed) {
                 return;
             }
 

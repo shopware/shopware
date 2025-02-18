@@ -702,8 +702,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
 
         const actionItems = wrapper.findAll('.sw-select-result');
 
-        expect(actionItems).toHaveLength(6);
-        expect(actionItems.at(5).get('.sw-highlight-text').text()).toBe('Telegram send message');
+        expect(actionItems).toHaveLength(8);
+        expect(actionItems.at(7).get('.sw-highlight-text').text()).toBe('Telegram send message');
     });
 
     it('should disable the actions when inactive the app flow actions', async () => {

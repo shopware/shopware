@@ -270,19 +270,19 @@ This will execute the test code of the task. In addition, it will automatically 
 
 Visual testing ensures that your application's UI remains consistent and free from unintended changes. Playwright also provides built-in capabilities for visual regression testing. 
 
-Playwright has the option to generate and compare images using function
+Playwright has the option to generate and compare images using this function
 ```JavaScript
  await expect(page).toHaveScreenshot() 
 ```
 **toHaveScreenshot** method can be extended with multiple option attributes. You can check the list of available options in the official Playwright [documentation](https://playwright.dev/docs/api/class-pageassertions#page-assertions-to-have-screenshot-1)
 
-**Note:** When running the tests for the first time you may receive an error like below but this is expected as Playwright has any image to compare.
+**Note:** When running the tests for the first time you may receive an error like below, but this is expected as Playwright has any image to compare.
 ```
 Error: A snapshot doesn't exist at {TEST_OUTPUT_PATH}, writing actual.
 ```
 
 ### Updating screenshots
-From time to time it may be necessary to update reference screenshot (base image), for example when the page content changes.
+From time to time it may be necessary to update the reference screenshot (base image), for example when the page content changes.
 To update the reference screenshot you can use the **--update-snapshots** flag (or **-u**) flag.
 
 ```
@@ -296,7 +296,7 @@ npx playwright test -u "**/test_name*.spec.ts"
 ```
 
 ### Debug visual tests
-The best solution for debugging visual tests is reviewing the "Actual" and "Expected" views from  HTML report or any reporting tool implemented in the tests
+The best solution for debugging visual tests is reviewing the "Actual" and "Expected" views from the HTML report or any reporting tool implemented in the tests.
 The “Diff” view offers a stark comparison between the expected and actual screenshots.
 
 
@@ -310,8 +310,8 @@ You can set all these options per test or globally in the **playwright.config.ts
 
 
 ### Best Practices for Visual Testing 
-- use **mask** function or custom stylesheet to manipulate and hide dynamic or volatile elements on your page
+- use **mask** function or a custom stylesheet to hide dynamic elements or sensitive information on your page
 - ensure environmental compatibility for generated and compared images (matching the OS of your test runner with your local dev environment, ensuring your time zones match)
 - adjust the sensitivity of **maxDiff Pixels** to suit your project
-- handling lazy loaded images (you can use additional timeout extend toHaveScreenshot function)
+- take care of lazy loaded images (you can extend the toHaveScreenshot() function with an additional timeout)
 - be sure before using the toHaveScreenshot method that the page is in the target state (use the scroll to element option if necessary)

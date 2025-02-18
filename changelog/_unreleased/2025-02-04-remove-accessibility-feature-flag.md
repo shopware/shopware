@@ -18,6 +18,8 @@ ___
   * Removed deprecated file `storefront/layout/navigation/categories.html.twig`.
   * Removed deprecated file `storefront/src/scss/page/content/_breadcrumb.scss`.
   * Removed deprecated file `storefront/component/captcha/basicCaptchaFields.html.twig`.
+  * Removed deprecated file `storefront/component/payment/payment-fields.html.twig`.
+  * Removed deprecated file `storefront/page/checkout/cart/meta.html.twig`.
   * Removed deprecated file `storefront/page/account/register/meta.html.twig`.
   * Removed deprecated file `storefront/page/account/order-history/cancel-order-modal.html.twig`.
   * Removed deprecated file `storefront/page/account/profile/personal.html.twig`.

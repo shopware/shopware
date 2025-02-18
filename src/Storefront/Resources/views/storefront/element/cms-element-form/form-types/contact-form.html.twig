@@ -2,9 +2,7 @@
     {% set formPrefix = 'cms-form-contact' %}
     <form action="{{ path(action) }}"
           method="post"
-          {# @deprecated tag:v6.7.0 - Form validation plugin will be replaced by form handler plugin. #}
-          {% if feature('ACCESSIBILITY_TWEAKS') %}data-form-handler="true"{% endif %}
-          {% if not feature('ACCESSIBILITY_TWEAKS') %}data-form-validation="true"{% endif %}
+          data-form-handler="true"
           data-form-preserver="true"
           id="{{ formPrefix }}"
           aria-label="{{ element.config.title.value ? element.config.title.value : 'contact.headline'|trans }}">
@@ -64,20 +62,17 @@
             {% endblock %}
 
             {% block cms_form_contact_input_phone %}
-                {# @deprecated tag:v6.7.0 - Block will be renamed because of a typo. Use outer `cms_form_contact_input_phone` instead. #}
-                {% block cms_form_contact_input_phome %}
-                    {% set phoneNumberFieldRequired = config('core.basicInformation.phoneNumberFieldRequired') == true %}
-                    {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
-                        with {
-                        fieldName: 'phone',
-                        autocomplete: 'tel',
-                        required: phoneNumberFieldRequired,
-                        additionalClass: 'col-md-6',
-                        label: 'account.personalPhoneLabel',
-                        placeholder: 'account.personalPhonePlaceholder'
-                    }
-                    %}
-                {% endblock %}
+                {% set phoneNumberFieldRequired = config('core.basicInformation.phoneNumberFieldRequired') == true %}
+                {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
+                    with {
+                    fieldName: 'phone',
+                    autocomplete: 'tel',
+                    required: phoneNumberFieldRequired,
+                    additionalClass: 'col-md-6',
+                    label: 'account.personalPhoneLabel',
+                    placeholder: 'account.personalPhonePlaceholder'
+                }
+                %}
             {% endblock %}
         </div>
 

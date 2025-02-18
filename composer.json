@@ -59,9 +59,6 @@
             "symfony/runtime": true
         }
     },
-    "conflict": {
-        "league/oauth2-server": "9.2.0"
-    },
     "require": {
         "php": "~8.2.0 || ~8.3.0 || ~8.4.0",
         "ext-curl": "*",

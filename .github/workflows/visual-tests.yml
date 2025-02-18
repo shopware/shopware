@@ -6,9 +6,7 @@ on:
       update-snapshots:
         description: "Update snapshots?"
         type: boolean
-  schedule:
-    - cron: '59 23 * * *'
-
+  
 
  # Allow updating snapshots during manual runs
   workflow_call:

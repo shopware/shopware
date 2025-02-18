@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AllowEmptyString as AllowEmptyStringAttr;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AllowHtml as AllowHtmlAttr;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AutoIncrement;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\CustomFields as CustomFieldsAttr;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
@@ -36,6 +37,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\EnumField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field as DalField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AsArray;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
@@ -292,6 +294,11 @@ class AttributeEntityCompiler
 
         if ($this->getAttribute($property, AllowEmptyStringAttr::class)) {
             $flags[AllowEmptyString::class] = ['class' => AllowEmptyString::class];
+        }
+
+        if ($attr = $this->getAttribute($property, AllowHtmlAttr::class)) {
+            $instance = $attr->newInstance();
+            $flags[AllowHtml::class] = ['class' => AllowHtml::class, 'args' => ['sanitized' => $instance->sanitized]];
         }
 
         if ($field->api !== false) {

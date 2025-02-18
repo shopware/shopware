@@ -6,15 +6,15 @@
     position-identifier="sw-settings-shipping-price-matrix"
 >
     {% block sw_settings_shipping_price_matrix_topbar_alert %}
-    <sw-alert
+    <mt-banner
         v-if="priceGroup.isNew"
         class="sw-settings-shipping-price-matrix__new-matrix-alert"
-        variant="warning"
+        variant="attention"
         :title="$tc('global.default.warning')"
         :closable="false"
     >
         {{ $tc('sw-settings-shipping.priceMatrix.newMatrixAlertMessage') }}
-    </sw-alert>
+    </mt-banner>
     {% endblock %}
     {% block sw_settings_shipping_price_matrix_topbar %}
     <sw-container

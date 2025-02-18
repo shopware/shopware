@@ -26,13 +26,6 @@ class IntegrationExtension extends EntityExtension
         );
     }
 
-    public function getDefinitionClass(): string
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'This class will be removed as it is unused');
-
-        return IntegrationDefinition::class;
-    }
-
     public function getEntityName(): string
     {
         Feature::triggerDeprecationOrThrow('v6.7.0.0', 'This class will be removed as it is unused');

@@ -143,7 +143,7 @@
                     >
                         {% block sw_settings_tax_list_delete_modal_confirm_delete_text %}
                         <p class="sw-settings-tax-list__confirm-delete-text">
-                            {{ $tc('sw-settings-tax.taxRuleCard.textDeleteConfirm', 0, { name: item.country.name, type: item.type.typeName }) }}
+                            {{ $tc('sw-settings-tax.taxRuleCard.textDeleteConfirm', { name: item.country.name, type: item.type.typeName }, 0) }}
                         </p>
                         {% endblock %}
 

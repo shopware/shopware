@@ -123,29 +123,6 @@
         border: 0;
     }
 
-    &__inheritance .sw-alert {
-        display: grid;
-        grid-template-columns: 60px 1fr;
-        margin: 0 auto;
-        border: 1px solid $color-module-purple-900;
-        background: $color-module-purple-50;
-        font-size: $font-size-xs;
-
-        .sw-alert__actions:empty {
-            display: none;
-        }
-
-        .sw-alert__icon {
-            position: unset;
-            margin-top: 28px;
-            margin-left: 26px;
-        }
-    }
-
-    &__inheritance .sw-alert__body {
-        padding-left: 0;
-    }
-
     &__inheritance-icon {
         position: relative;
     }
@@ -154,10 +131,6 @@
         position: absolute;
         top: 30px;
         right: 10px;
-    }
-
-    &__restricted-fields .sw-alert {
-        margin: 0 auto;
     }
 }
 

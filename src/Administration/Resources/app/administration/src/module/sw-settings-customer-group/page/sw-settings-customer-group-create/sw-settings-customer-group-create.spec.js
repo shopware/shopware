@@ -89,7 +89,7 @@ async function createWrapper() {
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
                     'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                     'sw-radio-field': await wrapTestComponent('sw-radio-field'),
-                    'sw-text-editor': true,
+                    'mt-text-editor': true,
                     'sw-search-bar': true,
                     'sw-highlight-text': true,
                     'sw-skeleton': true,
@@ -108,7 +108,7 @@ async function createWrapper() {
                     'sw-product-variant-info': true,
                     'sw-app-action-button': true,
                     'sw-checkbox-field': true,
-                    'sw-alert': true,
+
                     'sw-field-copyable': true,
                     'sw-help-text': true,
                     'sw-inheritance-switch': true,

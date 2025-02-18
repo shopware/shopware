@@ -17,110 +17,35 @@ class ProductReviewEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productId;
+    protected string $productId;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customerId;
+    protected ?string $customerId = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannelId;
+    protected string $salesChannelId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $languageId;
+    protected string $languageId;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $externalUser;
+    protected ?string $externalUser = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $externalEmail;
+    protected ?string $externalEmail = null;
 
-    /**
-     * @var float|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $points;
+    protected ?float $points = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $status;
+    protected bool $status;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $comment;
+    protected ?string $comment = null;
 
-    /**
-     * @var SalesChannelEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
-    /**
-     * @var LanguageEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $language;
+    protected ?LanguageEntity $language = null;
 
-    /**
-     * @var CustomerEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customer;
+    protected ?CustomerEntity $customer = null;
 
-    /**
-     * @var ProductEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $product;
+    protected ?ProductEntity $product = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $content;
+    protected ?string $content = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $title;
+    protected ?string $title = null;
 
     public function getProductId(): string
     {

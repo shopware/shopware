@@ -12,40 +12,15 @@ class SalesChannelAnalyticsEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $trackingId;
+    protected string $trackingId;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $active;
+    protected bool $active;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $trackOrders;
+    protected bool $trackOrders;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $anonymizeIp;
+    protected bool $anonymizeIp;
 
-    /**
-     * @var SalesChannelEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannel;
+    protected SalesChannelEntity $salesChannel;
 
     public function getTrackingId(): string
     {

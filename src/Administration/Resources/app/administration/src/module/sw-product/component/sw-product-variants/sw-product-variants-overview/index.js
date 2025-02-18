@@ -641,9 +641,13 @@ export default {
                 .then(() => {
                     // create success notification
                     const titleSaveSuccess = this.$tc('global.default.success');
-                    const messageSaveSuccess = this.$tc('sw-product.detail.messageSaveSuccess', 0, {
-                        name: productName,
-                    });
+                    const messageSaveSuccess = this.$tc(
+                        'sw-product.detail.messageSaveSuccess',
+                        {
+                            name: productName,
+                        },
+                        0,
+                    );
 
                     this.createNotificationSuccess({
                         title: titleSaveSuccess,

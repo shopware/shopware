@@ -125,7 +125,7 @@
                     </sw-container>
 
                     {% block sw_manufacturer_detail_base_info_field_description %}
-                    <sw-text-editor
+                    <mt-text-editor
                         v-model:value="manufacturer.description"
                         :label="$tc('sw-manufacturer.detail.labelDescription')"
                         :placeholder="placeholder(manufacturer, 'description', $tc('sw-manufacturer.detail.placeholderDescription'))"

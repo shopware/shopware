@@ -11,7 +11,6 @@ async function createWrapper() {
         {
             global: {
                 stubs: {
-                    'sw-alert': true,
                     'sw-loader': true,
                     'sw-label': true,
                 },

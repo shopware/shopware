@@ -19,9 +19,14 @@ class AppScriptProductPriceCalculatorTest extends TestCase
 {
     public function testHookWillBeExecuted(): void
     {
+        $product1 = new SalesChannelProductEntity();
+        $product1->setId('product-1');
+        $product2 = new SalesChannelProductEntity();
+        $product2->setId('product-2');
+
         $products = [
-            new SalesChannelProductEntity(),
-            new SalesChannelProductEntity(),
+            $product1,
+            $product2,
         ];
 
         $executor = $this->createMock(ScriptExecutor::class);

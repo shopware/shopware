@@ -196,7 +196,7 @@
                     {% block sw_search_bar_results_empty_content %}
                     {% block sw_search_bar_results_empty_text %}
                     <div class="sw-search-bar__results-empty-text">
-                        {{ $tc('global.sw-search-bar.messageNoResultsV2', 0, { term: searchTerm }) }}
+                        {{ $tc('global.sw-search-bar.messageNoResultsV2', { term: searchTerm }, 0) }}
                     </div>
                     {% endblock %}
 

@@ -18,7 +18,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinitio
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\Cms\CrossSellingCmsElementResolver;
 use Shopware\Core\Content\Product\Cms\ProductDescriptionReviewsCmsElementResolver;
-use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementCollection;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
@@ -30,7 +29,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
@@ -43,10 +41,6 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ProductPageLoader::class)]
 class ProductPageLoaderTest extends TestCase
 {
-    /**
-     * @deprecated tag:v6.7.0 - Only remove the deprecated parts, not the whole test!
-     */
-    #[DisabledFeatures(['v6.7.0.0'])]
     public function testItLoadsReviews(): void
     {
         $productId = Uuid::randomHex();
@@ -62,25 +56,6 @@ class ProductPageLoaderTest extends TestCase
         static::assertIsString($slot);
 
         static::assertEquals($reviews, json_decode($slot, true, 512, \JSON_THROW_ON_ERROR));
-
-        /** @deprecated tag:v6.7.0 - Remove only everything below this line */
-        $reviewsDeprecated = $page->getReviews();
-        static::assertNotNull($reviewsDeprecated);
-        static::assertCount(1, $reviewsDeprecated);
-        $firstReview = $reviewsDeprecated->first();
-        static::assertInstanceOf(ProductReviewEntity::class, $firstReview);
-        static::assertSame('this product changed my life', $firstReview->getComment());
-        $crossSellingDeprecated = $page->getCrossSellings();
-        static::assertInstanceOf(CrossSellingElementCollection::class, $crossSellingDeprecated);
-        static::assertCount(0, $crossSellingDeprecated);
-
-        $page->assign([
-            'reviewLoaderResult' => null,
-            'crossSellings' => null,
-        ]);
-
-        static::assertNull($page->getReviews());
-        static::assertNull($page->getCrossSellings());
     }
 
     /**

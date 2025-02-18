@@ -32,7 +32,3 @@ labels:
     body: "Extension:Showroom-Theme"
   - label: "Extension:Social-Shopping"
     body: "Extension:Social-Shopping"
-  - label: "needs-triage"
-    type: "pull_request"
-  - label: "needs-triage"
-    type: "issue"

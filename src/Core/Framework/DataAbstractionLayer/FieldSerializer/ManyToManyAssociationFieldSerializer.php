@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -195,21 +194,6 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
         );
 
         if (!$fk) {
-            if (!Feature::isActive('v6.7.0.0')) {
-                Feature::triggerDeprecationOrThrow(
-                    'v6.7.0.0',
-                    \sprintf(
-                        'Foreign key for association "%s" not found. Please add one to "%s"',
-                        $association->getPropertyName(),
-                        $referencedDefinition::class
-                    )
-                );
-
-                $data['versionId'] = Defaults::LIVE_VERSION;
-
-                return [$association->getPropertyName() => $data];
-            }
-
             throw DataAbstractionLayerException::foreignKeyNotFoundInDefinition($association->getPropertyName(), $referencedDefinition::class);
         }
 

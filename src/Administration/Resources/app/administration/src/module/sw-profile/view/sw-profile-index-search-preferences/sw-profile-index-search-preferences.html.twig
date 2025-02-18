@@ -5,13 +5,13 @@
         class="sw-card-elasticsearch-enabled"
         position-identifier="sw-card-elasticsearch-enabled"
     >
-        <sw-alert
+        <mt-banner
             class="sw-card-elasticsearch-enabled__alert"
             variant="info"
             :title="$tc('sw-profile.tabSearchPreferences.alert_elasticsearch.title')"
         >
             {{ $tc('sw-profile.tabSearchPreferences.alert_elasticsearch.text') }}
-        </sw-alert>
+        </mt-banner>
     </sw-card>
 
     {% block sw_profile_index_search_preferences_searchable_elements %}

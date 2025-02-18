@@ -91,20 +91,29 @@
             @page-leave-confirm="onLeaveModalConfirm"
         />
         {% endblock %}
+        {% block sw_order_detail_content_save_changes_beforehand_modal %}
+        <sw-order-save-changes-beforehand-modal
+            v-if="askForSaveBeforehand"
+            @cancel="onAskAndSaveEditsCancel"
+            @confirm="onAskAndSaveEditsConfirm"
+        >
+            {{ askForSaveBeforehand.reason }}
+        </sw-order-save-changes-beforehand-modal>
+        {% endblock %}
         <sw-card-view>
 
-            <sw-alert
+            <mt-banner
                 v-if="isOrderEditing"
                 class="sw-order-detail__alert"
-                variant="warning"
+                variant="attention"
             >
                 {{ $tc('sw-order.detail.textUnsavedOrderWarning') }}
-            </sw-alert>
+            </mt-banner>
 
-            <sw-alert
+            <mt-banner
                 v-if="missingProductLineItems.length > 0"
                 class="sw-order-detail__alert"
-                variant="warning"
+                variant="attention"
             >
                 {{ $tc('sw-order.detailBase.textMissingProductLineItems') }}
 
@@ -118,9 +127,9 @@
                 </ul>
 
                 {{ $tc('sw-order.detailBase.textMissingProductLineItemsDescription') }}
-            </sw-alert>
+            </mt-banner>
 
-            <sw-alert
+            <mt-banner
                 v-if="convertedProductLineItems.length > 0"
                 class="sw-order-detail__alert"
                 variant="info"
@@ -137,7 +146,7 @@
                 </ul>
 
                 {{ $tc('sw-order.detailBase.textConvertedProductLineItemsDescription') }}
-            </sw-alert>
+            </mt-banner>
 
             {% block sw_order_detail_content_tabs %}
             <sw-tabs

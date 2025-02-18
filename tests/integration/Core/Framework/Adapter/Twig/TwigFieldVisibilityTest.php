@@ -5,14 +5,19 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Twig;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacade;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Twig\Environment;
 use Twig\Error\RuntimeError;
 use Twig\Loader\ArrayLoader;
@@ -39,6 +44,24 @@ class TwigFieldVisibilityTest extends TestCase
         }
     }
 
+    public function testRepositoryAccessIsStillAllowed(): void
+    {
+        // Reading media entity calls subscriber that accesses internal field on the entity,
+        // that should still be allowed
+        $twig = new TwigEnvironment(new ArrayLoader([
+            'repository-access.twig' => file_get_contents(__DIR__ . '/fixtures/FieldVisibilityCases/repository-access.twig'),
+        ]));
+
+        $result = $twig->render('repository-access.twig', ['repository' => new RepositoryFacade(
+            static::getContainer()->get(DefinitionInstanceRegistry::class),
+            static::getContainer()->get(RequestCriteriaBuilder::class),
+            static::getContainer()->get(AclCriteriaValidator::class),
+            Context::createDefaultContext()
+        )]);
+
+        static::assertTrue(Uuid::isValid(trim($result)));
+    }
+
     private function testAccessibilityForField(EntityDefinition $definition, string $propertyName, string $entityClass): void
     {
         $entity = new $entityClass();
@@ -48,10 +71,10 @@ class TwigFieldVisibilityTest extends TestCase
         $twig = $this->initTwig($propertyName);
 
         $result = $twig->render('json-encode.twig', ['object' => $entity]);
-        static::assertStringNotContainsString('password', $result);
+        static::assertStringNotContainsString($propertyName, $result);
 
         $result = $twig->render('get-vars.twig', ['object' => $entity]);
-        static::assertStringNotContainsString('password', $result);
+        static::assertStringNotContainsString($propertyName, $result);
 
         $innerException = null;
 
@@ -94,7 +117,7 @@ class TwigFieldVisibilityTest extends TestCase
                 $innerException->getMessage()
             );
         } else {
-            static::assertStringNotContainsString('password', $result);
+            static::assertStringNotContainsString($propertyName, $result);
         }
 
         $innerException = null;
@@ -122,7 +145,7 @@ class TwigFieldVisibilityTest extends TestCase
                 $innerException->getMessage()
             );
         } else {
-            static::assertStringNotContainsString('password', $result);
+            static::assertStringNotContainsString($propertyName, $result);
         }
     }
 

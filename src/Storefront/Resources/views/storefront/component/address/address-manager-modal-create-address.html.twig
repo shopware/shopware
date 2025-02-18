@@ -7,7 +7,8 @@
 <div class="js-pseudo-modal-template-root-element address-manager-modal">
     <div class="modal-header pb-0 align-items-start">
         {% block address_manager_modal_address_title %}
-            {% if postedAddress %}
+
+            {% if postedAddress.has('id') and postedAddress.get('id') != null %}
                 <h1>{{ 'account.addressEditWelcome'|trans|sw_sanitize }}</h1>
             {% else %}
                 {% if changeShipping %}
@@ -25,8 +26,7 @@
                 method="post"
                 action="{{ url('frontend.account.addressmanager', { addressId: postedAddress.id, type }) }}"
                 id="address-manager-modal-address-form"
-                data-form-validation="true"
-                data-form-submit-loader="true"
+                data-form-handler="true"
             >
                 {% block address_manager_modal_address_form_create_personal %}
                     {% if postedAddress.has('accountType') %}
@@ -37,6 +37,7 @@
 
                     {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
                         data: postedAddress,
+                        prefix: 'address',
                         accountType
                     } %}
                 {% endblock %}
@@ -44,6 +45,7 @@
                 {% block address_manager_modal_address_form_create_general %}
                     {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
                         data: postedAddress,
+                        prefix: 'address',
                         showFormCompany: true,
                     } %}
                 {% endblock %}

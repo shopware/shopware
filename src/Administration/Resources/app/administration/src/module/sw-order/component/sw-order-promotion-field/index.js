@@ -170,9 +170,13 @@ export default {
                 .then(() => {
                     this.automaticPromotions.forEach((promotion) => {
                         this.createNotificationSuccess({
-                            message: this.$tc('sw-order.detailBase.textPromotionRemoved', 0, {
-                                promotion: promotion.label,
-                            }),
+                            message: this.$tc(
+                                'sw-order.detailBase.textPromotionRemoved',
+                                {
+                                    promotion: promotion.label,
+                                },
+                                0,
+                            ),
                         });
                     });
                 })

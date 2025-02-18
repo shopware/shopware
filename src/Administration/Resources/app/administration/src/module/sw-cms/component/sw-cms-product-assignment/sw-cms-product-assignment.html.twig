@@ -37,7 +37,7 @@
                         ref="swSelectResultList"
                         :options="resultCollection"
                         :is-loading="isLoadingResults"
-                        :empty-message="$tc('global.sw-entity-many-to-many-select.messageNoResults', 0, { term: searchTerm })"
+                        :empty-message="$tc('global.sw-entity-many-to-many-select.messageNoResults', { term: searchTerm }, 0)"
                         :focus-el="$refs.searchInput"
                         @paginate="paginateResult"
                         @item-select="onItemSelect"

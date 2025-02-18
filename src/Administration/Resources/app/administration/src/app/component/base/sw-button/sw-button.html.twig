@@ -3,7 +3,8 @@
 {% block sw_button %}
 <mt-button
     v-if="useMeteorComponent"
-    v-bind="$attrs" @click="onClick"
+    v-bind="$attrs"
+    @click="onClick"
 >
     <slot></slot>
 </mt-button>

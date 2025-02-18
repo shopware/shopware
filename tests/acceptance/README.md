@@ -289,7 +289,7 @@ To update the reference screenshot you can use the **--update-snapshots** flag (
 npx playwright test --update-snapshots
 ```
 
-You can also update only some specifix snapshots using test name:
+You can also update only some specific snapshots using test name:
 
 ```
 npx playwright test -u "**/test_name*.spec.ts"

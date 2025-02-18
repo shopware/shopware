@@ -3351,21 +3351,6 @@ parameters:
 			path: src/Core/System/User/Aggregate/UserAccessKey/UserAccessKeyCollection.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\User\\\\Aggregate\\\\UserConfig\\\\UserConfigEntity\\:\\:getValue\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/User/Aggregate/UserConfig/UserConfigEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\User\\\\Aggregate\\\\UserConfig\\\\UserConfigEntity\\:\\:setValue\\(\\) has parameter \\$value with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/User/Aggregate/UserConfig/UserConfigEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\User\\\\Aggregate\\\\UserConfig\\\\UserConfigEntity\\:\\:\\$value type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/User/Aggregate/UserConfig/UserConfigEntity.php
-
-		-
 			message: "#^Expected domain exception class Shopware\\\\Core\\\\System\\\\User\\\\UserException, got Shopware\\\\Core\\\\Framework\\\\Routing\\\\RoutingException$#"
 			count: 4
 			path: src/Core/System/User/Api/UserValidationController.php

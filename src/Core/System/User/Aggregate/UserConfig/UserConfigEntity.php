@@ -14,6 +14,9 @@ class UserConfigEntity extends Entity
 
     protected string $key;
 
+    /**
+     * @var array<string, mixed>|null
+     */
     protected ?array $value = null;
 
     protected string $userId;
@@ -40,11 +43,17 @@ class UserConfigEntity extends Entity
         $this->key = $key;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getValue(): ?array
     {
         return $this->value;
     }
 
+    /**
+     * @param array<string, mixed>|null $value
+     */
     public function setValue(?array $value): void
     {
         $this->value = $value;

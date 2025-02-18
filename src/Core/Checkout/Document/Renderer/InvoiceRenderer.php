@@ -114,7 +114,7 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
                     $operation->setOrderVersionId($this->orderRepository->createVersion($orderId, $context, 'document'));
 
                     if ($operation->isStatic()) {
-                        $doc = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
+                        $doc = new RenderedDocument($number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
                         $result->addSuccess($orderId, $doc);
 
                         continue;
@@ -127,7 +127,6 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
                     }
 
                     $doc = new RenderedDocument(
-                        '',
                         $number,
                         $config->buildName(),
                         $operation->getFileType(),
@@ -137,6 +136,7 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
                     $doc->setTemplate($template);
                     $doc->setOrder($order);
                     $doc->setContext($context);
+
                     $doc->setContent($this->fileRendererRegistry->render($doc));
 
                     $result->addSuccess($orderId, $doc);

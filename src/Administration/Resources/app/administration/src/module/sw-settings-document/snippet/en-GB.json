@@ -36,7 +36,6 @@
       "labelPageSize": "Page format",
       "labelItemsPerPage": "Items per page",
       "labelDisplayCompanyAddress": "Display company address",
-      "labelCompanyAddress": "Company address (Deprecated v6.7.0)",
       "labelCompanyCity": "City",
       "labelCompanyCountry": "Country",
       "labelCompanyName": "Name",
@@ -72,7 +71,6 @@
       "labelDisplayDivergentDeliveryAddress": "Display divergent delivery address",
       "helpTextDisplayDocumentInCustomerAccount": "The document is displayed under \"Orders\" in the respective customer account. Note that only documents that have actually been sent to the customer are displayed in the customer account.",
       "helpTextDisplayDeliveryCountries": "Displays indication of \"intra community delivery\" on invoice documents for selected countries.",
-      "helpTextCompanyAddress": "Deprecated for Shopware 6.7 - Use single address fields instead.\\n\\nUse hyphens (\"-\") to separate the different elements of the address. This helps to render the address in multiple places of the header simultaneously.",
       "helpTextPaymentDueDate": "E.g.: +30 days, +4 weeks, +1 week 2 days",
       "labelFileTypes": "File formats"
     }

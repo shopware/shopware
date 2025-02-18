@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -19,12 +18,14 @@ final class RenderedDocument extends Struct
     private ?Context $context = null;
 
     /**
-     * @deprecated tag:v6.7.0 - reason:parameter-change - html argument will be removed
-     *
+     * @var array<string, mixed>
+     */
+    private array $parameters = [];
+
+    /**
      * @param array<string, mixed> $config
      */
     public function __construct(
-        private readonly string $html = '',
         private readonly string $number = '',
         private string $name = '',
         private string $fileExtension = PdfRenderer::FILE_EXTENSION,
@@ -47,16 +48,6 @@ final class RenderedDocument extends Struct
     public function setName(string $name): void
     {
         $this->name = $name;
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed - use content property for the rendered value instead
-     */
-    public function getHtml(): string
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property and method will be removed. Use `content` property for the rendered value');
-
-        return $this->html;
     }
 
     public function getContent(): string
@@ -135,5 +126,26 @@ final class RenderedDocument extends Struct
     public function setTemplate(string $template): void
     {
         $this->template = $template;
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    public function setParameters(array $parameters): void
+    {
+        $this->parameters = $parameters;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getParameters(): array
+    {
+        return $this->parameters;
+    }
+
+    public function addParameter(string $key, mixed $value): void
+    {
+        $this->parameters[$key] = $value;
     }
 }

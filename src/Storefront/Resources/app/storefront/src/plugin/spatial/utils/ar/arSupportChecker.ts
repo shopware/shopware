@@ -18,8 +18,24 @@ export async function supportsAr(): Promise<boolean> {
  * @returns {boolean}
  */
 export function supportQuickLook(): boolean {
+    // Native IOS Support (Safari)
     const a = document.createElement('a');
-    return a.relList.supports('ar');
+    if (a.relList.supports('ar')) {
+        return true;
+    }
+
+    // Other Browser support
+    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const iosVersion = navigator.userAgent.match(/OS (\d+)_(\d+)_?(\d+)?/);
+    if (!isIos || !iosVersion) { return false; }
+    if (parseInt(iosVersion[1], 10) < 12) { return false; }
+
+    // These browsers currently support AR Quick Look on iOS
+    const isChromeOrVivaldi = /CriOS/.test(navigator.userAgent);
+    const isEdge = /EdgiOS/.test(navigator.userAgent);
+    const isDuckDuckGo = /Ddg/.test(navigator.userAgent);
+
+    return isChromeOrVivaldi || isEdge || isDuckDuckGo;
 }
 
 /**

@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\CreditNoteOrdersEvent;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
@@ -22,6 +21,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('after-sales')]
@@ -42,6 +42,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         private readonly ReferenceInvoiceLoader $referenceInvoiceLoader,
         private readonly Connection $connection,
         private readonly DocumentFileRendererRegistry $fileRendererRegistry,
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -139,7 +140,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                     'intraCommunityDelivery' => $this->isAllowIntraCommunityDelivery(
                         $config->jsonSerialize(),
                         $order,
-                    ),
+                    ) && $this->isValidVat($order, $this->validator),
                 ]);
 
                 if ($operation->isStatic()) {
@@ -148,8 +149,6 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
 
                     continue;
                 }
-
-                $price = $this->calculatePrice($creditItems, $order);
 
                 /** @var LanguageEntity|null $language */
                 $language = $order->getLanguage();
@@ -232,48 +231,5 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
             $order->getSalesChannelId(),
             $operation->isPreview()
         );
-    }
-
-    private function calculatePrice(OrderLineItemCollection $creditItems, OrderEntity $order): CartPrice
-    {
-        foreach ($creditItems as $creditItem) {
-            $creditItem->setUnitPrice($creditItem->getUnitPrice() !== 0.0 ? -$creditItem->getUnitPrice() : 0.0);
-            $creditItem->setTotalPrice($creditItem->getTotalPrice() !== 0.0 ? -$creditItem->getTotalPrice() : 0.0);
-        }
-
-        $creditItemsCalculatedPrice = $creditItems->getPrices()->sum();
-        $totalPrice = $creditItemsCalculatedPrice->getTotalPrice();
-        $taxAmount = $creditItemsCalculatedPrice->getCalculatedTaxes()->getAmount();
-        $taxes = $creditItemsCalculatedPrice->getCalculatedTaxes();
-
-        foreach ($taxes as $tax) {
-            $tax->setTax($tax->getTax() !== 0.0 ? -$tax->getTax() : 0.0);
-        }
-
-        if ($order->getPrice()->hasNetPrices()) {
-            $price = new CartPrice(
-                -$totalPrice,
-                -($totalPrice + $taxAmount),
-                -$order->getPositionPrice(),
-                $taxes,
-                $creditItemsCalculatedPrice->getTaxRules(),
-                $order->getTaxStatus() ?? $order->getPrice()->getTaxStatus(),
-            );
-        } else {
-            $price = new CartPrice(
-                -($totalPrice - $taxAmount),
-                -$totalPrice,
-                -$order->getPositionPrice(),
-                $taxes,
-                $creditItemsCalculatedPrice->getTaxRules(),
-                $order->getTaxStatus() ?? $order->getPrice()->getTaxStatus(),
-            );
-        }
-
-        $order->setLineItems($creditItems);
-        $order->setPrice($price);
-        $order->setAmountNet($price->getNetPrice());
-
-        return $price;
     }
 }

@@ -22,10 +22,7 @@ class NumberRangeIncrementerCompilerPass implements CompilerPassInterface
                 $container->removeDefinition(IncrementRedisStorage::class);
                 break;
             case 'redis':
-                if (
-                    !$container->hasParameter('shopware.number_range.config.dsn') // @deprecated tag:v6.7.0 - remove this line (as config.dsn will be removed)
-                    && $container->getParameter('shopware.number_range.config.connection') === null
-                ) {
+                if ($container->getParameter('shopware.number_range.config.connection') === null) {
                     throw DependencyInjectionException::redisNotConfiguredForNumberRangeIncrementer();
                 }
 

@@ -94,7 +94,7 @@ async function createWrapper() {
                         />
                       `,
                     },
-                    'sw-alert': true,
+
                     'sw-skeleton': true,
                     'sw-language-switch': true,
                     'sw-custom-field-set-renderer': true,

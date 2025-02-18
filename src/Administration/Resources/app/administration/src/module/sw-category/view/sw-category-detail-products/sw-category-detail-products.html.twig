@@ -33,12 +33,12 @@
             {% endblock %}
 
             {% block sw_category_detail_product_assignment_manual_alert %}
-            <sw-alert
+            <mt-banner
                 v-if="category.productAssignmentType === 'product_stream' && manualAssignedProductsCount > 0"
                 variant="info"
             >
                 {{ $tc('sw-category.base.products.alertManualAssignedProductsOnAssignmentTypeStream') }}
-            </sw-alert>
+            </mt-banner>
             {% endblock %}
         </template>
         {% endblock %}

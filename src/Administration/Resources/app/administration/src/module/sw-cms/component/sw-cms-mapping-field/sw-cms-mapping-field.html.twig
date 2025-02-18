@@ -93,13 +93,13 @@
                 :demo-value="demoValue"
             ></slot>
 
-            <sw-alert
+            <mt-banner
                 v-else
                 variant="info"
                 class="sw-cms-mapping-field__empty-demo"
             >
                 {{ $tc('sw-cms.detail.label.mappingEmptyPreview') }}
-            </sw-alert>
+            </mt-banner>
         </div>
         {% endblock %}
     </template>

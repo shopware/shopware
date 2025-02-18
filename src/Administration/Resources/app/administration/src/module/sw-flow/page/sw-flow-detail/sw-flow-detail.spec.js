@@ -214,7 +214,6 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
                     }),
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-skeleton': true,
-                    'sw-alert': true,
                     'sw-flow-leave-page-modal': true,
                     'sw-tabs': {
                         template: `

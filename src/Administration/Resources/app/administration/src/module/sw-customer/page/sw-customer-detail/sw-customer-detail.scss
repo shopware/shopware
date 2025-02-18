@@ -3,16 +3,6 @@
 .sw-customer-detail__customer-registration-alert {
     max-width: $content-width;
     margin: 0 auto;
-
-    .sw-alert__message {
-        display: flex;
-        align-items: center;
-    }
-
-    .sw-alert .sw-alert__icon {
-        top: 50%;
-        transform: translateY(-50%);
-    }
 }
 
 .sw-customer-detail__customer-registration-alert-actions {

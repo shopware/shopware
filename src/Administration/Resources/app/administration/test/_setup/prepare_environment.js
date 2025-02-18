@@ -429,10 +429,6 @@ global.console.warn = (...args) => {
     let silenceWarning = false;
     // eslint-disable-next-line array-callback-return
     global.allowedErrors.some(allowedError => {
-        if (allowedError.hurensohn) {
-            debugger;
-        }
-
         if (allowedError.method !== 'warn') {
             return;
         }

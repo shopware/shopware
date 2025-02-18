@@ -6,10 +6,10 @@
 >
 
     {% block sw_settings_search_search_index_description %}
-    <sw-alert
+    <mt-banner
         v-if="isRebuildInProgress"
         class="sw-settings-search__search-index-warning-text"
-        variant="warning"
+        variant="attention"
     >
 
         {% block sw_settings_search_search_index_warning_top %}
@@ -22,7 +22,7 @@
         <p>{{ $tc('sw-settings-search.generalTab.textRebuildSearchIndexDescription') }}</p>
         {% endblock %}
 
-    </sw-alert>
+    </mt-banner>
     {% endblock %}
 
     {% block sw_settings_search_search_index_rebuild_button %}

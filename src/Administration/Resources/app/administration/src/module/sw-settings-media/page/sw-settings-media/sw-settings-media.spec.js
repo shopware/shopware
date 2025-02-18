@@ -47,7 +47,7 @@ async function createWrapper() {
                     'sw-app-actions': true,
                     'sw-button-deprecated': true,
                     'sw-sales-channel-switch': true,
-                    'sw-alert': true,
+
                     'sw-form-field-renderer': true,
                     'sw-inherit-wrapper': true,
                     'sw-ai-copilot-badge': true,

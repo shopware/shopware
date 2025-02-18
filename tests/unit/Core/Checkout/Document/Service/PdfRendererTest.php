@@ -67,7 +67,6 @@ class PdfRendererTest extends TestCase
     public function testRenderWithoutHtml(): void
     {
         $rendered = new RenderedDocument(
-            '',
             '1001',
             InvoiceRenderer::TYPE,
         );
@@ -105,7 +104,6 @@ class PdfRendererTest extends TestCase
         $this->expectException(DocumentException::class);
 
         $rendered = new RenderedDocument(
-            '',
             '1001',
             InvoiceRenderer::TYPE,
         );

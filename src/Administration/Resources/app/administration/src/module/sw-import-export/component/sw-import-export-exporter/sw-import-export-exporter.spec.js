@@ -71,7 +71,7 @@ describe('components/sw-import-export-exporter', () => {
                         'sw-select-result': await wrapTestComponent('sw-select-result'),
                         'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                         'sw-popover': await wrapTestComponent('sw-popover'),
-                        'sw-alert': await wrapTestComponent('sw-alert'),
+
                         'sw-import-export-exporter': await wrapTestComponent('sw-import-export-exporter', { sync: true }),
                         'sw-button': true,
                         'sw-product-variant-info': true,

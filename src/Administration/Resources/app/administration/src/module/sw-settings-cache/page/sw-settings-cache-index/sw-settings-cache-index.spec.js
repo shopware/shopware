@@ -61,7 +61,7 @@ async function createWrapper(indexMock = jest.fn(() => Promise.resolve()), delay
                 'sw-iframe-renderer': true,
                 'router-link': true,
                 'sw-icon-deprecated': true,
-                'sw-alert': true,
+
                 'sw-inheritance-switch': true,
                 'sw-help-text': true,
                 'sw-color-badge': true,

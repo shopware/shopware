@@ -94,7 +94,7 @@
                         aria-labelledby="billing-address-tab"
                     >
                         {% block address_manager_modal_billing_title %}
-                            <h5 class="mt-4">
+                            <h5>
                                 {{ 'account.addressesTitleCurrentBillingAddress'|trans|sw_sanitize }}
                             </h5>
                         {% endblock %}
@@ -121,7 +121,7 @@
                 <form
                     action="{{ path('frontend.account.addressmanager.switch')}}"
                     method="post"
-                    data-form-submit-loader="true"
+                    data-form-handler="true"
                 >
                     <input
                         type="hidden"

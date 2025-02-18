@@ -11,11 +11,6 @@ use Shopware\Core\Framework\Struct\Collection;
 #[Package('framework')]
 class ThemeSalesChannelCollection extends Collection
 {
-    /**
-     * @var ThemeSalesChannel[]
-     */
-    protected array $elements = [];
-
     protected function getExpectedClass(): string
     {
         return ThemeSalesChannel::class;

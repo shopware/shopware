@@ -2,11 +2,8 @@
 
 namespace Shopware\Storefront\Framework\Twig;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Storefront\Pagelet\Footer\FooterPagelet;
-use Shopware\Storefront\Pagelet\Header\HeaderPagelet;
 
 #[Package('framework')]
 class ErrorTemplateStruct extends Struct

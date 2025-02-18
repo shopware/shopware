@@ -1,7 +1,6 @@
 ---
 title: Add admin vite poc
 issue: NEXT-35975
-flag: ADMIN_VITE
 author: Sebastian Seggewiss
 author_email: s.seggewiss@shopware.com
 author_github: @seggewiss

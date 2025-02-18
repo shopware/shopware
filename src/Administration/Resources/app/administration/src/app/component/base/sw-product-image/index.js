@@ -16,8 +16,6 @@ const { Component } = Shopware;
 Component.register('sw-product-image', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'sw-product-image-cover',
         'sw-product-image-delete',

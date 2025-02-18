@@ -24,11 +24,8 @@ interface GridColumn {
 export default Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
-        'feature',
     ],
 
     mixins: [
@@ -103,10 +100,6 @@ export default Component.wrapComponentConfig({
                 .addAssociation('tags')
                 .addAssociation('boundSalesChannel');
 
-            if (!this.feature.isActive('v6.7.0.0')) {
-                criteria.addAssociation('defaultPaymentMethod');
-            }
-
             return criteria;
         },
 
@@ -147,7 +140,7 @@ export default Component.wrapComponentConfig({
             }
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            return this.$tc('sw-order.initialModal.customerGrid.textEmptySearch', 0, { name: this.term });
+            return this.$t('sw-order.initialModal.customerGrid.textEmptySearch', { name: this.term }, 0);
         },
 
         cart(): Cart {

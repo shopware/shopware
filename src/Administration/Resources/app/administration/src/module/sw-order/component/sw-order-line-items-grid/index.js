@@ -14,13 +14,10 @@ const { get, format } = Utils;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'orderService',
         'acl',
-        'feature',
     ],
 
     emits: [
@@ -380,10 +377,14 @@ export default {
             });
 
             const decorateTaxes = sortTaxes.map((taxItem) => {
-                return this.$tc('sw-order.detailBase.taxDetail', 0, {
-                    taxRate: taxItem.taxRate,
-                    tax: format.currency(taxItem.tax, this.order.currency.isoCode),
-                });
+                return this.$tc(
+                    'sw-order.detailBase.taxDetail',
+                    {
+                        taxRate: taxItem.taxRate,
+                        tax: format.currency(taxItem.tax, this.order.currency.isoCode),
+                    },
+                    0,
+                );
             });
 
             return {

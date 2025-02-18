@@ -56,7 +56,7 @@ class ProductIndexerTest extends TestCase
     protected function setUp(): void
     {
         $this->connectionMock = $this->createMock(Connection::class);
-        $this->messageBus = self::getContainer()->get('messenger.bus.shopware');
+        $this->messageBus = self::getContainer()->get('messenger.default_bus');
 
         $this->indexer = new ProductIndexer(
             self::getContainer()->get(IteratorFactory::class),

@@ -22,7 +22,6 @@ use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
-use Symfony\Component\Asset\Packages;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
@@ -156,7 +155,6 @@ class InfoControllerTest extends TestCase
             $this->createMock(DefinitionService::class),
             $this->parameterBagMock,
             $this->kernelMock,
-            $this->createMock(Packages::class),
             $this->createMock(BusinessEventCollector::class),
             $this->createMock(IncrementGatewayRegistry::class),
             $this->createMock(Connection::class),

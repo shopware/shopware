@@ -8,12 +8,7 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('discovery')]
 class TextStruct extends Struct
 {
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $content;
+    protected ?string $content = null;
 
     public function getContent(): ?string
     {

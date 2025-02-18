@@ -15,8 +15,6 @@ const ApiService = Shopware.Classes.ApiService;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
@@ -26,7 +24,6 @@ export default {
 
     provide() {
         return {
-            swOrderDetailOnIdentifierChange: this.updateIdentifier,
             swOrderDetailOnCreatedByIdChange: this.updateCreatedById,
             swOrderDetailOnLoadingChange: this.onUpdateLoading,
             swOrderDetailOnEditingChange: this.onUpdateEditing,
@@ -35,6 +32,7 @@ export default {
             swOrderDetailOnReloadEntityData: this.reloadEntityData,
             swOrderDetailOnSaveAndReload: this.onSaveAndReload,
             swOrderDetailOnSaveEdits: this.onSaveEdits,
+            swOrderDetailAskAndSaveEdits: this.askAndSaveEdits,
             swOrderDetailOnError: this.onError,
         };
     },
@@ -53,10 +51,6 @@ export default {
 
     data() {
         return {
-            /*
-             * @deprecated tag:v6.7.0 - identifier will be removed
-             */
-            identifier: '',
             isEditing: false,
             isLoading: true,
             isSaveSuccessful: false,
@@ -68,6 +62,7 @@ export default {
             missingProductLineItems: [],
             promotionsToDelete: [],
             deliveryDiscountsToDelete: [],
+            askForSaveBeforehand: null,
         };
     },
 
@@ -228,10 +223,6 @@ export default {
                 // clean up recently created version
                 await this.orderRepository.deleteVersion(this.orderId, oldVersionContext.versionId, oldVersionContext);
             }
-        },
-
-        updateIdentifier(identifier) {
-            this.identifier = identifier;
         },
 
         updateCreatedById(createdById) {
@@ -556,6 +547,36 @@ export default {
             });
 
             return this.orderRepository.save(this.order, this.versionContext);
+        },
+
+        /**
+         * Asks the user to save pending edits before e.g. doing a status change.
+         * @returns Promise<bool> - `true` if it's safe to proceed (e.g. edits were saved)
+         *  or `false` if the user wants to cancel the action.
+         */
+        askAndSaveEdits(reason = 'status') {
+            if (!this.isOrderEditing) {
+                return Promise.resolve(true);
+            }
+
+            return new Promise((resolve, reject) => {
+                this.askForSaveBeforehand = {
+                    reason: this.$tc(`sw-order.saveChangesBeforehandModal.${reason}Description`),
+                    resolve,
+                    reject,
+                };
+            });
+        },
+
+        async onAskAndSaveEditsConfirm() {
+            await this.onSaveEdits();
+            this.askForSaveBeforehand.resolve(Store.get('swOrderDetail').savedSuccessful);
+            this.askForSaveBeforehand = null;
+        },
+
+        onAskAndSaveEditsCancel() {
+            this.askForSaveBeforehand.resolve(false);
+            this.askForSaveBeforehand = null;
         },
     },
 };

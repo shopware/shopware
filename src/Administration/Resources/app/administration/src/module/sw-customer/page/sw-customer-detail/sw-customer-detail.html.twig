@@ -86,7 +86,7 @@
                     {% block sw_customer_detail_content_customer_group_registration_content %}
                     <div class="sw-customer-detail__customer-registration-alert-text">
                         {% block sw_customer_detail_content_customer_group_registration_message %}
-                        {{ $tc('sw-customer.customerGroupRegistration.alert', 0, { name: customer.requestedGroup.translated.name }) }}
+                        {{ $tc('sw-customer.customerGroupRegistration.alert', { name: customer.requestedGroup.translated.name }, 0) }}
                         {% endblock %}
                     </div>
                     <div class="sw-customer-detail__customer-registration-alert-actions">

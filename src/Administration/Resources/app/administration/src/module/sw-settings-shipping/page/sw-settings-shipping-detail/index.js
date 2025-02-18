@@ -14,14 +14,11 @@ const { warn } = Shopware.Utils.debug;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'ruleConditionDataProviderService',
         'repositoryFactory',
         'acl',
         'customFieldDataProviderService',
-        'feature',
     ],
 
     mixins: [
@@ -155,10 +152,6 @@ export default {
             criteria.addAssociation('tags');
 
             criteria.getAssociation('prices').addAssociation('rule').addSorting(Criteria.sort('quantityStart'));
-
-            if (!Shopware.Feature.isActive('v6.7.0.0')) {
-                criteria.getAssociation('prices').addAssociation('calculationRule');
-            }
 
             return criteria;
         },
@@ -298,7 +291,7 @@ export default {
             this.createNotificationError({
                 title: this.$tc('global.default.error'),
                 // eslint-disable-next-line max-len
-                message: `${this.$tc('sw-settings-shipping.detail.messageSaveError', 0, { name: this.shippingMethod.name })} ${errorDetails}`,
+                message: `${this.$tc('sw-settings-shipping.detail.messageSaveError', { name: this.shippingMethod.name }, 0)} ${errorDetails}`,
             });
         },
 

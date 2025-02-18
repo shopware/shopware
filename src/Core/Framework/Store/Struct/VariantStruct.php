@@ -14,40 +14,15 @@ class VariantStruct extends StoreStruct
     final public const TYPE_BUY = 'buy';
     final public const TYPE_FREE = 'free';
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $id;
+    protected int $id;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $type;
+    protected string $type;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $netPrice;
+    protected float $netPrice;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $trialPhaseIncluded = false;
+    protected bool $trialPhaseIncluded = false;
 
-    /**
-     * @var DiscountCampaignStruct|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $discountCampaign;
+    protected ?DiscountCampaignStruct $discountCampaign;
 
     /**
      * @return VariantStruct

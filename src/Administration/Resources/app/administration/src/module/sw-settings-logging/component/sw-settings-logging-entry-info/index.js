@@ -8,8 +8,6 @@ import template from './sw-settings-logging-entry-info.html.twig';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['close'],
 
     props: {

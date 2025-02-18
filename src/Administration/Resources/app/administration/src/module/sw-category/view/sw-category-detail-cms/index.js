@@ -8,8 +8,6 @@ import './sw-category-detail-cms.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['acl'],
 
     props: {

@@ -14,8 +14,6 @@ const { Component, Mixin, Module } = Shopware;
 Component.register('sw-search-preferences-modal', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'searchPreferencesService',
         'searchRankingService',
@@ -181,11 +179,7 @@ Component.register('sw-search-preferences-modal', {
                 .then(() => {
                     this.isLoading = false;
                     this.$emit('modal-close');
-                    if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                        this.$root.$emit('sw-search-preferences-modal-close');
-                    } else {
-                        Shopware.Utils.EventBus.emit('sw-search-preferences-modal-close');
-                    }
+                    Shopware.Utils.EventBus.emit('sw-search-preferences-modal-close');
                 })
                 .catch((error) => {
                     this.isLoading = false;

@@ -1,0 +1,37 @@
+@import "~scss/variables";
+
+.mt-text-editor {
+    .mt-text-editor__content-editor {
+        .btn {
+            background: $color-gray-50;
+            color: $color-darkgray-200;
+            display: inline-block;
+            border-radius: $border-radius-default;
+            padding: 2px 24px;
+            font-size: $font-size-xs;
+            outline: none;
+            font-weight: $font-weight-semi-bold;
+            vertical-align: middle;
+            text-decoration: none;
+            user-select: none;
+            margin: 0;
+            position: relative;
+            line-height: 36px;
+            border: 0 none;
+
+            &-primary {
+                background-color: $color-gray-900;
+                color: $color-white;
+            }
+
+            &-secondary {
+                background-color: $color-gray-300;
+                color: $color-darkgray-200;
+            }
+
+            &-sm {
+                line-height: $line-height-lg;
+            }
+        }
+    }
+}

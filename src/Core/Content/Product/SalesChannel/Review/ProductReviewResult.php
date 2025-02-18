@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Product\SalesChannel\Review;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -14,40 +13,13 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('after-sales')]
 class ProductReviewResult extends EntitySearchResult
 {
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     *
-     * @var string|null
-     */
-    protected $parentId;
+    protected ?string $parentId = null;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     *
-     * @var string
-     */
-    protected $productId;
+    protected string $productId;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     *
-     * @var RatingMatrix
-     */
-    protected $matrix;
+    protected RatingMatrix $matrix;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     *
-     * @var ProductReviewEntity|null
-     */
-    protected $customerReview;
-
-    /**
-     * @deprecated tag:v6.7.0 - Will be removed
-     *
-     * @var int
-     */
-    protected $totalReviews;
+    protected ?ProductReviewEntity $customerReview = null;
 
     protected int $totalReviewsInCurrentLanguage;
 
@@ -79,32 +51,6 @@ class ProductReviewResult extends EntitySearchResult
     public function setCustomerReview(?ProductReviewEntity $customerReview): void
     {
         $this->customerReview = $customerReview;
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Will be removed, use `getTotal` instead
-     */
-    public function getTotalReviews(): int
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0', 'getTotal'),
-        );
-
-        return $this->totalReviews;
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Will be removed
-     */
-    public function setTotalReviews(int $totalReviews): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0'),
-        );
-
-        $this->totalReviews = $totalReviews;
     }
 
     public function getTotalReviewsInCurrentLanguage(): int

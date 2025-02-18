@@ -13,11 +13,10 @@ shopware:
         default: true
         major: true
         toggleable: false
-      - name: ADDRESS_SELECTION_REWORK
-        default: true
+      - name: v6.8.0.0
+        default: false
         major: true
         toggleable: false
-        description: "Improved and redesigned management of customer addresses in the Storefront"
       - name: DISABLE_VUE_COMPAT
         default: true
         major: true
@@ -27,23 +26,22 @@ shopware:
         major: true
         toggleable: true
         description: "Accessibility tweaks (highly recommended)\nAccessibility improvements can alter the HTML and CSS structure of the template.\nThe accessibility improvements will be standard as of v6.7.0"
-      - name: ADMIN_VITE
-        default: true
-        major: false
-        toggleable: false
-        description: "Experimental! Uses Vite instead of webpack to built and serve the administration. Plugins are not yet supported!"
       - name: TELEMETRY_METRICS
         default: false
         major: false
         toggleable: true
         description: "Experimental! Enable OpenTelemetry metrics"
-      - name: cache_rework
-        default: false
-        major: true
-        toggleable: false
-        description: "Rework of http cache and store api cache"
       - name: DYNAMIC_ENTITY_EXTENSIONS
         default: false
         major: true
         toggleable: false
         description: "TEMPORARY! disable dynamic entity extensions, as it makes problems during the lifecycle"
+      - name: ENABLE_METEOR_COMPONENTS
+        default: false
+        major: false
+        toggleable: false
+      - name: FLOW_EXECUTION_AFTER_BUSINESS_PROCESS
+        default: false
+        major: false
+        toggleable: true
+        description: "Experimental! Execute flows after the main unit of work has concluded"

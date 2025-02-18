@@ -9,26 +9,11 @@ use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity;
 #[Package('checkout')]
 class TaxRuleTypeTranslationEntity extends TranslationEntity
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $taxRuleTypeId;
+    protected string $taxRuleTypeId;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $typeName;
+    protected ?string $typeName = null;
 
-    /**
-     * @var TaxRuleTypeEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $taxRuleType;
+    protected ?TaxRuleTypeEntity $taxRuleType = null;
 
     public function getTaxRuleTypeId(): string
     {

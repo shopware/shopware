@@ -14,8 +14,6 @@ const { mapPageErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'numberRangeService',
@@ -50,7 +48,6 @@ export default {
                     'email',
                     'salesChannelId',
                     'customerNumber',
-                    'defaultPaymentMethodId',
                     'groupId',
                 ],
             },
@@ -96,6 +93,10 @@ export default {
             },
 
             set(newValue) {
+                if (newValue === this.isSameBilling) {
+                    return;
+                }
+
                 if (newValue === true) {
                     this.customer.defaultShippingAddressId = this.customer.defaultBillingAddressId;
 

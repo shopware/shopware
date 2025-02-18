@@ -1,0 +1,20 @@
+<mt-text-editor-original
+    v-bind="$attrs"
+    v-model="compatValue"
+    :custom-buttons="mergedCustomButtons"
+    :excluded-buttons="mergedExcludedButtons"
+>
+    <!-- Special buttons -->
+    <template #button_link="{ editor, disabled, button }">
+        <sw-text-editor-toolbar-button-link
+            :editor="editor"
+            :disabled="disabled"
+            :button="button"
+        />
+    </template>
+
+    <!-- Dynamically pass all slots -->
+    <template v-for="(_, name) in getSlots()" #[name]="bindings">
+        <slot :name="name" v-bind="bindings" ></slot>
+    </template>
+</mt-text-editor-original>

@@ -3,13 +3,13 @@
 namespace Shopware\Tests\Unit\Core\Installer\Database;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
+use Shopware\Core\Test\Stub\Doctrine\TestExceptionFactory;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
@@ -47,7 +47,7 @@ class BlueGreenDeploymentServiceTest extends TestCase
             ->method('executeQuery')
             ->willReturnOnConsecutiveCalls(
                 $this->createMock(Result::class),
-                static::throwException(new Exception()),
+                static::throwException(TestExceptionFactory::createException('test')),
                 $this->createMock(Result::class)
             );
 

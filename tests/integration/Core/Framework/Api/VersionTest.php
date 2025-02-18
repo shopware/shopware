@@ -35,7 +35,6 @@ class VersionTest extends TestCase
             ['GET', '/api/product'],
             ['GET', '/api/tax'],
             ['POST', '/api/_action/sync'],
-            ['GET', '/api/_info/swagger.html'],
             ['GET', '/api/_info/stoplightio.html'],
             ['GET', '/api/_info/entity-schema.json'],
             ['GET', '/api/_info/events.json'],

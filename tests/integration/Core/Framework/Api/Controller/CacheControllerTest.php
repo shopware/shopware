@@ -76,7 +76,7 @@ class CacheControllerTest extends TestCase
         static::assertArrayHasKey('httpCache', $decodedContent);
         static::assertIsBool($decodedContent['httpCache']);
         static::assertArrayHasKey('cacheAdapter', $decodedContent);
-        static::assertSame('CacheDecorator', $decodedContent['cacheAdapter']);
+        static::assertSame('Array', $decodedContent['cacheAdapter']);
     }
 
     public function testCacheIndexEndpoint(): void
@@ -91,7 +91,7 @@ class CacheControllerTest extends TestCase
     public function testCacheIndexEndpointWithSkipParameter(): void
     {
         /** @var TraceableMessageBus $bus */
-        $bus = static::getContainer()->get('messenger.bus.shopware');
+        $bus = static::getContainer()->get('messenger.default_bus');
         $bus->reset();
 
         $this->getBrowser()->request(
@@ -122,7 +122,7 @@ class CacheControllerTest extends TestCase
     public function testCacheIndexEndpointWithOnlyParameter(): void
     {
         /** @var TraceableMessageBus $bus */
-        $bus = static::getContainer()->get('messenger.bus.shopware');
+        $bus = static::getContainer()->get('messenger.default_bus');
         $bus->reset();
 
         $this->getBrowser()->request(

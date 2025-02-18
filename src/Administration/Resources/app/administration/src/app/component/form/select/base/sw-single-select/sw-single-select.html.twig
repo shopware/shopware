@@ -8,7 +8,6 @@
     @clear="clearSelection"
     @select-expanded="onSelectExpanded"
     @select-collapsed="onSelectCollapsed"
-    v-on="listeners"
 >
     {% block sw_single_select_base %}
     {% block sw_single_select_base_selection %}
@@ -64,7 +63,7 @@
             :popover-classes="popoverClasses"
             :options="visibleResults"
             :is-loading="isLoading"
-            :empty-message="$tc('global.sw-single-select.messageNoResults', 0, { term: searchTerm })"
+            :empty-message="$tc('global.sw-single-select.messageNoResults', { term: searchTerm }, 0)"
             :focus-el="$refs.swSelectInput"
             @paginate="$emit('paginate')"
             @item-select="setValue"

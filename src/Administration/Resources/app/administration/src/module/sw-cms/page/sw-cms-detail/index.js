@@ -18,8 +18,6 @@ const debounceTimeout = 800;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'entityFactory',
@@ -829,9 +827,13 @@ export default {
                     const uniqueSlotString = CMS.UNIQUE_SLOTS.map((slot) => this.$tc(`sw-cms.elements.${slot}.label`)).join(
                         ', ',
                     );
-                    const message = this.$tc('sw-cms.detail.notification.messageRedundantElements', 0, {
-                        names: uniqueSlotString,
-                    });
+                    const message = this.$tc(
+                        'sw-cms.detail.notification.messageRedundantElements',
+                        {
+                            names: uniqueSlotString,
+                        },
+                        0,
+                    );
 
                     this.addError({
                         property: 'slots',

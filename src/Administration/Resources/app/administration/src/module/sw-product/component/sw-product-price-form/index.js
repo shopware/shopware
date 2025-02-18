@@ -12,8 +12,6 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     mixins: [
         Mixin.getByName('placeholder'),
     ],
@@ -81,13 +79,17 @@ export default {
                 name: 'sw.settings.tax.index',
             };
 
-            return this.$tc('sw-product.priceForm.taxRateHelpText.label', 0, {
-                link: `<sw-internal-link
+            return this.$tc(
+                'sw-product.priceForm.taxRateHelpText.label',
+                {
+                    link: `<sw-internal-link
                            :router-link=${JSON.stringify(link)}
                            :inline="true">
                            ${this.$tc('sw-product.priceForm.taxRateHelpText.linkText')}
                       </sw-internal-link>`,
-            });
+                },
+                0,
+            );
         },
 
         prices: {
@@ -165,16 +167,6 @@ export default {
             this.product.price = prices;
 
             this.displayMaintainCurrencies = false;
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed without replacement
-         */
-        keymonitor(event) {
-            if (event.key === ',') {
-                const value = event.currentTarget.value;
-                event.currentTarget.value = value.replace(/.$/, '.');
-            }
         },
 
         getTaxLabel(tax) {

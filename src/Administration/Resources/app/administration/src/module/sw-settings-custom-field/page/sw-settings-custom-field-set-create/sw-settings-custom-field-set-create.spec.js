@@ -118,13 +118,4 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
         expect(wrapper.vm.technicalNameError.hasOwnProperty('detail')).toBeTruthy();
         expect(wrapper.vm.technicalNameError.detail).toBe('translation');
     });
-
-    it('should save', async () => {
-        wrapper.vm.$super = jest.fn();
-        wrapper.vm.onSave();
-        await flushPromises();
-
-        expect(wrapper.vm.$super).toHaveBeenCalledTimes(1);
-        expect(wrapper.vm.$super).toHaveBeenCalledWith('onSave');
-    });
 });

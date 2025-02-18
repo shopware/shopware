@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
-use Shopware\Core\Framework\Api\Controller\Exception\ExpectedUserHttpException;
 use Shopware\Core\Framework\Api\Exception\ExpectationFailedException;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException;
@@ -18,7 +17,6 @@ use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingReverseAssociation;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
@@ -283,16 +281,5 @@ class ApiExceptionTest extends TestCase
 
         static::assertEquals(ApiException::class, $exception::class);
         static::assertEquals(ApiException::API_EXPECTED_USER, $exception->getErrorCode());
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Remove in 6.7
-     */
-    #[DisabledFeatures(['v6.7.0.0'])]
-    public function testUserNotLoggedInThrowShopwareHttpException(): void
-    {
-        $exception = ApiException::userNotLoggedIn();
-
-        static::assertEquals(ExpectedUserHttpException::class, $exception::class);
     }
 }

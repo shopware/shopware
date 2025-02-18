@@ -2,8 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
-use Doctrine\DBAL\Query\QueryBuilder;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -11,14 +10,8 @@ class LastIdQuery implements IterableQuery
 {
     private ?int $lastId = null;
 
-    /**
-     * @param QueryBuilder $query - @deprecated tag:v6.7.0 - Parameter type will be changed to `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder`
-     */
     public function __construct(private readonly QueryBuilder $query)
     {
-        if (!$query instanceof \Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter $query must be an instance of \Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder');
-        }
     }
 
     public function fetch(): array
@@ -38,7 +31,7 @@ class LastIdQuery implements IterableQuery
         $query = clone $this->query;
 
         // get first column for distinct selection
-        $select = $query->getQueryPart('select');
+        $select = $query->getSelectParts();
 
         $query->resetOrderBy();
         $query->select('COUNT(DISTINCT ' . array_shift($select) . ')');
@@ -46,9 +39,6 @@ class LastIdQuery implements IterableQuery
         return (int) $query->executeQuery()->fetchOne();
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Return type will be changed to `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder`
-     */
     public function getQuery(): QueryBuilder
     {
         return $this->query;

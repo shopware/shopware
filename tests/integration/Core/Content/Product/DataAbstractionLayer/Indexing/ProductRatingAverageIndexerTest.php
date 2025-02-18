@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
+use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -403,7 +403,7 @@ SQL;
                 'name' => 'Invoice',
                 'technicalName' => Uuid::randomHex(),
                 'description' => 'Default payment method',
-                'handlerIdentifier' => SyncTestPaymentHandler::class,
+                'handlerIdentifier' => TestPaymentHandler::class,
             ];
         }
 

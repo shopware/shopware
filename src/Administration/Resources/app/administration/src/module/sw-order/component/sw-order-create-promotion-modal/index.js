@@ -13,8 +13,6 @@ const { format } = Utils;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'close',
         'save',

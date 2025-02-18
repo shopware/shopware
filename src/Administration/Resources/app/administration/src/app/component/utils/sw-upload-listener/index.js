@@ -46,8 +46,6 @@ function isIllegalUrlException(error) {
 Component.register('sw-upload-listener', {
     template: '<div style="display: none"></div>',
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'mediaService',
@@ -201,9 +199,13 @@ Component.register('sw-upload-listener', {
             if (isIllegalFileNameException(payload.error)) {
                 this.createNotificationError({
                     title: this.$root.$tc('global.default.error'),
-                    message: this.$root.$tc('global.sw-media-upload.notification.illegalFilename.message', 0, {
-                        fileName: payload.fileName,
-                    }),
+                    message: this.$root.$tc(
+                        'global.sw-media-upload.notification.illegalFilename.message',
+                        {
+                            fileName: payload.fileName,
+                        },
+                        0,
+                    ),
                 });
             } else if (isIllegalUrlException(payload.error)) {
                 this.createNotificationError({

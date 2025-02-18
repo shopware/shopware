@@ -208,8 +208,6 @@ class ProductDetailRouteTest extends TestCase
 
     public function testRecursionEncodingWithLayout(): void
     {
-        static::markTestSkipped('#6556');
-
         $this->browser->request(
             'POST',
             $this->getUrl($this->ids->get('with-layout')),

@@ -12,10 +12,6 @@ const { get, format, array } = Utils;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['feature'],
-
     emits: ['error'],
 
     mixins: [
@@ -80,10 +76,6 @@ export default {
                 .addAssociation('defaultShippingAddress.countryState')
                 .addAssociation('defaultShippingAddress.salutation')
                 .addAssociation('tags');
-
-            if (!this.feature.isActive('v6.7.0.0')) {
-                criteria.addAssociation('defaultPaymentMethod');
-            }
 
             return criteria;
         },
@@ -166,10 +158,14 @@ export default {
 
             const calcTaxes = this.sortByTaxRate(this.cartDelivery.shippingCosts.calculatedTaxes);
             const decorateCalcTaxes = calcTaxes.map((item) => {
-                return this.$tc('sw-order.createBase.shippingCostsTax', 0, {
-                    taxRate: item.taxRate,
-                    tax: format.currency(item.tax, this.currency.isoCode),
-                });
+                return this.$tc(
+                    'sw-order.createBase.shippingCostsTax',
+                    {
+                        taxRate: item.taxRate,
+                        tax: format.currency(item.tax, this.currency.isoCode),
+                    },
+                    0,
+                );
             });
 
             return `${this.$tc('sw-order.createBase.tax')}<br>${decorateCalcTaxes.join('<br>')}`;

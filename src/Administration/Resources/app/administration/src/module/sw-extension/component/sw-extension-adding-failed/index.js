@@ -8,8 +8,6 @@ import './sw-extension-adding-failed.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'shopwareExtensionService',
     ],

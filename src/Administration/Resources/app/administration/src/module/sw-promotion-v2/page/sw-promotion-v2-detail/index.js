@@ -12,8 +12,6 @@ const { mapPageErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
@@ -215,13 +213,6 @@ export default {
             this.showCodeTypeChangeModal = false;
         },
 
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed. Use `savePromotion` instead
-         */
-        createPromotion() {
-            return this.savePromotion();
-        },
-
         async savePromotion() {
             this.isLoading = true;
 
@@ -262,9 +253,13 @@ export default {
             } catch (e) {
                 this.isLoading = false;
                 this.createNotificationError({
-                    message: this.$tc('global.notification.notificationSaveErrorMessage', 0, {
-                        entityName: this.promotion.name,
-                    }),
+                    message: this.$tc(
+                        'global.notification.notificationSaveErrorMessage',
+                        {
+                            entityName: this.promotion.name,
+                        },
+                        0,
+                    ),
                 });
             } finally {
                 this.cleanUpCodes(false, false);

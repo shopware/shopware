@@ -35,7 +35,7 @@ class Migration1715081559AdjustSentMailActionOnReviewSent extends MigrationStep
             ->fetchFirstColumn();
 
         $connection->createQueryBuilder()
-            ->update('flow_sequence', 'fs')
+            ->update('flow_sequence fs')
             ->set('fs.config', 'JSON_SET(fs.config, "$.recipient.type", "admin")')
             ->from('flow_sequence', 'fs')
             ->where('fs.action_name = "action.mail.send"')

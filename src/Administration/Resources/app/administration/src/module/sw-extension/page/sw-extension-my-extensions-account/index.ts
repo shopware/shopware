@@ -14,8 +14,6 @@ const { Store, Mixin, Filter } = Shopware;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'systemConfigApiService',
         'shopwareExtensionService',
@@ -145,7 +143,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         showApiNotification(error: MappedError) {
             // @ts-expect-error
-            const docLink = this.$tc('sw-extension.errors.messageToTheShopwareDocumentation', 0, error.parameters);
+            const docLink = this.$tc('sw-extension.errors.messageToTheShopwareDocumentation', error.parameters, 0);
 
             // Methods from mixins are not recognized
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call

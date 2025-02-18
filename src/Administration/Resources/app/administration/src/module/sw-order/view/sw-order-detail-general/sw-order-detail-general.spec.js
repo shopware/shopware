@@ -108,7 +108,7 @@ async function createWrapper() {
                 'sw-loader': true,
             },
             mocks: {
-                $tc: (key, number, value) => {
+                $tc: (key, value) => {
                     if (!value) {
                         return key;
                     }

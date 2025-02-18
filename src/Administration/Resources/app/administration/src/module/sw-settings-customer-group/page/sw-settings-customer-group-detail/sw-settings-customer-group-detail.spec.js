@@ -58,7 +58,7 @@ async function createWrapper(privileges = []) {
                         </div>`,
                     },
                     'sw-textarea-field': true,
-                    'sw-text-editor': true,
+                    'mt-text-editor': true,
                     'sw-language-info': true,
                     'sw-button': true,
                     'sw-button-process': true,
@@ -194,7 +194,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
                 name: 'form title field',
                 selector: '.sw-text-field-stub[label="sw-settings-customer-group.registration.title"]',
             },
-            { name: 'form editor', selector: 'sw-text-editor-stub' },
+            { name: 'form editor', selector: 'mt-text-editor-stub' },
             {
                 name: 'only company switch',
                 selector: 'sw-switch-field-stub[label="sw-settings-customer-group.registration.onlyCompaniesCanRegister"]',
@@ -261,7 +261,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
                 name: 'form title field',
                 selector: '.sw-text-field-stub[label="sw-settings-customer-group.registration.title"]',
             },
-            { name: 'form editor', selector: 'sw-text-editor-stub' },
+            { name: 'form editor', selector: 'mt-text-editor-stub' },
             {
                 name: 'only company switch',
                 selector: 'sw-switch-field-stub[label="sw-settings-customer-group.registration.onlyCompaniesCanRegister"]',

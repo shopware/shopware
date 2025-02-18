@@ -53,18 +53,18 @@ describe('src/module/sw-extension/component/sw-extension-permissions-modal', () 
         expect(wrapper.find('.sw-modal__title').text()).toBe(
             JSON.stringify([
                 'sw-extension-store.component.sw-extension-permissions-modal.title',
-                1,
                 {
                     extensionLabel: 'Sample Extension Label',
                 },
+                1,
             ]),
         );
 
         expect(wrapper.find('.sw-extension-permissions-modal__description').text()).toBe(
             JSON.stringify([
                 'sw-extension-store.component.sw-extension-permissions-modal.description',
-                1,
                 { extensionLabel: 'Sample Extension Label' },
+                1,
             ]),
         );
 

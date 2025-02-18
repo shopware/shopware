@@ -87,17 +87,31 @@ class DatabaseConnectionInformation extends Struct
     }
 
     /**
-     * @return array{url: string, charset: string, driverOptions: array<int, string|bool>}
+     * @return array{host: string, port: int, charset: string, driver: 'pdo_mysql', dbname?: string, user?: string, password?: string, driverOptions: array<int, string|bool>}
      */
     public function toDBALParameters(bool $withoutDatabaseName = false): array
     {
         $parameters = [
-            'url' => $this->asDsn($withoutDatabaseName),
+            'host' => $this->hostname,
+            'port' => $this->port,
             'charset' => 'utf8mb4',
+            'driver' => 'pdo_mysql',
             'driverOptions' => [
                 \PDO::ATTR_STRINGIFY_FETCHES => true,
             ],
         ];
+
+        if (!$withoutDatabaseName) {
+            $parameters['dbname'] = $this->databaseName;
+        }
+
+        if ($this->username !== null) {
+            $parameters['user'] = $this->username;
+        }
+
+        if ($this->password !== null) {
+            $parameters['password'] = $this->password;
+        }
 
         if ($this->sslCaPath) {
             $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_CA] = $this->sslCaPath;

@@ -15,8 +15,6 @@ Component.register('sw-maintain-currencies-modal', {
     template,
     inject: ['repositoryFactory'],
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'update-prices',
         'modal-close',
@@ -203,13 +201,8 @@ Component.register('sw-maintain-currencies-modal', {
                 };
             }
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                // create new entry for currency in prices
-                this.$set(this.prices, this.prices.length, price);
-            } else {
-                // eslint-disable-next-line vue/no-mutating-props
-                this.prices[this.prices.length] = price;
-            }
+            // eslint-disable-next-line vue/no-mutating-props
+            this.prices[this.prices.length] = price;
 
             this.createdComponent();
         },

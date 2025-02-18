@@ -134,9 +134,11 @@
                         <sw-text-field
                             v-model:value="mailTemplate.senderName"
                             name="sw-field--mailTemplate-senderName"
+                            required
                             :label="$tc('sw-mail-template.detail.options.labelSenderName')"
                             :placeholder="placeholder(mailTemplate, 'senderName', $tc('sw-mail-template.detail.options.placeholderSenderName'))"
                             :disabled="!acl.can('mail_templates.editor') || undefined"
+                            :error="mailTemplateSenderNameError"
                         />
                         {% endblock %}
                     </sw-container>

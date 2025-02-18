@@ -42,8 +42,10 @@
             v-model:value="mailTemplate.senderName"
             name="sw-field--mailTemplate-senderName"
             class="sw-flow-create-mail-template-modal__sender-name"
+            required
             :label="$tc('sw-flow.modals.mail.labelSenderName')"
             :placeholder="$tc('sw-flow.modals.mail.placeholderSenderName')"
+            :error="mailTemplateSenderNameError"
         />
         {% endblock %}
     </sw-container>

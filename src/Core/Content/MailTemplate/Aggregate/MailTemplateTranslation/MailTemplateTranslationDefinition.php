@@ -46,7 +46,7 @@ class MailTemplateTranslationDefinition extends EntityTranslationDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new StringField('sender_name', 'senderName'))->addFlags(new ApiAware()),
+            (new StringField('sender_name', 'senderName'))->addFlags(new Required, new ApiAware()),
             (new LongTextField('description', 'description'))->addFlags(new ApiAware()),
             (new StringField('subject', 'subject'))->addFlags(new Required(), new AllowHtml(false)),
             (new LongTextField('content_html', 'contentHtml'))->addFlags(new Required(), new AllowHtml(false)),

@@ -10,10 +10,10 @@
               data-form-auto-submit="true"
               data-form-auto-submit-options="{{ formAjaxSubmitOptions|json_encode }}"
               method="post">
+
             {% block component_payment_form_redirect %}
                 <input type="hidden" name="redirectTo" value="{{ redirect }}">
                 <input type="hidden" name="redirectParameters" value="{{ redirectParameters }}">
-            {% endblock %}
             {% endblock %}
 
             {% block component_payment_form_list %}
@@ -27,6 +27,4 @@
             {% endblock %}
         </form>
     {% endblock %}
-    {% endblock %}
-{% endblock %}
 {% endblock %}

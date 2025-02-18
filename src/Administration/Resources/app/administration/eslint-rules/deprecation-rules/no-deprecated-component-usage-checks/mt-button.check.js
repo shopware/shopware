@@ -29,12 +29,12 @@ const handleMtButton = (context, node) => {
     if (variantAttribute && variantAttribute.value.value === 'ghost') {
         context.report({
             node,
-            message: '[mt-button] The "variant" prop with value "ghost" is deprecated. Please use the "ghost" prop instead.',
+            message: '[mt-button] The "variant" prop with value "ghost" is deprecated. Please use the "primary" prop in combination with "ghost" prop instead.',
             *fix(fixer) {
                 if (context.options.includes('disableFix')) return;
 
-                yield fixer.insertTextAfterRange(variantAttribute.range, 'ghost');
-                yield fixer.removeRange(variantAttribute.range);
+                yield fixer.insertTextAfterRange(variantAttribute.range, ' ghost');
+                yield fixer.replaceTextRange(variantAttribute.value.range, '"primary"');
             }
         });
     }
@@ -177,10 +177,10 @@ const mtButtonInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-button ghost>Hello</mt-button>
+                <mt-button variant="primary" ghost>Hello</mt-button>
             </template>`,
         errors: [{
-            message: '[mt-button] The "variant" prop with value "ghost" is deprecated. Please use the "ghost" prop instead.',
+            message: '[mt-button] The "variant" prop with value "ghost" is deprecated. Please use the "primary" prop in combination with "ghost" prop instead.',
         }]
     },
     {
@@ -192,7 +192,7 @@ const mtButtonInvalidChecks = [
                 <mt-button variant="ghost">Hello</mt-button>
             </template>`,
         errors: [{
-            message: '[mt-button] The "variant" prop with value "ghost" is deprecated. Please use the "ghost" prop instead.',
+            message: '[mt-button] The "variant" prop with value "ghost" is deprecated. Please use the "primary" prop in combination with "ghost" prop instead.',
         }]
     },
     {

@@ -73,7 +73,7 @@
                 position-identifier="sw-bulk-edit-product-inheritance"
             >
                 {% block sw_bulk_edit_product_content_inheritance_alert %}
-                <sw-alert variant="info">
+                <mt-banner variant="info">
                     <template #customIcon>
                         <div class="sw-bulk-edit-product__inheritance-icon">
                             <sw-icon
@@ -86,7 +86,7 @@
                     <template #default>
                         {{ $tc('sw-bulk-edit.product.alertInheritance.message') }}
                     </template>
-                </sw-alert>
+                </mt-banner>
                 {% endblock %}
             </sw-card>
             {% endblock %}
@@ -96,9 +96,9 @@
                 class="sw-bulk-edit-product__restricted-fields"
                 position-identifier="sw-bulk-edit-product-restricted-fields"
             >
-                <sw-alert
+                <mt-banner
                     :title="$tc('sw-bulk-edit.product.alertRestrictedFields.title')"
-                    variant="warning"
+                    variant="attention"
                 >
                     <span v-html="$tc('sw-bulk-edit.product.alertRestrictedFields.message')"></span>
                     <ul>
@@ -109,7 +109,7 @@
                             {{ $tc(`sw-bulk-edit.product.alertRestrictedFields.${restrictedField}`) }}
                         </li>
                     </ul>
-                </sw-alert>
+                </mt-banner>
             </sw-card>
 
             {% block sw_bulk_edit_product_content_gereral_information_card %}

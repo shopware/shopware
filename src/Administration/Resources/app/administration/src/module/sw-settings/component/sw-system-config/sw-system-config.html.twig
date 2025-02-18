@@ -34,9 +34,9 @@
         </template>
         <template v-if="hasCssFields">
             {% block sw_system_config_content_compile_notice %}
-            <sw-alert variant="warning">
+            <mt-banner variant="attention">
                 {{ $tc('sw-settings.system-config.compileNotice') }}
-            </sw-alert>
+            </mt-banner>
 
             {% endblock %}
         </template>

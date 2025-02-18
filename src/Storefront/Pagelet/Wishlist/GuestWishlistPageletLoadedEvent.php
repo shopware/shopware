@@ -10,12 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('discovery')]
 class GuestWishlistPageletLoadedEvent extends PageletLoadedEvent
 {
-    /**
-     * @var GuestWishlistPagelet
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $pagelet;
+    protected GuestWishlistPagelet $pagelet;
 
     public function __construct(
         GuestWishlistPagelet $pagelet,

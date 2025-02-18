@@ -42,7 +42,6 @@ describe('components/media/sw-media-modal-delete', () => {
                     'sw-media-media-item': {
                         template: '<div class="sw-media-media-item"></div>',
                     },
-                    'sw-alert': true,
                 },
                 provide: {
                     repositoryFactory: {

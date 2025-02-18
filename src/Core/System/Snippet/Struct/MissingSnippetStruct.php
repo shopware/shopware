@@ -8,47 +8,17 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('discovery')]
 class MissingSnippetStruct extends Struct
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $keyPath;
+    protected string $keyPath;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $filePath;
+    protected string $filePath;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $availableISO;
+    protected string $availableISO;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $availableTranslation;
+    protected string $availableTranslation;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $missingForISO;
+    protected string $missingForISO;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translation;
+    protected ?string $translation = null;
 
     public function __construct(
         string $keyPath,

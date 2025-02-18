@@ -18,25 +18,15 @@ class FilteredBulkEntityExtension extends EntityExtension
 
     public function extendFields(FieldCollection $collection): void
     {
-        try {
-            foreach ($this->bulkExtension->collect() as $entity => $fields) {
-                if ($entity !== $this->entityName) {
-                    continue;
-                }
-
-                foreach ($fields as $field) {
-                    $collection->add($field);
-                }
-            }
-        } catch (\Throwable $e) {
-            if (str_starts_with($e->getMessage(), 'Class "') && str_ends_with($e->getMessage(), '" not found')) {
-                // Ignore autoload issues, as they might happen during plugin lifecycle
-                return;
+        foreach ($this->bulkExtension->collect() as $entity => $fields) {
+            if ($entity !== $this->entityName) {
+                continue;
             }
 
-            throw $e;
+            foreach ($fields as $field) {
+                $collection->add($field);
+            }
         }
-
     }
 
     public function getEntityName(): string

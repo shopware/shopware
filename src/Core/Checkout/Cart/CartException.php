@@ -10,8 +10,10 @@ use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Content\Flow\Exception\CustomerDeletedException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPriceFieldTypeException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
@@ -189,6 +191,11 @@ class CartException extends HttpException
         );
     }
 
+    public static function invalidPriceFieldType(string $type): InvalidPriceFieldTypeException
+    {
+        return new InvalidPriceFieldTypeException($type);
+    }
+
     public static function invalidQuantity(int $quantity): self
     {
         return new self(
@@ -212,7 +219,7 @@ class CartException extends HttpException
     public static function deliveryDateNotSupportedUnit(string $unit): self
     {
         return new self(
-            Response::HTTP_BAD_REQUEST,
+            Response::HTTP_INTERNAL_SERVER_ERROR,
             self::CART_DELIVERY_DATE_NOT_SUPPORTED_UNIT,
             'Not supported unit {{ unit }}',
             ['unit' => $unit]
@@ -569,5 +576,10 @@ class CartException extends HttpException
             self::UNEXPECTED_VALUE_EXCEPTION,
             $message
         );
+    }
+
+    public static function unsupportedOperator(string $operator, string $class): UnsupportedOperatorException
+    {
+        return new UnsupportedOperatorException($operator, $class);
     }
 }

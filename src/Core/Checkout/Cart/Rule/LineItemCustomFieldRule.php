@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\CustomFieldRule;
@@ -106,7 +107,7 @@ class LineItemCustomFieldRule extends Rule
             self::OPERATOR_EQ => $actual === $expected,
             self::OPERATOR_GT => $actual > $expected,
             self::OPERATOR_LT => $actual < $expected,
-            default => throw new UnsupportedOperatorException($this->operator, self::class),
+            default => throw CartException::unsupportedOperator($this->operator, self::class),
         };
     }
 }

@@ -18,6 +18,8 @@ use Shopware\Core\Checkout\Customer\Exception\InvalidImitateCustomerTokenExcepti
 use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -282,5 +284,15 @@ class CustomerException extends HttpException
     public static function invalidImitationToken(string $token): InvalidImitateCustomerTokenException
     {
         return new InvalidImitateCustomerTokenException($token);
+    }
+
+    public static function unsupportedOperator(string $operator, string $class): UnsupportedOperatorException
+    {
+        return new UnsupportedOperatorException($operator, $class);
+    }
+
+    public static function unsupportedValue(string $value, string $class): UnsupportedValueException
+    {
+        return new UnsupportedValueException($value, $class);
     }
 }

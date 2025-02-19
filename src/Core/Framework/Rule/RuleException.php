@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\Rule;
 
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\ScriptException;
 
@@ -14,5 +16,15 @@ class RuleException extends HttpException
     {
         // use own exception class so it can be catched properly
         return new ScriptExecutionFailedException($hook, $scriptName, $previous);
+    }
+
+    public static function unsupportedOperator(string $operator, string $class): UnsupportedOperatorException
+    {
+        return new UnsupportedOperatorException($operator, $class);
+    }
+
+    public static function unsupportedValue(string $type, string $class): UnsupportedValueException
+    {
+        return new UnsupportedValueException($type, $class);
     }
 }

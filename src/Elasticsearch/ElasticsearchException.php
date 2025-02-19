@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,6 +17,7 @@ class ElasticsearchException extends HttpException
     public const UNSUPPORTED_AGGREGATION = 'ELASTICSEARCH__UNSUPPORTED_AGGREGATION';
     public const UNSUPPORTED_FILTER = 'ELASTICSEARCH__UNSUPPORTED_FILTER';
     public const NESTED_AGGREGATION_PARSE_ERROR = 'ELASTICSEARCH__NESTED_AGGREGATION_PARSE_ERROR';
+    public const OPERATOR_NOT_ALLOWED = 'ELASTICSEARCH__OPERATOR_NOT_ALLOWED';
     public const PARENT_FILTER_ERROR = 'ELASTICSEARCH__PARENT_FILTER_ERROR';
     public const SERVER_NOT_AVAILABLE = 'ELASTICSEARCH__SERVER_NOT_AVAILABLE';
     public const EMPTY_QUERY = 'ELASTICSEARCH__EMPTY_QUERY';
@@ -70,6 +72,23 @@ class ElasticsearchException extends HttpException
             self::NESTED_AGGREGATION_MISSING,
             'Filter aggregation {{ aggregation }} contains no nested aggregation.',
             ['aggregation' => $aggregation]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return `self` in the future
+     */
+    public static function operatorNotAllowed(string $operator): self|\InvalidArgumentException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new \InvalidArgumentException('Operator ' . $operator . ' not allowed');
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::OPERATOR_NOT_ALLOWED,
+            'Operator {{ operator }} not allowed',
+            ['operator' => $operator]
         );
     }
 

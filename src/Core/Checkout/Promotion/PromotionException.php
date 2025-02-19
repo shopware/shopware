@@ -3,7 +3,9 @@
 namespace Shopware\Core\Checkout\Promotion;
 
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\Exception\DiscountCalculatorNotFoundException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidCodePatternException;
+use Shopware\Core\Checkout\Promotion\Exception\InvalidScopeDefinitionException;
 use Shopware\Core\Checkout\Promotion\Exception\PatternNotComplexEnoughException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -42,6 +44,11 @@ class PromotionException extends HttpException
         );
     }
 
+    public static function discountCalculatorNotFound(string $type): DiscountCalculatorNotFoundException
+    {
+        return new DiscountCalculatorNotFoundException($type);
+    }
+
     public static function invalidCodePattern(string $codePattern): self
     {
         return new InvalidCodePatternException(
@@ -50,6 +57,11 @@ class PromotionException extends HttpException
             'Invalid code pattern "{{ codePattern }}".',
             ['codePattern' => $codePattern]
         );
+    }
+
+    public static function invalidScopeDefinition(string $scope): InvalidScopeDefinitionException
+    {
+        return new InvalidScopeDefinitionException($scope);
     }
 
     public static function patternNotComplexEnough(): self

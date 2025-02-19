@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Flow;
 
 use Doctrine\DBAL\Exception as DBALException;
 use Shopware\Core\Content\Flow\Dispatching\TransactionFailedException;
+use Shopware\Core\Content\Flow\Exception\CustomTriggerByNameNotFoundException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,6 +16,11 @@ class FlowException extends HttpException
     final public const FLOW_ACTION_TRANSACTION_ABORTED = 'FLOW_ACTION_TRANSACTION_ABORTED';
     final public const FLOW_ACTION_TRANSACTION_COMMIT_FAILED = 'FLOW_ACTION_TRANSACTION_COMMIT_FAILED';
     final public const FLOW_ACTION_TRANSACTION_UNCAUGHT_EXCEPTION = 'FLOW_ACTION_TRANSACTION_UNCAUGHT_EXCEPTION';
+
+    public static function customTriggerByNameNotFound(string $name): CustomTriggerByNameNotFoundException
+    {
+        return new CustomTriggerByNameNotFoundException($name);
+    }
 
     public static function methodNotCompatible(string $method, string $class): FlowException
     {

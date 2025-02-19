@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Adapter;
 
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Symfony\Component\Asset\Exception\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Node\Expression\AbstractExpression;
@@ -33,6 +34,11 @@ class AdapterException extends HttpException
                 'type' => $expression::class,
             ]
         );
+    }
+
+    public static function unsupportedOperator(string $operator, string $class): UnsupportedOperatorException
+    {
+        return new UnsupportedOperatorException($operator, $class);
     }
 
     public static function missingExtendsTemplate(string $template): self

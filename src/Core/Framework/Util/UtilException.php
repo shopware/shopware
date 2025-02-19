@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Util;
 
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Exception\ComparatorException;
 use Shopware\Core\Framework\Util\Exception\UtilXmlParsingException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -70,5 +71,10 @@ class UtilException extends HttpException
             'Could not generate hash for  "{{ file }}"',
             ['file' => $file]
         );
+    }
+
+    public static function operatorNotSupported(string $operator): ComparatorException
+    {
+        return ComparatorException::operatorNotSupported($operator);
     }
 }

@@ -1807,7 +1807,6 @@ class ThemeFixtures
                 'name' => 'test',
                 'label' => 'test',
                 'helpText' => null,
-                'type' => null,
                 'value' => [
                     0 => 'no_test',
                 ],
@@ -3767,7 +3766,6 @@ class ThemeFixtures
                 'name' => 'first',
                 'label' => null,
                 'helpText' => null,
-                'type' => null,
                 'value' => null,
                 'editable' => null,
                 'block' => null,
@@ -3787,7 +3785,6 @@ class ThemeFixtures
                 'name' => 'test',
                 'label' => null,
                 'helpText' => null,
-                'type' => null,
                 'value' => [
                     0 => 'no_test',
                 ],
@@ -4014,7 +4011,6 @@ class ThemeFixtures
                 'name' => 'first',
                 'label' => null,
                 'helpText' => null,
-                'type' => null,
                 'value' => null,
                 'editable' => null,
                 'block' => null,
@@ -4034,7 +4030,6 @@ class ThemeFixtures
                 'name' => 'test',
                 'label' => null,
                 'helpText' => null,
-                'type' => null,
                 'value' => [
                     0 => 'no_test',
                 ],
@@ -4132,10 +4127,10 @@ class ThemeFixtures
                         ],
                     ],
                     'default' => [
-                        'label' => null,
+                        'label' => '',
                         'sections' => [
                             'default' => [
-                                'label' => null,
+                                'label' => '',
                                 'fields' => [
                                     'first' => [
                                         'label' => null,
@@ -4172,7 +4167,6 @@ class ThemeFixtures
                 'name' => 'test',
                 'label' => null,
                 'helpText' => null,
-                'type' => null,
                 'value' => [
                     0 => 'no_test',
                 ],
@@ -4226,13 +4220,13 @@ class ThemeFixtures
     {
         return [
             'default' => [
-                'label' => null,
+                'label' => '',
                 'blocks' => [
                     'default' => [
-                        'label' => null,
+                        'label' => '',
                         'sections' => [
                             'default' => [
-                                'label' => null,
+                                'label' => '',
                                 'fields' => [
                                     'test' => [
                                         'label' => 'test',
@@ -4257,13 +4251,13 @@ class ThemeFixtures
     {
         return [
             'default' => [
-                'label' => null,
+                'label' => '',
                 'blocks' => [
                     'default' => [
-                        'label' => null,
+                        'label' => '',
                         'sections' => [
                             'default' => [
-                                'label' => null,
+                                'label' => '',
                                 'fields' => [
                                     'test' => [
                                         'label' => null,
@@ -4293,7 +4287,6 @@ class ThemeFixtures
                 'name' => 'test',
                 'label' => null,
                 'helpText' => null,
-                'type' => null,
                 'value' => [
                     0 => 'no_test',
                 ],
@@ -4918,13 +4911,13 @@ class ThemeFixtures
     {
         return [
             'default' => [
-                'label' => null,
+                'label' => '',
                 'blocks' => [
                     'default' => [
-                        'label' => null,
+                        'label' => '',
                         'sections' => [
                             'default' => [
-                                'label' => null,
+                                'label' => '',
                                 'fields' => [
                                     'test' => [
                                         'label' => 'test',
@@ -5003,13 +4996,13 @@ class ThemeFixtures
     {
         return [
             'default' => [
-                'label' => null,
+                'label' => '',
                 'blocks' => [
                     'default' => [
-                        'label' => null,
+                        'label' => '',
                         'sections' => [
                             'default' => [
-                                'label' => null,
+                                'label' => '',
                                 'fields' => [
                                     'test' => [
                                         'label' => null,
@@ -5207,7 +5200,7 @@ class ThemeFixtures
                         'label' => 'Theme colours',
                         'sections' => [
                             'default' => [
-                                'label' => null,
+                                'label' => '',
                                 'fields' => [
                                     'sw-color-brand-primary' => [
                                         'label' => 'Primary colour',
@@ -5245,7 +5238,7 @@ class ThemeFixtures
                         'label' => 'Status messages',
                         'sections' => [
                             'default' => [
-                                'label' => null,
+                                'label' => '',
                                 'fields' => [
                                     'sw-color-success' => [
                                         'label' => 'Success',
@@ -5283,7 +5276,7 @@ class ThemeFixtures
                         'label' => 'Typography',
                         'sections' => [
                             'default' => [
-                                'label' => null,
+                                'label' => '',
                                 'fields' => [
                                     'sw-font-family-base' => [
                                         'label' => 'Fonttype text',
@@ -5321,7 +5314,7 @@ class ThemeFixtures
                         'label' => 'E-Commerce',
                         'sections' => [
                             'default' => [
-                                'label' => null,
+                                'label' => '',
                                 'fields' => [
                                     'sw-color-price' => [
                                         'label' => 'Price',
@@ -5405,13 +5398,13 @@ class ThemeFixtures
     {
         $tabs = [
             'default' => [
-                'label' => null,
+                'label' => '',
                 'blocks' => array_merge(ThemeFixtures::getExtractedTabsSub1(), [
                     'media' => [
                         'label' => 'media',
                         'sections' => [
                             'default' => [
-                                'label' => null,
+                                'label' => '',
                                 'fields' => [
                                     'sw-logo-desktop' => [
                                         'label' => [
@@ -5490,7 +5483,7 @@ class ThemeFixtures
     {
         return [
             'default' => [
-                'label' => null,
+                'label' => '',
                 'fields' => [
                     'sw-color-brand-primary' => [
                         'label' => 'sw-color-brand-primary',
@@ -5532,7 +5525,7 @@ class ThemeFixtures
     {
         return [
             'default' => [
-                'label' => null,
+                'label' => '',
                 'fields' => [
                     'sw-color-success' => [
                         'label' => 'sw-color-success',
@@ -5574,7 +5567,7 @@ class ThemeFixtures
     {
         return [
             'default' => [
-                'label' => null,
+                'label' => '',
                 'fields' => [
                     'sw-font-family-base' => [
                         'label' => 'sw-font-family-base',
@@ -5616,7 +5609,7 @@ class ThemeFixtures
     {
         return [
             'default' => [
-                'label' => null,
+                'label' => '',
                 'fields' => [
                     'sw-color-price' => [
                         'label' => 'sw-color-price',
@@ -5651,7 +5644,7 @@ class ThemeFixtures
     {
         return [
             'default' => [
-                'label' => null,
+                'label' => '',
                 'fields' => [
                     'sw-logo-desktop' => [
                         'label' => 'sw-logo-desktop',
@@ -5700,7 +5693,7 @@ class ThemeFixtures
     {
         return [
             'default' => [
-                'label' => null,
+                'label' => '',
                 'blocks' => [
                     'themeColors' => [
                         'label' => 'themeColors',
@@ -5723,10 +5716,10 @@ class ThemeFixtures
                         'sections' => ThemeFixtures::getExtractedSections6(),
                     ],
                     'default' => [
-                        'label' => null,
+                        'label' => '',
                         'sections' => [
                             'default' => [
-                                'label' => null,
+                                'label' => '',
                                 'fields' => [
                                     'first' => [
                                         'label' => 'first',
@@ -5758,7 +5751,7 @@ class ThemeFixtures
     {
         return [
             'default' => [
-                'label' => null,
+                'label' => '',
                 'blocks' => [
                     'themeColors' => [
                         'label' => 'themeColors',
@@ -5781,10 +5774,10 @@ class ThemeFixtures
                         'sections' => ThemeFixtures::getExtractedSections6(),
                     ],
                     'default' => [
-                        'label' => null,
+                        'label' => '',
                         'sections' => [
                             'default' => [
-                                'label' => null,
+                                'label' => '',
                                 'fields' => [
                                     'test' => [
                                         'label' => 'test',
@@ -5814,7 +5807,6 @@ class ThemeFixtures
                 'name' => 'test',
                 'label' => null,
                 'helpText' => null,
-                'type' => null,
                 'value' => [
                     0 => 'no_test',
                 ],

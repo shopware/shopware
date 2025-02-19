@@ -24,7 +24,8 @@
 
                 <template #filter>
                     {% block sw_order_document_card_header_create_document_context_button %}
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         v-if="!attachView"
                         v-tooltip="{
                             message: tooltipCreateDocumentButton,
@@ -32,7 +33,7 @@
                             showOnDisabledElements: true
                         }"
                         size="small"
-                        variant="ghost"
+                        ghost
                         :disabled="!acl.can('document.viewer') || isEditing"
                         class="sw-order-document-grid-button"
                         @click="onShowSelectDocumentTypeModal"
@@ -42,7 +43,7 @@
                         {{ $tc('sw-order.documentCard.labelCreateNew') }}
                         {% endblock %}
 
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
 
                 </template>
@@ -231,7 +232,8 @@
         </template>
 
         <template #actions>
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-if="showCreateDocumentButton"
                 v-tooltip="{
                     message: tooltipCreateDocumentButton,
@@ -239,7 +241,7 @@
                     showOnDisabledElements: true
                 }"
                 size="small"
-                variant="ghost"
+                ghost
                 :disabled="!acl.can('document.viewer') || isEditing"
                 class="sw-order-document-grid-button"
                 @click="onShowSelectDocumentTypeModal"
@@ -249,7 +251,7 @@
                 {{ $tc('sw-order.documentCard.labelCreateNew') }}
                 {% endblock %}
 
-            </sw-button>
+            </mt-button>
         </template>
     </sw-empty-state>
     {% endblock %}

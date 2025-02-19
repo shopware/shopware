@@ -36,12 +36,13 @@
                     {{ error && error.detail || $tc('sw-extension-store.landing-page.activationErrorDescription') }}
                 </p>
 
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     variant="primary"
                     @click="activateStore"
                 >
                     {{ $tc('sw-extension-store.landing-page.retryButton') }}
-                </sw-button>
+                </mt-button>
             </template>
 
             <template v-else-if="activationStatus === 'success'">
@@ -90,13 +91,14 @@
                 {{ $tc('sw-extension-store.landing-page.activationDescriptionTitleDescription') }}
             </p>
 
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 class="sw-extension-store-landing-page__activate_button"
                 variant="primary"
                 @click="activateStore"
             >
                 {{ $tc('sw-extension-store.landing-page.activate') }}
-            </sw-button>
+            </mt-button>
         </div>
     </div>
 </div>

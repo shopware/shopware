@@ -156,9 +156,11 @@ class DocumentGeneratorTest extends TestCase
         /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([]);
 
+        $fileRendererRegistry = $this->createMock(DocumentFileRendererRegistry::class);
+
         $generator = new DocumentGenerator(
             $registry,
-            $this->createMock(DocumentFileRendererRegistry::class),
+            $fileRendererRegistry,
             $this->createMock(MediaService::class),
             $documentRepository,
             $this->createMock(Connection::class),
@@ -247,14 +249,14 @@ class DocumentGeneratorTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->method('fetchOne')->willReturn($documentTypeId);
 
-        $fileRendererRegistry = $this->createMock(DocumentFileRendererRegistry::class);
-        $fileRendererRegistry->method('render')->willReturn('html');
-
         $mediaService = $this->createMock(MediaService::class);
         $mediaService->method('saveFile')->willReturnOnConsecutiveCalls(
             $mediaIds[0] ?? '',
             $mediaIds[1] ?? '',
         );
+
+        $fileRendererRegistry = $this->createMock(DocumentFileRendererRegistry::class);
+        $fileRendererRegistry->method('render')->willReturn('content');
 
         $generator = new DocumentGenerator(
             $registry,

@@ -45,7 +45,6 @@ async function createWrapper() {
                     'sw-textarea-field': true,
                     'sw-cms-list-item': true,
                     'sw-switch-field': true,
-                    'sw-button': true,
                     'sw-cms-layout-modal': true,
                     'sw-icon': true,
                     'sw-discard-changes-modal': true,

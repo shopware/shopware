@@ -94,7 +94,7 @@ class Criteria extends Struct implements \Stringable
     protected ?string $term = null;
 
     /**
-     * @var array<string, array<string, string>>|null
+     * @var array<string, list<string>>|null
      */
     protected ?array $includes = null;
 
@@ -525,7 +525,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @param array<string, array<string, string>>|null $includes
+     * @param array<string, list<string>>|null $includes
      */
     public function setIncludes(?array $includes): void
     {
@@ -533,7 +533,9 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @return array<string, array<string, string>>|null
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Return type will be native
+     *
+     * @return array<string, list<string>>|null
      */
     public function getIncludes()
     {

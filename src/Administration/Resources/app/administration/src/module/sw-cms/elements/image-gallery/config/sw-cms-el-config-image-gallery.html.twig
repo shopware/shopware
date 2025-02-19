@@ -84,13 +84,13 @@
                         {% endblock %}
 
                         {% block sw_cms_element_image_gallery_config_media_preview_info %}
-                        <sw-alert
+                        <mt-banner
                             v-else
                             class="sw-cms-el-config-image__preview-info"
                             variant="info"
                         >
                             {{ $tc('sw-cms.detail.label.mappingEmptyPreview') }}
-                        </sw-alert>
+                        </mt-banner>
                         {% endblock %}
                     </template>
                     {% endblock %}

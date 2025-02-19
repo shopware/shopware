@@ -708,18 +708,4 @@ class DataAbstractionLayerException extends HttpException
             ['class' => $class, 'required' => $required, 'hook' => $hook]
         );
     }
-
-    /**
-     * @internal
-     *
-     * @deprecated tag:v6.7.0 - reason:remove-subscriber - remove method completely not used anymore
-     */
-    public static function deprecatedDefinitionCall(): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::FRAMEWORK_DEPRECATED_DEFINITION_CALL,
-            'Method getDefinitionClass is deprecated. Use getEntityName instead.'
-        );
-    }
 }

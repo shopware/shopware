@@ -80,7 +80,6 @@ async function createWrapper() {
                 stubs: {
                     'sw-card': true,
                     'sw-container': true,
-                    'sw-button': true,
                     'sw-icon': true,
                     'sw-field-error': true,
                     'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),

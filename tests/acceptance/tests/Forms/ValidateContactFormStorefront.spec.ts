@@ -1,5 +1,4 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
-import { satisfies } from 'compare-versions';
 
 test(
     'As a customer, I want to fill out and submit the contact form.',
@@ -63,10 +62,13 @@ test(
             await ShopCustomer.expects(StorefrontContactForm.commentInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
             await ShopCustomer.expects(StorefrontContactForm.privacyPolicyCheckbox).toHaveCSS('border-color', 'rgb(194, 0, 23)');
 
-            if (satisfies(InstanceMeta.version, '>=6.7')) {
+            // eslint-disable-next-line playwright/no-conditional-in-test
+            if (InstanceMeta.features['ACCESSIBILITY_TWEAKS']) {
                 await ShopCustomer.expects(StorefrontContactForm.formFieldFeedback).toHaveCount(8);
             }
+
             await ShopCustomer.expects(StorefrontContactForm.contactSuccessMessage).not.toBeVisible();
         });
     }
 );
+

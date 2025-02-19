@@ -31,10 +31,6 @@ async function createWrapper(categoryType) {
                     template: '<div class="sw-language-info"></div>',
                     props: ['entityDescription'],
                 },
-                'sw-alert': {
-                    template: '<div class="sw-alert"><slot /></div>',
-                    props: ['variant'],
-                },
                 'sw-tabs': {
                     template: '<div class="sw-tabs"><slot /></div>',
                 },
@@ -81,7 +77,7 @@ describe('src/module/sw-category/component/sw-category-view', () => {
             field: 'name',
         });
 
-        expect(wrapper.getComponent('.sw-alert').props('variant')).toBe('info');
+        expect(wrapper.getComponent('[role="banner"]').props('variant')).toBe('info');
         expect(wrapper.get('.swag-category-view__column-info-header').text()).toBe('sw-category.view.columnInfoHeader');
         expect(wrapper.get('.swag-category-view__column-info-content').text()).toBe('sw-category.view.columnInfo');
 

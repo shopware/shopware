@@ -10,12 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('discovery')]
 class WishlistPageLoadedEvent extends PageLoadedEvent
 {
-    /**
-     * @var WishlistPage
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $page;
+    protected WishlistPage $page;
 
     public function __construct(
         WishlistPage $page,

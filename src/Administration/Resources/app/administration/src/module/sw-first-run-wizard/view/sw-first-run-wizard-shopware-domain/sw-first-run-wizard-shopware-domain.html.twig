@@ -44,13 +44,12 @@
         v-if="domainError"
         class="sw-first-run-wizard-shopware-domain__error"
     >
-        <sw-alert
+        <mt-banner
             :title="domainError.title"
-            variant="error"
-            appearance="notification"
+            variant="critical"
         >
             {{ domainError.detail }}
-        </sw-alert>
+        </mt-banner>
     </div>
 
     <sw-loader v-if="isLoading" />

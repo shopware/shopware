@@ -24,7 +24,7 @@ import Debouncer from 'src/helper/debouncer.helper';
  *
  * <input data-form-validation-length='8' data-form-validation-equal-message='this field must be at least 8 characters long'>
  *
- * @package content
+ * @package framework
  */
 export default class FormValidation extends Plugin {
 

@@ -7,7 +7,7 @@ import DomAccess from 'src/helper/dom-access.helper';
  *
  * This plugin scrolls to invalid form fields when the form is submitted.
  *
- * @package content
+ * @package framework
  */
 export default class FormScrollToInvalidFieldPlugin extends Plugin {
 

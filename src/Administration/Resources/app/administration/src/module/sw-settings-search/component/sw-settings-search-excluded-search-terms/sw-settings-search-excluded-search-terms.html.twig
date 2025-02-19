@@ -25,15 +25,16 @@
 
             <template #actions>
                 {% block sw_settings_search_excluded_search_terms_empty_state_action %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     class="sw-settings-search-excluded-search-terms__action-add"
-                    variant="ghost"
+                    ghost
                     size="small"
                     :disabled="!acl.can('product_search_config.creator')"
                     @click="addExcludedSearchTerms"
                 >
                     {{ $tc('sw-settings-search.generalTab.buttonAddExcludedSearch') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </template>
         </sw-empty-state>
@@ -59,19 +60,21 @@
                 {% block sw_settings_search_excluded_search_terms_actions %}
                 <div class="sw-settings-search-excluded-search-terms-group-actions">
                     {% block sw_settings_search_excluded_search_terms_add_button %}
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         class="sw-settings-search-excluded-search-terms__insert-button"
-                        variant="ghost"
+                        ghost
                         size="small"
                         :disabled="!acl.can('product_search_config.creator')"
                         @click="onInsertTerm"
                     >
                         {{ $tc('sw-settings-search.generalTab.buttonAddExcludedSearchTerms') }}
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
 
                     {% block sw_settings_search_excluded_search_terms_reset_button %}
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         class="sw-settings-search-excluded-search-terms__reset-button"
                         size="small"
                         :disabled="!acl.can('product_search_config.creator')"
@@ -79,7 +82,7 @@
                         @click="onResetExcludedSearchTermDefault"
                     >
                         {{ $tc('sw-settings-search.generalTab.buttonResetDefault') }}
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
                 </div>
                 {% endblock %}
@@ -101,14 +104,15 @@
                     @select-item="selectionChanged"
                 >
                     <template #bulk>
-                        <sw-button
-                            variant="danger"
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
+                            variant="critical"
                             size="small"
                             :disabled="!acl.can('product_search_config.deleter')"
                             @click="onBulkDeleteExcludedTerm()"
                         >
                             {{ $tc('global.default.delete') }}
-                        </sw-button>
+                        </mt-button>
                     </template>
 
                     <template #actions="{ item }">

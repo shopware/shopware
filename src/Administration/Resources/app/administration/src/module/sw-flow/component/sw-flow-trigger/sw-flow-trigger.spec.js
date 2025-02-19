@@ -119,8 +119,6 @@ async function createWrapper(propsData) {
                     'sw-tree-input-field': await wrapTestComponent('sw-tree-input-field'),
                     'sw-vnode-renderer': await wrapTestComponent('sw-vnode-renderer'),
                     'sw-flow-event-change-confirm-modal': await wrapTestComponent('sw-flow-event-change-confirm-modal'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch'),
                     'sw-ai-copilot-badge': await wrapTestComponent('sw-ai-copilot-badge'),
                     'sw-help-text': await wrapTestComponent('sw-help-text'),

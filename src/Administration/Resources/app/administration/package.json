@@ -18,6 +18,7 @@
     "generate-api-docs": "./node_modules/.bin/jsdoc src -r -c jsdoc.config.js",
     "generate-component-import-resolver-map": "ts-node --transpileOnly ./scripts/componentImportResolver/generate.ts",
     "generate-data-set-list": "ts-node --transpileOnly ./scripts/generate-data-set-list/index.ts",
+    "generate-blocks-list": "ts-node --transpileOnly ./scripts/generate-block-list/index.ts",
     "generate-entity-schema-package": "ts-node --transpileOnly ./scripts/entitySchemaConverter/generate-package.ts",
     "generate-position-identifier-list": "ts-node --transpileOnly ./scripts/generate-position-identifier-list/index.ts",
     "preinstall": "node ./scripts/validate-package-json/index.mjs",

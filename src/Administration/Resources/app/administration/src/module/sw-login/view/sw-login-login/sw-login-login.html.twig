@@ -10,15 +10,15 @@
     {% endblock %}
 
     {% block sw_login_login_alert %}
-    <sw-alert
+    <mt-banner
         v-if="showLoginAlert"
         variant="info"
-        appearance="default"
+
         :show-icon="true"
         :closable="false"
     >
         {{ loginAlertMessage }}
-    </sw-alert>
+    </mt-banner>
     {% endblock %}
 
     <div v-if="loginConfigLoaded">
@@ -63,13 +63,14 @@
                 {% endblock %}
 
                 {% block sw_login_login_submit_button %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     :disabled="password.length <= 0 || username.length <= 0 || showLoginAlert"
                     class="sw-login__login-action"
                     variant="primary"
                 >
                     {{ $tc('sw-login.index.buttonLogin') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </div>
             {% endblock %}

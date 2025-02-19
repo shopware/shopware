@@ -35,14 +35,6 @@ async function createWrapper() {
                 'sw-extension-component-section': true,
                 'sw-order-create-general-info': true,
                 'sw-icon': true,
-                'sw-button': {
-                    emits: ['click'],
-                    template: `
-                        <button class="sw-button" @click="$emit('click')">
-                            <slot />
-                        </button>
-                    `,
-                },
             },
         },
     });
@@ -197,7 +189,7 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
         await saveableField.trigger('input');
         await flushPromises();
 
-        button = wrapper.find('.sw-order-saveable-field .sw-button[variant="primary"]');
+        button = wrapper.findByAriaLabel('button', 'global.default.save');
         await button.trigger('click');
         await flushPromises();
 

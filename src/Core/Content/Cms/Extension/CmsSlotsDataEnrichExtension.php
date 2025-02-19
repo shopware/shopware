@@ -20,8 +20,6 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @template TEntityCollection of EntityCollection
  *
- * @experimental stableVersion:v6.7.0 feature:EXTENSION_SYSTEM
- *
  * @codeCoverageIgnore
  *
  * @extends Extension<CmsSlotCollection>

@@ -23,24 +23,26 @@
     <template #modal-footer>
 
         {% block sw_confirm_modal_footer_cancel %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-confirm-modal__button-cancel"
             size="small"
             @click="$emit('cancel')"
         >
             {{ cancelText }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_confirm_modal_footer_confirm %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-confirm-modal__button-confirm"
             :variant="confirmButtonVariant"
             size="small"
             @click="$emit('confirm')"
         >
             {{ confirmText }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
     </template>

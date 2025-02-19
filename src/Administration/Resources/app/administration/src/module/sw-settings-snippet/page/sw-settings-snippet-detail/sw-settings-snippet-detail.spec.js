@@ -163,8 +163,6 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                         'sw-base-field': await wrapTestComponent('sw-base-field'),
                         'sw-field-error': await wrapTestComponent('sw-field-error'),
                         'sw-button-process': await wrapTestComponent('sw-button-process'),
-                        'sw-button': await wrapTestComponent('sw-button'),
-                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                         'sw-skeleton': true,
                         'sw-search-bar': true,
                         'sw-icon': true,

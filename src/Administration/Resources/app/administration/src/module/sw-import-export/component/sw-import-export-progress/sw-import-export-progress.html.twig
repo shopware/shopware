@@ -2,7 +2,8 @@
 <div class="sw-import-export-progress">
     <div class="sw-import-export-progress__progress">
         {% block sw_import_export_progress_start_process %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             :disabled="disableButton || undefined"
             class="sw-import-export-progress__start-process-action"
             size="small"
@@ -15,11 +16,12 @@
             <template v-else>
                 {{ $tc('sw-import-export.progress.startExportLabel') }}
             </template>
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_import_export_progress_start_process_dryrun %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-if="activityType === 'import'"
             :disabled="disableButton || undefined"
             class="sw-import-export-progress__start-process-dryrun-action"
@@ -27,7 +29,7 @@
             @click="$emit('process-start-dryrun')"
         >
             {{ $tc('sw-import-export.progress.startImportDryrunLabel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </div>
 </div>

@@ -126,7 +126,6 @@ async function createWrapper(
     </div>
     `,
                     },
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-text-field': await wrapTestComponent('sw-text-field', {
                         sync: true,
@@ -159,10 +158,9 @@ async function createWrapper(
                     'sw-empty-state': true,
                     'sw-skeleton': true,
                     'sw-loader': true,
-                    'sw-button': true,
                     'sw-verify-user-modal': true,
                     'sw-media-modal-v2': true,
-                    'sw-alert': true,
+
                     'sw-text-field-deprecated': true,
                     'sw-help-text': true,
                     'sw-inheritance-switch': true,

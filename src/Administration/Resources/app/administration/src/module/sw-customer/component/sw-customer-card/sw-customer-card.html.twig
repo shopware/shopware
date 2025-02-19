@@ -16,7 +16,8 @@
         {% endblock %}
 
         {% block sw_customer_card_action_customer_impersonation %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip="{
                 message: $tc(customer.guest ? 'sw-customer.card.tooltipImitateCustomerGuest' : 'sw-privileges.tooltip.warning'),
                 disabled: !customer.guest && acl.can('api_proxy_imitate-customer'),
@@ -36,7 +37,7 @@
             <template v-else>
                 {{ $tc('sw-customer.card.buttonImitateCustomer') }}
             </template>
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

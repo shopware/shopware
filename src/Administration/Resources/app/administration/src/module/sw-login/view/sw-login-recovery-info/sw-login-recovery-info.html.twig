@@ -18,17 +18,17 @@
 
     {% block sw_login_recovery_info_info %}
     <template v-if="!rateLimitTime">
-        <sw-alert variant="info">
+        <mt-banner variant="info">
             {{ $tc('sw-login.recovery.info.info') }}
-        </sw-alert>
-        <sw-alert variant="warning">
+        </mt-banner>
+        <mt-banner variant="attention">
             {{ $tc('sw-login.recovery.info.warning') }}
-        </sw-alert>
+        </mt-banner>
     </template>
     <template v-else>
-        <sw-alert variant="info">
+        <mt-banner variant="info">
             {{ $tc('global.error-codes.FRAMEWORK__RATE_LIMIT_EXCEEDED', { seconds: rateLimitTime }, 0) }}
-        </sw-alert>
+        </mt-banner>
     </template>
     {% endblock %}
 </div>

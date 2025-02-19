@@ -25,10 +25,6 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
                     'sw-external-link': {
                         template: '<a><slot></slot></a>',
                     },
-                    'sw-button': {
-                        inheritAttrs: false,
-                        template: '<button :class="$attrs.class" @click="$emit(\'click\', $event)"><slot></slot></button>',
-                    },
                     'sw-search-bar': true,
                     'sw-notification-center': true,
                     'sw-help-center-v2': true,
@@ -36,7 +32,7 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
                     'sw-icon': true,
                     'sw-tabs': true,
                     'sw-sales-channel-switch': true,
-                    'sw-alert': true,
+
                     'sw-form-field-renderer': true,
                     'sw-inherit-wrapper': true,
                     'sw-card': true,

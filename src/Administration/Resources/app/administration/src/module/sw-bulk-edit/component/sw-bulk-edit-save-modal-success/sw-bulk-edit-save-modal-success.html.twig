@@ -35,14 +35,15 @@
             <span class="label">
                 {{ selectedDocumentType.translated.name }}
             </span>
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 class="action"
                 size="small"
                 :disabled="document[selectedDocumentType.technicalName].isDownloading"
                 @click="downloadDocument(selectedDocumentType.technicalName)"
             >
                 {{ $tc('sw-bulk-edit.modal.success.buttonDownload') }}
-            </sw-button>
+            </mt-button>
         </li>
     </ul>
     {% endblock %}

@@ -374,7 +374,6 @@ describe('app/plugins/shortcut.plugin', () => {
                     'sw-compact-colorpicker': await Shopware.Component.build('sw-compact-colorpicker'),
                     'sw-colorpicker': await Shopware.Component.build('sw-colorpicker'),
                     'sw-container': await Shopware.Component.build('sw-container'),
-                    'sw-button': await Shopware.Component.build('sw-button'),
                     'sw-text-editor-table-toolbar': true,
                     'sw-code-editor': true,
                     'sw-text-editor-link-menu': true,

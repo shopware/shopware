@@ -36,7 +36,6 @@ async function createWrapper(privileges = []) {
                     'sw-container': true,
                     'sw-number-field': true,
                     'sw-text-field': true,
-                    'sw-button': true,
                     'sw-empty-state': true,
                 },
             },
@@ -69,7 +68,7 @@ describe('module/sw-settings-country/component/sw-country-state-detail', () => {
 
         const saveButton = wrapper.find('.sw-country-state-detail__save-button');
 
-        expect(saveButton.attributes().disabled).toBeTruthy();
+        expect(saveButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to edit a country state', async () => {
@@ -107,7 +106,7 @@ describe('module/sw-settings-country/component/sw-country-state-detail', () => {
             'sw-number-field-stub[label="sw-country-state-detail.labelPosition"]',
         );
 
-        expect(saveButton.attributes().disabled).toBeTruthy();
+        expect(saveButton.attributes('disabled')).toBeDefined();
         expect(countryStateNameField.attributes().disabled).toBeTruthy();
         expect(countryStateShortCodeField.attributes().disabled).toBeTruthy();
         expect(countryStatePositionField.attributes().disabled).toBeTruthy();

@@ -28,9 +28,6 @@ async function createWrapper() {
                     },
                     'sw-skeleton': true,
                     'sw-avatar': true,
-                    'sw-button': {
-                        template: '<button @click="$emit(\'click\')"><slot></slot></button>',
-                    },
                     'sw-meteor-card': {
                         template: '<div><slot></slot></div>',
                     },

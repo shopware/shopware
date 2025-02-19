@@ -94,8 +94,6 @@ async function createWrapper() {
                     'sw-simple-search-field': true,
                     'sw-loader': true,
                     'sw-container': true,
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-sorting-select': true,
                     'sw-pagination': true,
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),

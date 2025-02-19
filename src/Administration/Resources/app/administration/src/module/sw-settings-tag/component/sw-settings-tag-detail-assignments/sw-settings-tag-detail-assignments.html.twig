@@ -59,7 +59,8 @@
                     >
                         <template #column-name="{ item }">
                             {% block sw_settings_tag_detail_assignments_associations_grid_column_name %}
-                            <sw-button
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
                                 class="associations-grid__row"
                                 :class="{ 'is--selected': item.entity === selectedEntity }"
                                 :disabled="isLoading"
@@ -85,7 +86,7 @@
                                     {{ getCount(item.assignment) }}
                                     {{ $tc('sw-settings-tag.detail.assignments.assignments', getCount(item.assignment)) }}
                                 </span>
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
                         </template>
 

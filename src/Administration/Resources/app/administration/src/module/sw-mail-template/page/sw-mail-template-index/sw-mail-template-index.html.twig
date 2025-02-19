@@ -37,7 +37,8 @@
             :disabled="!acl.can('mail_templates.creator') || undefined"
         >
             <template #button>
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     class="sw-mail-template__button-create"
                     variant="primary"
                     :disabled="!acl.can('mail_templates.creator') || undefined"
@@ -47,7 +48,7 @@
                         name="regular-chevron-down-xs"
                         size="16"
                     />
-                </sw-button>
+                </mt-button>
             </template>
 
             {% block sw_mail_template_list_smart_bar_actions_add %}

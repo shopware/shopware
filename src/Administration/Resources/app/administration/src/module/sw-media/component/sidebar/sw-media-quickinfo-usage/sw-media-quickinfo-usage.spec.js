@@ -36,7 +36,7 @@ const createWrapper = async (repositoryFactoryMock) => {
             stubs: {
                 'router-link': true,
                 'sw-icon': true,
-                'sw-alert': true,
+
                 'sw-loader': true,
             },
             provide: {

@@ -791,6 +791,7 @@ const createWrapper = async (options = {}) => {
                 'sw-grid-row': await wrapTestComponent('sw-grid-row'),
                 'sw-grid-column': await wrapTestComponent('sw-grid-column'),
                 'sw-card': await wrapTestComponent('sw-card'),
+                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-ignore-class': true,
                 'sw-popover': {
                     template: '<div><slot></slot></div>',
@@ -798,7 +799,6 @@ const createWrapper = async (options = {}) => {
                 'sw-icon': true,
                 'sw-description-list': true,
                 'sw-color-badge': true,
-                'sw-button': true,
                 'sw-data-grid-settings': true,
                 'sw-data-grid-skeleton': true,
                 'sw-pagination': true,
@@ -957,7 +957,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         expect(contextButton.find('.sw-context-menu-item__text.is--disabled').exists()).toBeFalsy();
     });
 
-    it.skip('should open the activity result modal', async () => {
+    it('should open the activity result modal', async () => {
         const { wrapper } = await createWrapper();
 
         const logEntity = {
@@ -1043,7 +1043,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         expect(resultModal.find(`${columnClassPrefix}-skipped`).text()).toBe('23');
     });
 
-    it.skip('should show the correct label', async () => {
+    it('should show the correct label', async () => {
         const { wrapper } = await createWrapper();
 
         expect(wrapper.vm.getStateLabel('progress')).toBe('Progress');
@@ -1053,13 +1053,13 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         expect(wrapper.vm.getStateLabel('aborted')).toBe('Aborted');
     });
 
-    it.skip('should show the technical name when no translation exists', async () => {
+    it('should show the technical name when no translation exists', async () => {
         const { wrapper } = await createWrapper();
 
         expect(wrapper.vm.getStateLabel('waiting')).toBe('waiting');
     });
 
-    it.skip('should have the status field as the third position in grid', async () => {
+    it('should have the status field as the third position in grid', async () => {
         const { wrapper } = await createWrapper();
         await flushPromises();
 
@@ -1069,7 +1069,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         expect(stateHeader.text()).toBe('sw-import-export.activity.columns.state');
     });
 
-    it.skip('should add associations no longer autoload in the activityCriteria', async () => {
+    it('should add associations no longer autoload in the activityCriteria', async () => {
         const { wrapper } = await createWrapper();
         const criteria = wrapper.vm.activityCriteria;
 
@@ -1077,7 +1077,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         expect(criteria.getAssociation('invalidRecordsLog').hasAssociation('file')).toBe(true);
     });
 
-    it.skip('should show empty state for the export', async () => {
+    it('should show empty state for the export', async () => {
         importExportLogRepositoryMock.search.mockImplementationOnce(() => {
             return Promise.resolve(getEntityCollection([]));
         });
@@ -1098,7 +1098,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         );
     });
 
-    it.skip('should show an export in progress', async () => {
+    it('should show an export in progress', async () => {
         const { wrapper } = await createWrapper({
             props: {
                 type: 'export',
@@ -1109,7 +1109,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         expect(wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--state').text()).toBe('Progress');
     });
 
-    it.skip('should not change an export in progress when the status did not change', async () => {
+    it('should not change an export in progress when the status did not change', async () => {
         jest.useFakeTimers();
 
         importExportLogRepositoryMock.search.mockImplementationOnce(() => {
@@ -1137,7 +1137,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         jest.clearAllTimers();
     });
 
-    it.skip('should change an export status from progress to succeeded', async () => {
+    it('should change an export status from progress to succeeded', async () => {
         jest.useFakeTimers();
 
         const { wrapper } = await createWrapper({
@@ -1168,7 +1168,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         jest.clearAllTimers();
     });
 
-    it.skip('should change an export status from progress to failed', async () => {
+    it('should change an export status from progress to failed', async () => {
         jest.useFakeTimers();
 
         const { wrapper } = await createWrapper({
@@ -1208,7 +1208,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         jest.clearAllTimers();
     });
 
-    it.skip('should change an export status from progress to failed with log', async () => {
+    it('should change an export status from progress to failed with log', async () => {
         jest.useFakeTimers();
 
         const { wrapper } = await createWrapper({
@@ -1246,7 +1246,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         jest.clearAllTimers();
     });
 
-    it.skip('should handle errors when initially loading export activities and the result is not an entity collection', async () => {
+    it('should handle errors when initially loading export activities and the result is not an entity collection', async () => {
         importExportLogRepositoryMock.search.mockImplementationOnce(() => {
             return Promise.resolve(null);
         });
@@ -1265,7 +1265,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         });
     });
 
-    it.skip('should handle errors when initially loading export activities', async () => {
+    it('should handle errors when initially loading export activities', async () => {
         importExportLogRepositoryMock.search.mockImplementationOnce(() => {
             return Promise.reject();
         });
@@ -1284,7 +1284,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         });
     });
 
-    it.skip('should handle errors when loading export activities and the result is not an entity collection', async () => {
+    it('should handle errors when loading export activities and the result is not an entity collection', async () => {
         jest.useFakeTimers();
 
         importExportLogRepositoryMock.search.mockImplementationOnce(() => {
@@ -1312,7 +1312,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         jest.clearAllTimers();
     });
 
-    it.skip('should handle errors when loading export activities', async () => {
+    it('should handle errors when loading export activities', async () => {
         jest.useFakeTimers();
 
         importExportLogRepositoryMock.search.mockImplementationOnce(() => {
@@ -1340,7 +1340,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         jest.clearAllTimers();
     });
 
-    it.skip('should show empty state for the import', async () => {
+    it('should show empty state for the import', async () => {
         importExportLogRepositoryMock.search.mockImplementationOnce(() => {
             return Promise.resolve(getEntityCollection([]));
         });
@@ -1361,7 +1361,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         );
     });
 
-    it.skip('should show an import in progress', async () => {
+    it('should show an import in progress', async () => {
         importExportLogRepositoryMock.search.mockImplementationOnce(() => {
             return Promise.resolve(getEntityCollection(logDataImport.progress));
         });
@@ -1376,7 +1376,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         expect(wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--state').text()).toBe('Progress');
     });
 
-    it.skip('should not change an import in progress when the status did not change', async () => {
+    it('should not change an import in progress when the status did not change', async () => {
         jest.useFakeTimers();
 
         const { wrapper } = await createWrapper({
@@ -1400,7 +1400,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         jest.clearAllTimers();
     });
 
-    it.skip('should change an import status from progress to succeeded', async () => {
+    it('should change an import status from progress to succeeded', async () => {
         jest.useFakeTimers();
 
         importExportLogRepositoryMock.search.mockImplementationOnce(() => {
@@ -1437,7 +1437,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         jest.clearAllTimers();
     });
 
-    it.skip('should display a warning when an import succeeds without importing any entities', async () => {
+    it('should display a warning when an import succeeds without importing any entities', async () => {
         jest.useFakeTimers();
 
         importExportLogRepositoryMock.search.mockImplementationOnce(() => {
@@ -1476,7 +1476,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         jest.clearAllTimers();
     });
 
-    it.skip('should change an import status from progress to failed', async () => {
+    it('should change an import status from progress to failed', async () => {
         jest.useFakeTimers();
 
         importExportLogRepositoryMock.search.mockImplementationOnce(() => {
@@ -1520,7 +1520,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         jest.clearAllTimers();
     });
 
-    it.skip('should change an import status from progress to failed with log', async () => {
+    it('should change an import status from progress to failed with log', async () => {
         jest.useFakeTimers();
 
         importExportLogRepositoryMock.search.mockImplementationOnce(() => {
@@ -1562,7 +1562,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         jest.clearAllTimers();
     });
 
-    it.skip('should handle errors when initially loading import activities and the result is not an entity collection', async () => {
+    it('should handle errors when initially loading import activities and the result is not an entity collection', async () => {
         importExportLogRepositoryMock.search.mockImplementationOnce(() => {
             return Promise.resolve(null);
         });
@@ -1581,7 +1581,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         });
     });
 
-    it.skip('should handle errors when initially loading import activities', async () => {
+    it('should handle errors when initially loading import activities', async () => {
         importExportLogRepositoryMock.search.mockImplementationOnce(() => {
             return Promise.reject();
         });
@@ -1600,7 +1600,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         });
     });
 
-    it.skip('should handle errors when loading import activities and the result is not an entity collection', async () => {
+    it('should handle errors when loading import activities and the result is not an entity collection', async () => {
         jest.useFakeTimers();
 
         importExportLogRepositoryMock.search.mockImplementationOnce(() => {
@@ -1628,7 +1628,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         jest.clearAllTimers();
     });
 
-    it.skip('should handle errors when loading import activities', async () => {
+    it('should handle errors when loading import activities', async () => {
         jest.useFakeTimers();
 
         importExportLogRepositoryMock.search.mockImplementationOnce(() => {
@@ -1656,7 +1656,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         jest.clearAllTimers();
     });
 
-    it.skip('should abort running export', async () => {
+    it('should abort running export', async () => {
         importExportLogRepositoryMock.search.mockImplementationOnce(() => {
             return Promise.resolve(getEntityCollection(logDataExport.progress));
         });
@@ -1681,7 +1681,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         expect(wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--state').text()).toBe('Aborted');
     });
 
-    it.skip('should add logs', async () => {
+    it('should add logs', async () => {
         const { wrapper } = await createWrapper({
             props: {
                 type: 'export',
@@ -1699,7 +1699,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         expect(wrapper.vm.logs.getAt(1)).toStrictEqual(logDataExport.progress[0]);
     });
 
-    it.skip('should should open and close the edit profile modal', async () => {
+    it('should should open and close the edit profile modal', async () => {
         importExportLogRepositoryMock.search.mockImplementationOnce(() => {
             return Promise.resolve(getEntityCollection(logDataExport.succeeded));
         });
@@ -1729,7 +1729,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         expect(wrapper.findAll('.sw-import-export-edit-profile-modal')).toHaveLength(0);
     });
 
-    it.skip('should close the edit profile modal after an successful save', async () => {
+    it('should close the edit profile modal after an successful save', async () => {
         importExportLogRepositoryMock.search.mockImplementationOnce(() => {
             return Promise.resolve(getEntityCollection(logDataExport.succeeded));
         });
@@ -1766,7 +1766,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         expect(wrapper.findAll('.sw-import-export-edit-profile-modal')).toHaveLength(0);
     });
 
-    it.skip('should not close the edit profile after an unsuccessful save', async () => {
+    it('should not close the edit profile after an unsuccessful save', async () => {
         importExportLogRepositoryMock.search.mockImplementationOnce(() => {
             return Promise.resolve(getEntityCollection(logDataExport.succeeded));
         });

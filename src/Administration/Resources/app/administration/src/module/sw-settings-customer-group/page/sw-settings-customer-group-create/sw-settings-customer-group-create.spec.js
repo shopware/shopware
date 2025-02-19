@@ -67,8 +67,6 @@ async function createWrapper() {
                     'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                     'sw-select-result': await wrapTestComponent('sw-select-result'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-language-info': await wrapTestComponent('sw-language-info'),
                     'sw-switch-field': await wrapTestComponent('sw-switch-field'),
@@ -108,7 +106,7 @@ async function createWrapper() {
                     'sw-product-variant-info': true,
                     'sw-app-action-button': true,
                     'sw-checkbox-field': true,
-                    'sw-alert': true,
+
                     'sw-field-copyable': true,
                     'sw-help-text': true,
                     'sw-inheritance-switch': true,

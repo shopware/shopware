@@ -90,6 +90,20 @@ abstract class Field extends Struct
     }
 
     /**
+     * @param list<class-string<Flag>> $flagClasses List of flag classes to check
+     */
+    public function isAny(array $flagClasses): bool
+    {
+        foreach ($flagClasses as $flagClass) {
+            if ($this->is($flagClass)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @template TFlag of Flag
      *
      * @param class-string<TFlag> $class

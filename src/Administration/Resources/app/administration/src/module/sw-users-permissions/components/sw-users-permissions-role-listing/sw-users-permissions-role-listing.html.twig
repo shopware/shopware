@@ -21,15 +21,16 @@
             {% endblock %}
 
             {% block sw_users_permissions_role_listing_toolbar_add_role_button %}
-            <sw-button
-                :router-link="{ name: 'sw.users.permissions.role.detail' }"
-                variant="ghost"
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
+                ghost
                 size="small"
                 :disabled="!acl.can('users_and_permissions.creator') || undefined"
                 class="sw-users-permissions-role-listing__add-role-button"
+                @click="$router.push({ name: 'sw.users.permissions.role.detail' })"
             >
                 {{ $tc('sw-users-permissions.roles.general.labelCreateNewRole') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </sw-container>
     </div>
@@ -108,22 +109,24 @@
                 {% block sw_users_permissions_role_listing_grid_actions_modals_modal_footer %}
                 <template #modal-footer>
                     {% block sw_users_permissions_role_listing_grid_actions_modals_modal_close_delete %}
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         size="small"
                         @click="onCloseDeleteModal"
                     >
                         {{ $tc('global.default.cancel') }}
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
 
                     {% block sw_users_permissions_role_listing_grid_actions_modals_modal_confirm_delete %}
-                    <sw-button
-                        variant="danger"
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
+                        variant="critical"
                         size="small"
                         @click="onConfirmDelete(item)"
                     >
                         {{ $tc('sw-users-permissions.roles.role-grid.labelButtonDelete') }}
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
                 </template>
                 {% endblock %}

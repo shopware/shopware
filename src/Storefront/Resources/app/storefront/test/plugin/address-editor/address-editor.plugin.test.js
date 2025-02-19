@@ -118,7 +118,10 @@ describe('AddressEditorPlugin test', () => {
 
         const element = document.querySelector('.btn');
 
-        const spyOnWindowLocationAssign = jest.spyOn(window.location, 'assign');
+        // Mock window.location
+        const originalLocation = window.location;
+        delete window.location;
+        window.location = { assign: jest.fn() };
 
         // Return address editor template when calling HttpClient post
         addressEditor._client.post = jest.fn((url, data, callback) => {
@@ -142,15 +145,18 @@ describe('AddressEditorPlugin test', () => {
         };
 
         jest.runAllTimers();
-        await new Promise(process.nextTick);
+        process.nextTick(() => {
+            expect(typeof formAjaxSubmit).toBe('object');
+            expect(formAjaxSubmit instanceof FormAjaxSubmitPlugin).toBe(true);
 
-        expect(typeof formAjaxSubmit).toBe('object');
-        expect(formAjaxSubmit instanceof FormAjaxSubmitPlugin).toBe(true);
+            formAjaxSubmit._callbacks[0]();
 
-        formAjaxSubmit._callbacks[0]();
+            // Should not reload window
+            expect(window.location.assign).not.toHaveBeenCalled();
 
-        // Should not reload window
-        expect(spyOnWindowLocationAssign).not.toHaveBeenCalled();
+            // Restore original window.location
+            window.location = originalLocation;
+        });
     });
 
     test('should close modal if there is not invalid field', async () => {
@@ -175,7 +181,10 @@ describe('AddressEditorPlugin test', () => {
 
         const element = document.querySelector('.btn');
 
-        const spyOnWindowLocationAssign = jest.spyOn(window.location, 'assign');
+        // Mock window.location
+        const originalLocation = window.location;
+        delete window.location;
+        window.location = { assign: jest.fn() };
 
         // Return address editor template when calling HttpClient post
         addressEditor._client.post = jest.fn((url, data, callback) => {
@@ -199,14 +208,17 @@ describe('AddressEditorPlugin test', () => {
         };
 
         jest.runAllTimers();
-        await new Promise(process.nextTick);
+        process.nextTick(() => {
+            expect(typeof formAjaxSubmit).toBe('object');
+            expect(formAjaxSubmit instanceof FormAjaxSubmitPlugin).toBe(true);
 
-        expect(typeof formAjaxSubmit).toBe('object');
-        expect(formAjaxSubmit instanceof FormAjaxSubmitPlugin).toBe(true);
+            formAjaxSubmit._callbacks[0]();
 
-        formAjaxSubmit._callbacks[0]();
+            // Should reload window
+            expect(window.location.assign).toHaveBeenCalled();
 
-        // Should not reload window
-        expect(spyOnWindowLocationAssign).toHaveBeenCalled();
+            // Restore original window.location
+            window.location = originalLocation;
+        });
     });
 });

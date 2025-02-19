@@ -9,7 +9,6 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-cms-list-item': true,
-                'sw-button': true,
                 'sw-icon': true,
             },
         },
@@ -55,12 +54,13 @@ describe('module/sw-product/component/sw-product-layout-assignment', () => {
         await flushPromises();
 
         const cmsItem = wrapper.find('sw-cms-list-item-stub');
-        const buttons = wrapper.findAll('sw-button-stub');
+        const buttons = wrapper.findAll('button');
 
         expect(cmsItem.attributes('disabled')).toBeTruthy();
+        expect(buttons.length).toBeGreaterThan(0);
 
         buttons.forEach((button) => {
-            expect(button.attributes('disabled')).toBeTruthy();
+            expect(button.attributes('disabled')).toBeDefined();
         });
     });
 

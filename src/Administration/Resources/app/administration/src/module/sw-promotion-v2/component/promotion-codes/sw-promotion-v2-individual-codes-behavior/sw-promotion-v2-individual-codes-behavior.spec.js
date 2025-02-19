@@ -32,10 +32,6 @@ async function createWrapper(additionalPromotionData = {}) {
                         template: '<div class="sw-empty-state"><slot></slot><slot name="actions"></slot></div>',
                     },
                     'sw-context-menu-item': true,
-                    'sw-button': {
-                        template: '<button class="sw-button" @click="$emit(\'click\', $event.target.value)"></button>',
-                        props: ['disabled'],
-                    },
                     'sw-button-process': {
                         template:
                             '<button class="sw-button-process" @click="$emit(\'click\', $event.target.value)"></button>',
@@ -112,6 +108,10 @@ async function createWrapper(additionalPromotionData = {}) {
 }
 
 describe('src/module/sw-promotion-v2/component/sw-promotion-v2-individual-codes-behavior', () => {
+    beforeAll(() => {
+        global.activeAclRoles = ['promotion.editor'];
+    });
+
     it('should open the individual codes generation modal in empty state', async () => {
         const wrapper = await createWrapper();
 
@@ -123,7 +123,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-individual-codes-
         expect(addModal.exists()).toBe(false);
         expect(addButton.exists()).toBe(false);
 
-        const generateButton = wrapper.find('.sw-promotion-v2-individual-codes-behavior__empty-state-generate-action');
+        const generateButton = wrapper.findByText('button', 'sw-promotion-v2.detail.base.codes.individual.generateButton');
         await generateButton.trigger('click');
 
         codesModal = wrapper.find('.sw-promotion-v2-generate-codes-modal');

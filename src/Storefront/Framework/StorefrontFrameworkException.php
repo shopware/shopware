@@ -2,10 +2,8 @@
 
 namespace Shopware\Storefront\Framework;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Storefront\Framework\Media\Exception\FileTypeNotAllowedException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -50,15 +48,8 @@ class StorefrontFrameworkException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function fileTypeNotAllowed(string $mimeType, string $uploadType): self|FileTypeNotAllowedException
+    public static function fileTypeNotAllowed(string $mimeType, string $uploadType): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new FileTypeNotAllowedException($mimeType, $uploadType);
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::MEDIA_ILLEGAL_FILE_TYPE,

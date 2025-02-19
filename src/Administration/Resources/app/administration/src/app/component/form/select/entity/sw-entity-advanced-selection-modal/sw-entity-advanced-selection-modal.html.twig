@@ -25,7 +25,8 @@
                 <template #filter>
                     <div class="sw-entity-advanced-selection-modal__filter-list-button">
                         {% block sw_entity_advanced_selection_modal_toolbar_filter_button %}
-                        <sw-button
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
                             size="small"
                             @click="filterWindowOpen = !filterWindowOpen"
                         >
@@ -38,7 +39,7 @@
                                 class="sw-entity-advanced-selection-modal__filter-badge"
                             >{{ activeFilterNumber }}</i>
                             {{ $tc('global.sw-entity-advanced-selection-modal.filter') }}
-                        </sw-button>
+                        </mt-button>
                         {% endblock %}
 
                         {% block sw_entity_advanced_selection_modal_toolbar_filter_panel %}
@@ -164,17 +165,19 @@
 
     <template #modal-footer>
         {% block sw_entity_advanced_selection_modal_button_cancel %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             size="small"
             class="sw-entity-advanced-selection-modal__button-cancel"
             @click="$emit('modal-close')"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_entity_advanced_selection_modal_button_apply %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             variant="primary"
             size="small"
             class="sw-entity-advanced-selection-modal__button-apply"
@@ -182,7 +185,7 @@
             @click="onApply"
         >
             {{ $tc('global.sw-entity-advanced-selection-modal.applySelection') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
 

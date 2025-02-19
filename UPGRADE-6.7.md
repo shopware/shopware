@@ -2435,6 +2435,22 @@ If you want to restore the previous browser support in your project or want to a
 BROWSERSLIST='>= 0.5%, last 2 major versions, not dead, Chrome >= 60, Firefox >= 60, Firefox ESR, iOS >= 12, Safari >= 12, not Explorer <= 11'
 ```
 
+## Major upgrades of NPM packages
+
+With v6.7.0 we upgrade the following NPM packages to their newest major version.
+The upgrades are done for packages related to the webpack JS-build process and do not require changes to the source code.
+If you are customizing the webpack config inside `<plugin root>/src/Resources/app/storefront/build/webpack.config.js`, please consolidate the changelogs of the affected packages.
+
+* Upgrade `copy-webpack-plugin` from `11.0.0` to `12.0.2`
+* Upgrade `css-loader` from `6.8.1` to `7.1.2`
+* Upgrade `postcss-loader` from `7.3.4` to `8.1.1`
+* Upgrade `sass-loader` from `13.3.3` to `16.0.4`
+* Upgrade `style-loader` from `3.3.3` to `4.0.0`
+* Upgrade `webpack-cli` from `5.1.4` to `6.0.1`
+* Upgrade `webpack-merge` from `5.10.0` to `6.0.1`
+* Upgrade `webpackbar` from `6.0.0` to `7.0.0`
+* Upgrade `webpack-dev-server` from `4.15.1` to `5.2.0`
+
 ## Removal of NPM packages
 
 With v6.7.0 the following NPM packages will be removed.
@@ -2496,6 +2512,17 @@ We made some changes in the configuration and setup, which might affect your pro
 <details>
   <summary>Detailed Changes</summary>
 
+## XKeys module is now required for Varnish
+
+The XKeys module is now required for Varnish. If you are using Varnish, you need to ensure that the XKeys module is installed and enabled.
+Storing the cache tags for varnish inside redis is not possible anymore, as that solution let to serious scaling issues where the redis tag storage become the bottleneck.
+
+For more information take a look inside the [docs](https://developer.shopware.com/docs/guides/hosting/infrastructure/reverse-http-cache.html#configure-varnish).
+
+This means that the following configuration keys are no longer available:
+* `shopware.http_cache.reverse_proxy.use_varnish_xkey`
+* `shopware.http_cache.reverse_proxy.redis_url`
+
 ## Config keys changes due to improved redis connection handling
 
 Next configuration keys are deprecated and will be removed in the next major version:
@@ -2516,6 +2543,19 @@ To prepare for migration:
 * `shopware.number_range.config.dsn` -> `shopware.number_range.config.connection`
 * `shopware.cart.redis_url` -> `cart.storage.config.connection`
 * `cart.storage.config.dsn` -> `cart.storage.config.connection`
+
+## Service bundle needs to be enabled explicitly
+
+The services bundle now needs to be enabled explicitly in your `config/bundles.php`, to do that add the following line:
+```diff
+$bundles = [
+    ...
+    Shopware\Elasticsearch\Elasticsearch::class => ['all' => true],
++    Shopware\Core\Service\Service::class => ['all' => true],
+];
+```
+
+When you use a [symfony flex setup](https://developer.shopware.com/docs/guides/installation/template.html#symfony-flex) it should pick up the change automatically and apply [that change](https://github.com/shopware/recipes/blob/main/shopware/core/6.7/manifest.json#L34) during the shopware update. 
 
 ## Search server now provides OpenSearch/Elasticsearch shards and replicas
 
@@ -2550,5 +2590,10 @@ The fine-grained caching mechanism for system-config, snippets and theme config 
 * `shopware.cache.tagging.each_config`
 * `shopware.cache.tagging.each_snippet`
 * `shopware.cache.tagging.each_theme_config`
+
+## `SQL_SET_DEFAULT_SESSION_VARIABLE` has no effect anymore
+
+Removed `SQL_SET_DEFAULT_SESSION_VARIABLES` env variable. It has no effect anymore. 
+The previously optional performance tweaks to MySQL are now enforced on connection buildup inside the `\Shopware\Core\Framework\Adapter\Database\MySQLFactory`.
 
 </details>

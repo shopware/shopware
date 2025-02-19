@@ -90,9 +90,9 @@
         {% endblock %}
 
         {% block sw_custom_field_detail_modal_snippet_info  %}
-        <sw-alert class="sw-custom-field-detail__info">
+        <mt-banner class="sw-custom-field-detail__info">
             {{ $tc('sw-settings-custom-field.customField.detail.infoText', { name: currentCustomField.name }, 0) }}
-        </sw-alert>
+        </mt-banner>
         {% endblock %}
     </sw-container>
 
@@ -109,16 +109,18 @@
     {% block sw_custom_field_detail_modal_footer %}
     <template #modal-footer>
         {% block sw_custom_field_detail_modal_footer_cancel %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             size="small"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_custom_field_detail_modal_footer_save %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-custom-field-detail__footer-save"
             variant="primary"
             size="small"
@@ -126,7 +128,7 @@
             @click="onSave"
         >
             {{ labelSaveButton }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

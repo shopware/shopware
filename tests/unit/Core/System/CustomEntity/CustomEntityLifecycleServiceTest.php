@@ -5,9 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\CustomEntity;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Util\Filesystem;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
@@ -43,14 +41,9 @@ class CustomEntityLifecycleServiceTest extends TestCase
             $customEntitySchemaUpdater,
             $customEntityEnrichmentService,
             $customEntityXmlSchemaValidator,
-            '',
             new StaticSourceResolver([
                 'SwagExampleTest' => new StaticFilesystem(),
             ]),
-        );
-
-        static::assertNull(
-            $customEntityLifecycleService->updatePlugin(Uuid::randomHex(), 'not/given')
         );
 
         $app = (new AppEntity())->assign(['name' => 'SwagExampleTest', '_uniqueIdentifier' => 'test']);
@@ -58,42 +51,6 @@ class CustomEntityLifecycleServiceTest extends TestCase
         static::assertNull(
             $customEntityLifecycleService->updateApp($app)
         );
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - remove test as functionality dropped
-     */
-    public function testUpdatePluginOnlyCustomEntities(): void
-    {
-        Feature::skipTestIfActive('v6.7.0.0', $this);
-
-        $customEntityPersister = $this->createMock(CustomEntityPersister::class);
-        $customEntityPersister->expects(static::once())->method('update');
-
-        $customEntitySchemaUpdater = $this->createMock(CustomEntitySchemaUpdater::class);
-        $customEntitySchemaUpdater->expects(static::once())->method('update');
-
-        $adminUiXmlSchemaValidator = new AdminUiXmlSchemaValidator();
-        $customEntityEnrichmentService = new CustomEntityEnrichmentService($adminUiXmlSchemaValidator);
-
-        $customEntityXmlSchemaValidator = new CustomEntityXmlSchemaValidator();
-
-        $customEntityLifecycleService = new CustomEntityLifecycleService(
-            $customEntityPersister,
-            $customEntitySchemaUpdater,
-            $customEntityEnrichmentService,
-            $customEntityXmlSchemaValidator,
-            '',
-            new StaticSourceResolver(),
-        );
-
-        $customEntityXmlSchema = $customEntityLifecycleService->updatePlugin(
-            Uuid::randomHex(),
-            __DIR__ . '/_fixtures/CustomEntityLifecycleServiceTest/withCustomEntities/plugin'
-        );
-        static::assertInstanceOf(CustomEntityXmlSchema::class, $customEntityXmlSchema);
-
-        $this->checkFieldsAndFlagsCount($customEntityXmlSchema);
     }
 
     public function testUpdateAppOnlyCustomEntities(): void
@@ -114,7 +71,6 @@ class CustomEntityLifecycleServiceTest extends TestCase
             $customEntitySchemaUpdater,
             $customEntityEnrichmentService,
             $customEntityXmlSchemaValidator,
-            '',
             new StaticSourceResolver([
                 'SwagExampleTest' => new Filesystem(__DIR__ . '/_fixtures/CustomEntityLifecycleServiceTest/withCustomEntities/app'),
             ]),
@@ -127,42 +83,6 @@ class CustomEntityLifecycleServiceTest extends TestCase
         static::assertInstanceOf(CustomEntityXmlSchema::class, $schema);
 
         $this->checkFieldsAndFlagsCount($schema);
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - remove test as functionality dropped
-     */
-    public function testUpdatePluginCustomEntitiesWithAdminUi(): void
-    {
-        Feature::skipTestIfActive('v6.7.0.0', $this);
-
-        $customEntityPersister = $this->createMock(CustomEntityPersister::class);
-        $customEntityPersister->expects(static::once())->method('update');
-
-        $customEntitySchemaUpdater = $this->createMock(CustomEntitySchemaUpdater::class);
-        $customEntitySchemaUpdater->expects(static::once())->method('update');
-
-        $adminUiXmlSchemaValidator = new AdminUiXmlSchemaValidator();
-        $customEntityEnrichmentService = new CustomEntityEnrichmentService($adminUiXmlSchemaValidator);
-
-        $customEntityXmlSchemaValidator = new CustomEntityXmlSchemaValidator();
-
-        $customEntityLifecycleService = new CustomEntityLifecycleService(
-            $customEntityPersister,
-            $customEntitySchemaUpdater,
-            $customEntityEnrichmentService,
-            $customEntityXmlSchemaValidator,
-            '',
-            new StaticSourceResolver(),
-        );
-
-        $schema = $customEntityLifecycleService->updatePlugin(
-            Uuid::randomHex(),
-            __DIR__ . '/_fixtures/CustomEntityLifecycleServiceTest/withCustomEntitiesAndAdminUis/plugin'
-        );
-        static::assertInstanceOf(CustomEntityXmlSchema::class, $schema);
-
-        $this->checkFieldsAndFlagsCount($schema, true);
     }
 
     public function testUpdateAppCustomEntitiesWithAdminUi(): void
@@ -183,7 +103,6 @@ class CustomEntityLifecycleServiceTest extends TestCase
             $customEntitySchemaUpdater,
             $customEntityEnrichmentService,
             $customEntityXmlSchemaValidator,
-            '',
             new StaticSourceResolver([
                 'SwagExampleTest' => new Filesystem(__DIR__ . '/_fixtures/CustomEntityLifecycleServiceTest/withCustomEntitiesAndAdminUis/app'),
             ]),

@@ -40,7 +40,8 @@
     <template #smart-bar-actions>
 
         {% block sw_property_list_add_button %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('property.creator'),
@@ -48,11 +49,11 @@
             }"
             class="sw-property-list__button-create"
             :disabled="!acl.can('property.creator')"
-            :router-link="{ name: 'sw.property.create' }"
             variant="primary"
+            @click="$router.push({ name: 'sw.property.create' })"
         >
             {{ $tc('sw-property.list.buttonAddProperty') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
     </template>
@@ -179,20 +180,22 @@
                         </p>
 
                         <template #modal-footer>
-                            <sw-button
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
                                 size="small"
                                 @click="onCloseDeleteModal"
                             >
                                 {{ $tc('global.default.cancel') }}
-                            </sw-button>
+                            </mt-button>
 
-                            <sw-button
-                                variant="danger"
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
+                                variant="critical"
                                 size="small"
                                 @click="onConfirmDelete(item.id)"
                             >
                                 {{ $tc('sw-property.list.buttonDelete') }}
-                            </sw-button>
+                            </mt-button>
                         </template>
                     </sw-modal>
                 </template>

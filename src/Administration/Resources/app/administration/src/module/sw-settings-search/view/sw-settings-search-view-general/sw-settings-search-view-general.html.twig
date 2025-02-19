@@ -17,7 +17,8 @@
     {% block sw_settings_search_excluded_search_terms_card %}
     <sw-settings-search-excluded-search-terms
         :search-configs="productSearchConfigs"
-        :is-excluded-terms-loading="isLoading" @data-load="loadData"
+        :is-excluded-terms-loading="isLoading"
+        @data-load="loadData"
     />
     {% endblock %}
 </div>

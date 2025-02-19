@@ -1,14 +1,14 @@
 {% block sw_media_quickinfo %}
 <div class="sw-media-quickinfo">
     {% block sw_media_quickinfo_broken_file %}
-    <sw-alert
+    <mt-banner
         v-if="!item.hasFile"
         class="sw-media-quickinfo__alert-file-missing"
-        variant="warning"
+        variant="attention"
         :title="$tc('sw-media.sidebar.infoMissingFile.titleMissingFile')"
     >
         {{ $tc('sw-media.sidebar.infoMissingFile.descriptionMissingFile') }}
-    </sw-alert>
+    </mt-banner>
     {% endblock %}
 
     {% block sw_media_quickinfo_quickactions %}

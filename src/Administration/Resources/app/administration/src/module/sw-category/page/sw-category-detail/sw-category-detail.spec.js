@@ -25,7 +25,6 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
                             'allowDelete',
                         ],
                     },
-                    'sw-button': true,
                     'sw-button-process': {
                         template: '<div class="sw-button-process"><slot></slot></div>',
                         props: ['disabled'],

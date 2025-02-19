@@ -269,6 +269,7 @@ class ThemeTest extends TestCase
                 'fields' => [
                     'some-custom' => [
                         'editable' => false,
+                        'type' => 'text',
                     ],
                 ],
             ]
@@ -297,7 +298,7 @@ class ThemeTest extends TestCase
         $someCustom = [
             'name' => 'some-custom',
             'label' => null,
-            'type' => null,
+            'type' => 'text',
             'value' => null,
             'editable' => false,
             'block' => null,
@@ -486,8 +487,7 @@ class ThemeTest extends TestCase
 
     public function testCompileTheme(): void
     {
-        static::markTestSkipped('theme compile is not possible cause app.js does not exist');
-        $criteria = new Criteria(); /** @phpstan-ignore-line  */
+        $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
 
         $baseTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
@@ -904,6 +904,7 @@ class ThemeTest extends TestCase
             [
                 [
                     'id' => $id,
+                    'type' => 'text',
                     'parentThemeId' => $parentTheme->getId(),
                     'name' => $name,
                     'technicalName' => $name,

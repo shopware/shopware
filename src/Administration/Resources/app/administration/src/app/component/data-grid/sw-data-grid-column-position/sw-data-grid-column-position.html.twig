@@ -11,7 +11,8 @@
     {% block sw_data_grid_column_position_button_group %}
     <sw-button-group class="sw-data-grid-column-position__group">
         {% block sw_data_grid_column_position_button_up %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-data-grid-column-position__arrow arrow_up"
             size="x-small"
             :disabled="disabled || itemMin"
@@ -24,11 +25,12 @@
                 size="12"
             />
             {% endblock %}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_data_grid_column_position_button_down %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-data-grid-column-position__arrow arrow_down"
             size="x-small"
             :disabled="disabled || itemMax"
@@ -41,7 +43,7 @@
                 size="12"
             />
             {% endblock %}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </sw-button-group>
     {% endblock %}

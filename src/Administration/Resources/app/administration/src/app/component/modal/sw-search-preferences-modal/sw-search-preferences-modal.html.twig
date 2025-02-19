@@ -41,17 +41,19 @@
 
     <template #modal-footer>
         {% block sw_search_preferences_modal_button_cancel %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             size="small"
             class="sw-search-preferences-modal__button-cancel"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_search_preferences_modal_button_save %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             variant="primary"
             size="small"
             class="sw-search-preferences-modal__button-save"
@@ -59,7 +61,7 @@
             @click="onSave"
         >
             {{ $tc('global.default.save') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
 </sw-modal>

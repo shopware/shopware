@@ -6,12 +6,13 @@
     <template v-if="areActionsAvailable">
         <sw-context-button class="sw-app-actions__action-button">
             <template #button>
-                <sw-button>
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button>
                     <sw-icon
                         name="solid-ellipsis-h-s"
                         size="16"
                     />
-                </sw-button>
+                </mt-button>
             </template>
 
             <sw-app-action-button
@@ -109,22 +110,24 @@
                 {% block sw_app_action_modal_confirm_footer_buttons %}
                 <div class="footer-buttons">
                     {% block sw_app_action_modal_confirm_footer_cancel %}
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         size="small"
                         @click="onCloseModalConfirm"
                     >
                         {{ $tc('global.default.cancel') }}
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
 
                     {% block sw_app_action_modal_confirm_footer_continue %}
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         variant="primary"
                         size="small"
                         @click="onConfirmClose"
                     >
                         {{ $tc('global.default.close') }}
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
                 </div>
                 {% endblock %}

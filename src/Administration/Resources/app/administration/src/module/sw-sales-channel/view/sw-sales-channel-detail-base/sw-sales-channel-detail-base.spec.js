@@ -36,7 +36,6 @@ async function createWrapper() {
                 'sw-sales-channel-defaults-select': true,
                 'router-link': true,
                 'sw-icon': true,
-                'sw-button': true,
                 'sw-radio-field': true,
                 'sw-multi-tag-ip-select': true,
                 'sw-select-number-field': true,
@@ -825,7 +824,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
         const field = wrapper.get('.sw-sales-channel-detail-base__button-generate-keys');
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes('disabled')).toBeDefined();
     });
 
     it('should have the button for generate keys enabled', async () => {
@@ -915,7 +914,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
         const field = wrapper.get('.sw-sales-channel-detail-base__button-generate-keys');
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes('disabled')).toBeDefined();
     });
 
     it('should have the button for generating the keys enabled', async () => {

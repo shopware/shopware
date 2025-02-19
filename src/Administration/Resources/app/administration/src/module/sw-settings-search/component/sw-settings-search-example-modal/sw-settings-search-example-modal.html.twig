@@ -41,13 +41,14 @@
     {% block sw_settings_search_searchable_content_example_modal_footer %}
     <template #modal-footer>
         {% block sw_settings_search_searchable_content_example_modal_close %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             variant="primary"
             size="small"
             @click="closeModal"
         >
             {{ $tc('global.sw-modal.labelClose') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

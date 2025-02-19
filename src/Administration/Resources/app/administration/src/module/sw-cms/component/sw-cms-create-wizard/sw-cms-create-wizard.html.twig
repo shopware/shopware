@@ -145,13 +145,14 @@
                     {% block sw_cms_create_wizard_page_completion_buttons %}
                     <div class="sw-cms-create-wizard__page-completion-buttons">
                         {% block sw_cms_create_wizard_page_completion_save_button %}
-                        <sw-button
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
                             variant="primary"
                             :disabled="!isCompletable"
                             @click="onCompletePageCreation"
                         >
                             {{ $tc('sw-cms.createWizard.createLayout') }}
-                        </sw-button>
+                        </mt-button>
                         {% endblock %}
                     </div>
                     {% endblock %}

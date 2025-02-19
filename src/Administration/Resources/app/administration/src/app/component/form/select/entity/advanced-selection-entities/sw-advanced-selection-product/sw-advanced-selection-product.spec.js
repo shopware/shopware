@@ -294,9 +294,6 @@ async function createWrapper() {
                             template: '<div></div>',
                         },
                         'router-link': true,
-                        'sw-button': {
-                            template: '<div></div>',
-                        },
                         'sw-sidebar': {
                             template: '<div></div>',
                         },

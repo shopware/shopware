@@ -8,14 +8,11 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-search-preferences-modal', { sync: true }), {
         global: {
             stubs: {
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-loader': true,
                 'sw-data-grid': true,
                 'sw-icon': true,
                 'router-link': true,
                 'sw-checkbox-field': true,
-                'mt-button': true,
             },
             provide: {
                 searchPreferencesService: {

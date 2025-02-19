@@ -24,10 +24,6 @@ async function createWrapper(canBeHidden = false, isPrivileged = true) {
                     'sw-icon': await wrapTestComponent('sw-icon', {
                         sync: true,
                     }),
-                    'sw-button': await wrapTestComponent('sw-button', {
-                        sync: true,
-                    }),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-external-link': true,
                     'sw-internal-link': true,
                     'sw-help-text': true,

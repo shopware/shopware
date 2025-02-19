@@ -15,6 +15,8 @@ const { Component } = Shopware;
  * <sw-button>
  *     Button
  * </sw-button>
+ *
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-button instead.
  */
 Component.register('sw-button-deprecated', {
     template,

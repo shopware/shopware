@@ -3,14 +3,15 @@
     {% block sw_extension_file_upload_content %}
     <div class="sw-extension-file-upload__content">
         {% block sw_extension_file_upload_button %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-extension-file-upload__button"
             :is-loading="isLoading"
             variant="primary"
             @click="showConfirmModal"
         >
             {{ $tc('sw-extension.my-extensions.fileUpload.buttonFileUpload') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
         {% block sw_extension_file_upload_form %}
         <form
@@ -63,24 +64,26 @@
             {% block sw_extension_file_upload_confirm_modal_footer_buttons %}
             <div>
                 {% block sw_extension_file_upload_confirm_modal_footer_cancel %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="small"
                     :disabled="isLoading"
                     @click="closeConfirmModal"
                 >
                     {{ $tc('global.default.cancel') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_extension_file_upload_confirm_modal_footer_continue %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     variant="primary"
                     size="small"
                     :is-loading="isLoading"
                     @click="onClickUpload"
                 >
                     {{ $tc('global.default.confirm') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </div>
             {% endblock %}

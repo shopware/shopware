@@ -29,11 +29,10 @@ describe('src/app/component/rule/sw-condition-or-container', () => {
         config.global = {
             ...config.global,
             stubs: {
-                'sw-button': await wrapTestComponent('sw-button'),
+                ...config.global.stubs,
                 'sw-condition-tree-node': true,
                 'sw-loader': true,
                 'router-link': true,
-                'mt-button': true,
             },
             provide: {
                 conditionDataProviderService: {
@@ -74,11 +73,11 @@ describe('src/app/component/rule/sw-condition-or-container', () => {
         };
     });
 
-    it.skip('should have enabled fields', async () => {
+    it('should have enabled fields', async () => {
         const wrapper = await createWrapper();
 
         const conditionTreeNode = wrapper.find('sw-condition-tree-node-stub');
-        const buttons = wrapper.findAllComponents('.sw-button');
+        const buttons = wrapper.findAll('button');
 
         expect(conditionTreeNode.attributes().disabled).toBeUndefined();
 
@@ -88,13 +87,13 @@ describe('src/app/component/rule/sw-condition-or-container', () => {
         });
     });
 
-    it.skip('should have disabled fields', async () => {
+    it('should have disabled fields', async () => {
         const wrapper = await createWrapper({
             disabled: true,
         });
 
         const conditionTreeNode = wrapper.find('sw-condition-tree-node-stub');
-        const buttons = wrapper.findAllComponents('.sw-button');
+        const buttons = wrapper.findAllComponents('button');
 
         expect(conditionTreeNode.attributes().disabled).toBe('true');
 
@@ -104,7 +103,7 @@ describe('src/app/component/rule/sw-condition-or-container', () => {
         });
     });
 
-    it.skip('creates a new and container if level is zero', async () => {
+    it('creates a new and container if level is zero', async () => {
         const insertNodeIntoTreeSpy = jest.spyOn(config.global.provide, 'insertNodeIntoTree');
 
         const wrapper = await createWrapper({
@@ -126,7 +125,7 @@ describe('src/app/component/rule/sw-condition-or-container', () => {
         });
     });
 
-    it.skip('creates placeholder if child list ist empty for deeper levels', async () => {
+    it('creates placeholder if child list ist empty for deeper levels', async () => {
         const insertNodeIntoTreeSpy = jest.spyOn(config.global.provide, 'insertNodeIntoTree');
 
         const wrapper = await createWrapper({
@@ -147,10 +146,10 @@ describe('src/app/component/rule/sw-condition-or-container', () => {
         });
     });
 
-    it.skip('creates a new and condition container and replaces placeholder child', async () => {
+    it('creates a new and condition container and replaces placeholder child', async () => {
         const wrapper = await createWrapper();
 
-        const addNewAndContainerButton = wrapper.getComponent('.sw-button.sw-condition-or-container__actions--sub');
+        const addNewAndContainerButton = wrapper.findByText('button', 'global.sw-condition.condition.AddSubCondition');
 
         await addNewAndContainerButton.trigger('click');
 
@@ -160,7 +159,7 @@ describe('src/app/component/rule/sw-condition-or-container', () => {
         expect(condition.children[0].position).toBe(0);
     });
 
-    it.skip('creates a new or condition container after existing element node', async () => {
+    it('creates a new or condition container after existing element node', async () => {
         const wrapper = await createWrapper({
             condition: {
                 type: 'condition-or-container',
@@ -174,7 +173,7 @@ describe('src/app/component/rule/sw-condition-or-container', () => {
             },
         });
 
-        const addNewAndContainerButton = wrapper.getComponent('.sw-button.sw-condition-or-container__actions--sub');
+        const addNewAndContainerButton = wrapper.findByText('button', 'global.sw-condition.condition.AddSubCondition');
 
         await addNewAndContainerButton.trigger('click');
 
@@ -186,7 +185,7 @@ describe('src/app/component/rule/sw-condition-or-container', () => {
         expect(condition.children[1].position).toBe(1);
     });
 
-    it.skip('can be removed from tree', async () => {
+    it('can be removed from tree', async () => {
         const removeNodeFromTreeSpy = jest.spyOn(config.global.provide, 'removeNodeFromTree');
 
         const orContainer = {
@@ -204,7 +203,7 @@ describe('src/app/component/rule/sw-condition-or-container', () => {
             condition: orContainer,
         });
 
-        const deleteAllButton = wrapper.getComponent('.sw-button.sw-condition-or-container__actions--delete');
+        const deleteAllButton = wrapper.findByText('button', 'global.sw-condition.condition.deleteConditions');
 
         await deleteAllButton.trigger('click');
 
@@ -215,7 +214,7 @@ describe('src/app/component/rule/sw-condition-or-container', () => {
         expect(parentCondition.children).toHaveLength(0);
     });
 
-    it.skip('only removes children if from tree if level is zero', async () => {
+    it('only removes children if from tree if level is zero', async () => {
         const removeNodeFromTreeSpy = jest.spyOn(config.global.provide, 'removeNodeFromTree');
 
         const subCondition = {
@@ -234,7 +233,7 @@ describe('src/app/component/rule/sw-condition-or-container', () => {
             level: 0,
         });
 
-        const deleteAllButton = wrapper.getComponent('.sw-button.sw-condition-or-container__actions--delete');
+        const deleteAllButton = wrapper.findByText('button', 'global.sw-condition.condition.deleteAllConditions');
 
         await deleteAllButton.trigger('click');
 

@@ -56,7 +56,6 @@ async function createWrapper(
             global: {
                 stubs: {
                     'sw-select-base': true,
-                    'sw-button': true,
                     'sw-tabs': true,
                     'sw-tabs-item': true,
                     'sw-modal': true,

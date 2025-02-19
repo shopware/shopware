@@ -17,17 +17,18 @@
             >
                 <template #filter>
                     {% block sw_settings_rule_detail_assignments_add_button %}
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         v-if="entity.allowAdd"
                         v-tooltip="getTooltipConfig(entity)"
                         :disabled="disableAdd(entity) || !acl.can('rule.editor')"
-                        variant="ghost"
+                        ghost
                         size="small"
                         class="sw-settings-rule-detail-assignments__add-button"
                         @click="onOpenAddModal(entity)"
                     >
                         {{ $tc('sw-settings-rule.detail.buttonAddAssignment') }}
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
                 </template>
             </sw-card-filter>
@@ -107,14 +108,15 @@
                 </template>
 
                 <template #bulk-modal-delete-items="{ isBulkLoading, deleteItems }">
-                    <sw-button
-                        variant="danger"
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
+                        variant="critical"
                         size="small"
                         :is-loading="isBulkLoading"
                         @click="deleteItems"
                     >
                         {{ $tc('global.default.remove') }}
-                    </sw-button>
+                    </mt-button>
                 </template>
             </sw-settings-rule-assignment-listing>
 
@@ -159,25 +161,27 @@
         <template #modal-footer>
 
             {% block sw_settings_rule_detail_assignments_delete_modal_cancel %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 class="sw-settings-rule-detail-assignments__delete-modal-cancel-button"
                 size="small"
                 @click="onCloseDeleteModal"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_settings_rule_detail_assignments_delete_modal_confirm %}
             {% block sw_settings_rule_detail_assignments_delete_modal_confirm_single %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 class="sw-settings-rule-detail-assignments__delete-modal-delete-button"
                 size="small"
-                variant="danger"
+                variant="critical"
                 @click="onDelete"
             >
                 {{ $tc('global.default.remove') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
             {% endblock %}
         </template>

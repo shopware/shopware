@@ -35,7 +35,8 @@
     {% block sw_sales_channel_list_actions %}
     <template #smart-bar-actions>
         {% block sw_sales_channel_list_smart_bar_actions %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('sales_channel.creator'),
@@ -46,7 +47,7 @@
             @click="onAddSalesChannel"
         >
             {{ $tc('sw-sales-channel.list.buttonAddSalesChannel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

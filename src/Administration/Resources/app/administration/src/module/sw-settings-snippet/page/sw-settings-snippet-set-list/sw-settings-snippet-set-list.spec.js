@@ -87,7 +87,6 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
                             template: '<div class="sw-page"><slot name="content"></slot></div>',
                         },
                         'sw-icon': true,
-                        'sw-button': true,
                         'sw-card': {
                             template: '<div><slot></slot><slot name="grid"></slot></div>',
                         },
@@ -155,19 +154,19 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
 
     it.each([
         [
-            'true',
+            true,
             'snippet.viewer',
         ],
         [
-            'true',
+            true,
             'snippet.viewer, snippet.editor',
         ],
         [
-            undefined,
+            false,
             'snippet.viewer, snippet.editor, snippet.creator',
         ],
         [
-            'true',
+            true,
             'snippet.viewer, snippet.editor, snippet.deleter',
         ],
     ])('should have a create snippet set button with a disabled state of %p when having role: %s', async (state, role) => {
@@ -178,7 +177,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
 
         const createSetButton = wrapper.find('.sw-settings-snippet-set-list__action-add');
 
-        expect(createSetButton.attributes('disabled')).toBe(state);
+        expect(createSetButton.attributes('disabled') !== undefined).toBe(state);
     });
 
     it.each([

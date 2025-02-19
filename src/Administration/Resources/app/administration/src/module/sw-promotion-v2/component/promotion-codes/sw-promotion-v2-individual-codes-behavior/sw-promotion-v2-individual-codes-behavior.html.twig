@@ -19,27 +19,29 @@
                 <template #filter>
 
                     {% block sw_promotion_v2_individual_codes_behavior_toolbar_filter_add_codes %}
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         class="sw-promotion-v2-individual-codes-behavior__add-codes-action"
-                        variant="ghost"
+                        ghost
                         size="small"
                         :disabled="!acl.can('promotion.editor')"
                         @click="onOpenAddCodesModal"
                     >
                         {{ $tc('sw-promotion-v2.detail.base.codes.individual.addButton') }}
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
 
                     {% block sw_promotion_v2_individual_codes_behavior_toolbar_filter_generate_codes %}
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         class="sw-promotion-v2-individual-codes-behavior__generate-codes-action"
-                        variant="ghost"
+                        ghost
                         size="small"
                         :disabled="!acl.can('promotion.editor')"
                         @click="onOpenGenerateCodesModal"
                     >
                         {{ $tc('sw-promotion-v2.detail.base.codes.individual.generateButton') }}
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
 
                 </template>
@@ -207,14 +209,15 @@
 
             {% block sw_promotion_v2_individual_codes_behavior_empty_state_actions %}
             <template #actions>
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     class="sw-promotion-v2-individual-codes-behavior__empty-state-generate-action"
-                    variant="ghost"
+                    ghost
                     :disabled="!acl.can('promotion.editor')"
                     @click="onOpenGenerateCodesModal"
                 >
                     {{ $tc('sw-promotion-v2.detail.base.codes.individual.generateButton') }}
-                </sw-button>
+                </mt-button>
             </template>
             {% endblock %}
 
@@ -277,13 +280,14 @@
         <template #modal-footer>
 
             {% block sw_promotion_v2_individual_codes_behavior_add_codes_modal_footer_cancel %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 class="sw-promotion-v2-individual-codes-behavior__add-codes-button-cancel"
                 size="small"
                 @click="onCloseAddCodesModal"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_promotion_v2_individual_codes_behavior_add_codes_modal_footer_confirm %}

@@ -147,24 +147,26 @@
     {% block sw_import_export_activity_result_modal_download %}
     <div class="sw-import-export-activity-result-modal__download-section">
         {% block sw_import_export_activity_result_modal_download_records_button %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-import-export-activity-result-modal__download-button"
             size="small"
             @click="openDownload(logEntity.file.id)"
         >
             {{ $tc('sw-import-export.activity.result.labelDownloadFile') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_import_export_activity_result_modal_download_invalid_records_button %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-if="logEntity.invalidRecordsLog"
             class="sw-import-export-activity-result-modal__download-failed"
             size="small"
             @click="openDownload(logEntity.invalidRecordsLog.file.id)"
         >
             {{ $tc('sw-import-export.activity.result.labelDownloadInvalidFile') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </div>
     {% endblock %}

@@ -74,7 +74,6 @@ async function createWrapper(privileges = []) {
                 'sw-empty-state': await Shopware.Component.build('sw-empty-state'),
                 'sw-context-menu-item': true,
                 'sw-loader': await Shopware.Component.build('sw-loader'),
-                'sw-button': await Shopware.Component.build('sw-button'),
                 'sw-modal': true,
                 'sw-skeleton': true,
                 'sw-product-variants-overview': true,
@@ -84,7 +83,6 @@ async function createWrapper(privileges = []) {
                 'sw-product-modal-delivery': true,
                 'sw-product-add-properties-modal': true,
                 'sw-icon': true,
-                'sw-button-deprecated': true,
             },
         },
     });

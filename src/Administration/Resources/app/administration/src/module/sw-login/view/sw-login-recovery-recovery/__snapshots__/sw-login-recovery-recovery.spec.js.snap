@@ -28,10 +28,24 @@ exports[`src/module/sw-login/view/sw-login-recovery-recovery should be a Vue.js 
     <div
       class="sw-login__submit"
     >
-      <sw-button-stub
-        disabled="true"
-        variant="primary"
-      />
+      <button
+        aria-disabled="false"
+        class="mt-button mt-button--primary mt-button--small mt-button--disabled"
+        data-v-e1fb43c8=""
+        disabled=""
+      >
+        <!---->
+        <span
+          class="mt-button__content"
+          data-v-e1fb43c8=""
+        >
+          <!---->
+          
+          sw-login.recovery.recovery.submit.label
+          
+          <!---->
+        </span>
+      </button>
     </div>
   </form>
 </div>

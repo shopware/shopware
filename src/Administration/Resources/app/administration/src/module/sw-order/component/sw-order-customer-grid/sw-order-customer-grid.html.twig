@@ -15,14 +15,15 @@
             {% endblock %}
 
             {% block sw_order_customer_grid_add_new_customer %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 class="sw-order-customer-grid__add-customer"
-                variant="ghost"
+                ghost
                 size="small"
                 @click="onShowNewCustomerModal"
             >
                 {{ $tc('sw-order.initialModal.customerGrid.buttonAddNewCustomer') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </div>
         {% endblock %}
@@ -163,16 +164,18 @@
 
             <template #modal-footer>
                 {% block sw_order_customer_grid_sales_channel_action_close %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="small"
                     @click="onCloseSalesChannelSelectModal"
                 >
                     {{ $tc('global.default.cancel') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_order_customer_grid_sales_channel_action_select %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="small"
                     variant="primary"
                     :is-loading="isLoading"
@@ -180,7 +183,7 @@
                     @click="onSelectSalesChannel"
                 >
                     {{ $tc('sw-order.initialModal.customerGrid.buttonSelectSalesChannel') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </template>
         </sw-modal>
@@ -203,23 +206,25 @@
 
             <template #modal-footer>
                 {% block sw_order_customer_grid_customer_changes_modal_action_close %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="small"
                     @click="onCloseCustomerChangesModal"
                 >
                     {{ $tc('global.default.cancel') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_order_customer_grid_customer_changes_modal_action_changes %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="small"
                     variant="primary"
                     :is-loading="isLoading"
                     @click="onChangeCustomer"
                 >
                     {{ $tc('sw-order.initialModal.customerGrid.buttonChangeCustomer') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </template>
         </sw-modal>

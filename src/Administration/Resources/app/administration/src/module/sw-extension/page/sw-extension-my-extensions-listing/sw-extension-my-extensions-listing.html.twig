@@ -68,12 +68,13 @@
                 {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.apps.textEmptyState') }}
             </p>
 
-            <sw-button
-                variant="ghost"
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
+                ghost
                 @click="isThemeRoute ? openThemesStore() : openStore()"
             >
                 {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.btnOpenStore') }}
-            </sw-button>
+            </mt-button>
         </sw-meteor-card>
 
         {% endblock %}

@@ -57,7 +57,6 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                     </div>
                 `,
                     },
-                    'sw-button': true,
                     'sw-button-process': true,
                     'sw-skeleton': true,
                     'sw-card': {

@@ -47,7 +47,8 @@
     {% block sw_settings_number_range_list_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_number_range_list_smart_bar_actions_add %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('number_ranges.creator'),
@@ -56,10 +57,10 @@
             class="sw-number-range-list__add-number-range"
             variant="primary"
             :disabled="!acl.can('number_ranges.creator') || undefined"
-            :router-link="{ name: 'sw.settings.number.range.create' }"
+            @click="$router.push({ name: 'sw.settings.number.range.create' })"
         >
             {{ $tc('sw-settings-number-range.list.buttonAddNumberRange') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}
@@ -161,22 +162,24 @@
                                 {% block sw_settings_number_range_list_delete_modal_footer %}
                                 <template #modal-footer>
                                     {% block sw_settings_number_range_list_delete_modal_cancel %}
-                                    <sw-button
+                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                                    <mt-button
                                         size="small"
                                         @click="onCloseDeleteModal"
                                     >
                                         {{ $tc('global.default.cancel') }}
-                                    </sw-button>
+                                    </mt-button>
                                     {% endblock %}
 
                                     {% block sw_settings_number_range_list_delete_modal_confirm %}
-                                    <sw-button
-                                        variant="danger"
+                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                                    <mt-button
+                                        variant="critical"
                                         size="small"
                                         @click="onConfirmDelete(item.id)"
                                     >
                                         {{ $tc('sw-settings-number-range.list.buttonDelete') }}
-                                    </sw-button>
+                                    </mt-button>
                                     {% endblock %}
                                 </template>
                                 {% endblock %}

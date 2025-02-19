@@ -82,7 +82,6 @@ async function createWrapper(privileges = []) {
                         <slot></slot>
                     </div>`,
                     },
-                    'sw-button': true,
                     'sw-button-process': true,
                     'sw-language-switch': true,
                     'sw-card-view': true,

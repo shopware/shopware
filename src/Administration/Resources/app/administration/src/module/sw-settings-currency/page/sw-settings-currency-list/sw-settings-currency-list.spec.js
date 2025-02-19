@@ -57,7 +57,6 @@ async function createWrapper(privileges = []) {
         <slot></slot>
     </div>`,
                     },
-                    'sw-button': true,
                     'sw-icon': true,
                     'sw-search-bar': true,
                     'sw-entity-listing': {
@@ -92,7 +91,7 @@ describe('module/sw-settings-currency/page/sw-settings-currency-list', () => {
 
         const createButton = wrapper.find('.sw-settings-currency-list__button-create');
 
-        expect(createButton.attributes().disabled).toBeTruthy();
+        expect(createButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to create a new currency', async () => {

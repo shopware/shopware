@@ -23,7 +23,8 @@
     <template #smart-bar-actions>
         {% block sw_customer_detail_actions_edit %}
         <span v-if="!editMode">
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-tooltip="{
                     message: $tc('sw-privileges.tooltip.warning'),
                     disabled: acl.can('customer.editor'),
@@ -35,18 +36,19 @@
                 @click.prevent="onActivateCustomerEditMode"
             >
                 {{ $tc('sw-customer.detail.buttonEdit') }}
-            </sw-button>
+            </mt-button>
         </span>
         {% endblock %}
 
         <span v-else>
             {% block sw_customer_detail_actions_cancel %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 :disabled="isLoading"
                 @click="onAbortButtonClick"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_customer_detail_actions_save %}
@@ -91,21 +93,23 @@
                     </div>
                     <div class="sw-customer-detail__customer-registration-alert-actions">
                         {% block sw_customer_detail_content_customer_group_registration_actions %}
-                        <sw-button
-                            variant="danger"
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
+                            variant="critical"
                             size="small"
                             @click="declineCustomerGroupRegistration"
                         >
                             {{ $tc('sw-customer.customerGroupRegistration.decline') }}
-                        </sw-button>
+                        </mt-button>
 
-                        <sw-button
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
                             variant="primary"
                             size="small"
                             @click="acceptCustomerGroupRegistration"
                         >
                             {{ $tc('sw-customer.customerGroupRegistration.accept') }}
-                        </sw-button>
+                        </mt-button>
                         {% endblock %}
                     </div>
                     {% endblock %}

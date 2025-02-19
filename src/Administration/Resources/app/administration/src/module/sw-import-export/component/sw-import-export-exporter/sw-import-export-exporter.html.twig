@@ -76,12 +76,13 @@
 
         <template #modal-footer>
             {% block sw_import_export_exporter_modal_footer %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
                 @click="setExportModalProfile(null)"
             >
                 {{ $tc('sw-import-export.exporter.close') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
     </sw-modal>

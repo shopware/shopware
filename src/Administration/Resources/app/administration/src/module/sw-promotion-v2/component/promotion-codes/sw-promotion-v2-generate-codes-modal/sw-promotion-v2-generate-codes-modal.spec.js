@@ -75,8 +75,6 @@ async function createWrapper(propsData = {}) {
                     'sw-modal': {
                         template: '<div class="sw-modal"><slot /></div>',
                     },
-
-                    'sw-button': true,
                     'sw-button-process': true,
                 },
                 provide: {

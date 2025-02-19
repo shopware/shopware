@@ -31,7 +31,6 @@ async function createWrapper(category = {}) {
                 },
                 'sw-category-sales-channel-multi-select': true,
                 'router-link': true,
-                'sw-button': true,
                 'sw-category-entry-point-modal': true,
             },
         },

@@ -51,7 +51,8 @@
     <template #footer-right-button>
         <div class="sw-import-export-new-profile-wizard__footer-right-button-group">
             {% block sw_import_export_new_profile_wizard_footer_right_button_finish %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-if="showNextButton"
                 size="small"
                 variant="primary"
@@ -59,29 +60,31 @@
                 @click="onFinish"
             >
                 {{ $tc('sw-import-export.profile.addProfileLabel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             <template v-else>
                 {% block sw_import_export_new_profile_wizard_footer_right_button_skip %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     v-if="showCsvSkipButton"
                     size="small"
                     @click="onNextPage"
                 >
                     {{ $tc('sw-import-export.profile.skipCsvUpload') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_import_export_new_profile_wizard_footer_right_button_next %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="small"
                     variant="primary"
                     :disabled="nextButtonDisabled"
                     @click="onNextPage"
                 >
                     {{ $tc('sw-wizard.nextButton') }}
-                </sw-button>
+                </mt-button>
             {% endblock %}
             </template>
         </div>
@@ -115,12 +118,13 @@
 
         {% block sw_import_export_new_profile_wizard_violation_modal_footer %}
         <template #modal-footer>
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
                 @click="resetViolations"
             >
                 {{ $tc('sw-import-export.profile.closeViolation') }}
-            </sw-button>
+            </mt-button>
         </template>
         {% endblock %}
     </sw-modal>

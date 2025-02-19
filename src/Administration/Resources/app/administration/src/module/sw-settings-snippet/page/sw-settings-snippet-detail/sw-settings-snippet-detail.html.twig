@@ -35,12 +35,13 @@
     {% block sw_settings_snippet_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_snippet_detail_actions_abort %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             :disabled="isLoading"
-            :router-link="backPath"
+            @click="$router.push(backPath)"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_settings_snippet_detail_actions_save %}

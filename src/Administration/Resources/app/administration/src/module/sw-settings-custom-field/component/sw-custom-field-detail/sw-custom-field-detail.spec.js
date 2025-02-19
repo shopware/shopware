@@ -84,8 +84,6 @@ async function createWrapper(privileges = []) {
                     'sw-field-error': true,
                     'sw-icon': true,
                     'sw-help-text': true,
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-loader': true,
 
                     'router-link': true,

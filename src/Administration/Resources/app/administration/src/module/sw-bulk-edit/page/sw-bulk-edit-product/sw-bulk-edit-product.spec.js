@@ -73,8 +73,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                 stubs: {
                     'sw-page': await wrapTestComponent('sw-page'),
                     'sw-loader': await wrapTestComponent('sw-loader'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-bulk-edit-custom-fields': await wrapTestComponent('sw-bulk-edit-custom-fields'),
                     'sw-bulk-edit-change-type-field-renderer': await wrapTestComponent(
                         'sw-bulk-edit-change-type-field-renderer',
@@ -141,7 +139,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'sw-extension-component-section': true,
                     'sw-inheritance-switch': true,
                     'sw-bulk-edit-product-description': true,
-                    'mt-button': true,
                     'mt-loader': true,
                     'sw-loader-deprecated': true,
                     'sw-app-topbar-button': true,
@@ -839,7 +836,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                 },
             },
         });
-        expect(wrapper.find('.sw-button-process').classes()).toContain('sw-button--disabled');
+        expect(wrapper.find('.sw-button-process').attributes('disabled') !== undefined).toBe(true);
 
         await wrapper.setData({
             isLoading: false,
@@ -858,7 +855,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                 },
             },
         });
-        expect(wrapper.find('.sw-button-process').classes()).not.toContain('sw-button--disabled');
+        expect(wrapper.find('.sw-button-process').attributes('disabled')).toBeUndefined();
     });
 
     it('should get parent product when component created', async () => {

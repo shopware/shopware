@@ -120,7 +120,6 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                     'sw-context-menu-item': true,
                     'sw-search-bar': true,
                     'sw-icon': true,
-                    'sw-button': true,
                     'sw-modal': true,
                     'router-link': true,
                     'sw-switch-field': true,
@@ -165,7 +164,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
 
         const addButton = wrapper.find('.sw-settings-tax-list__button-create');
 
-        expect(addButton.attributes().disabled).toBeTruthy();
+        expect(addButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to edit a tax', async () => {

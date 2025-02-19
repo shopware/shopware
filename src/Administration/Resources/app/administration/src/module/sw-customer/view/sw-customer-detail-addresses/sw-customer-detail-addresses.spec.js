@@ -25,10 +25,6 @@ async function createWrapper() {
                         template: '<div class="sw-card-filter"><slot name="filter"></slot></div>',
                     },
                     'sw-field': true,
-                    'sw-button': {
-                        emits: ['click'],
-                        template: '<div class="sw-button" @click="$emit(`click`)"></div>',
-                    },
                     'sw-modal': true,
                     'sw-icon': true,
                     'sw-one-to-many-grid': {
@@ -135,11 +131,14 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
     });
 
     it('should set not_specified salutation key when creating a new address', async () => {
+        await wrapper.setProps({
+            customerEditMode: true,
+        });
         wrapper.vm.salutationRepository.searchIds = jest.fn(() => Promise.resolve({ data: ['1'] }));
 
         expect(wrapper.vm.currentAddress).toBeNull();
 
-        const swButton = wrapper.find('.sw-button');
+        const swButton = wrapper.findByText('button', 'sw-customer.detailAddresses.buttonAddAddress');
         await swButton.trigger('click');
         await flushPromises();
 

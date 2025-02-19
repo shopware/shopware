@@ -35,7 +35,6 @@ async function createWrapper(privileges = []) {
                     'sw-card': true,
                     'sw-container': true,
                     'sw-simple-search-field': true,
-                    'sw-button': true,
                     'sw-empty-state': true,
                     'sw-data-grid': {
                         props: ['dataSource'],
@@ -75,7 +74,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
 
     it('should disable the create button', async () => {
         const createButton = wrapper.find('.sw-users-permissions-role-listing__add-role-button');
-        expect(createButton.attributes().disabled).toBe('true');
+        expect(createButton.attributes('disabled')).toBeDefined();
     });
 
     it('should enable the create button', async () => {

@@ -136,19 +136,22 @@
     {% block sw_text_editor_toolbar_button_link_menu_buttons %}
     <div class="sw-text-editor-toolbar-button__link-menu-buttons">
         {% block sw_text_editor_toolbar_button_link_menu_button_remove %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-text-editor-toolbar-button__link-menu-buttons-button-remove"
-            variant="ghost-danger"
+            variant="critical"
+            ghost
             size="small"
             :disabled="!linkTarget"
             @click="removeLink"
         >
             {{ $tc('global.default.remove') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_text_editor_toolbar_button_link_menu_button_insert %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-text-editor-toolbar-button__link-menu-buttons-button-insert"
             variant="primary"
             size="small"
@@ -156,7 +159,7 @@
             @click="setLink"
         >
             {{ $tc('global.default.add') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </div>
     {% endblock %}

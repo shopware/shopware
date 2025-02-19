@@ -144,9 +144,6 @@ async function createWrapper({ activeTab = 'main', routeId = null, entityName = 
                 'sw-button-process': {
                     template: '<div class="sw-button-process" @click="$emit(`click`)"></div>',
                 },
-                'sw-button': {
-                    template: '<button></button>',
-                },
                 'sw-language-switch': {
                     template: '<div class="sw-language-switch"></div>',
                 },

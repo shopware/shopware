@@ -100,7 +100,6 @@ async function createWrapper(privileges = []) {
                     'sw-skeleton': true,
                     'sw-empty-state': true,
                     'sw-data-grid': true,
-                    'sw-button': true,
                     'sw-context-menu-item': true,
                     'sw-button-process': true,
                     'sw-verify-user-modal': true,

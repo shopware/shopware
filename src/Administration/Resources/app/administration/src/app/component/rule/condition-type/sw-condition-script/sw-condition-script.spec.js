@@ -56,6 +56,7 @@ async function createWrapper(condition = {}) {
             stubs: {
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
@@ -79,6 +80,9 @@ async function createWrapper(condition = {}) {
                     template: '<div class="sw-highlight-text">{{ this.text }}</div>',
                 },
                 'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': {
+                    template: '<div class="sw-popover"><slot></slot></div>',
+                },
                 'sw-product-variant-info': {
                     template: '<div class="sw-product-variant-info"><slot></slot></div>',
                 },
@@ -86,7 +90,6 @@ async function createWrapper(condition = {}) {
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
-                'sw-button': true,
             },
             provide: {
                 conditionDataProviderService: new ConditionDataProviderService(),
@@ -105,7 +108,7 @@ async function createWrapper(condition = {}) {
 }
 
 describe('components/rule/condition-type/sw-condition-script', () => {
-    it.skip('should render fields and set condition values on change', async () => {
+    it('should render fields and set condition values on change', async () => {
         const wrapper = await createWrapper({
             type: 'scriptRule',
             scriptId: 'foo',

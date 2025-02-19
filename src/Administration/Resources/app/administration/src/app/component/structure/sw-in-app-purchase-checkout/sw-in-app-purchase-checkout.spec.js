@@ -13,10 +13,8 @@ async function createWrapper() {
                 'sw-extension-store-landing-page': true,
                 'sw-icon': true,
                 'sw-loader': true,
-                'sw-button': true,
                 'sw-label': true,
                 'sw-icon-deprecated': true,
-                'sw-button-deprecated': true,
             },
             provide: {
                 shortcutService: {

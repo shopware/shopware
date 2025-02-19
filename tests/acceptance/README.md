@@ -270,19 +270,24 @@ This will execute the test code of the task. In addition, it will automatically 
 
 Visual testing ensures that your application's UI remains consistent and free from unintended changes. Playwright also provides built-in capabilities for visual regression testing. 
 
-Playwright has the option to generate and compare images using this function
+### Capturing and Comparing Screenshots
+Playwright enables visual testing by capturing and comparing screenshots using the `toHaveScreenshot` method:
 ```JavaScript
  await expect(page).toHaveScreenshot() 
 ```
-**toHaveScreenshot** method can be extended with multiple option attributes. You can check the list of available options in the official Playwright [documentation](https://playwright.dev/docs/api/class-pageassertions#page-assertions-to-have-screenshot-1)
 
-**Note:** When running the tests for the first time you may receive an error like below, but this is expected as Playwright has any image to compare.
+This method can be customized with various options. For a full list of available options, refer to the [official Playwright documentation](https://playwright.dev/docs/api/class-pageassertions#page-assertions-to-have-screenshot-1)
+
+
+**Note:** When running visual tests for the first time, you may encounter an error like this:
 ```
 Error: A snapshot doesn't exist at {TEST_OUTPUT_PATH}, writing actual.
 ```
+This is expected since there is no baseline image to compare against. Playwright automatically saves the first screenshot, which can then be used as a reference for future tests.
 
-### Updating screenshots
-From time to time it may be necessary to update the reference screenshot (base image), for example when the page content changes.
+
+### Updating Screenshots
+If your UI changes intentionally, you may need to update the reference (base image) screenshots.
 To update the reference screenshot you can use the **--update-snapshots** flag (or **-u**) flag.
 
 ```
@@ -295,23 +300,21 @@ You can also update only some specific snapshots using test name:
 npx playwright test -u "**/test_name*.spec.ts"
 ```
 
-### Debug visual tests
-The best solution for debugging visual tests is reviewing the "Actual" and "Expected" views from the HTML report or any reporting tool implemented in the tests.
-The “Diff” view offers a stark comparison between the expected and actual screenshots.
+### Debugging Visual Tests
+The best way to debug visual test failures is by reviewing the "Actual" and "Expected" images in the Playwright HTML report or any other reporting tool you use. The "Diff" view highlights discrepancies between screenshots, making it easier to identify differences.
 
 
-### Configuring the sensitivity of Visual Tests
-By default visual tests can detect a difference of even 1 pixel, which may determine whether the tests pass or not, so it is important to adjust certain parameters depending on your own design needs:
-- maxDiffPixelRatio - An acceptable ratio of pixels that are different to the total amount of pixels, between 0 and 1 
-- maxDiffPixels - An acceptable amount of pixels that could be different 
-- threshold - How much must a single pixel vary for it to be considered different. Values are a percentage from `0` to `1`, with `0.2` as the default.
-
-You can set all these options per test or globally in the **playwright.config.ts** file
+### Configuring Sensitivity in Visual Tests
+By default, Playwright detects even a **1-pixel difference**, which might be too strict depending on your design needs. You can fine-tune visual comparison settings using these options:
+- maxDiffPixelRatio – Acceptable ratio of different pixels compared to the total number of pixels (range: `0` to `1`).
+- maxDiffPixels – Maximum number of differing pixels allowed.
+- threshold – Defines the intensity change required for a pixel to be considered different (`0` to `1`, default: `0.2`).
+These settings can be applied per test or globally in **playwright.config.ts** file.
 
 
 ### Best Practices for Visual Testing 
-- use **mask** function or a custom stylesheet to hide dynamic elements or sensitive information on your page
-- ensure environmental compatibility for generated and compared images (matching the OS of your test runner with your local dev environment, ensuring your time zones match)
-- adjust the sensitivity of **maxDiff Pixels** to suit your project
-- take care of lazy loaded images (you can extend the toHaveScreenshot() function with an additional timeout)
-- be sure before using the toHaveScreenshot method that the page is in the target state (use the scroll to element option if necessary)
+- **Mask dynamic content** – Use the `mask` function or a custom stylesheet to hide dynamic elements (e.g., timestamps, user-generated content).
+- **Ensure environmental consistency** – Match OS versions, time zones, and rendering environments between your local machine and the test runner.
+- **Adjust sensitivity thresholds** – Modify `maxDiffPixels` and `threshold` based on your project’s requirements.
+- **Handle lazy-loaded elements** – Extend `toHaveScreenshot()` with an additional timeout if necessary.
+- **Wait for page stability** – Ensure the page is fully loaded and in the correct state before capturing screenshots (e.g., scroll to the target element if needed).

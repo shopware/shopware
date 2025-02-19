@@ -18,75 +18,33 @@ class ProductStreamEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected ?string $name;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $description;
+    protected ?string $description;
 
     /**
      * @var array<array<string, string|array<array<string, mixed>>>>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $apiFilter;
+    protected ?array $apiFilter;
 
-    /**
-     * @var ProductStreamFilterCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $filters;
+    protected ?ProductStreamFilterCollection $filters;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $invalid;
+    protected bool $invalid;
 
-    /**
-     * @var ProductStreamTranslationCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translations;
+    protected ?ProductStreamTranslationCollection $translations;
 
-    /**
-     * @var ProductExportCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productExports;
+    protected ?ProductExportCollection $productExports;
 
-    /**
-     * @var ProductCrossSellingCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productCrossSellings;
+    protected ?ProductCrossSellingCollection $productCrossSellings;
 
-    /**
-     * @var CategoryCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $categories;
+    protected ?CategoryCollection $categories;
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }

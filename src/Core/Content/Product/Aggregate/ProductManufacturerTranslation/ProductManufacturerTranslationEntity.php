@@ -12,40 +12,15 @@ class ProductManufacturerTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productManufacturerId;
+    protected string $productManufacturerId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productManufacturerVersionId;
+    protected string $productManufacturerVersionId;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected ?string $name;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $description;
+    protected ?string $description;
 
-    /**
-     * @var ProductManufacturerEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productManufacturer;
+    protected ?ProductManufacturerEntity $productManufacturer;
 
     public function getProductManufacturerId(): string
     {

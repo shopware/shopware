@@ -12,89 +12,35 @@ class ProductTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productId;
+    protected string $productId;
+
+    protected string $productVersionId;
+
+    protected ?string $metaDescription;
+
+    protected ?string $name;
+
+    protected ?string $keywords;
+
+    protected ?string $description;
+
+    protected ?string $metaTitle;
+
+    protected ?string $packUnit;
+
+    protected ?string $packUnitPlural;
+
+    protected ?ProductEntity $product;
 
     /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @var array<string, mixed>|null
      */
-    protected $productVersionId;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $metaDescription;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $keywords;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $description;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $metaTitle;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $packUnit;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $packUnitPlural;
-
-    /**
-     * @var ProductEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $product;
-
-    /**
-     * @var array|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $slotConfig;
+    protected ?array $slotConfig;
 
     /**
      * @var array<string>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $customSearchKeywords;
+    protected ?array $customSearchKeywords;
 
     public function getProductId(): string
     {
@@ -176,11 +122,17 @@ class ProductTranslationEntity extends TranslationEntity
         $this->product = $product;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getSlotConfig(): ?array
     {
         return $this->slotConfig;
     }
 
+    /**
+     * @param array<string, mixed> $slotConfig
+     */
     public function setSlotConfig(array $slotConfig): void
     {
         $this->slotConfig = $slotConfig;
@@ -196,11 +148,17 @@ class ProductTranslationEntity extends TranslationEntity
         $this->metaDescription = $metaDescription;
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getCustomSearchKeywords(): ?array
     {
         return $this->customSearchKeywords;
     }
 
+    /**
+     * @param array<string>|null $customSearchKeywords
+     */
     public function setCustomSearchKeywords(?array $customSearchKeywords): void
     {
         $this->customSearchKeywords = $customSearchKeywords;

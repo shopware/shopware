@@ -13,40 +13,18 @@ class ProductFeatureSetEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected ?string $name;
+
+    protected ?string $description;
 
     /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @var array<mixed>|null
      */
-    protected $description;
+    protected ?array $features;
 
-    /**
-     * @var array|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $features;
+    protected ?ProductFeatureSetTranslationCollection $translations;
 
-    /**
-     * @var ProductFeatureSetTranslationCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translations;
-
-    /**
-     * @var ProductCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $products;
+    protected ?ProductCollection $products;
 
     public function getName(): ?string
     {
@@ -68,11 +46,17 @@ class ProductFeatureSetEntity extends Entity
         $this->description = $description;
     }
 
+    /**
+     * @return array<mixed>|null
+     */
     public function getFeatures(): ?array
     {
         return $this->features;
     }
 
+    /**
+     * @param array<mixed> $features
+     */
     public function setFeatures(array $features): void
     {
         $this->features = $features;

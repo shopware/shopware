@@ -10,40 +10,18 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('inventory')]
 class Filter extends Struct
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $filtered;
+    protected bool $filtered;
 
     /**
      * @var list<Aggregation>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $aggregations;
+    protected array $aggregations;
 
-    /**
-     * @var DALFilter
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $filter;
+    protected DALFilter $filter;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $exclude;
+    protected bool $exclude;
 
     /**
      * @param list<Aggregation> $aggregations
@@ -54,8 +32,7 @@ class Filter extends Struct
         bool $filtered,
         array $aggregations,
         DALFilter $filter,
-        /** @deprecated tag:v6.7.0 - Will be natively typed */
-        protected $values,
+        protected mixed $values,
         bool $exclude = true
     ) {
         $this->name = $name;
@@ -89,11 +66,9 @@ class Filter extends Struct
     }
 
     /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will return native type
-     *
      * @return int|float|string|bool|array<mixed>|null
      */
-    public function getValues()
+    public function getValues(): mixed
     {
         return $this->values;
     }

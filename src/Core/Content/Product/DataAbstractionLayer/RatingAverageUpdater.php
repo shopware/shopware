@@ -19,6 +19,9 @@ class RatingAverageUpdater
     {
     }
 
+    /**
+     * @param array<mixed> $ids
+     */
     public function update(array $ids, Context $context): void
     {
         if (empty($ids)) {

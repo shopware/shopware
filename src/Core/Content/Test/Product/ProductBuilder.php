@@ -316,7 +316,7 @@ class ProductBuilder
         return $this;
     }
 
-    public function prices(string $ruleKey, float $gross, string $currencyKey = 'default', ?float $net = null, int $start = 1, bool $valid = false, ?float $listPriceGross = null, ?float $listPriceNet = null): self
+    public function prices(string $ruleKey, float $gross, string $currencyKey = 'default', ?float $net = null, int $start = 1, bool $valid = false, ?float $listPriceGross = null, ?float $listPriceNet = null, ?int $end = null): self
     {
         $net ??= $gross / 115 * 100;
 
@@ -363,6 +363,7 @@ class ProductBuilder
 
         $this->prices[] = [
             'quantityStart' => $start,
+            'quantityEnd' => $end,
             'rule' => [
                 'id' => $this->ids->create($ruleKey),
                 'priority' => 1,

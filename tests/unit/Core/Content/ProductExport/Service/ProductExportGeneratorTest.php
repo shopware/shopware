@@ -159,6 +159,7 @@ class ProductExportGeneratorTest extends TestCase
         $productExport->setSalesChannelId('salesChannelId');
         $productExport->setStorefrontSalesChannelId('storefrontSalesChannelId');
         $productExport->setProductStreamId('productStreamId');
+        $productExport->setBodyTemplate(null);
 
         $salesChannelDomain = new SalesChannelDomainEntity();
         $salesChannelDomain->setLanguageId('languageId');

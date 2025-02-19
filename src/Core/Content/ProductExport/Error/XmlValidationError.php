@@ -7,26 +7,17 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('inventory')]
 class XmlValidationError extends Error
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $id;
+    protected string $id;
 
     /**
      * @var array<string, mixed>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $errors;
+    protected array $errors;
 
     /**
      * @var ErrorMessage[]
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $errorMessages;
+    protected array $errorMessages;
 
     /**
      * @param \LibXMLError[] $errors

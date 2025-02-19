@@ -65,6 +65,7 @@ class ProductPageLoaderTest extends TestCase
     {
         $product = $this->getProductWithReviews($productId, $reviews);
 
+        $product->setSeoCategory(null);
         // set cms page which later will be set by the subscriber
         $product->setCmsPage($this->getCmsPage($product));
         $product->setProductNumber($productId);

@@ -9,26 +9,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('inventory')]
 class ProductCrossSellingTranslationEntity extends TranslationEntity
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productCrossSellingId;
+    protected string $productCrossSellingId;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected ?string $name;
 
-    /**
-     * @var ProductCrossSellingEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productCrossSelling;
+    protected ?ProductCrossSellingEntity $productCrossSelling;
 
     public function getProductCrossSellingId(): string
     {

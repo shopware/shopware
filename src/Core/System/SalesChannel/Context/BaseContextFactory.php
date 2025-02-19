@@ -51,6 +51,7 @@ class BaseContextFactory extends AbstractBaseContextFactory
      * @param EntityRepository<ShippingMethodCollection> $shippingMethodRepository
      * @param EntityRepository<CountryStateCollection> $countryStateRepository
      * @param EntityRepository<CurrencyCountryRoundingCollection> $currencyCountryRepository
+     * @param EntityRepository<LanguageCollection> $languageRepository
      */
     public function __construct(
         private readonly EntityRepository $salesChannelRepository,
@@ -62,7 +63,8 @@ class BaseContextFactory extends AbstractBaseContextFactory
         private readonly EntityRepository $shippingMethodRepository,
         private readonly Connection $connection,
         private readonly EntityRepository $countryStateRepository,
-        private readonly EntityRepository $currencyCountryRepository
+        private readonly EntityRepository $currencyCountryRepository,
+        private readonly EntityRepository $languageRepository
     ) {
     }
 
@@ -77,10 +79,6 @@ class BaseContextFactory extends AbstractBaseContextFactory
         $criteria->setTitle('base-context-factory::sales-channel');
         $criteria->addAssociation('currency');
         $criteria->addAssociation('domains');
-        $criteria->getAssociation('languages')
-            ->addFilter(new EqualsFilter('id', $context->getLanguageId()))
-            ->addAssociation('translationCode')
-            ->addAssociation('locale');
 
         $salesChannel = $this->salesChannelRepository->search($criteria, $context)->getEntities()->get($salesChannelId);
         if (!$salesChannel instanceof SalesChannelEntity) {
@@ -156,7 +154,7 @@ class BaseContextFactory extends AbstractBaseContextFactory
             $shippingLocation,
             $itemRounding,
             $totalRounding,
-            $this->getLanguageInfo($salesChannel->getLanguages(), $context->getLanguageId()),
+            $this->getLanguageInfo($context->getLanguageId()),
         );
     }
 
@@ -387,19 +385,27 @@ class BaseContextFactory extends AbstractBaseContextFactory
         return [$currency->getItemRounding(), $currency->getTotalRounding()];
     }
 
-    private function getLanguageInfo(?LanguageCollection $languages, string $currentLanguageId): LanguageInfo
+    private function getLanguageInfo(string $currentLanguageId): LanguageInfo
     {
-        $currentLanguage = $languages?->get($currentLanguageId);
+        $criteria = (new Criteria([$currentLanguageId]));
+        $criteria->addFields([
+            'name',
+            'translationCode.code',
+            'locale.code'
+        ]);
+
+        $currentLanguage = $this->languageRepository->search($criteria, Context::createDefaultContext())->first();
+
         if ($currentLanguage === null) {
             throw SalesChannelException::languageNotFound($currentLanguageId);
         }
 
-        $locale = $currentLanguage->getTranslationCode() ?? $currentLanguage->getLocale();
+        $locale = $currentLanguage->get('translationCode') ?? $currentLanguage->get('locale');
         \assert($locale !== null, 'At least the localeId is required, so the fallback should never be null');
 
         return new LanguageInfo(
-            $currentLanguage->getTranslation('name') ?? $currentLanguage->getName(),
-            $locale->getCode(),
+            $currentLanguage->getTranslation('name') ?? $currentLanguage->get('name'),
+            $locale->get('code'),
         );
     }
 }

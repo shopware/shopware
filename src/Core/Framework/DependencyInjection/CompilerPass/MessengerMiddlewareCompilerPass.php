@@ -20,14 +20,22 @@ class MessengerMiddlewareCompilerPass implements CompilerPassInterface
 
         $middlewares = $messageBus->getArgument(0);
 
-        \assert($middlewares instanceof IteratorArgument);
+        if ($middlewares instanceof IteratorArgument) {
+            $messageBus->replaceArgument(
+                0,
+                new IteratorArgument([
+                    new Reference(RoutingOverwriteMiddleware::class),
+                    ...$middlewares->getValues(),
+                ])
+            );
+        } else {
+            $messageBus->replaceArgument(
+                0,
+                new IteratorArgument([
+                    new Reference(RoutingOverwriteMiddleware::class),
+                ])
+            );
+        }
 
-        $messageBus->replaceArgument(
-            0,
-            new IteratorArgument([
-                new Reference(RoutingOverwriteMiddleware::class),
-                ...$middlewares->getValues(),
-            ])
-        );
     }
 }

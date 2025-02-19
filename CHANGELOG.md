@@ -165,6 +165,9 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-40034 - Add meta author configuration and use it in frontend](./changelog/release-6-6-10-0/2024-10-04-add-meta-author-configuration-and-use-it-in-frontend.md)
 *  [NEXT-40037 - Add mysql compression flag](./changelog/release-6-6-10-0/2024-12-13-add-mysql-compression-flag.md)
 *  [NEXT-40042 - Changed invalid access key exception returned status code](./changelog/release-6-6-10-0/2024-12-17-changed-invalid-access-key-exception-returned-status-code.md)
+*  [NEXT-40175 - Removed the total count mode when selecting products during order creation in the administration.](./changelog/release-6-6-10-0/2024-12-26-removed-the-total-count-mode-when-selecting-products-during-order-creation-in-the-administration.md)
+*  [#6763 - Add custom_field storeApiAware field](./changelog/release-6-6-10-0/2025-01-02-add-custom-field-store-api-aware.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#4666 - Do not show skip to content when clicking scroll up button](./changelog/release-6-6-10-0/2025-02-12-dont-show-skip-to-content-when-clicking-scroll-up-button.md)
 
 ## 6.6.9.0
 *  [#3513 - Allow rate limiter usage twice without breaking memoized rate limit configuration](./changelog/release-6-6-9-0/2024-01-15-allow-rate-limiter-usage-twice-without-breaking-memoized-configuration.md) ([Joshua Behrens](https://github.com/JoshuaBehrens))

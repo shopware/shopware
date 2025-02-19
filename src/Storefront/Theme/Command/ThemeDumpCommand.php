@@ -131,7 +131,6 @@ class ThemeDumpCommand extends Command
         $dump['themeId'] = $themeEntity->getId();
         $dump['technicalName'] = $themeConfig->getTechnicalName();
         $dump['domainUrl'] = $domainUrl ?? '';
-        $dump['basePath'] = $this->stripProjectDir($fs->location);
 
         $this->staticFileConfigDumper->dumpConfigInVar('theme-files.json', $dump);
 
@@ -190,15 +189,6 @@ class ThemeDumpCommand extends Command
         }
 
         return $domainUrls[0] ?? null;
-    }
-
-    private function stripProjectDir(string $path): string
-    {
-        if (str_starts_with($path, $this->projectDir)) {
-            return substr($path, \strlen($this->projectDir) + 1);
-        }
-
-        return $path;
     }
 
     private function getTechnicalName(string $themeId): ?string

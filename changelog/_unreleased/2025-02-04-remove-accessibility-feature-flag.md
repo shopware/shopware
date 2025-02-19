@@ -12,6 +12,10 @@ ___
   * Removed deprecated file `storefront/src/plugin/main-menu/flyout-menu.plugin.js`.
   * Removed deprecated file `storefront/src/scss/layout/_navigation-flyout.scss`.
   * Removed deprecated file `storefront/layout/navigation/flyout.html.twig`.
+  * Removed deprecated file `storefront/src/plugin/address-editor/address-editor.plugin.js`
+  * Removed deprecated file `storefront/component/address/address-editor-modal-create-address.html.twig`
+  * Removed deprecated file `component/address/address-editor-modal-list.html.twig`
+  * Removed deprecated file `storefront/component/address/address-editor-modal.html.twig`
   * Removed deprecated file `storefront/src/scss/layout/_top-bar.scss`.
   * Removed deprecated file `storefront/src/scss/layout/_main-navigation.scss`.
   * Removed deprecated file `storefront/layout/navigation/navigation.html.twig`.
@@ -43,6 +47,12 @@ ___
   * Removed deprecated file `src/Storefront/Framework/Captcha/Exception/CaptchaInvalidException.php`
   * Removed deprecated file `src/Storefront/Framework/Twig/ControllerInfo.php`
   * Removed deprecated file `src/Storefront/Framework/Page/StorefrontSearchResult.php`
+  * Removed deprecated file `src/Storefront/Theme/SalesChannelThemeLoader.php`
+  * Removed deprecated file `src/Storefront/Theme/StorefrontPluginRegistryInterface.php`
+  * Removed deprecated file `src/Storefront/Theme/ThemeFileImporter.php`
+  * Removed deprecated file `src/Storefront/Theme/ThemeFileImporterInterface.php`
+
+* Removed unused composer dependency `padaliyajay/php-autoprefixer`
 
 * Added new Twig block `component_address_form_country_select` in `component/address/address-form.html.twig`.
 * Added new Twig block `component_address_form_state_select` in `component/address/address-form.html.twig`.

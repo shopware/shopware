@@ -86,6 +86,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
                 '/login',
                 '/login/info',
                 '/login/recovery',
+                '/sso/error',
             ];
 
             if (to.meta && to.meta.forceRoute === true) {
@@ -108,6 +109,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
                 loggedIn &&
                 (to.name === 'login' || loginAllowlist.includes(to.path) || to.path.startsWith('/login/user-recovery/'))
             ) {
+
                 return { name: 'core' };
             }
 

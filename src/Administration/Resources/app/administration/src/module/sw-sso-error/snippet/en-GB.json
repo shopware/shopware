@@ -1,0 +1,8 @@
+{
+  "sw-sso-error": {
+    "general": {
+      "title": "SSO Error",
+      "description": "Shopware-Login-Error"
+    }
+  }
+}

@@ -188,7 +188,7 @@ class TemplateDataSubscriberTest extends TestCase
 
         $this->themeRegistry
             ->expects(static::never())
-            ->method('getConfigurations');
+            ->method('getByTechnicalName');
 
         $this->subscriber->addIconSetConfig($event);
     }
@@ -207,7 +207,7 @@ class TemplateDataSubscriberTest extends TestCase
 
         $this->themeRegistry
             ->expects(static::once())
-            ->method('getConfigurations');
+            ->method('getByTechnicalName');
 
         $this->subscriber->addIconSetConfig($event);
         static::assertArrayNotHasKey('themeIconConfig', $event->getParameters());
@@ -228,12 +228,9 @@ class TemplateDataSubscriberTest extends TestCase
         $themeConfig = new StorefrontPluginConfiguration('Storefront');
         $themeConfig->setIconSets(['default' => '@Storefront/icons/default']);
 
-        $collection = new StorefrontPluginConfigurationCollection();
-        $collection->add($themeConfig);
-
         $this->themeRegistry
-            ->method('getConfigurations')
-            ->willReturn($collection);
+            ->method('getByTechnicalName')
+            ->willReturn($themeConfig);
 
         $this->subscriber->addIconSetConfig($event);
 
@@ -256,10 +253,6 @@ class TemplateDataSubscriberTest extends TestCase
         $themeConfig->setIconSets(['default' => '@Storefront/icons/default']);
 
         $themeRegistry = $this->createMock(StorefrontPluginRegistry::class);
-
-        $themeRegistry
-            ->expects(static::never())
-            ->method('getConfigurations');
 
         $themeRegistry
             ->expects(static::once())

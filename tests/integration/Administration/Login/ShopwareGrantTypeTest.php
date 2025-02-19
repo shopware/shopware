@@ -59,6 +59,7 @@ class ShopwareGrantTypeTest extends TestCase
         $shopwareGrantType->setAccessTokenRepository($this->getContainer()->get(AccessTokenRepository::class));
         $shopwareGrantType->setPrivateKey(new FakeCryptKey(Configuration::forSymmetricSigner(new TestSigner(), new TestKey())));
         $shopwareGrantType->setRefreshTokenTTL(new \DateInterval('PT1H'));
+        $shopwareGrantType->setDefaultScope('');
 
         $request = new Request();
         $request->headers->set('HOST', 'foo');
@@ -120,6 +121,8 @@ class ShopwareGrantTypeTest extends TestCase
                 'redirect_uri' => 'http://redirect.uri',
                 'base_url' => 'http://base.uri',
                 'session_key' => 'session_key',
+                'authorize_path' => '/authorize',
+                'token_path' => '/token',
             ],
             '',
             ''

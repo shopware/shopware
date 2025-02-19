@@ -496,6 +496,8 @@ class AdministrationControllerTest extends TestCase
                 'client_secret' => 'clientSecret',
                 'redirect_uri' => 'redirectUri',
                 'base_url' => 'baseUrl',
+                'authorize_path' => '/authorize',
+                'token_path' => '/token',
             ], '', ''),
             $this->refreshTokenTtl,
         );

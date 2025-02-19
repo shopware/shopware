@@ -1047,6 +1047,8 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('client_secret')->isRequired()->end()
                 ->scalarNode('redirect_uri')->isRequired()->end()
                 ->scalarNode('base_url')->isRequired()->end()
+                ->scalarNode('authorize_path')->isRequired()->end()
+                ->scalarNode('token_path')->isRequired()->end()
             ->end();
 
         return $rootNode;

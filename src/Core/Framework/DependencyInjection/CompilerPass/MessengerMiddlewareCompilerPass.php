@@ -36,6 +36,5 @@ class MessengerMiddlewareCompilerPass implements CompilerPassInterface
                 ])
             );
         }
-
     }
 }

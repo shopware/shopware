@@ -9,6 +9,7 @@ use Shopware\Core\Framework\MessageQueue\Middleware\RoutingOverwriteMiddleware;
 use Symfony\Component\DependencyInjection\Argument\IteratorArgument;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Middleware\ValidationMiddleware;
 
@@ -45,9 +46,15 @@ class MessengerMiddlewareCompilerPassTest extends TestCase
 
         $argument = $busDefinition->getArgument(0);
         static::assertInstanceOf(IteratorArgument::class, $argument);
-        static::assertSame(RoutingOverwriteMiddleware::class, (string) $argument->getValues()[0]);
-        static::assertSame(ValidationMiddleware::class, (string) $argument->getValues()[1]);
 
+        $routingMiddleware = $argument->getValues()[0];
+        $validationMiddleware = $argument->getValues()[1];
+
+        static::assertInstanceOf(Reference::class, $routingMiddleware);
+        static::assertSame(RoutingOverwriteMiddleware::class, $routingMiddleware->__toString());
+
+        static::assertInstanceOf(Definition::class, $validationMiddleware);
+        static::assertSame(ValidationMiddleware::class, $validationMiddleware->getClass());
     }
 
     public function testMiddlewareIsRegisteredWithoutMiddlewares(): void

@@ -10,6 +10,7 @@ use Symfony\Component\DependencyInjection\Argument\IteratorArgument;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Middleware\ValidationMiddleware;
 
 /**
  * @internal
@@ -26,7 +27,39 @@ class MessengerMiddlewareCompilerPassTest extends TestCase
         $container->addCompilerPass(new MessengerMiddlewareCompilerPass());
 
         $busDefinition = new Definition(MessageBusInterface::class);
-        $busDefinition->setArguments([new IteratorArgument([]), []]);
+        $busDefinition->setArguments([new IteratorArgument([new Definition(ValidationMiddleware::class)]), []]);
+
+        $middlewareDefinition = new Definition(RoutingOverwriteMiddleware::class);
+        $middlewareDefinition->setArguments([[], []]);
+
+        $container->setDefinitions([
+            'messenger.bus.default' => $busDefinition,
+            RoutingOverwriteMiddleware::class => $middlewareDefinition,
+        ]);
+
+        // disable removing passes because the alias will not be used
+        $container->getCompilerPassConfig()->setRemovingPasses([]);
+        $container->getCompilerPassConfig()->setAfterRemovingPasses([]);
+
+        $container->compile();
+
+        $argument = $busDefinition->getArgument(0);
+        static::assertInstanceOf(IteratorArgument::class, $argument);
+        static::assertSame(RoutingOverwriteMiddleware::class, (string) $argument->getValues()[0]);
+        static::assertSame(ValidationMiddleware::class, (string) $argument->getValues()[1]);
+
+    }
+
+    public function testMiddlewareIsRegisteredWithoutMiddlewares(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('messenger.default_transport_name', 'test');
+        $container->setParameter('kernel.debug', true);
+
+        $container->addCompilerPass(new MessengerMiddlewareCompilerPass());
+
+        $busDefinition = new Definition(MessageBusInterface::class);
+        $busDefinition->setArguments([[], []]);
 
         $middlewareDefinition = new Definition(RoutingOverwriteMiddleware::class);
         $middlewareDefinition->setArguments([[], []]);

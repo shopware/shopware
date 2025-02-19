@@ -2,13 +2,11 @@ import template from './sw-cms-stage-section-selection.html.twig';
 import './sw-cms-stage-section-selection.scss';
 
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['section-select'],
 

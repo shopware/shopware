@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
 import 'src/app/mixin/placeholder.mixin';
@@ -64,7 +64,6 @@ async function createWrapper() {
                         <slot></slot>
                     </div>`,
                 },
-                'sw-button': true,
                 'sw-button-process': true,
                 'sw-icon': true,
                 'sw-search-bar': true,

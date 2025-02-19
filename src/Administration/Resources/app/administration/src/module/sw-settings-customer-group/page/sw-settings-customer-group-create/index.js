@@ -1,15 +1,13 @@
 /**
- * @package discovery
+ * @sw-package discovery
  *
  * @private
  */
 export default {
-    compatConfig: Shopware.compatConfig,
-
     methods: {
         createdComponent() {
             this.isLoading = true;
-            Shopware.State.commit('context/resetLanguageToDefault');
+            Shopware.Store.get('context').resetLanguageToDefault();
             this.customerGroup = this.customerGroupRepository.create();
             this.isLoading = false;
         },

@@ -16,6 +16,9 @@ const mockData = [
         },
     },
 ];
+const flowTemplateRepositorySearchMock = jest.fn((criteria) => {
+    return Promise.resolve(new EntityCollection('', '', Context.api, criteria, mockData, 1));
+});
 
 async function createWrapper(privileges = [], props = {}) {
     return mount(await wrapTestComponent('sw-flow-list-flow-templates', { sync: true }), {
@@ -45,7 +48,6 @@ async function createWrapper(privileges = [], props = {}) {
                     template: '<a :href="`${to.name}/${to.params.flowTemplateId}`">asdf</a>',
                 },
                 'sw-icon': true,
-                'sw-button': true,
                 'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
                 'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                 'sw-context-menu-item': true,
@@ -67,9 +69,7 @@ async function createWrapper(privileges = [], props = {}) {
             provide: {
                 repositoryFactory: {
                     create: () => ({
-                        search: jest.fn((criteria) => {
-                            return Promise.resolve(new EntityCollection('', '', Context.api, criteria, mockData, 1));
-                        }),
+                        search: flowTemplateRepositorySearchMock,
                     }),
                 },
                 acl: {
@@ -169,12 +169,12 @@ describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
     });
 
     it('should set searchTerm to criteria', async () => {
-        const wrapper = await createWrapper([], {
+        await createWrapper([], {
             searchTerm: 'test-term',
         });
         await flushPromises();
 
-        expect(wrapper.vm.flowTemplateRepository.search).toHaveBeenNthCalledWith(
+        expect(flowTemplateRepositorySearchMock).toHaveBeenNthCalledWith(
             1,
             expect.objectContaining({
                 term: 'test-term',

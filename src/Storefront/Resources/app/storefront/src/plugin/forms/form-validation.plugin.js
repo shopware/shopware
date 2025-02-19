@@ -1,9 +1,10 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
 import Debouncer from 'src/helper/debouncer.helper';
-import Iterator from 'src/helper/iterator.helper';
 
 /**
+ * @deprecated tag:v6.8.0 - Use the `form-handler.plugin.js` instead.
+ *
  * This plugin validates fields of a form.
  * Also styles the field elements with the bootstrap style if enabled.
  *
@@ -23,7 +24,7 @@ import Iterator from 'src/helper/iterator.helper';
  *
  * <input data-form-validation-length='8' data-form-validation-equal-message='this field must be at least 8 characters long'>
  *
- * @package content
+ * @package framework
  */
 export default class FormValidation extends Plugin {
 
@@ -120,8 +121,8 @@ export default class FormValidation extends Plugin {
     _registerValidationListener(attribute, listener, events) {
         const fields = DomAccess.querySelectorAll(this.el, `[${attribute}]`, false);
         if (fields) {
-            Iterator.iterate(fields, field => {
-                Iterator.iterate(events, event => {
+            fields.forEach(field => {
+                events.forEach(event => {
                     field.removeEventListener(event, listener);
                     field.addEventListener(event, listener);
                 });
@@ -163,7 +164,7 @@ export default class FormValidation extends Plugin {
         const confirmFieldValue = confirmField.value.trim();
 
         if (confirmFieldValue.length > 0) {
-            Iterator.iterate(fields, field => {
+            fields.forEach(field => {
                 field.dispatchEvent(new CustomEvent(this.options.eventName, {target: event.target}));
             });
         }
@@ -191,7 +192,7 @@ export default class FormValidation extends Plugin {
             }
         });
 
-        Iterator.iterate(fields, field => {
+        fields.forEach(field => {
             if (!valid) {
                 this._setFieldToInvalid(field, this.options.equalAttr);
             } else {

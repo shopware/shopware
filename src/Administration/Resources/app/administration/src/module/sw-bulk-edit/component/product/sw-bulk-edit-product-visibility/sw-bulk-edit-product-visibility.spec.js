@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
 
@@ -18,7 +18,6 @@ async function createWrapper() {
                     'sw-container': await wrapTestComponent('sw-container'),
                     'sw-icon': true,
                     'sw-product-visibility-detail': true,
-                    'sw-button': true,
                 },
                 provide: {
                     repositoryFactory: {
@@ -44,24 +43,17 @@ describe('sw-bulk-edit-product-visibility', () => {
     let wrapper;
 
     beforeAll(() => {
-        Shopware.State.registerModule('swProductDetail', {
-            namespaced: true,
-            state: () => {
-                return {
-                    product: {
-                        visibilities: [
-                            {
-                                productId: 'productId',
-                                productVersionId: 'productVersionId',
-                                salesChannel: {},
-                                salesChannelId: 'salesChannelId',
-                                visibility: 30,
-                            },
-                        ],
-                    },
-                };
-            },
-        });
+        Shopware.Store.get('swProductDetail').product = {
+            visibilities: [
+                {
+                    productId: 'productId',
+                    productVersionId: 'productVersionId',
+                    salesChannel: {},
+                    salesChannelId: 'salesChannelId',
+                    visibility: 30,
+                },
+            ],
+        };
     });
 
     beforeEach(async () => {

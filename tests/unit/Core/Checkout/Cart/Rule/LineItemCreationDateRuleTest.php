@@ -25,7 +25,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(LineItemCreationDateRule::class)]
 #[Group('rules')]
 class LineItemCreationDateRuleTest extends TestCase

@@ -1,5 +1,5 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 
 import { mount } from '@vue/test-utils';
@@ -36,7 +36,6 @@ async function createWrapper() {
                 'sw-sales-channel-defaults-select': true,
                 'router-link': true,
                 'sw-icon': true,
-                'sw-button': true,
                 'sw-radio-field': true,
                 'sw-multi-tag-ip-select': true,
                 'sw-select-number-field': true,
@@ -46,7 +45,7 @@ async function createWrapper() {
                 'sw-sales-channel-detail-domains': true,
                 'sw-category-tree-field': true,
                 'mt-select': true,
-                'sw-alert': true,
+
                 'sw-custom-field-set-renderer': true,
             },
             provide: {
@@ -80,9 +79,9 @@ async function createWrapper() {
 
 describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => {
     beforeEach(async () => {
-        Shopware.State.get('session').currentUser = {
+        Shopware.Store.get('session').setCurrentUser({
             id: '8fe88c269c214ea68badf7ebe678ab96',
-        };
+        });
         global.repositoryFactoryMock.showError = false;
         global.activeAclRoles = [];
     });
@@ -825,7 +824,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
         const field = wrapper.get('.sw-sales-channel-detail-base__button-generate-keys');
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes('disabled')).toBeDefined();
     });
 
     it('should have the button for generate keys enabled', async () => {
@@ -915,7 +914,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
         const field = wrapper.get('.sw-sales-channel-detail-base__button-generate-keys');
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes('disabled')).toBeDefined();
     });
 
     it('should have the button for generating the keys enabled', async () => {

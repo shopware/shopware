@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 
@@ -48,9 +48,6 @@ async function createWrapper() {
                         template: '<div></div>',
                     },
                     'router-link': true,
-                    'sw-button': {
-                        template: '<div></div>',
-                    },
                     'sw-checkbox-field': {
                         template: '<div></div>',
                     },

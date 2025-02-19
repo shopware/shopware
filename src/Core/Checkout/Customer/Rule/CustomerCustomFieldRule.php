@@ -9,7 +9,10 @@ use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('services-settings')]
+/**
+ * @internal
+ */
+#[Package('fundamentals@after-sales')]
 class CustomerCustomFieldRule extends Rule
 {
     final public const RULE_NAME = 'customerCustomField';
@@ -25,8 +28,6 @@ class CustomerCustomFieldRule extends Rule
 
     /**
      * @param array<string, string|array<string, string>> $renderedField
-     *
-     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

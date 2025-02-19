@@ -9,21 +9,15 @@ use Shopware\Core\Kernel;
 use Symfony\Component\Finder\Finder;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 #[Package('discovery')]
 class SnippetFinder implements SnippetFinderInterface
 {
-    /**
-     * @internal
-     */
     public const ALLOWED_INTERSECTING_FIRST_LEVEL_SNIPPET_KEYS = [
         'sw-flow-custom-event',
     ];
 
-    /**
-     * @internal
-     */
     public function __construct(
         private readonly Kernel $kernel,
         private readonly Connection $connection

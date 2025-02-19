@@ -2,18 +2,18 @@
 
 namespace Shopware\Storefront\Pagelet\Header;
 
-use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
-use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\SalesChannel\AbstractCurrencyRoute;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\SalesChannel\AbstractLanguageRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Shopware\Storefront\Event\RouteRequest\CurrencyRouteRequestEvent;
 use Shopware\Storefront\Event\RouteRequest\LanguageRouteRequestEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -42,33 +42,19 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
     public function load(Request $request, SalesChannelContext $context): HeaderPagelet
     {
         $salesChannel = $context->getSalesChannel();
-        $navigationId = $request->get('navigationId', $salesChannel->getNavigationCategoryId());
-
-        if (!$navigationId) {
-            throw RoutingException::missingRequestParameter('navigationId');
-        }
-
-        $languages = $this->getLanguages($context, $request);
-        $event = new CurrencyRouteRequestEvent($request, new Request(), $context);
-        $this->eventDispatcher->dispatch($event);
 
         $navigation = $this->navigationLoader->load(
-            (string) $navigationId,
+            $salesChannel->getNavigationCategoryId(),
             $context,
             $salesChannel->getNavigationCategoryId(),
             $salesChannel->getNavigationCategoryDepth()
         );
-
-        $criteria = new Criteria();
-        $criteria->setTitle('header::currencies');
-
-        $currencies = $this->currencyRoute
-            ->load($event->getStoreApiRequest(), $context, $criteria)
-            ->getCurrencies();
+        $languages = $this->getLanguages($context, $request);
+        $currencies = $this->getCurrencies($request, $context);
 
         $contextLanguage = $languages->get($context->getLanguageId());
         if (!$contextLanguage) {
-            throw new \RuntimeException(\sprintf('Context language with id %s not found', $context->getLanguageId()));
+            throw SalesChannelException::languageNotFound($context->getLanguageId());
         }
 
         $page = new HeaderPagelet(
@@ -77,25 +63,11 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
             $currencies,
             $contextLanguage,
             $context->getCurrency(),
-            $this->getServiceMenu($context)
         );
 
         $this->eventDispatcher->dispatch(new HeaderPageletLoadedEvent($page, $context, $request));
 
         return $page;
-    }
-
-    private function getServiceMenu(SalesChannelContext $context): CategoryCollection
-    {
-        $serviceId = $context->getSalesChannel()->getServiceCategoryId();
-
-        if ($serviceId === null) {
-            return new CategoryCollection();
-        }
-
-        $navigation = $this->navigationLoader->load($serviceId, $context, $serviceId, 1);
-
-        return new CategoryCollection(array_map(static fn (TreeItem $treeItem) => $treeItem->getCategory(), $navigation->getTree()));
     }
 
     private function getLanguages(SalesChannelContext $context, Request $request): LanguageCollection
@@ -106,14 +78,22 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
         $criteria->addFilter(
             new EqualsFilter('language.salesChannelDomains.salesChannelId', $context->getSalesChannelId())
         );
-
         $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
-        $criteria->addAssociation('productSearchConfig');
-        $apiRequest = new Request();
 
-        $event = new LanguageRouteRequestEvent($request, $apiRequest, $context, $criteria);
+        $event = new LanguageRouteRequestEvent($request, new Request(), $context, $criteria);
         $this->eventDispatcher->dispatch($event);
 
         return $this->languageRoute->load($event->getStoreApiRequest(), $context, $criteria)->getLanguages();
+    }
+
+    private function getCurrencies(Request $request, SalesChannelContext $context): CurrencyCollection
+    {
+        $criteria = new Criteria();
+        $criteria->setTitle('header::currencies');
+
+        $event = new CurrencyRouteRequestEvent($request, new Request(), $context);
+        $this->eventDispatcher->dispatch($event);
+
+        return $this->currencyRoute->load($event->getStoreApiRequest(), $context, $criteria)->getCurrencies();
     }
 }

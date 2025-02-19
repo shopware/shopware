@@ -1,7 +1,8 @@
 import { mount } from '@vue/test-utils';
+import { createPinia, setActivePinia } from 'pinia';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
     let SwExtensionConfig;
@@ -24,10 +25,6 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
                     'sw-external-link': {
                         template: '<a><slot></slot></a>',
                     },
-                    'sw-button': {
-                        inheritAttrs: false,
-                        template: '<button :class="$attrs.class" @click="$emit(\'click\', $event)"><slot></slot></button>',
-                    },
                     'sw-search-bar': true,
                     'sw-notification-center': true,
                     'sw-help-center-v2': true,
@@ -35,7 +32,7 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
                     'sw-icon': true,
                     'sw-tabs': true,
                     'sw-sales-channel-switch': true,
-                    'sw-alert': true,
+
                     'sw-form-field-renderer': true,
                     'sw-inherit-wrapper': true,
                     'sw-card': true,
@@ -76,21 +73,7 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
     });
 
     beforeEach(async () => {
-        if (typeof Shopware.State.get('shopwareExtensions') !== 'undefined') {
-            Shopware.State.unregisterModule('shopwareExtensions');
-        }
-
-        Shopware.State.registerModule('shopwareExtensions', {
-            namespaced: true,
-            state: {
-                myExtensions: { data: [] },
-            },
-            mutations: {
-                setMyExtensions(state, extensions) {
-                    state.myExtensions = extensions;
-                },
-            },
-        });
+        setActivePinia(createPinia());
     });
 
     it('domain should suffix config', async () => {
@@ -106,9 +89,7 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
     });
 
     it('should not reload extensions on createdComponent if extensions are loaded', async () => {
-        Shopware.State.commit('shopwareExtensions/setMyExtensions', {
-            data: [{ name: 'test-extension' }],
-        });
+        Shopware.Store.get('shopwareExtensions').setMyExtensions([{ name: 'test-extension' }]);
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.shopwareExtensionService.updateExtensionData).toHaveBeenCalledTimes(0);

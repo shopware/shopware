@@ -1,19 +1,15 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_search_bar %}
 <div class="sw-search-bar">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_search_bar_container %}
     <div class="sw-search-bar__container">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_search_bar_mobile_controls %}
         <div
             v-if="!isSearchBarShown"
             class="sw-search-bar__mobile-controls"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_button_off_canvas_toggle %}
             <button
                 class="sw-search-bar__button"
@@ -30,12 +26,10 @@
             </button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_version_display %}
             <sw-version />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_button_search %}
             <button
                 class="sw-search-bar__button"
@@ -47,7 +41,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_search_bar_field %}
         <div
             v-if="isSearchBarShown"
@@ -55,7 +48,6 @@
             :class="searchBarFieldClasses"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_type %}
             <span
                 class="sw-search-bar__type--v2"
@@ -72,10 +64,8 @@
             </span>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_input %}
             <slot name="search-input">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_search_bar_slot_input %}
                 <input
                     ref="searchInput"
@@ -97,7 +87,6 @@
             </slot>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_icon %}
             <button
                 class="sw-search-bar__field-icon sw-search-bar__field-close"
@@ -119,7 +108,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_search_bar_results %}
         <div
             v-if="showResultsContainer"
@@ -127,10 +115,8 @@
             class="sw-search-bar__results sw-search-bar__results--v2"
             :class="{'is-empty-state': isResultEmpty()}"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_results_content %}
             <div class="sw-search-bar__results-wrapper-content">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_search_bar_results_empty_state %}
                 <sw-loader v-if="isLoading" />
                 {% endblock %}
@@ -141,17 +127,13 @@
                     v-else-if="!isResultEmpty()"
                     :key="entity.entity"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_search_bar_results_list %}
                     <div
                         class="sw-search-bar__results-column"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_search_bar_results_list_column %}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_search_bar_results_list_column_header %}
                         <div class="sw-search-bar__results-column-header">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_search_bar_results_list_column_header_title %}
                             <span
                                 class="sw-search-bar__types-header-entity"
@@ -180,13 +162,11 @@
                                 :entity-icon-name="getEntityIconName(entity.entity)"
                             />
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_search_bar_results_list_bar_item %}
                             <li
                                 v-if="entity.entity !== 'module'"
                                 class="sw-search-bar-item sw-search-bar-item--v2"
                             >
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_search_bar_results_list_bar_item_icon %}
                                 <sw-icon
                                     name="regular-double-chevron-right-s"
@@ -194,7 +174,6 @@
                                 />
                                 {% endblock %}
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_search_bar_results_list_bar_item_more_results %}
                                 <sw-search-more-results
                                     :entity="entity.entity"
@@ -209,22 +188,18 @@
                     {% endblock %}
                 </template>
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_search_bar_results_empty %}
                 <div
                     v-else
                     class="sw-search-bar__results-empty-message sw-search-bar__results-empty-message--v2"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_search_bar_results_empty_content %}
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_search_bar_results_empty_text %}
                     <div class="sw-search-bar__results-empty-text">
-                        {{ $tc('global.sw-search-bar.messageNoResultsV2', 0, { term: searchTerm }) }}
+                        {{ $tc('global.sw-search-bar.messageNoResultsV2', { term: searchTerm }, 0) }}
                     </div>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_search_bar_results_empty_detail %}
                     <div class="sw-search-bar__results-empty-detail">
                         {{ $tc('global.sw-search-bar.messageNoResultsDetailV2') }}
@@ -236,7 +211,6 @@
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_results_footer %}
             <div
                 v-if="showSearchTipForEsSearch"
@@ -268,13 +242,11 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_search_bar_types_container %}
         <div
             v-if="showTypeSelectContainer"
             class="sw-search-bar__types_container--v2"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_types_container_header %}
             <div
                 class="sw-search-bar__header"
@@ -314,20 +286,17 @@
                 </p>
             </div>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_types_container_empty %}
             <div
                 v-if="typeSelectResults.length < 1"
                 class="sw-search-bar__type-results-empty-message"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_search_bar_types_container_empty_text %}
                 {{ $tc('global.sw-search-bar.messageNoTypeResults') }}
                 {% endblock %}
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_types_container_footer %}
             <div
                 class="sw-search-bar__footer"
@@ -349,7 +318,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_search_bar_types_module_filters_container %}
         <div
             v-if="showModuleFiltersContainer"
@@ -378,20 +346,17 @@
                 </span>
             </div>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_types_module_filters_container_empty %}
             <div
                 v-if="typeSelectResults.length < 1"
                 class="sw-search-bar__type-results-empty-message"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_search_bar_types_module_filters_container_empty_text %}
                 {{ $tc('global.sw-search-bar.messageNoTypeResults') }}
                 {% endblock %}
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_types_module_filters_container_footer %}
             <div class="sw-search-bar__footer">
                 <p
@@ -403,30 +368,24 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_search_bar_trends_results %}
         <div
             v-if="showResultsSearchTrends && !showResultsContainer"
             class="sw-search-bar__results sw-search-bar__results--v2"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_trends_results_content %}
             <div class="sw-search-bar__results-wrapper-content">
                 <template
                     v-for="(entity, column) in resultsSearchTrends"
                     :key="entity.entity"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_search_bar_trends_results_list %}
                     <div
                         class="sw-search-bar__results-column"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_search_bar_trends_results_list_column %}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_search_bar_trends_results_list_column_header %}
                         <div class="sw-search-bar__results-column-header">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_search_bar_trends_results_list_column_header_title %}
                             <span class="sw-search-bar__types-header-entity">
                                 {{ $tc(`global.entities.${entity.entity}`, entity.total) }}
@@ -454,10 +413,8 @@
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_trends_results_empty_content %}{% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_trends_results_footer %}
             <div class="sw-search-bar__footer">
                 <p
@@ -479,7 +436,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_search_bar_search_preferences_modal %}
     <sw-search-preferences-modal
         v-if="showSearchPreferencesModal"

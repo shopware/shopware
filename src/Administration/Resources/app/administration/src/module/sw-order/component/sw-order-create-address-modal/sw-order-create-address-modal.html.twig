@@ -1,20 +1,16 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_create_address_modal %}
 <sw-modal
     :title="editAddressModalTitle"
     class="sw-order-create-address-modal"
     @modal-close="onCancel"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_address_modal_content %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_address_form_modal %}
     <sw-modal
         v-if="showAddressFormModal"
         :title="getAddressFormModalTitle()"
         @modal-close="onCloseAddressModal"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_address_form_modal_content %}
         <sw-customer-address-form
             :address="currentAddress"
@@ -30,29 +26,28 @@
         </sw-customer-address-form>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_address_form_modal_footer %}
         <template #modal-footer>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_address_form_modal_cancel_button %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
                 @click="onCloseAddressModal"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_address_form_modal_apply_button %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 :is-loading="isLoading"
                 variant="primary"
                 size="small"
                 @click="onSubmitAddressForm"
             >
                 {{ $tc('sw-customer.detailAddresses.buttonSaveAndSelect') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
         {% endblock %}
@@ -64,17 +59,16 @@
         position-identifier="sw-order-create-address-modal"
         class="sw-order-create-address-modal__card-filter"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_address_modal_toolbar %}
         <template #toolbar>
             <sw-card-filter
                 :placeholder="$tc('sw-order.addressSelection.searchAddressToolbarPlaceholder')"
                 @sw-card-filter-term-change="onSearchAddress"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_create_address_modal_add_button %}
                 <template #filter>
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         class="sw-order-create-address-modal__add-btn"
                         size="small"
                         @click="onAddNewAddress"
@@ -84,13 +78,12 @@
                             small
                         />
                         {{ $tc('sw-customer.detailAddresses.buttonAddAddress') }}
-                    </sw-button>
+                    </mt-button>
                 </template>
                 {% endblock %}
             </sw-card-filter>
         </template>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_address_modal_empty_state %}
         <template #grid>
             <div
@@ -101,7 +94,6 @@
                     :title="$tc('sw-order.addressSelection.emptySearchResults')"
                     :icon="'regular-book-user'"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_create_address_modal_empty_state_content %}
                     <span></span>
                     {% endblock %}
@@ -132,12 +124,13 @@
                     </a>
                 </div>
                 <div class="sw-order-create-address-modal__select-btn">
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         v-if="!isCurrentSelected(address.id)"
                         @click="onSelectExistingAddress(address)"
                     >
                         {{ $tc('sw-customer.detailAddresses.buttonSelect') }}
-                    </sw-button>
+                    </mt-button>
                 </div>
             </div>
         </template>
@@ -145,17 +138,16 @@
     </sw-card>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_address_modal_actions %}
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_address_modal_cancel_button %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             size="small"
             @click="onCancel"
         >
             {{ $tc('sw-customer.detailAddresses.buttonClose') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

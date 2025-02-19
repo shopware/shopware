@@ -33,61 +33,21 @@ class AppEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $path;
+    protected string $path;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $author;
+    protected ?string $author = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $copyright;
+    protected ?string $copyright = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $license;
+    protected ?string $license = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $privacy;
+    protected ?string $privacy = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $version;
+    protected string $version;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $allowDisable;
+    protected bool $allowDisable;
 
     protected ?string $baseAppUrl = null;
 
@@ -117,184 +77,73 @@ class AppEntity extends Entity
 
     /**
      * @internal
-     *
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $iconRaw;
+    protected ?string $iconRaw = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $icon;
+    protected ?string $icon = null;
 
-    /**
-     * @var AppTranslationCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translations;
+    protected ?AppTranslationCollection $translations = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $label;
+    protected ?string $label = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $privacyPolicyExtensions;
+    protected ?string $privacyPolicyExtensions = null;
 
     /**
      * @internal
-     *
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $appSecret;
+    protected ?string $appSecret = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $integrationId;
+    protected string $integrationId;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $active;
+    protected bool $active;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $configurable;
+    protected bool $configurable;
 
-    /**
-     * @var IntegrationEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $integration;
+    protected ?IntegrationEntity $integration = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $aclRoleId;
+    protected string $aclRoleId;
 
-    /**
-     * @var AclRoleEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $aclRole;
+    protected ?AclRoleEntity $aclRole = null;
 
-    /**
-     * @var TemplateCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $templates;
+    protected ?TemplateCollection $templates = null;
 
     /**
      * @internal
      */
     protected ?ScriptCollection $scripts = null;
 
-    /**
-     * @var CustomFieldSetCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customFieldSets;
+    protected ?CustomFieldSetCollection $customFieldSets = null;
 
-    /**
-     * @var ActionButtonCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $actionButtons;
+    protected ?ActionButtonCollection $actionButtons = null;
 
-    /**
-     * @var WebhookCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $webhooks;
+    protected ?WebhookCollection $webhooks = null;
 
-    /**
-     * @var AppPaymentMethodCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $paymentMethods;
+    protected ?AppPaymentMethodCollection $paymentMethods = null;
 
     protected ?TaxProviderCollection $taxProviders = null;
 
     /**
      * @internal
-     *
-     * @var AppScriptConditionCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $scriptConditions;
+    protected ?AppScriptConditionCollection $scriptConditions = null;
 
     /**
      * @internal
-     *
-     * @var AppCmsBlockCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $cmsBlocks;
+    protected ?AppCmsBlockCollection $cmsBlocks = null;
 
-    /**
-     * @var AppFlowActionCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $flowActions;
+    protected ?AppFlowActionCollection $flowActions = null;
 
-    /**
-     * @var AppFlowEventCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $flowEvents;
+    protected ?AppFlowEventCollection $flowEvents = null;
 
     /**
      * @var EntityCollection<AppShippingMethodEntity>|null
      */
     protected ?EntityCollection $appShippingMethods = null;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $templateLoadPriority;
+    protected int $templateLoadPriority;
 
     protected string $sourceType = 'local';
 

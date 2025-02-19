@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\LineItemFactoryInterface;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -90,12 +89,7 @@ class LineItemFactoryRegistry
 
             $lineItem->setQuantity($data['quantity']);
 
-            if (Feature::isActive('v6.7.0.0')) {
-                $event = new BeforeLineItemQuantityChangedEvent($lineItem, $cart, $context, $beforeUpdateQuantity);
-            } else {
-                $event = new BeforeLineItemQuantityChangedEvent($lineItem, $cart, $context);
-                Feature::callSilentIfInactive('v6.7.0.0', fn () => $event->setBeforeUpdateQuantity($beforeUpdateQuantity));
-            }
+            $event = new BeforeLineItemQuantityChangedEvent($lineItem, $cart, $context, $beforeUpdateQuantity);
 
             $this->eventDispatcher->dispatch($event);
         }

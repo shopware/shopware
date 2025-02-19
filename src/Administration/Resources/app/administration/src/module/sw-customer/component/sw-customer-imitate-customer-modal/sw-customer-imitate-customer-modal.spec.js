@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const responses = global.repositoryFactoryMock.responses;
@@ -41,9 +41,8 @@ async function createWrapper() {
                     'sw-container': await wrapTestComponent('sw-container'),
                     'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                     'i18n-t': true,
-                    'sw-alert': true,
+
                     'sw-icon': true,
-                    'sw-button': true,
                     'sw-loader': true,
                     'router-link': true,
                 },

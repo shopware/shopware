@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import template from './sw-product-modal-delivery.html.twig';
@@ -8,8 +8,6 @@ import './sw-product-modal-delivery.scss';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -53,18 +51,10 @@ export default {
     methods: {
         createdComponent() {
             if (!this.product.variantListingConfig) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.product, 'variantListingConfig', {
-                        displayParent: null,
-                        configuratorGroupConfig: [],
-                        mainVariantId: null,
-                    });
-                } else {
-                    this.product.variantListingConfig = {
-                        displayParent: null,
-                        configuratorGroupConfig: [],
-                    };
-                }
+                this.product.variantListingConfig = {
+                    displayParent: null,
+                    configuratorGroupConfig: [],
+                };
             }
         },
 

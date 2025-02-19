@@ -1,35 +1,8 @@
 import { mount } from '@vue/test-utils';
-import flowState from 'src/module/sw-flow/state/flow.state';
 
 /**
  * @sw-package after-sales
  */
-
-Shopware.State.registerModule('swFlowState', {
-    ...flowState,
-    state: {
-        invalidSequences: [],
-        triggerEvent: {
-            data: {
-                customer: {
-                    type: 'entity',
-                },
-                order: {
-                    type: 'entity',
-                },
-            },
-            customerAware: true,
-            extensions: [],
-            logAware: false,
-            mailAware: true,
-            name: 'checkout.customer.login',
-            orderAware: false,
-            salesChannelAware: true,
-            userAware: false,
-            webhookAware: true,
-        },
-    },
-});
 
 const fieldClasses = [
     '.sw-flow-affiliate-and-campaign-code-modal__entity',
@@ -88,9 +61,6 @@ async function createWrapper() {
                         </div>
                     `,
                     },
-                    'sw-button': {
-                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                    },
                     'sw-popover': {
                         template: '<div class="sw-popover"><slot></slot></div>',
                     },
@@ -137,6 +107,28 @@ async function createWrapper() {
 }
 
 describe('module/sw-flow/component/sw-flow-affiliate-and-campaign-code-modal', () => {
+    beforeAll(() => {
+        Shopware.Store.get('swFlow').triggerEvent = {
+            data: {
+                customer: {
+                    type: 'entity',
+                },
+                order: {
+                    type: 'entity',
+                },
+            },
+            customerAware: true,
+            extensions: [],
+            logAware: false,
+            mailAware: true,
+            name: 'checkout.customer.login',
+            orderAware: false,
+            salesChannelAware: true,
+            userAware: false,
+            webhookAware: true,
+        };
+    });
+
     it('should preselect entity', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

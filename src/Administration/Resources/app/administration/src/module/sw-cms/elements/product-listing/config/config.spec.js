@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { reactive } from 'vue';
 import { mount } from '@vue/test-utils';
@@ -68,7 +68,7 @@ async function createWrapper(activeTab = 'sorting') {
                     'sw-pagination': true,
                     'sw-container': true,
                     'sw-tabs-item': true,
-                    'sw-alert': true,
+
                     'sw-empty-state': true,
                     'sw-tabs': {
                         data() {
@@ -91,7 +91,6 @@ async function createWrapper(activeTab = 'sorting') {
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-inline-edit': true,
                     'router-link': true,
-                    'sw-button': true,
                     'sw-data-grid-skeleton': true,
                     'sw-provide': true,
                 },

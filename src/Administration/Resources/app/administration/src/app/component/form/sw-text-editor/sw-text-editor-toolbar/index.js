@@ -4,14 +4,13 @@ import './sw-text-editor-toolbar.scss';
 const { Component, Utils } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-text-editor instead.
  *
  * @private
  */
 Component.register('sw-text-editor-toolbar', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'created-el',
@@ -265,19 +264,11 @@ Component.register('sw-text-editor-toolbar', {
 
             if (button.children) {
                 if (typeof button.expanded === 'undefined') {
-                    if (this.isCompatEnabled('INSTANCE_SET')) {
-                        this.$set(button, 'expanded', false);
-                    } else {
-                        button.expanded = false;
-                    }
+                    button.expanded = false;
                 }
 
                 button.children.forEach((child) => {
-                    if (this.isCompatEnabled('INSTANCE_SET')) {
-                        this.$set(child, 'active', !!this.activeTags.includes(child.tag));
-                    } else {
-                        child.active = !!this.activeTags.includes(child.tag);
-                    }
+                    child.active = !!this.activeTags.includes(child.tag);
                 });
             }
 
@@ -293,11 +284,7 @@ Component.register('sw-text-editor-toolbar', {
                 button.buttonVariant = this.currentLink?.buttonVariant ?? 'primary';
             }
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(button, 'active', !!this.activeTags.includes(button.tag));
-            } else {
-                button.active = !!this.activeTags.includes(button.tag);
-            }
+            button.active = !!this.activeTags.includes(button.tag);
 
             return button;
         },

@@ -27,7 +27,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ShippingMethodRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

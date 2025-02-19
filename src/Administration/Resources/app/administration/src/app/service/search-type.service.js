@@ -1,5 +1,6 @@
 /**
  * @module app/service/search-type
+ * @sw-package inventory
  */
 
 /**

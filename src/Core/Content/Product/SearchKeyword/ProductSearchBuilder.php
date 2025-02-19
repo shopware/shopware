@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('services-settings')]
+#[Package('inventory')]
 class ProductSearchBuilder implements ProductSearchBuilderInterface
 {
     /**

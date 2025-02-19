@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 import testApps from '../../../../app/service/_mocks/testApps.json';
@@ -22,7 +22,6 @@ async function createWrapper(props) {
                 'sw-search-bar': true,
                 'sw-app-actions': true,
                 'sw-loader': true,
-                'sw-button': true,
                 'sw-app-topbar-button': true,
                 'sw-help-center-v2': true,
                 'sw-icon': true,
@@ -52,12 +51,12 @@ async function createWrapper(props) {
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', () => {
     beforeEach(() => {
-        Shopware.State.get('session').currentLocale = 'en-GB';
-        Shopware.State.commit('shopwareApps/setApps', testApps);
+        Shopware.Store.get('session').currentLocale = 'en-GB';
+        Shopware.Store.get('shopwareApps').apps = testApps;
     });
 
     it('sets the correct heading and source with a regular module', async () => {
@@ -139,7 +138,7 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
         });
         expect(wrapper.find('.smart-bar__content').exists()).toBeTruthy();
 
-        Shopware.State.commit('extensionSdkModules/addHiddenSmartBar', 'standardModule');
+        Shopware.Store.get('extensionSdkModules').addHiddenSmartBar('standardModule');
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.smart-bar__content').exists()).toBeFalsy();

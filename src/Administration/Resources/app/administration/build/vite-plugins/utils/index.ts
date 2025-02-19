@@ -1,5 +1,5 @@
 /**
- * @package framework
+ * @sw-package framework
  */
 import fs from 'fs';
 import path from 'path';
@@ -79,14 +79,15 @@ export function copyDir(src: string, dest: string): void {
 /**
  * @private
  */
-export type PluginDefinition = {
+export type ExtensionDefinition = {
     name: string;
     technicalName: string;
     technicalFolderName: string;
     basePath: string;
     path: string;
     filePath: string;
-    hasHtmlFile: boolean;
+    isPlugin: boolean;
+    isApp: boolean;
 };
 
 /**
@@ -106,14 +107,14 @@ export type PluginDefinition = {
  *    ...
  * ]
  */
-export function loadPlugins(): PluginDefinition[] {
-    const pluginFile = path.resolve(process.env.PROJECT_ROOT as string, 'var/plugins.json');
+export function loadExtensions(): ExtensionDefinition[] {
+    const extensionFile = path.resolve(process.env.PROJECT_ROOT as string, 'var/plugins.json');
 
-    if (!fs.existsSync(pluginFile)) {
-        throw new Error(`The file ${pluginFile} could not be found. Try bin/console bundle:dump to create this file.`);
+    if (!fs.existsSync(extensionFile)) {
+        throw new Error(`The file ${extensionFile} could not be found. Try bin/console bundle:dump to create this file.`);
     }
 
-    const pluginDefinition = JSON.parse(fs.readFileSync(pluginFile, 'utf8')) as {
+    const extensionDefinitions = JSON.parse(fs.readFileSync(extensionFile, 'utf8')) as {
         [BundleName: string]: {
             basePath: string;
             views: string[];
@@ -126,7 +127,52 @@ export function loadPlugins(): PluginDefinition[] {
         };
     };
 
-    return Object.entries(pluginDefinition)
+    const apps = Object.entries(extensionDefinitions)
+        .filter(
+            ([
+                name,
+                definition,
+            ]) => {
+                const appEntryPath = path.resolve(
+                    process.env.PROJECT_ROOT as string,
+                    definition.basePath,
+                    definition.administration?.path ?? '',
+                    '../..',
+                    'meteor-app',
+                );
+
+                return definition.administration?.path && fs.existsSync(path.resolve(appEntryPath, 'index.html'));
+            },
+        )
+        .map(
+            ([
+                name,
+                definition,
+            ]) => {
+                const technicalName = definition.technicalName || name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+                const appEntryPath = path.resolve(
+                    process.env.PROJECT_ROOT as string,
+                    definition.basePath,
+                    // @ts-expect-error - We know it is defined at this point because of the filter above
+                    definition.administration.path,
+                    '../..',
+                    'meteor-app',
+                );
+
+                return {
+                    name,
+                    isApp: true,
+                    isPlugin: false,
+                    basePath: path.resolve(process.env.PROJECT_ROOT as string, definition.basePath),
+                    path: appEntryPath,
+                    filePath: path.resolve(appEntryPath, 'index.html'),
+                    technicalName: technicalName,
+                    technicalFolderName: technicalName.replace(/(-)/g, '').toLowerCase(),
+                } as ExtensionDefinition;
+            },
+        );
+
+    const plugins = Object.entries(extensionDefinitions)
         .filter(
             ([
                 name,
@@ -142,18 +188,11 @@ export function loadPlugins(): PluginDefinition[] {
                 definition,
             ]) => {
                 const technicalName = definition.technicalName || name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-                const htmlFilePath = path.resolve(
-                    process.env.PROJECT_ROOT as string,
-                    definition.basePath,
-                    // @ts-expect-error - We know it is defined at this point because of the filter above
-                    definition.administration.path,
-                    '..',
-                    'index.html',
-                );
-                const hasHtmlFile = fs.existsSync(htmlFilePath);
 
                 return {
                     name,
+                    isPlugin: true,
+                    isApp: false,
                     technicalName: technicalName,
                     technicalFolderName: technicalName.replace(/(-)/g, '').toLowerCase(),
                     basePath: path.resolve(process.env.PROJECT_ROOT as string, definition.basePath),
@@ -169,10 +208,16 @@ export function loadPlugins(): PluginDefinition[] {
                         // @ts-expect-error - We know it is defined at this point because of the filter above
                         definition.administration.entryFilePath,
                     ),
-                    hasHtmlFile,
-                };
+                } as ExtensionDefinition;
             },
         );
+
+    return [
+        ...plugins,
+        ...apps,
+    ].filter((extension) => {
+        return !process.env.hasOwnProperty('SKIP_' + extension.technicalName.toUpperCase().replace(/-/g, '_'));
+    });
 }
 
 /**

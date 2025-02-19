@@ -2,14 +2,12 @@ import template from './sw-order-saveable-field.html.twig';
 import './sw-order-saveable-field.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['value-change'],
 
@@ -74,17 +72,6 @@ export default {
                 default:
                     return 'sw-text-field';
             }
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
-        listeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 

@@ -34,12 +34,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class RuleAreaUpdater implements EventSubscriberInterface
 {
-    /**
-     * @internal
-     */
     public function __construct(
         private readonly Connection $connection,
         private readonly RuleDefinition $definition,

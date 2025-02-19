@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@discovery
  */
 import { mount } from '@vue/test-utils';
 
@@ -163,8 +163,6 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                         'sw-base-field': await wrapTestComponent('sw-base-field'),
                         'sw-field-error': await wrapTestComponent('sw-field-error'),
                         'sw-button-process': await wrapTestComponent('sw-button-process'),
-                        'sw-button': await wrapTestComponent('sw-button'),
-                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                         'sw-skeleton': true,
                         'sw-search-bar': true,
                         'sw-icon': true,
@@ -188,7 +186,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
     }
 
     beforeEach(() => {
-        Shopware.State.commit('setCurrentUser', { username: 'admin' });
+        Shopware.Store.get('session').setCurrentUser({ username: 'admin' });
     });
 
     it('should be a Vue.js component', async () => {
@@ -215,9 +213,9 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
             'snippet.viewer, snippet.editor, snippet.deleter',
         ],
     ])('should only have disabled inputs', async (state, role) => {
-        Shopware.State.get('session').currentUser = {
+        Shopware.Store.get('session').setCurrentUser({
             username: 'testUser',
-        };
+        });
         const roles = role.split(', ');
         const wrapper = await createWrapper(roles);
         await flushPromises();

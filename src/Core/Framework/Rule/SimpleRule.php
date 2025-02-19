@@ -4,14 +4,14 @@ namespace Shopware\Core\Framework\Rule;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @internal
+ */
 #[Package('fundamentals@after-sales')]
 class SimpleRule extends Rule
 {
     final public const RULE_NAME = 'simple';
 
-    /**
-     * @internal
-     */
     public function __construct(protected bool $match = true)
     {
         parent::__construct();

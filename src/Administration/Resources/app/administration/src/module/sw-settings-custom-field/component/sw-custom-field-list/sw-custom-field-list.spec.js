@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 
@@ -93,7 +93,6 @@ async function createWrapper(privileges = []) {
                     },
                 },
                 stubs: {
-                    'sw-button': true,
                     'sw-card': true,
                     'sw-empty-state': {
                         template: '<div></div>',

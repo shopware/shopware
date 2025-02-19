@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-date-filter.html.twig';
 import './sw-date-filter.scss';
 
@@ -9,8 +13,6 @@ const { Criteria } = Shopware.Data;
  */
 Component.register('sw-date-filter', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 

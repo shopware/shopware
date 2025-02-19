@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 
@@ -58,10 +58,6 @@ async function createWrapper() {
                         <slot />
                     </div>`,
                     },
-                    'sw-button': {
-                        template: '<div class="sw-button"><slot /></div>',
-                        props: ['disabled'],
-                    },
                     'sw-button-process': {
                         template: '<div class="sw-button-process"><slot /></div>',
                         props: ['disabled'],
@@ -86,7 +82,7 @@ async function createWrapper() {
                         template: '<div class="sw-entity-single-select"></div>',
                         props: ['disabled'],
                     },
-                    'sw-alert': true,
+
                     'sw-skeleton': true,
                     'sw-language-switch': true,
                     'sw-custom-field-set-renderer': true,

@@ -20,7 +20,7 @@ const colors = [
 ];
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description The component helps adding a custom user image or initials to the administration.
@@ -45,8 +45,6 @@ const colors = [
  */
 Component.register('sw-avatar', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         color: {

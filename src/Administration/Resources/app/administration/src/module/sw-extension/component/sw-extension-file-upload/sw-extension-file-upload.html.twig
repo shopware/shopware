@@ -1,21 +1,18 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_extension_file_upload %}
 <div class="sw-extension-file-upload">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_file_upload_content %}
     <div class="sw-extension-file-upload__content">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_file_upload_button %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-extension-file-upload__button"
             :is-loading="isLoading"
             variant="primary"
             @click="showConfirmModal"
         >
             {{ $tc('sw-extension.my-extensions.fileUpload.buttonFileUpload') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_file_upload_form %}
         <form
             ref="fileForm"
@@ -34,7 +31,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_file_upload_confirm_modal %}
     <sw-modal
         v-if="confirmModalVisible"
@@ -43,10 +39,8 @@
         variant="small"
         @modal-close="closeConfirmModal"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_file_upload_confirm_modal_content %}
         <template #default>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_extension_file_upload_confirm_modal_body %}
             <p>
                 {{ $tc('sw-extension.my-extensions.fileUpload.descriptionWarningModal') }}
@@ -54,14 +48,11 @@
             {% endblock %}
         </template>
         <template #modal-footer>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_extension_file_upload_confirm_modal_footer %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_extension_file_upload_confirm_modal_footer_checkbox %}
             <sw-checkbox-field
                 v-model:value="shouldHideConfirmModal"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_extension_file_upload_confirm_modal_footer_checkbox_label %}
                 <template #label>
                     {{ $tc('sw-extension.my-extensions.fileUpload.textHideWarning') }}
@@ -70,30 +61,29 @@
             </sw-checkbox-field>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_extension_file_upload_confirm_modal_footer_buttons %}
             <div>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_extension_file_upload_confirm_modal_footer_cancel %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="small"
                     :disabled="isLoading"
                     @click="closeConfirmModal"
                 >
                     {{ $tc('global.default.cancel') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_extension_file_upload_confirm_modal_footer_continue %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     variant="primary"
                     size="small"
                     :is-loading="isLoading"
                     @click="onClickUpload"
                 >
                     {{ $tc('global.default.confirm') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </div>
             {% endblock %}

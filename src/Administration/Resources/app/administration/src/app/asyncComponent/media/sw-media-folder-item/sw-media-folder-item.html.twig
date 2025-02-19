@@ -1,17 +1,13 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_folder_item %}
 <sw-media-base-item
     class="sw-media-folder-item"
     v-bind="$attrs"
     :truncate-right="true"
     :allow-multi-select="!isParent"
-    v-on="listeners"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_folder_item_preview %}
     <template #preview="{ item }">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_folder_parent_icon%}
         <img
             v-if="isParent"
@@ -21,7 +17,6 @@
         >
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_folder_default_icon%}
         <span
             v-else-if="!!item.defaultFolderId"
@@ -39,7 +34,6 @@
         </span>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_folder_folder_icon%}
         <img
             v-else
@@ -51,10 +45,8 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_folder_name %}
     <template #name="{ item, isInlineEdit, startInlineEdit, endInlineEdit }">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_base_item_name %}
         <sw-text-field
             v-if="!isParent && (isInlineEdit || item.isNew())"
@@ -79,7 +71,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_folder_meta_data %}
     <template #metadata="{ item }">
         <div class="sw-media-folder-item__metadata">
@@ -88,10 +79,8 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_folder_item_context_menu %}
     <template #context-menu="{ item, startInlineEdit, allowEdit, allowDelete }">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_folder_item_context_item_show_media %}
         <sw-context-menu-item
             class="sw-media-context-item__show-media-action"
@@ -102,14 +91,11 @@
         {% endblock %}
 
         <slot>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_folder_item_additional_context_menu_slot %}{% endblock %}
         </slot>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_folder_item_context_group_quick_actions %}
         <div class="sw-context-menu__group">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_folder_item_context_item_show_settings %}
             <sw-context-menu-item
                 class="sw-media-context-item__open-settings-action"
@@ -119,7 +105,6 @@
             </sw-context-menu-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_folder_item_context_item_move %}
             <sw-context-menu-item
                 :disabled="!allowEdit"
@@ -130,7 +115,6 @@
             </sw-context-menu-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_folder_item_context_item_dissolve %}
             <sw-context-menu-item
                 :disabled="!allowEdit"
@@ -141,7 +125,6 @@
             </sw-context-menu-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_folder_item_context_item_rename_item %}
             <sw-context-menu-item
                 :disabled="!allowEdit"
@@ -152,7 +135,6 @@
             </sw-context-menu-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_folder_item_context_item_delete %}
             <sw-context-menu-item
                 :disabled="!allowDelete"
@@ -168,10 +150,8 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_folder_modal_windows %}
     <template #modal-windows="{ item, allowEdit, allowDelete }">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_folder_settings_modal %}
         <sw-media-modal-folder-settings
             v-if="showSettings"
@@ -182,7 +162,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_folder_dissolve_modal %}
         <sw-media-modal-folder-dissolve
             v-if="showDissolveModal"
@@ -192,7 +171,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_folder_move_modal %}
         <sw-media-modal-move
             v-if="showMoveModal"
@@ -202,7 +180,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_folder_delete_modal %}
         <sw-media-modal-delete
             v-if="showDeleteModal"

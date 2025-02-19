@@ -33,7 +33,7 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('inventory')]
 #[Group('slow')]
 class SeoUrlIndexerTest extends TestCase
 {
@@ -41,6 +41,9 @@ class SeoUrlIndexerTest extends TestCase
     use QueueTestBehaviour;
     use StorefrontSalesChannelTestHelper;
 
+    /**
+     * @var EntityRepository<TemplateCollection>
+     */
     private EntityRepository $templateRepository;
 
     /**
@@ -628,7 +631,7 @@ class SeoUrlIndexerTest extends TestCase
             ->get(SeoUrlUpdater::class)
             ->update(ProductPageSeoUrlRoute::ROUTE_NAME, [$id]);
 
-        /** @var EntityRepository $productRepo */
+        /** @var EntityRepository<ProductCollection> $productRepo */
         $productRepo = static::getContainer()->get('product.repository');
 
         $criteria = new Criteria([$id]);
@@ -667,9 +670,139 @@ class SeoUrlIndexerTest extends TestCase
         $this->testIndex(0);
     }
 
+    public function testVariationTemplate(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
+        $this->upsertTemplate([
+            'id' => Uuid::randomHex(),
+            'salesChannelId' => $salesChannelId,
+            'template' => '{% if product.variation %}{% for v in product.variation %}/{{ v.option }}{% endfor %}{% endif %}',
+        ]);
+
+        $parentId = Uuid::randomHex();
+        $child1Id = Uuid::randomHex();
+        $child2Id = Uuid::randomHex();
+
+        $colorGroupId = Uuid::randomHex();
+        $redOptionId = Uuid::randomHex();
+        $greenOptionId = Uuid::randomHex();
+
+        $sizeGroupId = Uuid::randomHex();
+        $xlOptionId = Uuid::randomHex();
+        $lOptionId = Uuid::randomHex();
+
+        $products = [
+            [
+                'id' => $parentId,
+                'manufacturer' => [
+                    'id' => Uuid::randomHex(),
+                    'name' => 'amazing brand',
+                ],
+                'name' => 'foo',
+                'productNumber' => 'P1',
+                'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'tax'],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 12, 'linked' => false]],
+                'stock' => 0,
+                'properties' => [
+                    [
+                        'id' => $redOptionId,
+                        'name' => 'red',
+                        'colorHexCode' => '#ff0000',
+                        'group' => [
+                            'id' => $colorGroupId,
+                            'name' => 'color',
+                            'displayType' => 'color',
+                            'position' => 0,
+                        ],
+                    ],
+                    [
+                        'id' => $greenOptionId,
+                        'name' => 'green',
+                        'colorHexCode' => '#00ff00',
+                        'groupId' => $colorGroupId,
+                    ],
+                    [
+                        'id' => $xlOptionId,
+                        'name' => 'XL',
+                        'group' => [
+                            'id' => $sizeGroupId,
+                            'name' => 'Size',
+                            'displayType' => 'text',
+                            'position' => 1,
+                        ],
+                    ],
+                    [
+                        'id' => $lOptionId,
+                        'name' => 'L',
+                        'groupId' => $sizeGroupId,
+                    ],
+                ],
+                'configuratorSettings' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'optionId' => $redOptionId,
+                    ],
+                    [
+                        'id' => Uuid::randomHex(),
+                        'optionId' => $greenOptionId,
+                    ],
+                    [
+                        'id' => Uuid::randomHex(),
+                        'optionId' => $xlOptionId,
+                    ],
+                    [
+                        'id' => Uuid::randomHex(),
+                        'optionId' => $lOptionId,
+                    ],
+                ],
+                'visibilities' => [
+                    [
+                        'salesChannelId' => $salesChannelId,
+                        'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
+                    ],
+                ],
+            ],
+            [
+                'id' => $child2Id,
+                'parentId' => $parentId,
+                'productNumber' => 'C1',
+                'stock' => 0,
+                'options' => [
+                    ['id' => $redOptionId],
+                    ['id' => $lOptionId],
+                ],
+            ],
+            [
+                'id' => $child1Id,
+                'parentId' => $parentId,
+                'productNumber' => 'C2',
+                'stock' => 0,
+                'options' => [
+                    ['id' => $greenOptionId],
+                    ['id' => $xlOptionId],
+                ],
+            ],
+        ];
+
+        $this->productRepository->upsert($products, $salesChannelContext->getContext());
+
+        $parentSeoUrl = $this->getSeoUrls($salesChannelId, $parentId)->first();
+        static::assertNull($parentSeoUrl);
+
+        $child1SeoUrl = $this->getSeoUrls($salesChannelId, $child1Id)->first();
+        static::assertNotNull($child1SeoUrl);
+        static::assertSame('green/XL', $child1SeoUrl->getSeoPathInfo());
+
+        $child2SeoUrl = $this->getSeoUrls($salesChannelId, $child2Id)->first();
+        static::assertNotNull($child2SeoUrl);
+        static::assertSame('red/L', $child2SeoUrl->getSeoPathInfo());
+    }
+
     private function getSeoUrls(string $salesChannelId, string $productId): SeoUrlCollection
     {
-        /** @var EntityRepository $repo */
+        /** @var EntityRepository<SeoUrlCollection> $repo */
         $repo = static::getContainer()->get('seo_url.repository');
 
         $criteria = new Criteria();

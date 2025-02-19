@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package inventory
  */
 
 import { mount } from '@vue/test-utils';
@@ -22,7 +22,6 @@ async function createWrapper() {
                 stubs: {
                     'sw-page': await wrapTestComponent('sw-page'),
                     'sw-icon': true,
-                    'sw-button': true,
                     'sw-card-view': await wrapTestComponent('sw-card-view'),
                     'sw-seo-url-template-card': true,
                     'sw-system-config': await wrapTestComponent('sw-system-config'),
@@ -41,7 +40,7 @@ async function createWrapper() {
                     'sw-help-center-v2': true,
                     'router-link': true,
                     'sw-sales-channel-switch': true,
-                    'sw-alert': true,
+
                     'sw-form-field-renderer': true,
                     'sw-inherit-wrapper': true,
                     'sw-ai-copilot-badge': true,

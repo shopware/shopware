@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@framework')]
 #[CoversClass(UserException::class)]
 class UserExceptionTest extends TestCase
 {

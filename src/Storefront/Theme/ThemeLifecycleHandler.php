@@ -21,6 +21,8 @@ class ThemeLifecycleHandler
 
     /**
      * @internal
+     *
+     * @param EntityRepository<ThemeCollection> $themeRepository
      */
     public function __construct(
         private readonly ThemeLifecycleService $themeLifecycleService,

@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@discovery
  */
 import { mount } from '@vue/test-utils';
 
@@ -121,7 +121,6 @@ async function createWrapper(privileges = []) {
                     'sw-search-bar': true,
                     'sw-context-menu-item': true,
                     'sw-icon': true,
-                    'sw-button': true,
                     'sw-checkbox-field': true,
                 },
             },
@@ -166,7 +165,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
 
         const createButton = wrapper.find('.sw-settings-country-list__button-create');
 
-        expect(createButton.attributes().disabled).toBeTruthy();
+        expect(createButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to edit a country', async () => {

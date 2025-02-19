@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 
@@ -26,8 +26,6 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-modal': await wrapTestComponent('sw-modal'),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-icon': {
                     template: '<div class="sw-icon" />',
                 },
@@ -44,7 +42,6 @@ async function createWrapper() {
                 'sw-bulk-edit-save-modal-confirm': await wrapTestComponent('sw-bulk-edit-save-modal-confirm'),
                 'sw-loader': true,
                 'sw-switch-field': true,
-                'sw-alert': true,
                 'router-link': true,
             },
             mocks: {

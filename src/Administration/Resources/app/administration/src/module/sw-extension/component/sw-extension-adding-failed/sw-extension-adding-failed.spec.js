@@ -1,8 +1,5 @@
 import { mount } from '@vue/test-utils';
-import extensionStore from 'src/module/sw-extension/store/extensions.store';
 import ShopwareExtensionService from 'src/module/sw-extension/service/shopware-extension.service';
-
-Shopware.State.registerModule('shopwareExtensions', extensionStore);
 
 async function createWrapper() {
     const shopwareExtensionService = new ShopwareExtensionService();
@@ -11,10 +8,6 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-circle-icon': await wrapTestComponent('sw-circle-icon', { sync: true }),
-                'sw-button': await wrapTestComponent('sw-button', {
-                    sync: true,
-                }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'i18n-t': true,
                 'sw-icon': true,
                 'sw-label': true,
@@ -32,7 +25,7 @@ async function createWrapper() {
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
     it('passes correct props to sw-circle-icon', async () => {
@@ -44,28 +37,28 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
     });
 
     it('has a primary block button', async () => {
-        Shopware.State.commit('shopwareExtensions/myExtensions', []);
+        Shopware.Store.get('shopwareExtensions').setMyExtensions([]);
 
         const wrapper = await createWrapper();
 
-        const closeButton = wrapper.getComponent('button.sw-button');
+        const closeButton = wrapper.findByText('button', 'global.default.close');
 
-        expect(closeButton.classes('sw-button--primary')).toBe(true);
-        expect(closeButton.classes('sw-button--block')).toBe(true);
+        expect(closeButton.classes().some((cls) => cls.includes('--primary'))).toBe(true);
+        expect(closeButton.classes().some((cls) => cls.includes('--block'))).toBe(true);
     });
 
     it('emits close if close button is clicked', async () => {
-        Shopware.State.commit('shopwareExtensions/myExtensions', []);
+        Shopware.Store.get('shopwareExtensions').setMyExtensions([]);
 
         const wrapper = await createWrapper();
 
-        await wrapper.get('button.sw-button').trigger('click');
+        await wrapper.findByText('button', 'global.default.close').trigger('click');
 
         expect(wrapper.emitted().close).toBeTruthy();
     });
 
     it('renders all information if extension is rent', async () => {
-        Shopware.State.commit('shopwareExtensions/myExtensions', [
+        Shopware.Store.get('shopwareExtensions').setMyExtensions([
             {
                 name: 'test-app',
                 storeLicense: {
@@ -82,7 +75,7 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
     });
 
     it('does not render additional information if the license is not a subscription', async () => {
-        Shopware.State.commit('shopwareExtensions/myExtensions', [
+        Shopware.Store.get('shopwareExtensions').setMyExtensions([
             {
                 name: 'test-app',
                 storeLicense: {
@@ -104,7 +97,7 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
 
     // eslint-disable-next-line max-len
     it('does not render additional information about licenses and uses general failure text if extension is not licensed', async () => {
-        Shopware.State.commit('shopwareExtensions/myExtensions', []);
+        Shopware.Store.get('shopwareExtensions').setMyExtensions([]);
 
         const wrapper = await createWrapper();
 

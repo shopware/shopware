@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 
@@ -21,7 +21,6 @@ const createMultiDataIpSelect = async () => {
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
                 'sw-label': true,
-                'sw-button': true,
             },
         },
         props: {

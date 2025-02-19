@@ -152,6 +152,8 @@
             {# Register all routes that will be needed in JavaScript to the window.router object #}
             <script>
                 window.activeNavigationId = '{{ shopware.navigation.id }}';
+                window.activeRoute = '{{ activeRoute }}';
+                window.activeRouteParameters = '{{ app.request.attributes.get('_route_params')|json_encode|raw }}';
                 window.router = {
                     'frontend.cart.offcanvas': '{{ path('frontend.cart.offcanvas') }}',
                     'frontend.cookie.offcanvas': '{{ path('frontend.cookie.offcanvas') }}',
@@ -198,19 +200,15 @@
         {% block layout_head_javascript_jquery %}
         {% endblock %}
 
-        {# @deprecated tag:v6.7.0 - This block will be removed #}
-        {% block layout_head_javascript_assets_public_path %}
-            <script>
-                window.themeAssetsPublicPath = '{{ asset('assets/', 'theme') }}';
-            </script>
+        {% block layout_head_form_validation_messages %}
+            {% sw_include '@Storefront/storefront/utilities/form-validation-config.html.twig' %}
         {% endblock %}
 
         {% block layout_head_javascript_hmr_mode %}
             {% if isHMRMode %}
                 {% block layout_head_javascript_hmr_dev %}
-                    {# Entry point for dev-server CSS #}
-                    <script type="text/javascript" src="/_webpack_hot_proxy_/storefront/css.js" defer></script>
-
+                    {# Entry point for dev-server #}
+                    <script type="text/javascript" src="/_webpack_hot_proxy_/storefront/hot-reloading.js" defer></script>
                     {% for script in theme_scripts() %}
                         <script type="text/javascript" src="{{ script|replace({'js/': '/_webpack_hot_proxy_/'}) }}" defer></script>
                     {% endfor %}

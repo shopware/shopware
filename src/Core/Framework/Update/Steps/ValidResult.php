@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Update\Steps;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('framework')]
 class ValidResult
 {
     public function __construct(

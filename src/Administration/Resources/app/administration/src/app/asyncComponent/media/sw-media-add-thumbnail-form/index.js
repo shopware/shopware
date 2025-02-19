@@ -3,12 +3,10 @@ import './sw-media-add-thumbnail-form.scss';
 
 /**
  * @private
- * @package content
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'thumbnail-form-size-add',

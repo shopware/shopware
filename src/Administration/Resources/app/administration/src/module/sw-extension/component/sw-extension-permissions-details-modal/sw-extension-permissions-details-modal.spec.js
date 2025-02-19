@@ -25,7 +25,6 @@ async function createWrapper({ permissions, modalTitle, selectedEntity }) {
                         ],
                         template: '<div class="icon">name:{{ name }} color:{{ color }}</div>',
                     },
-                    'sw-button': true,
                 },
             },
             props: {
@@ -38,7 +37,7 @@ async function createWrapper({ permissions, modalTitle, selectedEntity }) {
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('sw-extension-permissions-details-modal', () => {
     it('should be a Vue.JS component', async () => {

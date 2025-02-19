@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 
@@ -10,9 +10,7 @@ async function createWrapper() {
         }),
         {
             global: {
-                stubs: {
-                    'sw-alert': await wrapTestComponent('sw-alert'),
-                },
+                stubs: {},
             },
         },
     );

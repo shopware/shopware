@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -116,7 +116,6 @@ async function createWrapper(startingValue) {
                     template:
                         '<input class="sw-media-field" :value="value" @input="$emit(\'update:value\', $event.target.value)">',
                 },
-                'sw-button': true,
             },
         },
         props: {

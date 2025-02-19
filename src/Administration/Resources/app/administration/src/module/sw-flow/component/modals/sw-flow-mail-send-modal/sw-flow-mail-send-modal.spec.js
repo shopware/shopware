@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import flowState from 'src/module/sw-flow/state/flow.state';
+import { createPinia } from 'pinia';
 
 /**
  * @sw-package after-sales
@@ -66,9 +66,12 @@ function mockMailTemplateData() {
     ];
 }
 
+const pinia = createPinia();
+
 async function createWrapper(sequence = {}) {
     return mount(await wrapTestComponent('sw-flow-mail-send-modal', { sync: true }), {
         global: {
+            plugins: [pinia],
             stubs: {
                 'sw-modal': {
                     template: `
@@ -79,11 +82,6 @@ async function createWrapper(sequence = {}) {
                     </div>
                 `,
                 },
-                'sw-button': {
-                    emits: ['click'],
-                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                },
-                'sw-alert': true,
                 'sw-entity-multi-id-select': true,
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                 'sw-single-select': await wrapTestComponent('sw-single-select'),
@@ -163,12 +161,6 @@ async function createWrapper(sequence = {}) {
 }
 
 describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
-    beforeAll(() => {
-        Shopware.State.registerModule('swFlowState', {
-            ...flowState,
-        });
-    });
-
     it('should show and remove error on email template field if value is valid', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -375,7 +367,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     });
 
     it('should show customer recipient when entity available', async () => {
-        Shopware.State.commit('swFlowState/setTriggerEvent', {
+        Shopware.Store.get('swFlow').triggerEvent = {
             data: {
                 customer: '',
                 order: '',
@@ -388,7 +380,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
                 'Shopware\\Core\\Framework\\Event\\CustomerAware',
                 'Shopware\\Core\\Framework\\Event\\MailAware',
             ],
-        });
+        };
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -406,7 +398,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     });
 
     it('should show standard recipient for contact form', async () => {
-        Shopware.State.commit('swFlowState/setTriggerEvent', {
+        Shopware.Store.get('swFlow').triggerEvent = {
             data: {
                 customer: '',
                 order: '',
@@ -418,7 +410,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
             aware: [
                 'Shopware\\Core\\Framework\\Event\\MailAware',
             ],
-        });
+        };
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -438,7 +430,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     });
 
     it('should not show standard recipient when entity not available', async () => {
-        Shopware.State.commit('swFlowState/setTriggerEvent', {
+        Shopware.Store.get('swFlow').triggerEvent = {
             data: {
                 customer: '',
                 order: '',
@@ -450,7 +442,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
             aware: [
                 'Shopware\\Core\\Framework\\Event\\MailAware',
             ],
-        });
+        };
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -468,7 +460,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     });
 
     it('should show default recipient with newsletter recipient confirm', async () => {
-        Shopware.State.commit('swFlowState/setTriggerEvent', {
+        Shopware.Store.get('swFlow').triggerEvent = {
             data: {},
             customerAware: true,
             extensions: [],
@@ -477,7 +469,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
             aware: [
                 'Shopware\\Core\\Framework\\Event\\MailAware',
             ],
-        });
+        };
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -495,7 +487,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     });
 
     it('should show default recipient with newsletter recipient register', async () => {
-        Shopware.State.commit('swFlowState/setTriggerEvent', {
+        Shopware.Store.get('swFlow').triggerEvent = {
             data: {},
             customerAware: true,
             extensions: [],
@@ -504,7 +496,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
             aware: [
                 'Shopware\\Core\\Framework\\Event\\MailAware',
             ],
-        });
+        };
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -522,7 +514,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     });
 
     it('should show default recipient with newsletter recipient unsubscribe', async () => {
-        Shopware.State.commit('swFlowState/setTriggerEvent', {
+        Shopware.Store.get('swFlow').triggerEvent = {
             data: {},
             customerAware: true,
             extensions: [],
@@ -531,7 +523,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
             aware: [
                 'Shopware\\Core\\Framework\\Event\\MailAware',
             ],
-        });
+        };
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -581,9 +573,9 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     });
 
     it('should validate reply to field with contact form trigger', async () => {
-        Shopware.State.commit('swFlowState/setTriggerEvent', {
+        Shopware.Store.get('swFlow').triggerEvent = {
             name: 'contact_form.send',
-        });
+        };
 
         const wrapper = await createWrapper();
         await wrapper.setData({

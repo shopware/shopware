@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
 
@@ -37,9 +37,6 @@ async function createWrapper(privileges = []) {
                     },
                     'sw-container': {
                         template: '<div class="sw-container"><slot></slot></div>',
-                    },
-                    'sw-button': {
-                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
                     },
                     'sw-icon': true,
                     'sw-tabs': true,

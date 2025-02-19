@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const orderFixture = [
@@ -50,7 +50,6 @@ async function createWrapper(orderData = []) {
                 },
                 'sw-empty-state': true,
                 'sw-entity-listing': true,
-                'sw-button': true,
                 'sw-icon': true,
                 'router-link': true,
                 'sw-time-ago': true,

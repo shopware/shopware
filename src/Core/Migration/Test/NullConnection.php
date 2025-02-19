@@ -4,7 +4,7 @@ namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\MySQL80Platform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
 use Shopware\Core\Framework\Log\Package;
@@ -30,8 +30,12 @@ class NullConnection extends Connection
     /**
      * {@inheritdoc}
      */
-    public function executeQuery(string $sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null): Result
-    {
+    public function executeQuery(
+        string $sql,
+        array $params = [],
+        array $types = [],
+        ?QueryCacheProfile $qcp = null,
+    ): Result {
         $matches = preg_match_all('/^\s*(UPDATE|ALTER|BACKUP|CREATE|DELETE|DROP|EXEC|INSERT|TRUNCATE)/i', $sql);
 
         if ($matches) {
@@ -46,12 +50,7 @@ class NullConnection extends Connection
         return $this->originalConnection->prepare($statement);
     }
 
-    public function executeUpdate(string $sql, array $params = [], array $types = []): int
-    {
-        return 0;
-    }
-
-    public function executeStatement($sql, array $params = [], array $types = [])
+    public function executeStatement(string $sql, array $params = [], array $types = []): int|string
     {
         return 0;
     }
@@ -69,17 +68,17 @@ class NullConnection extends Connection
         return $this->originalConnection->executeQuery($sql);
     }
 
-    public function insert($table, array $data, array $types = [])
+    public function insert(string $table, array $data, array $types = []): int
     {
         return 0;
     }
 
-    public function update($table, array $data, array $criteria, array $types = [])
+    public function update(string $table, array $data, array $criteria = [], array $types = []): int
     {
         return 0;
     }
 
-    public function delete($table, array $criteria, array $types = [])
+    public function delete(string $table, array $criteria = [], array $types = []): int|string
     {
         return $this->originalConnection->delete($table, $criteria, $types);
     }
@@ -89,8 +88,8 @@ class NullConnection extends Connection
         $this->originalConnection = $originalConnection;
     }
 
-    public function getDatabasePlatform()
+    public function getDatabasePlatform(): MySQLPlatform
     {
-        return new MySQL80Platform();
+        return new MySQLPlatform();
     }
 }

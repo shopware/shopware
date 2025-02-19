@@ -4,7 +4,7 @@ import swGenericCustomEntityDetail from 'src/module/sw-custom-entity/page/sw-gen
 import 'src/app/component/base/sw-button-process';
 
 /**
- * @package content
+ * @sw-package framework
  */
 
 Shopware.Component.register('sw-generic-custom-entity-detail', swGenericCustomEntityDetail);
@@ -144,9 +144,6 @@ async function createWrapper({ activeTab = 'main', routeId = null, entityName = 
                 'sw-button-process': {
                     template: '<div class="sw-button-process" @click="$emit(`click`)"></div>',
                 },
-                'sw-button': {
-                    template: '<button></button>',
-                },
                 'sw-language-switch': {
                     template: '<div class="sw-language-switch"></div>',
                 },
@@ -262,7 +259,7 @@ const numberOfElementsDataProvider = [
 ];
 
 /**
- * @package content
+ * @sw-package framework
  */
 describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
     it('should render the correct number of tabs, tab-items and activeTabs with correct labels', async () => {

@@ -2,9 +2,16 @@ const { ESLint } = require('eslint');
 const process = require('process');
 const commandLineArgs = require('command-line-args');
 const getUsage = require('command-line-usage');
-const fs = require('fs');
-const chalk = require('chalk');
+const fs = require('fs-extra');
+const colors = require('picocolors');
 const path = require('path');
+const { globSync } = require('glob');
+
+// Available Shopware versions
+const shopwareVersions = [
+    '6.6',
+    '6.7',
+];
 
 // Command options
 const optionDefinitions = [
@@ -45,6 +52,13 @@ const optionDefinitions = [
         alias: 'G',
         type: Boolean,
     },
+    {
+        // eslint-disable-next-line max-len
+        description: `Define the Shopware version for loading the correct codemods. Available: ${shopwareVersions.join(', ')}`,
+        name: 'shopware-version',
+        alias: 'v',
+        type: String,
+    },
 ];
 
 // Command help
@@ -72,7 +86,7 @@ const sections = [
 ];
 
 // Use IIFE to be able to await
-(async function () {
+(async function codeMods() {
     // Parse options into object
     const options = commandLineArgs(optionDefinitions);
     if (options.help || Object.keys(options).length === 0) {
@@ -81,9 +95,15 @@ const sections = [
         process.exit();
     }
 
+    const shopwareVersion = options['shopware-version'];
+    if (shopwareVersion && !shopwareVersions.includes(shopwareVersion)) {
+        console.error(colors.red('Invalid Shopware version. Available: 6.6, 6.7'));
+        process.exit(1);
+    }
+
     const pluginName = options['plugin-name'];
     if (!pluginName) {
-        console.error(chalk.red('You have to specify your plugin name.'));
+        console.error(colors.red('You have to specify your plugin name.'));
         process.exit(1);
     }
 
@@ -97,24 +117,16 @@ const sections = [
         customPluginsPath = path.resolve(`${optionsRoot}/custom/plugins`);
     }
 
-    const src = options.src || ['src/Resources/app/administration/src'];
-    if (!src.length) {
-        // eslint-disable-next-line no-console
-        console.log(chalk.red('You need to specify at least one src folder or use the default!'));
-        process.exit();
-    }
-
-    let pluginFound = false;
+    // Looking for all the possible plugins inside the plugin folder using a path pattern
     const pluginDir = `${customPluginsPath}/${pluginName}`;
-    const pluginAdminSrcDir = `${customPluginsPath}/${pluginName}/src/Resources/app/administration/src`;
-    try {
-        pluginFound = fs.statSync(pluginAdminSrcDir).isDirectory();
-    } catch (e) {
-        pluginFound = false;
-    }
+    const ADMIN_PLUGIN_PATH_PATTERN = `${pluginDir}/src/**/Resources/app/administration/src/`;
+    const srcDirectories = options.src || globSync(ADMIN_PLUGIN_PATH_PATTERN, { nodir: false });
 
-    if (!pluginFound) {
-        console.error(chalk.red(`Unable to locate "${pluginName}" in "${customPluginsPath}"!`));
+    if (!srcDirectories.length) {
+        // eslint-disable-next-line no-console
+        console.error(colors.red(`Unable to locate "${pluginName}" in "${customPluginsPath}"!`));
+        // eslint-disable-next-line no-console
+        console.log(colors.red('You need to specify at least one src folder or use the default!'));
         process.exit(1);
     }
 
@@ -126,27 +138,20 @@ const sections = [
     }
 
     if (!pluginIsGitRepository && !options['ignore-git']) {
-        console.error(chalk.red('Plugin is no git repository. Make sure your plugin is in git and has a clean work space!'));
-        console.error(chalk.red('If you feel adventurous you can ignore this with -G... You where warned!'));
+        console.error(
+            colors.red('Plugin is no git repository. Make sure your plugin is in git and has a clean work space!'),
+        );
+        console.error(colors.red('If you feel adventurous you can ignore this with -G... You where warned!'));
         process.exit(1);
     }
 
     createPluginsTsConfigFile(pluginName);
 
-    src.forEach(async (folder) => {
-        let srcFound = false;
-        const pluginFolder = `${customPluginsPath}/${pluginName}`;
-        const srcDir = `${customPluginsPath}/${pluginName}/${folder}`;
-        try {
-            srcFound = fs.statSync(srcDir).isDirectory();
-        } catch (e) {
-            srcFound = false;
-        }
-
-        if (!srcFound) {
-            console.error(chalk.red(`Unable to locate folder "${folder}" in "${pluginFolder}"!`));
-            process.exit(1);
-        }
+    let index = 1;
+    // eslint-disable-next-line no-restricted-syntax
+    for (const srcDir of srcDirectories) {
+        // eslint-disable-next-line no-plusplus
+        console.info(colors.green(`(${index++}/${srcDirectories.length}) Checking ${srcDir}...`));
 
         const workingDir = `./${pluginName}`;
         if (fs.existsSync(workingDir)) {
@@ -154,50 +159,46 @@ const sections = [
         }
 
         // copy plugin into admin folder to make eslint work correctly
-        copyFolderRecursiveSync(pluginAdminSrcDir, workingDir);
+        copyFolderRecursiveSync(srcDir, workingDir);
 
         const fix = options.fix;
-        await lintFiles([workingDir], fix);
+        try {
+            await lintFiles([workingDir], fix, shopwareVersion);
 
-        // only copy back changes if fix is requested
-        if (fix) {
-            // copy back changes and delete working dir
-            copyFolderRecursiveSync(workingDir, pluginAdminSrcDir);
+            // only copy back changes if fix is requested
+            if (fix) {
+                // copy back changes and delete working dir
+                copyFolderRecursiveSync(workingDir, srcDir);
+            }
+        } catch (e) {
+            console.error(colors.red(`Linting failed! ${srcDir}`));
+            console.error(e);
+        } finally {
+            // always remove the working dir, because src files could collide
+            fs.rmSync(workingDir, { recursive: true, force: true });
         }
-
-        // always remove the working dir, because src files could collide
-        fs.rmSync(workingDir, { recursive: true, force: true });
-    });
+    }
 
     removePluginsTsConfigFile();
-}());
+})();
 
 // Helper functions
 function copyFolderRecursiveSync(source, target) {
     // don't copy .git folder - permission problems
-    if (target.includes('.git') || target.includes('node_modules') || target.includes('vendor')) {
-        return;
-    }
+    const excludeFolders = [
+        '.git',
+        'node_modules',
+        'vendor',
+    ]; // Folders to exclude
 
     // Ensure target directory exists
-    if (!fs.existsSync(target)) {
-        fs.mkdirSync(target);
-    }
+    fs.ensureDirSync(target);
 
-    // Get list of files and subdirectories in source directory
-    const files = fs.readdirSync(source);
-
-    files.forEach(file => {
-        const sourcePath = path.join(source, file);
-        const targetPath = path.join(target, file);
-
-        if (fs.lstatSync(sourcePath).isDirectory()) {
-            // Recursively copy subdirectories
-            copyFolderRecursiveSync(sourcePath, targetPath);
-        } else {
-            // Copy file
-            fs.copyFileSync(sourcePath, targetPath);
-        }
+    fs.copySync(source, target, {
+        filter: (src) => {
+            const relativePath = path.relative(source, src);
+            return !excludeFolders.some((folder) => relativePath.includes(folder));
+        },
     });
 }
 
@@ -215,8 +216,8 @@ function createESLintInstance(overrideConfig, fix) {
 }
 
 // Lint the specified files and return the results
-async function lintAndFix(eslint, filePaths) {
-    const results = await eslint.lintFiles(filePaths);
+async function lintAndFix(eslint, filePaths, shopwareVersion) {
+    const results = await eslint.lintFiles(filePaths, shopwareVersion);
 
     // Apply automatic fixes and output fixed code
     await ESLint.outputFixes(results);
@@ -235,7 +236,7 @@ async function outputLintingResults(results, eslint) {
 }
 
 // Put previous functions all together
-async function lintFiles(filePaths, fix) {
+async function lintFiles(filePaths, fix, shopwareVersion) {
     // The ESLint configuration. Alternatively, you could load the configuration
     // from a .eslintrc file or just use the default config.
     const overrideConfig = {
@@ -252,13 +253,26 @@ async function lintFiles(filePaths, fix) {
                 processor: 'twig-vue/twig-vue',
                 files: ['**/*.html.twig'],
                 rules: {
-                    'sw-deprecation-rules/no-deprecated-components': ['error'],
-                    'sw-deprecation-rules/no-deprecated-component-usage': ['error'],
+                    ...(() => {
+                        if (isVersionNewerOrSame(shopwareVersion, '6.7')) {
+                            return {
+                                'sw-deprecation-rules/no-deprecated-components': ['error'],
+                                'sw-deprecation-rules/no-deprecated-component-usage': ['error'],
+                            };
+                        }
+
+                        return {
+                            'sw-deprecation-rules/no-deprecated-components': 'off',
+                            'sw-deprecation-rules/no-deprecated-component-usage': 'off',
+                        };
+                    })(),
                     // Disabled rules
                     'eol-last': 'off',
                     'no-multiple-empty-lines': 'off',
                     'vue/comment-directive': 'off',
                     'vue/jsx-uses-vars': 'off',
+                    'max-len': 'off',
+                    'comma-dangle': 'off',
                 },
             },
             {
@@ -267,7 +281,10 @@ async function lintFiles(filePaths, fix) {
                     '@shopware-ag/eslint-config-base',
                 ],
                 files: ['**/*.js'],
-                excludedFiles: ['*.spec.js', '*.spec.vue3.js'],
+                excludedFiles: [
+                    '*.spec.js',
+                    '*.spec.vue3.js',
+                ],
                 rules: {
                     'vue/no-deprecated-destroyed-lifecycle': 'error',
                     'vue/no-deprecated-events-api': 'error',
@@ -276,10 +293,16 @@ async function lintFiles(filePaths, fix) {
                     'sw-deprecation-rules/no-compat-conditions': ['error'],
                     'sw-deprecation-rules/no-empty-listeners': ['error'],
                     'sw-core-rules/require-explicit-emits': 'error',
+                    'sw-core-rules/require-package-annotation': 'off',
+                    'sw-deprecation-rules/private-feature-declarations': 'off',
+                    'comma-dangle': 'off',
                 },
             },
             {
-                files: ['**/*.ts', '**/*.tsx'],
+                files: [
+                    '**/*.ts',
+                    '**/*.tsx',
+                ],
                 extends: [
                     'plugin:vue/vue3-recommended',
                     '@shopware-ag/eslint-config-base',
@@ -294,13 +317,16 @@ async function lintFiles(filePaths, fix) {
                     'sw-deprecation-rules/no-compat-conditions': ['error'],
                     'sw-deprecation-rules/no-empty-listeners': ['error'],
                     'sw-core-rules/require-explicit-emits': 'error',
+                    'sw-core-rules/require-package-annotation': 'off',
+                    'sw-deprecation-rules/private-feature-declarations': 'off',
+                    'comma-dangle': 'off',
                 },
             },
         ],
     };
 
     const eslint = createESLintInstance(overrideConfig, fix);
-    const results = await lintAndFix(eslint, filePaths);
+    const results = await lintAndFix(eslint, filePaths, shopwareVersion);
     return outputLintingResults(results, eslint);
 }
 
@@ -317,4 +343,24 @@ function createPluginsTsConfigFile(pluginName) {
 
 function removePluginsTsConfigFile() {
     fs.rmSync('./tsconfig-plugins.json', { force: true });
+}
+
+function isVersionNewerOrSame(version, compareVersion) {
+    const versionParts = version.split('.');
+    const compareVersionParts = compareVersion.split('.');
+
+    for (let i = 0; i < versionParts.length; i++) {
+        const versionPart = parseInt(versionParts[i], 10);
+        const compareVersionPart = parseInt(compareVersionParts[i], 10);
+
+        if (versionPart > compareVersionPart) {
+            return true;
+        }
+
+        if (versionPart < compareVersionPart) {
+            return false;
+        }
+    }
+
+    return true;
 }

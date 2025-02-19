@@ -9,7 +9,6 @@ async function createWrapper(propsData = {}) {
                 },
             },
             stubs: {
-                'sw-button': true,
                 'sw-switch-field': true,
             },
         },
@@ -23,7 +22,7 @@ async function createWrapper(propsData = {}) {
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('src/module/sw-extension/component/sw-extension-removal-modal', () => {
     it('should show the correct title', async () => {

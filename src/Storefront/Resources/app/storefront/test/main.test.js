@@ -1,9 +1,17 @@
-import 'src/main';
 import NativeEventEmitter from 'src/helper/emitter.helper';
 
 describe('Storefront main entry point', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         global.themeJsPublicPath = 'public/theme/#theme-hash#';
+
+        window.validationMessages = {
+            required: 'Input should not be empty.',
+            email: 'Invalid email address.',
+            confirmation: 'Confirmation field does not match.',
+            minLength: 'Input is too short.',
+        };
+
+        await import('src/main');
     });
 
     it('should have all needed window properties', () => {
@@ -17,5 +25,7 @@ describe('Storefront main entry point', () => {
 
         expect(window.PluginManager).toBeDefined();
         expect(window.PluginBaseClass).toBeDefined();
+
+        expect(window.formValidation).toBeDefined();
     });
 });

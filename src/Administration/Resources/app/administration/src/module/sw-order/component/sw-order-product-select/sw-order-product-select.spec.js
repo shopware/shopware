@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const createWrapper = async () => {
@@ -214,5 +214,12 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
         expect(criteria.filters[2].type).toBe('equals');
         expect(criteria.filters[2].field).toBe('active');
         expect(criteria.filters[2].value).toBe(true);
+    });
+
+    it('has correct criteria with total count mode is zero', async () => {
+        const wrapper = await createWrapper();
+        const criteria = wrapper.vm.productCriteria;
+
+        expect(criteria.totalCountMode).toBe(0);
     });
 });

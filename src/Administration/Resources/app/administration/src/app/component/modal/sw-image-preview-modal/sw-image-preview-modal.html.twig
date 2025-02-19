@@ -1,17 +1,13 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_image_preview_modal %}
 <transition
     name="sw-image-preview-modal-fade"
     appear
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_image_preview_modal_element %}
     <div class="sw-image-preview-modal">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_image_preview_modal_action %}
         <div class="sw-image-preview-modal__action">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_image_preview_modal_button_zoom_out %}
             <button
                 ref="btnZoomOut"
@@ -24,7 +20,6 @@
             </button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_image_preview_modal_button_zoom_reset %}
             <button
                 ref="btnReset"
@@ -37,7 +32,6 @@
             </button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_image_preview_modal_button_zoom_in %}
             <button
                 ref="btnZoomIn"
@@ -52,7 +46,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_image_preview_modal_button_close %}
         <div
             class="sw-image-preview-modal__button-close"
@@ -65,7 +58,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_image_preview_modal_image_slider %}
         <sw-image-slider
             class="sw-image-preview-modal__image-slider"
@@ -83,7 +75,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_image_preview_modal_divider %}
         <hr
             v-if="images.length > 1"
@@ -91,7 +82,6 @@
         >
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_image_preview_modal_thumbnail_slider %}
         <sw-image-slider
             v-if="images.length > 1"

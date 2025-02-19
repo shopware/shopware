@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 import template from './sw-settings-tag-detail-modal.html.twig';
 import './sw-settings-tag-detail-modal.scss';
@@ -10,8 +10,6 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -87,9 +85,13 @@ export default {
         title() {
             return this.tag.isNew()
                 ? this.$tc('sw-settings-tag.list.buttonAddTag')
-                : this.$tc('sw-settings-tag.detail.editTitle', 0, {
-                      name: this.tag.name,
-                  });
+                : this.$tc(
+                      'sw-settings-tag.detail.editTitle',
+                      {
+                          name: this.tag.name,
+                      },
+                      0,
+                  );
         },
 
         allowSave() {
@@ -157,13 +159,8 @@ export default {
                     property,
                 ]) => {
                     if (property.relation === 'many_to_many') {
-                        if (this.isCompatEnabled('INSTANCE_SET')) {
-                            this.$set(this.assignmentsToBeAdded, propertyName, {});
-                            this.$set(this.assignmentsToBeDeleted, propertyName, {});
-                        } else {
-                            this.assignmentsToBeAdded[propertyName] = {};
-                            this.assignmentsToBeDeleted[propertyName] = {};
-                        }
+                        this.assignmentsToBeAdded[propertyName] = {};
+                        this.assignmentsToBeDeleted[propertyName] = {};
                     }
                 },
             );
@@ -234,38 +231,22 @@ export default {
 
         addAssignment(assignment, id, item) {
             if (this.assignmentsToBeDeleted[assignment].hasOwnProperty(id)) {
-                if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                    this.$delete(this.assignmentsToBeDeleted[assignment], id);
-                } else {
-                    delete this.assignmentsToBeDeleted[assignment][id];
-                }
+                delete this.assignmentsToBeDeleted[assignment][id];
 
                 return;
             }
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.assignmentsToBeAdded[assignment], id, item);
-            } else {
-                this.assignmentsToBeAdded[assignment][id] = item;
-            }
+            this.assignmentsToBeAdded[assignment][id] = item;
         },
 
         removeAssignment(assignment, id, item) {
             if (this.assignmentsToBeAdded[assignment].hasOwnProperty(id)) {
-                if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                    this.$delete(this.assignmentsToBeAdded[assignment], id);
-                } else {
-                    delete this.assignmentsToBeAdded[assignment][id];
-                }
+                delete this.assignmentsToBeAdded[assignment][id];
 
                 return;
             }
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.assignmentsToBeDeleted[assignment], id, item);
-            } else {
-                this.assignmentsToBeDeleted[assignment][id] = item;
-            }
+            this.assignmentsToBeDeleted[assignment][id] = item;
         },
     },
 };

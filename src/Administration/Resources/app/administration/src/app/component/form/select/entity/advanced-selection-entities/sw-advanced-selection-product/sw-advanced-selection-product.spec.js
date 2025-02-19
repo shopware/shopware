@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
@@ -294,9 +294,6 @@ async function createWrapper() {
                             template: '<div></div>',
                         },
                         'router-link': true,
-                        'sw-button': {
-                            template: '<div></div>',
-                        },
                         'sw-sidebar': {
                             template: '<div></div>',
                         },

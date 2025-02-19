@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -47,7 +47,6 @@ const createSelect = async (
                     'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                     'sw-ai-copilot-badge': true,
                     'sw-help-text': true,
-                    'sw-button': true,
                     'sw-inheritance-switch': true,
                     'mt-loader': true,
                     'sw-loader-deprecated': true,

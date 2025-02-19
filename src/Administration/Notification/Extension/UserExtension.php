@@ -15,7 +15,7 @@ use Shopware\Core\System\User\UserDefinition;
  *
  * @codeCoverageIgnore
  */
-#[Package('administration')]
+#[Package('framework')]
 class UserExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void
@@ -24,13 +24,6 @@ class UserExtension extends EntityExtension
         $collection->add(
             new OneToManyAssociationField('createdNotifications', NotificationDefinition::class, 'created_by_user_id', 'id')
         );
-    }
-
-    public function getDefinitionClass(): string
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'This class will be removed as it is unused');
-
-        return UserDefinition::class;
     }
 
     public function getEntityName(): string

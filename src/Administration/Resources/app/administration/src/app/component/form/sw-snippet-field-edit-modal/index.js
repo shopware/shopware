@@ -4,7 +4,7 @@ import template from './sw-snippet-field-edit-modal.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -22,8 +22,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-snippet-field-edit-modal', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'acl',
@@ -82,7 +80,7 @@ Component.register('sw-snippet-field-edit-modal', {
         },
 
         currentAuthor() {
-            return `user/${Shopware.State.get('session').currentUser.username}`;
+            return `user/${Shopware.Store.get('session').currentUser.username}`;
         },
 
         snippetRepository() {

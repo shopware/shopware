@@ -27,14 +27,14 @@
     </template>
 
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_index_smart_bar_actions_extension %}
         <sw-extension-teaser-popover
             position-identifier="sw-flow-upload-flow-button"
         />
         {% endblock %}
 
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('flow.creator'),
@@ -43,11 +43,11 @@
             }"
             class="sw-flow-list__create"
             variant="primary"
-            :router-link="{ name: 'sw.flow.create' }"
             :disabled="!acl.can('flow.creator') || undefined"
+            @click="$router.push({ name: 'sw.flow.create' })"
         >
             {{ $tc('sw-flow.list.buttonAddFlow') }}
-        </sw-button>
+        </mt-button>
     </template>
 
     <template #content>
@@ -75,7 +75,6 @@
                     {{ $tc('sw-flow.general.tabFlowTemplates') }}
                 </sw-tabs-item>
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_tabs_header_extension %}{% endblock %}
 
                 <template #content="{ active }">
@@ -100,7 +99,6 @@
             </sw-tabs>
         </sw-card-view>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_index_modal_content_custom %}
         {% endblock %}
     </template>

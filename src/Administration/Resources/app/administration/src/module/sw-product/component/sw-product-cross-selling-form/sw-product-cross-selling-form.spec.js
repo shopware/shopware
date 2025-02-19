@@ -1,9 +1,9 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
 
-const { State } = Shopware;
+const { Store } = Shopware;
 
 const productMock = {
     id: 'productId',
@@ -26,7 +26,6 @@ async function createWrapper() {
                     'sw-container': true,
                     'sw-context-button': true,
                     'sw-text-field': true,
-                    'sw-button': true,
                     'sw-context-menu-item': true,
                     'sw-switch-field': true,
                     'sw-select-field': true,
@@ -64,15 +63,8 @@ describe('module/sw-product/component/sw-product-cross-selling-form', () => {
     let wrapper;
 
     beforeAll(() => {
-        State.registerModule('swProductDetail', {
-            namespaced: true,
-            state: {
-                product: productMock,
-            },
-            getters: {
-                isLoading: () => false,
-            },
-        });
+        Store.get('swProductDetail').$reset();
+        Store.get('swProductDetail').product = productMock;
     });
 
     beforeEach(async () => {

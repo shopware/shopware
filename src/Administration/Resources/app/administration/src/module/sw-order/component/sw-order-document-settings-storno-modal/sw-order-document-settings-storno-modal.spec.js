@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const orderFixture = {
@@ -90,10 +90,6 @@ async function createWrapper() {
                     'sw-context-button': {
                         template: '<div class="sw-context-button"><slot></slot></div>',
                     },
-                    'sw-button': await wrapTestComponent('sw-button', {
-                        sync: true,
-                    }),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-button-group': await wrapTestComponent('sw-button-group', { sync: true }),
                     'sw-context-menu-item': true,
                     'sw-upload-listener': true,
@@ -156,7 +152,7 @@ describe('src/module/sw-order/component/sw-order-document-settings-storno-modal'
         const createButton = wrapper.find('.sw-order-document-settings-modal__create');
         expect(createButton.attributes().disabled).toBeDefined();
 
-        const createContextMenu = wrapper.find('.sw-context-button');
+        const createContextMenu = wrapper.findAll('.sw-context-button').at(1);
         expect(createContextMenu.attributes().disabled).toBeDefined();
     });
 

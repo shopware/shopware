@@ -40,9 +40,28 @@ const documentBaseConfigRepositoryMock = {
                 documentType: { id: 'documentTypeId1' },
             });
         }
+
+        if (id === 'documentConfigWithDocumentFileTypes') {
+            return Promise.resolve({
+                id: id,
+                documentTypeId: 'documentTypeId',
+                config: {
+                    fileTypes: [
+                        'pdf',
+                        'html',
+                    ],
+                },
+            });
+        }
+
         return Promise.resolve({
             id: id,
             documentTypeId: 'documentTypeId',
+            config: {
+                fileTypes: [
+                    'pdf',
+                ],
+            },
         });
     },
 };
@@ -98,7 +117,6 @@ const createWrapper = async (customOptions, privileges = []) => {
                         <slot name="search-bar"></slot>
                         <slot name="smart-bar-back"></slot>
                         <slot name="smart-bar-header"></slot>
-                        <slot name="language-switch"></slot>
                         <slot name="smart-bar-actions"></slot>
                         <slot name="side-content"></slot>
                         <slot name="content"></slot>
@@ -112,14 +130,12 @@ const createWrapper = async (customOptions, privileges = []) => {
                         template: '<div class="sw-field"/>',
                         props: ['disabled'],
                     },
-                    'sw-button': true,
                     'sw-button-process': true,
                     'sw-card-view': true,
                     'sw-icon': true,
                     'sw-card': true,
                     'sw-container': true,
                     'sw-form-field-renderer': true,
-                    'sw-language-switch': true,
                     'sw-checkbox-field': {
                         template: `
                     <div class="sw-field--checkbox">
@@ -141,7 +157,7 @@ const createWrapper = async (customOptions, privileges = []) => {
                         props: ['disabled'],
                     },
                     'sw-multi-select': {
-                        template: '<div id="documentSalesChannel"/>',
+                        template: '<div id="documentSalesChannel" @click="$emit(\'click\')"/>',
                         props: ['disabled'],
                     },
                     'sw-skeleton': true,
@@ -383,34 +399,6 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         );
     });
 
-    /* @deprecated: tag:v6.7.0 - Remove this test */
-    // eslint-disable-next-line max-len
-    it('should be have countries in country select when have toggle display intra-community delivery checkbox', async () => {
-        const wrapper = await createWrapper({}, ['document.editor']);
-
-        await wrapper.vm.$nextTick();
-        await wrapper.setData({
-            isShowDisplayNoteDelivery: true,
-            documentConfig: {
-                config: {
-                    deliveryCountries: [
-                        '0110c22a5a92481aa8722a782dfc2573',
-                        '0143d24eb0264eb89cc34f50d427b828',
-                    ],
-                },
-            },
-        });
-
-        const displayAdditionalNoteDeliveryCheckbox = wrapper.find(
-            '.sw-settings-document-detail__field_additional_note_delivery input',
-        );
-
-        await displayAdditionalNoteDeliveryCheckbox.setChecked();
-
-        expect(displayAdditionalNoteDeliveryCheckbox.element.checked).toBe(true);
-        expect(wrapper.vm.documentConfig.config.deliveryCountries).toHaveLength(2);
-    });
-
     it('should have assignment card at the top of the page', async () => {
         const wrapper = await createWrapper(
             {
@@ -427,5 +415,58 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         expect(swCardComponents.length).toBeGreaterThan(0);
         expect(swCardComponents.at(0).attributes()['position-identifier']).toBe('sw-settings-document-detail-assignment');
+    });
+
+    it('should be have config file formats only show pdf', async () => {
+        const wrapper = await createWrapper(
+            {
+                props: { documentConfigId: 'documentId' },
+            },
+            ['document.editor'],
+        );
+
+        await flushPromises();
+
+        let multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
+
+        expect(multiSelect).toBeTruthy();
+        expect(multiSelect.attributes().value).toBe('pdf');
+
+        await wrapper.vm.onRemoveDocumentType({ id: 'pdf' });
+
+        multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
+
+        expect(multiSelect).toBeTruthy();
+        expect(multiSelect.attributes().value).toBe('pdf');
+    });
+
+    it('should be have config file formats with pdf and html', async () => {
+        const wrapper = await createWrapper(
+            {
+                props: { documentConfigId: 'documentConfigWithDocumentFileTypes' },
+            },
+            ['document.editor'],
+        );
+
+        await flushPromises();
+
+        let multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
+
+        expect(multiSelect).toBeTruthy();
+        expect(multiSelect.attributes().value).toBe('pdf,html');
+
+        await wrapper.vm.onRemoveDocumentType({ id: 'html' });
+
+        multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
+
+        expect(multiSelect).toBeTruthy();
+        expect(multiSelect.attributes().value).toBe('pdf');
+
+        await wrapper.vm.onAddDocumentType({ id: 'html' });
+
+        multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
+
+        expect(multiSelect).toBeTruthy();
+        expect(multiSelect.attributes().value).toBe('pdf,html');
     });
 });

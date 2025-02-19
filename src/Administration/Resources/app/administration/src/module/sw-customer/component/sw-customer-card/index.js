@@ -5,7 +5,7 @@ import CUSTOMER from '../../constant/sw-customer.constant';
 import ApiService from '../../../../core/service/api.service';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Mixin, Defaults } = Shopware;
@@ -15,8 +15,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'acl',
@@ -144,7 +142,7 @@ export default {
         },
 
         currentUser() {
-            return Shopware.State.get('session').currentUser;
+            return Shopware.Store.get('session').currentUser;
         },
 
         emailIdnFilter() {
@@ -158,9 +156,7 @@ export default {
                 return;
             }
 
-            Shopware.State.dispatch('error/removeApiError', {
-                expression: `customer.${this.customer.id}.company`,
-            });
+            Shopware.Store.get('error').removeApiError(`customer.${this.customer.id}.company`);
         },
     },
 

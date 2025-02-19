@@ -4,10 +4,10 @@ namespace Shopware\Core\Framework\Migration\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Migration\Exception\MigrateException;
 use Shopware\Core\Framework\Migration\Exception\UnknownMigrationSourceException;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
+use Shopware\Core\Framework\Migration\MigrationException;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -24,39 +24,17 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[Package('framework')]
 class MigrationCommand extends Command
 {
-    /**
-     * @var MigrationCollectionLoader
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $loader;
-
-    /**
-     * @var SymfonyStyle
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $io;
-
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shopwareVersion;
+    protected SymfonyStyle $io;
 
     /**
      * @internal
      */
     public function __construct(
-        MigrationCollectionLoader $loader,
+        protected readonly MigrationCollectionLoader $loader,
         private readonly TagAwareAdapterInterface $cache,
-        string $shopwareVersion
+        protected readonly string $shopwareVersion
     ) {
         parent::__construct();
-
-        $this->loader = $loader;
-        $this->shopwareVersion = $shopwareVersion;
     }
 
     protected function getMigrationGenerator(MigrationCollection $collection, ?int $until, ?int $limit): \Generator
@@ -90,11 +68,11 @@ class MigrationCommand extends Command
         $this->io = new ShopwareStyle($input, $output);
 
         if (!$until && !$input->getOption('all')) {
-            throw new \InvalidArgumentException('missing timestamp cap or --all option');
+            throw MigrationException::invalidArgument('missing timestamp cap or --all option');
         }
 
         if (\count($identifiers) > 1 && (!$input->getOption('all') || $input->getOption('limit'))) {
-            throw new \InvalidArgumentException('Running migrations for mutliple identifiers without --all option or with --limit option is not supported.');
+            throw MigrationException::invalidArgument('Running migrations for multiple identifiers without --all option or with --limit option is not supported.');
         }
 
         $limit = (int) $input->getOption('limit');
@@ -119,10 +97,7 @@ class MigrationCommand extends Command
     protected function collectMigrations(InputInterface $input, string $identifier): MigrationCollection
     {
         if ($identifier === 'core') {
-            return $this->loader->collectAllForVersion(
-                $this->shopwareVersion,
-                MigrationCollectionLoader::VERSION_SELECTION_ALL
-            );
+            return $this->loader->collectAllForVersion($this->shopwareVersion);
         }
 
         return $this->loader->collect($identifier);
@@ -148,10 +123,10 @@ class MigrationCommand extends Command
 
         try {
             $collection = $this->collectMigrations($input, $identifier);
-        } catch (UnknownMigrationSourceException $e) {
+        } catch (UnknownMigrationSourceException) {
             $this->io->note(\sprintf('No collection found for identifier: "%s", continuing', $identifier));
 
-            return self::SUCCESS;
+            return 0;
         }
 
         $collection->sync();
@@ -163,14 +138,14 @@ class MigrationCommand extends Command
         $migratedCounter = 0;
 
         try {
-            foreach ($this->getMigrationGenerator($collection, $until, $limit) as $_return) {
+            foreach ($this->getMigrationGenerator($collection, $until, $limit) as $ignored) {
                 $this->io->progressAdvance();
                 ++$migratedCounter;
             }
         } catch (\Exception $e) {
             $this->finishProgress($migratedCounter, $migrationCount);
 
-            throw new MigrateException($e->getMessage() . \PHP_EOL . 'Trace: ' . \PHP_EOL . $e->getTraceAsString(), $e);
+            throw MigrationException::migrationError($e->getMessage() . \PHP_EOL . 'Trace: ' . \PHP_EOL . $e->getTraceAsString(), $e);
         }
 
         $this->finishProgress($migratedCounter, $migrationCount);

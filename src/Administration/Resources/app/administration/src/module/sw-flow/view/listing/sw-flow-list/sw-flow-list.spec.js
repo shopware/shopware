@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import flowState from 'src/module/sw-flow/state/flow.state';
+import { createPinia } from 'pinia';
 
 /**
  * @sw-package after-sales
@@ -33,6 +33,7 @@ const flowData = [
 async function createWrapper(privileges = [], hasSnippetFromApp = false, customFlowData = flowData) {
     return mount(await wrapTestComponent('sw-flow-list', { sync: true }), {
         global: {
+            plugins: [createPinia()],
             stubs: {
                 'sw-page': {
                     template: `
@@ -50,7 +51,6 @@ async function createWrapper(privileges = [], hasSnippetFromApp = false, customF
                 `,
                 },
                 'sw-icon': true,
-                'sw-button': true,
                 'sw-entity-listing': {
                     props: ['items'],
                     template: `
@@ -67,7 +67,6 @@ async function createWrapper(privileges = [], hasSnippetFromApp = false, customF
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                 'sw-empty-state': true,
                 'sw-search-bar': true,
-                'sw-alert': true,
                 'sw-extension-component-section': true,
                 'sw-ai-copilot-badge': true,
                 'sw-context-button': true,
@@ -128,15 +127,6 @@ describe('module/sw-flow/view/listing/sw-flow-list', () => {
         return {
             getBusinessEvents: () => Promise.resolve(mockBusinessEvents),
         };
-    });
-
-    beforeAll(() => {
-        Shopware.State.registerModule('swFlowState', {
-            ...flowState,
-            state: {
-                triggerEvents: [],
-            },
-        });
     });
 
     it('should be able to duplicate a flow', async () => {

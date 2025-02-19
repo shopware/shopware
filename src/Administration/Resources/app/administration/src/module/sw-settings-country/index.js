@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package fundamentals@discovery
  */
 import './component/sw-settings-country-address-handling';
 import './component/sw-settings-country-new-snippet-modal';
@@ -148,7 +148,7 @@ Module.register('sw-settings-country', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'localization',
         to: 'sw.settings.country.index',
         icon: 'regular-map',
         privilege: 'country.viewer',

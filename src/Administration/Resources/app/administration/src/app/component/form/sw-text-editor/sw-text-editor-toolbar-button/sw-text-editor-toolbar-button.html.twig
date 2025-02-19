@@ -1,11 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_text_editor_toolbar_button %}
 <div
     class="sw-text-editor-toolbar-button"
     :class="'sw-text-editor-toolbar-button__type-' + buttonConfig.type"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_button_icon %}
     <template v-if="buttonConfig.icon">
         <div
@@ -30,7 +28,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_button_name %}
     <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div
@@ -45,7 +42,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_button_color %}
     <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div
@@ -66,7 +62,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_button_child %}
     <div
         v-if="buttonConfig.children && buttonConfig.expanded"
@@ -83,7 +78,6 @@
                 class="sw-text-editor-toolbar-button__children-child"
                 @click="handleButtonClick(child)"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_text_editor_toolbar_button_child_item %}
                 <div>
                     <sw-icon
@@ -103,7 +97,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_button_link_menu %}
     <div
         v-else-if="buttonConfig.type === 'link' && buttonConfig.expanded"
@@ -118,7 +111,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_button_table %}
     <div
         v-else-if="buttonConfig.type === 'table' && buttonConfig.expanded"
@@ -126,7 +118,6 @@
         class="sw-text-editor-toolbar-button__children sw-text-editor-toolbar-button__table-menu"
         :class="flyoutClasses"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_toolbar_button_table_menu_content %}
         <sw-text-editor-toolbar-table-button
             :button-config="buttonConfig"
@@ -137,7 +128,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_button_slot %}
     <slot name="buttonSlot"></slot>
     {% endblock %}

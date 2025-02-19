@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 import './sw-promotion-v2-cart-condition-form.scss';
 import template from './sw-promotion-v2-cart-condition-form.html.twig';
@@ -10,13 +10,10 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
         'promotionSyncService',
-        'feature',
     ],
 
     props: {
@@ -139,9 +136,9 @@ export default {
 
         deleteSetGroup(group) {
             // add to delete list for the save process
-            const deleteIds = Shopware.State.get('swPromotionDetail').setGroupIdsDelete;
+            const deleteIds = Shopware.Store.get('swPromotionDetail').setGroupIdsDelete;
             deleteIds.push(group.id);
-            Shopware.State.commit('swPromotionDetail/setSetGroupIdsDelete', deleteIds);
+            Shopware.Store.get('swPromotionDetail').setGroupIdsDelete = deleteIds;
 
             // remove also from entity for the view rendering
             this.promotion.setgroups = this.promotion.setgroups.filter((setGroup) => {

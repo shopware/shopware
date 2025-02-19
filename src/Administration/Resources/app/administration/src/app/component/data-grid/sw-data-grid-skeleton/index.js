@@ -4,14 +4,12 @@ import './sw-data-grid-skeleton.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */
 Component.register('sw-data-grid-skeleton', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         currentColumns: {

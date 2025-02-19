@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 import { mount } from '@vue/test-utils';
@@ -110,8 +110,6 @@ async function createWrapper() {
                 'sw-context-button': {
                     template: '<div class="sw-context-button"><slot></slot></div>',
                 },
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-button-group': await wrapTestComponent('sw-button-group'),
                 'sw-context-menu-item': true,
                 'sw-upload-listener': true,
@@ -397,7 +395,7 @@ describe('sw-order-document-settings-credit-note-modal', () => {
         const createButton = wrapper.findComponent('.sw-order-document-settings-modal__create');
         expect(createButton.attributes('disabled')).toBeDefined();
 
-        const createContextMenu = wrapper.findComponent('.sw-context-button');
+        const createContextMenu = wrapper.findAllComponents('.sw-context-button').at(1);
         expect(createContextMenu.attributes('disabled')).toBe('true');
     });
 

@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_condition_value_content %}
 <div class="sw-condition-goods-count">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_goods_count_field_operator %}
     <sw-condition-operator-select
         v-bind="{ operators, condition }"
@@ -10,7 +8,6 @@
     {% endblock %}
 
     <div class="sw-condition-goods-count__value">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_condition_goods_count_field_count %}
         <sw-number-field
             v-model:value="count"
@@ -23,10 +20,10 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_condition_goods_count_filter_button %}
         <div class="sw-condition-goods-count__filter">
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-tooltip="{ message: $tc('sw-settings-rule.conditionFilter.infoText') }"
                 :disabled="disabled || undefined"
                 @click="showFilterModal = true"
@@ -35,12 +32,11 @@
                     name="regular-filter-s"
                     small
                 />
-            </sw-button>
+            </mt-button>
         </div>
         {% endblock %}
     </div>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_goods_count_condition_modal %}
     <sw-condition-modal
         v-if="showFilterModal"

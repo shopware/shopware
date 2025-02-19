@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package fundamentals@framework
  */
 
 /* eslint-disable max-len */
@@ -17,7 +17,6 @@ async function createWrapper() {
                     'sw-switch-field': true,
                     'sw-number-field': true,
                     'sw-single-select': true,
-                    'sw-alert': true,
                 },
             },
         },

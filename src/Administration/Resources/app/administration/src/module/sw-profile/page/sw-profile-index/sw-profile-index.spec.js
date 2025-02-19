@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -15,7 +15,6 @@ async function createWrapper(privileges = []) {
                 'sw-search-bar': true,
                 'sw-notification-center': true,
                 'sw-language-switch': true,
-                'sw-button': true,
                 'sw-button-process': true,
                 'sw-card-view': true,
                 'sw-language-info': true,

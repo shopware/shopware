@@ -15,5 +15,5 @@ interface ExceptionHandlerInterface
 
     public function getPriority(): int;
 
-    public function matchException(\Exception $e): ?\Exception;
+    public function matchException(\Throwable $e): ?\Throwable;
 }

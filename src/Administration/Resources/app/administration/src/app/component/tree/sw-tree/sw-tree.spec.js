@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -37,7 +37,6 @@ async function createWrapper(
                 'sw-confirm-field': await wrapTestComponent('sw-confirm-field'),
                 'sw-field-error': true,
                 'sw-tree-input-field': true,
-                'sw-button': true,
                 'sw-context-menu-item': true,
                 'sw-context-button': true,
                 'sw-vnode-renderer': await wrapTestComponent('sw-vnode-renderer', { sync: true }),

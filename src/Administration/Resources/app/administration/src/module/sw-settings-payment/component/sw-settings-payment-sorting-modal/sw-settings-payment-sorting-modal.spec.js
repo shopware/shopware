@@ -1,10 +1,18 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
+let repositoryFactoryMock;
+
 async function createWrapper(privileges = []) {
+    repositoryFactoryMock = {
+        saveAll: () => {
+            return Promise.resolve();
+        },
+    };
+
     return mount(
         await wrapTestComponent('sw-settings-payment-sorting-modal', {
             sync: true,
@@ -36,18 +44,13 @@ async function createWrapper(privileges = []) {
                     },
                     repositoryFactory: {
                         create: () => {
-                            return {
-                                saveAll: () => {
-                                    return Promise.resolve();
-                                },
-                            };
+                            return repositoryFactoryMock;
                         },
                     },
                 },
                 stubs: {
                     'sw-modal': true,
                     'sw-sortable-list': true,
-                    'sw-button': true,
                     'sw-button-process': true,
                     'sw-icon': true,
                     'sw-media-preview-v2': true,

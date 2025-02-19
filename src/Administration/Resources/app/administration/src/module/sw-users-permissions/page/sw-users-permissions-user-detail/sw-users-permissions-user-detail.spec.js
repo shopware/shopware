@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 import { mount } from '@vue/test-utils';
 import TimezoneService from 'src/core/service/timezone.service';
@@ -126,7 +126,6 @@ async function createWrapper(
     </div>
     `,
                     },
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-text-field': await wrapTestComponent('sw-text-field', {
                         sync: true,
@@ -159,10 +158,9 @@ async function createWrapper(
                     'sw-empty-state': true,
                     'sw-skeleton': true,
                     'sw-loader': true,
-                    'sw-button': true,
                     'sw-verify-user-modal': true,
                     'sw-media-modal-v2': true,
-                    'sw-alert': true,
+
                     'sw-text-field-deprecated': true,
                     'sw-help-text': true,
                     'sw-inheritance-switch': true,
@@ -190,7 +188,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
     });
 
     beforeEach(async () => {
-        Shopware.State.get('session').languageId = '123456789';
+        Shopware.Store.get('session').languageId = '123456789';
         wrapper = await createWrapper();
     });
 
@@ -198,7 +196,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         // Unmount need to be called here manually because the publishData cleanup does
         // not work with automatic unmount
         await wrapper.unmount();
-        Shopware.State.get('session').languageId = '';
+        Shopware.Store.get('session').languageId = '';
     });
 
     it('should be a Vue.js component', async () => {

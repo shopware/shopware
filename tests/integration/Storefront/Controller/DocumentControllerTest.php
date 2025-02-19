@@ -18,7 +18,6 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -96,7 +95,7 @@ class DocumentControllerTest extends TestCase
         static::assertNotNull($document);
 
         $expectedFileContent = 'simple invoice';
-        $expectedContentType = 'text/plain; charset=UTF-8';
+        $expectedContentType = 'application/pdf';
 
         $request = new Request([], [], [], [], [], [], $expectedFileContent);
         $request->query->set('fileName', $fileName);
@@ -104,7 +103,7 @@ class DocumentControllerTest extends TestCase
         $request->server->set('HTTP_CONTENT_LENGTH', (string) mb_strlen($expectedFileContent));
         $request->headers->set('content-length', (string) mb_strlen($expectedFileContent));
 
-        $request->query->set('extension', 'txt');
+        $request->query->set('extension', 'pdf');
 
         $documentIdStruct = static::getContainer()->get(DocumentGenerator::class)->upload(
             $document->getId(),
@@ -117,7 +116,7 @@ class DocumentControllerTest extends TestCase
         $browser->request(
             'GET',
             $_SERVER['APP_URL'] . '/account/order/document/' . $documentIdStruct->getId() . '/' . $documentIdStruct->getDeepLinkCode(),
-            $this->tokenize('frontend.account.order.single.document', [])
+            $this->tokenize('frontend.account.order.single.document', ['fileType' => 'pdf'])
         );
 
         $response = $browser->getResponse();
@@ -243,10 +242,6 @@ class DocumentControllerTest extends TestCase
                 ],
             ],
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         static::getContainer()->get('customer.repository')->upsert([$customer], $this->context);
 

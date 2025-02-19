@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -39,7 +39,6 @@ async function createWrapper(propsData = {}) {
             renderStubDefaultSlot: true,
             stubs: {
                 'sw-data-grid-settings': await wrapTestComponent('sw-data-grid-settings'),
-                'sw-button': true,
                 'sw-context-button': true,
                 'sw-icon': true,
                 'sw-field': true,

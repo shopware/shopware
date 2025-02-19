@@ -1,5 +1,5 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 
 import { mount } from '@vue/test-utils';
@@ -18,7 +18,6 @@ async function createWrapper(customProps = {}, domains = []) {
                     'sw-card': {
                         template: '<div><slot></slot><slot name="grid"></slot></div>',
                     },
-                    'sw-button': true,
                     'sw-data-grid': await wrapTestComponent('sw-data-grid', {
                         sync: true,
                     }),
@@ -133,7 +132,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         });
 
         const button = wrapper.find('.sw-sales-channel-detail__button-domain-add');
-        expect(button.attributes().disabled).toBe('true');
+        expect(button.attributes('disabled')).toBeDefined();
 
         const contextMenuItems = wrapper.findAll('sw-context-menu-item-stub');
         contextMenuItems.forEach((item) => {
@@ -223,9 +222,9 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         expect(wrapper.getComponent('.sw-sales-channel-detail-domains__domain-language-select').vm.value).toBe(
             languages.first().id,
         );
-        expect(
-            wrapper.getComponent('.sw-sales-channel-detail-domains__domain-language-select').vm.$data.results,
-        ).toStrictEqual(languages);
+        expect([
+            ...wrapper.getComponent('.sw-sales-channel-detail-domains__domain-language-select').vm.$data.results,
+        ]).toStrictEqual([...languages]);
     });
 
     it('should only display available currencies', async () => {
@@ -253,9 +252,9 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         expect(wrapper.getComponent('.sw-sales-channel-detail-domains__domain-currency-select').vm.value).toBe(
             currencies.first().id,
         );
-        expect(
-            wrapper.getComponent('.sw-sales-channel-detail-domains__domain-currency-select').vm.$data.results,
-        ).toStrictEqual(currencies);
+        expect([
+            ...wrapper.getComponent('.sw-sales-channel-detail-domains__domain-currency-select').vm.$data.results,
+        ]).toStrictEqual([...currencies]);
     });
 
     it('verifyUrl › returns false, if the url exists either locally, or in the database', async () => {

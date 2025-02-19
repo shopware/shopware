@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\System\CustomEntity;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -15,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\System\CustomEntity\CustomEntityRegistrar;
 use Shopware\Core\System\CustomEntity\Schema\DynamicEntityDefinition;
+use Shopware\Core\Test\Stub\Doctrine\TestExceptionFactory;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -29,7 +29,7 @@ class CustomEntityRegistrarTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects(static::once())
             ->method('fetchAllAssociative')
-            ->willThrowException(new Exception());
+            ->willThrowException(TestExceptionFactory::createException('test'));
 
         $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
         $definitionInstanceRegistry->expects(static::never())

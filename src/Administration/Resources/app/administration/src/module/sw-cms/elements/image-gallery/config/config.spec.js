@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
@@ -62,7 +62,7 @@ async function createWrapper(activeTab = 'content') {
                         ],
                     },
                     'sw-text-field': true,
-                    'sw-alert': true,
+
                     'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field'),
                     'sw-upload-listener': true,
                     'sw-media-upload-v2': true,

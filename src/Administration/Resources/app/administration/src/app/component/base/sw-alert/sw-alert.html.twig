@@ -1,9 +1,7 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_alert %}
 <mt-banner
     v-if="useMeteorComponent"
     v-bind="$attrs"
-    v-on="listeners"
 >
     <template #default>
         <slot></slot>
@@ -11,12 +9,10 @@
 </mt-banner>
 {% endblock %}
 
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_alert_deprecated %}
 <sw-alert-deprecated
     v-else
     v-bind="$attrs"
-    v-on="listeners"
 >
     <slot></slot>
     <template #actions>

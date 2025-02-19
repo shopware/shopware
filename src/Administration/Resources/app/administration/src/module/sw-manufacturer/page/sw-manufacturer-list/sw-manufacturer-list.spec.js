@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 import { mount } from '@vue/test-utils';
@@ -15,7 +15,6 @@ async function createWrapper(privileges = []) {
                 },
                 'sw-entity-listing': true,
                 'sw-empty-state': true,
-                'sw-button': true,
                 'sw-loader': true,
                 'router-link': true,
                 'sw-search-bar': true,
@@ -65,7 +64,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         const wrapper = await createWrapper();
         const addButton = wrapper.find('.sw-manufacturer-list__add-manufacturer');
 
-        expect(addButton.attributes().disabled).toBe('true');
+        expect(addButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to inline edit', async () => {

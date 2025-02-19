@@ -4,10 +4,32 @@ import settingCustomerGroupDetailCreateOverride from 'src/module/sw-settings-cus
 
 Shopware.Component.override('sw-settings-customer-group-detail', settingCustomerGroupDetailCreateOverride);
 
+let repositoryFactoryMock;
+
 /**
- * @package discovery
+ * @sw-package discovery
  */
 async function createWrapper() {
+    repositoryFactoryMock = {
+        create: () => {
+            return {
+                id: 'aNiceId',
+                name: '',
+                displayGross: true,
+                registrationSalesChannels: [],
+                isNew: () => true,
+            };
+        },
+
+        save: () => {
+            return Promise.resolve();
+        },
+
+        get: () => {
+            return Promise.resolve();
+        },
+    };
+
     return mount(
         await wrapTestComponent('sw-settings-customer-group-detail', {
             sync: true,
@@ -45,8 +67,6 @@ async function createWrapper() {
                     'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                     'sw-select-result': await wrapTestComponent('sw-select-result'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-language-info': await wrapTestComponent('sw-language-info'),
                     'sw-switch-field': await wrapTestComponent('sw-switch-field'),
@@ -67,7 +87,7 @@ async function createWrapper() {
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
                     'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                     'sw-radio-field': await wrapTestComponent('sw-radio-field'),
-                    'sw-text-editor': true,
+                    'mt-text-editor': true,
                     'sw-search-bar': true,
                     'sw-highlight-text': true,
                     'sw-skeleton': true,
@@ -86,7 +106,7 @@ async function createWrapper() {
                     'sw-product-variant-info': true,
                     'sw-app-action-button': true,
                     'sw-checkbox-field': true,
-                    'sw-alert': true,
+
                     'sw-field-copyable': true,
                     'sw-help-text': true,
                     'sw-inheritance-switch': true,
@@ -96,25 +116,7 @@ async function createWrapper() {
 
                 provide: {
                     repositoryFactory: {
-                        create: () => ({
-                            create: () => {
-                                return {
-                                    id: 'aNiceId',
-                                    name: '',
-                                    displayGross: true,
-                                    registrationSalesChannels: [],
-                                    isNew: () => true,
-                                };
-                            },
-
-                            save: () => {
-                                return Promise.resolve();
-                            },
-
-                            get: () => {
-                                return Promise.resolve();
-                            },
-                        }),
+                        create: () => repositoryFactoryMock,
                     },
                     acl: {
                         can: () => {

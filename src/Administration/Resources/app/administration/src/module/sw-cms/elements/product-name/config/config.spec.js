@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
@@ -53,7 +53,7 @@ async function createWrapper(propsOverride) {
                         sync: true,
                     }),
                     'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field', { sync: true }),
-                    'sw-text-editor': {
+                    'mt-text-editor': {
                         props: ['value'],
                         emits: [
                             'blur',
@@ -69,7 +69,6 @@ async function createWrapper(propsOverride) {
                     'router-link': true,
                     'sw-context-menu-item': true,
                     'sw-context-button': true,
-                    'sw-alert': true,
                 },
             },
         },

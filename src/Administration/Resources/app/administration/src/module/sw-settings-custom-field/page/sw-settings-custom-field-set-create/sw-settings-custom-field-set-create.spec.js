@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 import 'src/app/mixin/notification.mixin';
@@ -44,7 +44,6 @@ async function createWrapper() {
                     'sw-page': true,
                     'sw-empty-state': true,
                     'sw-custom-field-set-detail-base': true,
-                    'sw-button': true,
                     'sw-button-process': true,
                     'sw-card': true,
                     'sw-card-view': true,
@@ -117,14 +116,5 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
         expect(wrapper.vm.technicalNameError).toBeTruthy();
         expect(wrapper.vm.technicalNameError.hasOwnProperty('detail')).toBeTruthy();
         expect(wrapper.vm.technicalNameError.detail).toBe('translation');
-    });
-
-    it('should save', async () => {
-        wrapper.vm.$super = jest.fn();
-        wrapper.vm.onSave();
-        await flushPromises();
-
-        expect(wrapper.vm.$super).toHaveBeenCalledTimes(1);
-        expect(wrapper.vm.$super).toHaveBeenCalledWith('onSave');
     });
 });

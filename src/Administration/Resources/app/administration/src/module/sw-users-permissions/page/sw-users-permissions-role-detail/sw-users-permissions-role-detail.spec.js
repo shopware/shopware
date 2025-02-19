@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 import { mount } from '@vue/test-utils';
 import PrivilegesService from 'src/app/service/privileges.service';
@@ -49,7 +49,6 @@ async function createWrapper(
 </div>
     `,
                     },
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-icon': true,
                     'sw-card-view': {
@@ -65,10 +64,6 @@ async function createWrapper(
                     'router-view': true,
                     'sw-skeleton': true,
                     'sw-loader': true,
-                    'sw-button': {
-                        emits: ['click'],
-                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                    },
                 },
                 mocks: {
                     $route: $route,

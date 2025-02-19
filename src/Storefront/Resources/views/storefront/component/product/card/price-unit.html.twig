@@ -98,9 +98,12 @@
         #}
         {% if feature('ACCESSIBILITY_TWEAKS') and config('core.listing.allowBuyInListing') %}
             {% block component_product_box_price_tax_info %}
-                <button class="product-price-tax-link btn btn-link fw-normal p-0 fs-6 lh-base"
+                {% set cmsPath = 'frontend.cms.page' %}
+
+                <button class="product-price-tax-link btn btn-link-inline fs-6"
+                        type="button"
                         data-ajax-modal="true"
-                        data-url="{{ path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}">
+                        data-url="{{ path(cmsPath, { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}">
                     {% if context.taxState == 'gross' %}
                         {{ 'general.grossTaxInformation'|trans|sw_sanitize }}
                     {% else %}

@@ -186,6 +186,9 @@ SQL;
                 $orderCount = array_sum($totals);
 
                 foreach ($totals as $customerId => $total) {
+                    if (!isset($allCustomerCounts[$promotionId][$customerId])) {
+                        continue;
+                    }
                     $allCustomerCounts[$promotionId][$customerId] -= $total;
 
                     if ($allCustomerCounts[$promotionId][$customerId] <= 0) {

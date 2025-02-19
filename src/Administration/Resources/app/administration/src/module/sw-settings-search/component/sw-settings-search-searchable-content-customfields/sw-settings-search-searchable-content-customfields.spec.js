@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
 
@@ -68,7 +68,6 @@ async function createWrapper() {
                     `,
                     },
                     'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                    'sw-button': true,
                     'sw-entity-single-select': true,
                     'sw-number-field': true,
                     'sw-checkbox-field': true,

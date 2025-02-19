@@ -7,15 +7,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('services-settings')]
+#[Package('discovery')]
 class SitemapPageLoadedEvent extends PageLoadedEvent
 {
-    /**
-     * @var SitemapPage
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $page;
+    protected SitemapPage $page;
 
     public function __construct(
         SitemapPage $page,

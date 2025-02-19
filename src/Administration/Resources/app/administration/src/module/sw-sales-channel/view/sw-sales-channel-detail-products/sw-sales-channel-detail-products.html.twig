@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sales_channel_detail_products %}
 <sw-card
     v-if="salesChannel && products"
@@ -6,23 +5,19 @@
     class="sw-sales-channel-detail-products"
     :is-loading="isLoading || undefined"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_products_filled_state %}
     <template
         v-if="products.length > 0 || searchTerm"
         #grid
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_products_card_section %}
         <sw-container rows="auto 500px">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_products_card_section_secondary %}
             <sw-card-section secondary>
                 <sw-container
                     columns="1fr auto"
                     gap="0 15px"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_sales_channel_detail_products_card_section_secondary_input %}
                     <sw-simple-search-field
                         v-model:value="searchTerm"
@@ -32,30 +27,28 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_sales_channel_detail_products_card_section_secondary_button %}
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         v-tooltip="{
                             message: $tc('sw-privileges.tooltip.warning'),
                             disabled: acl.can('sales_channel.editor'),
                             showOnDisabledElements: true
                         }"
-                        variant="ghost"
+                        ghost
                         size="small"
                         :disabled="!acl.can('sales_channel.editor')"
                         @click="openAddProductsModal"
                     >
                         {{ $tc('sw-sales-channel.detail.products.buttonAddProducts', 0) }}
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
                 </sw-container>
             </sw-card-section>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_products_card_section_primary %}
             <sw-card-section divider="top">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_sales_channel_detail_products_card_section_primary_filled_state %}
                 <sw-entity-listing
                     v-if="products.length > 0"
@@ -80,7 +73,6 @@
                     <template #selection-content="{ item, isSelected, isRecordSelectable, selectItem, itemIdentifierProperty }">
                         <slot v-bind="{ item, isSelected, isRecordSelectable, selectItem, itemIdentifierProperty }">
                             <div class="sw-data-grid__cell-content">
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_sales_channel_detail_products_listing_select_item_checkbox %}
                                 <sw-checkbox-field
                                     v-tooltip="{
@@ -98,7 +90,6 @@
                     </template>
                     <template #column-name="{ item }">
                         <slot v-bind="{ item }">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_sales_channel_detail_products_listing_column_name %}
                             <sw-product-variant-info
                                 :variations="item.variation"
@@ -112,7 +103,6 @@
                     </template>
 
                     <template #column-active="{ item }">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_sales_channel_detail_products_listing_column_active %}
                         <sw-icon
                             small
@@ -123,7 +113,6 @@
                     </template>
 
                     <template #pagination>
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_sales_channel_detail_products_listing_pagination %}
                         <sw-pagination
                             v-bind="{ page, limit, total }"
@@ -135,7 +124,6 @@
                     </template>
 
                     <template #delete-action="{ item }">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_sales_channel_detail_products_listing_delete_action %}
                         <sw-context-menu-item
                             variant="warning"
@@ -148,7 +136,6 @@
                     </template>
 
                     <template #bulk>
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_sales_channel_detail_products_listing_bulk %}
                         <a
                             class="link link-warning"
@@ -164,7 +151,6 @@
                 </sw-entity-listing>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_sales_channel_detail_products_card_section_primary_empty_state %}
                 <sw-empty-state
                     v-else
@@ -172,7 +158,6 @@
                     :title="$tc('sw-sales-channel.detail.products.titleEmptyStateTable')"
                 >
                     <template #icon>
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_sales_channel_detail_products_card_section_primary_image %}
                         <img
                             :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
@@ -189,7 +174,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_products_empty_state %}
     <sw-empty-state
         v-if="products.length <= 0 && !searchTerm && !isLoading"
@@ -198,7 +182,6 @@
         :title="$tc('sw-sales-channel.detail.products.titleEmptyState')"
     >
         <template #icon>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_products_empty_state_image %}
             <img
                 :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
@@ -208,26 +191,25 @@
         </template>
 
         <template #actions>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_products_empty_state_button %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-tooltip="{
                     message: $tc('sw-privileges.tooltip.warning'),
                     disabled: acl.can('sales_channel.editor'),
                     showOnDisabledElements: true
                 }"
-                variant="ghost"
+                ghost
                 :disabled="!acl.can('sales_channel.editor')"
                 @click="openAddProductsModal"
             >
                 {{ $tc('sw-sales-channel.detail.products.buttonAddProducts', 0) }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
     </sw-empty-state>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_products_assignment_modal %}
     <sw-sales-channel-products-assignment-modal
         v-if="showProductsModal"

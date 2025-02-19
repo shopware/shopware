@@ -1,10 +1,10 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 import { mount } from '@vue/test-utils';
 
-const { State } = Shopware;
+const { Store } = Shopware;
 
 async function createWrapper(privileges = []) {
     return mount(await wrapTestComponent('sw-product-detail-reviews', { sync: true }), {
@@ -61,7 +61,6 @@ async function createWrapper(privileges = []) {
 `,
                 },
                 'sw-skeleton': true,
-                'sw-button': true,
                 'sw-rating-stars': true,
                 'sw-data-grid-column-boolean': true,
                 'sw-pagination': true,
@@ -77,15 +76,15 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
     ];
 
     beforeAll(() => {
-        State.registerModule('swProductDetail', {
-            namespaced: true,
-            state: {
+        Store.register({
+            id: 'swProductDetail',
+            state: () => ({
                 product: {},
-            },
+            }),
             getters: {
                 isLoading: () => false,
             },
-            mutations: {
+            actions: {
                 setProduct(state, newProduct) {
                     state.product = newProduct;
                 },
@@ -178,9 +177,9 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
         const wrapper = await createWrapper();
         wrapper.vm.getReviews = jest.fn();
 
-        await Shopware.State.commit('swProductDetail/setProduct', {
+        Shopware.Store.get('swProductDetail').product = {
             id: '101',
-        });
+        };
         await flushPromises();
 
         expect(wrapper.vm.getReviews).toHaveBeenCalled();

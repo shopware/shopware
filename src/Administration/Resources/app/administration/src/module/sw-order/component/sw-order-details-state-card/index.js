@@ -2,7 +2,7 @@ import template from './sw-order-details-state-card.html.twig';
 import './sw-order-details-state-card.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Criteria } = Shopware.Data;
@@ -11,14 +11,13 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'acl',
         'repositoryFactory',
         'orderStateMachineService',
         'stateMachineService',
         'stateStyleDataProviderService',
+        'swOrderDetailAskAndSaveEdits',
     ],
 
     emits: [
@@ -184,9 +183,14 @@ export default {
             return options;
         },
 
-        onStateSelected(stateType, actionName) {
+        async onStateSelected(stateType, actionName) {
             if (!stateType || !actionName) {
                 this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
+                return;
+            }
+
+            const proceed = await this.swOrderDetailAskAndSaveEdits();
+            if (!proceed) {
                 return;
             }
 

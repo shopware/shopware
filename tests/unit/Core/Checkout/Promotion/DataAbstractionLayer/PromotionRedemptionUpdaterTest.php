@@ -73,13 +73,22 @@ class PromotionRedemptionUpdaterTest extends TestCase
         ]);
 
         $statementMock = $this->createMock(Statement::class);
+        $params = [
+            ['id', Uuid::fromHexToBytes($promotionId)],
+            ['count', 1],
+            ['customerCount', json_encode([$customerId => 1], \JSON_THROW_ON_ERROR)],
+        ];
+        $matcher = static::exactly(\count($params));
+        $statementMock->expects($matcher)
+            ->method('bindValue')
+            ->willReturnCallback(function (string $key, $value) use ($matcher, $params): void {
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][0], $key);
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][1], $value);
+            });
+
         $statementMock->expects(static::once())
             ->method('executeStatement')
-            ->with(static::equalTo([
-                'id' => Uuid::fromHexToBytes($promotionId),
-                'customerCount' => json_encode([$customerId => 1], \JSON_THROW_ON_ERROR),
-                'count' => 1,
-            ]));
+            ->willReturn(1);
         $this->connectionMock->method('prepare')->willReturn($statementMock);
 
         $this->promotionRedemptionUpdater->update([$promotionId], Context::createDefaultContext());
@@ -93,12 +102,21 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $event = $this->createOrderPlacedEvent($promotionId, $customerId);
 
         $statementMock = $this->createMock(Statement::class);
+        $params = [
+            ['id', Uuid::fromHexToBytes($promotionId)],
+            ['customerCount', json_encode([$customerId => 1], \JSON_THROW_ON_ERROR)],
+        ];
+        $matcher = static::exactly(\count($params));
+        $statementMock->expects($matcher)
+            ->method('bindValue')
+            ->willReturnCallback(function (string $key, $value) use ($matcher, $params): void {
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][0], $key);
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][1], $value);
+            });
+
         $statementMock->expects(static::once())
             ->method('executeStatement')
-            ->with(static::equalTo([
-                'id' => Uuid::fromHexToBytes($promotionId),
-                'customerCount' => json_encode([$customerId => 1], \JSON_THROW_ON_ERROR),
-            ]));
+            ->willReturn(1);
 
         $this->connectionMock->method('prepare')->willReturn($statementMock);
 
@@ -135,11 +153,20 @@ class PromotionRedemptionUpdaterTest extends TestCase
         );
 
         $statementMock = $this->createMock(Statement::class);
-        $statementMock->expects(static::once())->method('executeStatement')->with([
-            'id' => Uuid::fromHexToBytes($promotionId),
-            'customerCount' => json_encode([$customerId => 1], \JSON_THROW_ON_ERROR),
-            'count' => 1,
-        ]);
+        $params = [
+            ['id', Uuid::fromHexToBytes($promotionId)],
+            ['count', 1],
+            ['customerCount', json_encode([$customerId => 1], \JSON_THROW_ON_ERROR)],
+        ];
+        $matcher = static::exactly(\count($params));
+        $statementMock->expects($matcher)
+            ->method('bindValue')
+            ->willReturnCallback(function (string $key, $value) use ($matcher, $params): void {
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][0], $key);
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][1], $value);
+            });
+
+        $statementMock->expects(static::once())->method('executeStatement')->willReturn(1);
         $this->connectionMock->method('prepare')->willReturn($statementMock);
 
         $this->promotionRedemptionUpdater->update([$promotionId], Context::createDefaultContext());
@@ -189,20 +216,31 @@ class PromotionRedemptionUpdaterTest extends TestCase
         );
 
         $statementMock = $this->createMock(Statement::class);
+        $params = [
+            ['id', Uuid::fromHexToBytes($promotionId)],
+            ['customerCount', json_encode([], \JSON_THROW_ON_ERROR)],
+            ['orderCount', 1],
+        ];
+        $matcher = static::exactly(\count($params));
+        $statementMock->expects($matcher)
+            ->method('bindValue')
+            ->willReturnCallback(function (string $key, $value) use ($matcher, $params): void {
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][0], $key);
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][1], $value);
+            });
+
         $statementMock->expects(static::once())
             ->method('executeStatement')
-            ->with(static::equalTo([
-                'id' => Uuid::fromHexToBytes($promotionId),
-                'customerCount' => json_encode([], \JSON_THROW_ON_ERROR),
-                'orderCount' => 1,
-            ]));
+            ->willReturn(1);
 
         $this->connectionMock->method('prepare')->willReturn($statementMock);
         $this->connectionMock->expects(static::once())
             ->method('executeStatement')
             ->with(static::equalTo('UPDATE promotion_individual_code set payload = NULL WHERE code IN (:codes)'))
-            ->willReturnCallback(function ($query, $params): void {
+            ->willReturnCallback(function ($query, $params): int {
                 static::assertSame(['codes' => ['F1D6Y0X2']], $params);
+
+                return 1;
             });
 
         $this->promotionRedemptionUpdater->beforeDeletePromotionLineItems($event);

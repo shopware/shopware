@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 let parentComponent;
@@ -105,7 +105,6 @@ async function createWrapper() {
                     'sw-tabs-item': true,
                     'sw-text-field': true,
                     'sw-settings-tag-detail-assignments': true,
-                    'sw-button': true,
                     'sw-tabs-deprecated': true,
                     'sw-card-filter': true,
                 },
@@ -156,7 +155,6 @@ async function createWrapper() {
                     'sw-container': true,
                     'sw-text-field': true,
                     'sw-settings-tag-detail-assignments': true,
-                    'sw-button': true,
                     'sw-tabs-deprecated': true,
                     'sw-card-filter': true,
                     'sw-icon': true,

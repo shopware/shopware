@@ -4,7 +4,7 @@ import './sw-media-base-item.scss';
 /**
  * @status ready
  * @description The <u>sw-media-base-item</u> component is the base for items in the media manager.
- * @package content
+ * @sw-package discovery
  * @example-type code-only
  * @component-example
  * <sw-media-base-item
@@ -15,8 +15,6 @@ import './sw-media-base-item.scss';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['systemConfigApiService'],
 

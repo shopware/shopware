@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package fundamentals@discovery
  */
 
 import { mount } from '@vue/test-utils';
@@ -59,8 +59,6 @@ async function createWrapper(privileges = [], customPropsData = {}) {
         },
         'sw-context-menu': await wrapTestComponent('sw-context-menu'),
         'sw-context-button': await wrapTestComponent('sw-context-button'),
-        'sw-button': await wrapTestComponent('sw-button'),
-        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
         'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
         'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
         'sw-popover': await wrapTestComponent('sw-popover'),
@@ -207,7 +205,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     let wrapper;
 
     beforeAll(() => {
-        Shopware.State.get('session').currentUser = {};
+        Shopware.Store.get('session').setCurrentUser({});
     });
 
     it('should be a Vue.JS component', async () => {

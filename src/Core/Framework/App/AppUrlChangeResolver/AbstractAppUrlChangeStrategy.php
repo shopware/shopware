@@ -5,9 +5,9 @@ namespace Shopware\Core\Framework\App\AppUrlChangeResolver;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -23,7 +23,7 @@ abstract class AbstractAppUrlChangeStrategy
      * @param EntityRepository<AppCollection> $appRepository
      */
     public function __construct(
-        private readonly AppLoader $appLoader,
+        private readonly SourceResolver $sourceResolver,
         private readonly EntityRepository $appRepository,
         private readonly AppRegistrationService $registrationService
     ) {
@@ -42,13 +42,13 @@ abstract class AbstractAppUrlChangeStrategy
      */
     protected function forEachInstalledApp(Context $context, callable $callback): void
     {
-        $manifests = $this->appLoader->load();
-        $apps = $this->appRepository->search(new Criteria(), $context)->getEntities();
+        $apps = $this->appRepository->search(new Criteria(), $context);
 
-        foreach ($manifests as $manifest) {
-            $app = $this->getAppForManifest($manifest, $apps);
+        foreach ($apps as $app) {
+            $fs = $this->sourceResolver->filesystemForApp($app);
+            $manifest = Manifest::createFromXmlFile($fs->path('manifest.xml'));
 
-            if (!$app || !$manifest->getSetup()) {
+            if (!$manifest->getSetup()) {
                 continue;
             }
 
@@ -72,12 +72,5 @@ abstract class AbstractAppUrlChangeStrategy
         ], $context);
 
         $this->registrationService->registerApp($manifest, $app->getId(), $secret, $context);
-    }
-
-    private function getAppForManifest(Manifest $manifest, AppCollection $installedApps): ?AppEntity
-    {
-        $matchedApps = $installedApps->filter(static fn (AppEntity $installedApp): bool => $installedApp->getName() === $manifest->getMetadata()->getName());
-
-        return $matchedApps->first();
     }
 }

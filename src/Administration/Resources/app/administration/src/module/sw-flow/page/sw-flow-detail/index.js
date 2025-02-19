@@ -1,10 +1,10 @@
 import template from './sw-flow-detail.html.twig';
 import './sw-flow-detail.scss';
 
-const { Component, Mixin, Context, State, Utils, Service } = Shopware;
+const { Component, Mixin, Context, Store, Utils, Service } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
-const { mapState, mapGetters, mapPropertyErrors } = Component.getComponentHelper();
+const { mapState, mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @private
@@ -12,8 +12,6 @@ const { mapState, mapGetters, mapPropertyErrors } = Component.getComponentHelper
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'acl',
@@ -77,7 +75,6 @@ export default {
 
         flowCriteria() {
             const criteria = new Criteria(1, 25);
-
             criteria.addAssociation('sequences.rule');
             criteria
                 .getAssociation('sequences')
@@ -100,6 +97,7 @@ export default {
         documentTypeCriteria() {
             const criteria = new Criteria(1, 100);
             criteria.addSorting(Criteria.sort('name', 'ASC'));
+
             return criteria;
         },
 
@@ -119,6 +117,7 @@ export default {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('mailTemplateType');
             criteria.addFilter(Criteria.equalsAny('id', this.mailTemplateIds));
+
             return criteria;
         },
 
@@ -129,12 +128,14 @@ export default {
         customerGroupCriteria() {
             const criteria = new Criteria(1, 100);
             criteria.addSorting(Criteria.sort('name', 'ASC'));
+
             return criteria;
         },
 
         appFlowActionCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('app');
+
             return criteria;
         },
 
@@ -160,12 +161,14 @@ export default {
         customFieldSetCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equalsAny('id', this.customFieldSetIds));
+
             return criteria;
         },
 
         customFieldCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equalsAny('id', this.customFieldIds));
+
             return criteria;
         },
 
@@ -187,17 +190,18 @@ export default {
             });
         },
 
-        ...mapState('swFlowState', [
-            'flow',
-            'triggerEvents',
-        ]),
-        ...mapGetters('swFlowState', [
-            'sequences',
-            'mailTemplateIds',
-            'customFieldSetIds',
-            'customFieldIds',
-            'hasFlowChanged',
-        ]),
+        ...mapState(
+            () => Store.get('swFlow'),
+            [
+                'flow',
+                'triggerEvents',
+                'sequences',
+                'mailTemplateIds',
+                'customFieldSetIds',
+                'customFieldIds',
+                'hasFlowChanged',
+            ],
+        ),
         ...mapPropertyErrors('flow', [
             'name',
             'eventName',
@@ -263,11 +267,13 @@ export default {
         },
 
         beforeDestroyComponent() {
-            State.dispatch('swFlowState/resetFlowState');
+            Store.get('swFlow').resetFlowState();
         },
 
         routeDetailTab(tabName) {
-            if (!tabName) return {};
+            if (!tabName) {
+                return {};
+            }
 
             if (this.isNewFlow) {
                 if (this.$route.params.flowTemplateId) {
@@ -301,19 +307,20 @@ export default {
             flow.id = Utils.createId();
             flow.priority = 0;
             flow.eventName = '';
+            flow.sequences = [];
 
-            return State.commit('swFlowState/setFlow', flow);
+            return Store.get('swFlow').setFlow(flow);
         },
 
         getDetailFlow() {
             this.isLoading = true;
-            Shopware.State.dispatch('swFlowState/fetchTriggerActions');
+            Shopware.Store.get('swFlow').fetchTriggerActions();
 
             return this.flowRepository
                 .get(this.flowId, Context.api, this.flowCriteria)
                 .then((data) => {
-                    State.commit('swFlowState/setFlow', data);
-                    State.commit('swFlowState/setOriginFlow', cloneDeep(data));
+                    Store.get('swFlow').setFlow(data);
+                    Store.get('swFlow').setOriginFlow(cloneDeep(data));
                     this.getDataForActionDescription();
                 })
                 .catch(() => {
@@ -328,7 +335,7 @@ export default {
 
         getAppFlowAction() {
             return this.appFlowActionRepository.search(this.appFlowActionCriteria, Shopware.Context.api).then((response) => {
-                State.commit('swFlowState/setAppActions', response);
+                Store.get('swFlow').setAppActions(response);
             });
         },
 
@@ -338,8 +345,8 @@ export default {
             return this.flowTemplateRepository
                 .get(this.flowId, Context.api, this.flowTemplateCriteria)
                 .then((data) => {
-                    State.commit('swFlowState/setFlow', data);
-                    State.commit('swFlowState/setOriginFlow', cloneDeep(data));
+                    Store.get('swFlow').setFlow(data);
+                    Store.get('swFlow').setOriginFlow(cloneDeep(data));
                     this.getDataForActionDescription();
                     this.getRuleDataForFlowTemplate();
                 })
@@ -357,12 +364,20 @@ export default {
             // Remove selector sequence type before saving
             this.removeAllSelectors();
 
+            if (!this.flow?.name  || !this.flow?.eventName) {
+                this.createNotificationWarning({
+                    message: this.$tc('sw-flow.flowNotification.emptyFields.general'),
+                });
+
+                return;
+            }
+
             // Validate condition sequence which has empty rule or action sequence has empty action name
             const invalidSequences = this.validateEmptySequence();
 
             if (invalidSequences.length) {
                 this.createNotificationWarning({
-                    message: this.$tc('sw-flow.flowNotification.messageRequiredEmptyFields'),
+                    message: this.$tc('sw-flow.flowNotification.emptyFields.sequences'),
                 });
 
                 return;
@@ -397,10 +412,11 @@ export default {
                             name: 'sw.flow.detail',
                             params: { id: this.flow.id },
                         });
-                    } else {
-                        this.getDetailFlow();
+
+                        return;
                     }
 
+                    this.getDetailFlow();
                     this.isSaveSuccessful = true;
                 })
                 .catch(() => {
@@ -437,7 +453,7 @@ export default {
                 }
             });
 
-            State.commit('swFlowState/setFlow', updateFlow);
+            Store.get('swFlow').setFlow(updateFlow);
         },
 
         getDeletedSequenceIds() {
@@ -507,19 +523,22 @@ export default {
                 return sequence.ruleId !== null || sequence.actionName !== null;
             });
 
-            State.commit('swFlowState/setSequences', newSequences);
+            Store.get('swFlow').setSequences(newSequences);
         },
 
         validateEmptySequence() {
             const invalidSequences = this.sequences.reduce((result, sequence) => {
                 if (sequence.ruleId === '' || sequence.actionName === '') {
-                    result.push(sequence.id);
+                    return [
+                        ...result,
+                        sequence.id,
+                    ];
                 }
 
                 return result;
             }, []);
 
-            State.commit('swFlowState/setInvalidSequences', invalidSequences);
+            Store.get('swFlow').invalidSequences = invalidSequences;
 
             return invalidSequences;
         },
@@ -539,7 +558,7 @@ export default {
                 // get support information for set order state action.
                 promises.push(
                     this.stateMachineStateRepository.search(this.stateMachineStateCriteria).then((data) => {
-                        State.commit('swFlowState/setStateMachineState', data);
+                        Store.get('swFlow').stateMachineState = data;
                     }),
                 );
             }
@@ -553,7 +572,7 @@ export default {
                 // get support information for generate document action.
                 promises.push(
                     this.documentTypeRepository.search(this.documentTypeCriteria).then((data) => {
-                        Shopware.State.commit('swFlowState/setDocumentTypes', data);
+                        Shopware.Store.get('swFlow').documentTypes = data;
                     }),
                 );
             }
@@ -567,7 +586,7 @@ export default {
                 // get support information for mail send action.
                 promises.push(
                     this.mailTemplateRepository.search(this.mailTemplateIdsCriteria).then((data) => {
-                        Shopware.State.commit('swFlowState/setMailTemplates', data);
+                        Shopware.Store.get('swFlow').mailTemplates = data;
                     }),
                 );
             }
@@ -581,7 +600,7 @@ export default {
                 // get support information for change customer group action.
                 promises.push(
                     this.customerGroupRepository.search(this.customerGroupCriteria).then((data) => {
-                        Shopware.State.commit('swFlowState/setCustomerGroups', data);
+                        Shopware.Store.get('swFlow').customerGroups = data;
                     }),
                 );
             }
@@ -599,13 +618,13 @@ export default {
             if (hasSetCustomFieldAction) {
                 promises.push(
                     this.customFieldSetRepository.search(this.customFieldSetCriteria).then((data) => {
-                        Shopware.State.commit('swFlowState/setCustomFieldSets', data);
+                        Shopware.Store.get('swFlow').customFieldSets = data;
                     }),
                 );
 
                 promises.push(
                     this.customFieldRepository.search(this.customFieldCriteria).then((data) => {
-                        Shopware.State.commit('swFlowState/setCustomFields', data);
+                        Shopware.Store.get('swFlow').customFields = data;
                     }),
                 );
             }
@@ -626,8 +645,8 @@ export default {
                     flow.description = data.config?.description;
                     flow.sequences = this.buildSequencesFromConfig(data.config?.sequences ?? []);
 
-                    State.commit('swFlowState/setFlow', flow);
-                    State.commit('swFlowState/setOriginFlow', cloneDeep(flow));
+                    Store.get('swFlow').setFlow(flow);
+                    Store.get('swFlow').setOriginFlow(cloneDeep(flow));
                     this.getDataForActionDescription();
                     this.getRuleDataForFlowTemplate();
                 })
@@ -643,6 +662,7 @@ export default {
 
         createSequenceEntity(flowSequence) {
             const entity = this.flowSequenceRepository.create();
+
             Object.keys(flowSequence).forEach((key) => {
                 if (key === 'trueCase') {
                     entity[key] = Boolean(flowSequence[key]);
@@ -711,8 +731,8 @@ export default {
                     return sequence;
                 });
 
-                State.commit('swFlowState/setSequences', sequencesWithRules);
-                State.commit('swFlowState/setOriginFlow', cloneDeep(this.flow));
+                Store.get('swFlow').setSequences(sequencesWithRules);
+                Store.get('swFlow').setOriginFlow(cloneDeep(this.flow));
             });
         },
     },

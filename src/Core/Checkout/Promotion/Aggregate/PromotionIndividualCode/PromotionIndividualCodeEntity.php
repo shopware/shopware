@@ -13,33 +13,16 @@ class PromotionIndividualCodeEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $promotionId;
+    protected string $promotionId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $code;
+    protected string $code;
 
-    /**
-     * @var PromotionEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $promotion;
+    protected ?PromotionEntity $promotion = null;
 
     /**
      * @var array<string>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $payload;
+    protected ?array $payload = null;
 
     /**
      * Gets if the code has been redeemed

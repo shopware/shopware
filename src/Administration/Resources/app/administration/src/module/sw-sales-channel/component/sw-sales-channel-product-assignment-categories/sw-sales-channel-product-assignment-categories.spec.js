@@ -1,5 +1,5 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 
 import { mount } from '@vue/test-utils';
@@ -101,7 +101,7 @@ async function createWrapper() {
                     template: '<div><slot></slot></div>',
                 },
                 'sw-container': true,
-                'sw-alert': true,
+
                 'sw-icon': true,
                 'sw-tree': {
                     props: ['items'],

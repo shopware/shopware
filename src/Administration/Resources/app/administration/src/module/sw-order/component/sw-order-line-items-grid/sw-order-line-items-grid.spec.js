@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 const mockItems = [
     {
@@ -168,15 +168,17 @@ const mockNestedItem = {
             id: '7',
             label: 'Nested in level 1 (2)',
             quantity: 1,
-            children: [{
-                ...mockItems[0],
-                id: '8',
-                label: 'Nested in level 2',
-                quantity: 2,
-            }],
+            children: [
+                {
+                    ...mockItems[0],
+                    id: '8',
+                    label: 'Nested in level 2',
+                    quantity: 2,
+                },
+            ],
         },
-    ]
-}
+    ],
+};
 
 const deleteEndpoint = jest.fn(() => Promise.resolve());
 
@@ -229,9 +231,6 @@ async function createWrapper() {
                 'sw-container': await wrapTestComponent('sw-container', {
                     sync: true,
                 }),
-                'sw-button': await await wrapTestComponent('sw-button', {
-                    sync: true,
-                }),
                 'sw-button-group': {
                     template: '<div class="sw-button-group"><slot></slot></div>',
                 },
@@ -281,10 +280,6 @@ async function createWrapper() {
                     `,
                 },
                 'sw-order-nested-line-items-modal': true,
-                'sw-button-deprecated': {
-                    emits: ['click'],
-                    template: '<button @click="$emit(\'click\')"><slot></slot></button>',
-                },
                 'sw-data-grid-column-boolean': true,
                 'sw-data-grid-inline-edit': true,
                 'sw-data-grid-skeleton': true,
@@ -295,7 +290,7 @@ async function createWrapper() {
                 'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },
             mocks: {
-                $tc: (t, count, value) => {
+                $tc: (t, value) => {
                     if (t === 'sw-order.detailBase.taxDetail') {
                         return `${value.taxRate}%: ${value.tax}`;
                     }

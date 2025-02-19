@@ -60,7 +60,6 @@ async function createWrapper(props = defaultProps, privileges = ['rule.editor'])
                 'sw-help-text': true,
                 'sw-field-error': true,
                 'sw-label': true,
-                'sw-button': true,
                 'sw-extension-teaser-popover': true,
             },
             provide: {

@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 import { mount } from '@vue/test-utils';
 
@@ -47,7 +47,6 @@ async function createWrapper() {
                     'sw-context-menu-item': true,
                     'sw-select-field': true,
                     'sw-number-field': true,
-                    'sw-button': true,
                 },
                 provide: {
                     promotionSyncService: {

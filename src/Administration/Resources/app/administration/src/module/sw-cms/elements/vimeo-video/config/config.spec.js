@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
@@ -28,7 +28,7 @@ async function createWrapper() {
                 'sw-cms-mapping-field': true,
                 'sw-media-upload-v2': true,
                 'sw-media-modal-v2': true,
-                'sw-alert': true,
+
                 'sw-upload-listener': true,
             },
         },

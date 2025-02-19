@@ -1,0 +1,80 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Shopware\Core\Content\Flow\Dispatching;
+
+use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Log\Package;
+
+/**
+ * @internal not intended for decoration or replacement
+ *
+ * @experimental stableVersion:v6.8.0 feature:FLOW_EXECUTION_AFTER_BUSINESS_PROCESS
+ */
+#[Package('after-sales')]
+class BufferedFlowExecutor
+{
+    private const MAXIMUM_EXECUTION_DEPTH = 10;
+
+    public function __construct(
+        private readonly BufferedFlowQueue $bufferedFlowQueue,
+        private readonly AbstractFlowLoader $flowLoader,
+        private readonly FlowFactory $flowFactory,
+        private readonly FlowExecutor $flowExecutor,
+        private readonly LoggerInterface $logger,
+    ) {
+    }
+
+    public function executeBufferedFlows(): void
+    {
+        $flowExecutionDepth = 0;
+        // If after the first iteration the buffer is still not empty, this means that the triggered flows added new
+        // events to the buffer, so we execute them as well.
+        while (!$this->bufferedFlowQueue->isEmpty() && $flowExecutionDepth < self::MAXIMUM_EXECUTION_DEPTH) {
+            $bufferedFlows = $this->bufferedFlowQueue->dequeueFlows();
+            $flows = $this->flowLoader->load();
+
+            foreach ($bufferedFlows as $bufferedFlow) {
+                $storableFlow = $this->flowFactory->create($bufferedFlow);
+                $flows = $this->getFlowsForEvent($storableFlow->getName(), $flows);
+
+                if (empty($flows)) {
+                    continue;
+                }
+
+                $this->flowExecutor->executeFlows($flows, $storableFlow);
+            }
+
+            ++$flowExecutionDepth;
+        }
+
+        if ($flowExecutionDepth >= self::MAXIMUM_EXECUTION_DEPTH) {
+            $eventNames = array_map(
+                static fn (FlowEventAware $event) => $event->getName(),
+                $this->bufferedFlowQueue->dequeueFlows(),
+            );
+
+            $this->logger->error(
+                'Maximum execution depth reached for buffered flow executor. This might be caused by a cyclic flow execution.',
+                ['bufferedEvents' => $eventNames],
+            );
+        }
+    }
+
+    /**
+     * @param array<string, array<array{id: string, name: string, payload: array<mixed>}>> $flowList
+     *
+     * @return array<int, array{id: string, name: string, payload: array<mixed>}>
+     */
+    private function getFlowsForEvent(string $eventName, array $flowList): array
+    {
+        $result = [];
+        if (\array_key_exists($eventName, $flowList)) {
+            $result = $flowList[$eventName];
+        }
+
+        return $result;
+    }
+}

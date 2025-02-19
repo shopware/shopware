@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import { mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
@@ -90,7 +90,6 @@ async function createWrapper(condition = {}) {
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
-                'sw-button': true,
             },
             provide: {
                 conditionDataProviderService: new ConditionDataProviderService(),

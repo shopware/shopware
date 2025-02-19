@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@discovery
  */
 import { mount } from '@vue/test-utils';
 
@@ -75,7 +75,6 @@ async function createWrapper(privileges = [], isBasedItem = true) {
                     'sw-context-menu-item': true,
                     'sw-radio-field': true,
                     'sw-number-field': true,
-                    'sw-button': true,
                     'sw-settings-country-currency-hamburger-menu': true,
                 },
             },

@@ -5,7 +5,7 @@ import './sw-textarea-field.scss';
 const { Component, Mixin } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description textarea input field.
@@ -18,8 +18,6 @@ Component.register('sw-textarea-field-deprecated', {
     template,
 
     inheritAttrs: false,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 

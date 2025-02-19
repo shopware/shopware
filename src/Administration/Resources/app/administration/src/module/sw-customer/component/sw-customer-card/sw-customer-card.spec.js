@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const customer = {
@@ -30,7 +30,6 @@ async function createWrapper() {
                 'sw-entity-single-select': true,
                 'sw-text-field': true,
                 'sw-page': true,
-                'sw-button': true,
                 'sw-language-switch': true,
                 'sw-customer-address-form': true,
                 'sw-customer-base-form': true,

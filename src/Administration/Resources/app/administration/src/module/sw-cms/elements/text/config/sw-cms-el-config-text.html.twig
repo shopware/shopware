@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_el_config_text %}
 <sw-tabs
     position-identifier="sw-cms-element-config-text"
@@ -7,7 +6,6 @@
 >
 
     <template #default="{ active }">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_config_text_tab_content %}
         <sw-tabs-item
             :title="$tc('sw-cms.elements.general.config.tab.content')"
@@ -17,7 +15,6 @@
             {{ $tc('sw-cms.elements.general.config.tab.content') }}
         </sw-tabs-item>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_text_config_tab_options %}
         <sw-tabs-item
             :title="$tc('sw-cms.elements.general.config.tab.settings')"
@@ -32,7 +29,6 @@
     <template
         #content="{ active }"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_text_config_content %}
         <sw-container
             v-if="active === 'content'"
@@ -43,13 +39,10 @@
                 :label="$tc('sw-cms.elements.text.config.label.content')"
                 value-types="string"
             >
-                <sw-text-editor
-                    :value="element.config.content.value"
-                    :allow-inline-data-mapping="true"
-                    :sanitize-info-warn="true"
-                    enable-transparent-background
-                    @update:value="onInput"
-                    @blur="onBlur"
+                <mt-text-editor
+                    :model-value="element.config.content.value"
+                    :custom-buttons="customTextEditorButtons"
+                    @update:model-value="onInput"
                 />
 
                 <template #preview="{ demoValue }">
@@ -61,13 +54,11 @@
         </sw-container>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_text_config_settings %}
         <sw-container
             v-if="active === 'settings'"
             class="sw-cms-el-config-text__tab-settings"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_el_text_config_settings_vertical_align %}
             <sw-select-field
                 v-model:value="element.config.verticalAlign.value"

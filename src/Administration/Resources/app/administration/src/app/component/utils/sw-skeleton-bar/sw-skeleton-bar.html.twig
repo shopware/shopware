@@ -1,6 +1,5 @@
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# New mt-skeleton-bar component #}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_skeleton_bar %}
 <mt-skeleton-bar
     v-if="useMeteorComponent"
@@ -10,11 +9,9 @@
 
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# Deprecated component #}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_skeleton_bar_deprecated %}
 <sw-skeleton-bar-deprecated
     v-else
     v-bind="$attrs"
-    v-on="listeners"
 />
 {% endblock %}

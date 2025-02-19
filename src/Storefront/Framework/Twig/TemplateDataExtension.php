@@ -3,14 +3,11 @@
 namespace Shopware\Storefront\Framework\Twig;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
-use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -45,22 +42,18 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
             return [];
         }
 
-        /** @deprecated tag:v6.7.0 - Remove the if condition and the private method as the value is always set */
-        if ($context->getLanguageInfo() === null) {
-            $context->setLanguageInfo($this->getLanguageInfo($context->getContext()));
-        }
-
         [$controllerName, $controllerAction] = $this->getControllerInfo($request);
 
         $themeId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_ID);
 
         $activeNavigationId = (string) $request->get('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
+        $navigationPathIdList = $this->getNavigationPath($activeNavigationId, $context);
         $navigationInfo = new NavigationInfo(
             $activeNavigationId,
-            $this->getNavigationPath($activeNavigationId),
+            $navigationPathIdList,
         );
 
-        $globalTemplateData = [
+        return [
             'shopware' => [
                 'dateFormat' => \DATE_ATOM,
                 'navigation' => $navigationInfo,
@@ -74,13 +67,6 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
             'activeRoute' => $request->attributes->get('_route'),
             'formViolations' => $request->attributes->get('formViolations'),
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            /** @deprecated tag:v6.7.0 - Will be removed, use shopware.showStagingBanner instead */
-            $globalTemplateData['showStagingBanner'] = $this->showStagingBanner;
-        }
-
-        return $globalTemplateData;
     }
 
     /**
@@ -104,40 +90,27 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
 
     private function minSearchLength(SalesChannelContext $context): int
     {
-        $query = $this->connection->createQueryBuilder();
-
-        $query->select('min_search_length')
-            ->from('product_search_config')
-            ->where('language_id = :id')
-            ->setParameter('id', Uuid::fromHexToBytes($context->getLanguageId()));
-
-        $min = (int) $query->executeQuery()->fetchOne();
+        $min = (int) $this->connection->fetchOne(
+            'SELECT `min_search_length` FROM `product_search_config` WHERE `language_id` = :id',
+            ['id' => Uuid::fromHexToBytes($context->getLanguageId())]
+        );
 
         return $min ?: AbstractTokenFilter::DEFAULT_MIN_SEARCH_TERM_LENGTH;
     }
 
-    private function getNavigationPath(string $activeNavigationId): string
+    /**
+     * @return list<string>
+     */
+    private function getNavigationPath(string $activeNavigationId, SalesChannelContext $context): array
     {
-        return $this->connection->fetchOne(
+        $path = $this->connection->fetchOne(
             'SELECT path FROM category WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($activeNavigationId)]
         ) ?: '';
-    }
 
-    private function getLanguageInfo(Context $context): LanguageInfo
-    {
-        $data = $this->connection->createQueryBuilder()
-            ->select(['language.name', 'locale.code as localeCode'])
-            ->from('language')
-            ->innerJoin('language', 'locale', 'locale', 'language.translation_code_id = locale.id')
-            ->where('language.id = :id')
-            ->setParameter('id', Uuid::fromHexToBytes($context->getLanguageId()))
-            ->executeQuery()
-            ->fetchAssociative() ?: [];
+        $navigationPathIdList = array_filter(explode('|', $path));
+        $navigationPathIdList = array_diff($navigationPathIdList, [$context->getSalesChannel()->getNavigationCategoryId()]);
 
-        return new LanguageInfo(
-            $data['name'],
-            $data['localeCode'],
-        );
+        return array_values($navigationPathIdList);
     }
 }

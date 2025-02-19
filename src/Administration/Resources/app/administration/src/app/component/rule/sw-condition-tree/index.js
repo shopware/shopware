@@ -6,12 +6,10 @@ const { EntityCollection } = Shopware.Data;
 
 /**
  * @private
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 Component.register('sw-condition-tree', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'feature',

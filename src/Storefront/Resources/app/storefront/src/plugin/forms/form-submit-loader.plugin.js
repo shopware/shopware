@@ -4,10 +4,11 @@ import Plugin from 'src/plugin-system/plugin.class';
 import {INDICATOR_POSITION} from 'src/utility/loading-indicator/loading-indicator.util';
 
 /**
- * this plugin shows a loading indicator on the
- * form submit button when the form is submitted
+ * @deprecated tag:v6.8.0 - Use the `form-handler.plugin.js` instead.
  *
- * @package content
+ * This plugin shows a loading indicator on the form submit button when the form is submitted.
+ *
+ * @package framework
  */
 export default class FormSubmitLoaderPlugin extends Plugin {
 

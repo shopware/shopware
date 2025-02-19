@@ -3,10 +3,8 @@ import './sw-cms-preview-text-hero.scss';
 
 /**
  * @private
- * @package discovery
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 };

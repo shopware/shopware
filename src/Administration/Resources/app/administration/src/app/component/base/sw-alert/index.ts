@@ -3,7 +3,7 @@ import template from './sw-alert.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -12,12 +12,10 @@ const { Component } = Shopware;
 Component.register('sw-alert', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     computed: {
         useMeteorComponent() {
             // Use new meteor component in major
-            if (Shopware.Feature.isActive('v6.7.0.0')) {
+            if (Shopware.Feature.isActive('ENABLE_METEOR_COMPONENTS')) {
                 return true;
             }
 
@@ -29,16 +27,6 @@ Component.register('sw-alert', {
             );
 
             return false;
-        },
-
-        // eslint-disable-next-line @typescript-eslint/ban-types
-        listeners(): Record<string, Function | Function[]> {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 });

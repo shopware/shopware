@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-boolean-filter.html.twig';
 
 const { Component } = Shopware;
@@ -8,8 +12,6 @@ const { Criteria } = Shopware.Data;
  */
 Component.register('sw-boolean-filter', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'filter-update',

@@ -3,7 +3,7 @@ import template from './sw-confirm-modal.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -131,7 +131,7 @@ Component.register('sw-confirm-modal', {
             switch (this.type) {
                 case 'delete':
                 case 'discard':
-                    return 'danger';
+                    return 'critical';
                 default:
                     return 'primary';
             }

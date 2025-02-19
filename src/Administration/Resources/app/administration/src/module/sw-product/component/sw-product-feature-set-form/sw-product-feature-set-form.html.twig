@@ -1,31 +1,25 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_detail_base_feature_set_form %}
 <div class="sw-product-feature-set-form__container">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_feature_set_form_container %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_feature_set_form_description %}
     <sw-container
         rows="2em 4em 4em"
         class="sw-product-feature-set-form__description"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_feature_set_form_description_title %}
         <span class="sw-product-feature-set-form__description-title">
             {{ $tc('sw-product.featureSets.descriptionTitle') }}
         </span>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_feature_set_form_description_body %}
         <p class="sw-product-feature-set-form__description-body">
             {{ $tc('sw-product.featureSets.descriptionBody') }}
         </p>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_feature_set_form_config_information %}
         <i18n-t
             tag="p"
@@ -45,11 +39,9 @@
     </sw-container>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_feature_set_form_form %}
     <sw-container class="sw-product-feature-set-form__form">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_feature_set_form_wrapper_input %}
         <sw-inherit-wrapper
             v-model:value="product.featureSetId"
@@ -59,7 +51,6 @@
         >
             <template #content="{ currentValue, isInherited, updateCurrentValue }">
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_feature_set_form_input %}
                 <sw-entity-single-select
                     :key="isInherited"

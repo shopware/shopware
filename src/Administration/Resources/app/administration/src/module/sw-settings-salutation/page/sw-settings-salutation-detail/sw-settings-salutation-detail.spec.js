@@ -1,3 +1,7 @@
+/**
+ * @sw-package checkout
+ */
+
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = []) {
@@ -112,7 +116,6 @@ async function createWrapper(privileges = []) {
                     'sw-search-bar': true,
                     'sw-icon': true,
                     'sw-language-switch': true,
-                    'sw-button': true,
                     'sw-button-process': true,
                     'sw-context-menu-item': true,
                     'sw-language-info': true,

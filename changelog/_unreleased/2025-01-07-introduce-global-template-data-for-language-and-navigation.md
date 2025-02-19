@@ -13,13 +13,14 @@ ___
 
 # Storefront
 * Added new Twig function `sw_breadcrumb_full_by_id` to get the full breadcrumb for a category ID.
-* Added `\Shopware\Storefront\Framework\Twig\NavigationInfo` to the global `shopware` Twig variable, to provide the category ID of the main navigation and the current navigation path.
+* Added `\Shopware\Storefront\Framework\Twig\NavigationInfo` to the global `shopware` Twig variable, to provide the ID of the main navigation and the current navigation path as ID list.
 * Added `minSearchLength` to the global `shopware` Twig variable, which defines the minimum search term length.
 * Added `showStagingBanner` to the global `shopware` Twig variable, which defines if the staging banner should be shown.
 * Deprecated the global `showStagingBanner` Twig variable. Use `shopware.showStagingBanner` instead.
 * Deprecated the usage of the `header` and `footer` properties of page Twig objects outside the dedicated header and footer templates. Use the following alternatives instead:
     * `context.currency` instead of `page.header.activeCurrency`
-    * `shopware.navigation` instead of `page.header.navigation.active`
+    * `shopware.navigation.id` instead of `page.header.navigation.active.id`
+    * `shopware.navigation.pathIdList` instead of `page.header.navigation.active.path`
     * `context.saleschannel.languages.first` instead of `page.header.activeLanguage`
 * Added new optional parameter `serviceMenu` of type `\Shopware\Core\Content\Category\CategoryCollection` to `\Shopware\Storefront\Pagelet\Footer\FooterPagelet`. It will be required in the next major version.
 ___

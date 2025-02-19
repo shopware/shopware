@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 async function createWrapper() {
     const orderProp = {
@@ -42,6 +42,7 @@ async function createWrapper() {
                         search: () => Promise.resolve([]),
                     }),
                 },
+                swOrderDetailAskAndSaveEdits: () => Promise.resolve(true),
             },
         },
         props: {

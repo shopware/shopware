@@ -1,28 +1,17 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creation', () => {
     beforeAll(() => {
-        if (Shopware.State.get('shopwareExtensions')) {
-            Shopware.State.unregisterModule('shopwareExtensions');
-        }
-
-        Shopware.State.registerModule('shopwareExtensions', {
-            namespaced: true,
-            state: {
-                myExtensions: {
-                    data: [
-                        {
-                            name: 'Test',
-                            installedAt: null,
-                            version: '1.0.0',
-                        },
-                    ],
-                },
+        Shopware.Store.get('shopwareExtensions').setMyExtensions([
+            {
+                name: 'Test',
+                installedAt: null,
+                version: '1.0.0',
             },
-        });
+        ]);
     });
 
     async function createWrapper() {
@@ -60,15 +49,8 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
                             template: '<textarea></textarea>',
                         },
                         'sw-gtc-checkbox': await wrapTestComponent('sw-gtc-checkbox', { sync: true }),
-                        'sw-button': await wrapTestComponent('sw-button', {
-                            sync: true,
-                        }),
-                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                         'sw-button-process': await wrapTestComponent('sw-button-process', { sync: true }),
                         'sw-external-link': await wrapTestComponent('sw-external-link', { sync: true }),
-                        'sw-external-link-deprecated': await wrapTestComponent('sw-external-link-deprecated', {
-                            sync: true,
-                        }),
                         'sw-loader': true,
                         'sw-field-copyable': true,
                         'sw-inheritance-switch': true,
@@ -117,7 +99,10 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
         await star.trigger('click');
 
         // submitting review
-        const submitButton = wrapper.find('.sw-button.sw-button--primary');
+        const submitButton = wrapper.findByText(
+            'button',
+            'sw-extension-store.component.sw-extension-ratings.sw-extension-review-creation.submitBtn',
+        );
         await submitButton.trigger('click');
 
         expect(wrapper.vm.extensionStoreActionService.rateExtension).toHaveBeenCalled();

@@ -1,44 +1,34 @@
-{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
-{# New mt-external-link component #}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_external_link %}
-<mt-external-link
-    v-if="useMeteorComponent"
+<a
+    v-if="$attrs.hasOwnProperty('href')"
     v-bind="$attrs"
+    target="_blank"
+    :rel="rel"
+    class="sw-external-link"
+    :class="classes"
 >
-    <template
-        v-for="(index, name) in getSlots()"
-        #[name]="data"
-    >
-        <slot
-            :name="name"
-            v-bind="data"
-        >
-        </slot>
-    </template>
     <slot></slot>
-</mt-external-link>
-{% endblock %}
+    <sw-icon
+        class="sw-external-link__icon"
+        :size="iconSize"
+        :name="icon"
+    />
+</a>
 
-{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
-{# Deprecated component #}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-{% block sw_external_link_deprecated %}
-<sw-external-link-deprecated
+<span
     v-else
-    v-bind="$attrs"
-    v-on="listeners"
+    class="sw-external-link"
+    :class="classes"
+    role="button"
+    tabindex="0"
+    @click="onClick"
+    @keydown.enter="onClick"
 >
-    <template
-        v-for="(index, name) in getSlots()"
-        #[name]="data"
-    >
-        <slot
-            :name="name"
-            v-bind="data"
-        >
-        </slot>
-    </template>
     <slot></slot>
-</sw-external-link-deprecated>
+    <sw-icon
+        class="sw-external-link__icon"
+        :size="iconSize"
+        :name="icon"
+    />
+</span>
 {% endblock %}

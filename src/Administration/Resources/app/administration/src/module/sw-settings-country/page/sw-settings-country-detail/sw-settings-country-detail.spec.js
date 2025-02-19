@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@discovery
  */
 import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHistory } from 'vue-router';
@@ -148,7 +148,6 @@ async function createWrapper(privileges = []) {
                     'sw-container': await wrapTestComponent('sw-container'),
                     'sw-language-switch': true,
                     'sw-language-info': true,
-                    'sw-button': true,
                     'sw-button-process': true,
                     'sw-field': true,
                     'sw-switch-field': true,
@@ -176,7 +175,7 @@ async function createWrapper(privileges = []) {
 
 describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
     beforeAll(() => {
-        Shopware.State.get('session').currentUser = {};
+        Shopware.Store.get('session').setCurrentUser({});
     });
 
     it('should be a Vue.JS component', async () => {

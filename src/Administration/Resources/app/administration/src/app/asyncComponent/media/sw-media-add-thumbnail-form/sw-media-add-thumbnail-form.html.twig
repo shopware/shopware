@@ -1,11 +1,8 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_add_thumbnail_form %}
 <div class="sw-media-add-thumbnail-form">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_add_thumbnail_form_form_container %}
     <div class="sw-media-add-thumbnail-form__form-container">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_add_thumbnail_form_width %}
         <sw-number-field
             v-model:value="width"
@@ -18,7 +15,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_add_thumbnail_form_lock_button %}
         <button
             class="sw-media-add-thumbnail-form__lock"
@@ -32,7 +28,6 @@
         </button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_add_thumbnail_form_height %}
         <sw-number-field
             v-model:value="height"
@@ -47,16 +42,16 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_add_thumbnail_add_button %}
-    <sw-button
+    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+    <mt-button
         class="sw-media-folder-settings__add-thumbnail-size-action"
-        variant="ghost"
+        ghost
         :disabled="disabled || width === null || height === null || width === 0 || height === 0"
         @click="onAdd"
     >
         {{ $tc('global.default.add') }}
-    </sw-button>
+    </mt-button>
     {% endblock %}
 </div>
 {% endblock %}

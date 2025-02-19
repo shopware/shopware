@@ -1,5 +1,5 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 
@@ -47,9 +47,6 @@ async function createWrapper() {
                 'sw-entity-single-select': {
                     template: '<div class="sw-entity-single-select"></div>',
                 },
-                'sw-alert': {
-                    template: '<div class="sw-alert"><slot></slot></div>',
-                },
                 'sw-product-variant-info': true,
                 'sw-empty-state': true,
             },
@@ -75,16 +72,8 @@ async function createWrapper() {
 
 describe('module/sw-category/view/sw-category-detail-products.spec', () => {
     beforeEach(async () => {
-        if (Shopware.State.get('swCategoryDetail')) {
-            Shopware.State.unregisterModule('swCategoryDetail');
-        }
-
-        Shopware.State.registerModule('swCategoryDetail', {
-            namespaced: true,
-            state: {
-                category: categoryMock,
-            },
-        });
+        Shopware.Store.get('swCategoryDetail').$reset();
+        Shopware.Store.get('swCategoryDetail').category = categoryMock;
     });
 
     it('should render stream select when changing the assignment type to stream', async () => {
@@ -123,7 +112,7 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
             manualAssignedProductsCount: 5,
         });
 
-        expect(wrapper.find('.sw-alert').text()).toBe(
+        expect(wrapper.find('[role="banner"]').text()).toBe(
             'sw-category.base.products.alertManualAssignedProductsOnAssignmentTypeStream',
         );
     });

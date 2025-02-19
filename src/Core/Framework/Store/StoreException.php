@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Framework\Store;
 
+use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
 use Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirmationException;
+use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('framework')]
@@ -143,5 +145,10 @@ class StoreException extends HttpException
             self::INVALID_TYPE,
             \sprintf('Expected collection element of type %s got %s', $expected, $actual)
         );
+    }
+
+    public static function storeError(ClientException $exception): self
+    {
+        return new StoreApiException($exception);
     }
 }

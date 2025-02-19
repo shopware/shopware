@@ -6,8 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefaultTransportCompilerPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Definition;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
@@ -23,10 +21,6 @@ class DefaultTransportCompilerPassTest extends TestCase
         $container->setParameter('kernel.debug', true);
 
         $container->addCompilerPass(new DefaultTransportCompilerPass());
-
-        $definition = new Definition(MessageBusInterface::class);
-        $definition->setArguments([null, []]);
-        $container->setDefinition('messenger.bus.shopware', $definition);
 
         // disable removing passes because the alias will not be used
         $container->getCompilerPassConfig()->setRemovingPasses([]);

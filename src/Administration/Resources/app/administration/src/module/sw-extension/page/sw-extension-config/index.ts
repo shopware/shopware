@@ -12,13 +12,11 @@ type ComponentData = {
 };
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     beforeRouteEnter(to, from, next) {
         next((vm) => {
@@ -56,7 +54,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         myExtensions(): Extension[] {
-            return Shopware.State.get('shopwareExtensions').myExtensions.data;
+            return Shopware.Store.get('shopwareExtensions').myExtensions.data;
         },
 
         defaultThemeAsset(): string {

@@ -1,5 +1,5 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
@@ -55,7 +55,6 @@ async function createWrapper() {
                     'sw-cms-stage-section-selection': await wrapTestComponent('sw-cms-stage-section-selection'),
                     'sw-single-select': true,
                     'sw-text-field': true,
-                    'sw-button': true,
                 },
                 provide: {
                     cmsPageTypeService: {

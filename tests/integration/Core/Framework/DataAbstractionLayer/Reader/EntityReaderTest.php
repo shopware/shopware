@@ -39,7 +39,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ConsistsOfManyToManyDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\NonIdFieldNamePrimaryKeyTestDefinition;
@@ -147,7 +146,7 @@ class EntityReaderTest extends TestCase
         $this->productRepository
             ->create([$product->build()], Context::createDefaultContext());
 
-        $criteria = new Criteria();
+        $criteria = new Criteria([$ids->get('p1')]);
         $criteria->addFields(['productNumber', 'name', 'categories.name']);
 
         $values = $this->productRepository
@@ -183,7 +182,7 @@ class EntityReaderTest extends TestCase
         static::getContainer()->get('product.repository')
             ->create([$product->build()], Context::createDefaultContext());
 
-        $criteria = new Criteria();
+        $criteria = new Criteria([$ids->get('p1')]);
         $criteria->addFields(['id', 'productNumber', 'name', 'manufacturer.id', 'manufacturer.name']);
 
         $values = static::getContainer()
@@ -1048,10 +1047,6 @@ class EntityReaderTest extends TestCase
             ],
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
         $this->customerRepository->upsert([$customer], $context);
 
         $criteria = new Criteria([$id]);
@@ -1102,10 +1097,6 @@ class EntityReaderTest extends TestCase
             ],
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
         $this->customerRepository->upsert([$customer], $context);
 
         $addresses = $this->connection->fetchOne('SELECT COUNT(id) FROM customer_address WHERE customer_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
@@ -1151,10 +1142,6 @@ class EntityReaderTest extends TestCase
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'group' => ['name' => 'test'],
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         $this->customerRepository->upsert([
             array_merge(
@@ -1255,10 +1242,6 @@ class EntityReaderTest extends TestCase
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'group' => ['name' => 'test'],
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         $this->customerRepository->upsert([
             array_merge(
@@ -1396,10 +1379,6 @@ class EntityReaderTest extends TestCase
             ],
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
         $this->customerRepository->upsert([$customer], $context);
 
         $criteria = new Criteria([$id]);
@@ -1470,10 +1449,6 @@ class EntityReaderTest extends TestCase
                 $address,
             ],
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         $this->customerRepository->upsert([$customer], $context);
 
@@ -2177,7 +2152,7 @@ class EntityReaderTest extends TestCase
 
         $this->productRepository->create($products, Context::createDefaultContext());
 
-        $criteria = new Criteria();
+        $criteria = new Criteria([$ids->get('product-1'), $ids->get('product-2')]);
         $criteria->addAssociation('translations.language.categoryTranslations');
 
         $products = $this->productRepository

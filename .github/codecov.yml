@@ -11,3 +11,13 @@ flag_management:
     - name: jest-storefront
       paths:
         - src/Storefront/Resources/app/storefront/src
+coverage:
+  status:
+    project:
+      default:
+        threshold: 0.01%
+    patch:
+      default:
+        target: auto
+        threshold: 5%
+        base: auto

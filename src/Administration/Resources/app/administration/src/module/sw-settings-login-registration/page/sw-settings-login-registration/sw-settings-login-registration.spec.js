@@ -8,7 +8,7 @@ const classes = {
 };
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 async function createWrapper() {
     return mount(
@@ -55,7 +55,7 @@ async function createWrapper() {
                     'sw-notification-center': true,
                     'sw-skeleton': true,
                     'sw-sales-channel-switch': true,
-                    'sw-alert': true,
+
                     'sw-form-field-renderer': true,
                     'sw-inherit-wrapper': true,
                 },

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 
@@ -30,7 +30,6 @@ const createWrapper = async (customOptions = {}) => {
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
                 'sw-label': true,
-                'sw-button': true,
                 'mt-floating-ui': true,
             },
         },

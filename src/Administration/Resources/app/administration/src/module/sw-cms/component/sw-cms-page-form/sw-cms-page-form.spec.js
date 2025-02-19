@@ -1,5 +1,5 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 
@@ -76,7 +76,6 @@ async function createWrapper() {
                         ],
                     },
                     'sw-extension-component-section': true,
-                    'sw-alert': true,
                 },
                 provide: {
                     cmsService: {

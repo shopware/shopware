@@ -34,18 +34,15 @@ class IndexerQueuer
             $indexers = $decodedValue['_value'] ?? [];
         }
 
-        $newList = [];
-        /**
-         * @var string $indexerName
-         * @var string|array $options */
-        foreach ($indexers as $indexerName => $options) {
-            // Upgrade possible old format to empty array
-            $newList[$indexerName] = \is_array($options) ? $options : [];
-        }
-
-        return $newList;
+        // Upgrade possible old format to empty array
+        return array_map(function ($options) {
+            return \is_array($options) ? $options : [];
+        }, $indexers);
     }
 
+    /**
+     * @param list<string> $names
+     */
     public function finishIndexer(array $names): void
     {
         $current = self::fetchCurrent($this->connection);
@@ -66,6 +63,9 @@ class IndexerQueuer
         self::upsert($this->connection, $current['id'] ?? null, $newList);
     }
 
+    /**
+     * @param list<string> $requiredIndexers
+     */
     public static function registerIndexer(Connection $connection, string $name, array $requiredIndexers = []): void
     {
         $current = self::fetchCurrent($connection);
@@ -91,17 +91,19 @@ class IndexerQueuer
         self::upsert($connection, $id, $indexerList);
     }
 
+    /**
+     * @param array<array-key, array<string>> $indexerList
+     */
     private static function upsert(Connection $connection, ?string $id, array $indexerList): void
     {
-        $date = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        $newValue = json_encode(['_value' => $indexerList], \JSON_THROW_ON_ERROR);
-
         if (empty($indexerList) && $id !== null) {
             $connection->delete('system_config', ['id' => $id]);
 
             return;
         }
 
+        $newValue = json_encode(['_value' => $indexerList], \JSON_THROW_ON_ERROR);
+        $date = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         if ($id) {
             $connection->update(
                 'system_config',
@@ -121,14 +123,16 @@ class IndexerQueuer
         }
     }
 
+    /**
+     * @return array{id: string, configuration_value: string}|null
+     */
     private static function fetchCurrent(Connection $connection): ?array
     {
         $currentRow = $connection->fetchAssociative(
-            '
-            SELECT *
-            FROM system_config
-            WHERE configuration_key = :key
-            AND sales_channel_id IS NULL',
+            'SELECT id, configuration_value
+             FROM system_config
+             WHERE configuration_key = :key
+             AND sales_channel_id IS NULL',
             ['key' => self::INDEXER_KEY]
         );
 
@@ -136,6 +140,7 @@ class IndexerQueuer
             return null;
         }
 
+        /* @phpstan-ignore return.type (PHPStan cannot properly determine the array type from the DB) */
         return $currentRow;
     }
 }

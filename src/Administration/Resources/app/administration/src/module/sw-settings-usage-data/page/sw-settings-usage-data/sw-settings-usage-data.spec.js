@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package services-settings
+ * @sw-package framework
  */
 async function createWrapper() {
     return mount(
@@ -21,8 +21,6 @@ async function createWrapper() {
                         </div>`,
                     },
                     'sw-card-view': await wrapTestComponent('sw-card-view'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                     'router-view': true,

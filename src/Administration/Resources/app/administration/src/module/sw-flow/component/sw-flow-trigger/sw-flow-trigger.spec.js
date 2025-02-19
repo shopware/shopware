@@ -1,13 +1,11 @@
 import { mount } from '@vue/test-utils';
-import flowState from 'src/module/sw-flow/state/flow.state';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import { ACTION } from 'src/module/sw-flow/constant/flow.constant';
+import { createPinia, setActivePinia } from 'pinia';
 
 /**
  * @sw-package after-sales
  */
-
-const { cloneDeep } = Shopware.Utils.object;
 
 function getSequencesCollection(collection = []) {
     return new EntityCollection(
@@ -71,6 +69,7 @@ const mockTranslations = {
     'sw-flow.triggers.deleted': 'Deleted',
 };
 
+const pinia = createPinia();
 async function createWrapper(propsData) {
     return mount(
         await wrapTestComponent('sw-flow-trigger', {
@@ -82,6 +81,7 @@ async function createWrapper(propsData) {
                 ...propsData,
             },
             global: {
+                plugins: [pinia],
                 mocks: {
                     $tc(translationKey) {
                         return mockTranslations[translationKey] ? mockTranslations[translationKey] : translationKey;
@@ -119,8 +119,6 @@ async function createWrapper(propsData) {
                     'sw-tree-input-field': await wrapTestComponent('sw-tree-input-field'),
                     'sw-vnode-renderer': await wrapTestComponent('sw-vnode-renderer'),
                     'sw-flow-event-change-confirm-modal': await wrapTestComponent('sw-flow-event-change-confirm-modal'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch'),
                     'sw-ai-copilot-badge': await wrapTestComponent('sw-ai-copilot-badge'),
                     'sw-help-text': await wrapTestComponent('sw-help-text'),
@@ -160,16 +158,10 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
                 getBusinessEvents: () => Promise.resolve(mockBusinessEvents),
             };
         });
-
-        Shopware.State.registerModule('swFlowState', cloneDeep(flowState));
     });
 
     beforeEach(() => {
-        if (Shopware.State.get('swFlowState')) {
-            Shopware.State.unregisterModule('swFlowState');
-        }
-
-        Shopware.State.registerModule('swFlowState', cloneDeep(flowState));
+        setActivePinia(pinia);
     });
 
     afterEach(async () => {
@@ -193,7 +185,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
     });
 
     it('should display event tree with event get from flow state', async () => {
-        Shopware.State.commit('swFlowState/setTriggerEvents', mockBusinessEvents);
+        Shopware.Store.get('swFlow').triggerEvents = mockBusinessEvents;
 
         const wrapper = await createWrapper();
         await wrapper.setProps({
@@ -211,7 +203,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
 
         eventTree = wrapper.find('.sw-tree');
         expect(eventTree.exists()).toBeTruthy();
-        Shopware.State.commit('swFlowState/setTriggerEvents', []);
+        Shopware.Store.get('swFlow').triggerEvents = [];
     });
 
     it('should show event name with correct format', async () => {
@@ -652,7 +644,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
     });
 
     it('should show confirmation modal when clicking tree item', async () => {
-        Shopware.State.commit('swFlowState/setSequences', getSequencesCollection(sequencesFixture));
+        Shopware.Store.get('swFlow').setSequences(getSequencesCollection(sequencesFixture));
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -674,14 +666,14 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
         await transitionStub.find('.sw-tree-item__content .tree-link').trigger('click');
         await flushPromises();
 
-        const isSequenceEmpty = Shopware.State.getters['swFlowState/isSequenceEmpty'];
+        const isSequenceEmpty = Shopware.Store.get('swFlow').isSequenceEmpty;
 
         expect(isSequenceEmpty).toBe(false);
         expect(wrapper.find('.sw-flow-event-change-confirm-modal').exists()).toBeTruthy();
     });
 
     it('should show confirmation modal when pressing Enter on search item', async () => {
-        Shopware.State.commit('swFlowState/setSequences', getSequencesCollection(sequencesFixture));
+        Shopware.Store.get('swFlow').setSequences(getSequencesCollection(sequencesFixture));
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -702,7 +694,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
 
         await flushPromises();
 
-        const isSequenceEmpty = Shopware.State.getters['swFlowState/isSequenceEmpty'];
+        const isSequenceEmpty = Shopware.Store.get('swFlow').isSequenceEmpty;
 
         expect(isSequenceEmpty).toBe(false);
         expect(wrapper.find('.sw-flow-event-change-confirm-modal').exists()).toBeTruthy();

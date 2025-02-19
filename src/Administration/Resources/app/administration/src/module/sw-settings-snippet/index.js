@@ -1,5 +1,5 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 import './acl';
 
@@ -70,7 +70,7 @@ Module.register('sw-settings-snippet', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'localization',
         to: 'sw.settings.snippet.index',
         icon: 'regular-globe-stand',
         privilege: 'snippet.viewer',

@@ -529,7 +529,7 @@ class GenerateDocumentActionTest extends TestCase
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class CustomDocRenderer extends AbstractDocumentRenderer
 {
     final public const TYPE = 'customDoc';
@@ -549,7 +549,7 @@ class CustomDocRenderer extends AbstractDocumentRenderer
         $result = new RendererResult();
 
         foreach ($operations as $operation) {
-            $rendered = new RenderedDocument('<html>test</html>');
+            $rendered = new RenderedDocument();
             $rendered->setName('custom.pdf');
 
             $result->addSuccess($operation->getOrderId(), $rendered);

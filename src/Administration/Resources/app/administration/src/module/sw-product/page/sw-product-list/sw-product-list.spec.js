@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 import { mount, config } from '@vue/test-utils';
@@ -303,9 +303,6 @@ async function createWrapper() {
                         template: '<div></div>',
                     },
                     'sw-icon': {
-                        template: '<div></div>',
-                    },
-                    'sw-button': {
                         template: '<div></div>',
                     },
                     'sw-sidebar': {

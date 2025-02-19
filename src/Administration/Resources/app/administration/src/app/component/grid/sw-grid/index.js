@@ -5,7 +5,7 @@ const { Component } = Shopware;
 const { dom } = Shopware.Utils;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -31,8 +31,6 @@ const { dom } = Shopware.Utils;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-grid', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     provide() {
         return {
@@ -220,12 +218,6 @@ Component.register('sw-grid', {
 
         registerInlineEditingEvents() {
             // New way is using the provide/inject
-            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                // eslint-disable-next-line vue/no-deprecated-events-api
-                this.$on('sw-row-inline-edit-start', this.inlineEditingStart);
-                // eslint-disable-next-line vue/no-deprecated-events-api
-                this.$on('sw-row-inline-edit-cancel', this.disableActiveInlineEditing);
-            }
         },
 
         inlineEditingStart(id) {

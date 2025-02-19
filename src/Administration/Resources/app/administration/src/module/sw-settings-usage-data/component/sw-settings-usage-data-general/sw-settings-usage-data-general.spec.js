@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package data-services
+ * @sw-package data-services
  */
 
 const usageDataService = {
@@ -30,7 +30,6 @@ async function createWrapper() {
                     'i18n-t': true,
                     'sw-help-text': true,
                     'sw-external-link': true,
-                    'sw-button': true,
                 },
             },
         },

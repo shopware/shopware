@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
@@ -87,7 +87,6 @@ async function createWrapper(privileges = []) {
                         <slot></slot>
                     </div>`,
                     },
-                    'sw-button': true,
                     'sw-icon': true,
                     'sw-search-bar': true,
                     'sw-grid': await wrapTestComponent('sw-grid'),
@@ -138,7 +137,7 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
 
         const createButton = wrapper.find('.sw-settings-custom-field-set-list__button-create');
 
-        expect(createButton.attributes().disabled).toBeTruthy();
+        expect(createButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to create a new custom-field set', async () => {

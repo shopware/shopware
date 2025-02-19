@@ -1,12 +1,10 @@
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# New mt-colorpicker component #}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_colorpicker %}
 <mt-colorpicker
     v-if="useMeteorComponent"
     v-bind="$attrs"
     :model-value="currentValue"
-    v-on="listeners"
     @change="currentValue = $event"
 >
     <template
@@ -25,13 +23,11 @@
 
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# Deprecated component #}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_colorpicker_deprecated %}
 <sw-colorpicker-deprecated
     v-else
     v-bind="$attrs"
     :value="value"
-    v-on="listeners"
 >
     <template
         v-for="(index, name) in getSlots()"

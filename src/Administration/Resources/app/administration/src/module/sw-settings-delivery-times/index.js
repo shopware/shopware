@@ -1,7 +1,7 @@
 import './acl';
 
 /**
- * @package discovery
+ * @sw-package discovery
  */
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
@@ -55,7 +55,7 @@ Module.register('sw-settings-delivery-time', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'commerce',
         to: 'sw.settings.delivery.time.index',
         icon: 'regular-clock',
         privilege: 'delivery_times.viewer',

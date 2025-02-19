@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import flowState from 'src/module/sw-flow/state/flow.state';
 
 /**
  * @sw-package after-sales
@@ -45,8 +44,6 @@ async function createWrapper() {
                 },
                 stubs: {
                     'sw-modal': await wrapTestComponent('sw-modal'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                     'sw-product-variant-info': await wrapTestComponent('sw-product-variant-info'),
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
@@ -72,10 +69,6 @@ async function createWrapper() {
 }
 
 describe('module/sw-flow/component/sw-flow-change-customer-group-modal', () => {
-    beforeAll(() => {
-        Shopware.State.registerModule('swFlowState', flowState);
-    });
-
     it('should show validation if customer group field is empty', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

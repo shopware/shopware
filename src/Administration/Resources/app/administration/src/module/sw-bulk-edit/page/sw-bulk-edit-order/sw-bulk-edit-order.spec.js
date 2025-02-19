@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package checkout
  */
 import { config, mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
@@ -14,6 +14,7 @@ function createEntityCollection(entities = []) {
 describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     let wrapper;
     let routes;
+    const searchIdsSpy = jest.fn();
 
     async function createWrapper(isResponseError = false) {
         // delete global $router and $routes mocks
@@ -35,8 +36,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                 stubs: {
                     'sw-page': await wrapTestComponent('sw-page'),
                     'sw-loader': true,
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
                     'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
                     'sw-bulk-edit-custom-fields': await wrapTestComponent('sw-bulk-edit-custom-fields'),
@@ -81,7 +80,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-help-center': true,
                     'sw-icon': true,
                     'sw-help-text': true,
-                    'sw-alert': true,
+
                     'sw-label': true,
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
@@ -98,7 +97,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-error-summary': true,
                     'sw-app-topbar-button': true,
                     'sw-help-center-v2': true,
-                    'mt-button': true,
                     'mt-checkbox': true,
                     'sw-context-button': true,
                     'sw-inheritance-switch': true,
@@ -143,7 +141,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
                             if (entity === 'state_machine_state') {
                                 return {
-                                    searchIds: jest.fn(),
+                                    searchIds: searchIdsSpy,
                                 };
                             }
 
@@ -344,7 +342,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
             },
         });
 
-        Shopware.State.commit('shopwareApps/setSelectedIds', [selectedOrderId]);
+        Shopware.Store.get('shopwareApps').selectedIds = [selectedOrderId];
+        Shopware.Store.get('swBulkEdit').$reset();
     });
 
     it('should show all form fields', async () => {
@@ -528,7 +527,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     it('should show empty state', async () => {
         wrapper = await createWrapper();
 
-        Shopware.State.commit('shopwareApps/setSelectedIds', []);
+        Shopware.Store.get('shopwareApps').selectedIds = [];
         await wrapper.setData({
             isLoading: false,
         });
@@ -671,7 +670,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         const orderStateCriteria = new Criteria(1, null);
         const { liveVersionId } = Shopware.Context.api;
 
-        expect(wrapper.vm.stateMachineStateRepository.searchIds).toHaveBeenCalledTimes(6);
+        expect(searchIdsSpy).toHaveBeenCalledTimes(6);
 
         orderStateCriteria.addFilter(
             Criteria.multi('AND', [
@@ -729,7 +728,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await flushPromises();
 
-        expect(wrapper.find('.sw-bulk-edit-order__save-action').classes()).toContain('sw-button--disabled');
+        expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled') !== undefined).toBe(true);
 
         await wrapper.setData({
             isLoading: false,
@@ -748,7 +747,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                 },
             },
         });
-        expect(wrapper.find('.sw-bulk-edit-order__save-action').classes()).not.toContain('sw-button--disabled');
+        expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled')).toBeUndefined();
     });
 
     it('should get latest order status correctly', async () => {

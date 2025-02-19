@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_first_run_wizard_paypal_info %}
 <div class="sw-first-run-wizard-paypal">
     <div
@@ -52,13 +51,12 @@
             v-if="pluginInstallationFailed"
             class="sw-first-run-wizard-paypal__error"
         >
-            <sw-alert
+            <mt-banner
                 :title="pluginError.title"
-                variant="error"
-                appearance="notification"
+                variant="critical"
             >
                 {{ pluginError.detail }}
-            </sw-alert>
+            </mt-banner>
         </div>
         <div class="disclaimer">
             <p>{{ $tc('sw-first-run-wizard.paypalInfo.disclaimerLineOne') }}</p>

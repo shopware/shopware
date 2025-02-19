@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_users_permissions_role_listing %}
 <sw-card
     class="sw-users-permissions-role-listing"
@@ -6,14 +5,12 @@
     :title="$tc('sw-users-permissions.roles.general.cardLabel')"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_users_permissions_role_listing_toolbar %}
     <div class="sw-users-permissions-role-listing__toolbar">
         <sw-container
             columns="1fr minmax(100px, 200px)"
             gap="0 10px"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_users_permissions_role_listing_toolbar_search_field %}
             <sw-simple-search-field
                 v-model:value="term"
@@ -23,23 +20,22 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_users_permissions_role_listing_toolbar_add_role_button %}
-            <sw-button
-                :router-link="{ name: 'sw.users.permissions.role.detail' }"
-                variant="ghost"
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
+                ghost
                 size="small"
                 :disabled="!acl.can('users_and_permissions.creator') || undefined"
                 class="sw-users-permissions-role-listing__add-role-button"
+                @click="$router.push({ name: 'sw.users.permissions.role.detail' })"
             >
                 {{ $tc('sw-users-permissions.roles.general.labelCreateNewRole') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </sw-container>
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_users_permissions_role_listing_verify_modal %}
     <sw-verify-user-modal
         v-if="confirmPasswordModal"
@@ -48,7 +44,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_users_permissions_role_listing_grid %}
     <sw-data-grid
         v-if="showListingResults"
@@ -61,10 +56,8 @@
         @column-sort="onSortColumn"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_users_permissions_role_listing_grid_actions %}
         <template #actions="{ item }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_users_permissions_role_listing_grid_actions_edit %}
             <sw-context-menu-item
                 :router-link="{ name: 'sw.users.permissions.role.detail', params: { id: item.id } }"
@@ -75,7 +68,6 @@
             </sw-context-menu-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_users_permissions_role_listing_grid_actions_delete %}
             <sw-context-menu-item
                 variant="danger"
@@ -89,10 +81,8 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_users_permissions_role_listing_grid_columns %}
         <template #column-name="{ item }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_users_permissions_role_listing_grid_columns_name %}
             <router-link :to="{ name: 'sw.users.permissions.role.detail', params: { id: item.id } }">
                 {{ item.name }}
@@ -101,10 +91,8 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_users_permissions_role_listing_grid_action_modals %}
         <template #action-modals="{ item }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_users_permissions_role_listing_grid_actions_modals_modal %}
             <sw-modal
                 v-if="getItemToDelete(item)"
@@ -112,35 +100,33 @@
                 variant="small"
                 @modal-close="onCloseDeleteModal"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_users_permissions_role_listing_grid_actions_modals_modal_delete_text %}
                 <p class="sw-users-permissions-role-listing__confirm-delete-text">
-                    {{ $tc('sw-users-permissions.roles.role-grid.textModalDelete', 0, { name: item.name }) }}
+                    {{ $tc('sw-users-permissions.roles.role-grid.textModalDelete', { name: item.name }, 0) }}
                 </p>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_users_permissions_role_listing_grid_actions_modals_modal_footer %}
                 <template #modal-footer>
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_users_permissions_role_listing_grid_actions_modals_modal_close_delete %}
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         size="small"
                         @click="onCloseDeleteModal"
                     >
                         {{ $tc('global.default.cancel') }}
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_users_permissions_role_listing_grid_actions_modals_modal_confirm_delete %}
-                    <sw-button
-                        variant="danger"
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
+                        variant="critical"
                         size="small"
                         @click="onConfirmDelete(item)"
                     >
                         {{ $tc('sw-users-permissions.roles.role-grid.labelButtonDelete') }}
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
                 </template>
                 {% endblock %}
@@ -150,7 +136,6 @@
         {% endblock %}
 
         <template #pagination>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_users_permissions_role_listing_grid_pagination %}
             <sw-pagination
                 :page="page"
@@ -164,7 +149,6 @@
     </sw-data-grid>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_users_permissions_role_listing_empty_state %}
     <sw-empty-state
         v-else

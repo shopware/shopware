@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_first_run_wizard_shopware_account %}
 <div class="sw-first-run-wizard-shopware-account">
     <sw-container columns="1fr 1fr">
@@ -58,13 +57,12 @@
                 v-if="accountError"
                 class="sw-first-run-wizard-shopware-account__error"
             >
-                <sw-alert
+                <mt-banner
                     :title="$tc('global.default.error')"
-                    variant="error"
-                    appearance="notification"
+                    variant="critical"
                 >
                     {{ $tc('sw-first-run-wizard.error.messageLoginDataInvalid') }}
-                </sw-alert>
+                </mt-banner>
             </div>
         </div>
     </sw-container>

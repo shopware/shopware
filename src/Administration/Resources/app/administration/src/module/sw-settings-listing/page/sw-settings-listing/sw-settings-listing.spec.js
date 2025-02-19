@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package inventory
+ * @sw-package inventory
  */
 describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
     const notificationMixinMock = {
@@ -528,7 +528,6 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         'sw-field-error': true,
                         'sw-language-switch': true,
                         'sw-simple-search-field': true,
-                        'sw-button': true,
                         'sw-container': true,
                         'sw-help-text': true,
                         'sw-highlight-text': true,

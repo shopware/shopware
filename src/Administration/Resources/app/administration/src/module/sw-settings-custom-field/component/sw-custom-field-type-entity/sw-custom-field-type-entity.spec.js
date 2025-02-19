@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 
@@ -47,7 +47,6 @@ async function createWrapper(privileges = [], isNew = true, currentCustomField =
                     'sw-single-select': true,
                     'sw-field': true,
                     'sw-switch-field': true,
-                    'sw-button': true,
                     'sw-text-field': true,
                     'sw-container': true,
                 },

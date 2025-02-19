@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('inventory')]
 class ProductExportExceptionHandler implements ExceptionHandlerInterface
 {
-    public function matchException(\Exception $e): ?\Exception
+    public function matchException(\Throwable $e): ?\Throwable
     {
         if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*file_name\'/', $e->getMessage())) {
             $file = [];

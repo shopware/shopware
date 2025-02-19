@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -31,7 +31,7 @@ describe('components/base/sw-button', () => {
     });
 
     it('should render the mt-button when major feature flag is enabled', async () => {
-        global.activeFeatureFlags = ['v6.7.0.0'];
+        global.activeFeatureFlags = ['ENABLE_METEOR_COMPONENTS'];
 
         const wrapper = await createWrapper();
 

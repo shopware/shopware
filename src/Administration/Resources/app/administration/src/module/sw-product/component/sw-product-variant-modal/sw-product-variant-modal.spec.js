@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 import { mount } from '@vue/test-utils';
@@ -288,10 +288,6 @@ async function createWrapper() {
                 'sw-label': true,
                 'sw-simple-search-field': true,
                 'sw-empty-state': true,
-                'sw-button': {
-                    emits: ['click'],
-                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                },
                 'sw-container': {
                     template: '<div><slot></slot></div>',
                 },

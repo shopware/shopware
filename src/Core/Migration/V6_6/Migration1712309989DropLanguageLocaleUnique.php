@@ -23,9 +23,4 @@ class Migration1712309989DropLanguageLocaleUnique extends MigrationStep
     {
         $this->dropIndexIfExists($connection, 'language', 'uniq.translation_code_id');
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

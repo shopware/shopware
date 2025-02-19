@@ -1,9 +1,30 @@
 import { mount } from '@vue/test-utils';
 
+let repositoryFactoryMock;
+
 /**
- * @package inventory
+ * @sw-package inventory
  */
 async function createWrapper(privileges = []) {
+    repositoryFactoryMock = {
+        search() {
+            return Promise.resolve([
+                {
+                    id: '1a2b3c',
+                    name: 'Gramm',
+                    shortCode: 'g',
+                },
+            ]);
+        },
+        save(unit) {
+            if (unit.id !== 'success') {
+                return Promise.reject();
+            }
+
+            return Promise.resolve();
+        },
+    };
+
     return mount(
         await wrapTestComponent('sw-settings-units-list', {
             sync: true,
@@ -24,24 +45,7 @@ async function createWrapper(privileges = []) {
                 },
                 provide: {
                     repositoryFactory: {
-                        create: () => ({
-                            search() {
-                                return Promise.resolve([
-                                    {
-                                        id: '1a2b3c',
-                                        name: 'Gramm',
-                                        shortCode: 'g',
-                                    },
-                                ]);
-                            },
-                            save(unit) {
-                                if (unit.id !== 'success') {
-                                    return Promise.reject();
-                                }
-
-                                return Promise.resolve();
-                            },
-                        }),
+                        create: () => repositoryFactoryMock,
                     },
                     acl: {
                         can: (identifier) => {
@@ -81,7 +85,6 @@ async function createWrapper(privileges = []) {
                     'sw-search-bar': true,
                     'sw-icon': true,
                     'sw-language-switch': true,
-                    'sw-button': true,
                     'sw-card': {
                         template: '<div><slot></slot><slot name="grid"></slot></div>',
                     },
@@ -138,7 +141,7 @@ describe('module/sw-settings-units/page/sw-settings-units-list', () => {
 
         const addButton = wrapper.find('.sw-settings-units__create-action');
 
-        expect(addButton.attributes().disabled).toBeTruthy();
+        expect(addButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to edit a unit', async () => {

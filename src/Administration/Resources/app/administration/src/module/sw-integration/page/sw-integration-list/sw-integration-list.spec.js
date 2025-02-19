@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-integration/page/sw-integration-list';
@@ -87,8 +87,6 @@ async function createWrapper(privileges = []) {
                 'sw-language-switch': true,
                 'sw-search-bar': true,
                 'sw-icon': true,
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-container': {
                     template: '<div><slot></slot></div>',
                 },
@@ -124,7 +122,7 @@ async function createWrapper(privileges = []) {
                     `,
                 },
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                'sw-alert': true,
+
                 'sw-label': true,
                 'router-link': true,
                 'sw-loader': true,
@@ -233,7 +231,7 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         const deleteModal = wrapper.find('.sw-modal');
         expect(deleteModal.exists()).toBeTruthy();
 
-        const deleteButton = wrapper.find('.sw-modal .sw-button--primary');
+        const deleteButton = wrapper.findByText('button', 'sw-integration.detail.buttonDelete');
         expect(deleteButton.text()).toBe('sw-integration.detail.buttonDelete');
         await deleteButton.trigger('click');
         await flushPromises();

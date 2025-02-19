@@ -1,7 +1,7 @@
 import template from './sw-order-state-history-card.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Mixin } = Shopware;
@@ -11,15 +11,13 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
+        'swOrderDetailAskAndSaveEdits',
         'orderService',
         'stateMachineService',
         'orderStateMachineService',
         'repositoryFactory',
         'acl',
-        'feature',
     ],
 
     emits: [
@@ -305,9 +303,14 @@ export default {
             return options;
         },
 
-        onOrderStateSelected(actionName) {
+        async onOrderStateSelected(actionName) {
             if (!actionName) {
                 this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
+                return;
+            }
+
+            const proceed = await this.swOrderDetailAskAndSaveEdits();
+            if (!proceed) {
                 return;
             }
 
@@ -326,9 +329,14 @@ export default {
             this.showModal = false;
         },
 
-        onTransactionStateSelected(actionName) {
+        async onTransactionStateSelected(actionName) {
             if (!actionName) {
                 this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
+                return;
+            }
+
+            const proceed = await this.swOrderDetailAskAndSaveEdits();
+            if (!proceed) {
                 return;
             }
 
@@ -342,9 +350,14 @@ export default {
             this.modalConfirmed = false;
         },
 
-        onDeliveryStateSelected(actionName) {
+        async onDeliveryStateSelected(actionName) {
             if (!actionName) {
                 this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
+                return;
+            }
+
+            const proceed = await this.swOrderDetailAskAndSaveEdits();
+            if (!proceed) {
                 return;
             }
 

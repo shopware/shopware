@@ -1,5 +1,5 @@
 /**
- * @package content
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-media/mixin/media-sidebar-modal.mixin';
@@ -72,7 +72,7 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                             <slot></slot>
                         </div>`,
                 },
-                'sw-alert': true,
+
                 'sw-icon': true,
                 'sw-media-collapse': {
                     template: `

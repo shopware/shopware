@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 describe('src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-values-card', () => {
@@ -50,8 +50,6 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                         'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                         'sw-container': true,
                         'sw-simple-search-field': true,
-                        'sw-button': await wrapTestComponent('sw-button'),
-                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                         'sw-icon': true,
                         'sw-data-grid': await wrapTestComponent('sw-data-grid', {
                             sync: true,

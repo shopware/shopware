@@ -1,5 +1,5 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 import { runCmsBlockRegistryTest } from 'src/module/sw-cms/test-utils';
 

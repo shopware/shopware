@@ -4,14 +4,12 @@ import './sw-help-sidebar.scss';
 /**
  * @description Displays the help sidebar
  *
- * @package buyers-experience
+ * @sw-package framework
  *
  * @private
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['shortcutService'],
 
@@ -33,7 +31,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         showHelpSidebar(): boolean {
-            return Shopware.State.get('adminHelpCenter').showHelpSidebar;
+            return Shopware.Store.get('adminHelpCenter').showHelpSidebar;
         },
     },
 
@@ -158,11 +156,11 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         closeHelpSidebar(): void {
-            Shopware.State.commit('adminHelpCenter/setShowHelpSidebar', false);
+            Shopware.Store.get('adminHelpCenter').showHelpSidebar = false;
         },
 
         openShortcutModal(): void {
-            Shopware.State.commit('adminHelpCenter/setShowShortcutModal', true);
+            Shopware.Store.get('adminHelpCenter').showShortcutModal = true;
         },
     },
 });

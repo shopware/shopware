@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 function createRuleMock(isNew) {
@@ -73,9 +73,6 @@ async function createWrapper() {
                       <slot name="modal-footer"></slot>
                     </div>
                 `,
-                    },
-                    'sw-button': {
-                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
                     },
                     'sw-condition-tree': true,
                     'sw-container': true,

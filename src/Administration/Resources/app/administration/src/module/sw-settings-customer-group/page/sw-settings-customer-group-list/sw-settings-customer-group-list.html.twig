@@ -1,8 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_customer_group_list %}
 <sw-page class="sw-settings-customer-group-list">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_customer_group_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -14,13 +12,10 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_customer_group_list_smart_bar_header %}
     <template #smart-bar-header>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_customer_group_list_smart_bar_header_title %}
         <h2>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_customer_group_list_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
             <sw-icon
@@ -30,7 +25,6 @@
             {{ $tc('sw-settings-customer-group.general.mainMenuItemGeneral') }}
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_customer_group_list_smart_bar_header_amount %}
             <span
                 v-if="!isLoading && customerGroups && total"
@@ -44,19 +38,17 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_customer_group_list_language_switch %}
     <template #language-switch>
         <sw-language-switch @on-change="onRefresh" />
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_customer_group_list_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_customer_group_list_actions_create %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('customer_groups.creator'),
@@ -65,25 +57,22 @@
             class="sw-settings-customer-group-list__create"
             variant="primary"
             :disabled="!acl.can('customer_groups.creator') || undefined"
-            :router-link="{ name: 'sw.settings.customer.group.create' }"
+            @click="$router.push({ name: 'sw.settings.customer.group.create' })"
         >
             {{ $tc('sw-settings-customer-group.general.buttonCreate') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_customer_group_list_cardview %}
     <template #content>
         <sw-card-view>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_customer_group_list_card_content %}
             <sw-card
                 position-identifier="sw-settings-customer-group-list"
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_customer_group_list_grid %}
                 <template #grid>
                     <sw-entity-listing
@@ -110,13 +99,14 @@
                     >
 
                         <template #bulk-modal-delete-items>
-                            <sw-button
-                                variant="danger"
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
+                                variant="critical"
                                 size="small"
                                 @click="deleteCustomerGroups"
                             >
                                 {{ $tc('global.default.delete') }}
-                            </sw-button>
+                            </mt-button>
                         </template>
 
                         <template #delete-action="{ item }">
@@ -131,20 +121,19 @@
                         </template>
 
                         <template #delete-modal-delete-item="{ item }">
-                            <sw-button
-                                variant="danger"
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
+                                variant="critical"
                                 size="small"
                                 @click="deleteCustomerGroup(item)"
                             >
                                 {{ $tc('global.default.delete') }}
-                            </sw-button>
+                            </mt-button>
                         </template>
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_customer_group_list_grid_column_display_gross %}
                         <template #column-displayGross="{ item }">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_settings_customer_group_list_grid_column_display_gross_inner %}
+                            {% block sw_settings_customer_group_list_grid_column_display_gross_inner %}
                             {{ $tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', +item.displayGross) }}
                                 {% endblock %}
                         </template>
@@ -157,7 +146,6 @@
             {% endblock %}
         </sw-card-view>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_customer_group_list_empty_state %}
         <sw-empty-state
             v-if="!isLoading && !total && isValidTerm(term)"

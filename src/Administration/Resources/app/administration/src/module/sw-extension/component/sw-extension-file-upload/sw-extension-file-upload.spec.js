@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import findByText from '../../../../../test/_helper_/find-by-text';
 
 const uploadSpy = jest.fn(() => Promise.resolve({}));
 const updateExtensionDataSpy = jest.fn(() => Promise.resolve({}));
@@ -8,10 +9,6 @@ async function createWrapper(userConfig = {}) {
     const wrapper = mount(await wrapTestComponent('sw-extension-file-upload', { sync: true }), {
         global: {
             stubs: {
-                'sw-button': await wrapTestComponent('sw-button', {
-                    sync: true,
-                }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-icon': true,
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
@@ -68,7 +65,7 @@ function createFile(size = 44320, name = 'test-plugin.zip', type = 'application/
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
     beforeAll(() => {
@@ -80,8 +77,8 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
     });
 
     beforeEach(async () => {
-        Shopware.State.get('notification').notifications = {};
-        Shopware.State.get('notification').growlNotifications = {};
+        Shopware.Store.get('notification').notifications = {};
+        Shopware.Store.get('notification').growlNotifications = {};
     });
 
     it('should show warning modal and then call the file input form', async () => {
@@ -105,7 +102,7 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
         // fileInput has not been clicked before
         expect(fileInput.element.click).not.toHaveBeenCalled();
 
-        const continueButton = warningModal.get('.sw-button--primary');
+        const continueButton = findByText(warningModal, 'button', 'global.default.confirm');
         await continueButton.trigger('click');
 
         // expect that the input gets clicked
@@ -205,7 +202,7 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
         const wrapper = await createWrapper();
 
         // no growl message was thrown
-        expect(Object.keys(Shopware.State.get('notification').growlNotifications)).toHaveLength(0);
+        expect(Object.keys(Shopware.Store.get('notification').growlNotifications)).toHaveLength(0);
 
         // return an error from the upload
         uploadSpy.mockImplementationOnce(() =>
@@ -232,7 +229,7 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
 
         // check if error notification gets thrown
         await wrapper.vm.$nextTick();
-        const growlNotifications = Shopware.State.get('notification').growlNotifications;
+        const growlNotifications = Shopware.Store.get('notification').growlNotifications;
 
         expect(Object.keys(growlNotifications)).toHaveLength(1);
         Object.keys(growlNotifications).forEach((key) => {

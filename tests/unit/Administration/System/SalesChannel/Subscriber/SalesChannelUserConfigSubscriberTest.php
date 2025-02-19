@@ -25,6 +25,7 @@ use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 #[CoversClass(SalesChannelUserConfigSubscriber::class)]
 class SalesChannelUserConfigSubscriberTest extends TestCase
 {
+    /** @var MockObject&EntityRepository<UserConfigCollection> */
     private MockObject&EntityRepository $userConfigRepository;
 
     private SalesChannelUserConfigSubscriber $salesChannelUserConfigSubscriber;
@@ -93,7 +94,7 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
     {
         $userConfig = new UserConfigEntity();
         $userConfig->setUniqueIdentifier('user-config-id');
-        $userConfig->setValue(['']);
+        $userConfig->setValue(['test' => '']);
         $context = Context::createDefaultContext();
         $event = new EntityDeletedEvent('testEntity', [], $context);
 
@@ -119,7 +120,7 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
     {
         $userConfig = new UserConfigEntity();
         $userConfig->setUniqueIdentifier('user-config-id');
-        $userConfig->setValue(['test-deleted']);
+        $userConfig->setValue(['test' => 'test-deleted']);
         $userConfig->setId('test-deleted');
         $context = Context::createDefaultContext();
         $event = new EntityDeletedEvent(

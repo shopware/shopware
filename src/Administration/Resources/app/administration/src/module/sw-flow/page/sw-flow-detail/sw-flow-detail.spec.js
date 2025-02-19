@@ -579,4 +579,20 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         expect(sequences[0]).toHaveProperty('rule');
         expect(sequences[0].rule).toEqual({ id: '1111', name: 'test rule' });
     });
+
+    it('should display an error when trying to save an empty flow', async () => {
+        global.activeAclRoles = ['flow.editor'];
+
+        const wrapper = await createWrapper();
+        const notificationSpy = jest.spyOn(wrapper.vm, 'createNotificationWarning');
+        await flushPromises();
+
+        const saveButton = wrapper.find('.sw-flow-detail__save');
+        await saveButton.trigger('click');
+        await flushPromises();
+
+        expect(notificationSpy).toHaveBeenNthCalledWith(1, {
+            message: 'sw-flow.flowNotification.emptyFields.general',
+        });
+    });
 });

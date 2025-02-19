@@ -14,6 +14,7 @@
       "placeholderUsername": "Gib Deinen Benutzernamen ein ...",
       "placeholderPassword": "Gib Dein Passwort ein ...",
       "buttonLogin": "Anmelden",
+      "buttonSsoLogin": "Mit Shopware SSO anmelden",
       "messageUnsupportedGrantType": "\"Grant-Type\" wird nicht unterstützt.",
       "messageInvalidRequest": "Ungültige Anfrage.",
       "messageInvalidClient": "Die Client-Authentifizierung ist fehlgeschlagen.",

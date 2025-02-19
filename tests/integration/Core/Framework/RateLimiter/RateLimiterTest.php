@@ -167,7 +167,7 @@ class RateLimiterTest extends TestCase
 
             if ($i >= 10) {
                 static::assertEquals(429, $response['errors'][0]['status']);
-                static::assertEquals('FRAMEWORK__AUTH_THROTTLED', $response['errors'][0]['code']);
+                static::assertEquals('FRAMEWORK__NOTIFICATION_THROTTLED', $response['errors'][0]['code']);
             } else {
                 static::assertEquals(400, $response['errors'][0]['status']);
                 static::assertEquals(6, $response['errors'][0]['code']);
@@ -189,7 +189,7 @@ class RateLimiterTest extends TestCase
             $psrFactory,
             $this->mockResetLimiter([
                 RateLimiter::OAUTH => 1,
-            ])
+            ]),
         );
 
         $controller->token(new Request());

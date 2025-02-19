@@ -43,7 +43,6 @@ class ThemeDumpCommand extends Command
         private readonly StorefrontPluginRegistry $pluginRegistry,
         private readonly ThemeFileResolver $themeFileResolver,
         private readonly EntityRepository $themeRepository,
-        private readonly string $projectDir,
         private readonly StaticFileConfigDumper $staticFileConfigDumper,
         private readonly ThemeFilesystemResolver $themeFilesystemResolver
     ) {

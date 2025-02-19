@@ -4,6 +4,7 @@ import type { FixtureTypes, Task } from '@fixtures/AcceptanceTest';
 export const CreateRule = base.extend<{ CreateRule: Task }, FixtureTypes>({
     CreateRule: async ({ ShopAdmin, AdminApiContext }, use ) => {
 
+<<<<<<< HEAD
         const task = (testConfig) => {
             return async function CreateRule() {
 
@@ -19,6 +20,23 @@ export const CreateRule = base.extend<{ CreateRule: Task }, FixtureTypes>({
                     tags: [
                         {
                             name: testConfig.ruleTag,
+=======
+        const task = (ruleData    ) => {
+            return async function CreateRule() {
+
+                const testRule = {
+                    id: ruleData.ruleId,
+                    name: ruleData.ruleName,
+                    priority: ruleData.rulePriority,
+                    description: ruleData.ruleDescription,
+                    moduleTypes: {
+                        types:
+                            ruleData.ruleTypes.map(type => type.toLowerCase().split(' ')[0]),
+                    },
+                    tags: [
+                        {
+                            name: ruleData.ruleTag,
+>>>>>>> 60e330ba69 (test: add CreateRule task)
                         },
                     ],
                     conditions: [
@@ -31,7 +49,11 @@ export const CreateRule = base.extend<{ CreateRule: Task }, FixtureTypes>({
                                         {
                                             type: 'cartLineItemGoodsTotal',
                                             value: {
+<<<<<<< HEAD
                                                 count: testConfig.quantity,
+=======
+                                                count: ruleData.quantity,
+>>>>>>> 60e330ba69 (test: add CreateRule task)
                                                 operator: '>=',
                                             },
                                             children: [
@@ -44,7 +66,11 @@ export const CreateRule = base.extend<{ CreateRule: Task }, FixtureTypes>({
                                                                 {
                                                                     type: 'cartLineItemStock',
                                                                     value: {
+<<<<<<< HEAD
                                                                         stock: testConfig.stock,
+=======
+                                                                        stock: ruleData.inStock,
+>>>>>>> 60e330ba69 (test: add CreateRule task)
                                                                         operator: '>=',
                                                                     },
                                                                 },
@@ -57,9 +83,15 @@ export const CreateRule = base.extend<{ CreateRule: Task }, FixtureTypes>({
                                         {
                                             type: 'dateRange',
                                             value: {
+<<<<<<< HEAD
                                                 toDate: testConfig.toDate,
                                                 useTime: false,
                                                 fromDate: testConfig.fromDate,
+=======
+                                                toDate: ruleData.toDate,
+                                                useTime: false,
+                                                fromDate: ruleData.fromDate,
+>>>>>>> 60e330ba69 (test: add CreateRule task)
                                             },
                                         },
                                         {
@@ -68,7 +100,11 @@ export const CreateRule = base.extend<{ CreateRule: Task }, FixtureTypes>({
                                                 {
                                                     type: 'customerLastName',
                                                     value: {
+<<<<<<< HEAD
                                                         lastName: testConfig.customerSurname,
+=======
+                                                        lastName: ruleData.customerSurname,
+>>>>>>> 60e330ba69 (test: add CreateRule task)
                                                         operator: '=',
                                                     },
                                                 },
@@ -83,7 +119,11 @@ export const CreateRule = base.extend<{ CreateRule: Task }, FixtureTypes>({
                                             type: 'cartLineItemTaxation',
                                             value: {
                                                 taxIds: [
+<<<<<<< HEAD
                                                     testConfig.taxId,
+=======
+                                                    ruleData.taxId,
+>>>>>>> 60e330ba69 (test: add CreateRule task)
                                                 ],
                                                 operator: '=',
                                             },
@@ -91,8 +131,13 @@ export const CreateRule = base.extend<{ CreateRule: Task }, FixtureTypes>({
                                         {
                                             type: 'timeRange',
                                             value: {
+<<<<<<< HEAD
                                                 toTime: testConfig.toDate.split('T')[1].substring(0, 5),
                                                 fromTime: testConfig.fromDate.split('T')[1].substring(0, 5),
+=======
+                                                toTime: ruleData.toDate.split('T')[1].substring(0, 5),
+                                                fromTime: ruleData.fromDate.split('T')[1].substring(0, 5),
+>>>>>>> 60e330ba69 (test: add CreateRule task)
                                             },
                                         },
                                         {
@@ -101,7 +146,11 @@ export const CreateRule = base.extend<{ CreateRule: Task }, FixtureTypes>({
                                                 {
                                                     type: 'orderCreatedByAdmin',
                                                     value: {
+<<<<<<< HEAD
                                                         shouldOrderBeCreatedByAdmin: testConfig.isAdminOrder,
+=======
+                                                        shouldOrderBeCreatedByAdmin: ruleData.adminOrder,
+>>>>>>> 60e330ba69 (test: add CreateRule task)
                                                     },
                                                 },
                                             ],

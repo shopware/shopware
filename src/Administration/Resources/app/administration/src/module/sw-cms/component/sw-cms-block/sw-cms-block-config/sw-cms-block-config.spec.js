@@ -14,6 +14,7 @@ const block = {
     backgroundMediaId: 'mediaId',
     backgroundMediaMode: '',
     removable: true,
+    isNew: () => false,
 };
 
 jest.useFakeTimers();

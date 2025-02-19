@@ -128,7 +128,7 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
         $orderLineItems = new OrderLineItemCollection();
 
         foreach ($event->getWriteResults() as $result) {
-            if ($result->getPayload()['type'] !== PromotionProcessor::LINE_ITEM_TYPE) {
+            if (($result->getPayload()['type'] ?? '') !== PromotionProcessor::LINE_ITEM_TYPE) {
                 continue;
             }
             $orderLineItems->add((new OrderLineItemEntity())->assign($result->getPayload()));

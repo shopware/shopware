@@ -1,6 +1,3 @@
-{% set cmsPath = 'frontend.cms.page' %}
-{% set privacyNoticeSnippet = 'general.privacyNoticeText' %}
-
 {% block component_privacy_notice %}
     <fieldset class="form-text privacy-notice">
         {% block component_privacy_title %}
@@ -11,6 +8,8 @@
         {% endblock %}
 
         {% block component_privacy_dpi %}
+            {% set cmsPath = 'frontend.cms.page' %}
+            {% set privacyNoticeSnippet = 'general.privacyNoticeText' %}
             {% if config('core.loginRegistration.requireDataProtectionCheckbox') == 1 %}
                 {% if feature('ACCESSIBILITY_TWEAKS') %}
                     {% set dataProtectionLabel = privacyNoticeSnippet|trans({

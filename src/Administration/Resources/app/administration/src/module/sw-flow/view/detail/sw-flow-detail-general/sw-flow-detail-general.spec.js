@@ -46,7 +46,6 @@ async function createWrapper(privileges = [], query = {}) {
                         template: '<div><slot></slot></div>',
                     },
                     'sw-switch-field': true,
-                    'sw-alert': true,
                 },
             },
         },

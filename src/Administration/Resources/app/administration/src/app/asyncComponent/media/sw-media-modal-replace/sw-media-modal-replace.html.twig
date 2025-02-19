@@ -18,13 +18,13 @@
         variant="regular"
     />
 
-    <sw-alert
+    <mt-banner
         v-if="newFileExtension"
         class="sw-media-modal-replace__file-extension-warning"
-        variant="warning"
+        variant="attention"
     >
         {{ $tc('global.sw-media-modal-replace.warningFileExtension', { extension: newFileExtension }, 0) }}
-    </sw-alert>
+    </mt-banner>
 
     {% block sw_media_modal_replace_modal_footer %}
     <template #modal-footer>

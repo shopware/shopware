@@ -4,7 +4,8 @@
 <mt-switch
     v-if="useMeteorComponent"
     v-bind="$attrs"
-    :checked="checkedValue" @change="onChangeHandler"
+    :checked="checkedValue"
+    @change="onChangeHandler"
 >
     <slot></slot>
 </mt-switch>
@@ -16,7 +17,8 @@
 <sw-switch-field-deprecated
     v-else
     v-bind="$attrs"
-    :value="value" @update:value="onChangeHandler"
+    :value="value"
+    @update:value="onChangeHandler"
 >
     <slot></slot>
 </sw-switch-field-deprecated>

@@ -67,10 +67,6 @@ async function createWrapper(loginSuccessfull) {
                 'router-link': true,
                 'sw-button': await wrapTestComponent('sw-button'),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                'sw-alert': await wrapTestComponent('sw-alert', {
-                    sync: true,
-                }),
-                'sw-alert-deprecated': await wrapTestComponent('sw-alert-deprecated', { sync: true }),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
@@ -121,7 +117,7 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
         expect(setTimeout).toHaveBeenCalledTimes(2);
         expect(setTimeout).toHaveBeenLastCalledWith(expect.any(Function), 1000);
 
-        expect(wrapper.get('.sw-alert__message').text()).toBe('["sw-login.index.messageAuthThrottled",{"seconds":1},0]');
+        expect(wrapper.get('[role="banner"]').text()).toBe('["sw-login.index.messageAuthThrottled",{"seconds":1},0]');
 
         // advance the timer to make the warning disappear
         jest.advanceTimersByTime(1001);

@@ -14,7 +14,10 @@ describe('src/module/sw-settings-state-machine/index.js', () => {
         expect(privilegeMapping !== undefined).toBe(true);
         expect(privilegeMapping.hasOwnProperty('roles')).toBe(true);
 
-        ['viewer', 'editor'].forEach((role) => {
+        [
+            'viewer',
+            'editor',
+        ].forEach((role) => {
             expect(privilegeMapping.roles.hasOwnProperty(role)).toBe(true);
             expect(privilegeMapping.roles[role].hasOwnProperty('privileges')).toBe(true);
             expect(privilegeMapping.roles[role].privileges.length).toBeGreaterThan(0);

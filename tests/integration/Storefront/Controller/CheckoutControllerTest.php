@@ -546,8 +546,6 @@ class CheckoutControllerTest extends TestCase
 
     public function testCheckoutInfoWidgetSkipsCalculationAndRenderIfCartIsEmpty(): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
         $contextToken = Uuid::randomHex();
 
         $cartService = static::getContainer()->get(CartService::class);

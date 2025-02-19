@@ -9,7 +9,7 @@ import ElementReplaceHelper from 'src/helper/element-replace.helper';
  * This plugin automatically submits a form,
  * when the element or the form itself has changed.
  *
- * @package content
+ * @package framework
  */
 export default class FormAjaxSubmitPlugin extends Plugin {
 

@@ -8,7 +8,7 @@ import {INDICATOR_POSITION} from 'src/utility/loading-indicator/loading-indicato
  *
  * This plugin shows a loading indicator on the form submit button when the form is submitted.
  *
- * @package content
+ * @package framework
  */
 export default class FormSubmitLoaderPlugin extends Plugin {
 

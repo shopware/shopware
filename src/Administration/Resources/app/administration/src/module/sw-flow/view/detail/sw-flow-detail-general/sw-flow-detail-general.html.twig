@@ -1,9 +1,9 @@
 {% block sw_flow_detail_general %}
 <div class="sw-flow-detail-general">
     {% block sw_flow_detail_general_information %}
-    <sw-alert
+    <mt-banner
         v-if="isUnknownTrigger"
-        variant="warning"
+        variant="attention"
         class="sw-flow-detail-general__warning-unknow-trigger"
     >
         <p>{{ $tc('sw-flow.flowNotification.messageUnknownTriggerWarning') }}</p>
@@ -13,7 +13,7 @@
             <li>{{ $tc('sw-flow.flowNotification.textGuide2') }}</li>
             <li>{{ $tc('sw-flow.flowNotification.textGuide3') }}</li>
         </ul>
-    </sw-alert>
+    </mt-banner>
 
     <sw-card
         class="sw-flow-detail-general__general-card"

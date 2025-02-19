@@ -124,7 +124,7 @@ async function createWrapper(privileges = []) {
                     `,
                 },
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                'sw-alert': true,
+
                 'sw-label': true,
                 'router-link': true,
                 'sw-loader': true,

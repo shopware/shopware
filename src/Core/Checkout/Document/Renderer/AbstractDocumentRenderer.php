@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -23,14 +22,6 @@ abstract class AbstractDocumentRenderer
     abstract public function render(array $operations, Context $context, DocumentRendererConfig $rendererConfig): RendererResult;
 
     abstract public function getDecorated(): AbstractDocumentRenderer;
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed without replacement
-     */
-    public function finalize(DocumentGenerateOperation $operation, Context $context, DocumentRendererConfig $rendererConfig, RendererResult $result): void
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Method will be removed without replacement');
-    }
 
     /**
      * @param array<int, string> $ids

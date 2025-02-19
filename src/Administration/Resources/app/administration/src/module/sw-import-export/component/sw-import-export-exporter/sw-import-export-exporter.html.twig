@@ -31,8 +31,8 @@
 
     <template v-if="showProductVariantsInfo">
         {% block sw_import_export_exporter_product_variants_warning %}
-        <sw-alert
-            variant="warning"
+        <mt-banner
+            variant="attention"
             class="sw-import-export-exporter__variants-warning"
         >
             {% block sw_import_export_exporter_product_variants_warning_text %}
@@ -57,7 +57,7 @@
                 </a>
             </p>
             {% endblock %}
-        </sw-alert>
+        </mt-banner>
         {% endblock %}
     </template>
 

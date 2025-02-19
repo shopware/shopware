@@ -143,7 +143,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                 ]);
 
                 if ($operation->isStatic()) {
-                    $doc = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
+                    $doc = new RenderedDocument($number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
                     $result->addSuccess($orderId, $doc);
 
                     continue;
@@ -158,16 +158,21 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                 }
 
                 $doc = new RenderedDocument(
-                    '',
                     $number,
                     $config->buildName(),
                     $operation->getFileType(),
                     $config->jsonSerialize(),
                 );
 
+                $doc->setParameters([
+                    'creditItems' => $creditItems,
+                    'price' => $price->getTotalPrice() * -1,
+                    'amountTax' => $price->getCalculatedTaxes()->getAmount(),
+                ]);
                 $doc->setTemplate($template);
                 $doc->setOrder($order);
                 $doc->setContext($context);
+
                 $doc->setContent($this->fileRendererRegistry->render($doc));
 
                 $result->addSuccess($orderId, $doc);

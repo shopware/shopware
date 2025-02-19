@@ -4,7 +4,8 @@
     class="sw-entity-multi-select"
     :is-loading="isLoading"
     v-bind="$attrs"
-    :label="label" @select-expanded="onSelectExpanded"
+    :label="label"
+    @select-expanded="onSelectExpanded"
     @select-collapsed="onSelectCollapsed"
     @clear="clearSelection"
 >

@@ -1,4 +1,4 @@
-// @deprecated tag:v6.8.0 - HttpClient is deprecated. Using native fetch API instead.
+// @deprecated tag:v6.8.0 - HttpClient is deprecated. Using native fetch API instead. Remove this import.
 import HttpClient from 'src/service/http-client.service';
 import Plugin from 'src/plugin-system/plugin.class';
 import LoadingIndicatorUtil from 'src/utility/loading-indicator/loading-indicator.util';
@@ -34,7 +34,7 @@ export default class AjaxModalPlugin extends Plugin {
         centerLoadingIndicatorClass: 'text-center',
     };
 
-    // @deprecated tag:v6.8.0 - HttpClient is deprecated. Using native fetch API instead.
+    // @deprecated tag:v6.8.0 - HttpClient is deprecated. Using native fetch API instead. Remove this class property.
     httpClient = new HttpClient();
 
     init() {
@@ -107,20 +107,16 @@ export default class AjaxModalPlugin extends Plugin {
 
         modalBodyEl.classList.add(this.options.centerLoadingIndicatorClass);
 
-        fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }})
+        fetch(url, { method: 'GET', headers: { 'X-Requested-With': 'XMLHttpRequest' }})
             .then(response => response.text())
             .then(response => this._processResponse(response, loadingIndicatorUtil, pseudoModalUtil, modalBodyEl));
-
-        // this.httpClient.get(url, (response) => {
-        //     this._processResponse(response, loadingIndicatorUtil, pseudoModalUtil, modalBodyEl);
-        // });
     }
 
     /**
      * Processes the response by removing the loading indicator, updating the modal content and removing the "loading"
      * class, which centers the loading indicator.
      *
-     * @param {XMLHttpRequest} response
+     * @param {string} response
      * @param {LoadingIndicatorUtil} loadingIndicatorUtil
      * @param {PseudoModalUtil} pseudoModalUtil
      * @param {HTMLElement} modalBodyEl

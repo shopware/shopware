@@ -1,5 +1,6 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
+// @deprecated tag:v6.8.0 - HttpClient is deprecated. Using native fetch API instead. Remove this import.
 import HttpClient from 'src/service/http-client.service';
 import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 import DeviceDetection from 'src/helper/device-detection.helper';
@@ -40,6 +41,7 @@ export default class OffCanvasCartPlugin extends Plugin {
     };
 
     init() {
+        // @deprecated tag:v6.8.0 - HttpClient is deprecated. Using native fetch API instead. Remove this property.
         this.client = new HttpClient();
         this._registerOpenTriggerEvents();
     }
@@ -209,7 +211,9 @@ export default class OffCanvasCartPlugin extends Plugin {
 
         this.$emitter.publish('beforeFireRequest');
 
-        this.client.post(requestUrl, data, cb);
+        fetch(requestUrl, { method: 'POST', body: data, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(response => response.text())
+            .then(response => cb(response));
     }
 
     /**
@@ -302,10 +306,12 @@ export default class OffCanvasCartPlugin extends Plugin {
         const url = window.router['frontend.cart.offcanvas'];
 
         const _callback = () => {
-            this.client.get(url, response => {
-                this._updateOffCanvasContent(response);
-                this._registerEvents();
-            }, 'text/html');
+            fetch(url, { method: 'GET', headers: { 'X-Requested-With': 'XMLHttpRequest' }})
+                .then(response => response.text())
+                .then(response => {
+                    this._updateOffCanvasContent(response);
+                    this._registerEvents();
+                });
         };
 
         this._fireRequest(event.target.form, '.offcanvas-summary', _callback);

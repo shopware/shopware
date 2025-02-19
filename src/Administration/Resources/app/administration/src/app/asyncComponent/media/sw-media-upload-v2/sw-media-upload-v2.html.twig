@@ -9,14 +9,15 @@
             split-button
         >
             {% block sw_media_upload_v2_compact_button_file_upload %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 class="sw-media-upload-v2__button-compact-upload"
                 :disabled="disabled"
                 variant="primary"
                 @click="onClickUpload"
             >
                 {{ buttonFileUploadLabel }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_media_upload_v2_compact_button_context_menu %}
@@ -26,14 +27,15 @@
                 class="sw-media-upload-v2__button-open-context-menu"
             >
                 <template #button>
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         :disabled="disabled"
                         square
                         variant="primary"
                         class="sw-media-upload-v2__button-context-menu"
                     >
                         <sw-icon name="regular-chevron-down-xs" />
-                    </sw-button>
+                    </mt-button>
                 </template>
 
                 {% block sw_media_upload_v2_compact_button_context_menu_actions %}
@@ -191,7 +193,8 @@
                     {% block sw_media_upload_v2_regular_actions_add %}
                     <template v-if="isFileUpload">
                         {% block sw_media_upload_v2_regular_media_sidebar_button %}
-                        <sw-button
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
                             v-if="hasOpenMediaButtonListener"
                             class="sw-media-upload-v2__button open-media-sidebar"
                             :class="{ 'is--small': variant === 'small'}"
@@ -209,20 +212,21 @@
                             <template v-else>
                                 {{ $tc('global.sw-media-upload-v2.buttonOpenMedia') }}
                             </template>
-                        </sw-button>
+                        </mt-button>
                         {% endblock %}
 
                         {% block sw_media_upload_v2_regular_upload_button %}
-                        <sw-button
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
                             class="sw-media-upload-v2__button upload"
                             :class="{ 'is--small': variant === 'small'}"
-                            variant="ghost"
+                            ghost
                             size="small"
                             :disabled="disabled"
                             @click="onClickUpload"
                         >
                             {{ buttonFileUploadLabel }}
-                        </sw-button>
+                        </mt-button>
                         {% endblock %}
                     </template>
                     {% endblock %}

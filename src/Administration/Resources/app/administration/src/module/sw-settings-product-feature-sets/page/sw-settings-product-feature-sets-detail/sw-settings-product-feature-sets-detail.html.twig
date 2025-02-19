@@ -56,8 +56,9 @@
                 >
 
                     {% block sw_settings_product_feature_set_detail_content_field_name %}
-                    <sw-text-field
-                        v-model:value="productFeatureSet.name"
+
+                    <mt-text-field
+                        v-model="productFeatureSet.name"
                         class="sw-settings-product-feature-sets-detail__name"
                         validation="required"
                         required

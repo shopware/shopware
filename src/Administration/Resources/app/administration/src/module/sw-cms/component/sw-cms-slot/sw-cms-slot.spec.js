@@ -41,7 +41,6 @@ async function createWrapper(props = {}) {
                     },
                     'sw-sidebar-collapse': true,
                     'sw-skeleton-bar': true,
-                    'sw-button': true,
                     'sw-icon': true,
                 },
                 provide: {

@@ -119,8 +119,8 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
 
     it('should show the name field', async () => {
         const root = wrapper.get(`.${classes.componentRoot}`);
-        const nameField = root.findComponent('.sw-field--text');
-        const nameFieldLabel = nameField.get(`.${classes.fieldLabel}`);
+        const nameField = root.findComponent('.mt-text-field');
+        const nameFieldLabel = nameField.get(`label`);
 
         expect(nameFieldLabel.text()).toEqual(text.labelNameField);
         expect(nameField.find('input').attributes('placeholder')).toEqual(text.placeholderNameField);
@@ -155,7 +155,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         );
 
         expect(saveButton.attributes().disabled).toBe('true');
-        expect(fieldName.vm.$attrs.disabled).toBe(true);
+        expect(fieldName.props().disabled).toBe(true);
         expect(fieldDescription.vm.$attrs.disabled).toBe(true);
         expect(productFeatureSetsValuesCard.attributes()['allow-edit']).toBeUndefined();
     });
@@ -184,7 +184,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         );
 
         expect(saveButton.attributes().disabled).toBeUndefined();
-        expect(fieldName.vm.$attrs.disabled).toBe(false);
+        expect(fieldName.props().disabled).toBe(false);
         expect(fieldDescription.vm.$attrs.disabled).toBe(false);
         expect(productFeatureSetsValuesCard.attributes()['allow-edit']).toBe('true');
     });

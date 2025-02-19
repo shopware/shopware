@@ -14,7 +14,13 @@
     </template>
 
     <!-- Dynamically pass all slots -->
-    <template v-for="(_, name) in getSlots()" #[name]="bindings">
-        <slot :name="name" v-bind="bindings" ></slot>
+    <template
+        v-for="(_, name) in getSlots()"
+        #[name]="bindings"
+    >
+        <slot
+            :name="name"
+            v-bind="bindings"
+        ></slot>
     </template>
 </mt-text-editor-original>

@@ -131,7 +131,7 @@ Component.register('sw-confirm-modal', {
             switch (this.type) {
                 case 'delete':
                 case 'discard':
-                    return 'danger';
+                    return 'critical';
                 default:
                     return 'primary';
             }

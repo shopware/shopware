@@ -44,12 +44,13 @@
     <div class="sw-cms-section-config__settings">
 
         {% block sw_cms_block_config_name_field %}
-        <sw-text-field
-            :value="block.name"
+
+        <mt-text-field
+            :model-value="block.name"
             :label="$tc('sw-cms.detail.label.blockNameField')"
             :placeholder="$tc('sw-cms.detail.label.blockNameFieldPlaceholder')"
             :help-text="$tc('sw-cms.detail.tooltip.blockNameField')"
-            @update:value="onBlockNameChange"
+            @update:model-value="onBlockNameChange"
         />
         {% endblock %}
 

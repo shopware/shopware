@@ -34,19 +34,20 @@
     {% block sw_manufacturer_list_actions %}
     <template #smart-bar-actions>
         {% block sw_manufacturer_list_smart_bar_actions %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('product_manufacturer.creator'),
                 showOnDisabledElements: true
             }"
-            :router-link="{ name: 'sw.manufacturer.create' }"
             :disabled="!acl.can('product_manufacturer.creator') || undefined"
             class="sw-manufacturer-list__add-manufacturer"
             variant="primary"
+            @click="$router.push({ name: 'sw.manufacturer.create' })"
         >
             {{ $tc('sw-manufacturer.list.buttonAddManufacturer') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

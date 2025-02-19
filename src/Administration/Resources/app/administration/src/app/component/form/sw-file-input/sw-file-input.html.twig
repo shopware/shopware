@@ -58,15 +58,16 @@
             </div>
 
             {% block sw_file_input_regular_choose_button %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 class="sw-file-input__button"
-                variant="ghost"
+                ghost
                 size="small"
                 :disabled="disabled || undefined"
                 @click="onChooseButtonClick"
             >
                 {{ $tc('global.sw-file-input.buttonChoose') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
         </div>

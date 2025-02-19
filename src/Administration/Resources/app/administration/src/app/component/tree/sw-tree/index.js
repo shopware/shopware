@@ -933,6 +933,8 @@ Component.register('sw-tree', {
 
         onFinishNameingElement(draft, event) {
             if (this.createdItem) {
+                this.createdItem.data.name = draft;
+
                 this.createdItem.data.save().then(() => {
                     this.createdItem = null;
                     this.saveItems();

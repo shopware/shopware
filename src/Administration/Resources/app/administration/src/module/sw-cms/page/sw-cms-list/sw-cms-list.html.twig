@@ -20,7 +20,8 @@
     </template>
 
     <template #smart-bar-actions>
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('cms.creator'),
@@ -31,7 +32,7 @@
             @click="onCreateNewLayout"
         >
             {{ $tc('sw-cms.general.createNewLayout') }}
-        </sw-button>
+        </mt-button>
     </template>
     {% endblock %}
 
@@ -438,32 +439,35 @@
                 <div class="sw_tree__confirm-rename-text">
                     {{ $tc('sw-cms.components.cmsListItem.modal.textRenameConfirm', { pageName: currentPage.translated.name || currentPage.name }, 0) }}
                 </div>
-                <sw-text-field
-                    v-model:value="newName"
+
+                <mt-text-field
+                    v-model="newName"
                     class="sw_tree__confirm-rename-text-field"
-                    size="medium"
+                    size="default"
                 />
                 {% endblock %}
 
                 {% block sw_cms_list_rename_modal_footer %}
                 <template #modal-footer>
                     {% block sw_cms_list_rename_modal_cancel %}
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         size="small"
                         @click="onCloseRenameModal"
                     >
                         {{ $tc('global.default.cancel') }}
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
 
                     {% block sw_cms_list_rename_modal_confirm %}
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         size="small"
                         variant="primary"
                         @click="onConfirmPageRename"
                     >
                         {{ $tc('sw-cms.components.cmsListItem.modal.buttonRename') }}
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
                 </template>
                 {% endblock %}
@@ -487,22 +491,24 @@
                 {% block sw_cms_list_delete_modal_footer %}
                 <template #modal-footer>
                     {% block sw_cms_list_delete_modal_cancel %}
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         size="small"
                         @click="onCloseDeleteModal"
                     >
                         {{ $tc('global.default.cancel') }}
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
 
                     {% block sw_cms_list_delete_modal_confirm %}
-                    <sw-button
-                        variant="danger"
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
+                        variant="critical"
                         size="small"
                         @click="onConfirmPageDelete"
                     >
                         {{ $tc('sw-cms.components.cmsListItem.modal.buttonDelete') }}
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
                 </template>
                 {% endblock %}

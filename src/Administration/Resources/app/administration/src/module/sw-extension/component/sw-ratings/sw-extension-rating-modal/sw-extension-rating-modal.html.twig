@@ -27,13 +27,14 @@
         {% block sw_extension_rating_modal_slot_footer_buttons %}
         <div class="sw-extension-rating-modal__buttons">
             {% block sw_extension_rating_modal_slot_footer_buttons_cancel %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
                 :disabled="isLoading"
                 @click="emitClose"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_extension_rating_modal_slot_footer_buttons_submit %}

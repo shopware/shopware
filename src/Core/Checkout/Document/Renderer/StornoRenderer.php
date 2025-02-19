@@ -133,7 +133,7 @@ final class StornoRenderer extends AbstractDocumentRenderer
                 ]);
 
                 if ($operation->isStatic()) {
-                    $doc = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
+                    $doc = new RenderedDocument($number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
                     $result->addSuccess($orderId, $doc);
 
                     continue;
@@ -146,7 +146,6 @@ final class StornoRenderer extends AbstractDocumentRenderer
                 }
 
                 $doc = new RenderedDocument(
-                    '',
                     $number,
                     $config->buildName(),
                     $operation->getFileType(),
@@ -156,6 +155,7 @@ final class StornoRenderer extends AbstractDocumentRenderer
                 $doc->setTemplate($template);
                 $doc->setOrder($order);
                 $doc->setContext($context);
+
                 $doc->setContent($this->fileRendererRegistry->render($doc));
 
                 $result->addSuccess($orderId, $doc);

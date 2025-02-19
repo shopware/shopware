@@ -12,26 +12,11 @@ class NumberRangeTypeTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $numberRangeTypeId;
+    protected string $numberRangeTypeId;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $typeName;
+    protected ?string $typeName = null;
 
-    /**
-     * @var NumberRangeTypeEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $numberRangeType;
+    protected ?NumberRangeTypeEntity $numberRangeType = null;
 
     public function getNumberRangeTypeId(): string
     {

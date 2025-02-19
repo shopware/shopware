@@ -77,13 +77,16 @@
       "tabFlow": "Flow"
     },
     "flowNotification": {
+      "emptyFields": {
+        "general": "Please fill all required fields before saving",
+        "sequences": "Please enter a rule or action name before saving"
+      },
       "messageDeleteSuccess": "Flow deleted.",
       "messageDeleteError": "Flow could not be deleted.",
       "messageSaveError": "Flow could not be saved.",
       "messageWarningSave": "Flow templates cannot be edited.",
       "messageError": "An error occurred.",
       "messageRequiredEventName": "Please choose a trigger event before saving.",
-      "messageRequiredEmptyFields": "Please enter a rule or action name before saving.",
       "messageDuplicateSuccess": "Flow duplicated.",
       "messageDuplicateError": "Flow could not be duplicated.",
       "messageCreateSuccess": "Flow created.",

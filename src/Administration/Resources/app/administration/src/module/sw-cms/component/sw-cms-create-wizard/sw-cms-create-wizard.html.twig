@@ -123,8 +123,9 @@
                 <div class="sw-cms-create-wizard__page-completion">
 
                     {% block sw_cms_create_wizard_page_name %}
-                    <sw-text-field
-                        v-model:value="page.name"
+
+                    <mt-text-field
+                        v-model="page.name"
                         class="sw-cms-create-wizard__page-completion-name"
                         :label="$tc('sw-cms.detail.label.pageName')"
                         :placeholder="$tc('sw-cms.detail.label.pageNamePlaceholder')"
@@ -145,13 +146,14 @@
                     {% block sw_cms_create_wizard_page_completion_buttons %}
                     <div class="sw-cms-create-wizard__page-completion-buttons">
                         {% block sw_cms_create_wizard_page_completion_save_button %}
-                        <sw-button
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
                             variant="primary"
                             :disabled="!isCompletable"
                             @click="onCompletePageCreation"
                         >
                             {{ $tc('sw-cms.createWizard.createLayout') }}
-                        </sw-button>
+                        </mt-button>
                         {% endblock %}
                     </div>
                     {% endblock %}

@@ -25,8 +25,6 @@ async function createWrapper(back = null, push = jest.fn()) {
                 'sw-my-apps-error-page': true,
                 'sw-iframe-renderer': true,
                 'sw-language-switch': true,
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'router-link': {
                     props: {
                         to: {
@@ -118,7 +116,7 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
 
         expect(smartBarButton.text()).toBe('Test button 1');
         expect(smartBarButton.attributes().id).toBe('test-button-1');
-        expect(smartBarButton.classes('sw-button--primary')).toBe(true);
+        expect(smartBarButton.classes().some((cls) => cls.includes('--primary'))).toBe(true);
 
         // Test if callback function is called
         await smartBarButton.trigger('click');

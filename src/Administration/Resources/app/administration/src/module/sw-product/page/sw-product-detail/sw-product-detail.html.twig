@@ -17,13 +17,14 @@
     {% block sw_product_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_product_detail_actions_abort %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="tooltipCancel"
             :disabled="isLoading"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         <sw-button-group
@@ -53,7 +54,8 @@
             {% block sw_product_detail_actions_save_context_menu %}
             <sw-context-button>
                 <template #button>
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         class="sw-product-detail__button-context-menu"
                         square
                         variant="primary"
@@ -63,7 +65,7 @@
                             name="regular-chevron-down-xs"
                             size="16"
                         />
-                    </sw-button>
+                    </mt-button>
                 </template>
 
                 {% block sw_product_detail_actions_save_context_menu_actions %}

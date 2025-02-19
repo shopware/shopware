@@ -86,7 +86,7 @@ $select-result-customer-item-gutter: 10px;
     }
 
     &__item-label-button {
-        @extend %customize-sw-button;
+        @extend %customize-mt-button;
     }
 
     &__address-identical-text {
@@ -94,7 +94,7 @@ $select-result-customer-item-gutter: 10px;
     }
 
     &__address-identical-button {
-        @extend %customize-sw-button;
+        @extend %customize-mt-button;
 
         width: 100%;
         margin: 12px 0 0;
@@ -181,8 +181,8 @@ $select-result-customer-item-gutter: 10px;
     }
 }
 
-%customize-sw-button {
-    &.sw-button {
+%customize-mt-button {
+    &.mt-button {
         outline: none;
         border: 0;
         padding: 0 5px;
@@ -192,7 +192,7 @@ $select-result-customer-item-gutter: 10px;
         line-height: 12px;
         cursor: pointer;
 
-        &:hover:not(.sw-button--disabled),
+        &:hover:not(.mt-button--disabled),
         &:hover:hover:not([disabled]) {
             background: transparent;
         }

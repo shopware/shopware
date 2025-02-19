@@ -33,6 +33,7 @@ async function createWrapper(profile) {
                         template: '<div class="sw-container"><slot></slot></div>',
                     },
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
@@ -66,7 +67,7 @@ async function createWrapper(profile) {
 describe('module/sw-import-export/components/sw-import-export-edit-profile-general', () => {
     let wrapper;
 
-    it.skip('should have disabled fields', async () => {
+    it('should have disabled fields', async () => {
         const profile = getProfileMock();
         profile.systemDefault = true;
 
@@ -83,7 +84,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-gener
         expect(objectSelect.classes()).toContain('is--disabled');
     });
 
-    it.skip.each([
+    it.each([
         'import-export',
         'import',
     ])('should disable export forbidden entity when type is %s', async (type) => {
@@ -106,7 +107,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-gener
         expect(productOption.classes()).not.toContain('is--disabled');
     });
 
-    it.skip('should disable import-export and import option when entity is export only', async () => {
+    it('should disable import-export and import option when entity is export only', async () => {
         const profile = getProfileMock();
         profile.sourceEntity = 'order';
 

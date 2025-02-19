@@ -119,14 +119,15 @@
                         {% block sw_order_detail_base_order_overview_billing_address %}
                         <dt>
                             {{ $tc('sw-order.detailBase.headlineBillingAddress') }}
-                            <sw-button
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
                                 v-if="isEditing"
                                 class="sw-order-user-card__address-edit-button"
                                 size="small"
                                 @click="onEditBillingAddress"
                             >
                                 {{ $tc('sw-order.detailBase.buttonEditAddress') }}
-                            </sw-button>
+                            </mt-button>
                         </dt>
                         <dd
                             role="button"
@@ -180,21 +181,23 @@
                         {% block sw_order_detail_base_order_overview_shipping_address %}
                         <dt>
                             {{ $tc('sw-order.detailBase.headlineDeliveryAddress') }}
-                            <sw-button
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
                                 v-show="hasDifferentBillingAndShippingAddress && isEditing"
                                 class="sw-order-user-card__address-edit-button"
                                 size="small"
                                 @click="onEditDeliveryAddress"
                             >
                                 {{ $tc('sw-order.detailBase.buttonEditAddress') }}
-                            </sw-button>
+                            </mt-button>
                         </dt>
 
                         <dd v-if="!hasDifferentBillingAndShippingAddress && hasDeliveries">
                             <span>
                                 {{ $tc('sw-order.detailBase.labelSameDeliveryAndBillingAddress') }}
                             </span>
-                            <sw-button
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
                                 v-show="!hasDifferentBillingAndShippingAddress && isEditing"
                                 class="sw-order-user-card__address-add-button"
                                 size="small"
@@ -202,7 +205,7 @@
                                 @click="onAddNewDeliveryAddress"
                             >
                                 {{ $tc('sw-order.detailBase.buttonAddDeliveryAddress') }}
-                            </sw-button>
+                            </mt-button>
                         </dd>
 
                         <dd
@@ -341,14 +344,15 @@
                             </dt>
                             <dd>
                                 {% block sw_order_detail_base_secondary_info_tracking_codes_display_content %}
-                                <sw-button
+                                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                                <mt-button
                                     v-for="trackingCode in delivery.trackingCodes"
                                     :key="trackingCode"
                                     class="sw-order-user-card__tracking-code-link"
                                     size="x-small"
                                     :link="renderTrackingUrl(trackingCode, delivery.shippingMethod)"
                                     :disabled="!renderTrackingUrl(trackingCode, delivery.shippingMethod)"
-                                >{{ trackingCode }}</sw-button>
+                                >{{ trackingCode }}</mt-button>
                                 {% endblock %}
                             </dd>
                             {% endblock %}

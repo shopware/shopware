@@ -67,8 +67,6 @@ async function createWrapper() {
                     'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                     'sw-select-result': await wrapTestComponent('sw-select-result'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-language-info': await wrapTestComponent('sw-language-info'),
                     'sw-switch-field': await wrapTestComponent('sw-switch-field'),
@@ -108,7 +106,7 @@ async function createWrapper() {
                     'sw-product-variant-info': true,
                     'sw-app-action-button': true,
                     'sw-checkbox-field': true,
-                    'sw-alert': true,
+
                     'sw-field-copyable': true,
                     'sw-help-text': true,
                     'sw-inheritance-switch': true,
@@ -212,7 +210,9 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         await saveButton.trigger('click');
         await flushPromises();
 
-        const titleInputWrapper = wrapper.find('div[label="sw-settings-customer-group.registration.title"]');
+        const titleInputWrapper = wrapper.find(
+            '.sw-settings-customer-group-detail-content-registration-card__info-text ~ .mt-text-field',
+        );
         expect(titleInputWrapper.classes()).toContain('has--error');
     });
 });

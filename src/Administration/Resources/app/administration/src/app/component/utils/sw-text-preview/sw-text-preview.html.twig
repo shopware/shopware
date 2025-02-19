@@ -5,15 +5,16 @@
     {% endblock %}
 
     {% block sw_text_preview_expand_button %}
-    <sw-button
+    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+    <mt-button
         v-if="shortened"
         class="sw-text-preview__expand-button"
-        variant="ghost"
+        ghost
         size="x-small"
         @click.prevent="openModal"
     >
         {{ $tc('global.sw-text-preview.showMoreButton') }}
-    </sw-button>
+    </mt-button>
     {% endblock %}
 
     {% block sw_text_preview_modal %}
@@ -28,12 +29,13 @@
 
         <template #modal-footer>
             {% block sw_text_preview_modal_footer %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
                 @click="closeModal"
             >
                 {{ $tc('global.sw-modal.labelClose') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
     </sw-modal>

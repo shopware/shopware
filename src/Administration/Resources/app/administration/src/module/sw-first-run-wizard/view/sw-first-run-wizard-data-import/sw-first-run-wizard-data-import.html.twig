@@ -101,13 +101,12 @@
         v-if="installationError"
         class="sw-first-run-wizard-plugin-installation__error"
     >
-        <sw-alert
+        <mt-banner
             :title="pluginError.title"
-            variant="error"
-            appearance="notification"
+            variant="critical"
         >
             {{ pluginError.detail }}
-        </sw-alert>
+        </mt-banner>
     </div>
 </div>
 {% endblock %}

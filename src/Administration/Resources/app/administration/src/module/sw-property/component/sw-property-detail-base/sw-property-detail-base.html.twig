@@ -7,8 +7,9 @@
 >
 
     {% block sw_property_detail_base_name %}
-    <sw-text-field
-        v-model:value="propertyGroup.name"
+
+    <mt-text-field
+        v-model="propertyGroup.name"
         name="sw-field--propertyGroup-name"
         required
         :error="propertyGroupNameError"

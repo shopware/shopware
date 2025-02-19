@@ -1,13 +1,14 @@
 {% block sw_custom_entity_input_field %}
 <div class="sw-custom-entity-input-field">
-    <sw-text-field
+
+    <mt-text-field
         v-if="type === 'string'"
         class="sw-custom-entity-input-field__string"
-        :value="currentValue"
+        :model-value="currentValue"
         :label="label"
         :placeholder="placeholder"
         :help-text="helpText"
-        @update:value="onChange"
+        @update:model-value="onChange"
     />
 
     <sw-textarea-field
@@ -98,7 +99,8 @@
     />-->
 
     <!-- ToDo NEXT-22874 - Remove after Debug -->
-    <sw-text-field
+
+    <mt-text-field
         v-else
         class="sw-custom-entity-input-field__undefined"
         :label="label"

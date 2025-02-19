@@ -134,8 +134,9 @@
     >
 
         {% block sw_order_detail_details_order_email %}
-        <sw-text-field
-            v-model:value="order.orderCustomer.email"
+
+        <mt-text-field
+            v-model="order.orderCustomer.email"
             class="sw-order-detail-details__email"
             :disabled="!acl.can('order.editor') || undefined"
             :label="$tc('sw-order.createBase.detailsBody.labelEmail')"
@@ -146,8 +147,9 @@
         {% endblock %}
 
         {% block sw_order_detail_details_order_phone_number %}
-        <sw-text-field
-            v-model:value="order.addresses.get(order.billingAddressId).phoneNumber"
+
+        <mt-text-field
+            v-model="order.addresses.get(order.billingAddressId).phoneNumber"
             class="sw-order-detail-details__phone-number"
             :disabled="!acl.can('order.editor') || undefined"
             :label="$tc('sw-order.createBase.detailsBody.labelPhoneNumber')"
@@ -179,8 +181,9 @@
         {% endblock %}
 
         {% block sw_order_detail_details_order_affiliate %}
-        <sw-text-field
-            v-model:value="order.affiliateCode"
+
+        <mt-text-field
+            v-model="order.affiliateCode"
             class="sw-order-detail-details__affiliate-code"
             :disabled="!acl.can('order.editor') || undefined"
             :label="$tc('sw-order.detailBase.labelAffiliateCode')"
@@ -188,8 +191,9 @@
         {% endblock %}
 
         {% block sw_order_detail_details_order_campaign %}
-        <sw-text-field
-            v-model:value="order.campaignCode"
+
+        <mt-text-field
+            v-model="order.campaignCode"
             class="sw-order-detail-details__campaign-code"
             :disabled="!acl.can('order.editor') || undefined"
             :label="$tc('sw-order.detailBase.labelCampaignCode')"

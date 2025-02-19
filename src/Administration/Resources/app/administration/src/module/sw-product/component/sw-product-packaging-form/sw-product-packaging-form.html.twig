@@ -189,7 +189,7 @@
         >
             <template #content="props">
 
-                <sw-text-field
+                <mt-text-field
                     class="sw-product-packaging-form__pack-unit-field"
                     :map-inheritance="props"
                     :error="productPackUnitError"
@@ -197,8 +197,8 @@
                     :placeholder="$tc('sw-product.priceForm.placeholderPackUnit')"
                     :disabled="props.isInherited || !allowEdit"
                     :help-text="$tc('sw-product.packagingForm.packUnitHelpText')"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
                 />
 
             </template>
@@ -214,7 +214,7 @@
         >
             <template #content="props">
 
-                <sw-text-field
+                <mt-text-field
                     class="sw-product-packaging-form__pack-unit-plural-field"
                     :map-inheritance="props"
                     :error="productPackUnitPluralError"
@@ -222,8 +222,8 @@
                     :placeholder="$tc('sw-product.priceForm.placeholderPackUnitPlural')"
                     :disabled="props.isInherited || !allowEdit"
                     :help-text="$tc('sw-product.packagingForm.packUnitPluralHelpText')"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
                 />
 
             </template>

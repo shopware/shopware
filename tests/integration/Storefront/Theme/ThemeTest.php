@@ -269,6 +269,7 @@ class ThemeTest extends TestCase
                 'fields' => [
                     'some-custom' => [
                         'editable' => false,
+                        'type' => 'text',
                     ],
                 ],
             ]
@@ -297,7 +298,7 @@ class ThemeTest extends TestCase
         $someCustom = [
             'name' => 'some-custom',
             'label' => null,
-            'type' => null,
+            'type' => 'text',
             'value' => null,
             'editable' => false,
             'block' => null,
@@ -904,6 +905,7 @@ class ThemeTest extends TestCase
             [
                 [
                     'id' => $id,
+                    'type' => 'text',
                     'parentThemeId' => $parentTheme->getId(),
                     'name' => $name,
                     'technicalName' => $name,

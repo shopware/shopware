@@ -27,7 +27,6 @@ async function createWrapper(systemLanguageIso = '', translations = [], customOp
                 'sw-ai-copilot-badge': true,
                 'sw-inheritance-switch': true,
                 'sw-field-copyable': true,
-                'mt-text-field': true,
             },
             provide: {
                 validationService: {},

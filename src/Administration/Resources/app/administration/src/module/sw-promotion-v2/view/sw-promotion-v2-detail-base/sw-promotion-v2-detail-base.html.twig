@@ -15,8 +15,9 @@
             columns="2fr 1fr"
             gap="0 32px"
         >
-            <sw-text-field
-                v-model:value="promotion.name"
+
+            <mt-text-field
+                v-model="promotion.name"
                 class="sw-promotion-v2-detail-base__field-name"
                 :label="$tc('sw-promotion-v2.detail.base.general.nameLabel')"
                 :disabled="!acl.can('promotion.editor')"
@@ -148,8 +149,9 @@
         <template v-if="selectedCodeType === CODE_TYPES.FIXED">
 
             {% block sw_promotion_v2_detail_base_codes_type_fixed_code %}
-            <sw-text-field
-                v-model:value="promotion.code"
+
+            <mt-text-field
+                v-model="promotion.code"
                 class="sw-promotion-v2-detail-base__fixed-field-code"
                 :disabled="!acl.can('promotion.editor')"
                 :label="$tc('sw-promotion-v2.detail.base.codes.fixed.codeLabel')"

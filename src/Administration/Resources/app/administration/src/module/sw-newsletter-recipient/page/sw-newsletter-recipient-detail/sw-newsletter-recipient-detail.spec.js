@@ -69,10 +69,6 @@ async function createWrapper() {
                         template: '<div class="sw-field"></div>',
                         props: ['disabled'],
                     },
-                    'sw-button': {
-                        template: '<div id="save-btn"></div>',
-                        props: ['disabled'],
-                    },
                     'sw-loader': true,
                     'sw-card': {
                         template: '<div><slot name="toolbar">TOOLBAR</slot><slot>CONTENT</slot></div>',
@@ -107,33 +103,41 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail
     it('should disable all inputs and disallow saving', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // check if the save-action-btn is disabled
-        expect(wrapper.getComponent('#save-btn').props('disabled')).toBe(true);
+        expect(
+            wrapper.findByText('button', 'sw-newsletter-recipient.general.buttonSave').attributes('disabled'),
+        ).toBeDefined();
 
-        const fields = wrapper.findAllComponents('.sw-field');
-        expect(fields).toHaveLength(11);
+        const mtFields = wrapper.findAllComponents('.mt-field');
+        const swFields = wrapper.findAllComponents('.sw-field');
+        expect(mtFields.length + swFields.length).toBe(11);
 
         // check that they are all disabled
-        expect(fields.every((field) => field.props('disabled'))).toBe(true);
+        expect(mtFields.every((field) => field.props('disabled'))).toBe(true);
+        expect(swFields.every((field) => field.props('disabled'))).toBe(true);
     });
 
     it('should enable all inputs and allow saving', async () => {
         global.activeAclRoles = ['newsletter_recipient.editor'];
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // check if the save-action-btn is enabled
-        expect(wrapper.getComponent('#save-btn').props('disabled')).toBeFalsy();
+        expect(
+            wrapper.findByText('button', 'sw-newsletter-recipient.general.buttonSave').attributes('disabled'),
+        ).toBeUndefined();
 
-        const fields = wrapper.findAllComponents('.sw-field');
-        expect(fields).toHaveLength(11);
+        const mtFields = wrapper.findAllComponents('.mt-field');
+        const swFields = wrapper.findAllComponents('.sw-field');
+        expect(mtFields.length + swFields.length).toBe(11);
 
+        /* eslint-disable jest/prefer-to-have-length */
         // check that they are all enabled minus the saleschannel select which is always disabled
-        expect(fields.filter((field) => !field.props('disabled'))).toHaveLength(10);
+        expect(mtFields.filter((field) => !field.props('disabled')).length).toBe(7);
+        expect(swFields.filter((field) => !field.props('disabled')).length).toBe(3);
+        /* eslint-enable jest/prefer-to-have-length */
 
         // now check that the salechannel is disabled
         expect(wrapper.getComponent('[label="sw-newsletter-recipient.general.salesChannel"]').props('disabled')).toBe(true);

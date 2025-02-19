@@ -188,15 +188,6 @@ export default {
                     },
                 },
                 {
-                    name: 'companyAddress',
-                    type: 'text',
-                    config: {
-                        type: 'text',
-                        label: this.$tc('sw-settings-document.detail.labelCompanyAddress'),
-                        helpText: this.$tc('sw-settings-document.detail.helpTextCompanyAddress'),
-                    },
-                },
-                {
                     name: 'companyStreet',
                     type: 'text',
                     config: {

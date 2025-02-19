@@ -15,13 +15,14 @@
     {% block sw_settings_custom_field_set_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_custom_field_set_detail_actions_abort %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="tooltipCancel"
             :disabled="set.isLoading"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_settings_custom_field_set_detail_actions_save %}

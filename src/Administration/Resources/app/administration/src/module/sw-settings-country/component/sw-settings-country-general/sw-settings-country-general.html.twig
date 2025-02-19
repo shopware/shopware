@@ -13,8 +13,9 @@
 
             <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks, vue/attributes-order -->
             {% block sw_settings_country_general_content_field_name %}
-            <sw-text-field
-                v-model:value="country.name"
+
+            <mt-text-field
+                v-model="country.name"
                 name="sw-field--country-name"
                 required
                 :disabled="!acl.can('country.editor') || undefined"
@@ -36,8 +37,9 @@
             {% endblock %}
 
             {% block sw_settings_country_general_content_field_iso %}
-            <sw-text-field
-                v-model:value="country.iso"
+
+            <mt-text-field
+                v-model="country.iso"
                 name="sw-field--country-iso"
                 :disabled="!acl.can('country.editor') || undefined"
                 :label="$tc('sw-settings-country.detail.labelIso')"
@@ -46,8 +48,9 @@
             {% endblock %}
 
             {% block sw_settings_country_general_content_field_iso3 %}
-            <sw-text-field
-                v-model:value="country.iso3"
+
+            <mt-text-field
+                v-model="country.iso3"
                 name="sw-field--country-iso3"
                 :disabled="!acl.can('country.editor') || undefined"
                 :label="$tc('sw-settings-country.detail.labelIso3')"

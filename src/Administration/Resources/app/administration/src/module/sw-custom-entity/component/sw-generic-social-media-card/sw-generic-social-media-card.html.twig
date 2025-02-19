@@ -4,20 +4,21 @@
     position-identifier="sw-generic-social-media-card"
     :title="$tc('sw-landing-page.base.seo.titleSocialMedia')"
 >
-    <sw-text-field
+
+    <mt-text-field
         class="sw-generic-social-media-card__og-title-input"
-        maxlength="255"
-        :value="ogTitle"
+        :max-length="255"
+        :model-value="ogTitle"
         :label="$tc('sw-landing-page.base.seo.labelSocialMediaTitle')"
         :help-text="$tc('sw-landing-page.base.seo.helpTextMetaTitle')"
         :placeholder="$tc('sw-landing-page.base.seo.placeholderSocialMediaTitle')"
-        @update:value="emitOgTitle"
+        @update:model-value="emitOgTitle"
     />
 
     <sw-textarea-field
         class="sw-generic-social-media-card__og-description-input"
         :value="ogDescription"
-        maxlength="255"
+        max-length="255"
         :label="$tc('sw-landing-page.base.seo.labelSocialMediaDescription')"
         :help-text="$tc('sw-landing-page.base.seo.helpTextMetaDescription')"
         :placeholder="$tc('sw-landing-page.base.seo.placeholderSocialMediaDescription')"

@@ -14,20 +14,21 @@
         {% endblock %}
 
         {% block sw_import_export_edit_profile_modal_mapping_toolbar_add_mapping %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip="{
                 message: $tc('sw-import-export.profile.addMappingTooltipText'),
                 disabled: addMappingEnabled,
                 showOnDisabledElements: true
             }"
             class="sw-import-export-edit-profile-modal-mapping__add-action"
-            variant="ghost"
+            ghost
             :disabled="profile.systemDefault || !addMappingEnabled"
             size="small"
             @click="onAddMapping"
         >
             {{ $tc('sw-import-export.profile.addMappingLabel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </div>
     {% endblock %}
@@ -46,8 +47,9 @@
 
         {% block sw_import_export_edit_profile_modal_mapping_grid_csv_name_column %}
         <template #column-csvName="{ item, itemIndex }">
-            <sw-text-field
-                v-model:value="item.mappedKey"
+
+            <mt-text-field
+                v-model="item.mappedKey"
                 :name="`mappedKey-${itemIndex}`"
                 :disabled="profile.systemDefault"
             />
@@ -93,8 +95,8 @@
                 class="sw-import-export-edit-profile-modal-mapping__default-value-switch"
             />
 
-            <sw-text-field
-                v-model:value="item.defaultValue"
+            <mt-text-field
+                v-model="item.defaultValue"
                 :name="`defaultValue-${itemIndex}`"
                 :disabled="isDefaultValueTextFieldDisabled(item)"
             />
@@ -107,7 +109,8 @@
             {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group %}
             <sw-button-group>
                 {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_up %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="x-small"
                     square
                     :disabled="isFirstMapping(item) || !!searchTerm"
@@ -119,11 +122,12 @@
                         size="14px"
                     />
                     {% endblock %}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_down %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="x-small"
                     square
                     :disabled="isLastMapping(item) || !!searchTerm"
@@ -135,7 +139,7 @@
                         size="14px"
                     />
                     {% endblock %}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </sw-button-group>
             {% endblock %}

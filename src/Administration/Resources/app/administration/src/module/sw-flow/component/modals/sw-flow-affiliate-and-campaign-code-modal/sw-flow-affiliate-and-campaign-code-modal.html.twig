@@ -26,8 +26,9 @@
             gap="16px"
         >
             {% block sw_flow_affiliate_and_campaign_code_modal_affiliate_code %}
-            <sw-text-field
-                v-model:value="affiliateCode.value"
+
+            <mt-text-field
+                v-model="affiliateCode.value"
                 name="sw-field--affiliateCode-value"
                 class="sw-flow-affiliate-and-campaign-code-modal__affiliate-code"
                 :label="$tc('sw-flow.modals.affiliateAndCampaignCode.labelAffiliateCode')"
@@ -50,8 +51,9 @@
             gap="16px"
         >
             {% block sw_flow_affiliate_and_campaign_code_modal_campaign_code %}
-            <sw-text-field
-                v-model:value="campaignCode.value"
+
+            <mt-text-field
+                v-model="campaignCode.value"
                 name="sw-field--campaignCode-value"
                 class="sw-flow-affiliate-and-campaign-code-modal__campaign-code"
                 :label="$tc('sw-flow.modals.affiliateAndCampaignCode.labelCampaignCode')"
@@ -73,24 +75,26 @@
 
     <template #modal-footer>
         {% block sw_flow_affiliate_and_campaign_code_modal_footer_cancel_button %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-flow-affiliate-and-campaign-code-modal__cancel-button"
             size="small"
             @click="onClose"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_flow_affiliate_and_campaign_code_modal_footer_save_button %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-flow-affiliate-and-campaign-code-modal__save-button"
             variant="primary"
             size="small"
             @click="onSave"
         >
             {{ sequence.id ? $tc('sw-flow.modals.buttonSaveAction') : $tc('sw-flow.modals.buttonAddAction') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
 </sw-modal>

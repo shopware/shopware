@@ -22,10 +22,6 @@ async function createWrapper(activeTab = 'singleProducts') {
                     'sw-container': {
                         template: '<div class="sw-container"><slot></slot></div>',
                     },
-                    'sw-button': await wrapTestComponent('sw-button', {
-                        sync: true,
-                    }),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-modal': {
                         template:
                             '<div class="sw-modal"><slot></slot><slot name="content"></slot><slot name="modal-footer"></slot></div>',
@@ -73,7 +69,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
             ],
         });
 
-        await wrapper.find('.sw-button--primary').trigger('click');
+        await wrapper.findByText('button', 'sw-sales-channel.detail.products.buttonAddProducts').trigger('click');
 
         expect(wrapper.emitted('products-add')).toBeTruthy();
         expect(wrapper.emitted('products-add')[0]).toEqual([
@@ -98,7 +94,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
             categoryProducts: products,
         });
 
-        const assignButton = wrapper.find('.sw-button--primary');
+        const assignButton = wrapper.findByText('button', 'sw-sales-channel.detail.products.buttonAddProducts');
         await assignButton.trigger('click');
 
         expect(wrapper.emitted('products-add')).toBeTruthy();

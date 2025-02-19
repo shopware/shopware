@@ -45,10 +45,6 @@ async function createWrapper() {
                         template: '<div class="sw-self-maintained-extension-card">{{ extension.label }}</div>',
                         props: ['extension'],
                     },
-                    'sw-button': await wrapTestComponent('sw-button', {
-                        sync: true,
-                    }),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-meteor-card': true,
                     'sw-pagination': await wrapTestComponent('sw-pagination', {
                         sync: true,
@@ -69,12 +65,8 @@ async function createWrapper() {
                     'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
                     'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
                     'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
-                    'sw-alert': await wrapTestComponent('sw-alert', {
-                        sync: true,
-                    }),
                     'sw-skeleton': true,
                     'sw-external-link': true,
-                    'sw-alert-deprecated': true,
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,
                     'sw-help-text': true,

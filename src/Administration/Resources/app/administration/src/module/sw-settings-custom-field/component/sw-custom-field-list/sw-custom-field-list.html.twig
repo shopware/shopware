@@ -20,7 +20,8 @@
             {% endblock %}
 
             {% block sw_custom_field_list_toolbar_delete %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-tooltip.bottom="{
                     message: $tc('sw-privileges.tooltip.warning'),
                     disabled: acl.can('custom_field.editor'),
@@ -36,11 +37,12 @@
                     name="regular-trash"
                     small
                 />
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_custom_field_list_toolbar_add %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-tooltip.bottom="{
                     message: $tc('sw-privileges.tooltip.warning'),
                     disabled: acl.can('custom_field.editor'),
@@ -52,7 +54,7 @@
                 @click="onAddCustomField(set)"
             >
                 {{ $tc('sw-settings-custom-field.set.detail.addCustomField') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </sw-container>
     </div>
@@ -94,8 +96,9 @@
                 </span>
 
                 <template #inline-edit>
-                    <sw-text-field
-                        :value="getInlineSnippet(item.config.label) || item.name"
+
+                    <mt-text-field
+                        :model-value="getInlineSnippet(item.config.label) || item.name"
                         disabled
                     />
                 </template>
@@ -112,8 +115,9 @@
                 {{ $tc(`sw-settings-custom-field.types.${item.config.customFieldType || item.type}`) }}
 
                 <template #inline-edit>
-                    <sw-text-field
-                        :value="$tc(`sw-settings-custom-field.types.${item.config.customFieldType || item.type}`)"
+
+                    <mt-text-field
+                        :model-value="$tc(`sw-settings-custom-field.types.${item.config.customFieldType || item.type}`)"
                         disabled
                     />
                 </template>
@@ -232,22 +236,24 @@
         {% block sw_custom_field_list_custom_field_delete_actions %}
         <template #modal-footer>
             {% block sw_custom_field_list_custom_field_delete_action_cancel %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
                 @click="onCancelDeleteCustomField"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_custom_field_list_custom_field_delete_action_confirm %}
-            <sw-button
-                variant="danger"
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
+                variant="critical"
                 size="small"
                 @click="onDeleteCustomField"
             >
                 {{ $tc('global.default.delete') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
         {% endblock %}

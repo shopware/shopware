@@ -7,7 +7,7 @@ import { POLL_BACKGROUND_INTERVAL } from 'src/core/worker/worker-notification-li
 /**
  * @private
  */
-export type NotificationVariant = 'info' | 'warning' | 'error' | 'success';
+export type NotificationVariant = 'neutral' | 'info' | 'attention' | 'critical' | 'positive';
 
 /**
  * @private
@@ -25,6 +25,12 @@ export interface NotificationType {
     autoClose?: boolean;
     visited?: boolean;
     timestamp?: Date;
+    actions?: {
+        label: string;
+        disabled?: boolean;
+        route?: string;
+        method?: () => void;
+    }[];
 
     [key: string]: string | boolean | object | number | undefined;
 }
@@ -262,7 +268,8 @@ const notificationStore = Shopware.Store.register({
                 ...notification,
             };
 
-            if (mergedNotification.variant === 'success') {
+            // @ts-expect-error - fallback for success variant
+            if (mergedNotification.variant === 'success' || mergedNotification.variant === 'positive') {
                 return null;
             }
 

@@ -26,16 +26,18 @@
         {% endblock %}
 
         {% block sw_settings_captcha_select_v2_google_recaptcha_v2_site_key %}
-        <sw-text-field
-            v-model:value="currentValue.googleReCaptchaV2.config.siteKey"
+
+        <mt-text-field
+            v-model="currentValue.googleReCaptchaV2.config.siteKey"
             name="googleReCaptchaV2SiteKey"
             :label="$tc('sw-settings-basic-information.captcha.label.googleReCaptchaV2SiteKey')"
         />
         {% endblock %}
 
         {% block sw_settings_captcha_select_v2_google_recaptcha_v2_secret_key %}
-        <sw-text-field
-            v-model:value="currentValue.googleReCaptchaV2.config.secretKey"
+
+        <mt-text-field
+            v-model="currentValue.googleReCaptchaV2.config.secretKey"
             name="googleReCaptchaV2SecretKey"
             :label="$tc('sw-settings-basic-information.captcha.label.googleReCaptchaV2SecretKey')"
         />
@@ -67,16 +69,17 @@
 
         {% block sw_settings_captcha_select_v2_google_recaptcha_v3_site_key %}
 
-        <sw-text-field
-            v-model:value="currentValue.googleReCaptchaV3.config.siteKey"
+        <mt-text-field
+            v-model="currentValue.googleReCaptchaV3.config.siteKey"
             name="googleReCaptchaV3SiteKey"
             :label="$tc('sw-settings-basic-information.captcha.label.googleReCaptchaV3SiteKey')"
         />
         {% endblock %}
 
         {% block sw_settings_captcha_select_v2_google_recaptcha_v3_secret_key %}
-        <sw-text-field
-            v-model:value="currentValue.googleReCaptchaV3.config.secretKey"
+
+        <mt-text-field
+            v-model="currentValue.googleReCaptchaV3.config.secretKey"
             name="googleReCaptchaV3SecretKey"
             :label="$tc('sw-settings-basic-information.captcha.label.googleReCaptchaV3SecretKey')"
         />

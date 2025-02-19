@@ -38,7 +38,6 @@ async function createWrapper() {
             stubs: {
                 'sw-icon': true,
                 'sw-media-folder-content': true,
-                'sw-button': true,
             },
             provide: {
                 repositoryFactory: {

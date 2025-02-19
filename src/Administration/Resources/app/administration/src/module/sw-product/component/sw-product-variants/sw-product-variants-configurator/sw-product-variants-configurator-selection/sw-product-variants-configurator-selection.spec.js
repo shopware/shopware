@@ -80,7 +80,7 @@ describe('components/base/sw-product-variants-configurator-selection', () => {
     });
 
     it('should keep the text content when search list opens', async () => {
-        const inputField = wrapper.find('.sw-field input');
+        const inputField = wrapper.find('.mt-text-field input');
 
         // verify that input field is empty
         expect(inputField.element.value).toBe('');

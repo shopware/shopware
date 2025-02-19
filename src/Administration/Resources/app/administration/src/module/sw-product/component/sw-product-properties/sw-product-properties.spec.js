@@ -164,7 +164,6 @@ async function createWrapper() {
                 'sw-product-add-properties-modal': true,
                 'sw-loader': true,
                 'sw-simple-search-field': true,
-                'sw-button': true,
                 'sw-icon': true,
                 'sw-label': true,
                 'sw-help-text': true,
@@ -527,9 +526,9 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
             properties: propertiesMock,
         });
 
-        const createButton = wrapper.find('sw-button-stub');
+        const createButton = wrapper.findByText('button', 'sw-product.properties.buttonAddProperty');
 
-        expect(createButton.attributes().disabled).toBeUndefined();
+        expect(createButton.attributes('disabled')).toBeUndefined();
     });
 
     it('should not be able to add properties in filled state', async () => {
@@ -542,8 +541,8 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
             properties: propertiesMock,
         });
 
-        const createButton = wrapper.find('sw-button-stub');
-        expect(createButton.attributes().disabled).toBe('true');
+        const createButton = wrapper.findByText('button', 'sw-product.properties.buttonAddProperty');
+        expect(createButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to edit property', async () => {

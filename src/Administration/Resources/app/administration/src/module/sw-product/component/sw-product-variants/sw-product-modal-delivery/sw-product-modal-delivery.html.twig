@@ -81,16 +81,18 @@
     {% block sw_product_modal_delivery_footer %}
     <template #modal-footer>
         {% block sw_product_modal_delivery_footer_button_cancel %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             size="small"
             @click="cancelDeliveryConfiguration"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_product_modal_delivery_footer_button_save %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('product.editor'),
@@ -103,7 +105,7 @@
             @click="saveDeliveryConfiguration"
         >
             {{ $tc('sw-product.variations.deliveryModal.save') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

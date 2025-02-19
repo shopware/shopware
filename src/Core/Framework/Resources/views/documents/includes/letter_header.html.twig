@@ -37,34 +37,18 @@ All blocks of this template are available in the template which renders this tem
         <div class="sender-address-container" tabindex="0">
             {% block document_sender_address %}
                 <table>
-                    {% if feature('v6.7.0.0') %}
-                        {% for part in addressParts %}
-                            {% if loop.first and config.companyName %}
-                                <tr>
-                                    <td class="bold">{{ part }}</td>
-                                </tr>
-                            {% elseif config.displayCompanyAddress %}
-                                <tr>
-                                    <td>{{ part }}</td>
-                                </tr>
-                            {% endif %}
-                        {% endfor %}
-                    {% else %}
-                        {% if config.companyName %}
-                            {% block document_side_company_name %}
-                                <tr>
-                                    <td class="bold">{{ config.companyName }}</td>
-                                </tr>
-                            {% endblock %}
+                    {% for part in addressParts %}
+                        {% if loop.first and config.companyName %}
+                            <tr>
+                                <td class="bold">{{ part }}</td>
+                            </tr>
+                        {% elseif config.displayCompanyAddress %}
+                            <tr>
+                                <td>{{ part }}</td>
+                            </tr>
                         {% endif %}
-                        <tr>
-                            <td>
-                                {% if config.displayCompanyAddress and config.companyAddress is not empty %}
-                                    {{ config.companyAddress|replace({' - ': '</td></tr><tr><td>'})|raw }}
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endif %}
+                    {% endfor %}
+
 
                     {% if config.companyPhone %}
                         {% block document_side_info_phone_number %}

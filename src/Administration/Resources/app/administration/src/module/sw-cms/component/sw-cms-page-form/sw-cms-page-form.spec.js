@@ -76,7 +76,6 @@ async function createWrapper() {
                         ],
                     },
                     'sw-extension-component-section': true,
-                    'sw-alert': true,
                 },
                 provide: {
                     cmsService: {

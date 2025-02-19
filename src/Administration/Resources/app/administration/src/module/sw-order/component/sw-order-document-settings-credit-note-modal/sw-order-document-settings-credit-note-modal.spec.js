@@ -110,8 +110,6 @@ async function createWrapper() {
                 'sw-context-button': {
                     template: '<div class="sw-context-button"><slot></slot></div>',
                 },
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-button-group': await wrapTestComponent('sw-button-group'),
                 'sw-context-menu-item': true,
                 'sw-upload-listener': true,

@@ -30,7 +30,6 @@ async function createWrapper() {
                 'sw-entity-single-select': true,
                 'sw-text-field': true,
                 'sw-page': true,
-                'sw-button': true,
                 'sw-language-switch': true,
                 'sw-customer-address-form': true,
                 'sw-customer-base-form': true,
@@ -91,8 +90,8 @@ describe('module/sw-customer/page/sw-customer-card', () => {
                 accountType: 'business',
             },
         });
-        expect(wrapper.find('[label="sw-customer.card.labelCompany"]').exists()).toBeTruthy();
-        expect(wrapper.find('[label="sw-customer.card.labelVatId"]').exists()).toBeTruthy();
+        expect(wrapper.find('[aria-label="sw-customer.card.labelCompany"]').exists()).toBeTruthy();
+        expect(wrapper.find('[aria-label="sw-customer.card.labelVatId"]').exists()).toBeTruthy();
     });
 
     it('should hide vat fields when switching to private type', async () => {

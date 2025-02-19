@@ -23,22 +23,24 @@
         {% block sw_order_address_modal_actions %}
         <template #modal-footer>
             {% block sw_order_address_modal_action_close %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
                 @click="currentAddress = null"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_order_address_modal_actions_apply %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 variant="primary"
                 size="small"
                 @click="onSaveAddress"
             >
                 {{ $tc('global.default.apply') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
         {% endblock %}

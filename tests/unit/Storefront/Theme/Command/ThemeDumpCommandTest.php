@@ -52,7 +52,6 @@ class ThemeDumpCommandTest extends TestCase
             $this->pluginRegistry,
             $this->themeFileResolver,
             $this->themeRepository,
-            './tests/unit/Storefront/Theme/fixtures',
             $staticFileConfigDumper,
             $this->themeFilesystemResolver
         );

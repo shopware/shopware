@@ -30,6 +30,11 @@ import { CreateLandingPage } from '@tasks/ShopAdmin/Category/CreateLandingPage';
  */
 import { CustomerGroupActivation } from '@tasks/ShopAdmin/Customers/CustomerGroupActivation';
 
+/**
+ * Rules
+ */
+import { CreateRule } from '@tasks/ShopAdmin/RuleBuilder/CreateRule';
+
 export const test = mergeTests(
     GenerateVariants,
     UploadImage,
@@ -37,4 +42,5 @@ export const test = mergeTests(
     CreateCustomField,
     CreateLandingPage,
     CustomerGroupActivation,
+    CreateRule,
 );

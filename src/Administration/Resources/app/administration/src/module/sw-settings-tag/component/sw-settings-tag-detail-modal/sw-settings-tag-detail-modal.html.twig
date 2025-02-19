@@ -75,16 +75,18 @@
     {% block sw_settings_tag_detail_modal_footer %}
     <template #modal-footer>
         {% block sw_settings_tag_detail_modal_cancel %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             size="small"
             @click="$emit('close')"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_settings_tag_detail_modal_confirm %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             variant="primary"
             size="small"
             :disabled="!allowSave"
@@ -92,7 +94,7 @@
             @click="onSave"
         >
             {{ $tc('sw-settings-tag.detail.buttonSave') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

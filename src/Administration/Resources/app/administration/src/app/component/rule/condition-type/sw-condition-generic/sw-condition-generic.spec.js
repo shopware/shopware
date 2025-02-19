@@ -57,6 +57,7 @@ async function createWrapper(condition = {}) {
                 'sw-condition-operator-select': await wrapTestComponent('sw-condition-operator-select'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
@@ -70,6 +71,7 @@ async function createWrapper(condition = {}) {
                 'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
                 'sw-condition-unit-menu': await wrapTestComponent('sw-condition-unit-menu', { sync: true }),
                 'sw-number-field': await wrapTestComponent('sw-number-field'),
+                'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
                 'sw-field-error': true,
@@ -79,6 +81,9 @@ async function createWrapper(condition = {}) {
                 'sw-label': true,
                 'sw-highlight-text': true,
                 'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': {
+                    template: '<div class="sw-popover"><slot></slot></div>',
+                },
                 'sw-tagged-field': {
                     template: '<div class="sw-tagged-field"></div>',
                 },
@@ -86,7 +91,6 @@ async function createWrapper(condition = {}) {
                 'sw-help-text': true,
                 'sw-product-variant-info': true,
                 'sw-inheritance-switch': true,
-                'sw-button': true,
                 'sw-field-copyable': true,
             },
             provide: {
@@ -113,7 +117,7 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         Shopware.Store.get('ruleConditionsConfig').config = ruleConditionsConfig;
     });
 
-    it.skip('should render fields and set condition values on change', async () => {
+    it('should render fields and set condition values on change', async () => {
         const wrapper = await createWrapper({
             type: 'customerCustomerGroup',
         });
@@ -150,7 +154,7 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         );
     });
 
-    it.skip('should render condition with null operator', async () => {
+    it('should render condition with null operator', async () => {
         const wrapper = await createWrapper({
             type: 'customerShippingStreet',
         });
@@ -168,7 +172,7 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         expect(wrapper.vm.condition.value.operator).toBe('empty');
     });
 
-    it.skip('should render condition with bool value', async () => {
+    it('should render condition with bool value', async () => {
         const wrapper = await createWrapper({
             type: 'customerDifferentAddresses',
         });
@@ -191,7 +195,7 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         expect(wrapper.vm.condition.value.isDifferent).toBeFalsy();
     });
 
-    it.skip('should render condition with single select', async () => {
+    it('should render condition with single select', async () => {
         const wrapper = await createWrapper({
             type: 'cartTaxDisplay',
         });
@@ -214,7 +218,7 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         expect(wrapper.vm.condition.value.taxDisplay).toBe('net');
     });
 
-    it.skip('should render condition with tagged field', async () => {
+    it('should render condition with tagged field', async () => {
         const wrapper = await createWrapper({
             type: 'customerCustomerNumber',
         });
@@ -223,7 +227,7 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         expect(wrapper.get('.sw-tagged-field')).toBeDefined();
     });
 
-    it.skip('should render condition with custom operators', async () => {
+    it('should render condition with custom operators', async () => {
         const wrapper = await createWrapper({
             type: 'conditionWithCustomOperators',
         });
@@ -246,7 +250,7 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         expect(wrapper.vm.condition.value.operator).toBe('bar');
     });
 
-    it.skip('should render unit menu when condition has unit', async () => {
+    it('should render unit menu when condition has unit', async () => {
         const wrapper = await createWrapper({
             type: 'cartLineItemDimensionWeight',
         });
@@ -257,7 +261,7 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         expect(menu.props('type')).toBe('weight');
     });
 
-    it.skip('should be possible to enter a new value into the input when the base value is not selected', async () => {
+    it('should be possible to enter a new value into the input when the base value is not selected', async () => {
         const wrapper = await createWrapper({
             type: 'cartLineItemDimensionWeight',
         });

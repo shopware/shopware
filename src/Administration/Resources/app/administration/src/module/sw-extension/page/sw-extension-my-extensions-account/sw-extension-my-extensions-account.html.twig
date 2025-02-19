@@ -30,14 +30,15 @@
 
                     <span class="sw-extension-my-extensions-account__wrapper-content-login-status-id">{{ userInfo.email }}</span>
 
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         class="sw-extension-my-extensions-account__logout-button"
                         variant="primary"
                         size="small"
                         @click="logout"
                     >
                         {{ $tc('sw-extension.my-extensions.account.logout') }}
-                    </sw-button>
+                    </mt-button>
                 </div>
             </template>
 
@@ -85,14 +86,15 @@
                         {{ $tc('sw-extension.my-extensions.account.passwordForgot') }}
                     </a>
 
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         class="sw-extension-my-extensions-account__login-button"
                         variant="primary"
                         size="small"
                         @click="login"
                     >
                         {{ $tc('sw-extension.my-extensions.account.login') }}
-                    </sw-button>
+                    </mt-button>
                 </div>
 
             </template>

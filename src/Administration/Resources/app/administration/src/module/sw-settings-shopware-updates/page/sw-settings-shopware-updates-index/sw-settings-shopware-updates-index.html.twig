@@ -50,13 +50,14 @@
             >
                 <template #card-element-last>
                     <div class="sw-settings-shopware-updates-index__check-for-updates-btn">
-                        <sw-button
-                            variant="ghost"
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
+                            ghost
                             :is-loading="isSearchingForUpdates"
                             @click="searchForUpdates"
                         >
                             {{ $t('sw-settings-shopware-updates.general.checkForUpdates') }}
-                        </sw-button>
+                        </mt-button>
                         <span class="sw-settings-shopware-updates-index__current-version">
                             {{ $t('sw-settings-shopware-updates.general.currentVersion') }} {{ shopwareVersion }}
                         </span>
@@ -74,20 +75,22 @@
             {{ $t('sw-settings-shopware-updates.updateModal.messageUpdateCheck', {version: updateInfo.version}) }}
 
             <template #modal-footer>
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="small"
                     @click="updateModalShown = false"
                 >
                     {{ $tc('global.default.cancel') }}
-                </sw-button>
+                </mt-button>
 
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     variant="primary"
                     size="small"
                     @click="openUpdateWizard()"
                 >
                     {{ $tc('sw-settings-shopware-updates.updateModal.actions.goToUpdate') }}
-                </sw-button>
+                </mt-button>
             </template>
         </sw-modal>
     </template>

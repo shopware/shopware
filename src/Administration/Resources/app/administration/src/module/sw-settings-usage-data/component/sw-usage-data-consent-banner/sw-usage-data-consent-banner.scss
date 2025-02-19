@@ -184,7 +184,7 @@
             border: none;
             font-weight: $font-weight-medium;
 
-            &.sw-button:hover {
+            &.mt-button:hover {
                 background: none;
             }
         }
@@ -201,13 +201,13 @@
             align-items: center;
         }
 
-        &-reject-button.sw-button--context {
+        &-reject-button.mt-button--context {
             color: $color-crimson-500;
             text-decoration: underline;
             padding: 0;
             transition: color 0.1s ease;
 
-            &.sw-button:hover {
+            &.mt-button:hover {
                 color: $color-crimson-700;
                 background: none;
             }

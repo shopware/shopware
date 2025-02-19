@@ -71,7 +71,6 @@ describe('module/sw-product/component/sw-product-category-form', () => {
                     'sw-inheritance-switch': true,
                     'sw-icon': true,
                     'sw-product-visibility-detail': true,
-                    'sw-button': true,
                     'sw-ai-copilot-badge': true,
                 },
                 provide: {

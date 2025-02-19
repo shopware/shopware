@@ -116,7 +116,6 @@ async function createWrapper(privileges = []) {
                 'sw-flow-sequence-selector': true,
                 'sw-flow-sequence-action': true,
                 'sw-flow-sequence-condition': true,
-                'sw-button': true,
                 'sw-label': true,
                 'sw-loader': true,
                 'sw-flow-trigger': {

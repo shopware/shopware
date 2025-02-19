@@ -36,24 +36,26 @@
 
     <template #modal-footer>
         {% block sw_cms_missing_element_modal_button_cancel %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-cms-missing-element-modal__button-cancel"
             size="small"
             @click="onClose"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_cms_missing_element_modal_button_save %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-cms-missing-element-modal__button-save"
             size="small"
             variant="primary"
             @click="onSave"
         >
             {{ $tc('sw-cms.components.cmsMissingElementModal.buttonSave') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
 

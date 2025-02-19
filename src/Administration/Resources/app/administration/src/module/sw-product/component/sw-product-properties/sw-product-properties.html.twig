@@ -69,20 +69,21 @@
                             {% endblock %}
 
                             {% block sw_product_properties_filled_state_header_button %}
-                            <sw-button
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
                                 v-tooltip="{
                                     message: $tc('sw-privileges.tooltip.warning'),
                                     disabled: acl.can('product.editor'),
                                     showOnDisabledElements: true
                                 }"
                                 class="sw-product-properties__button-add-property"
-                                variant="ghost"
+                                ghost
                                 size="small"
                                 :disabled="!acl.can('product.editor') || undefined"
                                 @click="turnOnAddPropertiesModal"
                             >
                                 {{ $tc('sw-product.properties.buttonAddProperty') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
                         </sw-container>
                     </sw-card-section>
@@ -128,25 +129,27 @@
 
                         <template #delete-modal-delete-item="{ item }">
                             {% block sw_product_properties_filled_state_body_filled_state_delete_modal_delete_item %}
-                            <sw-button
-                                variant="danger"
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
+                                variant="critical"
                                 size="small"
                                 @click="onDeleteProperty(item)"
                             >
                                 {{ $tc('global.default.delete') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
                         </template>
 
                         <template #bulk-modal-delete-items>
                             {% block sw_product_properties_filled_state_body_filled_state_bulk_modal_delete_items %}
-                            <sw-button
-                                variant="danger"
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
+                                variant="critical"
                                 size="small"
                                 @click="onDeleteProperties"
                             >
                                 {{ $tc('global.default.delete') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
                         </template>
                     </sw-entity-listing>
@@ -197,18 +200,19 @@
 
                 <template #actions>
                     {% block sw_product_properties_empty_state_button %}
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         v-tooltip="{
                             message: $tc('sw-privileges.tooltip.warning'),
                             disabled: acl.can('product.editor'),
                             showOnDisabledElements: true
                         }"
-                        variant="ghost"
+                        ghost
                         :disabled="!acl.can('product.editor') || undefined"
                         @click="turnOnAddPropertiesModal"
                     >
                         {{ $tc('sw-product.properties.buttonAddProperties') }}
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
                 </template>
             </sw-empty-state>

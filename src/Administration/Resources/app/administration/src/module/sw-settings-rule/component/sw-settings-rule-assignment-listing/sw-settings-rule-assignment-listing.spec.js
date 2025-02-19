@@ -59,10 +59,8 @@ async function createWrapper(props = defaultProps) {
                 stubs: {
                     'sw-data-gird': await wrapTestComponent('sw-data-grid'),
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                    'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-button': await wrapTestComponent('sw-button', {
-                        sync: true,
-                    }),
                     'sw-bulk-edit-modal': true,
                     'sw-icon': true,
                     'sw-context-menu-item': true,
@@ -86,7 +84,7 @@ async function createWrapper(props = defaultProps) {
 }
 
 describe('src/module/sw-settings-rule/view/sw-settings-rule-assignment-listing', () => {
-    it.skip('should render column items', async () => {
+    it('should render column items', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -98,7 +96,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-assignment-listing',
         });
     });
 
-    it.skip('should delete item per bulk delete modal', async () => {
+    it('should delete item per bulk delete modal', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -109,7 +107,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-assignment-listing',
         await wrapper.find('.link-danger').trigger('click');
 
         expect(wrapper.find('.sw-entity-listing__confirm-bulk-delete-modal').exists()).toBe(true);
-        await wrapper.find('.sw-button--danger').trigger('click');
+        await wrapper.findByText('button', 'global.default.delete').trigger('click');
 
         expect(wrapper.emitted()['delete-items']).toEqual([
             [

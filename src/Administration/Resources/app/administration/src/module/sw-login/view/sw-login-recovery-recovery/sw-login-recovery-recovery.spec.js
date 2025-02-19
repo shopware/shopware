@@ -9,7 +9,6 @@ async function createWrapper() {
             stubs: {
                 'router-link': true,
                 'sw-loader': true,
-                'sw-button': true,
                 'sw-icon': true,
                 'sw-password-field': true,
             },

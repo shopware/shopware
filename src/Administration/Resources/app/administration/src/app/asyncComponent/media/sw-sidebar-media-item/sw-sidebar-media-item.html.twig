@@ -64,7 +64,8 @@
         {% endblock %}
 
         {% block sw_sidebar_media_item_load_more_button %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-if="showMore"
             size="small"
             block
@@ -73,7 +74,7 @@
         >
 
             {{ $tc('global.sw-sidebar-media-item.labelLoadMore') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
         {% endblock %}
 

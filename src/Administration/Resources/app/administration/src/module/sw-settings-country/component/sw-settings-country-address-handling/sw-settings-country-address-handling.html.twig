@@ -102,13 +102,15 @@
 
                 <sw-settings-country-preview-template :formatting-address="formattingAddress" />
 
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     class="sw-settings-country-address-handling__button-reset"
-                    variant="ghost-danger"
+                    variant="critical"
+                    ghost
                     @click="resetMarkup"
                 >
                     {{ $tc('sw-settings-country.detail.buttonResetMarkup') }}
-                </sw-button>
+                </mt-button>
             </div>
         </sw-container>
     </sw-card>

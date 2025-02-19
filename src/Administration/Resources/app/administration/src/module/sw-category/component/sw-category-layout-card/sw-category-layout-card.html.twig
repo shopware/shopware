@@ -65,29 +65,32 @@
             <div class="sw-category-layout-card__desc-actions">
 
                 {% block sw_category_detail_layout_desc_actions_layout %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     class="sw-category-detail-layout__change-layout-action"
                     size="small"
                     :disabled="!acl.can('category.editor')"
                     @click="openLayoutModal"
                 >
                     {{ cmsPage ? $tc('sw-category.base.cms.changeLayout') : $tc('sw-category.base.cms.changeLayoutEmpty') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_category_detail_layout_desc_actions_designer %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     class="sw-category-detail-layout__open-in-pagebuilder"
                     size="small"
                     :disabled="!acl.can('category.editor')"
                     @click="openInPagebuilder"
                 >
                     {{ cmsPage ? $tc('sw-category.base.cms.editInPagebuilder') : $tc('sw-category.base.cms.editInPagebuilderEmpty') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_category_detail_layout_desc_actions_remove %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     v-if="cmsPage"
                     size="small"
                     :disabled="!acl.can('category.editor')"
@@ -99,7 +102,7 @@
                         name="regular-trash"
                         small
                     />
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
             </div>

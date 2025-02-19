@@ -34,13 +34,14 @@
     {% block sw_extension_domains_modal_footer %}
     <template #modal-footer>
         {% block sw_extension_domains_modal_footer_inner %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             variant="primary"
             size="small"
             @click="close"
         >
             {{ $tc('global.sw-modal.labelClose') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

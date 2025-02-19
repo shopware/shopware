@@ -21,23 +21,25 @@
     {% block sw_settings_user_detail_content_confirm_password_modal_footer %}
     <template #modal-footer>
         {% block sw_settings_user_detail_content_confirm_password_modal_actions_cancel %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             size="small"
             @click="onCloseConfirmPasswordModal"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_settings_user_detail_content_confirm_password_modal_actions_change %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             variant="primary"
             :disabled="!confirmPassword"
             size="small"
             @click="onSubmitConfirmPassword"
         >
             {{ $tc('sw-users-permissions.users.user-detail.passwordConfirmation.labelButtonConfirm') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

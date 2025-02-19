@@ -34,7 +34,8 @@
     {% block sw_settings_custom_field_set_list_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_custom_field_set_list_actions_add %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('custom_field.creator'),
@@ -42,11 +43,11 @@
             }"
             class="sw-settings-custom-field-set-list__button-create"
             :disabled="!acl.can('custom_field.creator') || undefined"
-            :router-link="{ name: 'sw.settings.custom.field.create' }"
             variant="primary"
+            @click="$router.push({ name: 'sw.settings.custom.field.create' })"
         >
             {{ $tc('sw-settings-custom-field.set.list.buttonAdd') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}
@@ -149,22 +150,24 @@
                                 <template #modal-footer>
 
                                     {% block sw_settings_custom_field_set_list_grid_delete_modal_cancel %}
-                                    <sw-button
+                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                                    <mt-button
                                         size="small"
                                         @click="onCloseDeleteModal"
                                     >
                                         {{ $tc('global.default.cancel') }}
-                                    </sw-button>
+                                    </mt-button>
                                     {% endblock %}
 
                                     {% block sw_settings_custom_field_set_list_grid_delete_modal_delete %}
-                                    <sw-button
-                                        variant="danger"
+                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                                    <mt-button
+                                        variant="critical"
                                         size="small"
                                         @click="onConfirmDelete(item.id)"
                                     >
                                         {{ $tc('sw-settings-custom-field.set.list.buttonDelete') }}
-                                    </sw-button>
+                                    </mt-button>
                                     {% endblock %}
                                 </template>
                                 {% endblock %}

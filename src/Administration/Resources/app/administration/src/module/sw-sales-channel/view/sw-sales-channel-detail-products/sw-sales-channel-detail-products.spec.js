@@ -97,7 +97,7 @@ let repositoryFactoryDeleteMock;
 async function createWrapper({ salesChannel, products } = {}) {
     repositoryFactoryDeleteMock = jest.fn(async () => {});
 
-    return mount(
+    const wrapper = mount(
         await wrapTestComponent('sw-sales-channel-detail-products', {
             sync: true,
         }),
@@ -155,10 +155,6 @@ async function createWrapper({ salesChannel, products } = {}) {
                     },
                     'sw-pagination': true,
                     'sw-simple-search-field': true,
-                    'sw-button': {
-                        template: '<button class="sw-button"><slot></slot></button>',
-                        props: ['disabled'],
-                    },
                     'sw-icon': true,
                     'sw-sales-channel-products-assignment-modal': true,
                     'sw-context-menu-item': true,
@@ -199,6 +195,16 @@ async function createWrapper({ salesChannel, products } = {}) {
             },
         },
     );
+
+    function getCreateButton() {
+        return wrapper.findByText('button', 'sw-sales-channel.detail.products.buttonAddProducts');
+    }
+
+    function getEntityListing() {
+        return wrapper.getComponent('.sw-entity-listing');
+    }
+
+    return { wrapper, getCreateButton, getEntityListing };
 }
 
 describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', () => {
@@ -207,7 +213,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
     });
 
     it('should get products successful', async () => {
-        const wrapper = await createWrapper({
+        const { wrapper } = await createWrapper({
             salesChannel: { id: 'apiSalesChannelTypeId' },
             products: productsMock,
         });
@@ -217,7 +223,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
     });
 
     it('should delete product successful', async () => {
-        const wrapper = await createWrapper({
+        const { wrapper } = await createWrapper({
             salesChannel: { id: 'apiSalesChannelTypeId' },
             products: productsMock,
         });
@@ -239,7 +245,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
     });
 
     it('should delete product failed', async () => {
-        const wrapper = await createWrapper({
+        const { wrapper } = await createWrapper({
             salesChannel: { id: 'apiSalesChannelTypeId' },
             products: productsMock,
         });
@@ -261,7 +267,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
     });
 
     it('should get delete id correctly', async () => {
-        const wrapper = await createWrapper({
+        const { wrapper } = await createWrapper({
             salesChannel: { id: 'apiSalesChannelTypeId' },
         });
 
@@ -271,7 +277,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
     });
 
     it('should get products when changing search term', async () => {
-        const wrapper = await createWrapper();
+        const { wrapper } = await createWrapper();
         await flushPromises();
         wrapper.vm.getProducts = jest.fn();
 
@@ -291,7 +297,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
     });
 
     it('should get products when changing page', async () => {
-        const wrapper = await createWrapper();
+        const { wrapper } = await createWrapper();
         await flushPromises();
         wrapper.vm.getProducts = jest.fn();
         expect(wrapper.vm.productCriteria.sortings).toEqual([]);
@@ -310,28 +316,26 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
     it('should be able to add products in empty state', async () => {
         global.activeAclRoles = ['sales_channel.editor'];
-        const wrapper = await createWrapper();
+        const { wrapper, getCreateButton } = await createWrapper();
         await flushPromises();
 
         await wrapper.setData({ products: [], searchTerm: null });
 
-        const createButton = wrapper.getComponent('.sw-button');
-        expect(createButton.props('disabled')).toBe(false);
+        expect(getCreateButton().attributes('disabled')).toBeUndefined();
     });
 
     it('should not be able to add products in empty state', async () => {
-        const wrapper = await createWrapper();
+        const { wrapper, getCreateButton } = await createWrapper();
         await flushPromises();
 
         await wrapper.setData({ products: [], searchTerm: null });
 
-        const createButton = wrapper.getComponent('.sw-button');
-        expect(createButton.props('disabled')).toBe(true);
+        expect(getCreateButton().attributes('disabled')).toBeDefined();
     });
 
     it('should be able to add products in filled state', async () => {
         global.activeAclRoles = ['sales_channel.editor'];
-        const wrapper = await createWrapper();
+        const { wrapper, getCreateButton } = await createWrapper();
         await flushPromises();
 
         await wrapper.setData({
@@ -339,12 +343,11 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
             searchTerm: 'Awesome Product',
         });
 
-        const createButton = wrapper.getComponent('.sw-button');
-        expect(createButton.props('disabled')).toBe(false);
+        expect(getCreateButton().attributes('disabled')).toBeUndefined();
     });
 
     it('should not be able to add products in filled state', async () => {
-        const wrapper = await createWrapper();
+        const { wrapper, getCreateButton } = await createWrapper();
         await flushPromises();
 
         await wrapper.setData({
@@ -352,54 +355,49 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
             searchTerm: 'Awesome Product',
         });
 
-        const createButton = wrapper.getComponent('.sw-button');
-        expect(createButton.props('disabled')).toBe(true);
+        expect(getCreateButton().attributes('disabled')).toBeDefined();
     });
 
     it('should be able to delete product', async () => {
         global.activeAclRoles = ['sales_channel.deleter'];
-        const wrapper = await createWrapper();
+        const { wrapper, getEntityListing } = await createWrapper();
         await flushPromises();
 
         await wrapper.setData({ products: productsMock });
 
-        const entityListing = wrapper.getComponent('.sw-entity-listing');
-        expect(entityListing.props('allowDelete')).toBe(true);
+        expect(getEntityListing().props('allowDelete')).toBe(true);
     });
 
     it('should not be able to delete product', async () => {
-        const wrapper = await createWrapper();
+        const { wrapper, getEntityListing } = await createWrapper();
         await flushPromises();
 
         await wrapper.setData({ products: productsMock });
 
-        const entityListing = wrapper.getComponent('.sw-entity-listing');
-        expect(entityListing.props('allowDelete')).toBe(false);
+        expect(getEntityListing().props('allowDelete')).toBe(false);
     });
 
     it('should be able to edit product', async () => {
         global.activeAclRoles = ['product.editor'];
-        const wrapper = await createWrapper();
+        const { wrapper, getEntityListing } = await createWrapper();
         await flushPromises();
 
         await wrapper.setData({ products: productsMock });
 
-        const entityListing = wrapper.getComponent('.sw-entity-listing');
-        expect(entityListing.props('allowEdit')).toBe(true);
+        expect(getEntityListing().props('allowEdit')).toBe(true);
     });
 
     it('should not be able to edit product', async () => {
-        const wrapper = await createWrapper();
+        const { wrapper, getEntityListing } = await createWrapper();
         await flushPromises();
 
         await wrapper.setData({ products: productsMock });
 
-        const entityListing = wrapper.getComponent('.sw-entity-listing');
-        expect(entityListing.props('allowEdit')).toBe(false);
+        expect(getEntityListing().props('allowEdit')).toBe(false);
     });
 
     it('should turn on add products modal', async () => {
-        const wrapper = await createWrapper();
+        const { wrapper } = await createWrapper();
         await flushPromises();
 
         await wrapper.vm.openAddProductsModal();
@@ -411,7 +409,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
     });
 
     it('should add products successful', async () => {
-        const wrapper = await createWrapper();
+        const { wrapper } = await createWrapper();
         await flushPromises();
         wrapper.vm.saveProductVisibilities = jest.fn(() => Promise.resolve());
 
@@ -430,7 +428,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
     });
 
     it('should add products failed', async () => {
-        const wrapper = await createWrapper();
+        const { wrapper } = await createWrapper();
         await flushPromises();
         wrapper.vm.saveProductVisibilities = jest.fn(() => Promise.resolve());
 
@@ -443,7 +441,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
     });
 
     it('should save product visibilities successful', async () => {
-        const wrapper = await createWrapper();
+        const { wrapper } = await createWrapper();
         await flushPromises();
         wrapper.vm.productVisibilityRepository.saveAll = jest.fn(() => Promise.resolve());
 
@@ -455,7 +453,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
     });
 
     it('should save product visibilities failed', async () => {
-        const wrapper = await createWrapper();
+        const { wrapper } = await createWrapper();
         await flushPromises();
         wrapper.vm.productVisibilityRepository.saveAll = jest.fn(() => {
             return Promise.reject(new Error('Whoops!'));
@@ -485,7 +483,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
     });
 
     it('should not be able to delete variants which have inherit visibility', async () => {
-        const wrapper = await createWrapper({
+        const { wrapper } = await createWrapper({
             products: [
                 ...productsMock,
                 ...variantProductMocks,
@@ -498,14 +496,14 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
     });
 
     it('should render loading state when loading product entities', async () => {
-        const wrapper = await createWrapper();
+        const { wrapper } = await createWrapper();
 
         expect(wrapper.getComponent('.sw-card').attributes('is-loading')).toBe('true');
         expect(wrapper.find('.sw-empty-state').exists()).toBe(false);
     });
 
     it('should render empty state when products are loaded and empty', async () => {
-        const wrapper = await createWrapper();
+        const { wrapper } = await createWrapper();
         await flushPromises();
 
         expect(wrapper.getComponent('.sw-card').attributes('is-loading')).toBeUndefined();
@@ -513,7 +511,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
     });
 
     it('should return filters from filter registry', async () => {
-        const wrapper = await createWrapper();
+        const { wrapper } = await createWrapper();
 
         expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
     });

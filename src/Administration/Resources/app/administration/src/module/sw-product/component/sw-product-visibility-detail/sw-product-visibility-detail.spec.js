@@ -55,8 +55,6 @@ async function createWrapper() {
                     'sw-pagination': await wrapTestComponent('sw-pagination'),
                     'sw-grid-row': await wrapTestComponent('sw-grid-row'),
                     'sw-grid-column': await wrapTestComponent('sw-grid-column'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-icon': {
                         template: '<div></div>',
                     },

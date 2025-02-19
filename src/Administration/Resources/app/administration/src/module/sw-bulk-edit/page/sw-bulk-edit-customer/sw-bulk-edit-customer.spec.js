@@ -28,8 +28,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                 stubs: {
                     'sw-page': await wrapTestComponent('sw-page'),
                     'sw-loader': await wrapTestComponent('sw-loader'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
                     'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
                     'sw-bulk-edit-custom-fields': await wrapTestComponent('sw-bulk-edit-custom-fields'),
@@ -96,7 +94,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     'sw-bulk-edit-save-modal': await wrapTestComponent('sw-bulk-edit-save-modal', { sync: true }),
                     'sw-app-topbar-button': true,
                     'sw-help-center-v2': true,
-                    'mt-button': true,
                     'mt-loader': true,
                     'sw-loader-deprecated': true,
                     'mt-card': true,
@@ -507,7 +504,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                 },
             },
         });
-        expect(wrapper.find('.sw-button-process').classes()).toContain('sw-button--disabled');
+        expect(wrapper.find('.sw-button-process').attributes('disabled') !== undefined).toBe(true);
 
         await wrapper.setData({
             isLoading: false,
@@ -523,6 +520,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                 },
             },
         });
-        expect(wrapper.find('.sw-button-process').classes()).not.toContain('sw-button--disabled');
+        expect(wrapper.find('.sw-button-process').attributes('disabled')).toBeUndefined();
     });
 });

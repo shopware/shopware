@@ -20,16 +20,17 @@
             {% endblock %}
 
             {% block sw_import_export_view_profile_profiles_toolbar_add_new_profile %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-tooltip="createTooltip"
                 class="sw-import-export-view-profiles__create-action"
-                variant="ghost"
+                ghost
                 :disabled="isLoading || isNotSystemLanguage"
                 size="small"
                 @click="onAddNewProfile"
             >
                 {{ $tc('sw-import-export.profile.addNewProfileLabel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </div>
         {% endblock %}

@@ -83,14 +83,15 @@
     {% endblock %}
 
     {% block sw_import_export_activity_log_info_modal_download %}
-    <sw-button
+    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+    <mt-button
         class="sw-import-export-activity-log-info-modal__download-button"
         size="small"
         :disabled="(logEntity.activity === 'export' && logEntity.state !== 'succeeded') || undefined"
         @click="openDownload(logEntity.fileId)"
     >
         {{ $tc('sw-import-export.activity.logInfo.labelDownloadFile') }}
-    </sw-button>
+    </mt-button>
     {% endblock %}
 </sw-modal>
 {% endblock %}

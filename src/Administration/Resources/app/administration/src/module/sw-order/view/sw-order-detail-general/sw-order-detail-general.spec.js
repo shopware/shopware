@@ -102,8 +102,6 @@ async function createWrapper() {
                 'sw-field-error': true,
                 'sw-extension-component-section': true,
                 'sw-icon': true,
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'router-link': true,
                 'sw-loader': true,
             },
@@ -185,7 +183,7 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         await saveableField.setValue(20);
         await saveableField.trigger('input');
 
-        button = wrapper.find('.sw-order-saveable-field .sw-button--primary');
+        button = wrapper.findByAriaLabel('button', 'global.default.save');
         await button.trigger('click');
 
         expect(wrapper.vm.delivery.shippingCosts.unitPrice).toBe(20);

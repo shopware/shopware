@@ -151,14 +151,15 @@
 
         {% block sw_promotion_v2_cart_condition_add_group_button %}
         <div class="sw-promotion-v2-cart-condition-form__add-group-button-container">
-            <sw-button
-                variant="ghost"
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
+                ghost
                 class="sw-promotion-v2-cart-condition-form__add-group-button"
                 :disabled="isEditingDisabled"
                 @click="addSetGroup"
             >
                 {{ $tc('sw-promotion-v2.detail.conditions.setgroups.buttonAddGroup') }}
-            </sw-button>
+            </mt-button>
         </div>
         {% endblock %}
 

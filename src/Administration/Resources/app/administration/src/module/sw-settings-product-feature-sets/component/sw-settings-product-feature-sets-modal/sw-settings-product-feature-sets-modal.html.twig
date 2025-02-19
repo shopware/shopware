@@ -161,16 +161,18 @@
     <template #modal-footer>
 
         {% block sw_settings_product_feature_sets_modal_footer_cancel %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             size="small"
             @click="$emit('modal-close')"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_settings_product_feature_sets_modal_footer_button_add %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-if="!showPageOne | referencePriceSelected"
             variant="primary"
             size="small"
@@ -178,11 +180,12 @@
             @click="onConfirm"
         >
             {{ $tc('global.default.add') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_settings_product_feature_sets_modal_footer_button_next %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-if="showNextButton"
             variant="primary"
             size="small"
@@ -190,7 +193,7 @@
             @click="onClickNext"
         >
             {{ $tc('sw-settings-product-feature-sets.modal.buttonNext') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
     </template>

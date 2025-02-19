@@ -10,10 +10,6 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-category-layout-card', { sync: true }), {
         global: {
             stubs: {
-                'sw-button': await wrapTestComponent('sw-button', {
-                    sync: true,
-                }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'router-link': true,
                 'sw-loader': true,
                 'sw-cms-list-item': {
@@ -78,23 +74,17 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
 
         const wrapper = await createWrapper();
 
-        const buttons = wrapper.findAllComponents({
-            name: 'sw-button-deprecated__wrapped',
-        });
-        const changeLayoutButton = buttons.find((b) => b.classes('sw-category-detail-layout__change-layout-action'));
+        const changeLayoutButton = wrapper.find('.sw-category-detail-layout__change-layout-action');
 
-        expect(changeLayoutButton.props('disabled')).toBe(false);
+        expect(changeLayoutButton.attributes('disabled')).toBeUndefined();
     });
 
     it('should have an disabled button for changing the layout', async () => {
         const wrapper = await createWrapper();
 
-        const buttons = wrapper.findAllComponents({
-            name: 'sw-button-deprecated__wrapped',
-        });
-        const changeLayoutButton = buttons.find((b) => b.classes('sw-category-detail-layout__change-layout-action'));
+        const changeLayoutButton = wrapper.find('.sw-category-detail-layout__change-layout-action');
 
-        expect(changeLayoutButton.props('disabled')).toBe(true);
+        expect(changeLayoutButton.attributes('disabled') === undefined).toBe(false);
     });
 
     it('should have an enabled button for open the page builder', async () => {
@@ -102,23 +92,17 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
 
         const wrapper = await createWrapper();
 
-        const buttons = wrapper.findAllComponents({
-            name: 'sw-button-deprecated__wrapped',
-        });
-        const pageBuilderButton = buttons.find((b) => b.classes('sw-category-detail-layout__open-in-pagebuilder'));
+        const pageBuilderButton = wrapper.find('.sw-category-detail-layout__open-in-pagebuilder');
 
-        expect(pageBuilderButton.props('disabled')).toBe(false);
+        expect(pageBuilderButton.attributes('disabled')).toBeUndefined();
     });
 
     it('should have an disabled button for open the page builder', async () => {
         const wrapper = await createWrapper();
 
-        const buttons = wrapper.findAllComponents({
-            name: 'sw-button-deprecated__wrapped',
-        });
-        const pageBuilderButton = buttons.find((b) => b.classes('sw-category-detail-layout__open-in-pagebuilder'));
+        const pageBuilderButton = wrapper.find('.sw-category-detail-layout__open-in-pagebuilder');
 
-        expect(pageBuilderButton.props('disabled')).toBe(true);
+        expect(pageBuilderButton.attributes('disabled') !== undefined).toBe(true);
     });
 
     it('should have an enabled button for resetting the layout', async () => {
@@ -133,12 +117,9 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
         });
         await flushPromises();
 
-        const buttons = wrapper.findAllComponents({
-            name: 'sw-button-deprecated__wrapped',
-        });
-        const resetLayoutButton = buttons.find((b) => b.classes('sw-category-detail-layout__layout-reset'));
+        const resetLayoutButton = wrapper.find('.sw-category-detail-layout__layout-reset');
 
-        expect(resetLayoutButton.props('disabled')).toBe(false);
+        expect(resetLayoutButton.attributes('disabled')).toBeUndefined();
     });
 
     it('should have an disabled button for resetting the layout', async () => {
@@ -151,12 +132,9 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
         });
         await flushPromises();
 
-        const buttons = wrapper.findAllComponents({
-            name: 'sw-button-deprecated__wrapped',
-        });
-        const resetLayoutButton = buttons.find((b) => b.classes('sw-category-detail-layout__layout-reset'));
+        const resetLayoutButton = wrapper.find('.sw-category-detail-layout__layout-reset');
 
-        expect(resetLayoutButton.props('disabled')).toBe(true);
+        expect(resetLayoutButton.attributes('disabled') !== undefined).toBe(true);
     });
 
     it('should pass the category id and type to the sw.cms.create route', async () => {

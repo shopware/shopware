@@ -232,12 +232,13 @@
                     {% block sw_bulk_edit_product_content_advanced_prices_modal_footer %}
                     <template #modal-footer>
                         <slot name="sw-bulk-edit-modal-cancel">
-                            <sw-button
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
                                 size="small"
                                 @click="displayAdvancePricesModal = false"
                             >
                                 {{ $tc('global.default.close') }}
-                            </sw-button>
+                            </mt-button>
                         </slot>
                     </template>
                     {% endblock %}

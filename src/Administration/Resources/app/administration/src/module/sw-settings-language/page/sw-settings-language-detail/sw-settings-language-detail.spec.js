@@ -114,7 +114,6 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
                 'sw-container': true,
                 'sw-language-switch': true,
                 'sw-language-info': true,
-                'sw-button': true,
                 'sw-button-process': true,
                 'sw-text-field': true,
                 'sw-entity-single-select': true,

@@ -28,22 +28,24 @@
             <sw-button-group>
 
                 {% block sw_order_line_items_grid_sales_channel_add_existing_product %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     class="sw-order-line-items-grid-sales-channel__add-product"
-                    variant="ghost"
+                    ghost
                     size="small"
                     :disabled="isAddNewItemButtonDisabled || undefined"
                     @click="onInsertExistingItem"
                 >
                     {{ $tc('sw-order.createBase.buttonAddProduct') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_order_line_items_grid_sales_channel_create_actions_dropdown %}
                 <sw-context-button>
                     <template #button>
-                        <sw-button
-                            variant="ghost"
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
+                            ghost
                             size="small"
                             square
                             :disabled="isAddNewItemButtonDisabled || undefined"
@@ -52,7 +54,7 @@
                                 name="regular-chevron-down-xxs"
                                 decorative
                             />
-                        </sw-button>
+                        </mt-button>
                     </template>
 
                     {% block sw_order_line_items_grid_sales_channel_create_actions_dropdown_menu %}

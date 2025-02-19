@@ -23,7 +23,6 @@ async function createWrapper(routerViewComponent = 'sw-first-run-wizard-welcome'
                 'sw-first-run-wizard-mailer-local': await wrapTestComponent('sw-first-run-wizard-mailer-local'),
                 'sw-modal': await wrapTestComponent('sw-modal'),
                 'sw-container': await wrapTestComponent('sw-container'),
-                'sw-button': await wrapTestComponent('sw-button'),
                 'sw-loader': true,
                 'sw-icon': true,
                 'router-view': {
@@ -126,7 +125,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         });
     });
 
-    it.skip('stepper has less steps with disabled extension management', async () => {
+    it('stepper has less steps with disabled extension management', async () => {
         const wrapper = await createWrapper();
 
         expect(Object.keys(wrapper.vm.stepper)).toHaveLength(13);
@@ -140,14 +139,14 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         Shopware.Store.get('context').app.config.settings.disableExtensionManagement = false;
     });
 
-    it.skip('the default button config should be the config of the sw-first-run-wizard-welcome component', async () => {
+    it('the default button config should be the config of the sw-first-run-wizard-welcome component', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
         expect(wrapper.vm.$data.buttonConfig).toStrictEqual(swFirstRunWizardWelcomeButtonConfig);
     });
 
-    it.skip('the footer should not contain buttons', async () => {
+    it('the footer should not contain buttons', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -159,7 +158,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         expect(footerRight.findAll('button')).toHaveLength(1);
     });
 
-    it.skip('the button config should have the same config which are emitted by an event', async () => {
+    it('the button config should have the same config which are emitted by an event', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -197,7 +196,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         expect(wrapper.vm.$data.buttonConfig).toStrictEqual(newButtonConfig);
     });
 
-    it.skip('the footer should have the button config which are emitted by an event', async () => {
+    it('the footer should have the button config which are emitted by an event', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -248,7 +247,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         expect(footerRight.findAll('button')).toHaveLength(2);
     });
 
-    it.skip('the buttonConfig should push a button in the left footer', async () => {
+    it('the buttonConfig should push a button in the left footer', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -275,7 +274,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         expect(footerRight.element.children).toHaveLength(0);
     });
 
-    it.skip('the buttonConfig should push a button in the right footer', async () => {
+    it('the buttonConfig should push a button in the right footer', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -302,7 +301,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         expect(footerRight.findAll('button')).toHaveLength(1);
     });
 
-    it.skip('the buttonConfig should overwrite the previous one', async () => {
+    it('the buttonConfig should overwrite the previous one', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -352,14 +351,14 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         expect(footerRight.element.children).toHaveLength(0);
     });
 
-    it.skip('the title should show an warning when not defined', async () => {
+    it('the title should show an warning when not defined', async () => {
         const wrapper = await createWrapper('');
         await flushPromises();
 
         expect(wrapper.vm.$data.title).toBe('No title defined');
     });
 
-    it.skip('the title should be updated when the router view emits an event', async () => {
+    it('the title should be updated when the router view emits an event', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -372,7 +371,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         expect(wrapper.vm.$data.title).toBe(newTitle);
     });
 
-    it.skip('onButtonClick: should call the redirect function when string', async () => {
+    it('onButtonClick: should call the redirect function when string', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -385,7 +384,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         expect(spy).toHaveBeenCalled();
     });
 
-    it.skip('onButtonClick: should call the callback function', async () => {
+    it('onButtonClick: should call the callback function', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -398,7 +397,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         expect(callbackFunction).toHaveBeenCalled();
     });
 
-    it.skip('should not be closable when frw flag is active', async () => {
+    it('should not be closable when frw flag is active', async () => {
         Shopware.Context.app.firstRunWizard = true;
 
         const wrapper = await createWrapper();
@@ -409,7 +408,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         expect(closeButton.exists()).toBe(false);
     });
 
-    it.skip('should be closable when frw flag is not true', async () => {
+    it('should be closable when frw flag is not true', async () => {
         Shopware.Context.app.firstRunWizard = false;
 
         const wrapper = await createWrapper();
@@ -419,7 +418,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         expect(closeButton.exists()).toBe(true);
     });
 
-    it.skip('should push route to settings page when getting closed', async () => {
+    it('should push route to settings page when getting closed', async () => {
         Shopware.Context.app.firstRunWizard = false;
 
         const wrapper = await createWrapper();
@@ -438,7 +437,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         });
     });
 
-    it.skip('should reload after push route to settings page when getting closed and extension was activated', async () => {
+    it('should reload after push route to settings page when getting closed and extension was activated', async () => {
         Shopware.Context.app.firstRunWizard = false;
 
         const wrapper = await createWrapper();
@@ -461,7 +460,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         expect(window.location.reload).toHaveBeenCalled();
     });
 
-    it.skip('should not reload after push route to settings page when getting closed and no extension was activated', async () => {
+    it('should not reload after push route to settings page when getting closed and no extension was activated', async () => {
         Shopware.Context.app.firstRunWizard = false;
 
         const wrapper = await createWrapper();
@@ -482,7 +481,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         expect(window.location.reload).not.toHaveBeenCalled();
     });
 
-    it.skip('should contain all required frw steps', async () => {
+    it('should contain all required frw steps', async () => {
         Shopware.Context.app.firstRunWizard = false;
 
         const wrapper = await createWrapper('sw-first-run-wizard-welcome');
@@ -507,7 +506,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         expect(Object.keys(wrapper.vm.stepper)).toStrictEqual(steps);
     });
 
-    it.skip('should redirect to smtp mailer settings', async () => {
+    it('should redirect to smtp mailer settings', async () => {
         Shopware.Context.app.firstRunWizard = false;
 
         const wrapper = await createWrapper('sw-first-run-wizard-mailer-selection');
@@ -519,7 +518,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         expect(localOption.find('p').text()).toBe('sw-first-run-wizard.mailerSelection.smtpOption');
 
         await localOption.trigger('click');
-        await wrapper.find('.sw-button--primary').trigger('click');
+        await wrapper.findByText('button', 'sw-first-run-wizard.general.buttonNext').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
@@ -527,7 +526,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         });
     });
 
-    it.skip('should redirect to local mailer settings', async () => {
+    it('should redirect to local mailer settings', async () => {
         Shopware.Context.app.firstRunWizard = false;
 
         const wrapper = await createWrapper('sw-first-run-wizard-mailer-selection');
@@ -541,7 +540,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         );
 
         await localOption.trigger('click');
-        await wrapper.find('.sw-button--primary').trigger('click');
+        await wrapper.findByText('button', 'sw-first-run-wizard.general.buttonNext').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.$router.push).toHaveBeenCalledWith({

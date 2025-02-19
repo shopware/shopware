@@ -28,22 +28,24 @@
             <sw-button-group :disabled="isLoading || undefined">
 
                 {% block sw_order_line_items_grid_add_existing_product %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     class="sw-order-line-items-grid__actions-container-add-product-btn"
-                    variant="ghost"
+                    ghost
                     size="small"
                     :disabled="!editable || undefined"
                     @click="onInsertExistingItem"
                 >
                     {{ $tc('sw-order.detailBase.buttonAddProduct') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_order_line_items_grid_create_actions_dropdown %}
                 <sw-context-button>
                     <template #button>
-                        <sw-button
-                            variant="ghost"
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
+                            ghost
                             size="small"
                             square
                         >
@@ -51,7 +53,7 @@
                                 name="regular-chevron-down-xs"
                                 decorative
                             />
-                        </sw-button>
+                        </mt-button>
                     </template>
 
                     {% block sw_order_line_items_grid_create_actions_dropdown_menu_item %}
@@ -131,7 +133,8 @@
             >
 
                 {% block sw_order_line_items_grid_grid_columns_label_nested_modal_button %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     v-if="hasChildren(item)"
                     v-tooltip="{ message: $tc('sw-order.detailBase.tooltipNestedLineItemsButton') }"
                     class="sw-order-line-items-grid__item-nested-indicator"
@@ -147,7 +150,7 @@
                     />
                     {% endblock %}
 
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_order_line_items_grid_column_payload_options %}
@@ -343,23 +346,25 @@
                 </p>
 
                 <template #modal-footer>
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         size="small"
                         class="sw_order_line_items_grid-actions_modal__close-action"
                         @click="onCloseDeleteModal"
                     >
                         {{ $tc('global.default.cancel') }}
-                    </sw-button>
+                    </mt-button>
 
-                    <sw-button
-                        variant="danger"
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
+                        variant="critical"
                         size="small"
 
                         class="sw_order_line_items_grid-actions_modal__confirm-action"
                         @click="onConfirmDelete(item.id)"
                     >
                         {{ $tc('global.default.delete') }}
-                    </sw-button>
+                    </mt-button>
                 </template>
             </sw-modal>
         </template>

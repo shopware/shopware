@@ -159,8 +159,6 @@ async function createWrapper(props = defaultProps, sendingSucceds = true, mailTe
             stubs: {
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
@@ -295,7 +293,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.find('.sw-button:nth-of-type(1)').trigger('click');
+        await wrapper.findByText('button', 'sw-order.documentSendModal.labelClose').trigger('click');
         await flushPromises();
 
         expect(wrapper.emitted('modal-close')).toHaveLength(1);
@@ -345,7 +343,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.find('.sw-button:nth-of-type(2)').trigger('click');
+        await wrapper.findByText('button', 'sw-order.documentCard.labelSendDocument').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.mailService.sendMailTemplate).toHaveBeenCalledTimes(1);
@@ -395,7 +393,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         wrapper.vm.createNotificationError = jest.fn();
         await flushPromises();
 
-        await wrapper.find('.sw-button:nth-of-type(2)').trigger('click');
+        await wrapper.findByText('button', 'sw-order.documentCard.labelSendDocument').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);

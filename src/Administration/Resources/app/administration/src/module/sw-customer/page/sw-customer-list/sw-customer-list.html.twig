@@ -35,7 +35,8 @@
     {% block sw_customer_list_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_customer_list_smart_bar_actions_add %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('customer.creator'),
@@ -44,10 +45,10 @@
             class="sw-customer-list__button-create"
             variant="primary"
             :disabled="!acl.can('customer.creator') || undefined"
-            :router-link="{ name: 'sw.customer.create' }"
+            @click="$router.push({ name: 'sw.customer.create' })"
         >
             {{ $tc('sw-customer.list.buttonAddCustomer') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}
@@ -270,22 +271,24 @@
                         <template #modal-footer>
 
                             {% block sw_customer_list_delete_modal_cancel %}
-                            <sw-button
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
                                 size="small"
                                 @click="onCloseDeleteModal"
                             >
                                 {{ $tc('global.default.cancel') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
 
                             {% block sw_customer_list_delete_modal_confirm %}
-                            <sw-button
-                                variant="danger"
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
+                                variant="critical"
                                 size="small"
                                 @click="onConfirmDelete(item.id)"
                             >
                                 {{ $tc('sw-customer.list.buttonDelete') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
                         </template>
                         {% endblock %}

@@ -112,11 +112,9 @@ async function createWrapper() {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
                 'sw-text-field': true,
-                'sw-context-button': await wrapTestComponent('sw-button', {
-                    sync: true,
-                }),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                'sw-context-button': {
+                    template: '<div class="sw-context-button"><slot></slot></div>',
+                },
                 'sw-order-select-document-type-modal': await wrapTestComponent('sw-order-select-document-type-modal', {
                     sync: true,
                 }),

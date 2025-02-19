@@ -35,30 +35,33 @@
                 gap="8px"
             >
                 {% block sw_profile_index_search_preferences_searchable_elements_button_select %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     class="sw-profile-index-search-preferences-searchable-elements__button-select-all"
                     @click="onSelect(true)"
                 >
                     {{ $tc('sw-profile.tabSearchPreferences.cardSearchableElements.buttonSelect') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_profile_index_search_preferences_searchable_elements_button_deselect %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     class="sw-profile-index-search-preferences-searchable-elements__button-deselect-all"
                     @click="onSelect(false)"
                 >
                     {{ $tc('sw-profile.tabSearchPreferences.cardSearchableElements.buttonDeselect') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_profile_index_search_preferences_searchable_elements_button_reset %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     class="sw-profile-index-search-preferences-searchable-elements__button-reset-to-default"
                     @click="onReset"
                 >
                     {{ $tc('sw-profile.tabSearchPreferences.cardSearchableElements.buttonReset') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </sw-container>
             {% endblock %}

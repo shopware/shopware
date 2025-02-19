@@ -38,7 +38,8 @@
         {% endblock %}
 
         {% block sw_settings_shipping_price_matrix_topbar_new_price %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             size="x-small"
             class="sw-settings-shipping-price-matrix__top-container-add-new-rule"
             :variant="!showDataGrid ? '': 'ghost'"
@@ -51,7 +52,7 @@
             <template v-else>
                 {{ $tc('sw-settings-shipping.priceMatrix.addNewShippingPrice') }}
             </template>
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_settings_shipping_price_matrix_topbar_context_button %}
@@ -221,14 +222,15 @@
         v-if="showDataGrid && !showAllPrices"
         class="sw-settings-shipping-price-matrix__price-load-all"
     >
-        <sw-button
-            variant="ghost"
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
+            ghost
             size="small"
             class="sw-settings-shipping-price-matrix__price-load-all-button"
             @click="updateShowAllPrices"
         >
             {{ $tc('sw-settings-shipping.priceMatrix.buttonLoadAllPrices') }}
-        </sw-button>
+        </mt-button>
     </div>
     {% endblock %}
 
@@ -303,22 +305,24 @@
         {% block sw_settings_shipping_price_matrix_delete_modal_footer %}
         <template #modal-footer>
             {% block sw_settings_shipping_price_matrix_delete_modal_cancel %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
                 @click="onCloseDeleteModal"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_settings_shipping_price_matrix_delete_modal_confirm %}
-            <sw-button
-                variant="danger"
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
+                variant="critical"
                 size="small"
                 @click="onConfirmDeleteShippingPrice"
             >
                 {{ $tc('sw-settings-shipping.priceMatrix.buttonDelete') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
         {% endblock %}

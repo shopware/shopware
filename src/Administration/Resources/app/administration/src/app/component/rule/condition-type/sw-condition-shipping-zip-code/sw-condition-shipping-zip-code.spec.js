@@ -21,6 +21,7 @@ describe('components/rule/condition-type/sw-condition-shipping-zip-code', () => 
                     stubs: {
                         'sw-condition-operator-select': await wrapTestComponent('sw-condition-operator-select'),
                         'sw-number-field': await wrapTestComponent('sw-number-field'),
+                        'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
                         'sw-block-field': await wrapTestComponent('sw-block-field'),
                         'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                         'sw-base-field': await wrapTestComponent('sw-base-field'),
@@ -50,7 +51,7 @@ describe('components/rule/condition-type/sw-condition-shipping-zip-code', () => 
         );
     });
 
-    it.skip('should get correct numeric zipCodes', async () => {
+    it('should get correct numeric zipCodes', async () => {
         await wrapper.setProps({
             condition: {
                 value: {
@@ -72,7 +73,7 @@ describe('components/rule/condition-type/sw-condition-shipping-zip-code', () => 
         expect(input.element.value).toBe('12345');
     });
 
-    it.skip('should get correct alphanumeric zipCodes', async () => {
+    it('should get correct alphanumeric zipCodes', async () => {
         await wrapper.setProps({
             condition: {
                 value: {

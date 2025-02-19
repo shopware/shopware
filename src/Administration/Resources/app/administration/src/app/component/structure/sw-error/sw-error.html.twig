@@ -33,13 +33,14 @@
                 {% endblock %}
 
                 {% block sw_error_link %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     v-if="showLink"
                     variant="primary"
-                    :router-link="routerLink"
+                    @click="$router.push(routerLink)"
                 >
                     {{ linkText }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
                 {% endblock %}
             </slot>

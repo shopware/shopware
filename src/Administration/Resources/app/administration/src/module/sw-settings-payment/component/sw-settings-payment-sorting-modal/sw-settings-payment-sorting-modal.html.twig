@@ -67,12 +67,13 @@
     <template #modal-footer>
 
         {% block sw_settings_payment_sorting_modal_footer_cancel_button %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-settings-payment-sorting-modal__cancel-button"
             @click="closeModal"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_settings_payment_sorting_modal_footer_save_button %}

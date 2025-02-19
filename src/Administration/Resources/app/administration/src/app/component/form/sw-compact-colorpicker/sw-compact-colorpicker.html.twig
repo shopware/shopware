@@ -191,14 +191,15 @@
     {% endblock %}
 
     {% block sw_colorpicker_button %}
-    <sw-button
+    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+    <mt-button
         class="sw-colorpicker__set-color-button"
         size="small"
         variant="primary"
         @click="emitColor"
     >
         Set Color
-    </sw-button>
+    </mt-button>
     {% endblock %}
 </div>
 {% endblock %}

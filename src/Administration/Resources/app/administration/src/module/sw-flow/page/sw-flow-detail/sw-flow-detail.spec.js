@@ -209,10 +209,6 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
                     }),
                     'router-view': true,
                     'sw-button-process': await wrapTestComponent('sw-button-process', { sync: true }),
-                    'sw-button': await wrapTestComponent('sw-button', {
-                        sync: true,
-                    }),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-skeleton': true,
                     'sw-flow-leave-page-modal': true,
                     'sw-tabs': {

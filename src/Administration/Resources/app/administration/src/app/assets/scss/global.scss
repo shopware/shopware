@@ -58,7 +58,7 @@ a,
 }
 
 /* style inline external links */
-a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .sw-button) {
+a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .mt-button) {
     display: inline-block;
     position: relative;
     color: $color-shopware-brand-500;

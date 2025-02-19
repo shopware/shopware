@@ -45,7 +45,6 @@ const createWrapper = async () => {
                     },
                     'sw-context-menu-item': true,
                     'sw-icon': true,
-                    'sw-button': true,
                     'sw-search-bar': true,
                     'sw-language-switch': true,
                     'sw-mail-template-list': true,
@@ -60,11 +59,9 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
     it('should not allow to create', async () => {
         const wrapper = await createWrapper();
 
-        const createButton = wrapper.find('.sw-context-button');
-        const innerButton = createButton.find('sw-button-stub');
+        const createButton = wrapper.findByText('button', 'global.default.add');
 
-        expect(createButton.attributes().disabled).toBeTruthy();
-        expect(innerButton.attributes().disabled).toBeTruthy();
+        expect(createButton.attributes('disabled') !== undefined).toBe(true);
     });
 
     it('should allow to create', async () => {
@@ -72,10 +69,8 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
 
         const wrapper = await createWrapper();
 
-        const createButton = wrapper.find('.sw-context-button');
-        const innerButton = createButton.find('sw-button-stub');
+        const createButton = wrapper.findByText('button', 'global.default.add');
 
-        expect(createButton.attributes().disabled).toBeFalsy();
-        expect(innerButton.attributes().disabled).toBeFalsy();
+        expect(createButton.attributes('disabled')).toBeUndefined();
     });
 });

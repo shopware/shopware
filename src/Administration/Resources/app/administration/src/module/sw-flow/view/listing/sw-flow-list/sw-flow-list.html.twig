@@ -115,19 +115,21 @@
 
                     <template #modal-footer>
                         {% block sw_flow_list_grid_action_modal_buttons %}
-                        <sw-button
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
                             size="small"
                             @click="onCloseDeleteModal"
                         >
                             {{ $tc('global.default.cancel') }}
-                        </sw-button>
-                        <sw-button
+                        </mt-button>
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
                             size="small"
-                            variant="danger"
+                            variant="critical"
                             @click="onConfirmDelete(item)"
                         >
                             {{ $tc('global.default.delete') }}
-                        </sw-button>
+                        </mt-button>
                         {% endblock %}
                     </template>
                 </sw-modal>

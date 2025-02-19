@@ -49,22 +49,24 @@
     {% block sw_bulk_edit_modal_grid_footer %}
     <template #modal-footer>
         <slot name="sw-bulk-edit-modal-cancel">
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
                 @click="$emit('modal-close')"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
         </slot>
 
         <slot name="sw-bulk-edit-modal-confirm">
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 variant="primary"
                 size="small"
                 @click="editItems"
             >
                 {{ $tc('global.sw-bulk-edit-modal.startBulkEdit') }}
-            </sw-button>
+            </mt-button>
         </slot>
     </template>
     {% endblock %}

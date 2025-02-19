@@ -47,7 +47,8 @@
     {% block sw_settings_customer_group_list_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_customer_group_list_actions_create %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('customer_groups.creator'),
@@ -56,10 +57,10 @@
             class="sw-settings-customer-group-list__create"
             variant="primary"
             :disabled="!acl.can('customer_groups.creator') || undefined"
-            :router-link="{ name: 'sw.settings.customer.group.create' }"
+            @click="$router.push({ name: 'sw.settings.customer.group.create' })"
         >
             {{ $tc('sw-settings-customer-group.general.buttonCreate') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}
@@ -98,13 +99,14 @@
                     >
 
                         <template #bulk-modal-delete-items>
-                            <sw-button
-                                variant="danger"
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
+                                variant="critical"
                                 size="small"
                                 @click="deleteCustomerGroups"
                             >
                                 {{ $tc('global.default.delete') }}
-                            </sw-button>
+                            </mt-button>
                         </template>
 
                         <template #delete-action="{ item }">
@@ -119,13 +121,14 @@
                         </template>
 
                         <template #delete-modal-delete-item="{ item }">
-                            <sw-button
-                                variant="danger"
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
+                                variant="critical"
                                 size="small"
                                 @click="deleteCustomerGroup(item)"
                             >
                                 {{ $tc('global.default.delete') }}
-                            </sw-button>
+                            </mt-button>
                         </template>
 
                         {% block sw_settings_customer_group_list_grid_column_display_gross %}

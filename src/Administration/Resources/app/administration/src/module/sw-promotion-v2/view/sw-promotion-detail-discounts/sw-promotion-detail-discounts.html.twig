@@ -6,19 +6,20 @@
         position-identifier="sw-promotion-detail-discounts"
     >
         {% block sw_promotion_detail_discounts_actions_add %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('promotion.editor'),
                 showOnDisabledElements: true
             }"
             :is-loading="isLoading"
-            variant="ghost"
+            ghost
             :disabled="(promotion && promotion.hasOrders) || !acl.can('promotion.editor')"
             @click="onAddDiscount"
         >
             {{ $tc('sw-promotion.detail.main.discounts.buttonAddDiscount') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </div>
     {% endblock %}

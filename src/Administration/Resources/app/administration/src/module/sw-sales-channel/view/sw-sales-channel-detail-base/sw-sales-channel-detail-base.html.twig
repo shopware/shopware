@@ -39,19 +39,21 @@
             <p>{{ $tc('sw-sales-channel.detail.productComparison.templates.modal-message') }}</p>
 
             <template #modal-footer>
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="small"
                     @click="$emit('template-modal-close')"
                 >
                     {{ $tc('global.default.cancel') }}
-                </sw-button>
-                <sw-button
+                </mt-button>
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="small"
                     variant="primary"
                     @click="$emit('template-modal-confirm')"
                 >
                     {{ $tc('sw-sales-channel.detail.productComparison.templates.modal-confirm') }}
-                </sw-button>
+                </mt-button>
             </template>
             {% endblock %}
         </sw-modal>
@@ -558,22 +560,24 @@
             v-if="!isProductComparison"
             class="sw-sales-channel-detail__action-buttons"
         >
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
                 :disabled="!acl.can('sales_channel.editor') || undefined"
                 class="sw-sales-channel-detail-base__button-generate-keys"
                 @click="onGenerateKeys"
             >
                 {{ $tc('sw-sales-channel.detail.buttonCreateNewApiKeys') }}
-            </sw-button>
+            </mt-button>
 
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
                 class="sw-sales-channel-detail-base__button-copy-key"
                 @click="copyToClipboard"
             >
                 {{ $tc('sw-sales-channel.detail.buttonCopyApiKeyButton') }}
-            </sw-button>
+            </mt-button>
         </div>
         {% endblock %}
 
@@ -600,16 +604,17 @@
 
         {% block sw_sales_channel_detail_base_product_comparison_input_generate_key %}
         <div class="sw-sales-channel-detail__action-button">
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-if="isProductComparison"
-                variant="ghost"
+                ghost
                 :disabled="!acl.can('sales_channel.editor')"
                 size="small"
                 class="sw-sales-channel-detail-base__button-generate-keys"
                 @click="onGenerateProductExportKey"
             >
                 {{ $tc('sw-sales-channel.detail.productComparison.buttonCreateNewAccessKey') }}
-            </sw-button>
+            </mt-button>
         </div>
         {% endblock %}
         {% endblock %}
@@ -708,13 +713,14 @@
 
             {% block sw_sales_channel_detail_base_options_delete_button %}
             <div class="sw-sales-channel-detail-base__button-delete">
-                <sw-button
-                    variant="danger"
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
+                    variant="critical"
                     size="small"
                     @click="showDeleteModal = true"
                 >
                     {{ $tc('sw-sales-channel.detail.buttonDelete') }}
-                </sw-button>
+                </mt-button>
             </div>
             {% endblock %}
         </sw-container>
@@ -742,22 +748,24 @@
             {% block sw_sales_channel_detail_options_delete_modal_footer %}
             <template #modal-footer>
                 {% block sw_sales_channel_detail_options_delete_modal_abort %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="small"
                     @click="onCloseDeleteModal"
                 >
                     {{ $tc('global.default.cancel') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_options_delete_modal_confirm %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="small"
-                    variant="danger"
+                    variant="critical"
                     @click="onConfirmDelete"
                 >
                     {{ $tc('sw-sales-channel.detail.buttonConfirmDelete') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </template>
             {% endblock %}

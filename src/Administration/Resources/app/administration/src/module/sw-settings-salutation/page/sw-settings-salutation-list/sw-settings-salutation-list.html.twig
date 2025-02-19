@@ -47,15 +47,16 @@
     {% block sw_settings_salutation_list_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_salutation_list_actions_create %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="tooltipAdd"
             class="sw-settings-salutation-list__create"
             variant="primary"
             :disabled="!acl.can('salutation.creator') || undefined"
-            :router-link="{ name: 'sw.settings.salutation.create' }"
+            @click="$router.push({ name: 'sw.settings.salutation.create' })"
         >
             {{ $tc('sw-settings-salutation.general.buttonCreate') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

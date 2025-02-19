@@ -80,7 +80,6 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                         'sw-data-grid-column-boolean': true,
                         'sw-data-grid-inline-edit': true,
                         'router-link': true,
-                        'sw-button': true,
                         'sw-data-grid-skeleton': true,
                         'sw-data-grid-settings': true,
                         'sw-product-variant-info': true,

@@ -27,7 +27,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal not intended for decoration or replacement
  *
- * @phpstan-import-type FlowHolders from AbstractFlowLoader
+ * @phpstan-import-type FlowHolder from AbstractFlowLoader
  */
 #[Package('after-sales')]
 class FlowExecutor
@@ -54,7 +54,7 @@ class FlowExecutor
     }
 
     /**
-     * @param FlowHolders $flowHolders
+     * @param array<FlowHolder> $flowHolders
      *
      * @experimental stableVersion:v6.8.0 feature:FLOW_EXECUTION_AFTER_BUSINESS_PROCESS
      */

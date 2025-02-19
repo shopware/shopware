@@ -9,8 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal not intended for decoration or replacement
  *
  * @phpstan-type FlowHolder array{id: string, name: string, payload: Flow}
- * @phpstan-type FlowHolders array<FlowHolder>
- * @phpstan-type EventGroupedFlowHolders array<string, FlowHolders>
+ * @phpstan-type EventGroupedFlowHolders array<string, array<FlowHolder>>
  */
 #[Package('after-sales')]
 abstract class AbstractFlowLoader

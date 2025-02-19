@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal not intended for decoration or replacement
  *
- * @phpstan-import-type FlowHolders from AbstractFlowLoader
+ * @phpstan-import-type FlowHolder from AbstractFlowLoader
  * @phpstan-import-type EventGroupedFlowHolders from AbstractFlowLoader
  *
  * @experimental stableVersion:v6.8.0 feature:FLOW_EXECUTION_AFTER_BUSINESS_PROCESS
@@ -69,7 +69,7 @@ class BufferedFlowExecutor
     /**
      * @param EventGroupedFlowHolders $eventGroupedFlowHolders
      *
-     * @return FlowHolders
+     * @return array<FlowHolder>
      */
     private function getFlowHoldersForEvent(string $eventName, array $eventGroupedFlowHolders): array
     {

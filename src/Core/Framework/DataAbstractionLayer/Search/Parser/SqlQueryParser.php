@@ -40,6 +40,9 @@ class SqlQueryParser
     ) {
     }
 
+    /**
+     * @param list<ScoreQuery> $queries
+     */
     public function parseRanking(
         array $queries,
         EntityDefinition $definition,

@@ -19,8 +19,9 @@
     <template v-if="selectedSalesChannel">
 
         {% block sw_category_entry_point_modal_selected_sales_channel_show_in_main_navigation %}
-        <sw-switch-field
-            v-model:value="selectedSalesChannel.homeEnabled"
+
+        <mt-switch
+            v-model="selectedSalesChannel.homeEnabled"
             class="sw-category-entry-point-modal__show-in-main-navigation"
             :label="$tc('sw-category.base.entry-point-modal.showInMainNavigation')"
             :disabled="!acl.can('category.editor') || undefined"

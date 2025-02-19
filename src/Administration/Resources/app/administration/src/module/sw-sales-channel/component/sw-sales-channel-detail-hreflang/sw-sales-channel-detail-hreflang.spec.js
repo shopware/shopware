@@ -15,7 +15,7 @@ async function createWrapper(customProps = {}) {
                     'mt-card': {
                         template: '<div class="mt-card"><slot></slot></div>',
                     },
-                    'sw-switch-field': true,
+
                     'sw-entity-single-select': true,
                 },
             },
@@ -33,8 +33,8 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-hreflang
     it('should enable the sw-switch-field and the sw-entity-single-select', async () => {
         const wrapper = await createWrapper();
 
-        const switchField = wrapper.find('sw-switch-field-stub');
-        expect(switchField.attributes().disabled).toBeUndefined();
+        const switchField = wrapper.findComponent('.mt-switch');
+        expect(switchField.props().disabled).toBeUndefined();
 
         const entitySingleSelect = wrapper.find('sw-entity-single-select-stub');
         expect(entitySingleSelect.attributes().disabled).toBeUndefined();
@@ -45,8 +45,8 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-hreflang
             disabled: true,
         });
 
-        const switchField = wrapper.find('sw-switch-field-stub');
-        expect(switchField.attributes().disabled).toBe('true');
+        const switchField = wrapper.findComponent('.mt-switch');
+        expect(switchField.props().disabled).toBe(true);
 
         const entitySingleSelect = wrapper.find('sw-entity-single-select-stub');
         expect(entitySingleSelect.attributes().disabled).toBe('true');

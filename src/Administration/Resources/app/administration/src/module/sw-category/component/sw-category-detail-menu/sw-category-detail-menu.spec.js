@@ -16,14 +16,6 @@ async function createWrapper({ mediaRepositoryMock = undefined } = {}) {
                     template: '<div class="sw-media-upload-v2"></div>',
                     props: ['disabled'],
                 },
-                'sw-switch-field': {
-                    template:
-                        '<input class="sw-switch-field" type="checkbox" :value="value" @change="$emit(\'update:value\', $event.target.checked)" />',
-                    props: [
-                        'value',
-                        'disabled',
-                    ],
-                },
                 'mt-text-editor': {
                     template: '<div class="mt-text-editor"></div>',
                     props: ['disabled'],
@@ -71,7 +63,7 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
 
         const { wrapper } = await createWrapper();
 
-        const switchField = wrapper.getComponent('.sw-switch-field');
+        const switchField = wrapper.getComponent('.mt-switch');
 
         expect(switchField.props('disabled')).toBe(false);
     });
@@ -79,7 +71,7 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
     it('should disable the visibility switch field when the acl privilege is missing', async () => {
         const { wrapper } = await createWrapper();
 
-        const switchField = wrapper.getComponent('.sw-switch-field');
+        const switchField = wrapper.getComponent('.mt-switch');
 
         expect(switchField.props('disabled')).toBe(true);
     });

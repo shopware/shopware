@@ -31,13 +31,14 @@
                 :key="roleName"
             >
                 {% block sw_users_permissions_detailed_additional_permissions_additional_privileges_switches_content_switch %}
-                <sw-switch-field
+
+                <mt-switch
                     :class="'sw_users_permissions_detailed_additional_permissions_' + privilege.key + '_' + roleName"
-                    :value="isEntitySelected(roleName)"
+                    :checked="isEntitySelected(roleName)"
                     :disabled="isEntityDisabled(roleName) || disabled"
                     :label="roleName"
                     :bordered="true"
-                    @update:value="changePermissionForEntity(roleName)"
+                    @change="changePermissionForEntity(roleName)"
                 />
                 {% endblock %}
             </template>

@@ -19,8 +19,9 @@
         {% endblock %}
 
         {% block sw_promotion_v2_conditions_pre_conditions_prevent_combination %}
-        <sw-switch-field
-            v-model:value="promotion.preventCombination"
+
+        <mt-switch
+            v-model="promotion.preventCombination"
             class="sw-promotion-v2-conditions__prevent-combination"
             :disabled="!acl.can('promotion.editor')"
             :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelPreventCombination')"

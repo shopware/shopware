@@ -102,14 +102,15 @@
 
                         <div class="sw-settings-tax-detail__switches">
                             {% block sw_settings_tax_detail_content_field_default_tax_rate %}
-                            <sw-switch-field
+
+                            <mt-switch
                                 :key="isDefault"
                                 class="sw-settings-tax-detail__default-tax-rate"
                                 :label="$tc('sw-settings-tax.detail.defaultTaxLabel')"
                                 :help-text="$tc('sw-settings-tax.detail.defaultTaxHelpText')"
-                                :value="isDefault"
+                                :checked="isDefault"
                                 name="sw-field--isDefault"
-                                @update:value="onChangeDefaultTaxRate"
+                                @change="onChangeDefaultTaxRate"
                             />
                         {% endblock %}
                         </div>

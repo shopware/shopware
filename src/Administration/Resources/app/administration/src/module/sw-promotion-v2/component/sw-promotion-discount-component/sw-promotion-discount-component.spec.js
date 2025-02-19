@@ -24,14 +24,6 @@ async function createWrapper() {
                             'disabled',
                         ],
                     },
-                    'sw-switch-field': {
-                        template:
-                            '<input class="sw-field sw-switch-field" type="checkbox" :value="value" @change="$emit(\'update:value\', $event.target.checked)" />',
-                        props: [
-                            'value',
-                            'disabled',
-                        ],
-                    },
                     'sw-promotion-v2-rule-select': {
                         template: '<div class="sw-promotion-v2-rule-select"></div>',
                     },
@@ -212,8 +204,8 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-discount-component',
 
         expect(wrapper.find('.sw-promotion-discount-component__select-discount-rules').exists()).toBeFalsy();
         await wrapper
-            .getComponent('.sw-switch-field[label="sw-promotion.detail.main.discounts.flagProductScopeLabel"]')
-            .vm.$emit('update:value', true);
+            .find('.mt-switch input[aria-label="sw-promotion.detail.main.discounts.flagProductScopeLabel"]')
+            .setChecked(true);
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 

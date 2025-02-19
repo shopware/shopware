@@ -112,8 +112,9 @@
                         />
                         {% endblock %}
                         {% block sw_settings_shipping_detail_base_content_field_active %}
-                        <sw-switch-field
-                            v-model:value="shippingMethod.active"
+
+                        <mt-switch
+                            v-model="shippingMethod.active"
                             name="sw-field--shippingMethod-active"
                             bordered
                             :disabled="!acl.can('shipping.editor') || undefined"

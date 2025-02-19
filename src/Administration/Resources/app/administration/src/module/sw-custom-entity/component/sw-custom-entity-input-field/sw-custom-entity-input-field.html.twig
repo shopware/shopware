@@ -44,14 +44,14 @@
         @update:value="onChange"
     />
 
-    <sw-switch-field
+    <mt-switch
         v-else-if="type === 'boolean'"
         class="sw-custom-entity-input-field__boolean"
-        :value="currentValue"
+        :checked="currentValue"
         :label="label"
         :placeholder="placeholder"
         :help-text="helpText"
-        @update:value="onChange"
+        @change="onChange"
     />
 
     <sw-datepicker

@@ -55,9 +55,10 @@
         {% block sw_custom_field_detail_modal_required %}{% endblock %}
 
         {% block sw_custom_field_detail_modal_allow_cart_expose %}
-        <sw-switch-field
+
+        <mt-switch
             v-if="isProductCustomField"
-            v-model:value="currentCustomField.allowCartExpose"
+            v-model="currentCustomField.allowCartExpose"
             v-tooltip="getCartExposeTooltipConfig()"
             bordered
             :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipAllowCartExpose')"
@@ -69,8 +70,9 @@
         {% endblock %}
 
         {% block sw_custom_field_detail_modal_allow_customer_write %}
-        <sw-switch-field
-            v-model:value="currentCustomField.allowCustomerWrite"
+
+        <mt-switch
+            v-model="currentCustomField.allowCustomerWrite"
             bordered
             :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipAllowCustomerWrite')"
             class="sw-custom-field-detail__allow-customer-write"
@@ -80,8 +82,9 @@
         {% endblock %}
 
         {% block sw_custom_field_detail_modal_store_api_aware %}
-        <sw-switch-field
-            v-model:value="currentCustomField.storeApiAware"
+
+        <mt-switch
+            v-model="currentCustomField.storeApiAware"
             bordered
             :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipStoreApiAware')"
             class="sw-custom-field-detail__store-api-aware"

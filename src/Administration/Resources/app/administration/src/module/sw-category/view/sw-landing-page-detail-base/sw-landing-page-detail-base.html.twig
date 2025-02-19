@@ -27,8 +27,9 @@
             {% endblock %}
 
             {% block sw_landing_page_detail_base_information_active %}
-            <sw-switch-field
-                v-model:value="landingPage.active"
+
+            <mt-switch
+                v-model="landingPage.active"
                 class="sw-landing-page-detail-base__active"
                 name="landingPageActive"
                 :disabled="!acl.can('landing_page.editor')"

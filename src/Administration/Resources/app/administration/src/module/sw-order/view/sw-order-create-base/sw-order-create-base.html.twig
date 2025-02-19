@@ -110,8 +110,9 @@
                     >
                         <div>
                             {% block sw_order_create_base_line_items_switch_promotions %}
-                            <sw-switch-field
-                                v-model:value="disabledAutoPromotionVisibility"
+
+                            <mt-switch
+                                v-model="disabledAutoPromotionVisibility"
                                 class="sw-order-create-summary__switch-promotions"
                                 :label="$tc('sw-order.promotionModal.labelTitle')"
                             />

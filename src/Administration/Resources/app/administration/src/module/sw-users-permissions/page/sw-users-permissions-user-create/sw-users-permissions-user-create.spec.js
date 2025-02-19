@@ -93,7 +93,7 @@ async function createWrapper(privileges = []) {
                         props: ['value'],
                     },
                     'sw-select-field': true,
-                    'sw-switch-field': true,
+
                     'sw-entity-multi-select': true,
                     'sw-single-select': true,
                     'sw-skeleton': true,

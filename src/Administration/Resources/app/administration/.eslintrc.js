@@ -207,10 +207,12 @@ module.exports = {
                 'sw-deprecation-rules/no-deprecated-components': ['error', {
                     fix: true,
                     activatedComponents: [
+                        'sw-button',
                         'sw-alert',
                         'sw-button',
                         'sw-text-field',
                         'sw-card',
+                        'sw-switch-field',
                     ],
                 }],
                 // @deprecated v.6.7.0.0 - will be error in v.6.7
@@ -251,7 +253,6 @@ module.exports = {
                 'jest/require-top-level-describe': 'error',
                 'jest/prefer-to-contain': 'error',
                 'jest/prefer-to-have-length': 'error',
-                'jest/no-disabled-tests': 'warn',
                 'jest/consistent-test-it': ['error', { fn: 'it', withinDescribe: 'it' }],
                 'jest/valid-expect': [
                     'error',

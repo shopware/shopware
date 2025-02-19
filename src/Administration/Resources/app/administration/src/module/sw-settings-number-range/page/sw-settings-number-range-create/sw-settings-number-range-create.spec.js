@@ -62,7 +62,7 @@ async function createWrapper() {
                     'mt-card': {
                         template: '<div class="mt-card"><slot /></div>',
                     },
-                    'sw-switch-field': true,
+
                     'sw-number-field': true,
                     'sw-text-field': {
                         template: '<div class="sw-field"></div>',

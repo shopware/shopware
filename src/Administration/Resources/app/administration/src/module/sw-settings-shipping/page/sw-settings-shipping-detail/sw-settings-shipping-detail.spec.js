@@ -72,10 +72,6 @@ async function createWrapper(privileges = [], props = {}) {
                         props: ['disabled'],
                         template: '<input class="sw-field" :disabled="disabled" />',
                     },
-                    'sw-switch-field': {
-                        props: ['disabled'],
-                        template: '<input class="sw-field" :disabled="disabled" />',
-                    },
                     'sw-textarea-field': {
                         props: ['disabled'],
                         template: '<input class="sw-field sw-textarea-field" :disabled="disabled" />',

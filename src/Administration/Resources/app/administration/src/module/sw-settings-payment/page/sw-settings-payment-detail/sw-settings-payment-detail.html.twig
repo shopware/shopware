@@ -167,8 +167,9 @@
                             gap="0px 30px"
                         >
                             {% block sw_settings_payment_detail_content_field_active %}
-                            <sw-switch-field
-                                v-model:value="paymentMethod.active"
+
+                            <mt-switch
+                                v-model="paymentMethod.active"
                                 name="sw-field--paymentMethod-active"
                                 class="sw-settings-payment-detail__field-active"
                                 :disabled="!acl.can('payment.editor') || undefined"
@@ -177,8 +178,9 @@
                             {% endblock %}
 
                             {% block sw_settings_payment_detail_content_field_after_order_enabled %}
-                            <sw-switch-field
-                                v-model:value="paymentMethod.afterOrderEnabled"
+
+                            <mt-switch
+                                v-model="paymentMethod.afterOrderEnabled"
                                 name="sw-field--paymentMethod-afterOrderEnabled"
                                 class="sw-settings-payment-detail__field-after-order"
                                 :disabled="!acl.can('payment.editor') || undefined"

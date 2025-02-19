@@ -87,8 +87,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'sw-single-select': await wrapTestComponent('sw-single-select'),
                     'sw-number-field': await wrapTestComponent('sw-number-field'),
                     'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
@@ -150,7 +149,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'sw-maintain-currencies-modal': true,
                     'sw-product-variant-info': true,
                     'mt-checkbox': true,
-                    'mt-switch': true,
                     'mt-textarea': true,
                     'sw-textarea-field-deprecated': true,
                     'mt-text-field': true,
@@ -383,7 +381,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         await flushPromises();
 
-        await activeField.find('.sw-field--switch__input input').setValue('checked');
+        await activeField.find('.mt-switch input').setValue('checked');
 
         expect(wrapper.vm.bulkEditProduct.active.isChanged).toBeTruthy();
 

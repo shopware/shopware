@@ -63,9 +63,10 @@
             {% endblock %}
 
             {% block sw_flow_detail_general_information_active %}
-            <sw-switch-field
+
+            <mt-switch
                 v-if="!isFlowTemplate"
-                v-model:value="flow.active"
+                v-model="flow.active"
                 name="sw-field--flow-active"
                 class="sw-flow-detail-general__general-active"
                 :disabled="!acl.can('flow.editor') || isUnknownTrigger || undefined"

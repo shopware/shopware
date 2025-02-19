@@ -120,8 +120,9 @@
                         class="sw-product-detail-cross-selling__inherit-toggle-wrapper"
                         :class="{ 'is--inherited': isInherited }"
                     >
-                        <sw-switch-field
-                            v-model:value="isInherited"
+
+                        <mt-switch
+                            v-model="isInherited"
                             class="sw-product-detail-cross-selling__inherit-switch"
                             :disabled="!acl.can('product.editor')"
                         />

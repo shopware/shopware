@@ -44,7 +44,7 @@ async function createWrapper() {
                 'sw-order-create-details-footer': true,
                 'sw-order-promotion-tag-field': true,
                 'sw-order-line-items-grid-sales-channel': true,
-                'sw-switch-field': true,
+
                 'sw-order-create-address-modal': true,
                 'sw-order-create-promotion-modal': true,
                 'sw-error-summary': true,

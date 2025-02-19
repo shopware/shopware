@@ -148,7 +148,7 @@ async function createWrapper(privileges = []) {
                     'sw-language-info': true,
                     'sw-button-process': true,
                     'sw-field': true,
-                    'sw-switch-field': true,
+
                     'sw-icon': true,
                     'sw-simple-search-field': true,
                     'sw-context-menu-item': true,

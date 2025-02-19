@@ -104,8 +104,9 @@
 
                             <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/attributes-order -->
                             {% block sw_settings_customer_group_detail_content_card_registration_form %}
-                            <sw-switch-field
-                                v-model:value="customerGroup.registrationActive"
+
+                            <mt-switch
+                                v-model="customerGroup.registrationActive"
                                 name="sw-field--customerGroup-registrationActive"
                                 class="sw-settings-customer-group-detail__registration-form-switch"
                                 :label="$tc('sw-settings-customer-group.detail.registrationForm')"
@@ -164,9 +165,11 @@
                     {% endblock %}
 
                     {% block sw_settings_customer_group_detail_content_registration_card_only_companies_can_register %}
-                    <sw-switch-field
-                        v-model:value="customerGroup.registrationOnlyCompanyRegistration"
+
+                    <mt-switch
+                        v-model="customerGroup.registrationOnlyCompanyRegistration"
                         name="sw-field--customerGroup-registrationOnlyCompanyRegistration"
+                        class="sw-settings-customer-group-detail__registration-only-companies-can-register"
                         :label="$tc('sw-settings-customer-group.registration.onlyCompaniesCanRegister')"
                         :help-text="$tc('sw-settings-customer-group.registration.onlyCompaniesCanRegisterHelpText')"
                         :disabled="!acl.can('customer_groups.editor') || undefined"

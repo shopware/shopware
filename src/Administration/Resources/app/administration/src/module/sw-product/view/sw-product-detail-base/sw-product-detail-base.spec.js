@@ -46,7 +46,7 @@ async function createWrapper() {
                 'sw-media-modal-v2': true,
                 'sw-container': true,
                 'sw-text-editor': true,
-                'sw-switch-field': true,
+
                 'sw-product-media-form': true,
                 'sw-entity-single-select': true,
                 'sw-help-text': true,

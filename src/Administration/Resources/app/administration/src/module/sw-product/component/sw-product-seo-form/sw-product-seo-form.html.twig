@@ -66,8 +66,9 @@
     <template v-if="!hasParent && hasVariants">
 
         {% block sw_product_seo_form_canonical_url_switch %}
-        <sw-switch-field
-            v-model:value="canonicalProductSwitchEnabled"
+
+        <mt-switch
+            v-model="canonicalProductSwitchEnabled"
             :label="$tc('sw-product.seoForm.labelCanonicalUrlMode')"
         />
         {% endblock %}

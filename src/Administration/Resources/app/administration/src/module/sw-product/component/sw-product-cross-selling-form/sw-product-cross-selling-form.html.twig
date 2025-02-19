@@ -44,8 +44,9 @@
                 />
                 {% endblock %}
                 {% block sw_prduct_cross_selling_form_active_field %}
-                <sw-switch-field
-                    v-model:value="crossSelling.active"
+
+                <mt-switch
+                    v-model="crossSelling.active"
                     class="sw-product-detail-cross-selling__active-switch"
                     :label="$tc('sw-product.crossselling.inputCrossSellingActive')"
                     :disabled="!allowEdit"

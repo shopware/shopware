@@ -28,7 +28,7 @@ describe('src/module/sw-settings-mailer/component/sw-settings-mailer-smtp', () =
                         'sw-base-field': await wrapTestComponent('sw-base-field'),
                         'sw-field-error': true,
                         'sw-single-select': true,
-                        'sw-switch-field': true,
+
                         'sw-password-field': true,
                         'sw-help-text': true,
                         'sw-field-copyable': true,

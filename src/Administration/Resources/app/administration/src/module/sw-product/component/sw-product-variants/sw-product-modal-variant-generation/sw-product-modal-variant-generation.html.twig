@@ -56,8 +56,9 @@
         <div v-if="activeTab == 'options'">
             <p>{{ $tc('sw-product.variations.configuratorModal.selectOptionsExplanation') }}</p>
             {% block sw_product_modal_variant_generation_sidebar_add_only_selected %}
-            <sw-switch-field
-                v-model:value="isAddOnly"
+
+            <mt-switch
+                v-model="isAddOnly"
                 :label="$tc('sw-product.variations.configuratorModal.addVariantsOnly')"
             />
             {% endblock %}
@@ -166,9 +167,10 @@
             </div>
 
             <div class="sw-product-modal-variant-generation__upload-all-container">
-                <sw-switch-field
+
+                <mt-switch
                     :label="$tc('sw-product.variations.configuratorModal.digitalVariantSwitch')"
-                    @update:value="onChangeAllVariantValues"
+                    @change="onChangeAllVariantValues"
                 />
                 <div class="sw-product-modal-variant-generation__upload-all">
                     <sw-upload-listener
@@ -231,10 +233,11 @@
                         :key="item.id"
                         class="sw-data-grid__item"
                     >
-                        <sw-switch-field
+
+                        <mt-switch
                             label="Digital"
-                            :value="item.productStates.includes('is-download')"
-                            @update:value="(event) => onChangeVariantValue(event, item)"
+                            :checked="item.productStates.includes('is-download')"
+                            @change="(event) => onChangeVariantValue(event, item)"
                         />
                         <sw-upload-listener
                             :upload-tag="item.productNumber"

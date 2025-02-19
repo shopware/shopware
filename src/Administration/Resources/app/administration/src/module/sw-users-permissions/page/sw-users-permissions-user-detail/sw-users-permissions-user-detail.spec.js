@@ -140,7 +140,7 @@ async function createWrapper(
                         sync: true,
                     }),
                     'sw-select-field': true,
-                    'sw-switch-field': true,
+
                     'sw-entity-multi-select': true,
                     'sw-single-select': true,
                     'sw-icon': true,

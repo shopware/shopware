@@ -22,8 +22,9 @@
                 class="sw-settings-tag-detail-assignments__filter-selected"
                 divider="bottom"
             >
-                <sw-switch-field
-                    v-model:value="showSelected"
+
+                <mt-switch
+                    v-model="showSelected"
                     :disabled="isLoading"
                     :label="$tc('sw-settings-tag.detail.assignments.showSelected')"
                 />

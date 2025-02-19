@@ -101,8 +101,9 @@
         {% endblock %}
 
         {% block sw_promotion_v2_detail_base_general_active %}
-        <sw-switch-field
-            v-model:value="promotion.active"
+
+        <mt-switch
+            v-model="promotion.active"
             class="sw-promotion-v2-detail-base__field-active"
             :label="$tc('sw-promotion-v2.detail.base.general.activeLabel')"
             :disabled="!acl.can('promotion.editor')"

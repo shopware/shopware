@@ -191,7 +191,7 @@ async function createWrapper() {
 
                     'sw-upload-listener': true,
                     'sw-media-compact-upload-v2': true,
-                    'sw-switch-field': true,
+
                     'sw-data-grid': true,
                     'sw-card-filter': true,
                     'sw-pagination': true,

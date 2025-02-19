@@ -31,7 +31,7 @@ async function createWrapper(category = {}) {
                 },
                 'sw-single-select': true,
                 'sw-entity-single-select': true,
-                'sw-switch-field': true,
+
                 'sw-category-tree-field': true,
             },
         },
@@ -61,7 +61,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
         const textField = wrapper.findComponent('.mt-text-field');
         expect(textField.props().disabled).toBeFalsy();
 
-        const newTabField = wrapper.find('sw-switch-field-stub');
+        const newTabField = wrapper.find('.mt-switch');
         expect(newTabField.attributes().disabled).toBeFalsy();
     });
 
@@ -80,7 +80,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
         const textField = wrapper.findComponent('.mt-text-field');
         expect(textField.props().disabled).toBeFalsy();
 
-        const newTabField = wrapper.find('sw-switch-field-stub');
+        const newTabField = wrapper.find('.mt-switch');
         expect(newTabField.attributes().disabled).toBeFalsy();
     });
 
@@ -108,7 +108,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
         expect(productSelectField.attributes().disabled).toBeFalsy();
         expect(productSelectField.attributes().entity).toBe('product');
 
-        const newTabField = wrapper.find('sw-switch-field-stub');
+        const newTabField = wrapper.find('.mt-switch');
         expect(newTabField.attributes().disabled).toBeFalsy();
     });
 
@@ -162,8 +162,8 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
         const externalLinkField = wrapper.findComponent('.mt-text-field');
         expect(externalLinkField.props().disabled).toBeTruthy();
 
-        const newTabField = wrapper.find('sw-switch-field-stub');
-        expect(newTabField.attributes().disabled).toBeTruthy();
+        const newTabField = wrapper.findComponent('.mt-switch');
+        expect(newTabField.props().disabled).toBe(true);
     });
 
     it('should show only categories with type page', async () => {

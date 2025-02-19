@@ -21,7 +21,6 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
                         'sw-skeleton': true,
                         'sw-select-field': true,
                         'sw-radio-field': true,
-                        'sw-switch-field': true,
                         'sw-settings-mailer-smtp': true,
                         'sw-card-view': true,
                     },

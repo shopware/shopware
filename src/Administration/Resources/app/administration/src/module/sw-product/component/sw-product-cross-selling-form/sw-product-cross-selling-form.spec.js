@@ -26,7 +26,7 @@ async function createWrapper() {
                     'sw-context-button': true,
                     'sw-text-field': true,
                     'sw-context-menu-item': true,
-                    'sw-switch-field': true,
+
                     'sw-select-field': true,
                     'sw-number-field': true,
                     'sw-entity-single-select': true,

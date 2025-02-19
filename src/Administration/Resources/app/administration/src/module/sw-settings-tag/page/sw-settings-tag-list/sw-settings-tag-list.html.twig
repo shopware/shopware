@@ -110,18 +110,20 @@
                         {% endblock %}
 
                         {% block sw_settings_tag_list_grid_toolbar_filter_duplicate %}
-                        <sw-switch-field
-                            v-model:value="duplicateFilter"
+
+                        <mt-switch
+                            v-model="duplicateFilter"
                             :label="$tc('sw-settings-tag.list.filterDuplicate')"
-                            @update:value="onFilter"
+                            @update:model-value="onFilter"
                         />
                         {% endblock %}
 
                         {% block sw_settings_tag_list_grid_toolbar_filter_empty %}
-                        <sw-switch-field
-                            v-model:value="emptyFilter"
+
+                        <mt-switch
+                            v-model="emptyFilter"
                             :label="$tc('sw-settings-tag.list.filterEmpty')"
-                            @update:value="onFilter"
+                            @update:model-value="onFilter"
                         />
                         {% endblock %}
 

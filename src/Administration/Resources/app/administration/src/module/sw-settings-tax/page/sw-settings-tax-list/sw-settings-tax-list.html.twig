@@ -284,11 +284,11 @@
                                         </router-link>
                                     </div>
 
-                                    <sw-switch-field
+                                    <mt-switch
                                         :label="$tc('sw-settings-tax.list.taxProvider.labelActive')"
                                         :disabled="!acl.can('tax.editor') || undefined"
-                                        :value="taxProvider.active"
-                                        @update:value="onChangeTaxProviderActive(taxProvider)"
+                                        :checked="taxProvider.active"
+                                        @change="onChangeTaxProviderActive(taxProvider)"
                                     />
                                 </div>
                             </template>

@@ -7,8 +7,8 @@
     <div class="sw-extension-card-base__switch">
         {% block sw_extension_card_base_activation_switch_switch %}
 
-        <sw-switch-field
-            v-model:value="isActive"
+        <mt-switch
+            v-model="isActive"
             v-tooltip="{
                 showDelay: 300,
                 message: $tc('sw-extension-store.component.sw-extension-card-base.allowDisableTooltip'),

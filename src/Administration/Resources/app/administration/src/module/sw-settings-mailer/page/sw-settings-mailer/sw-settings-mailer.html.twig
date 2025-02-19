@@ -101,10 +101,10 @@
                 </div>
 
                 <p v-html="$tc('sw-settings-mailer.helpText')"></p>
-                <sw-switch-field
+
+                <mt-switch
                     v-if="!isSmtpMode"
-                    v-model:value="mailerSettings['core.mailerSettings.disableDelivery']"
-                    size="small"
+                    v-model="mailerSettings['core.mailerSettings.disableDelivery']"
                     :label="$tc('sw-settings-mailer.card-smtp.disable-delivery')"
                 />
             </mt-card>

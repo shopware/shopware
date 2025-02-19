@@ -21,7 +21,7 @@ class CountryTranslationEntity extends TranslationEntity
     /**
      * @var array<array<string, array<string, string>>>|null
      */
-    protected ?array $addressFormat = [];
+    protected ?array $addressFormat = null;
 
     public function getCountryId(): string
     {

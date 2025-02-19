@@ -3046,21 +3046,6 @@ parameters:
 			path: src/Core/System/CustomEntity/Xml/Field/FieldFactory.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomField\\\\Aggregate\\\\CustomFieldSet\\\\CustomFieldSetEntity\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/CustomField/Aggregate/CustomFieldSet/CustomFieldSetEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomField\\\\Aggregate\\\\CustomFieldSet\\\\CustomFieldSetEntity\\:\\:setConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/CustomField/Aggregate/CustomFieldSet/CustomFieldSetEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\CustomField\\\\Aggregate\\\\CustomFieldSet\\\\CustomFieldSetEntity\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/CustomField/Aggregate/CustomFieldSet/CustomFieldSetEntity.php
-
-		-
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 1
 			path: src/Core/System/Language/Rule/LanguageRule.php
@@ -3094,21 +3079,6 @@ parameters:
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 1
 			path: src/Core/System/NumberRange/ValueGenerator/Pattern/IncrementStorage/IncrementStorageRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelTranslation\\\\SalesChannelTranslationEntity\\:\\:getHomeSlotConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Aggregate/SalesChannelTranslation/SalesChannelTranslationEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelTranslation\\\\SalesChannelTranslationEntity\\:\\:setHomeSlotConfig\\(\\) has parameter \\$homeSlotConfig with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Aggregate/SalesChannelTranslation/SalesChannelTranslationEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelTranslation\\\\SalesChannelTranslationEntity\\:\\:\\$homeSlotConfig type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Aggregate/SalesChannelTranslation/SalesChannelTranslationEntity.php
 
 		-
 			message: "#^Expected domain exception class Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelException, got Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderException$#"
@@ -3379,21 +3349,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\User\\\\Aggregate\\\\UserAccessKey\\\\UserAccessKeyCollection\\:\\:getUserIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/User/Aggregate/UserAccessKey/UserAccessKeyCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\User\\\\Aggregate\\\\UserConfig\\\\UserConfigEntity\\:\\:getValue\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/User/Aggregate/UserConfig/UserConfigEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\User\\\\Aggregate\\\\UserConfig\\\\UserConfigEntity\\:\\:setValue\\(\\) has parameter \\$value with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/User/Aggregate/UserConfig/UserConfigEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\User\\\\Aggregate\\\\UserConfig\\\\UserConfigEntity\\:\\:\\$value type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/User/Aggregate/UserConfig/UserConfigEntity.php
 
 		-
 			message: "#^Expected domain exception class Shopware\\\\Core\\\\System\\\\User\\\\UserException, got Shopware\\\\Core\\\\Framework\\\\Routing\\\\RoutingException$#"

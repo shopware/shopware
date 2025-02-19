@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\FilteredBulkEntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
@@ -130,9 +129,7 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
         $definitionRegistry->replaceArgument(2, $entityNameMap);
         $definitionRegistry->replaceArgument(3, $repositoryNameMap);
 
-        if (Feature::isActive('DYNAMIC_ENTITY_EXTENSIONS')) {
-            $this->addExtensions($container, $baseDefinitions, $salesChannelDefinitions);
-        }
+        $this->addExtensions($container, $baseDefinitions, $salesChannelDefinitions);
     }
 
     /**

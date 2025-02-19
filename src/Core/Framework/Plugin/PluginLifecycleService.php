@@ -9,6 +9,7 @@ use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -86,6 +87,7 @@ class PluginLifecycleService
         private readonly CustomEntitySchemaUpdater $customEntitySchemaUpdater,
         private readonly PluginService $pluginService,
         private readonly VersionSanitizer $versionSanitizer,
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
     ) {
     }
 
@@ -348,7 +350,7 @@ class PluginLifecycleService
 
         // only skip rebuild if plugin has overwritten rebuildContainer method and source is system source (CLI)
         if ($pluginBaseClass->rebuildContainer() || !$shopwareContext->getSource() instanceof SystemSource) {
-            $this->rebuildContainerWithNewPluginState($plugin);
+            $this->rebuildContainerWithNewPluginState($plugin, $pluginBaseClass->getNamespace());
         }
 
         $pluginBaseClass = $this->getPluginInstance($pluginBaseClassString);
@@ -435,7 +437,7 @@ class PluginLifecycleService
 
             // only skip rebuild if plugin has overwritten rebuildContainer method and source is system source (CLI)
             if ($pluginBaseClass->rebuildContainer() || !$shopwareContext->getSource() instanceof SystemSource) {
-                $this->rebuildContainerWithNewPluginState($plugin);
+                $this->rebuildContainerWithNewPluginState($plugin, $pluginBaseClass->getNamespace());
             }
 
             $this->updatePluginData(
@@ -582,7 +584,7 @@ class PluginLifecycleService
         $this->pluginRepo->update([$pluginData], $context);
     }
 
-    private function rebuildContainerWithNewPluginState(PluginEntity $plugin): void
+    private function rebuildContainerWithNewPluginState(PluginEntity $plugin, string $pluginNamespace): void
     {
         $kernel = $this->container->get('kernel');
 
@@ -598,6 +600,10 @@ class PluginLifecycleService
             if ($pluginData['baseClass'] === $plugin->getBaseClass()) {
                 $plugins[$i]['active'] = $plugin->getActive();
             }
+        }
+
+        if (!$plugin->getActive()) {
+            $this->clearEntityExtensions($pluginNamespace);
         }
 
         /*
@@ -617,6 +623,18 @@ class PluginLifecycleService
 
         $this->container = $newContainer;
         $this->eventDispatcher = $newContainer->get('event_dispatcher');
+    }
+
+    private function clearEntityExtensions(string $pluginNamespace): void
+    {
+        if ($pluginNamespace === '') {
+            return;
+        }
+
+        $definitions = $this->definitionRegistry->getDefinitions();
+        foreach ($definitions as $definition) {
+            $definition->removeExtensions($pluginNamespace);
+        }
     }
 
     private function getPluginInstance(string $pluginBaseClassString): Plugin

@@ -21,131 +21,41 @@ class CurrencyEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $isoCode;
+    protected string $isoCode;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $factor;
+    protected float $factor;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $symbol;
+    protected string $symbol;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shortName;
+    protected ?string $shortName = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $position;
+    protected int $position;
 
-    /**
-     * @var CurrencyTranslationCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translations;
+    protected ?CurrencyTranslationCollection $translations = null;
 
-    /**
-     * @var OrderCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orders;
+    protected ?OrderCollection $orders = null;
 
-    /**
-     * @var SalesChannelCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannels;
+    protected ?SalesChannelCollection $salesChannels = null;
 
-    /**
-     * @var SalesChannelCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannelDefaultAssignments;
+    protected ?SalesChannelCollection $salesChannelDefaultAssignments = null;
 
-    /**
-     * @var SalesChannelDomainCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannelDomains;
+    protected ?SalesChannelDomainCollection $salesChannelDomains = null;
 
-    /**
-     * @var PromotionDiscountPriceCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $promotionDiscountPrices;
+    protected ?PromotionDiscountPriceCollection $promotionDiscountPrices = null;
 
-    /**
-     * @var bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $isSystemDefault;
+    protected ?bool $isSystemDefault = null;
 
-    /**
-     * @var ProductExportCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productExports;
+    protected ?ProductExportCollection $productExports = null;
 
-    /**
-     * @var CurrencyCountryRoundingCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $countryRoundings;
+    protected ?CurrencyCountryRoundingCollection $countryRoundings = null;
 
-    /**
-     * @var CashRoundingConfig
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $itemRounding;
+    protected CashRoundingConfig $itemRounding;
 
-    /**
-     * @var CashRoundingConfig
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $totalRounding;
+    protected CashRoundingConfig $totalRounding;
 
-    /**
-     * @var float|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $taxFreeFrom;
+    protected ?float $taxFreeFrom = null;
 
     public function getIsoCode(): string
     {

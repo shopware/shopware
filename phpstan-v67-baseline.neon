@@ -14,8 +14,3 @@ parameters:
             message: '#^.*$#'
             count: 4
             path: tests/devops/Core/Test/AnnotationTagTest.php
-
-        - # issue 6556
-            message: '#^.*$#'
-            count: 3
-            path: tests/unit/Elasticsearch/Product/ProductSearchQueryBuilderTest.php

@@ -330,14 +330,15 @@ class Translator extends AbstractTranslator
     {
         $this->resolveSalesChannelId();
 
-        $key = \sprintf('translation.catalog.%s.%s', $this->salesChannelId ?: 'DEFAULT', $snippetSetId);
+        $effectiveLocale = $fallbackLocale ?? $catalog->getLocale();
+        $key = \sprintf('translation.catalog.%s.%s', $this->salesChannelId ?: 'DEFAULT', $snippetSetId. '-' . $effectiveLocale);
 
-        return $this->cache->get($key, function (ItemInterface $item) use ($catalog, $snippetSetId, $fallbackLocale) {
+        return $this->cache->get($key, function (ItemInterface $item) use ($catalog, $snippetSetId, $effectiveLocale) {
             $item->tag(self::ALL_CACHE_TAG);
             $item->tag(self::tag($snippetSetId));
             $item->tag(self::tag($this->salesChannelId ?: 'DEFAULT'));
 
-            return $this->snippetService->getStorefrontSnippets($catalog, $snippetSetId, $fallbackLocale, $this->salesChannelId);
+            return $this->snippetService->getStorefrontSnippets($catalog, $snippetSetId, $effectiveLocale, $this->salesChannelId);
         });
     }
 

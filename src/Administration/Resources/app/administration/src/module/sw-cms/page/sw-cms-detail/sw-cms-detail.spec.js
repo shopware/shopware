@@ -33,6 +33,7 @@ async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
                         desktop: true,
                     },
                 ],
+                isNew: () => false,
             }),
         ),
         save: jest.fn(() => Promise.resolve()),

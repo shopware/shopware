@@ -102,7 +102,6 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertInstanceOf(EntityRepository::class, static::getContainer()->get('attribute_entity_currency.repository'));
         static::assertInstanceOf(EntityRepository::class, static::getContainer()->get('attribute_entity_agg.repository'));
         static::assertInstanceOf(EntityRepository::class, static::getContainer()->get('attribute_entity_translation.repository'));
-
     }
 
     public function testAssociationDefinitions(): void
@@ -340,6 +339,7 @@ class AttributeEntityIntegrationTest extends TestCase
             'customFields' => null,
             'emptyString' => '',
             'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
+            'ownMapping' => [],
         ], $json);
     }
 

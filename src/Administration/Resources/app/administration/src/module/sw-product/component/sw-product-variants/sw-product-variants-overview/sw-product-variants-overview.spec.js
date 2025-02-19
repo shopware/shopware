@@ -494,6 +494,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
     it('should contain a currencyColumns computed property', async () => {
         const wrapper = await createWrapper();
 
+        Shopware.Store.get('swProductDetail').currencies = undefined;
+
         expect(wrapper.vm.currencyColumns).toEqual([]);
 
         Shopware.Store.get('swProductDetail').currencies = [

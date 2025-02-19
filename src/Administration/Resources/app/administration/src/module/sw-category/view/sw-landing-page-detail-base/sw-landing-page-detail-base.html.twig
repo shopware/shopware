@@ -2,7 +2,7 @@
 <div class="sw-landing-page-detail-base">
 
     {% block sw_landing_page_detail_base_information %}
-    <sw-card
+    <mt-card
         position-identifier="sw-landing-page-detail-base"
         :title="$tc('sw-landing-page.base.general.headlineInformationCard')"
         :is-loading="isLoading"
@@ -60,11 +60,11 @@
             :disabled="!acl.can('landing_page.editor')"
         />
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_landing_page_detail_base_seo %}
-    <sw-card
+    <mt-card
         position-identifier="sw-landing-page-detail-seo"
         :title="$tc('sw-landing-page.base.seo.title')"
         :is-loading="isLoading"
@@ -129,11 +129,11 @@
         </div>
         {% endblock %}
 
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_landing_page_detail_base_attribute_sets %}
-    <sw-card
+    <mt-card
         v-if="customFieldSetsArray.length > 0"
         position-identifier="sw-landing-page-detail-attribute-sets"
         :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
@@ -143,7 +143,7 @@
             :entity="landingPage"
             :sets="customFieldSetsArray"
         />
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>
 {% endblock %}

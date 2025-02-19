@@ -18,7 +18,6 @@
     {% block sw_settings_number_range_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_number_range_detail_actions_abort %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="tooltipCancel"
             :disabled="isLoading"
@@ -59,7 +58,7 @@
                 {% endblock %}
 
                 {% block sw_settings_number_range_detail_content_card %}
-                <sw-card
+                <mt-card
                     :title="$tc('sw-settings-number-range.detail.configCard')"
                     position-identifier="sw-settings-number-range-detail-content"
                 >
@@ -202,11 +201,11 @@
                         />
                         {% endblock %}
                     </sw-container>
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_settings_number_range_detail_assignment_card %}
-                <sw-card
+                <mt-card
                     :title="$tc('sw-settings-number-range.detail.assignmentCard')"
                     position-identifier="sw-settings-number-range-detail-assignment"
                     class="sw-settings-number-range-detail-assignment"
@@ -272,11 +271,11 @@
                         />
                         {% endblock %}
                     </sw-container>
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_settings_number_range_detail_custom_field_sets %}
-                <sw-card
+                <mt-card
                     v-if="showCustomFields"
                     position-identifier="sw-settings-number-range-detail-custom-field-sets"
                     :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
@@ -287,7 +286,7 @@
                         :disabled="!acl.can('number_ranges.editor')"
                         :sets="customFieldSets"
                     />
-                </sw-card>
+                </mt-card>
                 {% endblock %}
             </template>
         </sw-card-view>

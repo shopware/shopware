@@ -108,7 +108,7 @@ async function createWrapper(privileges = []) {
                 validationService: {},
             },
             stubs: {
-                'sw-card': {
+                'mt-card': {
                     data() {
                         return { currentSalesChannelId: null };
                     },

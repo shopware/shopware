@@ -72,7 +72,6 @@
 
         <template #actions>
             {% block sw_product_properties_empty_state_button_property %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 ghost
                 @click="onOpenProperties"
@@ -86,7 +85,6 @@
 
     <template #modal-footer>
         {% block sw_product_add_properties_modal_button_cancel %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             size="small"
             @click="onCancel"
@@ -96,7 +94,6 @@
         {% endblock %}
 
         {% block sw_product_add_properties_modal_button_save %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-if="showSaveButton"
             class="sw-product-add-properties-modal__button-save"

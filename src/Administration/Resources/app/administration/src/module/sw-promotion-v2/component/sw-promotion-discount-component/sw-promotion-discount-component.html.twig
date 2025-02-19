@@ -1,5 +1,5 @@
 {% block sw_promotion_discount_component %}
-<sw-card
+<mt-card
     class="sw-promotion-discount-component"
     position-identifier="sw-promotion-discount-component"
     :title="$tc('sw-promotion.detail.main.discounts.card')"
@@ -295,7 +295,6 @@
         </sw-one-to-many-grid>
 
         <template #modal-footer>
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 variant="primary"
                 size="small"
@@ -324,7 +323,6 @@
         {% block sw_promotion_detail_discounts_modal_delete_footer %}
         <template #modal-footer>
             {% block sw_promotion_detail_discounts_modal_delete_action_cancel %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
                 @click="onCloseDeleteModal"
@@ -334,7 +332,6 @@
             {% endblock %}
 
             {% block sw_promotion_detail_discounts_modal_delete_action_delete %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
                 variant="critical"
@@ -348,5 +345,5 @@
         {% endblock %}
     </sw-modal>
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

@@ -7,8 +7,6 @@ async function createWrapper(privileges = []) {
     return mount(await wrapTestComponent('sw-profile-index-general', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-text-field': true,
                 'sw-select-field': true,

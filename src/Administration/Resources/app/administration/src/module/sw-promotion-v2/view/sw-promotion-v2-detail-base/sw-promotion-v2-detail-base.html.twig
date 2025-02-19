@@ -2,7 +2,7 @@
 <div class="sw-promotion-v2-detail-base">
 
     {% block sw_promotion_v2_detail_base_general_card %}
-    <sw-card
+    <mt-card
         v-if="promotion"
         position-identifier="sw-promotion-detail-base-general"
         class="sw-promotion-v2-detail-base__card-general"
@@ -110,11 +110,11 @@
         />
         {% endblock %}
 
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_promotion_v2_detail_base_codes_card %}
-    <sw-card
+    <mt-card
         v-if="promotion && !isCreateMode"
         class="sw-promotion-v2-detail-base__card-codes"
         position-identifier="sw-promotion-detail-base-codes"
@@ -190,11 +190,11 @@
         </template>
         {% endblock %}
 
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_promotion_detail_custom_field_sets %}
-    <sw-card
+    <mt-card
         v-if="showCustomFields"
         position-identifier="sw-promotion-detail-base-custom-field-sets"
         :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
@@ -205,7 +205,7 @@
             :disabled="!acl.can('promotion.editor')"
             :sets="customFieldSets"
         />
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>
 {% endblock %}

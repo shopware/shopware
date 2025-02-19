@@ -35,7 +35,6 @@
     {% block sw_sales_channel_list_actions %}
     <template #smart-bar-actions>
         {% block sw_sales_channel_list_smart_bar_actions %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
@@ -56,7 +55,7 @@
     <template #content>
         <sw-card-view>
             {% block sw_sales_channel_list_content_card %}
-            <sw-card
+            <mt-card
                 v-if="entitySearchable && total > 0"
                 position-identifier="sw-sales-channel-list"
                 :title="$tc('sw-sales-channel.list.title')"
@@ -160,7 +159,7 @@
                     </sw-entity-listing>
                 </template>
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
             {% block sw_sales_channel_list_empty_state %}

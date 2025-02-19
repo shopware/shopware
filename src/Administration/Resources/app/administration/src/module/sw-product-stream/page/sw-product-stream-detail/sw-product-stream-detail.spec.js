@@ -97,7 +97,6 @@ async function createWrapper() {
                 'sw-context-menu-item': true,
                 'sw-card-view': true,
                 'sw-skeleton': true,
-                'sw-card': true,
                 'sw-language-info': true,
                 'sw-text-field': true,
                 'sw-textarea-field': true,

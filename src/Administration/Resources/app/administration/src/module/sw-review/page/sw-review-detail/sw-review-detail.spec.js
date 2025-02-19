@@ -69,7 +69,7 @@ async function createWrapper() {
                 'sw-search-bar': true,
                 'sw-description-list': true,
                 'sw-card-view': await wrapTestComponent('sw-card-view'),
-                'sw-card': {
+                'mt-card': {
                     template: '<div><slot></slot></div>',
                 },
                 'sw-container': await wrapTestComponent('sw-container'),

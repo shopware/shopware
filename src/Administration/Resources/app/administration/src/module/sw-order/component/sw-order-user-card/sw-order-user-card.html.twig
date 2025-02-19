@@ -1,5 +1,5 @@
 {% block sw_order_detail_base_order_overview %}
-<sw-card
+<mt-card
     class="sw-order-user-card"
     position-identifier="sw-order-user-card"
     :title="$tc('sw-order.detailBase.cardTitleDetails')"
@@ -119,7 +119,6 @@
                         {% block sw_order_detail_base_order_overview_billing_address %}
                         <dt>
                             {{ $tc('sw-order.detailBase.headlineBillingAddress') }}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 v-if="isEditing"
                                 class="sw-order-user-card__address-edit-button"
@@ -181,7 +180,6 @@
                         {% block sw_order_detail_base_order_overview_shipping_address %}
                         <dt>
                             {{ $tc('sw-order.detailBase.headlineDeliveryAddress') }}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 v-show="hasDifferentBillingAndShippingAddress && isEditing"
                                 class="sw-order-user-card__address-edit-button"
@@ -196,7 +194,6 @@
                             <span>
                                 {{ $tc('sw-order.detailBase.labelSameDeliveryAndBillingAddress') }}
                             </span>
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 v-show="!hasDifferentBillingAndShippingAddress && isEditing"
                                 class="sw-order-user-card__address-add-button"
@@ -344,7 +341,6 @@
                             </dt>
                             <dd>
                                 {% block sw_order_detail_base_secondary_info_tracking_codes_display_content %}
-                                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                                 <mt-button
                                     v-for="trackingCode in delivery.trackingCodes"
                                     :key="trackingCode"
@@ -396,6 +392,6 @@
 
         </sw-container>
     </template>
-</sw-card>
+</mt-card>
 
 {% endblock %}

@@ -1,6 +1,6 @@
 {% block sw_order_document_card %}
-<sw-card
-    v-show="!isDataLoading"
+<mt-card
+    v-if="!isDataLoading"
     position-identifier="sw-order-document-card"
     :title="$tc('sw-order.documentCard.cardTitle')"
     :class="documentCardStyles"
@@ -24,7 +24,6 @@
 
                 <template #filter>
                     {% block sw_order_document_card_header_create_document_context_button %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         v-if="!attachView"
                         v-tooltip="{
@@ -232,7 +231,6 @@
         </template>
 
         <template #actions>
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-if="showCreateDocumentButton"
                 v-tooltip="{
@@ -255,5 +253,5 @@
         </template>
     </sw-empty-state>
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

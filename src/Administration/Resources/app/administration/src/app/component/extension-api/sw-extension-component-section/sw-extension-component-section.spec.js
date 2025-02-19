@@ -27,8 +27,6 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
 
     beforeAll(async () => {
         stubs = {
-            'sw-card': await wrapTestComponent('sw-card'),
-            'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
             'sw-tabs': await wrapTestComponent('sw-tabs'),
             'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
             'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),

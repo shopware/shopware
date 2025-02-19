@@ -7,7 +7,7 @@
 
     <template v-else>
         {% block sw_product_detail_base_basic_info_card %}
-        <sw-card
+        <mt-card
             v-show="showProductCard('general_information')"
             class="sw-product-detail-base__info"
             position-identifier="sw-product-detail-base-info"
@@ -21,7 +21,7 @@
             />
             {% endblock %}
 
-        </sw-card>
+        </mt-card>
         {% endblock %}
 
         <mt-card
@@ -48,7 +48,7 @@
         </mt-card>
 
         {% block sw_product_detail_base_price_card %}
-        <sw-card
+        <mt-card
             v-show="showProductCard('prices')"
             class="sw-product-detail-base__prices"
             position-identifier="sw-product-detail-base-prices"
@@ -79,12 +79,12 @@
             </sw-container>
             {% endblock %}
 
-        </sw-card>
+        </mt-card>
         {% endblock %}
 
         <template v-if="productStates.includes('is-download')">
             {% block sw_product_detail_deliverability_downloadable_info_card %}
-            <sw-card
+            <mt-card
                 v-show="showProductCard('deliverability')"
                 class="sw-product-detail-base__deliverability-downloadable"
                 position-identifier="sw-product-detail-base-deliverability-downloadable"
@@ -93,13 +93,13 @@
                 {% block sw_product_detail_deliverability_downloadable_info_form %}
                 <sw-product-deliverability-downloadable-form :disabled="!acl.can('product.editor')" />
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
         </template>
 
         <template v-else>
             {% block sw_product_detail_deliverability_info_card %}
-            <sw-card
+            <mt-card
                 v-show="showProductCard('deliverability')"
                 class="sw-product-detail-base__deliverability"
                 position-identifier="sw-product-detail-base-deliverability"
@@ -108,12 +108,12 @@
                 {% block sw_product_detail_deliverability_info_form %}
                 <sw-product-deliverability-form :allow-edit="acl.can('product.editor')" />
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
         </template>
 
         {% block sw_product_detail_base_category_card %}
-        <sw-card
+        <mt-card
             v-show="showProductCard('visibility_structure')"
             class="sw-product-detail-base__visibility-structure"
             position-identifier="sw-product-detail-base-visibility-structure"
@@ -125,7 +125,7 @@
             <sw-product-category-form :allow-edit="acl.can('product.editor')" />
             {% endblock %}
 
-        </sw-card>
+        </mt-card>
         {% endblock %}
 
         {% block sw_product_detail_base_media %}
@@ -142,7 +142,7 @@
             <template #content="{ isInherited, isInheritField, restoreInheritance, removeInheritance }">
 
                 {% block sw_product_detail_base_media_card %}
-                <sw-card
+                <mt-card
                     :subtitle="$tc('sw-product.detailBase.cardSubtitleMedia')"
                     :is-loading="loading.product || loading.customFieldSets || loading.media"
                     :class="{ 'sw-card__inherited': isInherited }"
@@ -180,7 +180,7 @@
                     />
                     {% endblock %}
 
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
             </template>
@@ -198,7 +198,7 @@
         {% endblock %}
 
         {% block sw_product_detail_base_settings_card %}
-        <sw-card
+        <mt-card
             v-show="showProductCard('labelling')"
             class="sw-product-detail-base__labelling-card"
             position-identifier="sw-product-detail-base-labelling"
@@ -210,7 +210,7 @@
             <sw-product-settings-form :allow-edit="acl.can('product.editor')" />
             {% endblock %}
 
-        </sw-card>
+        </mt-card>
         {% endblock %}
 
     </template>

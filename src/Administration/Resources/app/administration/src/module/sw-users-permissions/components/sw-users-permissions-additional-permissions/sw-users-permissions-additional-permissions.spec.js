@@ -24,7 +24,6 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
                 global: {
                     renderStubDefaultSlot: true,
                     stubs: {
-                        'sw-card': true,
                         'sw-switch-field': await wrapTestComponent('sw-switch-field', {
                             sync: true,
                         }),

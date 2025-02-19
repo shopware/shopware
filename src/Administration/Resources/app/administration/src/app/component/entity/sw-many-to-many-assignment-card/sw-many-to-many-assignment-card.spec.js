@@ -23,7 +23,7 @@ async function createWrapper(customPropsData = {}) {
             },
             global: {
                 stubs: {
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot></slot><slot name="grid"></slot></div>',
                     },
                     'sw-select-base': {

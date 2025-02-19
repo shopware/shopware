@@ -1,7 +1,7 @@
 {% block sw_settings_tag_detail_assignments %}
 <div class="sw-settings-tag-detail-assignments">
     {% block sw_settings_tag_detail_assignments_card %}
-    <sw-card
+    <mt-card
         class="sw-settings-tag-detail-assignments__card"
         position-identifier="sw-settings-tag-detail-assignments-card"
         large
@@ -59,7 +59,6 @@
                     >
                         <template #column-name="{ item }">
                             {% block sw_settings_tag_detail_assignments_associations_grid_column_name %}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 class="associations-grid__row"
                                 :class="{ 'is--selected': item.entity === selectedEntity }"
@@ -234,7 +233,7 @@
             </sw-container>
             {% endblock %}
         </template>
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>
 {% endblock %}

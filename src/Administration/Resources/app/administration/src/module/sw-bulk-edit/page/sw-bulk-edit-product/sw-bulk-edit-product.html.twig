@@ -67,7 +67,7 @@
     <template #content>
         <sw-card-view v-if="selectedIds.length > 0 && isLoadedData">
             {% block sw_bulk_edit_product_content_inheritance_card %}
-            <sw-card
+            <mt-card
                 v-if="isChild"
                 class="sw-bulk-edit-product__inheritance"
                 position-identifier="sw-bulk-edit-product-inheritance"
@@ -88,10 +88,9 @@
                     </template>
                 </mt-banner>
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
-
-            <sw-card
+            <mt-card
                 v-if="restrictedFields.length"
                 class="sw-bulk-edit-product__restricted-fields"
                 position-identifier="sw-bulk-edit-product-restricted-fields"
@@ -110,10 +109,10 @@
                         </li>
                     </ul>
                 </mt-banner>
-            </sw-card>
+            </mt-card>
 
             {% block sw_bulk_edit_product_content_gereral_information_card %}
-            <sw-card
+            <mt-card
                 class="sw-bulk-edit-product-base__info"
                 position-identifier="sw-bulk-edit-product-info"
                 :title="$tc('sw-bulk-edit.product.generalInformation.cardTitle')"
@@ -127,11 +126,11 @@
                     @inheritance-remove="onInheritanceRemove"
                 />
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
             {% block sw_bulk_edit_product_content_prices_card %}
-            <sw-card
+            <mt-card
                 class="sw-bulk-edit-product-base__prices"
                 position-identifier="sw-bulk-edit-product-prices"
                 :title="$tc('sw-bulk-edit.product.prices.cardTitle')"
@@ -146,11 +145,11 @@
                     @inheritance-remove="onInheritanceRemove"
                 />
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
             {% block sw_bulk_edit_product_content_advanced_prices_card %}
-            <sw-card
+            <mt-card
                 class="sw-bulk-edit-product-base__advanced-prices"
                 position-identifier="sw-bulk-edit-product-advanced-prices"
                 :title="$tc('sw-bulk-edit.product.advancedPrices.cardTitle')"
@@ -232,7 +231,6 @@
                     {% block sw_bulk_edit_product_content_advanced_prices_modal_footer %}
                     <template #modal-footer>
                         <slot name="sw-bulk-edit-modal-cancel">
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 size="small"
                                 @click="displayAdvancePricesModal = false"
@@ -244,11 +242,11 @@
                     {% endblock %}
                 </sw-modal>
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
             {% block sw_bulk_edit_product_content_property_card %}
-            <sw-card
+            <mt-card
                 class="sw-bulk-edit-product-base__property"
                 position-identifier="sw-bulk-edit-product-property"
                 :title="$tc('sw-bulk-edit.product.property.cardTitle')"
@@ -262,11 +260,11 @@
                     @inheritance-remove="onInheritanceRemove"
                 />
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
             {% block sw_bulk_edit_product_content_deliverability_card %}
-            <sw-card
+            <mt-card
                 class="sw-bulk-edit-product-base__deliverability"
                 position-identifier="sw-bulk-edit-product-deliverability"
                 :title="$tc('sw-bulk-edit.product.deliverability.cardTitle')"
@@ -280,11 +278,11 @@
                     @inheritance-remove="onInheritanceRemove"
                 />
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
             {% block sw_bulk_edit_product_content_assignments_card %}
-            <sw-card
+            <mt-card
                 class="sw-bulk-edit-product-base__assignment"
                 position-identifier="sw-bulk-edit-product-assignment"
                 :title="$tc('sw-bulk-edit.product.assignment.cardTitle')"
@@ -298,11 +296,11 @@
                     @inheritance-remove="onInheritanceRemove"
                 />
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
             {% block sw_bulk_edit_product_content_media_card %}
-            <sw-card
+            <mt-card
                 class="sw-bulk-edit-product-base__media"
                 position-identifier="sw-bulk-edit-product-media"
                 :title="$tc('sw-bulk-edit.product.media.cardTitle')"
@@ -316,11 +314,11 @@
                     @inheritance-remove="onInheritanceRemove"
                 />
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
             {% block sw_bulk_edit_product_content_labelling_card %}
-            <sw-card
+            <mt-card
                 class="sw-bulk-edit-product-base__labelling"
                 position-identifier="sw-bulk-edit-product-labelling"
                 :title="$tc('sw-bulk-edit.product.labelling.cardTitle')"
@@ -334,11 +332,11 @@
                     @inheritance-remove="onInheritanceRemove"
                 />
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
             {% block sw_bulk_edit_product_content_seo_card %}
-            <sw-card
+            <mt-card
                 class="sw-bulk-edit-product-base__seo"
                 position-identifier="sw-bulk-edit-product-seo"
                 :title="$tc('sw-bulk-edit.product.seo.cardTitle')"
@@ -352,11 +350,11 @@
                     @inheritance-remove="onInheritanceRemove"
                 />
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
             {% block sw_bulk_edit_product_content_meansures_packaging_card %}
-            <sw-card
+            <mt-card
                 class="sw-bulk-edit-product-base__measures"
                 position-identifier="sw-bulk-edit-product-measures"
                 :title="$tc('sw-bulk-edit.product.measuresAndPackaging.cardTitle')"
@@ -368,11 +366,11 @@
                     @inheritance-restore="onInheritanceRestore"
                     @inheritance-remove="onInheritanceRemove"
                 />
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
             {% block sw_bulk_edit_product_content_essential_card %}
-            <sw-card
+            <mt-card
                 class="sw-bulk-edit-product-base___essential"
                 position-identifier="sw-bulk-edit-product-essential"
                 :title="$tc('sw-bulk-edit.product.featureSets.cardTitle')"
@@ -384,11 +382,11 @@
                     @inheritance-restore="onInheritanceRestore"
                     @inheritance-remove="onInheritanceRemove"
                 />
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
             {% block sw_bulk_edit_product_content_meansures_custom_field_card %}
-            <sw-card
+            <mt-card
                 v-if="customFieldSets.length > 0"
                 class="sw-bulk-edit-product-base__custom_fields"
                 position-identifier="sw-bulk-edit-product-custom-fields"
@@ -401,7 +399,7 @@
                     :parent-entity="parentProduct"
                     @change="onCustomFieldsChange"
                 />
-            </sw-card>
+            </mt-card>
             {% endblock %}
         </sw-card-view>
         <sw-empty-state

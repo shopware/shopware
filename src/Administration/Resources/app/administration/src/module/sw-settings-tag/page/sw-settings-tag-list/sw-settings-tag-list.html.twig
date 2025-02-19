@@ -39,7 +39,6 @@
     {% block sw_settings_tag_list_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_tag_list_smart_bar_actions_add %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
@@ -61,7 +60,7 @@
     <template #content>
         <sw-card-view>
             {% block sw_settings_tag_list_content_card %}
-            <sw-card
+            <mt-card
                 class="sw-settings-tag-list__content"
                 position-identifier="sw-settings-tag-list-content"
             >
@@ -83,7 +82,6 @@
                     >
                         <template #button>
                             {% block sw_settings_tag_list_grid_toolbar_filter_menu_trigger %}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 class="sw-settings-tag-list__filter-menu-trigger"
                                 size="small"
@@ -275,7 +273,6 @@
                                         name="bulk-modal-merge-footer"
                                         v-bind="{ selection }"
                                     >
-                                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                                         <mt-button
                                             size="small"
                                             @click="onCloseBulkMergeModal"
@@ -283,7 +280,6 @@
                                             {{ $tc('global.default.cancel') }}
                                         </mt-button>
 
-                                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                                         <mt-button
                                             variant="primary"
                                             size="small"
@@ -375,7 +371,6 @@
                                 {% block sw_settings_tag_list_delete_modal_footer %}
                                 <template #modal-footer>
                                     {% block sw_settings_tag_list_delete_modal_cancel %}
-                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                                     <mt-button
                                         size="small"
                                         @click="onCloseDeleteModal"
@@ -385,7 +380,6 @@
                                     {% endblock %}
 
                                     {% block sw_settings_tag_list_delete_modal_confirm %}
-                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                                     <mt-button
                                         variant="critical"
                                         size="small"
@@ -422,7 +416,6 @@
                                 {% block sw_settings_tag_list_duplicate_modal_footer %}
                                 <template #modal-footer>
                                     {% block sw_settings_tag_list_duplicate_modal_cancel %}
-                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                                     <mt-button
                                         size="small"
                                         @click="onCloseDuplicateModal"
@@ -432,7 +425,6 @@
                                     {% endblock %}
 
                                     {% block sw_settings_tag_list_duplicate_modal_confirm %}
-                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                                     <mt-button
                                         variant="primary"
                                         size="small"
@@ -480,7 +472,7 @@
                     />
                     {% endblock %}
                 </template>
-            </sw-card>
+            </mt-card>
             {% endblock %}
         </sw-card-view>
     </template>

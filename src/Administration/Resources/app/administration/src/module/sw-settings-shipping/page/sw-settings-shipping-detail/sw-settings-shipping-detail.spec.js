@@ -63,7 +63,6 @@ async function createWrapper(privileges = [], props = {}) {
                     'sw-sidebar': true,
                     'sw-sidebar-media-item': true,
                     'sw-card-view': true,
-                    'sw-card': true,
                     'sw-container': true,
                     'sw-text-field': {
                         props: ['disabled'],

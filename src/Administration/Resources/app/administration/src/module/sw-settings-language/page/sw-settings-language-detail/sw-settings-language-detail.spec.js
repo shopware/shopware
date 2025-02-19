@@ -110,7 +110,6 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
                 `,
                 },
                 'sw-card-view': true,
-                'sw-card': true,
                 'sw-container': true,
                 'sw-language-switch': true,
                 'sw-language-info': true,

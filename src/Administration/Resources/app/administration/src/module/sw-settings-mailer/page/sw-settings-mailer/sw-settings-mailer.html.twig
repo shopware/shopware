@@ -39,7 +39,7 @@
         <sw-card-view>
             <sw-skeleton v-if="isLoading" />
 
-            <sw-card
+            <mt-card
                 v-else
                 position-identifier="sw-settings-mailer-configuration"
                 :is-loading="isLoading"
@@ -107,10 +107,10 @@
                     size="small"
                     :label="$tc('sw-settings-mailer.card-smtp.disable-delivery')"
                 />
-            </sw-card>
+            </mt-card>
 
             {% block sw_settings_mailer_smtp %}
-            <sw-card
+            <mt-card
                 v-if="isSmtpMode"
                 position-identifier="sw-settings-mailer-smtp-settings"
                 :is-loading="isLoading"
@@ -128,7 +128,7 @@
                 />
                 {% endblock %}
 
-            </sw-card>
+            </mt-card>
             {% endblock %}
         </sw-card-view>
     </template>

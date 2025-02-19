@@ -25,7 +25,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
                         tooltip() {},
                     },
                     stubs: {
-                        'sw-card': {
+                        'mt-card': {
                             template: '<div><slot></slot></div>',
                         },
                         'sw-container': {

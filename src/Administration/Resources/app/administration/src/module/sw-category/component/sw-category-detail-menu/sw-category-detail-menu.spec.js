@@ -8,8 +8,8 @@ async function createWrapper({ mediaRepositoryMock = undefined } = {}) {
     const wrapper = mount(await wrapTestComponent('sw-category-detail-menu', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': {
-                    template: '<div class="sw-card"><slot></slot></div>',
+                'mt-card': {
+                    template: '<div class="mt-card"><slot></slot></div>',
                 },
                 'sw-upload-listener': true,
                 'sw-media-upload-v2': {

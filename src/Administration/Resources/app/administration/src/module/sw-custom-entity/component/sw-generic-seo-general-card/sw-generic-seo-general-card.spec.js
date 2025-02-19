@@ -8,8 +8,8 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-generic-seo-general-card', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': {
-                    template: '<div class="sw-card"><slot></slot></div>',
+                'mt-card': {
+                    template: '<div class="mt-card"><slot></slot></div>',
                 },
                 'sw-textarea-field': {
                     template: '<textarea class="sw-text-field" />',

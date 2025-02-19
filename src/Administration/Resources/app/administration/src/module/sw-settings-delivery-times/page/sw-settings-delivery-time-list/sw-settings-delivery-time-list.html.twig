@@ -38,7 +38,6 @@
     {% block sw_settings_delivery_time_list_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_delivery_time_list_smart_bar_actions_create %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
@@ -63,7 +62,7 @@
         <sw-card-view>
 
             {% block sw_settings_delivery_time_list_grid_wrapper %}
-            <sw-card position-identifier="sw-settings-delivery-time-list-grid-wrapper">
+            <mt-card position-identifier="sw-settings-delivery-time-list-grid-wrapper">
                 <template #grid>
 
                     {% block sw_settings_delivery_time_list_grid %}
@@ -96,7 +95,7 @@
                     </sw-entity-listing>
                     {% endblock %}
                 </template>
-            </sw-card>
+            </mt-card>
             {% endblock %}
         </sw-card-view>
         {% endblock %}

@@ -117,9 +117,9 @@ async function createWrapper() {
                     },
                 },
                 'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
-                'sw-card': {
+                'mt-card': {
                     template: `
-                        <div class="sw-card">
+                        <div class="mt-card">
                             <slot></slot>
                             <slot name="title"></slot>
                             <slot name="grid"></slot>

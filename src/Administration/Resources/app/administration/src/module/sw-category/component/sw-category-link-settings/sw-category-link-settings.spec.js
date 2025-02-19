@@ -26,8 +26,8 @@ async function createWrapper(category = {}) {
     return mount(await wrapTestComponent('sw-category-link-settings', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': {
-                    template: '<div class="sw-card"><slot></slot></div>',
+                'mt-card': {
+                    template: '<div class="mt-card"><slot></slot></div>',
                 },
                 'sw-single-select': true,
                 'sw-entity-single-select': true,

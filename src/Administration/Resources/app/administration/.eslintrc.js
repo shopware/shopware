@@ -23,6 +23,7 @@ const baseRules = {
     'comma-dangle': ['error', 'always-multiline'],
     'sw-core-rules/require-position-identifier': ['error', {
         components: [
+            'sw-button',
             'sw-card',
             'sw-tabs',
             'sw-extension-component-section',
@@ -207,7 +208,9 @@ module.exports = {
                     fix: true,
                     activatedComponents: [
                         'sw-alert',
-                        'sw-text-field'
+                        'sw-button',
+                        'sw-text-field',
+                        'sw-card',
                     ],
                 }],
                 // @deprecated v.6.7.0.0 - will be error in v.6.7

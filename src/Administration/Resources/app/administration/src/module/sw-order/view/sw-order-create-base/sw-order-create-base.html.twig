@@ -25,7 +25,7 @@
     {% endblock %}
 
     {% block sw_order_create_details %}
-    <sw-card
+    <mt-card
         :title="$tc('sw-order.createBase.labelDetailsCard')"
         :is-loading="isLoadingDetail"
         position-identifier="sw-order-create-base-details"
@@ -70,11 +70,11 @@
                 </sw-card-section>
             </sw-container>
         </template>
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_order_create_base_line_items_card %}
-    <sw-card
+    <mt-card
         :title="$tc('sw-order.createBase.cardTitleLineItems')"
         :is-loading="isLoading"
         position-identifier="sw-order-create-base-line-items"
@@ -219,7 +219,7 @@
             </sw-container>
         </template>
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </sw-card-view>
 {% endblock %}

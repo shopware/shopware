@@ -30,12 +30,12 @@
         :inherited-value="parentProduct.metaDescription"
     >
         <template #content="props">
-            <sw-textarea-field
+            <mt-textarea
                 :placeholder="$tc('sw-product.seoForm.placeholderMetaDescription')"
                 :error="productMetaDescriptionError"
                 :disabled="props.isInherited || !allowEdit"
-                :value="props.currentValue"
-                @update:value="props.updateCurrentValue"
+                :model-value="props.currentValue"
+                @update:model-value="props.updateCurrentValue"
             />
         </template>
     </sw-inherit-wrapper>

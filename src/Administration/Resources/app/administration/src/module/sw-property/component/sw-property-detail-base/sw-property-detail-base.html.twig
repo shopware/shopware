@@ -20,8 +20,8 @@
     {% endblock %}
 
     {% block sw_property_detail_base_description %}
-    <sw-textarea-field
-        v-model:value="propertyGroup.description"
+    <mt-textarea
+        v-model="propertyGroup.description"
         name="sw-field--propertyGroup-description"
         :label="$tc('sw-property.detail.labelDescription')"
         :placeholder="placeholder(propertyGroup, 'description', $tc('sw-property.detail.placeholderDescription'))"

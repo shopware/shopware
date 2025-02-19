@@ -13,10 +13,10 @@ async function createWrapper(props = { type: 'string' }) {
                         'helpText',
                     ],
                 },
-                'sw-textarea-field': {
+                'mt-textarea': {
                     template: '<input/>',
                     props: [
-                        'value',
+                        'modelValue',
                         'label',
                         'placeholder',
                         'helpText',
@@ -77,7 +77,11 @@ describe('module/sw-custom-entity/component/sw-custom-entity-input-field', () =>
             await wrapper.setProps(mockData);
 
             const inputField = wrapper.getComponent(`.sw-custom-entity-input-field__${type}`);
-            let propType = type === 'string' ? 'modelValue' : 'value';
+            const modelValueTypes = [
+                'text',
+                'string',
+            ];
+            let propType = modelValueTypes.includes(type) ? 'modelValue' : 'value';
 
             if (type === 'boolean') {
                 propType = 'checked';

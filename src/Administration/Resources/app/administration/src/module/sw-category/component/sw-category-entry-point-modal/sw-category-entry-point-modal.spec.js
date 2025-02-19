@@ -42,6 +42,7 @@ async function createWrapper() {
                     },
                     'sw-single-select': true,
                     'sw-textarea-field': true,
+                    'mt-textarea': true,
                     'sw-cms-list-item': true,
 
                     'sw-cms-layout-modal': true,

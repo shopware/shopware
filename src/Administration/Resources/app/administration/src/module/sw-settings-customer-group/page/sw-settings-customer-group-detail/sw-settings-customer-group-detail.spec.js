@@ -57,7 +57,7 @@ async function createWrapper(privileges = []) {
                           <slot></slot>
                         </div>`,
                     },
-                    'sw-textarea-field': true,
+                    'mt-textarea': true,
                     'mt-text-editor': true,
                     'sw-language-info': true,
                     'sw-button-process': true,
@@ -200,7 +200,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             },
             {
                 name: 'seo meta field',
-                selector: 'sw-textarea-field-stub[label="sw-settings-customer-group.registration.seoMetaDescription"]',
+                selector: 'mt-textarea-stub[label="sw-settings-customer-group.registration.seoMetaDescription"]',
             },
             {
                 name: 'sales channel multiple select',
@@ -267,7 +267,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             },
             {
                 name: 'seo meta field',
-                selector: 'sw-textarea-field-stub[label="sw-settings-customer-group.registration.seoMetaDescription"]',
+                selector: 'mt-textarea-stub[label="sw-settings-customer-group.registration.seoMetaDescription"]',
             },
             {
                 name: 'sales channel multiple select',

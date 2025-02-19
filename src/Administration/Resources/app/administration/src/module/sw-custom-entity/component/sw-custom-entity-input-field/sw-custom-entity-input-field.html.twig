@@ -11,14 +11,14 @@
         @update:model-value="onChange"
     />
 
-    <sw-textarea-field
+    <mt-textarea
         v-else-if="type === 'text'"
         class="sw-custom-entity-input-field__text"
-        :value="currentValue"
+        :model-value="currentValue"
         :label="label"
         :placeholder="placeholder"
         :help-text="helpText"
-        @update:value="onChange"
+        @update:model-value="onChange"
     />
 
     <sw-number-field

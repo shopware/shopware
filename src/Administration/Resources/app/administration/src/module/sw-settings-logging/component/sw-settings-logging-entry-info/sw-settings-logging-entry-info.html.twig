@@ -19,9 +19,9 @@
         <template #content>
             {% block sw_settings_logging_entry_info_content %}
             {% block sw_settings_logging_entry_info_raw_content %}
-            <sw-textarea-field
+            <mt-textarea
                 v-if="activeTab === 'raw'"
-                :value="displayString"
+                :model-value="displayString"
             />
             {% endblock %}
             {% endblock %}

@@ -36,8 +36,8 @@
             </div>
 
             {% block sw_settings_rule_detail_base_content_card_field_description %}
-            <sw-textarea-field
-                v-model:value="rule.description"
+            <mt-textarea
+                v-model="rule.description"
                 name="sw-field--rule-description"
                 :label="$tc('sw-settings-rule.detail.labelDescription')"
                 :placeholder="$tc('sw-settings-rule.detail.placeholderDescription')"

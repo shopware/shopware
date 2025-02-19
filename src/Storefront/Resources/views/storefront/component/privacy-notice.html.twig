@@ -39,6 +39,8 @@
 
                     {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                     {% block component_privacy_dpi_label %}
+                        {% set cmsPath = 'frontend.cms.page' %}
+                        {% set privacyNoticeSnippet = 'general.privacyNoticeText' %}
                         <label class="custom-control-label no-validation"
                                for="acceptedDataProtection">
 
@@ -55,6 +57,8 @@
             {% else %}
                 <div class="data-protection-information">
                     {% block component_privacy_label %}
+                        {% set cmsPath = 'frontend.cms.page' %}
+                        {% set privacyNoticeSnippet = 'general.privacyNoticeText' %}
 
                         <div>
                             {{ privacyNoticeSnippet|trans({

@@ -60,8 +60,9 @@
                 </div>
 
                 <div class="sw-extension-my-extensions-account__wrapper-content-login-form">
-                    <sw-text-field
-                        v-model:value="form.shopwareId"
+
+                    <mt-text-field
+                        v-model="form.shopwareId"
                         class="sw-extension-my-extensions-account__shopware-id-field"
                         required
                         :label="$tc('sw-extension.my-extensions.account.mailLabel')"

@@ -55,8 +55,9 @@
                     {% endblock %}
 
                     {% block sw_newsletter_recipient_detail_form_title %}
-                    <sw-text-field
-                        v-model:value="newsletterRecipient.title"
+
+                    <mt-text-field
+                        v-model="newsletterRecipient.title"
                         :label="$tc('sw-newsletter-recipient.list.title')"
                         :disabled="!acl.can('newsletter_recipient.editor')"
                     />
@@ -68,16 +69,18 @@
                     gap="10px"
                 >
                     {% block sw_newsletter_recipient_detail_form_first_name %}
-                    <sw-text-field
-                        v-model:value="newsletterRecipient.firstName"
+
+                    <mt-text-field
+                        v-model="newsletterRecipient.firstName"
                         :label="$tc('sw-newsletter-recipient.list.firstName')"
                         :disabled="!acl.can('newsletter_recipient.editor')"
                     />
                     {% endblock %}
 
                     {% block sw_newsletter_recipient_detail_form_last_name %}
-                    <sw-text-field
-                        v-model:value="newsletterRecipient.lastName"
+
+                    <mt-text-field
+                        v-model="newsletterRecipient.lastName"
                         :label="$tc('sw-newsletter-recipient.list.lastName')"
                         :disabled="!acl.can('newsletter_recipient.editor')"
                     />
@@ -85,16 +88,18 @@
                 </sw-container>
 
                 {% block sw_newsletter_recipient_detail_form_email %}
-                <sw-text-field
-                    v-model:value="newsletterRecipient.email"
+
+                <mt-text-field
+                    v-model="newsletterRecipient.email"
                     :label="$tc('sw-newsletter-recipient.list.email')"
                     :disabled="!acl.can('newsletter_recipient.editor')"
                 />
                 {% endblock %}
 
                 {% block sw_newsletter_recipient_detail_form_street %}
-                <sw-text-field
-                    v-model:value="newsletterRecipient.street"
+
+                <mt-text-field
+                    v-model="newsletterRecipient.street"
                     :label="$tc('sw-newsletter-recipient.list.street')"
                     :disabled="!acl.can('newsletter_recipient.editor')"
                 />
@@ -105,16 +110,18 @@
                     gap="10px"
                 >
                     {% block sw_newsletter_recipient_detail_form_zip_code %}
-                    <sw-text-field
-                        v-model:value="newsletterRecipient.zipCode"
+
+                    <mt-text-field
+                        v-model="newsletterRecipient.zipCode"
                         :label="$tc('sw-newsletter-recipient.list.zipCode')"
                         :disabled="!acl.can('newsletter_recipient.editor')"
                     />
                     {% endblock %}
 
                     {% block sw_newsletter_recipient_detail_form_city %}
-                    <sw-text-field
-                        v-model:value="newsletterRecipient.city"
+
+                    <mt-text-field
+                        v-model="newsletterRecipient.city"
                         :label="$tc('sw-newsletter-recipient.list.city')"
                         :disabled="!acl.can('newsletter_recipient.editor')"
                     />

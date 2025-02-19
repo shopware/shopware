@@ -47,14 +47,14 @@ describe('module/sw-users-permissions/view/sw-users-permissions-role-view-genera
     it('should disable the button and fields when no aclPrivileges exists', async () => {
         const wrapper = await createWrapper();
 
-        const fieldRoleName = wrapper.find('sw-text-field-stub[label="sw-users-permissions.roles.detail.labelName"]');
+        const fieldRoleName = wrapper.find('input[aria-label="sw-users-permissions.roles.detail.labelName"]');
         const fieldRoleDescription = wrapper.find(
             'sw-textarea-field-stub[label="sw-users-permissions.roles.detail.labelDescription"]',
         );
         const permissionsGrid = wrapper.find('sw-users-permissions-permissions-grid-stub');
         const additionalPermissionsGrid = wrapper.find('sw-users-permissions-additional-permissions-stub');
 
-        expect(fieldRoleName.attributes().disabled).toBe('true');
+        expect(fieldRoleName.attributes().disabled).toBeDefined();
         expect(fieldRoleDescription.attributes().disabled).toBe('true');
         expect(permissionsGrid.attributes().disabled).toBe('true');
         expect(additionalPermissionsGrid.attributes().disabled).toBe('true');
@@ -63,7 +63,7 @@ describe('module/sw-users-permissions/view/sw-users-permissions-role-view-genera
     it('should enable the button and fields when edit aclPrivileges exists', async () => {
         const wrapper = await createWrapper(['users_and_permissions.editor']);
 
-        const fieldRoleName = wrapper.find('sw-text-field-stub[label="sw-users-permissions.roles.detail.labelName"]');
+        const fieldRoleName = wrapper.find('input[aria-label="sw-users-permissions.roles.detail.labelName"]');
         const fieldRoleDescription = wrapper.find(
             'sw-textarea-field-stub[label="sw-users-permissions.roles.detail.labelDescription"]',
         );

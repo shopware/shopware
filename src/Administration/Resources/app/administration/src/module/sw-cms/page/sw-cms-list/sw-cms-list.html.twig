@@ -439,10 +439,11 @@
                 <div class="sw_tree__confirm-rename-text">
                     {{ $tc('sw-cms.components.cmsListItem.modal.textRenameConfirm', { pageName: currentPage.translated.name || currentPage.name }, 0) }}
                 </div>
-                <sw-text-field
-                    v-model:value="newName"
+
+                <mt-text-field
+                    v-model="newName"
                     class="sw_tree__confirm-rename-text-field"
-                    size="medium"
+                    size="default"
                 />
                 {% endblock %}
 

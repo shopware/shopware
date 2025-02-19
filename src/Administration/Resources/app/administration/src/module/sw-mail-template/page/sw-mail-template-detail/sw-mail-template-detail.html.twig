@@ -119,8 +119,9 @@
                         <div class="sw-mail-template-detail__options-info-wrapper">
 
                             {% block sw_mail_template_options_form_subject_field %}
-                            <sw-text-field
-                                v-model:value="mailTemplate.subject"
+
+                            <mt-text-field
+                                v-model="mailTemplate.subject"
                                 name="sw-field--mailTemplate-subject"
                                 required
                                 :label="$tc('sw-mail-template.detail.options.labelSubject')"
@@ -132,8 +133,9 @@
                         </div>
 
                         {% block sw_mail_template_options_form_sender_name_field %}
-                        <sw-text-field
-                            v-model:value="mailTemplate.senderName"
+
+                        <mt-text-field
+                            v-model="mailTemplate.senderName"
                             name="sw-field--mailTemplate-senderName"
                             :label="$tc('sw-mail-template.detail.options.labelSenderName')"
                             :placeholder="placeholder(mailTemplate, 'senderName', $tc('sw-mail-template.detail.options.placeholderSenderName'))"
@@ -316,8 +318,9 @@
                     </mt-banner>
 
                     {% block sw_mail_template_mail_text_form_test_mail_field %}
-                    <sw-text-field
-                        v-model:value="testerMail"
+
+                    <mt-text-field
+                        v-model="testerMail"
                         name="sw-field--testerMail"
                         :placeholder="$tc('sw-mail-template.detail.sidebar.placeholderTestMail')"
                         :label="$tc('sw-mail-template.detail.sidebar.labelTestMail')"

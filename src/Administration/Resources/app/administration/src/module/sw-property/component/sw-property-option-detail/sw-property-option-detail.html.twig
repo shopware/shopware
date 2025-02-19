@@ -4,8 +4,9 @@
     @modal-close="onCancel"
 >
     {% block sw_property_option_detail_name %}
-    <sw-text-field
-        v-model:value="currentOption.name"
+
+    <mt-text-field
+        v-model="currentOption.name"
         name="sw-field--currentOption-name"
         validation="required"
         :label="$tc('sw-property.detail.labelOptionName')"

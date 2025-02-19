@@ -44,7 +44,6 @@ async function createWrapper(allowInlineDataMapping = true) {
                 'sw-category-tree-field': true,
                 'router-link': true,
                 'sw-loader': true,
-                'mt-text-field': true,
                 'sw-field-copyable': true,
                 'mt-switch': true,
                 'sw-inheritance-switch': true,

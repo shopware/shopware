@@ -145,9 +145,10 @@
                 {% block sw_product_list_grid_columns_name %}
                 <template #column-name="{ item, isInlineEdit }">
                     {% block sw_product_list_grid_columns_name_inline_edit %}
-                    <sw-text-field
+
+                    <mt-text-field
                         v-if="isInlineEdit"
-                        v-model:value="item.name"
+                        v-model="item.name"
                         size="small"
                     />
                     {% endblock %}

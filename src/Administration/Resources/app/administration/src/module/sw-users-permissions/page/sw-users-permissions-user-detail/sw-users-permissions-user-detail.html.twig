@@ -60,8 +60,9 @@
                         class="sw-settings-user-detail__grid"
                     >
                         {% block sw_settings_user_detail_content_first_name %}
-                        <sw-text-field
-                            v-model:value="user.firstName"
+
+                        <mt-text-field
+                            v-model="user.firstName"
                             name="sw-field--user-firstName"
                             class="sw-settings-user-detail__grid-firstName"
                             :disabled="!acl.can('users_and_permissions.editor') || undefined"
@@ -72,8 +73,9 @@
                         {% endblock %}
 
                         {% block sw_settings_user_detail_content_last_name %}
-                        <sw-text-field
-                            v-model:value="user.lastName"
+
+                        <mt-text-field
+                            v-model="user.lastName"
                             name="sw-field--user-lastName"
                             class="sw-settings-user-detail__grid-lastName"
                             :disabled="!acl.can('users_and_permissions.editor') || undefined"
@@ -84,8 +86,9 @@
                         {% endblock %}
 
                         {% block sw_settings_user_detail_content_email %}
-                        <sw-text-field
-                            v-model:value.trim="user.email"
+
+                        <mt-text-field
+                            v-model="user.email"
                             name="sw-field--user-email"
                             class="sw-settings-user-detail__grid-eMail"
                             :error="userEmailError"
@@ -96,8 +99,9 @@
                         {% endblock %}
 
                         {% block sw_settings_user_detail_content_username %}
-                        <sw-text-field
-                            v-model:value="user.username"
+
+                        <mt-text-field
+                            v-model="user.username"
                             name="sw-field--user-username"
                             class="sw-settings-user-detail__grid-username"
                             :error-message="isUsernameUsed ? $tc('sw-users-permissions.users.user-detail.errorUsernameUsed') : ''"
@@ -105,7 +109,7 @@
                             :disabled="!acl.can('users_and_permissions.editor') || undefined"
                             required
                             :label="$tc('sw-users-permissions.users.user-detail.labelUsername')"
-                            @update:value="checkUsername"
+                            @update:model-value="checkUsername"
                         />
                         {% endblock %}
 
@@ -189,8 +193,9 @@
                         {% endblock %}
 
                         {% block sw_settings_user_detail_grid_content_job_title %}
-                        <sw-text-field
-                            v-model:value="user.title"
+
+                        <mt-text-field
+                            v-model="user.title"
                             name="sw-field--user-title"
                             class="sw-settings-user-detail__grid-jobTitle"
                             :disabled="!acl.can('users_and_permissions.editor') || undefined"
@@ -358,8 +363,9 @@
             {% block sw_settings_user_detail_detail_modal_inner %}
 
             {% block sw_settings_user_detail_detail_modal_inner_field_access_key %}
-            <sw-text-field
-                v-model:value="currentIntegration.accessKey"
+
+            <mt-text-field
+                v-model="currentIntegration.accessKey"
                 :label="$tc('sw-users-permissions.users.user-detail.modal.idFieldLabel')"
                 :disabled="true"
                 :copyable="true"
@@ -369,9 +375,10 @@
 
             {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key %}
             {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key_field %}
-            <sw-text-field
+
+            <mt-text-field
                 v-if="showSecretAccessKey"
-                v-model:value="currentIntegration.secretAccessKey"
+                v-model="currentIntegration.secretAccessKey"
                 :label="$tc('sw-users-permissions.users.user-detail.modal.secretFieldLabel')"
                 :disabled="true"
                 :password-toggle-able="false"

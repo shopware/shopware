@@ -191,7 +191,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             },
             {
                 name: 'form title field',
-                selector: '.sw-text-field-stub[label="sw-settings-customer-group.registration.title"]',
+                selector: '.mt-text-field',
             },
             { name: 'form editor', selector: 'mt-text-editor-stub' },
             {
@@ -258,7 +258,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             },
             {
                 name: 'form title field',
-                selector: '.sw-text-field-stub[label="sw-settings-customer-group.registration.title"]',
+                selector: '.mt-text-field',
             },
             { name: 'form editor', selector: 'mt-text-editor-stub' },
             {

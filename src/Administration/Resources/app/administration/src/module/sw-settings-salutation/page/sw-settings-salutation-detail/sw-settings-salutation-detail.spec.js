@@ -145,9 +145,9 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-detail', () 
         const saveButton = wrapper.find('.sw-settings-salutation-detail__save');
 
         const labelPath = 'sw-settings-salutation.detail';
-        const fieldSalutationKeyLabel = wrapper.find(`sw-text-field-stub[label="${labelPath}.fieldSalutationKeyLabel"]`);
-        const fieldDisplayNameLabel = wrapper.find(`sw-text-field-stub[label="${labelPath}.fieldDisplayNameLabel"]`);
-        const fieldLetterNameLabel = wrapper.find(`sw-text-field-stub[label="${labelPath}.fieldLetterNameLabel"]`);
+        const fieldSalutationKeyLabel = wrapper.find(`input[aria-label="${labelPath}.fieldSalutationKeyLabel"]`);
+        const fieldDisplayNameLabel = wrapper.find(`input[aria-label="${labelPath}.fieldDisplayNameLabel"]`);
+        const fieldLetterNameLabel = wrapper.find(`input[aria-label="${labelPath}.fieldLetterNameLabel"]`);
 
         expect(fieldSalutationKeyLabel.attributes().disabled).toBeFalsy();
         expect(fieldDisplayNameLabel.attributes().disabled).toBeFalsy();
@@ -167,13 +167,13 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-detail', () 
         const saveButton = wrapper.find('.sw-settings-salutation-detail__save');
 
         const labelPath = 'sw-settings-salutation.detail';
-        const fieldSalutationKeyLabel = wrapper.find(`sw-text-field-stub[label="${labelPath}.fieldSalutationKeyLabel"]`);
-        const fieldDisplayNameLabel = wrapper.find(`sw-text-field-stub[label="${labelPath}.fieldDisplayNameLabel"]`);
-        const fieldLetterNameLabel = wrapper.find(`sw-text-field-stub[label="${labelPath}.fieldLetterNameLabel"]`);
+        const fieldSalutationKeyLabel = wrapper.find(`input[aria-label="${labelPath}.fieldSalutationKeyLabel"]`);
+        const fieldDisplayNameLabel = wrapper.find(`input[aria-label="${labelPath}.fieldDisplayNameLabel"]`);
+        const fieldLetterNameLabel = wrapper.find(`input[aria-label="${labelPath}.fieldLetterNameLabel"]`);
 
-        expect(fieldSalutationKeyLabel.attributes().disabled).toBeTruthy();
-        expect(fieldDisplayNameLabel.attributes().disabled).toBeTruthy();
-        expect(fieldLetterNameLabel.attributes().disabled).toBeTruthy();
+        expect(fieldSalutationKeyLabel.attributes().disabled).toBeDefined();
+        expect(fieldDisplayNameLabel.attributes().disabled).toBeDefined();
+        expect(fieldLetterNameLabel.attributes().disabled).toBeDefined();
 
         expect(saveButton.attributes().disabled).toBeTruthy();
         expect(wrapper.vm.tooltipSave).toStrictEqual({
@@ -193,13 +193,13 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-detail', () 
         const saveButton = wrapper.find('.sw-settings-salutation-detail__save');
 
         const labelPath = 'sw-settings-salutation.detail';
-        const fieldSalutationKeyLabel = wrapper.find(`sw-text-field-stub[label="${labelPath}.fieldSalutationKeyLabel"]`);
-        const fieldDisplayNameLabel = wrapper.find(`sw-text-field-stub[label="${labelPath}.fieldDisplayNameLabel"]`);
-        const fieldLetterNameLabel = wrapper.find(`sw-text-field-stub[label="${labelPath}.fieldLetterNameLabel"]`);
+        const fieldSalutationKeyLabel = wrapper.find(`input[aria-label="${labelPath}.fieldSalutationKeyLabel"]`);
+        const fieldDisplayNameLabel = wrapper.find(`input[aria-label="${labelPath}.fieldDisplayNameLabel"]`);
+        const fieldLetterNameLabel = wrapper.find(`input[aria-label="${labelPath}.fieldLetterNameLabel"]`);
 
-        expect(fieldSalutationKeyLabel.attributes().disabled).toBeTruthy();
-        expect(fieldDisplayNameLabel.attributes().disabled).toBeTruthy();
-        expect(fieldLetterNameLabel.attributes().disabled).toBeTruthy();
+        expect(fieldSalutationKeyLabel.attributes().disabled).toBeDefined();
+        expect(fieldDisplayNameLabel.attributes().disabled).toBeDefined();
+        expect(fieldLetterNameLabel.attributes().disabled).toBeDefined();
 
         expect(saveButton.attributes().disabled).toBeTruthy();
         expect(wrapper.vm.tooltipSave).toStrictEqual({

@@ -228,7 +228,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
         const [
             firstInput,
             secondInput,
-        ] = wrapper.findAll('input[label="sw-settings-snippet.detail.labelContent"]');
+        ] = wrapper.findAll('input[aria-label="sw-settings-snippet.detail.labelContent"]');
 
         expect(firstInput.attributes('disabled')).toBe(state);
         expect(secondInput.attributes('disabled')).toBe(state);

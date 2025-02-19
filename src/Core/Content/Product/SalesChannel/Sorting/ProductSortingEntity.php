@@ -23,9 +23,9 @@ class ProductSortingEntity extends Entity
      */
     protected array $fields;
 
-    protected ?string $label;
+    protected ?string $label = null;
 
-    protected ?ProductSortingTranslationCollection $translations;
+    protected ?ProductSortingTranslationCollection $translations = null;
 
     protected bool $locked;
 

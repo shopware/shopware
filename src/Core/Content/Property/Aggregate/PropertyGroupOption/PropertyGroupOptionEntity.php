@@ -21,25 +21,25 @@ class PropertyGroupOptionEntity extends Entity
 
     protected string $groupId;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
-    protected ?int $position;
+    protected ?int $position = null;
 
-    protected ?string $colorHexCode;
+    protected ?string $colorHexCode = null;
 
-    protected ?string $mediaId;
+    protected ?string $mediaId = null;
 
-    protected ?PropertyGroupEntity $group;
+    protected ?PropertyGroupEntity $group = null;
 
-    protected ?PropertyGroupOptionTranslationCollection $translations;
+    protected ?PropertyGroupOptionTranslationCollection $translations = null;
 
-    protected ?ProductConfiguratorSettingCollection $productConfiguratorSettings;
+    protected ?ProductConfiguratorSettingCollection $productConfiguratorSettings = null;
 
-    protected ?ProductCollection $productProperties;
+    protected ?ProductCollection $productProperties = null;
 
-    protected ?ProductCollection $productOptions;
+    protected ?ProductCollection $productOptions = null;
 
-    protected ?MediaEntity $media;
+    protected ?MediaEntity $media = null;
 
     /**
      * @internal

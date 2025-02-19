@@ -21,22 +21,22 @@ class ProductConfiguratorSettingEntity extends Entity
 
     protected string $optionId;
 
-    protected ?string $mediaId;
+    protected ?string $mediaId = null;
 
     protected int $position;
 
     /**
      * @var array<Price>|null
      */
-    protected ?array $price;
+    protected ?array $price = null;
 
-    protected ?PropertyGroupOptionEntity $option;
+    protected ?PropertyGroupOptionEntity $option = null;
 
-    protected ?MediaEntity $media;
+    protected ?MediaEntity $media = null;
 
     protected bool $selected = false;
 
-    protected ?ProductEntity $product;
+    protected ?ProductEntity $product = null;
 
     public function getProductId(): string
     {

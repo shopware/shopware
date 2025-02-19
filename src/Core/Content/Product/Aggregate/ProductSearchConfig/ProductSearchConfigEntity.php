@@ -22,11 +22,11 @@ class ProductSearchConfigEntity extends Entity
     /**
      * @var array<string>|null
      */
-    protected ?array $excludedTerms;
+    protected ?array $excludedTerms = null;
 
-    protected ?LanguageEntity $language;
+    protected ?LanguageEntity $language = null;
 
-    protected ?ProductSearchConfigFieldCollection $configFields;
+    protected ?ProductSearchConfigFieldCollection $configFields = null;
 
     public function getLanguageId(): string
     {

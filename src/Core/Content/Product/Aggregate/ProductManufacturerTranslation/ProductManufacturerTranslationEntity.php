@@ -16,11 +16,11 @@ class ProductManufacturerTranslationEntity extends TranslationEntity
 
     protected string $productManufacturerVersionId;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
-    protected ?string $description;
+    protected ?string $description = null;
 
-    protected ?ProductManufacturerEntity $productManufacturer;
+    protected ?ProductManufacturerEntity $productManufacturer = null;
 
     public function getProductManufacturerId(): string
     {

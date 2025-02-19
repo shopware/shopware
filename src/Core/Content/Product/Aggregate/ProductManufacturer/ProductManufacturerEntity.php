@@ -16,15 +16,15 @@ class ProductManufacturerEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    protected ?string $mediaId;
+    protected ?string $mediaId = null;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
     protected ?string $link = null;
 
     protected ?string $description = null;
 
-    protected ?MediaEntity $media;
+    protected ?MediaEntity $media = null;
 
     protected ?ProductManufacturerTranslationCollection $translations = null;
 

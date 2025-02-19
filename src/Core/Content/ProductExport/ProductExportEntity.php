@@ -52,17 +52,17 @@ class ProductExportEntity extends Entity
 
     protected bool $generateByCronjob;
 
-    protected ?\DateTimeInterface $generatedAt;
+    protected ?\DateTimeInterface $generatedAt = null;
 
     protected int $interval;
 
-    protected ?string $headerTemplate;
+    protected ?string $headerTemplate = null;
 
-    protected ?string $bodyTemplate;
+    protected ?string $bodyTemplate = null;
 
-    protected ?string $footerTemplate;
+    protected ?string $footerTemplate = null;
 
-    protected ?bool $pausedSchedule;
+    protected ?bool $pausedSchedule = null;
 
     protected bool $isRunning;
 

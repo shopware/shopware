@@ -19,9 +19,9 @@ class ProductPriceEntity extends PriceRuleEntity
 
     protected ?int $quantityEnd = null;
 
-    protected ?ProductEntity $product;
+    protected ?ProductEntity $product = null;
 
-    protected ?RuleEntity $rule;
+    protected ?RuleEntity $rule = null;
 
     public function getProduct(): ?ProductEntity
     {

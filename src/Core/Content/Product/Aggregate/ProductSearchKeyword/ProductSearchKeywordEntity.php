@@ -21,9 +21,9 @@ class ProductSearchKeywordEntity extends Entity
 
     protected float $ranking;
 
-    protected ?ProductEntity $product;
+    protected ?ProductEntity $product = null;
 
-    protected ?LanguageEntity $language;
+    protected ?LanguageEntity $language = null;
 
     public function getLanguageId(): string
     {

@@ -14,11 +14,11 @@ class ProductStreamTranslationEntity extends TranslationEntity
 
     protected string $productStreamId;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
-    protected ?string $description;
+    protected ?string $description = null;
 
-    protected ?ProductStreamEntity $productStream;
+    protected ?ProductStreamEntity $productStream = null;
 
     public function getProductStreamId(): string
     {

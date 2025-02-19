@@ -11,9 +11,9 @@ class ProductCrossSellingTranslationEntity extends TranslationEntity
 {
     protected string $productCrossSellingId;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
-    protected ?ProductCrossSellingEntity $productCrossSelling;
+    protected ?ProductCrossSellingEntity $productCrossSelling = null;
 
     public function getProductCrossSellingId(): string
     {

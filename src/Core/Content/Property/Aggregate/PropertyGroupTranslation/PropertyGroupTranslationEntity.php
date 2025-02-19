@@ -14,13 +14,13 @@ class PropertyGroupTranslationEntity extends TranslationEntity
 
     protected string $propertyGroupId;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
-    protected ?string $description;
+    protected ?string $description = null;
 
-    protected ?int $position;
+    protected ?int $position = null;
 
-    protected ?PropertyGroupEntity $propertyGroup;
+    protected ?PropertyGroupEntity $propertyGroup = null;
 
     public function getPropertyGroupId(): string
     {

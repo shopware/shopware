@@ -16,31 +16,31 @@ class ProductTranslationEntity extends TranslationEntity
 
     protected string $productVersionId;
 
-    protected ?string $metaDescription;
+    protected ?string $metaDescription = null;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
-    protected ?string $keywords;
+    protected ?string $keywords = null;
 
-    protected ?string $description;
+    protected ?string $description = null;
 
-    protected ?string $metaTitle;
+    protected ?string $metaTitle = null;
 
-    protected ?string $packUnit;
+    protected ?string $packUnit = null;
 
-    protected ?string $packUnitPlural;
+    protected ?string $packUnitPlural = null;
 
-    protected ?ProductEntity $product;
+    protected ?ProductEntity $product = null;
 
     /**
      * @var array<string, mixed>|null
      */
-    protected ?array $slotConfig;
+    protected ?array $slotConfig = null;
 
     /**
      * @var array<string>|null
      */
-    protected ?array $customSearchKeywords;
+    protected ?array $customSearchKeywords = null;
 
     public function getProductId(): string
     {

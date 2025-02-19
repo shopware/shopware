@@ -19,9 +19,9 @@ class ProductVisibilityEntity extends Entity
 
     protected string $salesChannelId;
 
-    protected ?ProductEntity $product;
+    protected ?ProductEntity $product = null;
 
-    protected ?SalesChannelEntity $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
     public function getVisibility(): int
     {

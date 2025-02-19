@@ -15,7 +15,7 @@ class ProductSearchConfigFieldEntity extends Entity
 
     protected string $searchConfigId;
 
-    protected ?string $customFieldId;
+    protected ?string $customFieldId = null;
 
     protected string $field;
 
@@ -25,9 +25,9 @@ class ProductSearchConfigFieldEntity extends Entity
 
     protected int $ranking;
 
-    protected ?ProductSearchConfigEntity $searchConfig;
+    protected ?ProductSearchConfigEntity $searchConfig = null;
 
-    protected ?CustomFieldEntity $customField;
+    protected ?CustomFieldEntity $customField = null;
 
     public function getSearchConfigId(): string
     {

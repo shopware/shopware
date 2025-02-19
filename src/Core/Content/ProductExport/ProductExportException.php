@@ -75,7 +75,8 @@ class ProductExportException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::SALES_CHANNEL_DOMAIN_NOT_FOUND_EXCEPTION,
-            \sprintf('No sales channel domain found for product export with id %s', $productExportId)
+            'No sales channel domain found for product export with id {{ productExportId }}',
+            ['productExportId' => $productExportId]
         );
     }
 

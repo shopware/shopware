@@ -13,18 +13,18 @@ class ProductFeatureSetEntity extends Entity
 {
     use EntityIdTrait;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
-    protected ?string $description;
+    protected ?string $description = null;
 
     /**
-     * @var array<mixed>|null
+     * @var array<int, array{name: string, id: string, type: string, position: int}>|null
      */
-    protected ?array $features;
+    protected ?array $features = null;
 
-    protected ?ProductFeatureSetTranslationCollection $translations;
+    protected ?ProductFeatureSetTranslationCollection $translations = null;
 
-    protected ?ProductCollection $products;
+    protected ?ProductCollection $products = null;
 
     public function getName(): ?string
     {
@@ -47,7 +47,7 @@ class ProductFeatureSetEntity extends Entity
     }
 
     /**
-     * @return array<mixed>|null
+     * @return array<int, array{name: string, id: string, type: string, position: int}>|null
      */
     public function getFeatures(): ?array
     {
@@ -55,7 +55,7 @@ class ProductFeatureSetEntity extends Entity
     }
 
     /**
-     * @param array<mixed> $features
+     * @param array<int, array{name: string, id: string, type: string, position: int}> $features
      */
     public function setFeatures(array $features): void
     {

@@ -9,6 +9,13 @@ class PropertiesCorrectlyTyped
     public string $foo;
 
     /**
+     * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed
+     */
+    public $stringPropertyWithDeprecation;
+
+    /**
      * @var resource
      */
     public $resourceProperty;
@@ -19,12 +26,14 @@ class PropertiesCorrectlyTyped
     public $callableProperty;
 
     /**
+     * @param string $promotedStringPropertyWithDeprecation
      * @param resource $promotedResourceProperty
      * @param callable $promotedCallableProperty
      */
     public function __construct(
         public string $promotedStringProperty,
-        public string $promotedStringPropertyWithDeprecation,
+        /** @deprecated tag:v6.7.0 - Will be natively typed */
+        public $promotedStringPropertyWithDeprecation,
         public $promotedResourceProperty,
         public $promotedCallableProperty,
     ) {

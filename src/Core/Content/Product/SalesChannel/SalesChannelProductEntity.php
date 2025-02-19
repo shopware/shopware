@@ -27,7 +27,7 @@ class SalesChannelProductEntity extends ProductEntity
 
     protected int $calculatedMaxPurchase;
 
-    protected ?CategoryEntity $seoCategory;
+    protected ?CategoryEntity $seoCategory = null;
 
     /**
      * The container will be resolved on product.loaded event and

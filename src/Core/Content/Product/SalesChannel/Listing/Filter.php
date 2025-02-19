@@ -32,7 +32,7 @@ class Filter extends Struct
         bool $filtered,
         array $aggregations,
         DALFilter $filter,
-        protected mixed $values,
+        protected int|float|string|bool|array|null $values,
         bool $exclude = true
     ) {
         $this->name = $name;
@@ -68,7 +68,7 @@ class Filter extends Struct
     /**
      * @return int|float|string|bool|array<mixed>|null
      */
-    public function getValues(): mixed
+    public function getValues(): int|float|string|bool|array|null
     {
         return $this->values;
     }

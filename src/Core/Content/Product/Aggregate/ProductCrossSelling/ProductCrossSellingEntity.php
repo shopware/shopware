@@ -16,7 +16,7 @@ class ProductCrossSellingEntity extends Entity
 {
     use EntityIdTrait;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
     protected int $position;
 
@@ -30,17 +30,17 @@ class ProductCrossSellingEntity extends Entity
 
     protected string $productId;
 
-    protected ?ProductEntity $product;
+    protected ?ProductEntity $product = null;
 
     protected string $productStreamId;
 
-    protected ?ProductStreamEntity $productStream;
+    protected ?ProductStreamEntity $productStream = null;
 
     protected string $type;
 
-    protected ?ProductCrossSellingAssignedProductsCollection $assignedProducts;
+    protected ?ProductCrossSellingAssignedProductsCollection $assignedProducts = null;
 
-    protected ?ProductCrossSellingTranslationCollection $translations;
+    protected ?ProductCrossSellingTranslationCollection $translations = null;
 
     public function getName(): ?string
     {

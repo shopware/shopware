@@ -104,19 +104,13 @@ class ProductException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function originalIdNotFound(string $originalId): self|\RuntimeException
+    public static function originalIdNotFound(string $originalId): self
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new \RuntimeException(\sprintf('Cannot find originalId %s in listing mapping', $originalId));
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::PRODUCT_ORIGINAL_ID_NOT_FOUND,
-            \sprintf('Cannot find originalId %s in listing mapping', $originalId)
+            'Cannot find originalId {{ originalId }} in listing mapping',
+            ['originalId' => $originalId]
         );
     }
 }

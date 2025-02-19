@@ -18,26 +18,26 @@ class ProductStreamFilterEntity extends Entity
 
     protected ?string $field = null;
 
-    protected ?string $operator;
+    protected ?string $operator = null;
 
-    protected ?string $value;
+    protected ?string $value = null;
 
     protected string $productStreamId;
 
-    protected ?string $parentId;
+    protected ?string $parentId = null;
 
-    protected ?ProductStreamEntity $productStream;
+    protected ?ProductStreamEntity $productStream = null;
 
-    protected ?ProductStreamFilterCollection $queries;
+    protected ?ProductStreamFilterCollection $queries = null;
 
-    protected ?ProductStreamFilterEntity $parent;
+    protected ?ProductStreamFilterEntity $parent = null;
 
     protected int $position;
 
     /**
      * @var array<string>|null
      */
-    protected ?array $parameters;
+    protected ?array $parameters = null;
 
     public function getField(): ?string
     {

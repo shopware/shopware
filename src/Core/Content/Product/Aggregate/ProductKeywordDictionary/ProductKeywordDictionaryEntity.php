@@ -18,7 +18,7 @@ class ProductKeywordDictionaryEntity extends Entity
 
     protected string $reversed;
 
-    protected ?LanguageEntity $language;
+    protected ?LanguageEntity $language = null;
 
     public function getId(): string
     {

@@ -17,9 +17,9 @@ class ProductCrossSellingAssignedProductsEntity extends Entity
 
     protected string $productId;
 
-    protected ?ProductEntity $product;
+    protected ?ProductEntity $product = null;
 
-    protected ?ProductCrossSellingEntity $crossSelling;
+    protected ?ProductCrossSellingEntity $crossSelling = null;
 
     protected int $position;
 

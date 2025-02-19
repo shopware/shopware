@@ -14,11 +14,11 @@ class PropertyGroupOptionTranslationEntity extends TranslationEntity
 
     protected string $propertyGroupOptionId;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
-    protected ?int $position;
+    protected ?int $position = null;
 
-    protected ?PropertyGroupOptionEntity $propertyGroupOption;
+    protected ?PropertyGroupOptionEntity $propertyGroupOption = null;
 
     public function getPropertyGroupOptionId(): string
     {

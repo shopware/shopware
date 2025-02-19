@@ -22,11 +22,11 @@ class ProductMediaEntity extends Entity
 
     protected int $position;
 
-    protected ?MediaEntity $media;
+    protected ?MediaEntity $media = null;
 
-    protected ?ProductEntity $product;
+    protected ?ProductEntity $product = null;
 
-    protected ?ProductCollection $coverProducts;
+    protected ?ProductCollection $coverProducts = null;
 
     public function getProductId(): string
     {

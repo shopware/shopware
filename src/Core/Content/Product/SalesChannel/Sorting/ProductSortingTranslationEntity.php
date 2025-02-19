@@ -13,9 +13,9 @@ class ProductSortingTranslationEntity extends TranslationEntity
 
     protected string $productSortingId;
 
-    protected ?ProductSortingEntity $productSorting;
+    protected ?ProductSortingEntity $productSorting = null;
 
-    protected ?string $label;
+    protected ?string $label = null;
 
     public function getProductSortingId(): string
     {

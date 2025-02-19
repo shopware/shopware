@@ -11,9 +11,9 @@ class ProductFeatureSetTranslationEntity extends TranslationEntity
 {
     protected string $productFeatureSetId;
 
-    protected ?string $name;
+    protected ?string $name = null;
 
-    protected ?string $description;
+    protected ?string $description = null;
 
     protected ProductFeatureSetEntity $productFeatureSet;
 

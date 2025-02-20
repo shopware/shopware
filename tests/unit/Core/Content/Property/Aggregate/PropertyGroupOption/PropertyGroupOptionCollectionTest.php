@@ -19,7 +19,6 @@ class PropertyGroupOptionCollectionTest extends TestCase
     {
         $propertyGroupOptionEntity = new PropertyGroupOptionEntity();
         $propertyGroupOptionEntity->setId(Uuid::randomHex());
-        $propertyGroupOptionEntity->setGroup(null);
 
         $collection = new PropertyGroupOptionCollection([
             $propertyGroupOptionEntity,

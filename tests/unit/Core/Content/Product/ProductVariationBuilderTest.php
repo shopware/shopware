@@ -48,7 +48,6 @@ class ProductVariationBuilderTest extends TestCase
                     (new PropertyGroupOptionEntity())->assign([
                         '_uniqueIdentifier' => Uuid::randomHex(),
                         'name' => 'red',
-                        'group' => null,
                     ]),
                 ]),
             ]),

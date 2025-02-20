@@ -79,7 +79,6 @@ class AbstractCmsElementResolverTest extends TestCase
     {
         $expected = 'Je suis un texte français';
         $manufacturer = new ProductManufacturerEntity();
-        $manufacturer->setDescription(null);
         $manufacturer->setTranslated(['description' => $expected]);
 
         $product = new ProductEntity();
@@ -96,8 +95,6 @@ class AbstractCmsElementResolverTest extends TestCase
         $expected = 'Je suis un texte français';
 
         $manufacturer = new ProductManufacturerEntity();
-        $manufacturer->setDescription($expected);
-        $manufacturer->setName(null);
         $manufacturer->setTranslated(['description' => $expected]);
 
         $product = new ProductEntity();

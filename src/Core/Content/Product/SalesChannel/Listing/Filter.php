@@ -10,36 +10,18 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('inventory')]
 class Filter extends Struct
 {
-    protected string $name;
-
-    protected bool $filtered;
-
-    /**
-     * @var list<Aggregation>
-     */
-    protected array $aggregations;
-
-    protected DALFilter $filter;
-
-    protected bool $exclude;
-
     /**
      * @param list<Aggregation> $aggregations
      * @param int|float|string|bool|array<mixed>|null $values
      */
     public function __construct(
-        string $name,
-        bool $filtered,
-        array $aggregations,
-        DALFilter $filter,
+        protected string $name,
+        protected bool $filtered,
+        protected array $aggregations,
+        protected DALFilter $filter,
         protected int|float|string|bool|array|null $values,
-        bool $exclude = true
+        protected bool $exclude = true
     ) {
-        $this->name = $name;
-        $this->filtered = $filtered;
-        $this->aggregations = $aggregations;
-        $this->filter = $filter;
-        $this->exclude = $exclude;
     }
 
     public function getName(): string

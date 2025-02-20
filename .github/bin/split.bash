@@ -15,29 +15,31 @@ uppercase_first() {
 #
 # [1]: A subpackage. e.g.: "Administration"
 split_repo() {
-  local package_lower=$(lowercase "${1}")
-  local package="$(uppercase_first "$package_lower")"
+  local package_lower; package_lower=$(lowercase "${1}")
+  local package; package="$(uppercase_first "${package_lower}")"
+  local rand; rand="$(head -c4 < /dev/urandom | base64 | tr -d '+/=')"
 
-  local split_repos_dir="${PLATFORM_DIR}/repos"
-  local split_repo_dir="${PLATFORM_DIR}/repos/$(lowercase ${package})"
-  local tmp_target_repo_dir="$(mktemp -d)/"
-  local default_branch="$(git config --global init.defaultBranch)"; default_branch=${default_branch:-trunk}
+  local split_repos_dir; split_repos_dir="${PLATFORM_DIR}/repos"
+  local split_repo_dir; split_repo_dir="${PLATFORM_DIR}/repos/$(lowercase ${package})"
+  local tmp_target_repo_dir; tmp_target_repo_dir="$(mktemp -d)/"
+  local split_branch; split_branch="${package_lower}-${rand}"
+  local default_branch; default_branch="$(git config --global init.defaultBranch || true)"; default_branch=${default_branch:-trunk}
 
   git config --global --add safe.directory "${PLATFORM_DIR}" # TODO: Find out why this is necessary in CI.
 
   mkdir -p "${split_repos_dir}"
 
-  git -C "${PLATFORM_DIR}" subtree split -q -P src/${package}/  -b ${package_lower}
+  git -C "${PLATFORM_DIR}" subtree split -q -P src/${package}/ -b ${split_branch}
 
   git -C "${PLATFORM_DIR}" remote remove "tmp_target_repo" > /dev/null 2>&1 || true
 
   git init -b "${default_branch}" --bare "${tmp_target_repo_dir}"
 
   git -C "${PLATFORM_DIR}" remote add -t "${default_branch}" "tmp_target_repo" "${tmp_target_repo_dir}"
-  git -C "${PLATFORM_DIR}" push -u "tmp_target_repo" "${package_lower}:${default_branch}" -f
+  git -C "${PLATFORM_DIR}" push -u "tmp_target_repo" "${split_branch}:${default_branch}" -f
 
   if [ -d "${split_repo_dir}" ]; then
-    local scrapyard="$(mktemp -d)"
+    local scrapyard; scrapyard="$(mktemp -d)"
 
     printf "INFO: Directory %s already exists, moving it out of the way to %s...\n" "${split_repo_dir}" "${scrapyard}"
     mv "${split_repo_dir}" "${scrapyard}"
@@ -51,8 +53,8 @@ split_repo() {
 #
 # [1]: A subpackage. e.g.: "Administration"
 copy_assets() {
-  local package_lower=$(lowercase "${1}")
-  local package="$(uppercase_first "$package_lower")"
+  local package_lower; package_lower=$(lowercase "${1}")
+  local package; package="$(uppercase_first "${package_lower}")"
 
   if [ -d "${PLATFORM_DIR}/src/${package}/Resources/public" ]; then
     cp -r "${PLATFORM_DIR}/src/${package}/Resources/public" "${PLATFORM_DIR}/repos/${package_lower}/Resources/"
@@ -91,7 +93,7 @@ check_storefront_assets() {
 # Checks whether all mandatory assets have been generated and copied to the
 # correct repository.
 check_assets() {
-  local package=$(lowercase "${1:-""}")
+  local package; package=$(lowercase "${1:-""}")
 
   if [[ ${package} == "" || ${package} == "storefront" ]]; then
     check_storefront_assets
@@ -103,22 +105,22 @@ check_assets() {
 }
 
 require_core_version() {
-  local package_lower=$(lowercase "${1}")
-  local package="$(uppercase_first "$package_lower")"
-  local version="${2}"
-  local type="${3:-tag}"
+  local package_lower; package_lower=$(lowercase "${1}")
+  local package; package="$(uppercase_first "${package_lower}")"
+  local package_version; package_version="${2}"
+  local ref_type; ref_type="${3:-tag}"
 
   if [ "${package_lower}" != "core" ]; then
-    if [[ $type != "tag" ]]; then
-      # version like add dev at the end
-      if echo -n "${version}" | grep -q -E '^[0-9]'; then
-        version="${version}-dev"
+    if [[ $ref_type != "tag" ]]; then
+      # version like? -> add dev at the end
+      if echo -n "${package_version}" | grep -q -E '^[0-9]'; then
+        package_version="${package_version}-dev"
       else
-        version="dev-${version}"
+        package_version="dev-${package_version}"
       fi
     fi
 
-    composer -d "${PLATFORM_DIR}/repos/${package_lower}" require "shopware/core:${version}" --no-update --no-install
+    composer -d "${PLATFORM_DIR}/repos/${package_lower}" require "shopware/core:${package_version}" --no-update --no-install
   fi
 }
 
@@ -128,12 +130,12 @@ require_core_version() {
 # [1]: A subpackage. e.g.: "Administration"
 # [2]: The branch name.
 branch() {
-  local package_lower=$(lowercase "${1}")
-  local package="$(uppercase_first "$package_lower")"
-  local name="${2}"
-  local commit_id=$(git -C "${PLATFORM_DIR}/repos/${package_lower}" log -n1 --format="%H")
+  local package_lower; package_lower=$(lowercase "${1}")
+  local package; package="$(uppercase_first "${package_lower}")"
+  local name; name="${2}"
+  local commit_id; commit_id=$(git -C "${PLATFORM_DIR}/repos/${package_lower}" log -n1 --format="%H")
 
-  git -C "${PLATFORM_DIR}/repos/${package_lower}" branch -M "${name}" "${commit_id}"
+  git -C "${PLATFORM_DIR}/repos/${package_lower}" branch -f "${name}" "${commit_id}"
 }
 
 # Commits additional files in a split repository of a subpackage of platform.
@@ -141,9 +143,9 @@ branch() {
 # [1]: A subpackage. e.g.: "Administration"
 # [2]: A commit message.
 commit() {
-  local package_lower=$(lowercase "${1}")
-  local package="$(uppercase_first "$package_lower")"
-  local message="${2}"
+  local package_lower; package_lower=$(lowercase "${1}")
+  local package; package="$(uppercase_first "${package_lower}")"
+  local message; message="${2}"
 
   git -C "${PLATFORM_DIR}/repos/${package_lower}" add .
   git -C "${PLATFORM_DIR}/repos/${package_lower}" commit --allow-empty -m "${message}"
@@ -154,9 +156,9 @@ commit() {
 # [1]: A subpackage. e.g.: "Administration"
 # [2]: The tag name.
 tag() {
-  local package_lower=$(lowercase "${1}")
-  local package="$(uppercase_first "$package_lower")"
-  local name="${2}"
+  local package_lower; package_lower=$(lowercase "${1}")
+  local package; package="$(uppercase_first "${package_lower}")"
+  local name; name="${2}"
 
   git -C "${PLATFORM_DIR}/repos/${package_lower}" tag -m "Release ${name}" "${name}" -f
 }
@@ -167,12 +169,12 @@ tag() {
 # [2]: Base-URL of the remote repository, e.g.: "https://user:pass@git.example.com"
 # [3]: The ref to push to, e.g.: "6.4.20.0"
 push() {
-  local package_lower=$(lowercase "${1}")
-  local package="$(uppercase_first "$package_lower")"
-  local remote_base_url="${2}"
-  local target_ref="${3}"
+  local package_lower; package_lower=$(lowercase "${1}")
+  local package; package="$(uppercase_first "${package_lower}")"
+  local remote_base_url; remote_base_url="${2}"
+  local target_ref; target_ref="${3}"
 
-  local remote_url=$(printf "%s/%s.git" "${remote_base_url}" "${package_lower}")
+  local remote_url; remote_url=$(printf "%s/%s.git" "${remote_base_url}" "${package_lower}")
 
   git -C "${PLATFORM_DIR}/repos/${package_lower}" remote remove upstream > /dev/null 2>&1 || true
   git -C "${PLATFORM_DIR}/repos/${package_lower}" remote add upstream "${remote_url}"
@@ -199,11 +201,11 @@ include_storefront_assets() {
 }
 
 include_assets() {
-  local package=$(lowercase "${1}")
+  local package; package=$(lowercase "${1}")
 
   if [[ ${package} == "administration" || ${package} == "storefront" ]]; then
-    copy_assets $package
-    check_assets $package
+    copy_assets "${package}"
+    check_assets "${package}"
   fi
 
   if [[ ${package} == "administration" ]]; then
@@ -219,7 +221,7 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     set -o errexit
     set -o pipefail
 
-    if [ -n "${DEBUG:-}" ] || [ -n "${ACTIONS_STEP_DEBUG:-}" ]; then
+    if [ -n "${DEBUG:-}" ]; then
         set -x
     fi
 

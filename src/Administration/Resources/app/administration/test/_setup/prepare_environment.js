@@ -47,6 +47,7 @@ import flushPromises from '../_helper_/flushPromises';
 import wrapTestComponent from '../_helper_/componentWrapper';
 import 'blob-polyfill';
 import { sendTimeoutExpired } from '../_helper_/allowedErrors';
+import findByText from '../_helper_/find-by-text';
 
 // initialize the Stores
 import '../../src/module/sw-cms/store/cms-page.store';
@@ -86,6 +87,7 @@ import '../../src/module/sw-profile/store/sw-profile.store';
 import '../../src/module/sw-promotion-v2/page/sw-promotion-v2-detail/store';
 import '../../src/module/sw-flow/store/flow.store';
 import '../../src/module/sw-bulk-edit/store/sw-bulk-edit.store';
+import findByAriaLabel from '../_helper_/find-by-aria-label';
 
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;
@@ -93,6 +95,14 @@ config.global.config.compilerOptions = {
     ...config.global.config.compilerOptions,
     whitespace: 'preserve',
 };
+
+
+config.plugins.VueWrapper.install((wrapper) => {
+    // add `findByText` to the global config
+    wrapper.findByText = (selector, text) => findByText(wrapper, selector, text);
+    // add `findByAriaLabel` to the global config
+    wrapper.findByAriaLabel = (selector, text) => findByAriaLabel(wrapper, selector, text);
+});
 
 // enable autoUnmount for wrapper after each test
 enableAutoUnmount(afterEach);
@@ -237,6 +247,7 @@ const i18n = createI18n({
     locale: 'en',
     fallbackLocale: 'en',
     silentFallbackWarn: true,
+    silentTranslationWarn: true,
     sync: true,
     messages: {},
     allowComposition: true,
@@ -312,6 +323,26 @@ global.allowedErrors = [
             }
 
             return msg.includes('has already been registered in target app');
+        },
+    },
+    {
+        method: 'warn',
+        msgCheck: (msg) => {
+            if (typeof msg !== 'string') {
+                return false;
+            }
+
+            return msg.includes('[intlify] Not found');
+        },
+    },
+    {
+        method: 'warn',
+        msgCheck: (msg) => {
+            if (typeof msg !== 'string') {
+                return false;
+            }
+
+            return msg.includes('[intlify] Fall back to translate');
         },
     },
     {

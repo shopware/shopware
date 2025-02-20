@@ -75,9 +75,10 @@
     {% endblock %}
 
     {% block sw_category_detail_link_field %}
-    <sw-text-field
+
+    <mt-text-field
         v-if="isExternal"
-        v-model:value="category.externalLink"
+        v-model="category.externalLink"
         class="sw-category-link-settings__external-link"
         :disabled="!acl.can('category.editor') || undefined"
         :label="$tc('sw-category.base.link.linkLabel')"

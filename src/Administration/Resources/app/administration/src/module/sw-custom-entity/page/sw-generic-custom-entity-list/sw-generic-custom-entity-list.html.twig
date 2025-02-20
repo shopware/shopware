@@ -24,13 +24,14 @@
     </template>
 
     <template #smart-bar-actions>
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-generic-custom-entity-list__button-add"
-            :router-link="{ name: 'sw.custom.entity.create' }"
             variant="primary"
+            @click="$router.push({ name: 'sw.custom.entity.create' })"
         >
             {{ $tc('global.default.add') }}
-        </sw-button>
+        </mt-button>
     </template>
 
     <template #language-switch>

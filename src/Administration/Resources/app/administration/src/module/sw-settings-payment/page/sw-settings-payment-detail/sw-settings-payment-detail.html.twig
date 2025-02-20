@@ -10,13 +10,14 @@
     {% block sw_settings_payment_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_payment_detail_actions_abort %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="tooltipCancel"
             :disabled="isLoading || undefined"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_settings_payment_detail_actions_save %}
@@ -80,8 +81,9 @@
                             gap="0px 30px"
                         >
                             {% block sw_settings_payment_detail_content_field_name %}
-                            <sw-text-field
-                                v-model:value="paymentMethod.name"
+
+                            <mt-text-field
+                                v-model="paymentMethod.name"
                                 name="sw-field--paymentMethod-name"
                                 class="sw-settings-payment-detail__field-name"
                                 required
@@ -93,8 +95,9 @@
                             {% endblock %}
 
                             {% block sw_settings_payment_detail_content_field_technical_name %}
-                            <sw-text-field
-                                v-model:value="paymentMethod.technicalName"
+
+                            <mt-text-field
+                                v-model="paymentMethod.technicalName"
                                 name="sw-field--paymentMethod-technicalName"
                                 class="sw-settings-payment-detail__field-technical-name"
                                 required
@@ -105,9 +108,9 @@
                                 :help-text="$tc('sw-settings-payment.detail.helpTextTechnicalName')"
                             >
                                 <template #hint>
-                                    <span v-if="technicalNameIsProvided">{{ $tc('sw-settings-payment.detail.hintTextTechnicalNameIsProvided', { name: paymentMethod.translated.name ?? paymentMethod.name }) }}</span>
+                                    <span v-if="technicalNameIsProvided">{{ $tc('sw-settings-payment.detail.hintTextTechnicalNameIsProvided', { name: paymentMethod.translated?.name ?? paymentMethod.name }) }}</span>
                                 </template>
-                            </sw-text-field>
+                            </mt-text-field>
                             {% endblock %}
 
                             {% block sw_settings_payment_detail_content_field_position %}
@@ -242,13 +245,15 @@
                     </mt-banner>
 
                     <div class="sw-settings-payment-detail-delete__container">
-                        <sw-button
-                            variant="ghost-danger"
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
+                            variant="critical"
+                            ghost
                             :disabled="forbidDelete || !acl.can('payment.deleter') || undefined"
                             @click="showDeleteModal = true"
                         >
                             {{ $tc('sw-settings-payment.detail.delete.textButton') }}
-                        </sw-button>
+                        </mt-button>
                     </div>
                 </sw-card>
                 {% endblock %}
@@ -272,23 +277,25 @@
                     {% block sw_settings_payment_detail_delete_modal_footer %}
                     <template #modal-footer>
                         {% block sw_settings_payment_detail_reset_modal_cancel %}
-                        <sw-button
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
                             size="small"
                             @click="showDeleteModal = false"
                         >
                             {{ $tc('global.default.cancel') }}
-                        </sw-button>
+                        </mt-button>
                         {% endblock %}
 
                         {% block sw_settings_payment_detail_reset_modal_confirm %}
-                        <sw-button
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
                             :disabled="deletionInProcess || undefined"
-                            variant="danger"
+                            variant="critical"
                             size="small"
                             @click="deletePaymentMethod"
                         >
                             {{ $tc('sw-settings-payment.detail.delete.modal.buttonDelete') }}
-                        </sw-button>
+                        </mt-button>
                         {% endblock %}
                     </template>
                     {% endblock %}

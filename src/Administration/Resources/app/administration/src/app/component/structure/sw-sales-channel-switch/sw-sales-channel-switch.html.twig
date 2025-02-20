@@ -13,31 +13,34 @@
         {% block sw_sales_channel_switch_footer %}
         <template #modal-footer>
             {% block sw_sales_channel_switch_footer_button_close %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
                 @click="onCloseChangesModal"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_sales_channel_switch_footer_button_revert %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
                 @click="onClickRevertUnsavedChanges"
             >
                 {{ $tc('sw-sales-channel-switch.titleModalButtonRevertUnsavedChanges') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_sales_channel_switch_footer_button_save %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 variant="primary"
                 size="small"
                 @click="onClickSaveChanges"
             >
                 {{ $tc('global.default.save') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
         {% endblock %}

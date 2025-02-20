@@ -61,7 +61,6 @@ async function createWrapper(privileges = []) {
 `,
                 },
                 'sw-skeleton': true,
-                'sw-button': true,
                 'sw-rating-stars': true,
                 'sw-data-grid-column-boolean': true,
                 'sw-pagination': true,

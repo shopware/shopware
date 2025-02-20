@@ -531,7 +531,6 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         beforeAll(() => {
             global.allowedErrors.push({
                 method: 'warn',
-                hurensohn: true,
                 msgCheck: (_, msg) => {
                     if (typeof msg !== 'string') {
                         return false;

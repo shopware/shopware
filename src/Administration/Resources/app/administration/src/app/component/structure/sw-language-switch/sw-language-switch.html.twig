@@ -13,27 +13,30 @@
         {% block sw_language_switch_footer %}
         <template #modal-footer>
             {% block sw_language_switch_footer_button_close %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 id="sw-language-switch-close-button"
                 size="small"
                 @click="onCloseChangesModal"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_language_switch_footer_button_revert %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 id="sw-language-switch-revert-changes-button"
                 size="small"
                 @click="onClickRevertUnsavedChanges"
             >
                 {{ $tc('sw-language-switch.titleModalButtonRevertUnsavedChanges') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_language_switch_footer_button_save %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 id="sw-language-switch-save-changes-button"
                 v-tooltip="{
                     message: $tc('sw-privileges.tooltip.warning'),
@@ -46,7 +49,7 @@
                 @click="onClickSaveChanges"
             >
                 {{ $tc('global.default.save') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
         {% endblock %}

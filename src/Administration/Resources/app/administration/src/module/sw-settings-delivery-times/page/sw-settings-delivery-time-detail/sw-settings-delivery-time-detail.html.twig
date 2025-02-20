@@ -20,12 +20,13 @@
     <template #smart-bar-actions>
 
         {% block sw_settings_delivery_time_detail_smart_bar_actions_cancel %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="tooltipCancel"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_settings_delivery_time_detail_smart_bar_actions_save %}
@@ -67,8 +68,9 @@
                     <template v-if="deliveryTime">
 
                         {% block sw_settings_delivery_time_detail_name_field %}
-                        <sw-text-field
-                            v-model:value="deliveryTime.name"
+
+                        <mt-text-field
+                            v-model="deliveryTime.name"
                             name="sw-field--deliveryTime-name"
                             :label="$tc('sw-settings-delivery-time.detail.labelName')"
                             :error="deliveryTimeNameError"

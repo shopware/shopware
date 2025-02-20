@@ -75,26 +75,28 @@
 
     <template #modal-footer>
         <slot name="bulk-modal-cancel">
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
                 @click="showBulkDeleteModal = false"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
         </slot>
 
         <slot
             name="bulk-modal-delete-items"
             v-bind="{ isBulkLoading, deleteItems }"
         >
-            <sw-button
-                variant="danger"
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
+                variant="critical"
                 size="small"
                 :is-loading="isBulkLoading"
                 @click="deleteItems"
             >
                 {{ $tc('global.default.delete') }}
-            </sw-button>
+            </mt-button>
         </slot>
     </template>
 </sw-modal>
@@ -178,25 +180,27 @@
                 name="delete-modal-cancel"
                 v-bind="{ item }"
             >
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="small"
                     @click="closeModal"
                 >
                     {{ $tc('global.default.cancel') }}
-                </sw-button>
+                </mt-button>
             </slot>
 
             <slot
                 name="delete-modal-delete-item"
                 v-bind="{ item }"
             >
-                <sw-button
-                    variant="danger"
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
+                    variant="critical"
                     size="small"
                     @click="deleteItem(item.id)"
                 >
                     {{ $tc('global.default.delete') }}
-                </sw-button>
+                </mt-button>
             </slot>
         </slot>
     </template>

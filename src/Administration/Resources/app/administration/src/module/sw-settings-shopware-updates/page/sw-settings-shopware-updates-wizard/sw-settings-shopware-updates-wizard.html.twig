@@ -17,7 +17,8 @@
             :key="updatePossible"
             v-tooltip="updateButtonTooltip"
         >
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-if="updateInfo.version"
                 :disabled="!updatePossible"
                 :is-loading="updaterIsRunning"
@@ -26,7 +27,7 @@
                 @click="updateModalShown = true"
             >
                 {{ $t('sw-settings-shopware-updates.infos.startUpdate') }}
-            </sw-button>
+            </mt-button>
         </div>
     </template>
     {% endblock %}
@@ -116,14 +117,16 @@
                 />
 
                 <div class="sw-settings-shopware-updates-check__start-update-actions">
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         size="small"
                         @click="updateModalShown = false"
                     >
                         {{ $tc('global.default.cancel') }}
-                    </sw-button>
+                    </mt-button>
 
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         :disabled="!checkedBackupCheckbox"
                         variant="primary"
                         size="small"
@@ -131,7 +134,7 @@
                         @click="startUpdateProcess()"
                     >
                         {{ $tc('sw-settings-shopware-updates.updateModal.actions.install') }}
-                    </sw-button>
+                    </mt-button>
                 </div>
             </template>
         </sw-modal>

@@ -11,8 +11,9 @@
     >
 
         {% block sw_settings_listing_option_general_info_name %}
-        <sw-text-field
-            v-model:value="sortingOption.label"
+
+        <mt-text-field
+            v-model="sortingOption.label"
             class="sw-settings-listing-edit__general-input"
             :label="$tc('sw-settings-listing.base.general.labelName')"
             :placeholder="$tc('sw-settings-listing.base.general.placeholderName')"
@@ -22,8 +23,9 @@
         {% endblock %}
 
         {% block sw_settings_listing_option_general_info_technical_name %}
-        <sw-text-field
-            v-model:value="sortingOption.key"
+
+        <mt-text-field
+            v-model="sortingOption.key"
             name="sw-field--listing-option-technicalName"
             class="sw-settings-listing-option-general-info__field-technical-name"
             required

@@ -28,19 +28,20 @@
                     {% endblock %}
 
                     {% block sw_sales_channel_detail_products_card_section_secondary_button %}
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         v-tooltip="{
                             message: $tc('sw-privileges.tooltip.warning'),
                             disabled: acl.can('sales_channel.editor'),
                             showOnDisabledElements: true
                         }"
-                        variant="ghost"
+                        ghost
                         size="small"
                         :disabled="!acl.can('sales_channel.editor')"
                         @click="openAddProductsModal"
                     >
                         {{ $tc('sw-sales-channel.detail.products.buttonAddProducts', 0) }}
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
                 </sw-container>
             </sw-card-section>
@@ -191,18 +192,19 @@
 
         <template #actions>
             {% block sw_sales_channel_detail_products_empty_state_button %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-tooltip="{
                     message: $tc('sw-privileges.tooltip.warning'),
                     disabled: acl.can('sales_channel.editor'),
                     showOnDisabledElements: true
                 }"
-                variant="ghost"
+                ghost
                 :disabled="!acl.can('sales_channel.editor')"
                 @click="openAddProductsModal"
             >
                 {{ $tc('sw-sales-channel.detail.products.buttonAddProducts', 0) }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
     </sw-empty-state>

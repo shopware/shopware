@@ -32,8 +32,9 @@
                 align="start"
             >
                 {% block sw_prduct_cross_selling_form_title_field %}
-                <sw-text-field
-                    v-model:value="crossSelling.name"
+
+                <mt-text-field
+                    v-model="crossSelling.name"
                     name="sw-field--crossSelling-name"
                     :label="$tc('sw-product.crossselling.inputCrossSellingTitle')"
                     required
@@ -195,23 +196,25 @@
         {% block sw_product_detail_cross_selling_form_modal_delete_footer %}
         <template #modal-footer>
             {% block sw_product_detail_cross_selling_modal_delete_action_cancel %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
                 @click="onCloseDeleteModal"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_product_detail_cross_selling_form_modal_delete_action_delete %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 class="sw-product-detail-cross-selling__delete-button"
                 size="small"
-                variant="danger"
+                variant="critical"
                 @click="onConfirmDelete"
             >
                 {{ $tc('sw-product.crossselling.deleteButtonDelete') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
         {% endblock %}

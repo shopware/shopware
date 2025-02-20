@@ -15,8 +15,6 @@ describe('src/app/component/modal/sw-confirm-modal', () => {
             global: {
                 stubs: {
                     'sw-modal': await wrapTestComponent('sw-modal'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-loader': true,
                     'sw-icon': true,
                     'router-link': true,
@@ -80,11 +78,11 @@ describe('src/app/component/modal/sw-confirm-modal', () => {
         ],
         [
             'delete',
-            expectedValues('danger', 'delete', 'cancel'),
+            expectedValues('critical', 'delete', 'cancel'),
         ],
         [
             'discard',
-            expectedValues('danger', 'discard', 'cancel'),
+            expectedValues('critical', 'discard', 'cancel'),
         ],
     ];
 
@@ -95,7 +93,7 @@ describe('src/app/component/modal/sw-confirm-modal', () => {
 
             expect(wrapper.get('.sw-confirm-modal__button-cancel').text()).toBe(`global.default.${cancelText}`);
             expect(wrapper.get('.sw-confirm-modal__button-confirm').text()).toBe(`global.default.${confirmText}`);
-            expect(wrapper.get('.sw-confirm-modal__button-confirm').classes(`sw-button--${confirmButtonVariant}`)).toBe(
+            expect(wrapper.get('.sw-confirm-modal__button-confirm').classes(`mt-button--${confirmButtonVariant}`)).toBe(
                 true,
             );
         },

@@ -46,7 +46,8 @@
     <template #smart-bar-actions>
 
         {% block sw_settings_language_list_smart_bar_actions_add %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: allowCreate,
@@ -55,10 +56,10 @@
             class="sw-settings-language-list__button-create"
             variant="primary"
             :disabled="!allowCreate || undefined"
-            :router-link="{ name: 'sw.settings.language.create' }"
+            @click="$router.push({ name: 'sw.settings.language.create' })"
         >
             {{ $tc('sw-settings-language.list.buttonAddLanguage') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
     </template>
@@ -89,9 +90,10 @@
             {% block sw_settings_language_list_content_list_columns %}
             {% block sw_settings_language_list_content_list_column_name %}
             <template #column-name="{ item, column, compact, isInlineEdit }">
-                <sw-text-field
+
+                <mt-text-field
                     v-if="isInlineEdit"
-                    v-model:value="item.name"
+                    v-model="item.name"
                     :size="compact ? 'small' : 'default'"
                 />
                 <router-link

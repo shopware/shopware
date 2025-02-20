@@ -58,8 +58,6 @@ https://sass-guidelin.es/#the-7-1-pattern
 @import 'component/cms-element';
 @import 'component/cms-form-confirmation';
 @import 'component/forms';
-// @deprecated tag:v6.7.0 - address-editor will be replaced with address-manager
-@import 'component/address-editor';
 @import 'component/address-manager';
 @import 'component/sorting';
 @import 'component/delivery-status';
@@ -86,14 +84,9 @@ https://sass-guidelin.es/#the-7-1-pattern
  * Layout-related sections
  * ----------------------- */
 @import 'layout/container';
-// @deprecated tag:v6.7.0 - File "_top-bar.scss" will be removed. Appearance will be styled by Bootstrap variables in "scss/skin/shopware/layout/_top-bar.scss".
-@import 'layout/top-bar';
 @import 'layout/header';
 @import 'layout/header-minimal';
 @import 'layout/footer';
-@import 'layout/main-navigation';
-/** @deprecated tag:v6.7.0 - Can be removed, is covered via template layout/navbar/navbar.html.twig */
-@import 'layout/navigation-flyout';
 @import 'layout/navigation-offcanvas';
 @import 'layout/offcanvas-cart';
 @import 'layout/account-menu';
@@ -125,9 +118,6 @@ https://sass-guidelin.es/#the-7-1-pattern
 @import 'page/checkout/register';
 @import 'page/checkout/confirm';
 @import 'page/checkout/finish';
-
-/** @deprecated tag:v6.7.0 - File "_breadcrumb.scss" will be removed without replacement. Bootstrap container styles are used instead. */
-@import 'page/content/breadcrumb';
 
 @import 'page/search/search';
 

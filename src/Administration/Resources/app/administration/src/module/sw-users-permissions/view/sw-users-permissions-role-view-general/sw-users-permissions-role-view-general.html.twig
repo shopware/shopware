@@ -5,8 +5,9 @@
         position-identifier="sw-users-permissions-role-view-general"
     >
         {% block sw_users_permissions_role_role_view_general_card_view_basic_information_name %}
-        <sw-text-field
-            v-model:value="role.name"
+
+        <mt-text-field
+            v-model="role.name"
             name="sw-field--role-name"
             :error="roleNameError"
             :disabled="!acl.can('users_and_permissions.editor') || undefined"

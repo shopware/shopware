@@ -39,7 +39,8 @@
     {% block sw_settings_tag_list_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_tag_list_smart_bar_actions_add %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('tag.creator'),
@@ -51,7 +52,7 @@
             @click="onDetail(null)"
         >
             {{ $tc('sw-settings-tag.list.buttonAddTag') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}
@@ -82,7 +83,8 @@
                     >
                         <template #button>
                             {% block sw_settings_tag_list_grid_toolbar_filter_menu_trigger %}
-                            <sw-button
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
                                 class="sw-settings-tag-list__filter-menu-trigger"
                                 size="small"
                             >
@@ -91,7 +93,7 @@
                                     size="16"
                                 />
                                 {{ $tc('sw-settings-tag.list.filter') }}
-                            </sw-button>
+                            </mt-button>
                             <i
                                 v-if="filterCount > 0"
                                 class="filter-badge"
@@ -242,8 +244,9 @@
                                         v-if="!bulkMergeProgress.isRunning"
                                         class="sw-settings-tag-list__confirm-bulk-merge-name-input"
                                     >
-                                        <sw-text-field
-                                            v-model:value="duplicateName"
+
+                                        <mt-text-field
+                                            v-model="duplicateName"
                                             :label="$tc('sw-settings-tag.list.bulkMergeName')"
                                             :placeholder="$tc('sw-settings-tag.list.placeholderTagName')"
                                             maxlength="255"
@@ -272,14 +275,16 @@
                                         name="bulk-modal-merge-footer"
                                         v-bind="{ selection }"
                                     >
-                                        <sw-button
+                                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                                        <mt-button
                                             size="small"
                                             @click="onCloseBulkMergeModal"
                                         >
                                             {{ $tc('global.default.cancel') }}
-                                        </sw-button>
+                                        </mt-button>
 
-                                        <sw-button
+                                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                                        <mt-button
                                             variant="primary"
                                             size="small"
                                             :is-loading="isLoading"
@@ -287,7 +292,7 @@
                                             @click="onMergeTags(selection)"
                                         >
                                             {{ $tc('sw-settings-tag.list.bulkMerge') }}
-                                        </sw-button>
+                                        </mt-button>
                                     </slot>
                                 </template>
                             </sw-modal>
@@ -370,22 +375,24 @@
                                 {% block sw_settings_tag_list_delete_modal_footer %}
                                 <template #modal-footer>
                                     {% block sw_settings_tag_list_delete_modal_cancel %}
-                                    <sw-button
+                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                                    <mt-button
                                         size="small"
                                         @click="onCloseDeleteModal"
                                     >
                                         {{ $tc('global.default.cancel') }}
-                                    </sw-button>
+                                    </mt-button>
                                     {% endblock %}
 
                                     {% block sw_settings_tag_list_delete_modal_confirm %}
-                                    <sw-button
-                                        variant="danger"
+                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                                    <mt-button
+                                        variant="critical"
                                         size="small"
                                         @click="onConfirmDelete(item.id)"
                                     >
                                         {{ $tc('sw-settings-tag.list.buttonDelete') }}
-                                    </sw-button>
+                                    </mt-button>
                                     {% endblock %}
                                 </template>
                                 {% endblock %}
@@ -401,8 +408,9 @@
                             >
                                 {% block sw_settings_tag_list_delete_modal_confirm_duplicate_input %}
                                 <p class="sw-settings-tag-list__confirm-duplicate-input">
-                                    <sw-text-field
-                                        v-model:value="duplicateName"
+
+                                    <mt-text-field
+                                        v-model="duplicateName"
                                         :label="$tc('sw-settings-tag.list.columnName')"
                                         :placeholder="$tc('sw-settings-tag.list.placeholderTagName')"
                                         maxlength="255"
@@ -414,23 +422,25 @@
                                 {% block sw_settings_tag_list_duplicate_modal_footer %}
                                 <template #modal-footer>
                                     {% block sw_settings_tag_list_duplicate_modal_cancel %}
-                                    <sw-button
+                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                                    <mt-button
                                         size="small"
                                         @click="onCloseDuplicateModal"
                                     >
                                         {{ $tc('global.default.cancel') }}
-                                    </sw-button>
+                                    </mt-button>
                                     {% endblock %}
 
                                     {% block sw_settings_tag_list_duplicate_modal_confirm %}
-                                    <sw-button
+                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                                    <mt-button
                                         variant="primary"
                                         size="small"
                                         :disabled="!duplicateName"
                                         @click="onConfirmDuplicate(item.id)"
                                     >
                                         {{ $tc('sw-settings-tag.list.buttonAddTag') }}
-                                    </sw-button>
+                                    </mt-button>
                                     {% endblock %}
                                 </template>
                                 {% endblock %}

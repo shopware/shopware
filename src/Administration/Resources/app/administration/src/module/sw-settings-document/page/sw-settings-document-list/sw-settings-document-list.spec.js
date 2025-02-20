@@ -54,7 +54,6 @@ async function createWrapper(privileges = []) {
                     'sw-grid': await wrapTestComponent('sw-grid'),
                     'sw-grid-row': true,
                     'sw-empty-state': true,
-                    'sw-button': true,
                     'sw-loader': true,
                     'sw-grid-column': true,
                     'sw-context-button': true,
@@ -103,7 +102,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-list/', () =
     it('should have an disabled create button', async () => {
         const wrapper = await createWrapper();
         const addButton = wrapper.find('.sw-settings-document-list__add-document');
-        expect(addButton.attributes().disabled).toBe('true');
+        expect(addButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to edit', async () => {

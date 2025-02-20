@@ -130,7 +130,6 @@ const createWrapper = async (customOptions, privileges = []) => {
                         template: '<div class="sw-field"/>',
                         props: ['disabled'],
                     },
-                    'sw-button': true,
                     'sw-button-process': true,
                     'sw-card-view': true,
                     'sw-icon': true,

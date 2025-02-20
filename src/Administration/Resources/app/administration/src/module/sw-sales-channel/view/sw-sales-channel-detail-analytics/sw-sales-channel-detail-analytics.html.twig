@@ -19,8 +19,9 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_analytics_fields_tracking_id %}
-        <sw-text-field
-            v-model:value="salesChannel.analytics.trackingId"
+
+        <mt-text-field
+            v-model="salesChannel.analytics.trackingId"
             :label="$tc('sw-sales-channel.detail.analytics.fields.trackingId.label')"
             :placeholder="$tc('sw-sales-channel.detail.analytics.fields.trackingId.placeHolder')"
             name="trackingId"

@@ -29,7 +29,8 @@
                     {% endblock %}
 
                     {% block sw_product_feature_set_toolbar_delete %}
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         :disabled="deleteButtonDisabled || !allowEdit || undefined"
                         square
                         size="small"
@@ -40,20 +41,21 @@
                             name="regular-trash"
                             small
                         />
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
 
                     {% block sw_product_feature_set_toolbar_add %}
                     <sw-container>
-                        <sw-button
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
                             :disabled="isLoading || !allowEdit || undefined"
-                            variant="ghost"
+                            ghost
                             size="small"
                             class="sw-product-feature-set__add-button"
                             @click="onAddField"
                         >
                             {{ $tc('sw-settings-product-feature-sets.valuesCard.labelCreateNew') }}
-                        </sw-button>
+                        </mt-button>
                     </sw-container>
                     {% endblock %}
 
@@ -128,14 +130,15 @@
             {% endblock %}
 
             {% block sw_product_feature_set_card_empty_state_button %}
-            <sw-button
-                variant="ghost"
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
+                ghost
                 size="small"
                 :disabled="disabled || undefined"
                 @click="showModal = true"
             >
                 {{ $tc('sw-settings-product-feature-sets.valuesCard.labelCreateNew') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </div>
 

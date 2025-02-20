@@ -36,12 +36,13 @@
 
             {% block sw_login_recovery_recovery_form_submit %}
             <div class="sw-login__submit">
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     variant="primary"
                     :disabled="!validatePasswords()"
                 >
                     {{ $tc('sw-login.recovery.recovery.submit.label') }}
-                </sw-button>
+                </mt-button>
             </div>
             {% endblock %}
         </form>

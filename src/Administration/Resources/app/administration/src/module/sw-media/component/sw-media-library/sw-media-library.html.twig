@@ -16,7 +16,8 @@
         />
 
         {% block sw_media_index_create_folder %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-if="editable"
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
@@ -25,12 +26,12 @@
             }"
             :disabled="!acl.can('media.creator')"
             class="sw-media-index__create-folder-action"
-            variant="ghost"
+            ghost
             size="small"
             @click="createFolder"
         >
             {{ $tc('sw-media.index.buttonCreateFolder') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </div>
     {% endblock %}
@@ -103,13 +104,14 @@
                 </template>
 
                 {% block sw_media_library_load_more_button %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     v-if="showLoadMoreButton"
                     class="sw-media-library__load-more-button"
                     @click="loadNextItems"
                 >
                     {{ $tc('sw-media.mediaLibrary.labelButtonLoadMore') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </sw-media-grid>
             {% endblock %}

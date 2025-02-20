@@ -73,9 +73,6 @@ async function createWrapper() {
                     </div>
                 `,
                 },
-                'sw-button': {
-                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                },
                 'sw-button-process': {
                     template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
                 },

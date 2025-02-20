@@ -64,18 +64,19 @@
 
             <template #actions>
                 {% block sw_product_properties_empty_state_button_property %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
                         disabled: acl.can('product.editor'),
                         showOnDisabledElements: true
                     }"
-                    variant="ghost"
+                    ghost
                     :disabled="!acl.can('product.editor')"
                     @click="openAddPropertiesModal"
                 >
                     {{ $tc('sw-product.properties.buttonAddProperties') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </template>
         </sw-empty-state>
@@ -101,19 +102,20 @@
 
             <template #actions>
                 {% block sw_product_properties_empty_state_button %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
                         disabled: acl.can('product.creator'),
                         showOnDisabledElements: true
                     }"
                     class="sw-product-detail-variants__generated-variants-empty-state-button"
-                    variant="ghost"
+                    ghost
                     :disabled="!acl.can('product.creator')"
                     @click="openModal('variantGeneration')"
                 >
                     {{ $tc('sw-product.variations.emptyStateButton') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </template>
         </sw-empty-state>

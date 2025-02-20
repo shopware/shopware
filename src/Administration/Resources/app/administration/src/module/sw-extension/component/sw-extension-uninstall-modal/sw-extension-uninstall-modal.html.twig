@@ -30,24 +30,26 @@
     <template #modal-footer>
         {% block sw_extension_uninstall_modal_footer %}
         {% block sw_extension_uninstall_modal_footer_cancel %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             size="small"
             :disabled="isLoading"
             @click="emitClose"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_extension_uninstall_modal_footer_uninstall %}
-        <sw-button
-            variant="danger"
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
+            variant="critical"
             size="small"
             :is-loading="isLoading"
             @click="emitUninstall"
         >
             {{ $tc('sw-extension-store.component.sw-extension-uninstall-modal.buttonLabel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
         {% endblock %}
     </template>

@@ -29,13 +29,14 @@
     {% block sw_settings_salutation_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_salutation_detail_actions_cancel %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="tooltipCancel"
             class="sw-settings-salutation-detail__cancel"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_settings_salutation_detail_actions_save %}
@@ -74,8 +75,9 @@
 
                     <template v-if="salutation">
                         {% block sw_settings_salutation_detail_content_card_salutation_key %}
-                        <sw-text-field
-                            v-model:value="salutation.salutationKey"
+
+                        <mt-text-field
+                            v-model="salutation.salutationKey"
                             name="sw-field--salutation-salutationKey"
                             class="sw-settings-salutation-detail__salutation_key"
                             :label="$tc('sw-settings-salutation.detail.fieldSalutationKeyLabel')"
@@ -85,13 +87,14 @@
                             validation="required"
                             required
                             :disabled="!acl.can('salutation.editor') || undefined"
-                            @update:value="onChange"
+                            @update:model-value="onChange"
                         />
                         {% endblock %}
 
                         {% block sw_settings_salutation_detail_content_card_display_name %}
-                        <sw-text-field
-                            v-model:value="salutation.displayName"
+
+                        <mt-text-field
+                            v-model="salutation.displayName"
                             name="sw-field--salutation-displayName"
                             required
                             class="sw-settings-salutation-detail__displayName"
@@ -103,8 +106,9 @@
                         {% endblock %}
 
                         {% block sw_settings_salutation_detail_content_card_letter_name %}
-                        <sw-text-field
-                            v-model:value="salutation.letterName"
+
+                        <mt-text-field
+                            v-model="salutation.letterName"
                             name="sw-field--salutation-letterName"
                             required
                             class="sw-settings-salutation-detail__letterName"

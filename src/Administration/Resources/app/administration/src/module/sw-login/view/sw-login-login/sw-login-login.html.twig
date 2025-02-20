@@ -22,8 +22,9 @@
     {% endblock %}
 
     {% block sw_login_login_user_field %}
-    <sw-text-field
-        v-model:value="username"
+
+    <mt-text-field
+        v-model="username"
         v-autofocus
         name="sw-field--username"
         :label="$tc('sw-login.index.labelUsername')"
@@ -61,13 +62,14 @@
         {% endblock %}
 
         {% block sw_login_login_submit_button %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             :disabled="password.length <= 0 || username.length <= 0 || showLoginAlert"
             class="sw-login__login-action"
             variant="primary"
         >
             {{ $tc('sw-login.index.buttonLogin') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </div>
     {% endblock %}

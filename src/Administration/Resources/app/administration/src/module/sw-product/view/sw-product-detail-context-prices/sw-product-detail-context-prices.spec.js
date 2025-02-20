@@ -27,7 +27,6 @@ const createWrapper = async () => {
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-field-error': true,
-                    'sw-button': true,
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                     'sw-data-grid-settings': true,
                     'sw-field': true,

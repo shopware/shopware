@@ -45,13 +45,13 @@
                     @update:value="updateCountry('checkAdvancedPostalCodePattern', $event)"
                 />
 
-                <sw-text-field
-                    :value="country.advancedPostalCodePattern"
+                <mt-text-field
+                    :model-value="country.advancedPostalCodePattern"
                     class="sw-settings-country-address-handling__text-field"
                     :class="{'is--disabled': !country.checkAdvancedPostalCodePattern}"
                     :disabled="!acl.can('country.editor') || undefined"
                     :placeholder="$tc('sw-settings-country.detail.placeholderAdvancedPostalCodePattern')"
-                    @update:value="updateCountry('advancedPostalCodePattern', $event)"
+                    @update:model-value="updateCountry('advancedPostalCodePattern', $event)"
                 />
             </div>
         </sw-container>
@@ -102,13 +102,15 @@
 
                 <sw-settings-country-preview-template :formatting-address="formattingAddress" />
 
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     class="sw-settings-country-address-handling__button-reset"
-                    variant="ghost-danger"
+                    variant="critical"
+                    ghost
                     @click="resetMarkup"
                 >
                     {{ $tc('sw-settings-country.detail.buttonResetMarkup') }}
-                </sw-button>
+                </mt-button>
             </div>
         </sw-container>
     </sw-card>

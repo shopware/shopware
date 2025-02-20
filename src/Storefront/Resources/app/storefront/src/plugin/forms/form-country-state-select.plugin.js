@@ -18,7 +18,6 @@ export default class CountryStateSelectPlugin extends Plugin {
         vatIdRequired: 'vat-id-required',
         stateRequired: 'state-required',
         zipcodeRequired: 'zipcode-required',
-        zipcodeLabel: '#zipcodeLabel',
         scopeElementSelector: null,
         prefix: null,
     };

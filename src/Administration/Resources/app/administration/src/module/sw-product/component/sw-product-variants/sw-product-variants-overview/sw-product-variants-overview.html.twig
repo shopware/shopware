@@ -23,10 +23,11 @@
             <div class="sw-product-variants-overview__filter-list-button">
 
                 {% block sw_product_variants_overview_option_list_toolbar_container_filter_list_button %}
-                <sw-button @click="filterWindowOpen = !filterWindowOpen">
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button @click="filterWindowOpen = !filterWindowOpen">
                     {{ $tc('sw-product.variations.generatedFilterList') }}
                     <sw-icon name="regular-filter" />
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_product_variants_overview_option_list_toolbar_container_filter_context_menu %}
@@ -63,18 +64,20 @@
                         {% block sw_product_variants_overview_option_list_toolbar_container_filter_buttons %}
                         <div class="sw-product-variants-overview__filter-buttons">
                             {% block sw_product_variants_overview_option_list_toolbar_container_button_filter_reset %}
-                            <sw-button @click="resetFilterOptions()">
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button @click="resetFilterOptions()">
                                 {{ $tc('sw-product.variations.overview.filterReset') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
 
                             {% block sw_product_variants_overview_option_list_toolbar_container_button_update_list %}
-                            <sw-button
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
                                 variant="primary"
                                 @click="getList()"
                             >
                                 {{ $tc('sw-product.variations.overview.filter') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
                         </div>
                         {% endblock %}
@@ -86,28 +89,30 @@
             {% endblock %}
 
             {% block sw_product_variants_overview_option_list_toolbar_buttons %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-tooltip="{
                     message: $tc('sw-privileges.tooltip.warning'),
                     disabled: acl.can('product.creator'),
                     showOnDisabledElements: true
                 }"
-                variant="ghost"
+                ghost
                 :disabled="!acl.can('product.creator')"
                 class="sw-product-variants__generate-action"
                 @click="$emit('generator-open')"
             >
                 {{ $tc('sw-product.variations.overview.generateVariants') }}
-            </sw-button>
+            </mt-button>
 
-            <sw-button
-                variant="ghost"
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
+                ghost
                 class="sw-product-variants__configure-storefront-action"
                 :disabled="!acl.can('product.editor')"
                 @click="$emit('delivery-open')"
             >
                 {{ $tc('sw-product.variations.overview.storefrontDelivery') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
         </sw-container>
@@ -250,9 +255,10 @@
             #column-productNumber="{ item, isInlineEdit, compact }"
         >
             {% block sw_product_variants_overview_data_grid_column_product_number_inline_edit %}
-            <sw-text-field
+
+            <mt-text-field
                 v-if="isInlineEdit"
-                v-model:value="item.productNumber"
+                v-model="item.productNumber"
                 :size="compact ? 'small' : 'default'"
             />
             {% endblock %}
@@ -577,22 +583,24 @@
 
         <template #modal-footer>
             {% block sw_product_variants_overview_data_grid_action_modals_buttons %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 class="sw-product-variants-overview__modal--cancel-button"
                 size="small"
                 :disabled="modalLoading"
                 @click="onCloseDeleteModal"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
-            <sw-button
-                variant="danger"
+            </mt-button>
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
+                variant="critical"
                 size="small"
                 :disabled="modalLoading"
                 @click="onConfirmDelete"
             >
                 {{ $tc('sw-product.variations.generatedListDeleteModalButtonDelete') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
     </sw-modal>

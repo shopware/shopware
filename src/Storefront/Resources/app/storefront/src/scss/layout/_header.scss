@@ -107,14 +107,6 @@ The header contains the shop logo, the search form and various actions like the 
     }
 }
 
-@if not feature('v6.7.0.0') {
-    @include media-breakpoint-up(lg) {
-        .header-logo-col {
-            margin: 0;
-        }
-    }
-}
-
 .storefront-staging-info {
     .icon {
         color: $white;

@@ -37,7 +37,6 @@ async function createWrapper(privileges = []) {
                         template: '<div><slot name="grid"></slot></div>',
                     },
                     'sw-context-menu-item': true,
-                    'sw-button': true,
                     'sw-entity-listing': {
                         props: [
                             'items',
@@ -153,7 +152,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
         const createButton = wrapper.find('.sw-settings-customer-group-list__create');
 
-        expect(createButton.attributes().disabled).toBeTruthy();
+        expect(createButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to create with create permission', async () => {

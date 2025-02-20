@@ -74,16 +74,18 @@
                 {% block sw_newsletter_recipientlist_list_grid_inline_edit_name %}
                 <template v-if="isInlineEdit">
                     {% block sw_newsletter_recipientlist_list_grid_inline_edit_first_name %}
-                    <sw-text-field
-                        v-model:value="item.firstName"
+
+                    <mt-text-field
+                        v-model="item.firstName"
                         class="sw-newsletter-recipient-list__inline-edit-first-name"
                         :size="compact ? 'small' : 'default'"
                     />
                     {% endblock %}
 
                     {% block sw_newsletter_recipientlist_list_grid_inline_edit_last_name %}
-                    <sw-text-field
-                        v-model:value="item.lastName"
+
+                    <mt-text-field
+                        v-model="item.lastName"
                         class="sw-newsletter-recipient-list__inline-edit-last-name"
                         :size="compact ? 'small' : 'default'"
                     />

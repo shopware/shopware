@@ -17,13 +17,14 @@
     {% block sw_product_stream_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_product_stream_detail_actions_abort %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="tooltipCancel"
             :disabled="isLoading"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         <sw-button-group
@@ -52,14 +53,15 @@
             {% block sw_product_stream_detail_actions_save_context_menu %}
             <sw-context-button>
                 <template #button>
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         class="sw-product-stream-detail__button-context-menu"
                         square
                         variant="primary"
                         :disabled="isLoading || !acl.can('product_stream.editor')"
                     >
                         <sw-icon name="regular-chevron-down-xs" />
-                    </sw-button>
+                    </mt-button>
                 </template>
 
                 {% block sw_product_stream_detail_actions_save_context_menu_actions %}
@@ -113,9 +115,10 @@
                     :title="$tc('sw-product-stream.detail.titleCard')"
                 >
                     {% block sw_product_basic_form_name_field %}
-                    <sw-text-field
+
+                    <mt-text-field
                         v-if="productStream"
-                        v-model:value="productStream.name"
+                        v-model="productStream.name"
                         v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')"
                         name="sw-field--productStream-name"
                         :label="$tc('sw-product-stream.detail.labelName')"
@@ -165,12 +168,13 @@
                     {% endblock %}
 
                     {% block sw_product_stream_detail_filter_preview_button %}
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         class="sw-product-stream-detail__open_modal_preview"
                         @click.prevent="openModalPreview"
                     >
                         {{ $tc('sw-product-stream.detail.buttonOpenPreview') }}
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
                 </sw-card>
                 {% endblock %}

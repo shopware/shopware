@@ -42,9 +42,7 @@ describe('FormAjaxSubmitPlugin tests', () => {
 
     test('submits form with ajax request', () => {
         const submitButton = document.querySelector('button');
-
-        // Click submit button
-        submitButton.dispatchEvent(new Event('click', { bubbles: true }));
+        submitButton.click();
 
         expect(formAjaxSubmit._getFormData().get('email')).toBe('test@example.com');
         expect(formAjaxSubmit._client.post).toHaveBeenCalledWith(
@@ -56,9 +54,7 @@ describe('FormAjaxSubmitPlugin tests', () => {
 
     test('shows HTML from response with replace selectors option', () => {
         const submitButton = document.querySelector('button');
-
-        // Click submit button
-        submitButton.dispatchEvent(new Event('click', { bubbles: true }));
+        submitButton.click();
 
         expect(document.querySelector('.alert').innerHTML).toBe('Success');
         expect(window.PluginManager.initializePlugins).toHaveBeenCalledTimes(1);
@@ -69,9 +65,7 @@ describe('FormAjaxSubmitPlugin tests', () => {
         const cb = jest.fn();
 
         formAjaxSubmit.addCallback(cb);
-
-        // Click submit button
-        submitButton.dispatchEvent(new Event('click', { bubbles: true }));
+        submitButton.click();
 
         expect(cb).toHaveBeenCalledTimes(1);
     });

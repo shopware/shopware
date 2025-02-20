@@ -128,8 +128,9 @@
                 {% endblock %}
 
                 {% block sw_cms_element_cross_selling_config_options_min_width %}
-                <sw-text-field
-                    v-model:value="element.config.elMinWidth.value"
+
+                <mt-text-field
+                    v-model="element.config.elMinWidth.value"
                     :label="$tc('sw-cms.elements.crossSelling.config.label.minWidth')"
                     :placeholder="$tc('sw-cms.elements.crossSelling.config.placeholder.minWidth')"
                 />

@@ -42,29 +42,32 @@
         {% block sw_product_layout_assignment_buttons %}
         <div class="sw-product-layout-assignment__buttons">
             {% block sw_product_layout_assignment_button_add %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 class="sw-product-layout-assignment__button"
                 size="small"
                 :disabled="!acl.can('product.editor') || undefined"
                 @click="openLayoutModal"
             >
                 {{ cmsPage ? $tc('sw-product.layoutAssignment.textChangeLayout') : $tc('sw-product.layoutAssignment.textAssignLayout') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_product_layout_assignment_button_edit %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 class="sw-product-layout-assignment__button"
                 size="small"
                 :disabled="!acl.can('product.editor') || undefined"
                 @click="openInPageBuilder"
             >
                 {{ cmsPage ? $tc('sw-product.layoutAssignment.textEditInDesigner') : $tc('sw-product.layoutAssignment.textCreateNewLayout') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_product_layout_assignment_button_delete %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-if="cmsPage"
                 class="sw-product-layout-assignment__button"
                 square
@@ -76,7 +79,7 @@
                     name="regular-trash"
                     small
                 />
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </div>
         {% endblock %}

@@ -34,9 +34,10 @@
 
         {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs %}
         {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs_link %}
-        <sw-text-field
+
+        <mt-text-field
             v-if="linkCategory === 'link'"
-            v-model:value="linkTarget"
+            v-model="linkTarget"
             :label="$tc('sw-text-editor-toolbar.link.linkTo')"
             :placeholder="$tc('sw-text-editor-toolbar.link.placeholder')"
             name="sw-field--linkTarget"
@@ -44,9 +45,10 @@
         {% endblock %}
 
         {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs_phone %}
-        <sw-text-field
+
+        <mt-text-field
             v-else-if="linkCategory === 'phone'"
-            v-model:value="linkTarget"
+            v-model="linkTarget"
             :label="$tc('sw-text-editor-toolbar.link.linkTo')"
             :placeholder="$tc('sw-text-editor-toolbar.link.placeholderPhoneNumber')"
             name="sw-field--linkTarget"
@@ -136,19 +138,22 @@
     {% block sw_text_editor_toolbar_button_link_menu_buttons %}
     <div class="sw-text-editor-toolbar-button__link-menu-buttons">
         {% block sw_text_editor_toolbar_button_link_menu_button_remove %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-text-editor-toolbar-button__link-menu-buttons-button-remove"
-            variant="ghost-danger"
+            variant="critical"
+            ghost
             size="small"
             :disabled="!linkTarget"
             @click="removeLink"
         >
             {{ $tc('global.default.remove') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_text_editor_toolbar_button_link_menu_button_insert %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-text-editor-toolbar-button__link-menu-buttons-button-insert"
             variant="primary"
             size="small"
@@ -156,7 +161,7 @@
             @click="setLink"
         >
             {{ $tc('global.default.add') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </div>
     {% endblock %}

@@ -9,7 +9,6 @@ async function createWrapper() {
             stubs: {
                 'router-link': true,
                 'sw-loader': true,
-                'sw-button': true,
                 'sw-icon': true,
                 'sw-password-field': true,
             },
@@ -39,7 +38,6 @@ describe('src/module/sw-login/view/sw-login-recovery-recovery', () => {
 
     it('should be a Vue.js component', () => {
         expect(wrapper.vm).toBeTruthy();
-        expect(wrapper.element).toMatchSnapshot();
     });
 
     it('should update password successful', async () => {

@@ -237,6 +237,7 @@ class PropertyFilterHandlerTest extends TestCase
                         'position' => 1,
                         'group' => (new PropertyGroupEntity())->assign([
                             'id' => 'color',
+                            'sortingType' => PropertyGroupDefinition::SORTING_TYPE_POSITION,
                             'position' => 1,
                         ]),
                     ]),
@@ -246,6 +247,7 @@ class PropertyFilterHandlerTest extends TestCase
                         'position' => 2,
                         'group' => (new PropertyGroupEntity())->assign([
                             'id' => 'color',
+                            'sortingType' => PropertyGroupDefinition::SORTING_TYPE_POSITION,
                             'position' => 2,
                         ]),
                     ]),
@@ -255,6 +257,7 @@ class PropertyFilterHandlerTest extends TestCase
                         'position' => 2,
                         'group' => (new PropertyGroupEntity())->assign([
                             'id' => 'size',
+                            'sortingType' => PropertyGroupDefinition::SORTING_TYPE_POSITION,
                             'position' => 1,
                         ]),
                     ]),
@@ -264,6 +267,7 @@ class PropertyFilterHandlerTest extends TestCase
                         'position' => 1,
                         'group' => (new PropertyGroupEntity())->assign([
                             'id' => 'size',
+                            'sortingType' => PropertyGroupDefinition::SORTING_TYPE_POSITION,
                             'position' => 1,
                         ]),
                     ]),

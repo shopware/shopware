@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
-use Shopware\Core\Checkout\Customer\Rule\BillingCountryRule;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
@@ -22,7 +21,6 @@ use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
-use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -43,7 +41,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionTestFixtureBehaviour;
-use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\AccountOrderController;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -744,29 +741,5 @@ class OrderRouteTest extends TestCase
                 'sent' => $sent,
             ],
         ], Context::createDefaultContext());
-    }
-
-    private function createCustomPaymentWithRule(string $ruleId): string
-    {
-        $paymentId = Uuid::randomHex();
-
-        static::getContainer()->get('payment_method.repository')->create([
-            [
-                'id' => $paymentId,
-                'name' => 'Test Payment with Rule',
-                'technicalName' => 'payment_test_rule',
-                'description' => 'Payment rule test',
-                'active' => true,
-                'afterOrderEnabled' => true,
-                'availabilityRuleId' => $ruleId,
-                'salesChannels' => [
-                    [
-                        'id' => TestDefaults::SALES_CHANNEL,
-                    ],
-                ],
-            ],
-        ], Context::createDefaultContext());
-
-        return $paymentId;
     }
 }

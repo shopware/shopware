@@ -48,7 +48,6 @@ async function createWrapper(privileges = []) {
                     },
                 },
                 stubs: {
-                    'sw-card': true,
                     'sw-container': true,
                     'sw-custom-field-type-checkbox': true,
                     'sw-number-field': true,

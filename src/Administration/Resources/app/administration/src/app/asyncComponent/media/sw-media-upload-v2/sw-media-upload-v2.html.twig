@@ -9,7 +9,6 @@
             split-button
         >
             {% block sw_media_upload_v2_compact_button_file_upload %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 class="sw-media-upload-v2__button-compact-upload"
                 :disabled="disabled"
@@ -27,7 +26,6 @@
                 class="sw-media-upload-v2__button-open-context-menu"
             >
                 <template #button>
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         :disabled="disabled"
                         square
@@ -193,7 +191,6 @@
                     {% block sw_media_upload_v2_regular_actions_add %}
                     <template v-if="isFileUpload">
                         {% block sw_media_upload_v2_regular_media_sidebar_button %}
-                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                         <mt-button
                             v-if="hasOpenMediaButtonListener"
                             class="sw-media-upload-v2__button open-media-sidebar"
@@ -216,7 +213,6 @@
                         {% endblock %}
 
                         {% block sw_media_upload_v2_regular_upload_button %}
-                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                         <mt-button
                             class="sw-media-upload-v2__button upload"
                             :class="{ 'is--small': variant === 'small'}"

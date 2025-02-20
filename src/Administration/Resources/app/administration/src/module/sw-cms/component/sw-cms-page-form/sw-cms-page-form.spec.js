@@ -64,10 +64,6 @@ async function createWrapper() {
                     'sw-icon': {
                         template: '<div></div>',
                     },
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot /><slot name="header-right"></slot></div>',
-                        props: ['title'],
-                    },
                     'sw-cms-el-config-text': {
                         template: '<div class="sw-cms-el-config-text">Config element</div>',
                         props: [
@@ -134,15 +130,18 @@ describe('module/sw-cms/component/sw-cms-page-form', () => {
 
     it('display the block name', async () => {
         const wrapper = await createWrapper();
-        const blockNameText = wrapper.findComponent('.sw-cms-page-form__block-card').props('title');
+        const blockNameText = wrapper.findByText('div', 'BLOCK NAME');
 
-        expect(blockNameText).toBe('BLOCK NAME');
+        expect(blockNameText.exists()).toBe(true);
     });
 
     it('display the device active in viewport', async () => {
         const wrapper = await createWrapper();
         const formDeviceActions = wrapper.find('.sw-cms-page-form__device-actions');
         const blockFormDeviceActions = wrapper.find('.sw-cms-page-form__block-device-actions');
+
+        await flushPromises();
+        await wrapper.vm.$nextTick();
 
         expect(formDeviceActions.exists()).toBeTruthy();
         expect(blockFormDeviceActions.exists()).toBeTruthy();

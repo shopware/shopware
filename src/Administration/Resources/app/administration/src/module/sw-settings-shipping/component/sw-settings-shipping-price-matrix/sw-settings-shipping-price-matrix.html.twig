@@ -1,5 +1,5 @@
 {% block sw_settings_shipping_price_matrix %}
-<sw-card
+<mt-card
     :title="cardTitle"
     :is-loading="isLoading"
     class="sw-settings-shipping-price-matrix"
@@ -38,7 +38,6 @@
         {% endblock %}
 
         {% block sw_settings_shipping_price_matrix_topbar_new_price %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             size="x-small"
             class="sw-settings-shipping-price-matrix__top-container-add-new-rule"
@@ -222,7 +221,6 @@
         v-if="showDataGrid && !showAllPrices"
         class="sw-settings-shipping-price-matrix__price-load-all"
     >
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             ghost
             size="small"
@@ -305,7 +303,6 @@
         {% block sw_settings_shipping_price_matrix_delete_modal_footer %}
         <template #modal-footer>
             {% block sw_settings_shipping_price_matrix_delete_modal_cancel %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
                 @click="onCloseDeleteModal"
@@ -315,7 +312,6 @@
             {% endblock %}
 
             {% block sw_settings_shipping_price_matrix_delete_modal_confirm %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 variant="critical"
                 size="small"
@@ -328,5 +324,5 @@
         {% endblock %}
     </sw-modal>
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

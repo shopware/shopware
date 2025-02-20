@@ -18,7 +18,6 @@
     {% block sw_mail_template_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_mail_template_detail_actions_abort %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="{
                 message: 'ESC',
@@ -74,7 +73,7 @@
                 {% endblock %}
 
                 {% block sw_mail_template_detail_basic_info %}
-                <sw-card
+                <mt-card
                     :title="$tc('sw-mail-template.detail.basic.titleCard')"
                     position-identifier="sw-mail-template-detail-basic-info"
                 >
@@ -103,11 +102,11 @@
                         :disabled="!acl.can('mail_templates.editor') || undefined"
                     />
                     {% endblock %}
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_mail_template_detail_options_info %}
-                <sw-card
+                <mt-card
                     position-identifier="sw-mail-template-detail-options-info"
                     :title="$tc('sw-mail-template.detail.options.titleCard')"
                 >
@@ -143,11 +142,11 @@
                         />
                         {% endblock %}
                     </sw-container>
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_mail_template_detail_attachments_info %}
-                <sw-card
+                <mt-card
                     :title="$tc('sw-mail-template.detail.media.titleCard')"
                     position-identifier="sw-mail-template-detail-atttachments-info"
                 >
@@ -223,11 +222,11 @@
                         </template>
                     </sw-data-grid>
                     {% endblock %}
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_mail_template_detail_mail_text_info %}
-                <sw-card
+                <mt-card
                     :title="$tc('sw-mail-template.detail.mailText.titleCard')"
                     position-identifier="sw-mail-template-detail-text-info"
                 >
@@ -264,7 +263,7 @@
                         required
                     />
                     {% endblock %}
-                </sw-card>
+                </mt-card>
                 {% block sw_mail_template_detail_preview_modal %}
                 <sw-modal
                     v-if="mailPreview"
@@ -280,7 +279,6 @@
                     {% block sw_mail_template_detail_preview_modal_footer %}
                     <template #modal-footer>
                         {% block sw_mail_template_detail_preview_modal_footer_cancel %}
-                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                         <mt-button
                             size="small"
                             @click="onCancelShowPreview"
@@ -340,7 +338,6 @@
                     {% endblock %}
 
                     {% block sw_mail_template_mail_text_form_test_mail_button %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         :disabled="isSendButtonDisabled"
                         class="sw-mail-template-detail__send-test-mail"

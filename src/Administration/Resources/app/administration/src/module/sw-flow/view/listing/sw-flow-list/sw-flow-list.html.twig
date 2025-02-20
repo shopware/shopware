@@ -7,7 +7,7 @@
     {% block sw_flow_list_smart_bar_actions %}{% endblock %}
 
     {% block sw_flow_list_content %}
-    <sw-card
+    <mt-card
         class="sw-flow-list-card"
         position-identifier="sw-flow-list-card"
     >
@@ -115,14 +115,12 @@
 
                     <template #modal-footer>
                         {% block sw_flow_list_grid_action_modal_buttons %}
-                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                         <mt-button
                             size="small"
                             @click="onCloseDeleteModal"
                         >
                             {{ $tc('global.default.cancel') }}
                         </mt-button>
-                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                         <mt-button
                             size="small"
                             variant="critical"
@@ -165,7 +163,7 @@
 
         {% block sw_flow_list_modal_content_custom %}
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>
 {% endblock %}

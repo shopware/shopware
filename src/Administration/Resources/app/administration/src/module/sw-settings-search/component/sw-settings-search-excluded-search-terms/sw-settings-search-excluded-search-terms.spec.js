@@ -59,9 +59,9 @@ async function createWrapper(privileges = [], resetError = false) {
                 },
 
                 stubs: {
-                    'sw-card': {
+                    'mt-card': {
                         template: `
-                    <div class="sw-card">
+                    <div class="mt-card">
                         <slot name="toolbar"></slot>
                         <slot name="grid"></slot>
                         <slot></slot>

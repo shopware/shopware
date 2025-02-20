@@ -78,7 +78,6 @@ async function createWrapper() {
             global: {
                 renderStubDefaultSlot: true,
                 stubs: {
-                    'sw-card': true,
                     'sw-container': true,
                     'sw-icon': true,
                     'sw-field-error': true,

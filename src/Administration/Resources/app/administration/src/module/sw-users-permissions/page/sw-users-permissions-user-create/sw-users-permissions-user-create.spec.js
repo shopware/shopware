@@ -83,7 +83,6 @@ async function createWrapper(privileges = []) {
                         template: '<div><slot name="content"></slot></div>',
                     },
                     'sw-card-view': true,
-                    'sw-card': true,
                     'sw-text-field': true,
                     'sw-upload-listener': true,
                     'sw-media-upload-v2': true,

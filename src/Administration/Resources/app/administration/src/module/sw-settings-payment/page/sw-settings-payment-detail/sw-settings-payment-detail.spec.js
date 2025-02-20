@@ -85,7 +85,6 @@ async function createWrapper(privileges = [], paymentMethod = {}) {
                     'sw-button-process': true,
                     'sw-language-switch': true,
                     'sw-card-view': true,
-                    'sw-card': true,
                     'sw-container': true,
 
                     'sw-switch-field': true,

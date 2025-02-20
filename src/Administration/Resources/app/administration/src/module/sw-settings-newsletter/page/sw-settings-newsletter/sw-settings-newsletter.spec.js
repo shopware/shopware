@@ -8,7 +8,7 @@ const classes = {
     root: 'sw-page__main-content',
     cardView: 'sw-card-view',
     systemConfig: 'sw-system-config',
-    settingsCard: 'sw-card',
+    settingsCard: 'mt-card',
     newsletterSubscribeUrl: 'core.newsletter.subscribeUrl',
 };
 
@@ -52,8 +52,8 @@ async function createWrapper() {
                      </div>`,
                     },
                     'sw-icon': true,
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot></slot></div>',
+                    'mt-card': {
+                        template: '<div class="mt-card"><slot></slot></div>',
                     },
                     'sw-card-view': {
                         template: '<div class="sw-card-view"><slot></slot></div>',

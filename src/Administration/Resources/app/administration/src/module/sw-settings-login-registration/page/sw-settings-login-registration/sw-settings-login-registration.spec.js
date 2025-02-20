@@ -4,7 +4,7 @@ const classes = {
     root: 'sw-page__main-content',
     cardView: 'sw-card-view',
     systemConfig: 'sw-system-config',
-    settingsCard: 'sw-card',
+    settingsCard: 'mt-card',
 };
 
 /**
@@ -43,9 +43,6 @@ async function createWrapper() {
                      </div>`,
                     },
                     'sw-icon': true,
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot></slot></div>',
-                    },
                     'sw-card-view': {
                         template: '<div class="sw-card-view"><slot></slot></div>',
                     },
@@ -58,6 +55,7 @@ async function createWrapper() {
 
                     'sw-form-field-renderer': true,
                     'sw-inherit-wrapper': true,
+                    'sw-ai-copilot-badge': true,
                 },
             },
         },

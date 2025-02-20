@@ -1,7 +1,7 @@
 {% block sw_profile_index_general %}
 <div class="sw-profile-index-general">
     {% block sw_profile_index_general_information %}
-    <sw-card
+    <mt-card
         position-identifier="sw-profile-index-general"
         :title="$tc('sw-profile.index.titleInfoCard')"
         :is-loading="isUserLoading || !languageId"
@@ -86,11 +86,11 @@
             />
             {% endblock %}
         </sw-container>
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_profile_index_general_image %}
-    <sw-card
+    <mt-card
         v-if="acl.can('media.creator')"
         position-identifier="sw-profile-index-general-image"
         :title="$tc('sw-profile.index.titleImageCard')"
@@ -115,11 +115,11 @@
             @media-upload-remove-image="onRemoveMedia"
         />
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_profile_index_general_password %}
-    <sw-card
+    <mt-card
         position-identifier="sw-profile-index-general-password"
         :title="$tc('sw-profile.index.titlePasswordCard')"
         :is-loading="isUserLoading || !languageId"
@@ -147,7 +147,7 @@
             autocomplete="off"
         />
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>
 {% endblock %}

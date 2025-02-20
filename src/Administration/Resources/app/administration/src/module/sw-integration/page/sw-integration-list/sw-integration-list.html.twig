@@ -19,7 +19,6 @@
 
     <template #smart-bar-actions>
         {% block sw_integration_list_smart_bar_actions %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
@@ -41,7 +40,7 @@
         <sw-card-view class="sw-integration-list__content">
 
             {% block sw_integration_list_introduction %}
-            <sw-card
+            <mt-card
                 :hero="true"
                 position-identifier="sw-integration-list-introduction"
             >
@@ -49,11 +48,11 @@
                     {{ $tc('sw-integration.general.heroHeadlineIntegrations') }}
                 </h3>
                 <p>{{ $tc('sw-integration.general.heroDescriptionIntegrations') }}</p>
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
             {% block sw_integration_list_overview %}
-            <sw-card
+            <mt-card
                 :is-loading="isLoading"
                 class="sw-integration-list__overview"
                 position-identifier="sw-integration-list-overview"
@@ -149,7 +148,6 @@
                         />
                     </template>
 
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         v-if="!showSecretAccessKey"
                         variant="critical"
@@ -183,7 +181,6 @@
                     {% block sw_integration_list_detail_modal_inner_footer %}
                     <template #modal-footer>
                         {% block sw_integration_list_detail_modal_inner_footer_cancel %}
-                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                         <mt-button
                             size="small"
                             :disabled="isModalLoading"
@@ -194,7 +191,6 @@
                         {% endblock %}
 
                         {% block sw_integration_list_detail_modal_inner_footer_apply %}
-                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                         <mt-button
                             size="small"
                             class="sw-integration-detail-modal__save-action"
@@ -306,7 +302,6 @@
 
                             {% block sw_integration_list_grid_inner_slot_delete_modal_footer %}
                             <template #modal-footer>
-                                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                                 <mt-button
                                     size="small"
                                     @click="onCloseDeleteModal"
@@ -314,7 +309,6 @@
                                     {{ $tc('global.default.cancel') }}
                                 </mt-button>
 
-                                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                                 <mt-button
                                     size="small"
                                     variant="primary"
@@ -338,7 +332,7 @@
                 />
                 {% endblock %}
                 {% endblock %}
-            </sw-card>
+            </mt-card>
         {% endblock %}
         </sw-card-view>
         {% endblock %}

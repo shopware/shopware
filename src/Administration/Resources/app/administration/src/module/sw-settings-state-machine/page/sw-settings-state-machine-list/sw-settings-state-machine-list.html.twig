@@ -38,7 +38,7 @@
     <template #content>
         <sw-card-view>
             {% block sw_settings_state_machine_list_content_card %}
-            <sw-card
+            <mt-card
                 position-identifier="sw-settings-state-machine-list-content"
                 :is-loading="isLoading"
             >
@@ -74,7 +74,7 @@
                     </sw-data-grid>
                 </template>
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
         </sw-card-view>
     </template>

@@ -89,13 +89,9 @@ const documentTypeFixture = [
 ];
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-order-document-card', { sync: true }), {
+    const wrapper = mount(await wrapTestComponent('sw-order-document-card', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': await wrapTestComponent('sw-card', {
-                    sync: true,
-                }),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-empty-state': {
                     template: '<div class="sw-empty-state"><slot name="icon"></slot><slot name="actions"></slot></div>',
                 },
@@ -231,6 +227,8 @@ async function createWrapper() {
             isLoading: false,
         },
     });
+    await flushPromises();
+    return wrapper;
 }
 
 describe('src/module/sw-order/component/sw-order-document-card', () => {

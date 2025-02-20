@@ -9,7 +9,7 @@
 >
     <template #content="{ isInherited, updateCurrentValue, isInheritField, restoreInheritance, removeInheritance }">
         {% block sw_product_properties_card %}
-        <sw-card
+        <mt-card
             class="sw-product-properties__card"
             :class="{
                 'is--inherited': isInherited,
@@ -69,7 +69,6 @@
                             {% endblock %}
 
                             {% block sw_product_properties_filled_state_header_button %}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 v-tooltip="{
                                     message: $tc('sw-privileges.tooltip.warning'),
@@ -129,7 +128,6 @@
 
                         <template #delete-modal-delete-item="{ item }">
                             {% block sw_product_properties_filled_state_body_filled_state_delete_modal_delete_item %}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 variant="critical"
                                 size="small"
@@ -142,7 +140,6 @@
 
                         <template #bulk-modal-delete-items>
                             {% block sw_product_properties_filled_state_body_filled_state_bulk_modal_delete_items %}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 variant="critical"
                                 size="small"
@@ -200,7 +197,6 @@
 
                 <template #actions>
                     {% block sw_product_properties_empty_state_button %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         v-tooltip="{
                             message: $tc('sw-privileges.tooltip.warning'),
@@ -217,7 +213,7 @@
                 </template>
             </sw-empty-state>
             {% endblock %}
-        </sw-card>
+        </mt-card>
         {% endblock %}
 
         {% block sw_product_properties_add_properties_modal %}

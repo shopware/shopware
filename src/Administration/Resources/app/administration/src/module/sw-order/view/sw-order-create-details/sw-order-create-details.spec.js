@@ -20,7 +20,7 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-card-view': true,
-                'sw-card': {
+                'mt-card': {
                     template: `
                         <div class="sw-card__content">
                             <slot name="grid"></slot>

@@ -1,7 +1,7 @@
 {% block sw_settings_country_general %}
 <div>
     {% block sw_settings_country_general_card %}
-    <sw-card
+    <mt-card
         position-identifier="sw-settings-country-detail-general"
         :title="$tc('sw-settings-country.detail.titleCard')"
         :is-loading="isLoading"
@@ -58,11 +58,11 @@
             />
             {% endblock %}
         </sw-container>
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_settings_country_general_options_card %}
-    <sw-card
+    <mt-card
         position-identifier="sw-settings-country-general"
         :title="$tc('sw-settings-country.detail.titleOptions')"
         :is-loading="isLoading"
@@ -272,7 +272,7 @@
             />
             {% endblock %}
         </sw-container>
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
 </div>

@@ -11,7 +11,7 @@ async function createWrapper() {
                 'sw-card-view': await wrapTestComponent('sw-card-view', {
                     sync: true,
                 }),
-                'sw-card': {
+                'mt-card': {
                     template: `
                         <div class="sw-card__content">
                             <slot name="grid"></slot>

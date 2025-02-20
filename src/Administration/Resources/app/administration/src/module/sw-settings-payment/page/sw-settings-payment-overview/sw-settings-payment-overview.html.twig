@@ -5,7 +5,6 @@
     <template #smart-bar-actions>
 
         {% block sw_settings_payment_overview_smart_bar_actions_add %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
@@ -49,7 +48,7 @@
         <sw-card-view class="sw-settings-payment-overview__content">
 
             {% block sw_settings_payment_overview_sorting_modal_card %}
-            <sw-card
+            <mt-card
                 class="sw-settings-payment-overview__sorting_modal_card"
                 position-identifier="sw-settings-payment-overview-sorting-modal-card"
             >
@@ -62,7 +61,7 @@
                 >
                     {{ $tc('sw-settings-payment.overview.openSortingModalButton') }}
                 </sw-button-process>
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
             {% block sw_settings_payment_overview_list %}

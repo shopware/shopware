@@ -39,7 +39,6 @@
     {% block sw_settings_tax_list_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_tax_list_smart_bar_actions_add %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
@@ -67,7 +66,7 @@
     <template #content>
         <sw-card-view>
             {% block sw_settings_tax_list_content_card %}
-            <sw-card
+            <mt-card
                 position-identifier="sw-settings-tax-list-content"
                 class="sw-tax-card"
                 :title="$tc('sw-settings-tax.list.taxCardTitle')"
@@ -201,7 +200,6 @@
                                 {% block sw_settings_tax_list_delete_modal_footer %}
                                 <template #modal-footer>
                                     {% block sw_settings_tax_list_delete_modal_cancel %}
-                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                                     <mt-button
                                         size="small"
                                         @click="onCloseDeleteModal"
@@ -211,7 +209,6 @@
                                     {% endblock %}
 
                                     {% block sw_settings_tax_list_delete_modal_confirm %}
-                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                                     <mt-button
                                         variant="critical"
                                         size="small"
@@ -229,10 +226,10 @@
                     </sw-entity-listing>
                     {% endblock %}
                 </template>
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
-            <sw-card
+            <mt-card
                 position-identifier="sw-settings-tax-provider-list-content"
                 class="sw-settings-tax-provider-list-content"
                 :title="$tc('sw-settings-tax.list.taxProvider.cardTitle')"
@@ -302,7 +299,7 @@
                         <sw-skeleton />
                     </template>
                 </template>
-            </sw-card>
+            </mt-card>
 
             <sw-settings-tax-provider-sorting-modal
                 v-if="showSortingModal"

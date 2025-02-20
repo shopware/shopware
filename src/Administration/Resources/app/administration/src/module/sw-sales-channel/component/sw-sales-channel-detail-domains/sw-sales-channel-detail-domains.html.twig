@@ -1,5 +1,5 @@
 {% block sw_sales_channel_detail_domains %}
-<sw-card
+<mt-card
     :title="$tc('sw-sales-channel.detail.titleDomains')"
     class="sw-sales-channel-detail-domains"
     position-identifier="sw-sales-channel-detail-domains"
@@ -16,7 +16,6 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_domains_add_button %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             size="small"
             :disabled="disableEdit || undefined"
@@ -185,7 +184,6 @@
 
         <template #modal-footer>
             {% block sw_sales_channel_detail_domains_create_action_cancel %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
                 @click="onCloseCreateDomainModal"
@@ -195,7 +193,6 @@
             {% endblock %}
 
             {% block sw_sales_channel_detail_domains_create_action_create %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
                 variant="primary"
@@ -224,7 +221,6 @@
         {% block sw_sales_channel_detail_domains_delete_modal_footer %}
         <template #modal-footer>
             {% block sw_sales_channel_detail_domains_delete_modal_abort %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
                 @click="onCloseDeleteDomainModal"
@@ -234,7 +230,6 @@
             {% endblock %}
 
             {% block sw_sales_channel_detail_domains_delete_modal_confirm %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
                 variant="critical"
@@ -247,5 +242,5 @@
         {% endblock %}
     </sw-modal>
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

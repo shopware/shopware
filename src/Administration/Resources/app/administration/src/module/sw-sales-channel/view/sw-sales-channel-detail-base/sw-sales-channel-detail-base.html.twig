@@ -2,7 +2,7 @@
 <div class="sw-sales-channel-detail-base">
 
     {% block sw_sales_channel_detail_base_general %}
-    <sw-card
+    <mt-card
         v-if="salesChannel"
         position-identifier="sw-sales-channel-detail-base-general"
         :is-loading="isLoading"
@@ -39,14 +39,12 @@
             <p>{{ $tc('sw-sales-channel.detail.productComparison.templates.modal-message') }}</p>
 
             <template #modal-footer>
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="small"
                     @click="$emit('template-modal-close')"
                 >
                     {{ $tc('global.default.cancel') }}
                 </mt-button>
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="small"
                     variant="primary"
@@ -207,11 +205,11 @@
             property-name-in-domain="languageId"
         />
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_sales_channel_shipping_payment %}
-    <sw-card
+    <mt-card
         v-if="salesChannel"
         position-identifier="sw-sales-channel-detail-base-shipping-payment"
         :is-loading="isLoading"
@@ -292,7 +290,7 @@
             :description="$tc('sw-sales-channel.detail.descriptionTaxCalculation')"
             :options="taxCalculationTypeOptions"
         />
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_sales_channel_detail_base_options_hreflang %}
@@ -314,7 +312,7 @@
     {% endblock %}
 
     {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront %}
-    <sw-card
+    <mt-card
         v-if="salesChannel && isProductComparison"
         position-identifier="sw-sales-channel-detail-base-general-input-product-comparison-storefront"
         :is-loading="isLoading"
@@ -414,11 +412,11 @@
             />
         </div>
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_sales_channel_detail_base_general_input_product_comparison_settings %}
-    <sw-card
+    <mt-card
         v-if="salesChannel && isProductComparison"
         position-identifier="sw-sales-channel-detail-base-general-input-product-comparison-settings"
         :is-loading="isLoading"
@@ -531,11 +529,11 @@
             readonly
             :disabled="true"
         />
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_sales_channel_detail_base_options_api %}
-    <sw-card
+    <mt-card
         v-if="salesChannel"
         position-identifier="sw-sales-channel-detail-base-options-api"
         :is-loading="isLoading"
@@ -563,7 +561,6 @@
             v-if="!isProductComparison"
             class="sw-sales-channel-detail__action-buttons"
         >
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
                 :disabled="!acl.can('sales_channel.editor') || undefined"
@@ -573,7 +570,6 @@
                 {{ $tc('sw-sales-channel.detail.buttonCreateNewApiKeys') }}
             </mt-button>
 
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
                 class="sw-sales-channel-detail-base__button-copy-key"
@@ -609,7 +605,6 @@
 
         {% block sw_sales_channel_detail_base_product_comparison_input_generate_key %}
         <div class="sw-sales-channel-detail__action-button">
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-if="isProductComparison"
                 ghost
@@ -623,11 +618,11 @@
         </div>
         {% endblock %}
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_sales_channel_detail_base_options_status %}
-    <sw-card
+    <mt-card
         v-if="salesChannel"
         position-identifier="sw-sales-channel-detail-base-options-status"
         :title="$tc('sw-sales-channel.detail.titleStatus')"
@@ -696,11 +691,11 @@
             </router-link>
         </div>
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_sales_channel_detail_base_options_delete %}
-    <sw-card
+    <mt-card
         v-if="salesChannel && acl.can('sales_channel.deleter')"
         position-identifier="sw-sales-channel-detail-base-options-delete"
         :title="$tc('sw-sales-channel.detail.deleteModalTitle')"
@@ -718,7 +713,6 @@
 
             {% block sw_sales_channel_detail_base_options_delete_button %}
             <div class="sw-sales-channel-detail-base__button-delete">
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     variant="critical"
                     size="small"
@@ -753,7 +747,6 @@
             {% block sw_sales_channel_detail_options_delete_modal_footer %}
             <template #modal-footer>
                 {% block sw_sales_channel_detail_options_delete_modal_abort %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="small"
                     @click="onCloseDeleteModal"
@@ -763,7 +756,6 @@
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_options_delete_modal_confirm %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="small"
                     variant="critical"
@@ -776,11 +768,11 @@
             {% endblock %}
         </sw-modal>
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_sales_channel_detail_custom_field_sets %}
-    <sw-card
+    <mt-card
         v-if="salesChannel && customFieldSets.length > 0"
         position-identifier="sw-sales-channel-detail-base-custom-field-sets"
         :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
@@ -790,7 +782,7 @@
             :entity="salesChannel"
             :sets="customFieldSets"
         />
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>
 {% endblock %}

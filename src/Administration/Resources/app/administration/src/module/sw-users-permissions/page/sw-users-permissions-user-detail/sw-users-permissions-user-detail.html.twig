@@ -11,7 +11,6 @@
     {% block sw_settings_user_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_user_detail_actions_cancel %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="tooltipCancel"
             @click="onCancel"
@@ -49,7 +48,7 @@
             {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
             <div v-show="!isLoading">
                 {%  block sw_setting_user_detail_card_basic_information %}
-                <sw-card
+                <mt-card
                     position-identifier="sw-users-permissions-user-detail"
                     :title="$tc('sw-users-permissions.users.user-detail.labelCard')"
                     :is-loading="isLoading"
@@ -229,18 +228,17 @@
                         @close="onCloseConfirmPasswordModal"
                     />
                     {% endblock %}
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {%  block sw_setting_user_detail_card_integrations %}
-                <sw-card
+                <mt-card
                     :title="$tc('sw-users-permissions.users.user-detail.labelIntegrationsCard')"
                     position-identifier="sw-users-permissions-user-detail-integrations"
                 >
                     {% block sw_settings_user_detail_grid_toolbar %}
                     <template #toolbar>
                         {% block sw_settings_user_detail_grid_add_key %}
-                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                         <mt-button
                             variant="primary"
                             size="small"
@@ -300,7 +298,7 @@
                         {% endblock %}
                     </template>
                     {% endblock %}
-                </sw-card>
+                </mt-card>
                 {% endblock %}
             </div>
             {% endblock %}
@@ -331,14 +329,12 @@
 
             {% block sw_settings_user_detail_grid_inner_slot_delete_modal_footer %}
             <template #modal-footer>
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="small"
                     @click="onCloseDeleteModal"
                 >
                     {{ $tc('global.default.cancel') }}
                 </mt-button>
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="small"
                     variant="critical"
@@ -399,7 +395,6 @@
             {% endblock %}
 
             {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key_button %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-if="!showSecretAccessKey"
                 class="sw-settings-user-detail__secret-help-text-button sw-field"
@@ -435,7 +430,6 @@
             {% block sw_settings_user_detail_detail_modal_inner_footer %}
             <template #modal-footer>
                 {% block sw_settings_user_detail_detail_modal_inner_footer_cancel %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="small"
                     :disabled="isModalLoading || undefined"
@@ -446,7 +440,6 @@
                 {% endblock %}
 
                 {% block sw_settings_user_detail_detail_modal_inner_footer_apply %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="small"
                     class="sw-settings-user-detail__save-action"

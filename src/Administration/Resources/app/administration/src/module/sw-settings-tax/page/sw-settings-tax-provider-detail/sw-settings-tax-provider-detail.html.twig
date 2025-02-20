@@ -10,7 +10,6 @@
     </template>
 
     <template #smart-bar-actions>
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="{ message: 'ESC', appearance: 'light' }"
             :disabled="isLoading"
@@ -47,7 +46,7 @@
                     {{ $tc('sw-settings-tax.taxProviderDetail.infoText') }}
                 </mt-banner>
 
-                <sw-card
+                <mt-card
                     position-identifier="sw-settings-tax-tax-provider-detail-settings"
                     :title="$tc('sw-settings-tax.taxProviderDetail.cardTitleSettings')"
                     :is-loading="isLoading"
@@ -70,9 +69,9 @@
                             :label="$tc('sw-settings-tax.taxProviderDetail.labelActive')"
                         />
                     </sw-container>
-                </sw-card>
+                </mt-card>
 
-                <sw-card
+                <mt-card
                     position-identifier="sw-settings-tax-tax-provider-detail-availability"
                     :title="$tc('sw-settings-tax.taxProviderDetail.cardTitleAvailability')"
                     :is-loading="isLoading"
@@ -88,7 +87,7 @@
                         @save-rule="onSaveRule"
                         @dismiss-rule="onDismissRule"
                     />
-                </sw-card>
+                </mt-card>
 
                 <sw-extension-component-section
                     v-if="hasIdentifier"

@@ -40,7 +40,6 @@
     {% block sw_settings_document_list_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_document_list_smart_bar_actions_add %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
@@ -62,7 +61,7 @@
     <template #content>
         <sw-card-view>
             {% block sw_settings_document_list_content_card %}
-            <sw-card
+            <mt-card
                 :is-loading="isLoading"
                 position-identifier="sw-settings-document-list-content"
             >
@@ -192,7 +191,6 @@
                                 {% block sw_settings_document_list_delete_modal_footer %}
                                 <template #modal-footer>
                                     {% block sw_settings_document_list_delete_modal_actions_cancel %}
-                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                                     <mt-button
                                         size="small"
                                         @click="onCloseDeleteModal"
@@ -202,7 +200,6 @@
                                     {% endblock %}
 
                                     {% block sw_settings_document_list_delete_modal_actions_delete %}
-                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                                     <mt-button
                                         variant="critical"
                                         size="small"
@@ -232,7 +229,7 @@
                     </sw-grid>
                 </template>
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
         </sw-card-view>
     </template>

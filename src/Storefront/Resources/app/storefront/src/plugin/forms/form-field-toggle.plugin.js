@@ -97,7 +97,7 @@ export default class FormFieldTogglePlugin extends Plugin {
     }
 
     /**
-     * sets the value on which the the
+     * sets the value on which the
      * targets should be toggled
      *
      * @private
@@ -145,7 +145,8 @@ export default class FormFieldTogglePlugin extends Plugin {
     _shouldShowTarget() {
         const type = this.el.type;
         if (type === 'checkbox' || type === 'radio') {
-            return this.el.checked === this._value;
+            const booleanValue = (this._value === 'true' || this._value);
+            return this.el.checked === booleanValue;
         } else {
             return this.el.value === this._value;
         }

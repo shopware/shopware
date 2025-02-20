@@ -462,7 +462,7 @@ export default class ListingPlugin extends Plugin {
      * @param {String} response - HTML of filtered product data.
      */
     renderResponse(response) {
-        ElementReplaceHelper.replaceFromMarkup(response, this.options.cmsProductListingSelector, false);
+        ElementReplaceHelper.replaceFromMarkup(response, this.options.cmsProductListingSelector);
 
         this._registry.forEach((item) => {
             if (typeof item.afterContentChange === 'function') {

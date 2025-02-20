@@ -46,7 +46,7 @@ export default class BuyBoxPlugin extends Plugin {
         ElementLoadingIndicatorUtil.create(this.el);
 
         this._httpClient.get(`${event.detail.url}`, (response) => {
-            ElementReplaceHelper.replaceFromMarkup(response, `${this.options.buyWidgetSelector}-${this.options.elementId}`, false);
+            ElementReplaceHelper.replaceFromMarkup(response, `${this.options.buyWidgetSelector}-${this.options.elementId}`);
             ElementLoadingIndicatorUtil.remove(this.el);
 
             this._initModalTriggerEvent();

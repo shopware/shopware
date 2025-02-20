@@ -14,11 +14,10 @@ class ElementReplaceHelperSingleton {
      *
      * @param {string|HTMLElement} markup
      * @param {array|string} selectors
-     * @param {boolean} strict
      *
      * @private
      */
-    replaceFromMarkup(markup, selectors, strict = true) {
+    replaceFromMarkup(markup, selectors) {
         let src = markup;
         if (typeof src === 'string') {
             src = this._createMarkupFromString(src);
@@ -28,7 +27,7 @@ class ElementReplaceHelperSingleton {
             selectors = [selectors];
         }
 
-        this._replaceSelectors(src, selectors, strict);
+        this._replaceSelectors(src, selectors);
     }
 
     /**
@@ -36,11 +35,10 @@ class ElementReplaceHelperSingleton {
      *
      * @param {NodeList|HTMLElement|string} src
      * @param {NodeList|HTMLElement|string} target
-     * @param {boolean} strict - @deprecated tag:v6.8.0 - Parameter "strict" will be removed.
      *
      * @returns {boolean}
      */
-    replaceElement(src, target, strict = true) {
+    replaceElement(src, target) {
         if (typeof src === 'string') {
             src = document.querySelectorAll(src);
         }
@@ -93,16 +91,15 @@ class ElementReplaceHelperSingleton {
      *
      * @param {HTMLElement} src
      * @param {Array} selectors
-     * @param {boolean} strict - @deprecated tag:v6.8.0 - Parameter "strict" will be removed.
      *
      * @private
      */
-    _replaceSelectors(src, selectors, strict) {
+    _replaceSelectors(src, selectors) {
         selectors.forEach((selector) => {
             const srcElements = src.querySelectorAll(selector);
             const targetElements = document.querySelectorAll(selector);
 
-            this.replaceElement(srcElements, targetElements, strict);
+            this.replaceElement(srcElements, targetElements);
         });
     }
 
@@ -133,11 +130,10 @@ export default class ElementReplaceHelper {
      *
      * @param {string|HTMLElement} markup
      * @param {array|string} selectors
-     * @param {boolean} strict - @deprecated tag:v6.8.0 - Parameter "strict" will be removed.
      *
      */
-    static replaceFromMarkup(markup, selectors, strict) {
-        ElementReplaceHelperInstance.replaceFromMarkup(markup, selectors, strict);
+    static replaceFromMarkup(markup, selectors) {
+        ElementReplaceHelperInstance.replaceFromMarkup(markup, selectors);
     }
 
     /**
@@ -145,11 +141,10 @@ export default class ElementReplaceHelper {
      *
      * @param {NodeList|HTMLElement|string} src
      * @param {NodeList|HTMLElement|string} target
-     * @param {boolean} strict - @deprecated tag:v6.8.0 - Parameter "strict" will be removed.
      *
      * @returns {boolean}
      */
-    static replaceElement(src, target, strict) {
-        return ElementReplaceHelperInstance.replaceElement(src, target, strict);
+    static replaceElement(src, target) {
+        return ElementReplaceHelperInstance.replaceElement(src, target);
     }
 }

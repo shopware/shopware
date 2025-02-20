@@ -4,21 +4,21 @@ import type { FixtureTypes, Task } from '@fixtures/AcceptanceTest';
 export const CreateRule = base.extend<{ CreateRule: Task }, FixtureTypes>({
     CreateRule: async ({ ShopAdmin, AdminApiContext }, use ) => {
 
-        const task = (ruleData    ) => {
+        const task = (testConfig    ) => {
             return async function CreateRule() {
 
                 const testRule = {
-                    id: ruleData.ruleId,
-                    name: ruleData.ruleName,
-                    priority: ruleData.rulePriority,
-                    description: ruleData.ruleDescription,
+                    id: testConfig.ruleId,
+                    name: testConfig.ruleName,
+                    priority: testConfig.rulePriority,
+                    description: testConfig.ruleDescription,
                     moduleTypes: {
                         types:
-                            ruleData.ruleTypes.map(type => type.toLowerCase().split(' ')[0]),
+                            testConfig.ruleTypes.map(type => type.toLowerCase().split(' ')[0]),
                     },
                     tags: [
                         {
-                            name: ruleData.ruleTag,
+                            name: testConfig.ruleTag,
                         },
                     ],
                     conditions: [
@@ -31,7 +31,7 @@ export const CreateRule = base.extend<{ CreateRule: Task }, FixtureTypes>({
                                         {
                                             type: 'cartLineItemGoodsTotal',
                                             value: {
-                                                count: ruleData.quantity,
+                                                count: testConfig.quantity,
                                                 operator: '>=',
                                             },
                                             children: [
@@ -44,7 +44,7 @@ export const CreateRule = base.extend<{ CreateRule: Task }, FixtureTypes>({
                                                                 {
                                                                     type: 'cartLineItemStock',
                                                                     value: {
-                                                                        stock: ruleData.inStock,
+                                                                        stock: testConfig.stock,
                                                                         operator: '>=',
                                                                     },
                                                                 },
@@ -57,9 +57,9 @@ export const CreateRule = base.extend<{ CreateRule: Task }, FixtureTypes>({
                                         {
                                             type: 'dateRange',
                                             value: {
-                                                toDate: ruleData.toDate,
+                                                toDate: testConfig.toDate,
                                                 useTime: false,
-                                                fromDate: ruleData.fromDate,
+                                                fromDate: testConfig.fromDate,
                                             },
                                         },
                                         {
@@ -68,7 +68,7 @@ export const CreateRule = base.extend<{ CreateRule: Task }, FixtureTypes>({
                                                 {
                                                     type: 'customerLastName',
                                                     value: {
-                                                        lastName: ruleData.customerSurname,
+                                                        lastName: testConfig.customerSurname,
                                                         operator: '=',
                                                     },
                                                 },
@@ -83,7 +83,7 @@ export const CreateRule = base.extend<{ CreateRule: Task }, FixtureTypes>({
                                             type: 'cartLineItemTaxation',
                                             value: {
                                                 taxIds: [
-                                                    ruleData.taxId,
+                                                    testConfig.taxId,
                                                 ],
                                                 operator: '=',
                                             },
@@ -91,8 +91,8 @@ export const CreateRule = base.extend<{ CreateRule: Task }, FixtureTypes>({
                                         {
                                             type: 'timeRange',
                                             value: {
-                                                toTime: ruleData.toDate.split('T')[1].substring(0, 5),
-                                                fromTime: ruleData.fromDate.split('T')[1].substring(0, 5),
+                                                toTime: testConfig.toDate.split('T')[1].substring(0, 5),
+                                                fromTime: testConfig.fromDate.split('T')[1].substring(0, 5),
                                             },
                                         },
                                         {
@@ -101,7 +101,7 @@ export const CreateRule = base.extend<{ CreateRule: Task }, FixtureTypes>({
                                                 {
                                                     type: 'orderCreatedByAdmin',
                                                     value: {
-                                                        shouldOrderBeCreatedByAdmin: ruleData.adminOrder,
+                                                        shouldOrderBeCreatedByAdmin: testConfig.isAdminOrder,
                                                     },
                                                 },
                                             ],

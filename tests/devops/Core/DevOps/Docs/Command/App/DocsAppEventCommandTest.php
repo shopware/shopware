@@ -26,7 +26,7 @@ class DocsAppEventCommandTest extends TestCase
 
         $savedContents = @file_get_contents($docsAppEventCommand->getListEventPath()) ?: '';
 
-        static::assertEquals(
+        static::assertSame(
             Hasher::hash($savedContents, 'md5'),
             Hasher::hash($docsAppEventCommand->render(), 'md5'),
             'The webhook events app system document is not up to date' . \PHP_EOL

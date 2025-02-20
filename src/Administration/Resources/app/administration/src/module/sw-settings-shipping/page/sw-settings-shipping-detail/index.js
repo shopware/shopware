@@ -67,12 +67,7 @@ export default {
         },
 
         restrictedRuleIds() {
-            /** @deprecated tag:v6.7.0 - usedRules will be removed, use restrictedRuleIds instead */
             return Shopware.Store.get('swShippingDetail').restrictedRuleIds;
-        },
-
-        usedRules() {
-            return Shopware.Store.get('swShippingDetail').usedRules;
         },
 
         ...mapPropertyErrors('shippingMethod', [

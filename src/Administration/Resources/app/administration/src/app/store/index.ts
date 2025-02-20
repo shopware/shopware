@@ -10,8 +10,7 @@ import {
 
 /**
  * @sw-package framework
- * @private
- * @deprecated: tag:v6.7.0 - Will be public
+ * @public
  */
 export default class Store {
     // eslint-disable-next-line no-use-before-define

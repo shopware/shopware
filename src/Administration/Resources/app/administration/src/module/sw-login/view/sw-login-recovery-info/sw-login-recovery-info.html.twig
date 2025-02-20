@@ -6,10 +6,11 @@
             class="sw-login__back"
             :to="{ name: 'sw.login.index.login' }"
         >
-            <sw-icon
+            <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+            <mt-icon
                 class="sw-login__back-arrow"
                 name="regular-long-arrow-left"
-                small
+                size="16px"
             />
         </router-link>
         {{ $tc('sw-login.recovery.info.headline') }}

@@ -7,10 +7,11 @@
         class="sw-admin-menu__navigation-link sw-admin-menu__profile-item"
         :to="{ name: 'sw.profile.index', params: { currentUser } }"
     >
-        <sw-icon
+        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+        <mt-icon
             class="sw-admin-menu__navigation-link-icon"
             name="regular-user"
-            small
+            size="16px"
         />
         {{ $tc('sw-profile.general.headlineProfile') }}
     </router-link>

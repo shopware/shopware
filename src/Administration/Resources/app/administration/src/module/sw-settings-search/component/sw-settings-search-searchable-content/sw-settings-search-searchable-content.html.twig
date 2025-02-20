@@ -57,9 +57,10 @@
                 @click="onShowExampleModal"
             >
                 {{ $tc('sw-settings-search.generalTab.linkExample') }}
-                <sw-icon
+                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                <mt-icon
                     name="regular-long-arrow-right"
-                    small
+                    size="16px"
                 />
             </a>
             {% endblock %}
@@ -69,9 +70,10 @@
                 class="sw-settings-search__searchable-content-rebuild-link"
             >
                 {{ $tc('sw-settings-search.liveSearchTab.linkRebuildSearchIndex') }}
-                <sw-icon
+                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                <mt-icon
                     name="regular-long-arrow-right"
-                    small
+                    size="16px"
                 />
             </router-link>
         </div>

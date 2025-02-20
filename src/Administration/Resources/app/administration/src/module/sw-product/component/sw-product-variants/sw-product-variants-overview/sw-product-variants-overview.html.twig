@@ -25,7 +25,8 @@
                 {% block sw_product_variants_overview_option_list_toolbar_container_filter_list_button %}
                 <mt-button @click="filterWindowOpen = !filterWindowOpen">
                     {{ $tc('sw-product.variations.generatedFilterList') }}
-                    <sw-icon name="regular-filter" />
+                    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                    <mt-icon name="regular-filter" />
                 </mt-button>
                 {% endblock %}
 
@@ -146,7 +147,8 @@
                     @click="onOptionEdit(item)"
                 >
 
-                    <sw-icon name="regular-link-xs" />
+                    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                    <mt-icon name="regular-link-xs" />
 
                     <span
                         v-for="(singleVariation, index) in item.options"
@@ -340,19 +342,22 @@
             </template>
 
             <template v-else>
-                <sw-icon
+                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                <mt-icon
                     v-if="item.active === true"
                     name="regular-checkmark-xs"
                     size="12px"
                     class="is--active"
                 />
-                <sw-icon
+                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                <mt-icon
                     v-else-if="item.active === false"
                     name="regular-times-s"
                     size="10px"
                     class="is--inactive"
                 />
-                <sw-icon
+                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                <mt-icon
                     v-else
                     key="inherit-icon"
                     name="regular-link-horizontal"
@@ -453,7 +458,8 @@
                             :to="{ name: 'sw.product.detail.base', params: { id: item.id } }"
                             @click="onOptionEdit(item)"
                         >
-                            <sw-icon
+                            <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                            <mt-icon
                                 class="sw-product-variants-overview__variation-link-icon"
                                 name="regular-link-xs"
                             />
@@ -534,19 +540,22 @@
 
                 {% block sw_product_variants_overview_bulk_edit_modal_column_active %}
                 <template #column-active="{ item }">
-                    <sw-icon
+                    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                    <mt-icon
                         v-if="item.active === true"
                         class="is--active"
                         name="regular-checkmark-xs"
-                        small
+                        size="16px"
                     />
-                    <sw-icon
+                    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                    <mt-icon
                         v-else-if="item.active === false"
                         class="is--inactive"
                         name="regular-times-s"
-                        small
+                        size="16px"
                     />
-                    <sw-icon
+                    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                    <mt-icon
                         v-else
                         key="inherit-icon"
                         name="regular-link-horizontal"

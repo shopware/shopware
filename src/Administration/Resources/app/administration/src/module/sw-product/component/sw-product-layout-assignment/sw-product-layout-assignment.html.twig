@@ -72,9 +72,10 @@
                 :disabled="!acl.can('product.editor') || undefined"
                 @click="onLayoutReset"
             >
-                <sw-icon
+                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                <mt-icon
                     name="regular-trash"
-                    small
+                    size="16px"
                 />
             </mt-button>
             {% endblock %}

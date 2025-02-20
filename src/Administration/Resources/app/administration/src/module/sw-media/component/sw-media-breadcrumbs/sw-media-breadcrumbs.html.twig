@@ -34,7 +34,8 @@
         @click="onBreadcrumbsItemClicked(parentFolder.id)"
         @keydown.enter="onBreadcrumbsItemClicked(parentFolder.id)"
     >
-        <sw-icon
+        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+        <mt-icon
             class="sw-media-breadcrumbs__arrow-separator"
             name="regular-chevron-right-xxs"
         />
@@ -47,7 +48,8 @@
         v-if="currentFolder"
         class="sw-media-breadcrumbs__entry sw-media-breadcrumbs__current-folder"
     >
-        <sw-icon
+        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+        <mt-icon
             class="sw-media-breadcrumbs__arrow-separator"
             name="regular-chevron-right-xxs"
         />

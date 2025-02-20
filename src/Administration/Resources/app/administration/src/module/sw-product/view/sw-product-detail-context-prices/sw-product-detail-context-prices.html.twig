@@ -323,9 +323,10 @@
                         class="sw-product-detail-context-prices__parent-prices-link"
                     >
                         {{ $tc('sw-product.advancedPrices.linkAdvancedPricesOfParent') }}
-                        <sw-icon
+                        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                        <mt-icon
                             name="regular-long-arrow-right"
-                            small
+                            size="16px"
                         />
                     </router-link>
                     {% endblock %}

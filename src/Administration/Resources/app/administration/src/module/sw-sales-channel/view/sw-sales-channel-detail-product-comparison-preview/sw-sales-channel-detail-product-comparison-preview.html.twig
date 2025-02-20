@@ -22,10 +22,11 @@
                         href="#"
                         @click.prevent="navigateToLine(error.line)"
                     >
-                        <sw-icon
+                        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                        <mt-icon
                             name="regular-times-hexagon"
                             color="#c0392b"
-                            small
+                            size="16px"
                         />
                     </a>
                     {{ error.message }}

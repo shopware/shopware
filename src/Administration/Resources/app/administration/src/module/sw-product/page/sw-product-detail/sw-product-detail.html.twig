@@ -59,7 +59,8 @@
                         variant="primary"
                         :disabled="isLoading || !acl.can('product.editor')"
                     >
-                        <sw-icon
+                        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                        <mt-icon
                             name="regular-chevron-down-xs"
                             size="16"
                         />
@@ -105,9 +106,10 @@
                     class="sw-card__back-link"
                     :to="{ name: 'sw.product.detail.variants', params: { id: product.parentId } }"
                 >
-                    <sw-icon
+                    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                    <mt-icon
                         name="regular-long-arrow-left"
-                        small
+                        size="16px"
                     />
                     {{ $tc('sw-product.general.backToParent') }}
                 </router-link>
@@ -117,9 +119,10 @@
                     class="sw-card__back-link"
                     :to="{ name: 'sw.product.detail.base', params: { id: product.parentId } }"
                 >
-                    <sw-icon
+                    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                    <mt-icon
                         name="regular-long-arrow-left"
-                        small
+                        size="16px"
                     />
                     {{ $tc('sw-product.general.backToGeneralOverview') }}
                 </router-link>

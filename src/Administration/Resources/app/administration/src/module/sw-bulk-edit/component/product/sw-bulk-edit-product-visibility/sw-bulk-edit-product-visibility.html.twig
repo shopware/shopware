@@ -37,9 +37,10 @@
             @click="openModal"
             @keydown.enter="openModal"
         >
-            {{ $tc('sw-product.visibility.linkAdvancedVisibility') }} <sw-icon
+            {{ $tc('sw-product.visibility.linkAdvancedVisibility') }} <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+            <mt-icon
                 name="regular-long-arrow-right"
-                small
+                size="16px"
             />
         </a>
     </sw-container>

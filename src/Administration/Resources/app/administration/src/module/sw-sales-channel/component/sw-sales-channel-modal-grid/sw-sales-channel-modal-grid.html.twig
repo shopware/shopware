@@ -25,7 +25,8 @@
                 @click="onOpenDetail(item.id)"
                 @keydown.enter="onOpenDetail(item.id)"
             >
-                <sw-icon
+                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                <mt-icon
                     v-if="item.iconName"
                     :name="item.iconName"
                 />

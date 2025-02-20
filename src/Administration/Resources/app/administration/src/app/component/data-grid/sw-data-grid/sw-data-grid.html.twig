@@ -112,20 +112,22 @@
                             >
 
                                 {% block sw_data_grid_header_columns_icon %}
-                                <sw-icon
+                                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                                <mt-icon
                                     v-if="column.iconLabel && column.iconTooltip"
                                     v-tooltip="column.iconTooltip"
                                     :name="column.iconLabel"
                                 >
                                     {{ $te((column.label ?? 'undefined')) ? $tc(column.label) : column.label }}
-                                </sw-icon>
+                                </mt-icon>
 
-                                <sw-icon
+                                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                                <mt-icon
                                     v-else-if="column.iconLabel"
                                     :name="column.iconLabel"
                                 >
                                     {{ $te((column.label ?? 'undefined')) ? $tc(column.label) : column.label }}
-                                </sw-icon>
+                                </mt-icon>
                                 {% endblock %}
 
                                 {% block sw_data_grid_header_columns_label %}
@@ -164,7 +166,8 @@
                                     mode="out-in"
                                 >
                                     {% block sw_data_grid_sort_indicator_icon_asc %}
-                                    <sw-icon
+                                    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                                    <mt-icon
                                         v-if="currentSortDirection === 'ASC'"
                                         key="ASC"
                                         name="regular-chevron-up-xxs"
@@ -173,7 +176,8 @@
                                     {% endblock %}
 
                                     {% block sw_data_grid_sort_indicator_icon_desc %}
-                                    <sw-icon
+                                    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                                    <mt-icon
                                         v-else
                                         key="DESC"
                                         name="regular-chevron-down-xxs"
@@ -402,7 +406,8 @@
                                     @click="onClickCancelInlineEdit(item)"
                                 >
                                     {% block sw_data_grid_inline_edit_actions_cancel_icon %}
-                                    <sw-icon name="regular-times-xs" />
+                                    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                                    <mt-icon name="regular-times-xs" />
                                     {% endblock %}
                                 </mt-button>
                                 {% endblock %}
@@ -418,7 +423,8 @@
                                     @click="onClickSaveInlineEdit(item)"
                                 >
                                     {% block sw_data_grid_inline_edit_actions_save_icon %}
-                                    <sw-icon
+                                    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                                    <mt-icon
                                         name="regular-checkmark-xxs"
                                     />
                                     {% endblock %}

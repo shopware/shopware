@@ -17,7 +17,8 @@
         {% endblock %}
         {% block sw_avatar_slot_placeholder %}
         <span v-if="showPlaceholder">
-            <sw-icon name="regular-user" />
+            <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+            <mt-icon name="regular-user" />
         </span>
         {% endblock %}
     </slot>

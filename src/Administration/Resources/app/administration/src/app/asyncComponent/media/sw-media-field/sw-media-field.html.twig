@@ -40,7 +40,8 @@
             @click="onTogglePicker"
         >
             {% block sw_media_field_media_icon %}
-            <sw-icon name="regular-image" />
+            <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+            <mt-icon name="regular-image" />
             {% endblock %}
 
             {% block sw_media_field_media_popover %}
@@ -58,10 +59,11 @@
                             class="sw-media-field__action-button"
                             @click="toggleUploadField"
                         >
-                            <sw-icon
+                            <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                            <mt-icon
                                 class="sw-media-field__icon-add"
                                 name="regular-plus"
-                                small
+                                size="16px"
                             />
                             {{ toggleButtonLabel }}
                         </mt-button>
@@ -73,10 +75,11 @@
                             class="sw-media-field__action-button is--remove"
                             @click="removeLink"
                         >
-                            <sw-icon
+                            <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                            <mt-icon
                                 class="sw-media-field__icon-remove"
                                 name="regular-times-circle-s"
-                                small
+                                size="16px"
                             />
                             {{ $tc('global.sw-media-field.labelUnlink') }}
                         </mt-button>

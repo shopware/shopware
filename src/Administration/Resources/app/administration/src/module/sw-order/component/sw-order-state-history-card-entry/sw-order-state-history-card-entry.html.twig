@@ -20,7 +20,8 @@
             appearance="circle"
             :class="getBackgroundColorFromState(entry.state.technicalName)"
         >
-            <sw-icon
+            <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+            <mt-icon
                 :name="getIconFromState(entry.state.technicalName)"
                 :class="getIconColorFromState(entry.state.technicalName)"
                 size="16"

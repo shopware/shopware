@@ -40,10 +40,11 @@
     {% block sw_media_list_selection_item_v2_placeholder %}
     <template v-else>
         {% block sw_media_list_selection_item_v2_placeholder_icon %}
-        <sw-icon
+        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+        <mt-icon
             class="sw-media-list-selection-item-v2__placeholder-icon"
             :name="'regular-image'"
-            :small="true"
+            size="16px"
         />
         {% endblock %}
     </template>

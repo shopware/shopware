@@ -21,7 +21,8 @@
     >
 
         {% block sw_admin_menu_item_icon %}
-        <sw-icon
+        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+        <mt-icon
             v-if="displayIcon"
             :size="iconSize"
             class="sw-admin-menu__navigation-link-icon"
@@ -41,7 +42,8 @@
         {% endblock %}
 
         {% block sw_admin_menu_item_arrow_indicato %}
-        <sw-icon
+        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+        <mt-icon
             v-if="entry.level > 1 && children.length"
             name="regular-chevron-right"
             size="8"
@@ -63,7 +65,8 @@
     >
 
         {% block sw_admin_menu_item_external_icon %}
-        <sw-icon
+        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+        <mt-icon
             v-if="displayIcon"
             :size="iconSize"
             class="sw-admin-menu__navigation-link-icon"
@@ -83,7 +86,8 @@
         {% endblock %}
 
         {% block sw_admin_menu_item_external_arrow_indicato %}
-        <sw-icon
+        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+        <mt-icon
             v-if="entry.level > 1 && children.length"
             name="regular-chevron-right"
             size="8"
@@ -103,7 +107,8 @@
     >
 
         {% block sw_admin_menu_item_navigation_icon %}
-        <sw-icon
+        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+        <mt-icon
             v-if="displayIcon"
             :size="iconSize"
             class="sw-admin-menu__navigation-link-icon"
@@ -125,7 +130,8 @@
         <slot name="additional-text"></slot>
 
         {% block sw_admin_menu_item_arrow_indicator %}
-        <sw-icon
+        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+        <mt-icon
             v-if="entry.level > 1 && children.length"
             name="regular-chevron-right"
             size="8"

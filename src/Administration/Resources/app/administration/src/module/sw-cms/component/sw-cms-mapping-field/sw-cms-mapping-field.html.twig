@@ -21,7 +21,8 @@
                 {% block sw_cms_mapping_field_mapping_selection_action %}
                 <template #button>
                     <div class="sw-cms-mapping-field__action">
-                        <sw-icon
+                        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                        <mt-icon
                             name="regular-external-link"
                             size="16"
                         />
@@ -55,7 +56,8 @@
                 @click="onMappingRemove"
                 @keydown.enter="onMappingRemove"
             >
-                <sw-icon name="regular-times" />
+                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                <mt-icon name="regular-times" />
                 <span class="sw-cms-mapping-field__action-label">
                     {{ $tc('sw-cms.detail.label.buttonMappingRemoveAction') }}
                 </span>

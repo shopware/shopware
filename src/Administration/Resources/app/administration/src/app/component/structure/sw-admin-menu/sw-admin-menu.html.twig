@@ -79,9 +79,10 @@
         >
 
             {% block sw_admin_menu_toggle_sidebar_icon %}
-            <sw-icon
+            <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+            <mt-icon
                 :name="sidebarCollapseIcon"
-                small
+                size="16px"
             />
             {% endblock %}
 
@@ -126,7 +127,8 @@
                 </div>
 
                 {% block sw_admin_menu_user_actions_toggle_icon %}
-                <sw-icon
+                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                <mt-icon
                     :name="userActionsToggleIcon"
                     class="sw-admin-menu__user-actions-indicator"
                 />
@@ -165,10 +167,11 @@
                         class="sw-admin-menu__navigation-link sw-admin-menu__logout-action"
                         @click.prevent="onLogoutUser"
                     >
-                        <sw-icon
+                        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                        <mt-icon
                             class="sw-admin-menu__navigation-link-icon"
                             name="regular-sign-out"
-                            small
+                            size="16px"
                         />
                         {{ $tc('global.sw-admin-menu.linkLogout') }}
                     </a>

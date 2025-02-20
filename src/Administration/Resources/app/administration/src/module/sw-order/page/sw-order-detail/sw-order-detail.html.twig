@@ -185,7 +185,8 @@
                 >
                     {{ $tc('sw-order.detail.tabDocuments') }}
 
-                    <sw-icon
+                    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                    <mt-icon
                         v-if="isOrderEditing"
                         v-tooltip="{ message: $tc('sw-order.documentTab.tooltipSaveBeforeCreateDocument') }"
                         class="sw-order-detail__tab-warning-badge"

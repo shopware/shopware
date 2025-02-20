@@ -48,7 +48,8 @@
                     v-if="sequenceData.length === 1 && !sequence.actionName"
                     class="sw-flow-sequence-action__actions-empty"
                 >
-                    <sw-icon
+                    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                    <mt-icon
                         size="12px"
                         name="regular-minus-xs"
                     />
@@ -90,7 +91,8 @@
                                 <template #content>
                                     <div class="sw-flow-sequence-action__error-action">
                                         <div class="sw-flow-sequence-action__error-action-title">
-                                            <sw-icon
+                                            <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                                            <mt-icon
                                                 name="regular-question-circle-s"
                                                 size="14px"
                                                 class="sw-icon-action"
@@ -110,7 +112,8 @@
                                 {% block sw_flow_sequence_action_actions_item_header %}
                                 <div class="sw-flow-sequence-action__action-header">
                                     <div class="sw-flow-sequence-action__action-icon">
-                                        <sw-icon
+                                        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                                        <mt-icon
                                             v-if="!item.iconRaw"
                                             :name="`${item.icon}`"
                                             size="12px"
@@ -232,7 +235,8 @@
                             @item-select="setValue"
                         >
                             {% block sw_flow_sequence_action_select_results_list_result_label %}
-                            <sw-icon
+                            <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                            <mt-icon
                                 v-if="!item.iconRaw"
                                 :name="`${item.icon}`"
                                 size="12px"
@@ -272,9 +276,10 @@
     >
         <div class="sw-flow-sequence-action__true-line"></div>
         <div class="sw-flow-sequence-action__oval"></div>
-        <sw-icon
+        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+        <mt-icon
             name="regular-chevron-right-s"
-            small
+            size="16px"
         />
 
     </div>

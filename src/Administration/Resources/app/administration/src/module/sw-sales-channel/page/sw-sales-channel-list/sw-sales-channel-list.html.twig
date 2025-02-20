@@ -79,7 +79,8 @@
                     >
                         {% block sw_sales_channel_list_grid_column_name %}
                         <template #column-name="{ item }">
-                            <sw-icon
+                            <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                            <mt-icon
                                 :name="item.type.iconName"
                                 size="18px"
                             />

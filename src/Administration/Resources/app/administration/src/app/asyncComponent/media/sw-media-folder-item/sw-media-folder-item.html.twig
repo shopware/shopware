@@ -26,7 +26,8 @@
                 class="sw-media-folder-item__folder-thumbnails"
                 :alt="iconName"
             >
-            <sw-icon
+            <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+            <mt-icon
                 v-if="iconConfig.name"
                 class="sw-media-folder-item__folder-thumbnails is--inner"
                 v-bind="iconConfig"

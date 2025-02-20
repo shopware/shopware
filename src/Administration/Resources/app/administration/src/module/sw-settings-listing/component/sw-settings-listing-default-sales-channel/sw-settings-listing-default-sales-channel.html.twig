@@ -42,10 +42,11 @@
                 @keydown.enter="displayAdvancedVisibility"
             >
                 {{ $tc('sw-settings-listing.index.defaultSalesChannel.linkAdvancedVisibility') }}
-                <sw-icon
+                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+                <mt-icon
                     class="sw-settings-listing-default-sales-channel__link-icon"
                     name="regular-long-arrow-right"
-                    small
+                    size="16px"
                 />
             </a>
             {% endblock %}

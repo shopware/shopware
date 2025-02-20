@@ -17,7 +17,6 @@
     {% block sw_product_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_product_detail_actions_abort %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="tooltipCancel"
             :disabled="isLoading"
@@ -54,7 +53,6 @@
             {% block sw_product_detail_actions_save_context_menu %}
             <sw-context-button>
                 <template #button>
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         class="sw-product-detail__button-context-menu"
                         square

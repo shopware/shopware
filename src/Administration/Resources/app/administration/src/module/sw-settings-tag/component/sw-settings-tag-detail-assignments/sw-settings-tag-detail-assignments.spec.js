@@ -149,9 +149,8 @@ async function createWrapper() {
                     searchRankingService: {},
                 },
                 stubs: {
-                    'sw-card': true,
                     'sw-card-section': true,
-                    'sw-switch-field': true,
+
                     'sw-container': true,
                     'sw-text-field': true,
                     'sw-settings-tag-detail-assignments': true,

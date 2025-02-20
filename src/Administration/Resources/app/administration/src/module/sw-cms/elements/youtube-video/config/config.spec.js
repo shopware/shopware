@@ -60,7 +60,7 @@ async function createWrapper() {
                 },
                 stubs: {
                     'sw-text-field': true,
-                    'sw-switch-field': true,
+
                     'sw-select-field': true,
                     'sw-cms-mapping-field': true,
                     'sw-media-upload-v2': true,

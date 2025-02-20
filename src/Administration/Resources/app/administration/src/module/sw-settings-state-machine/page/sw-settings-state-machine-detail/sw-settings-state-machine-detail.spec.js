@@ -67,7 +67,6 @@ async function createWrapper(privileges = []) {
                             </div>
                         `,
                     },
-                    'sw-card': true,
                     'sw-card-deprecated': true,
                     'sw-container': true,
                     'sw-text-field': true,

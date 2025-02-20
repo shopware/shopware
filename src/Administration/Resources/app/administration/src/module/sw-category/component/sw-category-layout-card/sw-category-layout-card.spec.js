@@ -16,8 +16,8 @@ async function createWrapper() {
                     template: '<div class="sw-cms-list-item"></div>',
                     props: ['disabled'],
                 },
-                'sw-card': {
-                    template: '<div class="sw-card"><slot></slot></div>',
+                'mt-card': {
+                    template: '<div class="mt-card"><slot></slot></div>',
                 },
                 'sw-icon': true,
                 'sw-cms-layout-modal': true,

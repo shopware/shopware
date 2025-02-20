@@ -64,7 +64,6 @@
     <template #modal-footer>
         {% block sw_rule_modal_footer %}
         {% block sw_rule_modal_footer_button_abort %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             size="small"
             @click="$emit('modal-close')"
@@ -74,7 +73,6 @@
         {% endblock %}
 
         {% block sw_rule_modal_footer_button_save %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             :disabled="isLoading"
             class="sw-rule-modal__save"

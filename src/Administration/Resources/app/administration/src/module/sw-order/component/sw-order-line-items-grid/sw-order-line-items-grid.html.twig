@@ -28,7 +28,6 @@
             <sw-button-group :disabled="isLoading || undefined">
 
                 {% block sw_order_line_items_grid_add_existing_product %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     class="sw-order-line-items-grid__actions-container-add-product-btn"
                     ghost
@@ -43,7 +42,6 @@
                 {% block sw_order_line_items_grid_create_actions_dropdown %}
                 <sw-context-button>
                     <template #button>
-                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                         <mt-button
                             ghost
                             size="small"
@@ -133,7 +131,6 @@
             >
 
                 {% block sw_order_line_items_grid_grid_columns_label_nested_modal_button %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     v-if="hasChildren(item)"
                     v-tooltip="{ message: $tc('sw-order.detailBase.tooltipNestedLineItemsButton') }"
@@ -346,7 +343,6 @@
                 </p>
 
                 <template #modal-footer>
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         size="small"
                         class="sw_order_line_items_grid-actions_modal__close-action"
@@ -355,7 +351,6 @@
                         {{ $tc('global.default.cancel') }}
                     </mt-button>
 
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         variant="critical"
                         size="small"

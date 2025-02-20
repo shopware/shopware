@@ -17,7 +17,7 @@ async function createWrapper() {
             global: {
                 renderStubDefaultSlot: true,
                 stubs: {
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot name="toolbar"></slot></div>',
                     },
                     'sw-sales-channel-switch': true,

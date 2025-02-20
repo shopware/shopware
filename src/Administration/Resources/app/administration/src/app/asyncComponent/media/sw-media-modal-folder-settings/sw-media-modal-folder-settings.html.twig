@@ -125,8 +125,9 @@
                     {% endblock %}
 
                     {% block sw_media_modal_folder_settings_keep_proportions_field %}
-                    <sw-switch-field
-                        v-model:value="configuration.keepAspectRatio"
+
+                    <mt-switch
+                        v-model="configuration.keepAspectRatio"
                         :label="$tc('global.sw-media-modal-folder-settings.labelKeepProportions')"
                         :disabled="notEditable"
                     />
@@ -177,12 +178,13 @@
                             >
 
                                 {% block sw_media_modal_folder_settings_thumbnail_size_switch %}
-                                <sw-switch-field
-                                    :value="isThumbnailSizeActive(size)"
+
+                                <mt-switch
+                                    :checked="isThumbnailSizeActive(size)"
                                     :name="thumbnailSizeCheckboxName(size)"
                                     :label="thumbnailSizeFilter(size)"
                                     :disabled="notEditable"
-                                    @update:value="onChangeThumbnailSize($event, size)"
+                                    @change="onChangeThumbnailSize($event, size)"
                                 />
                                 {% endblock %}
 
@@ -224,7 +226,6 @@
     <template #modal-footer>
 
         {% block sw_media_modal_folder_settings_cancel_button %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             size="small"
             @click="onClickCancel"
@@ -234,7 +235,6 @@
         {% endblock %}
 
         {% block sw_media_modal_folder_settings_confirm_button %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),

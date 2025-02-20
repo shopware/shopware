@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-/* eslint-disable max-len */
+/* eslint-disable max-len,jest/no-conditional-expect */
 import { mount } from '@vue/test-utils';
 import uuid from 'test/_helper_/uuid';
 
@@ -31,8 +31,7 @@ async function createWrapper(props) {
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                     'sw-number-field': await wrapTestComponent('sw-number-field'),
                     'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
@@ -96,7 +95,6 @@ async function createWrapper(props) {
                     'sw-media-modal-delete': true,
                     'sw-media-modal-move': true,
                     'sw-context-button': true,
-                    'mt-switch': true,
                     'mt-checkbox': true,
                     'sw-product-variant-info': true,
                 },
@@ -511,6 +509,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             },
         },
         {
+            isMeteorComponent: true,
             testFieldLabel: 'active/inactive switch field',
             customFieldType: 'bool',
             customFieldConfigType: 'switch',
@@ -530,9 +529,9 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             domFieldValueSelectorAfter: 'input[type="checkbox"]',
             domFieldValueAfter: false,
             changeValueFunction: async (customField) => {
+                const currentValue = customField.find('input[type="checkbox"]').element.checked;
                 // change input value
-                await customField.find('input[type="checkbox"]').trigger('click');
-                await customField.find('input[type="checkbox"]').trigger('change');
+                await customField.find('input[type="checkbox"]').setChecked(!currentValue);
             },
         },
         {
@@ -1318,6 +1317,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
      */
     configuredFields.forEach(
         ({
+            isMeteorComponent = false,
             testFieldLabel,
             fieldName,
             customFieldType,
@@ -1441,11 +1441,17 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 await domFieldValueSelectorExpectation(domFieldValue, domFieldValueBefore);
 
                 // check if inheritance switch is visible
-                const inheritanceSwitch = wrapper.find('.sw-inheritance-switch');
+                const inheritanceSwitch = isMeteorComponent
+                    ? wrapper.find('button.mt-field-label__inheritance-switch')
+                    : wrapper.find('.sw-inheritance-switch');
                 expect(inheritanceSwitch.isVisible()).toBe(true);
 
                 // check if switch show inheritance
-                expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
+                if (isMeteorComponent) {
+                    expect(inheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
+                } else {
+                    expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
+                }
             });
 
             it(`should render the custom field with his value when has also parent value: ${testFieldLabel}`, async () => {
@@ -1501,11 +1507,17 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 await domFieldValueSelectorExpectation(domFieldValue, domFieldValueBefore);
 
                 // check if inheritance switch is visible
-                const inheritanceSwitch = wrapper.find('.sw-inheritance-switch');
+                const inheritanceSwitch = isMeteorComponent
+                    ? wrapper.find('button.mt-field-label__inheritance-switch')
+                    : wrapper.find('.sw-inheritance-switch');
                 expect(inheritanceSwitch.isVisible()).toBe(true);
 
                 // check if switch show no inheritance
-                expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
+                if (isMeteorComponent) {
+                    expect(inheritanceSwitch.attributes('aria-label')).toBe('Link inheritance');
+                } else {
+                    expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
+                }
             });
 
             it(`should render the custom field with parent value and can remove inheritance when parent has value: ${testFieldLabel}`, async () => {
@@ -1559,14 +1571,24 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 await domFieldValueSelectorExpectation(domFieldValue, domFieldValueBefore);
 
                 // check if inheritance switch is visible
-                let inheritanceSwitch = wrapper.find('.sw-inheritance-switch');
+                let inheritanceSwitch = isMeteorComponent
+                    ? wrapper.find('button.mt-field-label__inheritance-switch')
+                    : wrapper.find('.sw-inheritance-switch');
                 expect(inheritanceSwitch.isVisible()).toBe(true);
 
                 // check if switch show inheritance
-                expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
+                if (isMeteorComponent) {
+                    expect(inheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
+                } else {
+                    expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
+                }
 
                 // click on switch
-                await inheritanceSwitch.find('.sw-icon').trigger('click');
+                if (isMeteorComponent) {
+                    await inheritanceSwitch.trigger('click');
+                } else {
+                    await inheritanceSwitch.find('.sw-icon').trigger('click');
+                }
                 await flushPromises();
 
                 // check if entity value contains parent value and not undefined
@@ -1578,8 +1600,14 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 await domFieldValueSelectorExpectation(domFieldValue, domFieldValueBefore);
 
                 // check if inheritance switch is not inherit anymore
-                inheritanceSwitch = wrapper.find('.sw-inheritance-switch');
-                expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
+                inheritanceSwitch = isMeteorComponent
+                    ? wrapper.find('button.mt-field-label__inheritance-switch')
+                    : wrapper.find('.sw-inheritance-switch');
+                if (isMeteorComponent) {
+                    expect(inheritanceSwitch.attributes('aria-label')).toBe('Link inheritance');
+                } else {
+                    expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
+                }
             });
 
             it(`should render the custom field with parent value and can remove inheritance when parent has no value: ${testFieldLabel}`, async () => {
@@ -1631,14 +1659,24 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 await domFieldValueSelectorExpectation(domFieldValue, domFallbackValue);
 
                 // check if inheritance switch is visible
-                let inheritanceSwitch = wrapper.find('.sw-inheritance-switch');
+                let inheritanceSwitch = isMeteorComponent
+                    ? wrapper.find('button.mt-field-label__inheritance-switch')
+                    : wrapper.find('.sw-inheritance-switch');
                 expect(inheritanceSwitch.isVisible()).toBe(true);
 
                 // check if switch show inheritance
-                expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
+                if (isMeteorComponent) {
+                    expect(inheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
+                } else {
+                    expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
+                }
 
                 // click on switch
-                await inheritanceSwitch.find('.sw-icon').trigger('click');
+                if (isMeteorComponent) {
+                    await inheritanceSwitch.trigger('click');
+                } else {
+                    await inheritanceSwitch.find('.sw-icon').trigger('click');
+                }
 
                 // check if entity value contains fallback value and not undefined
                 entityValueForCustomField = wrapper.vm.entity.customFields[fieldName];
@@ -1649,8 +1687,15 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 await domFieldValueSelectorExpectation(domFieldValue, domFallbackValue);
 
                 // check if inheritance switch is not inherit anymore
-                inheritanceSwitch = wrapper.find('.sw-inheritance-switch');
-                expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
+                inheritanceSwitch = isMeteorComponent
+                    ? wrapper.find('button.mt-field-label__inheritance-switch')
+                    : wrapper.find('.sw-inheritance-switch');
+
+                if (isMeteorComponent) {
+                    expect(inheritanceSwitch.attributes('aria-label')).toBe('Link inheritance');
+                } else {
+                    expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
+                }
             });
 
             it(`should render the custom field with custom value and can restore inheritance when parent has value: ${testFieldLabel}`, async () => {
@@ -1706,14 +1751,24 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 await domFieldValueSelectorExpectation(domFieldValue, domFieldValueBefore);
 
                 // check if inheritance switch is visible
-                let inheritanceSwitch = wrapper.find('.sw-inheritance-switch');
+                let inheritanceSwitch = isMeteorComponent
+                    ? wrapper.find('button.mt-field-label__inheritance-switch')
+                    : wrapper.find('.sw-inheritance-switch');
                 expect(inheritanceSwitch.isVisible()).toBe(true);
 
                 // check if switch show no inheritance
-                expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
+                if (isMeteorComponent) {
+                    expect(inheritanceSwitch.attributes('aria-label')).toBe('Link inheritance');
+                } else {
+                    expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
+                }
 
                 // click on switch
-                await inheritanceSwitch.find('.sw-icon').trigger('click');
+                if (isMeteorComponent) {
+                    await inheritanceSwitch.trigger('click');
+                } else {
+                    await inheritanceSwitch.find('.sw-icon').trigger('click');
+                }
                 await flushPromises();
 
                 // entity value should be null
@@ -1725,8 +1780,14 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 await domFieldValueSelectorExpectation(domFieldValue, domFieldValueAfter);
 
                 // check if inheritance switch is inherited
-                inheritanceSwitch = wrapper.find('.sw-inheritance-switch');
-                expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
+                inheritanceSwitch = isMeteorComponent
+                    ? wrapper.find('button.mt-field-label__inheritance-switch')
+                    : wrapper.find('.sw-inheritance-switch');
+                if (isMeteorComponent) {
+                    expect(inheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
+                } else {
+                    expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
+                }
             });
 
             it(`should render the custom field with custom value and can restore inheritance when parent has no value: ${testFieldLabel}`, async () => {
@@ -1780,14 +1841,24 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 await domFieldValueSelectorExpectation(domFieldValue, domFieldValueBefore);
 
                 // check if inheritance switch is visible
-                let inheritanceSwitch = wrapper.find('.sw-inheritance-switch');
+                let inheritanceSwitch = isMeteorComponent
+                    ? wrapper.find('button.mt-field-label__inheritance-switch')
+                    : wrapper.find('.sw-inheritance-switch');
                 expect(inheritanceSwitch.isVisible()).toBe(true);
 
                 // check if switch show no inheritance
-                expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
+                if (isMeteorComponent) {
+                    expect(inheritanceSwitch.attributes('aria-label')).toBe('Link inheritance');
+                } else {
+                    expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
+                }
 
                 // click on switch
-                await inheritanceSwitch.find('.sw-icon').trigger('click');
+                if (isMeteorComponent) {
+                    await inheritanceSwitch.trigger('click');
+                } else {
+                    await inheritanceSwitch.find('.sw-icon').trigger('click');
+                }
                 await flushPromises();
 
                 // entity value should be null
@@ -1799,8 +1870,14 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 await domFieldValueSelectorExpectation(domFieldValue, domFallbackValue);
 
                 // check if inheritance switch is inherited
-                inheritanceSwitch = wrapper.find('.sw-inheritance-switch');
-                expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
+                inheritanceSwitch = isMeteorComponent
+                    ? wrapper.find('button.mt-field-label__inheritance-switch')
+                    : wrapper.find('.sw-inheritance-switch');
+                if (isMeteorComponent) {
+                    expect(inheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
+                } else {
+                    expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
+                }
             });
         },
     );

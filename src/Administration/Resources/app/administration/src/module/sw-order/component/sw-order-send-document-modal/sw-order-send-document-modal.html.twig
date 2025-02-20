@@ -86,7 +86,6 @@
 
     <template #modal-footer>
         {% block sw_order_send_document_modal_secondary_action %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             @click="$emit('modal-close')"
         >
@@ -95,7 +94,6 @@
         {% endblock %}
 
         {% block sw_order_send_document_modal_primary_action %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             :disabled="primaryActionDisabled"
             variant="primary"

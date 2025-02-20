@@ -20,7 +20,6 @@
     <template #smart-bar-actions>
 
         {% block sw_settings_delivery_time_detail_smart_bar_actions_cancel %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="tooltipCancel"
             @click="onCancel"
@@ -61,7 +60,7 @@
                 {% endblock %}
 
                 {% block sw_settings_delivery_time_detail_form %}
-                <sw-card
+                <mt-card
                     :is-loading="isLoading"
                     position-identifier="sw-settings-delivery-time-detail-form"
                 >
@@ -126,11 +125,11 @@
                         </sw-container>
                         {% endblock %}
                     </template>
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_settings_delivery_time_detail_custom_field_sets %}
-                <sw-card
+                <mt-card
                     v-if="showCustomFields"
                     position-identifier="sw-settings-delivery-time-detail-custom-field-sets"
                     :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
@@ -141,7 +140,7 @@
                         :disabled="!acl.can('delivery_times.editor') || undefined"
                         :sets="customFieldSets"
                     />
-                </sw-card>
+                </mt-card>
                 {% endblock %}
             </template>
         </sw-card-view>

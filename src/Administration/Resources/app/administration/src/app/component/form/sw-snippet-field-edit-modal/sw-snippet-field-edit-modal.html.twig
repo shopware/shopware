@@ -49,7 +49,6 @@
     <template #modal-footer>
         {% block sw_snippet_field_edit_modal_footer %}
         {% block sw_snippet_field_edit_modal_close_button %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             size="small"
             @click="closeModal"
@@ -58,7 +57,6 @@
         </mt-button>
         {% endblock %}
         {% block sw_snippet_field_edit_modal_footer_button %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip="getNoPermissionsTooltip('snippet.editor')"
             class="sw-snippet-field-edit-modal__save-action"

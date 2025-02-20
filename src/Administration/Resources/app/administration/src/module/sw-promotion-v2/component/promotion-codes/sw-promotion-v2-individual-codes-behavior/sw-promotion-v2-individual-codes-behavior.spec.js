@@ -11,8 +11,8 @@ async function createWrapper(additionalPromotionData = {}) {
         {
             global: {
                 stubs: {
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot></slot><slot name="toolbar"></slot></div>',
+                    'mt-card': {
+                        template: '<div class="mt-card"><slot></slot><slot name="toolbar"></slot></div>',
                     },
                     'sw-container': {
                         template: '<div class="sw-container"><slot></slot></div>',

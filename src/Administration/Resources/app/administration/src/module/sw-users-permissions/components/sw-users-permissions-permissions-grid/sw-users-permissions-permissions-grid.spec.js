@@ -19,7 +19,6 @@ async function createWrapper({ privilegesMappings = [], rolePrivileges = [] } = 
             global: {
                 renderStubDefaultSlot: true,
                 stubs: {
-                    'sw-card': true,
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', {
                         sync: true,
                     }),

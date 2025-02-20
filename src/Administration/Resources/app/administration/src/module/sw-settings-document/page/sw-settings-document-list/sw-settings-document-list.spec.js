@@ -48,7 +48,7 @@ async function createWrapper(privileges = []) {
                     'sw-card-view': {
                         template: '<div><slot/></div> ',
                     },
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot/><slot name="grid"/></div>',
                     },
                     'sw-grid': await wrapTestComponent('sw-grid'),

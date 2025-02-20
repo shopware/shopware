@@ -10,7 +10,6 @@
     {% block sw_settings_currency_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_currency_detail_actions_abort %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="tooltipCancel"
             :disabled="isLoading"
@@ -65,7 +64,7 @@
                 {% endblock %}
 
                 {% block sw_settings_currency_detail_content_card %}
-                <sw-card
+                <mt-card
                     position-identifier="sw-settings-currency-detail-content"
                     :is-loading="isLoading"
                     :title="$tc('sw-settings-currency.detail.titleCard')"
@@ -156,11 +155,11 @@
                         {% endblock %}
 
                     </sw-container>
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_settings_currency_detail_content_card_price_rounding %}
-                <sw-card
+                <mt-card
                     position-identifier="sw-settings-currency-detail-price-rounding"
                     :is-loading="isLoading"
                     :title="$tc('sw-settings-currency.detail.titleRoundingCard')"
@@ -169,11 +168,11 @@
                         :item-rounding="currency.itemRounding"
                         :total-rounding="currency.totalRounding"
                     />
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_settings_currency_detail_content_card_country_price_rounding %}
-                <sw-card
+                <mt-card
                     position-identifier="sw-settings-currency-detail-country-price-rounding"
                     :title="$tc('sw-settings-currency.detail.titleCountryRoundingCard')"
                     :is-loading="currencyCountryLoading"
@@ -191,7 +190,6 @@
                             />
                             {% endblock %}
                             {% block sw_settings_currency_detail_content_card_country_price_rounding_toolbar_button %}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 ghost
                                 class="sw-settings-currency-detail__currency-country-toolbar-button"
@@ -282,7 +280,7 @@
                         :subline="emptyStateText"
                     />
                     {% endblock %}
-                </sw-card>
+                </mt-card>
                 {% block sw_settings_currency_detail_content_card_country_price_rounding_modal %}
                 <sw-settings-currency-country-modal
                     v-if="currentCurrencyCountry"
@@ -294,7 +292,7 @@
                 {% endblock %}
 
                 {% block sw_settings_currency_detail_custom_field_sets %}
-                <sw-card
+                <mt-card
                     v-if="showCustomFields"
                     position-identifier="sw-settings-currency-detail-custom-field-sets"
                     :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
@@ -305,7 +303,7 @@
                         :disabled="!acl.can('currencies.editor')"
                         :sets="customFieldSets"
                     />
-                </sw-card>
+                </mt-card>
                 {% endblock %}
             </template>
         </sw-card-view>

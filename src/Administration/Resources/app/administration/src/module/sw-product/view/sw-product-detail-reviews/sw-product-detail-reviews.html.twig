@@ -5,7 +5,7 @@
         <sw-skeleton />
     </div>
 
-    <sw-card
+    <mt-card
         v-if="!isLoading"
         class="sw-product-detail-reviews__list"
         position-identifier="sw-product-detail-reviews"
@@ -108,7 +108,6 @@
 
             <template #actions>
                 {% block sw_product_detail_reviews_empty_state_button %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     ghost
                     @click="$router.push({ name: 'sw.review.index' })"
@@ -134,7 +133,6 @@
             {% block sw_product_detail_reviews_modal_delete_footer %}
             <template #modal-footer>
                 {% block sw_product_detail_reviews_modal_delete_button_cancel %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="small"
                     @click="onCancelReviewDelete"
@@ -144,7 +142,6 @@
                 {% endblock %}
 
                 {% block sw_product_detail_reviews_modal_delete_button_confirm %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="small"
                     variant="critical"
@@ -157,6 +154,6 @@
             {% endblock %}
         </sw-modal>
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>

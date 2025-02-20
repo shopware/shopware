@@ -51,7 +51,7 @@ async function createWrapper(activeTab = 'content') {
                     'sw-media-modal-v2': true,
                     'sw-media-list-selection-v2': await wrapTestComponent('sw-media-list-selection-v2'),
                     'sw-field': true,
-                    'sw-switch-field': true,
+
                     'sw-select-field': {
                         // eslint-disable-next-line max-len
                         template:

@@ -57,11 +57,6 @@ class DocumentConfiguration extends Struct
 
     protected ?string $title = null;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be replaced by single fields: companyStreet, companyZipcode, companyCity, companyCountry
-     */
-    protected ?string $companyAddress = null;
-
     protected ?string $companyName = null;
 
     protected string $companyStreet = '';

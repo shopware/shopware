@@ -269,7 +269,7 @@ export default {
             for (i = 1; i <= maxCount; i += 1) {
                 appliers.push({
                     key: i,
-                    name: this.$tc('sw-promotion-v2.detail.conditions.filter.applier.SELECT', 0, { count: i }),
+                    name: this.$tc('sw-promotion-v2.detail.conditions.filter.applier.SELECT', { count: i }, 0),
                 });
             }
 
@@ -288,7 +288,7 @@ export default {
             for (i = 1; i < 10; i += 1) {
                 counts.push({
                     key: i,
-                    name: this.$tc('sw-promotion-v2.detail.conditions.filter.counter.SELECT', 0, { count: i }),
+                    name: this.$tc('sw-promotion-v2.detail.conditions.filter.counter.SELECT', { count: i }, 0),
                 });
             }
 

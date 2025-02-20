@@ -114,7 +114,7 @@ async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
                     `,
                     },
                     'sw-cms-toolbar': await wrapTestComponent('sw-cms-toolbar'),
-                    'sw-alert': true,
+
                     'sw-language-switch': true,
                     'sw-router-link': true,
                     'sw-icon': true,
@@ -144,7 +144,6 @@ async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
                     'sw-loader': true,
                     'sw-cms-section': await wrapTestComponent('sw-cms-section'),
                     'sw-cms-layout-assignment-modal': true,
-                    'sw-button': true,
                     'sw-app-actions': true,
                     'sw-modal': {
                         template: `

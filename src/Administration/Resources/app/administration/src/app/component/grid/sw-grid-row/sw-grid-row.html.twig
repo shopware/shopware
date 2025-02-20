@@ -10,20 +10,22 @@
     <div class="sw-grid-row__actions">
         <slot name="actions">
             {% block sw_grid_row_slot_actions %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
                 @click="onInlineEditCancel(id, index)"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
-            <sw-button
+            </mt-button>
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 class="sw-grid-row__inline-edit-action"
                 variant="primary"
                 size="small"
                 @click="onInlineEditFinish"
             >
                 {{ $tc('global.default.save') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </slot>
     </div>

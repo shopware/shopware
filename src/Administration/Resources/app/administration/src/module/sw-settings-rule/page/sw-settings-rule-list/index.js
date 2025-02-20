@@ -230,7 +230,7 @@ export default {
                     this.isLoading = false;
 
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-rule.detail.messageSaveSuccess', 0, { name: rule.name }),
+                        message: this.$tc('sw-settings-rule.detail.messageSaveSuccess', { name: rule.name }, 0),
                     });
                 })
                 .catch(() => {

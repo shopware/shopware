@@ -50,10 +50,6 @@ async function createWrapper() {
                             <slot></slot>
                         </div>`,
                 },
-                'sw-button': {
-                    template: '<button class="sw-button" @click="$emit(`click`)"></button>',
-                    props: ['disabled'],
-                },
                 'sw-icon': true,
                 'sw-search-bar': true,
                 'sw-entity-listing': {

@@ -11,8 +11,8 @@
         gap="0px 14px"
     >
         {% block sw_order_document_settings_modal_form_document_number %}
-        <sw-text-field
-            v-model:value="documentConfig.documentNumber"
+        <mt-text-field
+            v-model="documentNumber"
             :label="$tc('sw-order.documentModal.labelDocumentNumber')"
         />
         {% endblock %}
@@ -90,7 +90,8 @@
     <template #modal-footer>
         <sw-button-group split-button>
             {% block sw_order_document_settings_modal_form_document_footer_preview %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 class="sw-order-document-settings-modal__preview-button"
                 size="small"
                 :disabled="isLoadingDocument"
@@ -98,12 +99,13 @@
                 @click="onPreview()"
             >
                 {{ $tc('sw-order.documentModal.labelPreview') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
-            <sw-context-button menu-width="160">
+            <sw-context-button :menu-width="160">
                 <template #button>
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         square
                         size="small"
                     >
@@ -111,7 +113,7 @@
                             name="regular-chevron-down-xs"
                             size="16"
                         />
-                    </sw-button>
+                    </mt-button>
                 </template>
 
                 <sw-context-menu-item
@@ -126,18 +128,20 @@
 
         <div>
             {% block sw_order_document_settings_modal_form_document_footer_cancel %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
                 @click="onCancel"
             >
                 {{ $tc('sw-order.documentModal.labelCancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_order_document_settings_modal_form_document_footer_split_button %}
             <sw-button-group split-button>
                 {% block sw_order_document_settings_modal_form_document_footer_split_button_create %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     class="sw-order-document-settings-modal__create"
                     variant="primary"
                     size="small"
@@ -146,7 +150,7 @@
                     @click="onCreateDocument"
                 >
                     {{ $tc('sw-order.documentModal.labelCreate') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_order_document_settings_modal_form_document_footer_split_button_context %}
@@ -155,7 +159,8 @@
                 >
                     {% block sw_order_document_settings_modal_form_document_footer_split_button_context_arrow %}
                     <template #button>
-                        <sw-button
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
                             square
                             variant="primary"
                             size="small"
@@ -165,7 +170,7 @@
                                 name="regular-chevron-down-xs"
                                 size="16"
                             />
-                        </sw-button>
+                        </mt-button>
                     </template>
                     {% endblock %}
 

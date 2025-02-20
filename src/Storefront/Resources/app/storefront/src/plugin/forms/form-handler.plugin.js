@@ -28,6 +28,8 @@ import ButtonLoadingIndicator from 'src/utility/loading-indicator/button-loading
  *
  *     <button type="submit">Submit</button>
  * </form>
+ *
+ * @package framework
  */
 export default class FormHandler extends Plugin {
 

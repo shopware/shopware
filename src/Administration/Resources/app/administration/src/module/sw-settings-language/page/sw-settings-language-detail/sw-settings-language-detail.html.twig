@@ -19,12 +19,13 @@
     {% block sw_settings_language_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_language_detail_actions_abort %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="tooltipCancel"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_settings_language_detail_actions_save %}
@@ -67,8 +68,9 @@
                     >
 
                         {% block sw_settings_language_detail_content_field_name %}
-                        <sw-text-field
-                            v-model:value="language.name"
+
+                        <mt-text-field
+                            v-model="language.name"
                             name="sw-field--language-name"
                             :disabled="!acl.can('language.editor') || undefined"
                             :label="$tc('sw-settings-language.detail.labelName')"
@@ -196,14 +198,14 @@
                         {% endblock %}
                     </sw-container>
                     {% block sw_settings_language_detail_content_alert_change_parent %}
-                    <sw-alert
+                    <mt-banner
                         v-if="showAlertForChangeParentLanguage"
                         class="sw-settings-language--alert-change-parent"
                         :title="$tc('global.default.warning')"
-                        variant="warning"
+                        variant="attention"
                     >
                         {{ $tc('sw-settings-language.detail.textAlertChangeParent') }}
-                    </sw-alert>
+                    </mt-banner>
                     {% endblock %}
                 </sw-card>
                 {% endblock %}

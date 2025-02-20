@@ -3382,6 +3382,7 @@ describe('src/app/adapter/composition-extension-system', () => {
      * If you need to run these tests remove the alias in "moduleNameMapper"
      * inside the jest config and remove global Vue registrations.
      */
+    // eslint-disable-next-line jest/no-disabled-tests
     describe.skip('Script Setup usage', () => {
         it('should be able to override refs in script setup', async () => {
             const originalComponent = ExampleExtendableScriptSetupComponent;

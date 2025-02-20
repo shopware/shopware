@@ -60,7 +60,6 @@ async function createWrapper(props = defaultProps, privileges = ['rule.editor'])
                 'sw-help-text': true,
                 'sw-field-error': true,
                 'sw-label': true,
-                'sw-button': true,
                 'sw-extension-teaser-popover': true,
             },
             provide: {
@@ -99,11 +98,11 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             const wrapper = await createWrapper(defaultProps, []);
             await flushPromises();
 
-            const ruleNameField = wrapper.find('sw-text-field-stub[name=sw-field--rule-name]');
+            const ruleNameField = wrapper.find('input[name=sw-field--rule-name]');
             const rulePriorityField = wrapper.find('sw-number-field-stub[name=sw-field--rule-priority]');
             const ruleDescriptionField = wrapper.find('sw-textarea-field-stub[name=sw-field--rule-description]');
 
-            expect(ruleNameField.attributes().disabled).toBe('true');
+            expect(ruleNameField.attributes().disabled).toBeDefined();
             expect(rulePriorityField.attributes().disabled).toBe('true');
             expect(ruleDescriptionField.attributes().disabled).toBe('true');
 
@@ -114,7 +113,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             const wrapper = await createWrapper();
             await flushPromises();
 
-            const ruleNameField = wrapper.find('sw-text-field-stub[name=sw-field--rule-name]');
+            const ruleNameField = wrapper.find('input[name=sw-field--rule-name]');
             const rulePriorityField = wrapper.find('sw-number-field-stub[name=sw-field--rule-priority]');
             const ruleDescriptionField = wrapper.find('sw-textarea-field-stub[name=sw-field--rule-description]');
 

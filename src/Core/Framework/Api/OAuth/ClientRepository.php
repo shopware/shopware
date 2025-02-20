@@ -56,7 +56,7 @@ class ClientRepository implements ClientRepositoryInterface
     public function getClientEntity(string $clientIdentifier): ?ClientEntityInterface
     {
         if ($clientIdentifier === 'administration') {
-            return new ApiClient('administration', true);
+            return new ApiClient('administration', true, confidential: false);
         }
 
         $values = $this->getByAccessKey($clientIdentifier);
@@ -65,7 +65,12 @@ class ClientRepository implements ClientRepositoryInterface
             return null;
         }
 
-        return new ApiClient($clientIdentifier, true, $values['label'] ?? Uuid::fromBytesToHex((string) $values['user_id']));
+        return new ApiClient(
+            $clientIdentifier,
+            true,
+            name: $values['label'] ?? Uuid::fromBytesToHex((string) $values['user_id']),
+            confidential: true
+        );
     }
 
     public function updateLastUsageDate(string $integrationId): void

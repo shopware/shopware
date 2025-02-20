@@ -47,7 +47,6 @@ const createSelect = async (
                     'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                     'sw-ai-copilot-badge': true,
                     'sw-help-text': true,
-                    'sw-button': true,
                     'sw-inheritance-switch': true,
                     'mt-loader': true,
                     'sw-loader-deprecated': true,

@@ -47,12 +47,13 @@
             v-bind="{ invisibleCount, onClickInvisibleCount }"
         >
             {% block sw_select_selection_list_load_more_item_button %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 class="sw-select-selection-list__load-more-button"
                 @click.stop="onClickInvisibleCount"
             >
                 +{{ invisibleCount }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </slot>
     </li>

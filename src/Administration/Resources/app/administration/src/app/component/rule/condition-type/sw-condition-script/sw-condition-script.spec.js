@@ -90,7 +90,6 @@ async function createWrapper(condition = {}) {
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
-                'sw-button': true,
             },
             provide: {
                 conditionDataProviderService: new ConditionDataProviderService(),

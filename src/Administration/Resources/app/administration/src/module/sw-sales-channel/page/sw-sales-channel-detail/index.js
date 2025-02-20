@@ -76,11 +76,6 @@ export default {
             return this.productComparison.newProductExport;
         },
 
-        /** @deprecated tag:v6.7.0 - Use `isStorefront` instead */
-        isStoreFront() {
-            return this.isStorefront;
-        },
-
         isStorefront() {
             if (!this.salesChannel) {
                 return this.$route.params.typeId === Defaults.storefrontSalesChannelTypeId;
@@ -325,9 +320,13 @@ export default {
                 this.isLoading = false;
 
                 this.createNotificationError({
-                    message: this.$tc('sw-sales-channel.detail.messageSaveError', 0, {
-                        name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name'),
-                    }),
+                    message: this.$tc(
+                        'sw-sales-channel.detail.messageSaveError',
+                        {
+                            name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name'),
+                        },
+                        0,
+                    ),
                 });
             }
         },

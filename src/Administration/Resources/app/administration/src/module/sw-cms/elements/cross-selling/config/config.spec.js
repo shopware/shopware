@@ -46,7 +46,7 @@ async function createWrapper(customCmsElementConfig) {
                     'sw-modal': true,
                     'sw-entity-single-select': true,
                     'sw-product-variant-info': true,
-                    'sw-alert': true,
+
                     'sw-icon': true,
                 },
                 provide: {
@@ -88,7 +88,7 @@ describe('module/sw-cms/elements/cross-selling/config', () => {
         });
         const wrapper = await createWrapper();
 
-        expect(wrapper.get('sw-alert-stub').text()).toBe(
+        expect(wrapper.get('[role="banner"]').text()).toBe(
             'sw-cms.elements.crossSelling.config.infoText.productDetailElement',
         );
     });

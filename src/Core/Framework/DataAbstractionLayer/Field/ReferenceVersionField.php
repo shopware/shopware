@@ -10,26 +10,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class ReferenceVersionField extends FkField
 {
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     *
-     * @var string
-     */
-    protected $versionReferenceClass;
+    protected string $versionReferenceClass;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     *
-     * @var EntityDefinition
-     */
-    protected $versionReferenceDefinition;
+    protected ?EntityDefinition $versionReferenceDefinition = null;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     *
-     * @var string
-     */
-    protected $storageName;
+    protected string $storageName;
 
     public function __construct(
         string $definition,
@@ -56,6 +41,7 @@ class ReferenceVersionField extends FkField
     {
         if ($this->versionReferenceDefinition === null) {
             $this->compileLazy();
+            \assert($this->versionReferenceDefinition !== null);
         }
 
         return $this->versionReferenceDefinition;
@@ -63,10 +49,6 @@ class ReferenceVersionField extends FkField
 
     public function getVersionReferenceClass(): string
     {
-        if ($this->versionReferenceClass === null) {
-            $this->compileLazy();
-        }
-
         return $this->versionReferenceClass;
     }
 

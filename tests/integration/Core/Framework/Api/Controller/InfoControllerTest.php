@@ -37,9 +37,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\BundleFixture;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Symfony\Component\Asset\Packages;
-use Symfony\Component\Asset\UrlPackage;
-use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -450,9 +447,6 @@ class InfoControllerTest extends TestCase
         $appUrl = EnvironmentHelper::getVariable('APP_URL');
         static::assertIsString($appUrl);
 
-        $basePath = new UrlPackage([$appUrl], new EmptyVersionStrategy());
-        $assets = new Packages($basePath, ['asset' => $basePath]);
-
         $infoController = new InfoController(
             $this->createMock(DefinitionService::class),
             new ParameterBag([
@@ -469,7 +463,6 @@ class InfoControllerTest extends TestCase
                 'shopware.deployment.runtime_extension_management' => true,
             ]),
             $kernelMock,
-            $assets,
             $this->createMock(BusinessEventCollector::class),
             static::getContainer()->get('shopware.increment.gateway.registry'),
             $this->connection,

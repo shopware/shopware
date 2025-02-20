@@ -16,7 +16,8 @@
     </template>
 
     <template #smart-bar-actions>
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip="tooltipCreate"
             class="sw-settings-units__create-action"
             variant="primary"
@@ -24,7 +25,7 @@
             @click="createNewUnit"
         >
             {{ $tc('sw-settings-units.general.createNewUnit') }}
-        </sw-button>
+        </mt-button>
     </template>
 
     <template #language-switch>

@@ -34,17 +34,19 @@
 
         {% block sw_sales_channel_modal_footer_detail_actions %}
         {% block sw_sales_channel_modal_footer_back %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-if="detailType"
             size="small"
             @click.prevent="detailType = false"
         >
             {{ $tc('sw-sales-channel.modal.buttonBack') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_sales_channel_modal_footer_add_channel %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-if="detailType"
             v-tooltip="{
                 message: $tc('sw-sales-channel.modal.messageNoProductStreams'),
@@ -59,19 +61,20 @@
             @click="onAddChannel(detailType.id)"
         >
             {{ $tc('sw-sales-channel.modal.buttonAddChannel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
         {% endblock %}
 
         {% block sw_sales_channel_modal_footer_actions %}
         {% block sw_sales_channel_modal_footer_cancel %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-if="!detailType"
             size="small"
             @click="onCloseModal"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
         {% endblock %}
     </template>

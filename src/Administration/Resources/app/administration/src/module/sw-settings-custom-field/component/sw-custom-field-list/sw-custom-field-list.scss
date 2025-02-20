@@ -24,20 +24,20 @@ $sw-custom-field-list-color-label-link: $color-shopware-brand-500;
         background-color: $sw-custom-field-list-color-toolbar-background;
         border-bottom: 1px solid $sw-custom-field-list-color-toolbar-bottom;
 
-        .sw-custom-field-list__delete-button.sw-button--square {
+        .sw-custom-field-list__delete-button.mt-button--square {
             border-color: $sw-custom-field-list-color-border;
 
             .sw-icon {
                 color: $sw-custom-field-list-color-border;
             }
 
-            &.sw-button--disabled {
+            &.mt-button--disabled {
                 opacity: 0.2;
             }
         }
 
         .sw-tooltip--wrapper {
-            .sw-button {
+            .mt-button {
                 width: 100%;
             }
         }

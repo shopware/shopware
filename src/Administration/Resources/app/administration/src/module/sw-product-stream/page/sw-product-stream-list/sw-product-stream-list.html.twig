@@ -36,15 +36,16 @@
     {% block sw_product_stream_list_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_product_stream_list_smart_bar_actions_add %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="getNoPermissionsTooltip('product_stream.creator')"
             class="sw-product-stream-list__create-action"
             :disabled="!acl.can('product_stream.creator')"
-            :router-link="{ name: 'sw.product.stream.create' }"
             variant="primary"
+            @click="$router.push({ name: 'sw.product.stream.create' })"
         >
             {{ $tc('sw-product-stream.list.buttonAddProductStream') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

@@ -22,7 +22,6 @@ async function createWrapper(props) {
                 'sw-search-bar': true,
                 'sw-app-actions': true,
                 'sw-loader': true,
-                'sw-button': true,
                 'sw-app-topbar-button': true,
                 'sw-help-center-v2': true,
                 'sw-icon': true,

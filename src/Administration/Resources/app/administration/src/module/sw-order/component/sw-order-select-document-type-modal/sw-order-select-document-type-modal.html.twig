@@ -19,20 +19,22 @@
 
     <template #modal-footer>
         {% block sw_order_select_document_type_modal_footer_action_cancel %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             @click="$emit('modal-close', false)"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_order_select_document_type_modal_footer_action_create %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             variant="primary"
             @click="$emit('modal-close', true)"
         >
             {{ $tc('sw-order.components.selectDocumentTypeModal.primaryAction') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
     </template>

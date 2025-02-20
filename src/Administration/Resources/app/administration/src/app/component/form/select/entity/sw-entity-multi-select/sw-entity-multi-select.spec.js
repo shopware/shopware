@@ -84,7 +84,6 @@ const createWrapper = async (customOptions = {}) => {
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
-                'sw-button': true,
                 'mt-icon': true,
                 'sw-color-badge': true,
                 'mt-loader': true,

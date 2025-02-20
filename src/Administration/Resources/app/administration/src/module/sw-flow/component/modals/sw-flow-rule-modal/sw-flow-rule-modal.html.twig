@@ -48,8 +48,9 @@
                         gap="0px 32px"
                     >
                         {% block sw_flow_rule_modal_detail_name %}
-                        <sw-text-field
-                            v-model:value="rule.name"
+
+                        <mt-text-field
+                            v-model="rule.name"
                             name="sw-field--rule-name"
                             class="sw-flow-rule-modal__name"
                             required
@@ -131,13 +132,14 @@
 
     <template #modal-footer>
         {% block sw_flow_rule_modal_footer_cancel_button %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-flow-rule-modal__cancel-button"
             size="small"
             @click="onClose"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_flow_rule_modal_footer_save_button %}

@@ -9,7 +9,6 @@ async function createWrapper(propsData = {}) {
                 },
             },
             stubs: {
-                'sw-button': true,
                 'sw-switch-field': true,
             },
         },

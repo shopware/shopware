@@ -4,8 +4,8 @@
     gap="0 14px"
 >
     {% block sw_order_document_settings_modal_form_cancellation_document_number %}
-    <sw-text-field
-        v-model:value="documentConfig.documentNumber"
+    <mt-text-field
+        v-model="documentNumber"
         :label="$tc('sw-order.documentModal.labelDocumentStornoNumber')"
     />
     {% endblock %}

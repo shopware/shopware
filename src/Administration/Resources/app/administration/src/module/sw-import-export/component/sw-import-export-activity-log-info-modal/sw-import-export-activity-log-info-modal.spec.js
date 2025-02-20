@@ -37,7 +37,6 @@ async function createWrapper(logEntity = getLogEntityMock()) {
                         <slot></slot>
                     </div>`,
                     },
-                    'sw-button': true,
                     'sw-color-badge': true,
                 },
             },
@@ -119,8 +118,8 @@ describe('module/sw-import-export/components/sw-import-export-activity-log-info-
 
         wrapper = await createWrapper(logEntity);
 
-        const downloadButton = wrapper.find('sw-button-stub');
-        expect(downloadButton.attributes('disabled')).toBe('true');
+        const downloadButton = wrapper.findByText('button', 'sw-import-export.activity.logInfo.labelDownloadFile');
+        expect(downloadButton.attributes('disabled')).toBeDefined();
     });
 
     it('should enable the button when export has been finished', async () => {
@@ -130,7 +129,7 @@ describe('module/sw-import-export/components/sw-import-export-activity-log-info-
 
         wrapper = await createWrapper(logEntity);
 
-        const downloadButton = wrapper.find('sw-button-stub');
+        const downloadButton = wrapper.findByText('button', 'sw-import-export.activity.logInfo.labelDownloadFile');
         expect(downloadButton.attributes('disabled')).toBeUndefined();
     });
 });

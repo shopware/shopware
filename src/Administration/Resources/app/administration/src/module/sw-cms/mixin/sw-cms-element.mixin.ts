@@ -1,5 +1,6 @@
 import { defineComponent, type PropType } from 'vue';
 import { type RuntimeSlot } from '../service/cms.service';
+import '../../sw-category/page/sw-category-detail/store';
 
 const { Mixin } = Shopware;
 const { types } = Shopware.Utils;

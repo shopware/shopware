@@ -36,7 +36,6 @@
             <argument type="service" id="Shopware\Storefront\Theme\ScssPhpCompiler"/>
             <argument type="service" id="messenger.default_bus"/>
             <argument>%storefront.theme.file_delete_delay%</argument>
-            <argument>%storefront.theme.auto_prefix_css%</argument>
             <argument>%storefront.theme.allowed_scss_values%</argument>
             <argument>%storefront.theme.validate_on_compile%</argument>
         </service>
@@ -248,7 +247,6 @@
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileResolver"/>
             <argument type="service" id="theme.repository"/>
-            <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigDumper"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFilesystemResolver"/>
 

@@ -12,35 +12,11 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('framework')]
 class MinimalQuickViewPageCriteriaEvent extends Event implements ShopwareSalesChannelEvent
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productId;
-
-    /**
-     * @var Criteria
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $criteria;
-
-    /**
-     * @var SalesChannelContext
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $context;
-
     public function __construct(
-        string $productId,
-        Criteria $criteria,
-        SalesChannelContext $context
+        protected string $productId,
+        protected Criteria $criteria,
+        protected SalesChannelContext $context,
     ) {
-        $this->productId = $productId;
-        $this->criteria = $criteria;
-        $this->context = $context;
     }
 
     public function getProductId(): string

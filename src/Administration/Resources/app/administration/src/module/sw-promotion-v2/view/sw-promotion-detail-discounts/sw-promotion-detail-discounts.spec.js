@@ -12,10 +12,6 @@ async function createWrapper() {
             global: {
                 stubs: {
                     'sw-card': true,
-                    'sw-button': {
-                        template: '<button class="sw-button"><slot></slot></button>',
-                        props: ['disabled'],
-                    },
                     'sw-promotion-discount-component': true,
                 },
                 provide: {
@@ -43,7 +39,9 @@ describe('src/module/sw-promotion-v2/view/sw-promotion-detail-discounts', () => 
 
         const wrapper = await createWrapper();
 
-        expect(wrapper.getComponent('.sw-button').props('disabled')).toBe(true);
+        expect(
+            wrapper.findByText('button', 'sw-promotion.detail.main.discounts.buttonAddDiscount').attributes('disabled'),
+        ).toBeDefined();
     });
 
     it('should enable adding discounts when privilege is set', async () => {
@@ -51,6 +49,8 @@ describe('src/module/sw-promotion-v2/view/sw-promotion-detail-discounts', () => 
 
         const wrapper = await createWrapper();
 
-        expect(wrapper.getComponent('.sw-button').props('disabled')).toBe(false);
+        expect(
+            wrapper.findByText('button', 'sw-promotion.detail.main.discounts.buttonAddDiscount').attributes('disabled'),
+        ).toBeUndefined();
     });
 });

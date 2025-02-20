@@ -126,9 +126,9 @@
                     >
 
                         <template v-if="displayNotification(section, block)">
-                            <sw-alert variant="info">
+                            <mt-banner variant="info">
                                 {{ $tc('sw-cms.blocks.blockDisableState') }}
-                            </sw-alert>
+                            </mt-banner>
                         </template>
 
                         {% block sw_cms_page_form_element_config %}

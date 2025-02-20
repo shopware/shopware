@@ -10,6 +10,7 @@ use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
@@ -112,6 +113,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->createMock(CustomEntitySchemaUpdater::class),
             $this->pluginServiceMock,
             $this->createMock(VersionSanitizer::class),
+            $this->createMock(DefinitionInstanceRegistry::class)
         );
     }
 

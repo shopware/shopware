@@ -19,20 +19,22 @@
     >
         <div class="sw-settings-search__searchable-content-button-group">
             {% block sw_settings_search_searchable_add_item %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-if="defaultTab !== tabNames.generalTab"
                 class="sw-settings-search__searchable-content-add-button"
-                variant="ghost"
+                ghost
                 size="small"
                 :disabled="!acl.can('product_search_config.creator')"
                 @click="onAddNewConfig"
             >
                 {{ $tc('sw-settings-search.generalTab.buttonAddContent') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_settings_search_searchable_reset_default %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-if="defaultTab !== tabNames.customTab"
                 class="sw-settings-search__searchable-content-reset-button"
                 size="small"
@@ -40,7 +42,7 @@
                 @click="onResetToDefault"
             >
                 {{ $tc('sw-settings-search.generalTab.buttonResetDefault') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </div>
 

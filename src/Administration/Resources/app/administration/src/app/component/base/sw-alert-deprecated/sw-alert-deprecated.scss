@@ -69,7 +69,7 @@ $sw-alert-size-close: 40px;
         display: flex;
         flex-wrap: wrap;
 
-        .sw-button {
+        .mt-button {
             border: 0;
             height: 40px;
             background: none;
@@ -98,7 +98,7 @@ $sw-alert-size-close: 40px;
         .sw-alert__actions {
             border-color: $color-gray-300;
 
-            .sw-button {
+            .mt-button {
                 color: $color-shopware-brand-500;
                 border-color: $color-gray-300;
 
@@ -212,7 +212,7 @@ $sw-alert-size-close: 40px;
         .sw-alert__actions {
             border-color: $color-darkgray-50;
 
-            .sw-button {
+            .mt-button {
                 color: $color-gray-300;
                 border-color: $color-darkgray-50;
 

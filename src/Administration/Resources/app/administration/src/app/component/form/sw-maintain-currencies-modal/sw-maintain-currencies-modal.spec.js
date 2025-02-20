@@ -50,7 +50,6 @@ async function createWrapper() {
                 },
                 'sw-data-grid-skeleton': true,
                 'sw-list-price-field': true,
-                'sw-button': true,
                 'sw-checkbox-field': true,
                 'sw-context-menu-item': true,
                 'sw-context-button': true,

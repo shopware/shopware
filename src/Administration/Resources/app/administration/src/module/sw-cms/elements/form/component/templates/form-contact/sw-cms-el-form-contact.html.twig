@@ -18,32 +18,33 @@
             </option>
         </sw-select-field>
 
-        <sw-text-field
+        <mt-text-field
             :label="$tc('sw-cms.elements.form.element.label.firstName')"
-            :value="$tc('sw-cms.elements.form.element.placeholder.firstName')"
+            :model-value="$tc('sw-cms.elements.form.element.placeholder.firstName')"
         />
 
-        <sw-text-field
+        <mt-text-field
             :label="$tc('sw-cms.elements.form.element.label.lastName')"
-            :value="$tc('sw-cms.elements.form.element.placeholder.lastName')"
+            :model-value="$tc('sw-cms.elements.form.element.placeholder.lastName')"
         />
     </div>
 
     <div class="sw-cms-el-form-contact-form-group two-items">
-        <sw-text-field
+
+        <mt-text-field
             :label="$tc('sw-cms.elements.form.element.label.email')"
-            :value="$tc('sw-cms.elements.form.element.placeholder.email')"
+            :model-value="$tc('sw-cms.elements.form.element.placeholder.email')"
         />
 
-        <sw-text-field
+        <mt-text-field
             :label="$tc('sw-cms.elements.form.element.label.phone')"
-            :value="$tc('sw-cms.elements.form.element.placeholder.phone')"
+            :model-value="$tc('sw-cms.elements.form.element.placeholder.phone')"
         />
     </div>
 
-    <sw-text-field
+    <mt-text-field
         :label="$tc('sw-cms.elements.form.element.label.subject')"
-        :value="$tc('sw-cms.elements.form.element.placeholder.subject')"
+        :model-value="$tc('sw-cms.elements.form.element.placeholder.subject')"
     />
 
     <sw-textarea-field

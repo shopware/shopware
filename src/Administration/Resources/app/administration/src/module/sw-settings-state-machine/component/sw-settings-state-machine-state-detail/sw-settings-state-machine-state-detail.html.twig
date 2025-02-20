@@ -10,8 +10,9 @@
         gap="0px 32px"
     >
         {% block sw_settings_state_machine_state_detail_content_name %}
-        <sw-text-field
-            v-model:value="stateMachineState.name"
+
+        <mt-text-field
+            v-model="stateMachineState.name"
             :label="$tc('sw-settings-state-machine.state.detail.labelName')"
             :error="stateMachineStateNameError"
             required
@@ -19,8 +20,9 @@
         {% endblock %}
 
         {% block sw_settings_state_machine_state_detail_content_technical_name %}
-        <sw-text-field
-            v-model:value="stateMachineState.technicalName"
+
+        <mt-text-field
+            v-model="stateMachineState.technicalName"
             :label="$tc('sw-settings-state-machine.state.detail.labelTechnicalName')"
             :disabled="true"
             required

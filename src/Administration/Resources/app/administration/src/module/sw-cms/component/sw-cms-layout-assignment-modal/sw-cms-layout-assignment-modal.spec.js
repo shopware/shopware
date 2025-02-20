@@ -119,10 +119,6 @@ async function createWrapper(layoutType = 'product_list', systemConfigApiService
                 stubs: {
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
-                    'sw-button': {
-                        inheritAttrs: false,
-                        template: '<div class="sw-button" :class="$attrs.class" @click="$emit(\'click\')"></div>',
-                    },
                     'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
                     'sw-category-tree-field': {
                         template: `
@@ -472,6 +468,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                 ],
             },
         });
+        await flushPromises();
 
         await wrapper.find('.sw-cms-layout-assignment-modal__action-confirm').trigger('click');
 
@@ -509,6 +506,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                 'storefront_test-id': null,
             },
         });
+        await flushPromises();
 
         await wrapper.find('.sw-cms-layout-assignment-modal__action-confirm').trigger('click');
 

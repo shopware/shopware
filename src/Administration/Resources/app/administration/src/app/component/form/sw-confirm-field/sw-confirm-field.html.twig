@@ -4,8 +4,9 @@
     :class="confirmFieldClasses"
 >
     {% block sw_confirm_field_input_field %}
-    <sw-text-field
-        v-model:value="draft"
+
+    <mt-text-field
+        v-model="draft"
         v-bind="$attrs"
         :required="required"
         :disabled="disabled"
@@ -15,7 +16,7 @@
         @blur="onBlurField"
         @keyup.enter="onSubmitFromKey"
         @keyup.esc="onCancelFromKey"
-        @update:value="onInput"
+        @update:model-value="onInput"
     />
     {% endblock %}
 
@@ -25,7 +26,8 @@
         class="sw-confirm-field__button-list"
     >
         {% block sw_confirm_field_cancel_button %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             :disabled="disabled"
             class="sw-confirm-field__button sw-confirm-field__button--cancel"
             square
@@ -40,11 +42,12 @@
                 name="regular-times-xs"
             />
             {% endblock %}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_confirm_field_confirm_button %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-confirm-field__button sw-confirm-field__button--submit"
             :disabled="preventEmptySubmit && !draft || disabled"
             square
@@ -60,7 +63,7 @@
                 name="regular-checkmark-xxs"
             />
             {% endblock %}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </span>
     {% endblock %}

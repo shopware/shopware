@@ -74,9 +74,6 @@ async function createWrapperForComponent(componentName, props = {}) {
                 'sw-datepicker': {
                     template: '<div class="sw-datepicker"></div>',
                 },
-                'sw-button': {
-                    template: '<div class="sw-button"></div>',
-                },
                 'sw-icon': {
                     template: '<div class="sw-icon"></div>',
                 },
@@ -135,7 +132,7 @@ function getAllFields(wrapper) {
         wrapper.findAll('.sw-single-select'),
         wrapper.findAll('.sw-entity-tag-select'),
         wrapper.findAll('.sw-datepicker'),
-        wrapper.findAll('.sw-button'),
+        wrapper.findAll('.mt-button'),
         wrapper.findAll('.sw-textarea-field'),
     ];
 }

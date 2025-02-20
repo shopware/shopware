@@ -45,8 +45,6 @@ async function createWrapper() {
 
             global: {
                 stubs: {
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-icon': true,
                     'router-link': true,
                     'sw-loader': true,
@@ -155,7 +153,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-selector', () => {
             disabled: true,
         });
 
-        expect(addCondition.classes()).toContain('sw-button--disabled');
-        expect(addAction.classes()).toContain('sw-button--disabled');
+        expect(addCondition.attributes('disabled') !== undefined).toBe(true);
+        expect(addAction.attributes('disabled') !== undefined).toBe(true);
     });
 });

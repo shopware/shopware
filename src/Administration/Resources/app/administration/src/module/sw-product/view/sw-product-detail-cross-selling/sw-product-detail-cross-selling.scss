@@ -21,7 +21,7 @@
         }
 
         &:disabled,
-        &.sw-button--disabled {
+        &.mt-button--disabled {
             background-color: transparent;
             border-color: $color-module-purple-200;
             color: $color-module-purple-200;

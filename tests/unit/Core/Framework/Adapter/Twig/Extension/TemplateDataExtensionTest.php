@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -52,6 +53,7 @@ class TemplateDataExtensionTest extends TestCase
         $controller = NavigationController::class;
         $themeId = Uuid::randomHex();
         $expectedMinSearchLength = 3;
+        $navigationId = $salesChannelContext->getSalesChannel()->getNavigationCategoryId();
 
         $request = new Request(attributes: [
             PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $salesChannelContext,
@@ -60,18 +62,35 @@ class TemplateDataExtensionTest extends TestCase
             SalesChannelRequest::ATTRIBUTE_THEME_ID => $themeId,
         ]);
 
+        $connection = $this->createMock(Connection::class);
+        $connection->expects(static::exactly(2))
+            ->method('fetchOne')
+            ->willReturnCallback(function (string $query) use ($expectedMinSearchLength, $navigationId) {
+                if ($query === 'SELECT path FROM category WHERE id = :id') {
+                    return $navigationId . '|019503b99fb57238a79d33ec1461e512|019503c1e1397116a3a7c754858927ef|';
+                }
+                if ($query === 'SELECT `min_search_length` FROM `product_search_config` WHERE `language_id` = :id') {
+                    return $expectedMinSearchLength;
+                }
+
+                throw new \RuntimeException('Unexpected query: ' . $query);
+            });
+
         $globals = (new TemplateDataExtension(
             new RequestStack([$request]),
             true,
-            new FakeConnection([['minSearchLength' => (string) $expectedMinSearchLength]])
+            $connection,
         ))->getGlobals();
 
         static::assertArrayHasKey('shopware', $globals);
         static::assertArrayHasKey('dateFormat', $globals['shopware']);
         static::assertSame('Y-m-d\TH:i:sP', $globals['shopware']['dateFormat']);
         static::assertArrayHasKey('navigation', $globals['shopware']);
-        static::assertInstanceOf(NavigationInfo::class, $globals['shopware']['navigation']);
-        static::assertSame($salesChannelContext->getSalesChannel()->getNavigationCategoryId(), $globals['shopware']['navigation']->id);
+        $navigationInfo = $globals['shopware']['navigation'];
+        static::assertInstanceOf(NavigationInfo::class, $navigationInfo);
+        static::assertSame($salesChannelContext->getSalesChannel()->getNavigationCategoryId(), $navigationInfo->id);
+        // Make sure, the root category is not part of the pathIdList
+        static::assertSame(['019503b99fb57238a79d33ec1461e512', '019503c1e1397116a3a7c754858927ef'], $navigationInfo->pathIdList);
         static::assertArrayHasKey('minSearchLength', $globals['shopware']);
         static::assertSame($expectedMinSearchLength, $globals['shopware']['minSearchLength']);
         static::assertArrayHasKey('showStagingBanner', $globals['shopware']);

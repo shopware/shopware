@@ -10,7 +10,8 @@
     {% block sw_mail_header_footer_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_mail_header_footer_detail_actions_abort %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="{
                 message: 'ESC',
                 appearance: 'light'
@@ -19,7 +20,7 @@
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_mail_header_footer_detail_actions_save %}
@@ -69,8 +70,9 @@
                     position-identifier="sw-mail-header-footer-detail-basic-info"
                 >
                     {% block sw_mail_header_footer_basic_form_name_field %}
-                    <sw-text-field
-                        v-model:value="mailHeaderFooter.name"
+
+                    <mt-text-field
+                        v-model="mailHeaderFooter.name"
                         name="sw-field--mailHeaderFooter-name"
                         validation="required"
                         required
@@ -194,9 +196,10 @@
             </div>
 
             <template #modal-footer>
-                <sw-button @click="onClose">
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button @click="onClose">
                     {{ $tc('global.default.cancel') }}
-                </sw-button>
+                </mt-button>
                 <sw-button-process
                     :is-loading="isLoading"
                     :process-success="isSaveSuccessful"

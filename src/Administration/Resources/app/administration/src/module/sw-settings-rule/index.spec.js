@@ -50,7 +50,7 @@ describe('src/module/sw-settings-rule/index.js', () => {
                     id: 'sw-settings-rule',
                     label: 'sw-settings-rule.general.mainMenuItemGeneral',
                     name: 'settings-rule',
-                    group: expect.any(Function),
+                    group: 'automation',
                     to: 'sw.settings.rule.index',
                     icon: 'regular-rule',
                     privilege: 'rule.viewer',
@@ -60,8 +60,8 @@ describe('src/module/sw-settings-rule/index.js', () => {
         });
 
         const settingsItem = module.manifest.settingsItem[0];
-        expect(typeof settingsItem.group).toBe('function');
-        expect(settingsItem.group()).toBe('shop');
+        expect(typeof settingsItem.group).toBe('string');
+        expect(settingsItem.group).toBe('automation');
     });
 
     it('should register module routes', () => {

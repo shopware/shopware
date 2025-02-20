@@ -24,8 +24,9 @@
             <template #content>
                 <div class="sw-cms-sidebar__settings">
                     {% block sw_cms_sidebar_page_settings_name_field %}
-                    <sw-text-field
-                        v-model:value="page.name"
+
+                    <mt-text-field
+                        v-model="page.name"
                         :label="$tc('sw-cms.detail.label.pageName')"
                         :placeholder="placeholder(page, 'name')"
                         :error="pageNameError"
@@ -33,8 +34,9 @@
                     {% endblock %}
 
                     {% block sw_cms_sidebar_page_settings_css_class_field %}
-                    <sw-text-field
-                        v-model:value="page.cssClass"
+
+                    <mt-text-field
+                        v-model="page.cssClass"
                         :label="$tc('sw-cms.detail.label.pageCssClass')"
                         :placeholder="placeholder(page, 'cssClass')"
                         :help-text="$tc('sw-cms.detail.helpText.cssClassField')"
@@ -179,7 +181,8 @@
                         </div>
 
                         {% block sw_cms_sidebar_block_overview_preview_favorite_action %}
-                        <sw-button
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
                             class="sw-cms-sidebar__block-favorite"
                             size="small"
                             square
@@ -199,7 +202,7 @@
                                 size="20"
                                 class="sw-cms-sidebar__icon-cms-block-favorite"
                             />
-                        </sw-button>
+                        </mt-button>
                         {% endblock %}
                     </div>
 
@@ -525,14 +528,15 @@
             {% endblock %}
 
             {% block sw_cms_sidebar_layout_assignment_action_open %}
-            <sw-button
-                variant="ghost"
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
+                ghost
                 size="small"
                 class="sw-cms-sidebar__layout-assignment-open"
                 @click="onOpenLayoutAssignment"
             >
                 {{ $tc('sw-cms.sidebar.layoutAssignment.actionAssignLayout') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </div>
         {% endblock %}
@@ -549,14 +553,15 @@
                 {{ $tc('sw-cms.components.setDefaultLayoutModal.infoText', page.type === 'product_detail') }}
             </p>
 
-            <sw-button
-                variant="ghost"
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
+                ghost
                 size="small"
                 class="sw-cms-sidebar__layout-set-as-default-open"
                 @click="onOpenLayoutSetAsDefault"
             >
                 {{ $tc('sw-cms.sidebar.layoutSetAsDefault.actionSetAsDefaultLayout') }}
-            </sw-button>
+            </mt-button>
         </div>
     </sw-sidebar-item>
     {% endblock %}
@@ -587,24 +592,26 @@
         <template #modal-footer>
             {% block sw_cms_sidebar_navigator_confirm_modal_content_footer %}
             {% block sw_cms_sidebar_navigator_confirm_modal_content_footer_cancel %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 class="sw-cms-sidebar__navigator-confirm-modal-cancel"
                 size="small"
                 @click="onSidebarNavigationCancel"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_cms_sidebar_navigator_confirm_modal_content_footer_confirm %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 class="sw-cms-sidebar__navigator-confirm-modal-confirm"
                 variant="primary"
                 size="small"
                 @click="onSidebarNavigationConfirm"
             >
                 {{ $tc('global.default.confirm') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
             {% endblock %}
         </template>

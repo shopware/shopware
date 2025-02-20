@@ -2,7 +2,7 @@ import Plugin from 'src/plugin-system/plugin.class';
 import HttpClient from 'src/service/http-client.service';
 
 /**
- * @package content
+ * @package discovery
  */
 export default class FormCmsHandler extends Plugin {
 

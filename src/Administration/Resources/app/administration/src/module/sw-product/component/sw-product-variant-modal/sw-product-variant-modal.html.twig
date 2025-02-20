@@ -31,13 +31,14 @@
             <div class="sw-product-variant-modal__filter-list-button">
 
                 {% block sw_product_variant_modal_option_list_toolbar_container_filter_list_button %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     class="sw-product-variant-modal__button-filter"
                     @click="toggleFilterMenu"
                 >
                     {{ $tc('sw-product.variations.generatedFilterList') }}
                     <sw-icon name="regular-filter" />
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_product_variant_modal_option_list_toolbar_container_filter_context_menu %}
@@ -75,21 +76,23 @@
                         {% block sw_product_variant_modal_option_list_toolbar_container_filter_buttons %}
                         <div class="sw-product-variant-modal__filter-buttons">
                             {% block sw_product_variant_modal_option_list_toolbar_container_button_filter_reset %}
-                            <sw-button
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
                                 class="sw-product-variant-modal__reset-filter"
                                 @click="resetFilterOptions"
                             >
                                 {{ $tc('sw-product.variations.overview.filterReset') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
 
                             {% block sw_product_variant_modal_option_list_toolbar_container_button_update_list %}
-                            <sw-button
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
                                 variant="primary"
                                 @click="fetchProductVariants"
                             >
                                 {{ $tc('sw-product.variations.overview.filter') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
                         </div>
                         {% endblock %}
@@ -261,9 +264,10 @@
         <template #column-name="{item, isInlineEdit}">
 
             {% block sw_product_variant_modal_body_grid_column_name_inline_edit %}
-            <sw-text-field
+
+            <mt-text-field
                 v-if="isInlineEdit"
-                v-model:value="item.name"
+                v-model="item.name"
                 :placeholder="$tc('sw-product.list.variantModalInlineEditProductNamePlaceholder')"
                 size="small"
             />
@@ -533,12 +537,13 @@
         <template #modal-footer>
 
             {% block sw_product_variant_modal_body_delete_modal_footer_close %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
                 @click="closeDeleteModal"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_product_variant_modal_body_delete_modal_footer_confirm %}
@@ -574,12 +579,13 @@
         {% endblock %}
 
         {% block sw_product_variant_modal_footer_close_button %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             size="small"
             @click="$emit('modal-close')"
         >
             {{ $tc('global.sw-modal.labelClose') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

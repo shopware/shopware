@@ -132,7 +132,6 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
                         'sw-data-grid-settings': true,
                         'router-link': true,
                         'sw-popover': true,
-                        'sw-button': true,
                         'sw-search-bar': true,
                         'sw-text-field': true,
                         'sw-grid-column': true,
@@ -196,19 +195,19 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
 
     it.each([
         [
-            'true',
+            true,
             'snippet.viewer',
         ],
         [
-            'true',
+            true,
             'snippet.viewer, snippet.editor',
         ],
         [
-            undefined,
+            false,
             'snippet.viewer, snippet.editor, snippet.creator',
         ],
         [
-            'true',
+            true,
             'snippet.viewer, snippet.editor, snippet.deleter',
         ],
     ])('should have a disabled state of %p on the new snippet button when using role: %s', async (state, role) => {
@@ -219,8 +218,8 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
 
         await wrapper.vm.$nextTick();
 
-        const createSnippetButton = wrapper.find('.smart-bar__actions sw-button-stub');
+        const createSnippetButton = wrapper.findByText('button', 'sw-settings-snippet.list.buttonAdd');
 
-        expect(createSnippetButton.attributes('disabled')).toBe(state);
+        expect(createSnippetButton.attributes('disabled') !== undefined).toBe(state);
     });
 });

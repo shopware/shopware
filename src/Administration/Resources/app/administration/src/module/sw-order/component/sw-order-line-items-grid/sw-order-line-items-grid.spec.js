@@ -231,9 +231,6 @@ async function createWrapper() {
                 'sw-container': await wrapTestComponent('sw-container', {
                     sync: true,
                 }),
-                'sw-button': await await wrapTestComponent('sw-button', {
-                    sync: true,
-                }),
                 'sw-button-group': {
                     template: '<div class="sw-button-group"><slot></slot></div>',
                 },
@@ -283,10 +280,6 @@ async function createWrapper() {
                     `,
                 },
                 'sw-order-nested-line-items-modal': true,
-                'sw-button-deprecated': {
-                    emits: ['click'],
-                    template: '<button @click="$emit(\'click\')"><slot></slot></button>',
-                },
                 'sw-data-grid-column-boolean': true,
                 'sw-data-grid-inline-edit': true,
                 'sw-data-grid-skeleton': true,
@@ -297,7 +290,7 @@ async function createWrapper() {
                 'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },
             mocks: {
-                $tc: (t, count, value) => {
+                $tc: (t, value) => {
                     if (t === 'sw-order.detailBase.taxDetail') {
                         return `${value.taxRate}%: ${value.tax}`;
                     }

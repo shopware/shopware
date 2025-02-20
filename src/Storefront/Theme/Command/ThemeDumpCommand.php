@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigDumper;
-use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
+use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeFileResolver;
@@ -40,10 +40,9 @@ class ThemeDumpCommand extends Command
      * @param EntityRepository<ThemeCollection> $themeRepository
      */
     public function __construct(
-        private readonly StorefrontPluginRegistryInterface $pluginRegistry,
+        private readonly StorefrontPluginRegistry $pluginRegistry,
         private readonly ThemeFileResolver $themeFileResolver,
         private readonly EntityRepository $themeRepository,
-        private readonly string $projectDir,
         private readonly StaticFileConfigDumper $staticFileConfigDumper,
         private readonly ThemeFilesystemResolver $themeFilesystemResolver
     ) {
@@ -131,7 +130,6 @@ class ThemeDumpCommand extends Command
         $dump['themeId'] = $themeEntity->getId();
         $dump['technicalName'] = $themeConfig->getTechnicalName();
         $dump['domainUrl'] = $domainUrl ?? '';
-        $dump['basePath'] = $this->stripProjectDir($fs->location);
 
         $this->staticFileConfigDumper->dumpConfigInVar('theme-files.json', $dump);
 
@@ -190,15 +188,6 @@ class ThemeDumpCommand extends Command
         }
 
         return $domainUrls[0] ?? null;
-    }
-
-    private function stripProjectDir(string $path): string
-    {
-        if (str_starts_with($path, $this->projectDir)) {
-            return substr($path, \strlen($this->projectDir) + 1);
-        }
-
-        return $path;
     }
 
     private function getTechnicalName(string $themeId): ?string

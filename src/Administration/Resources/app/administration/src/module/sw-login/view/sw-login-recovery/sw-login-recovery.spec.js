@@ -64,10 +64,7 @@ async function createWrapper() {
                 },
                 'sw-contextual-field': true,
                 'router-link': true,
-                'sw-button': await Shopware.Component.build('sw-button'),
-                'sw-alert': await Shopware.Component.build('sw-alert'),
                 'sw-icon': true,
-                'sw-button-deprecated': true,
             },
         },
     });
@@ -85,7 +82,7 @@ describe('module/sw-login/recovery.spec.js', () => {
     });
 
     it('should redirect on submit', async () => {
-        await wrapper.get('#email').setValue('test@example.com');
+        await wrapper.get('input').setValue('test@example.com');
 
         expect(wrapper.find('.sw-alert').exists()).toBe(false);
 

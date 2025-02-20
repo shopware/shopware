@@ -29,7 +29,8 @@
     <template #modal-footer>
         {% block sw_bulk_edit_save_modal_footer_left %}
         <div class="footer-left">
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-for="button in buttons.left"
                 :key="button.key"
                 size="small"
@@ -38,13 +39,14 @@
                 @click="onButtonClick(button.action)"
             >
                 {{ button.label }}
-            </sw-button>
+            </mt-button>
         </div>
         {% endblock %}
 
         {% block sw_bulk_edit_save_modal_footer_right %}
         <div class="footer-right">
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-for="button in buttons.right"
                 :key="button.key"
                 size="small"
@@ -53,7 +55,7 @@
                 @click="onButtonClick(button.action)"
             >
                 {{ button.label }}
-            </sw-button>
+            </mt-button>
         </div>
         {% endblock %}
     </template>

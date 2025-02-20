@@ -59,15 +59,16 @@
     {% endblock %}
 
     {% block sw_category_entry_point_card_button_configure_home %}
-    <sw-button
+    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+    <mt-button
         class="sw-category-entry-point-card__button-configure-home"
-        variant="ghost"
+        ghost
         size="small"
         :disabled="selectedEntryPoint !== 'navigationSalesChannels' || category.navigationSalesChannels.length === 0"
         @click="openConfigureHomeModal"
     >
         {{ $tc('sw-category.base.entry-point-card.buttonConfigureHome') }}
-    </sw-button>
+    </mt-button>
     {% endblock %}
 
     {% block sw_category_entry_point_card_configure_home_modal %}

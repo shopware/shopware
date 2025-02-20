@@ -130,7 +130,6 @@ const createWrapper = async (customOptions, privileges = []) => {
                         template: '<div class="sw-field"/>',
                         props: ['disabled'],
                     },
-                    'sw-button': true,
                     'sw-button-process': true,
                     'sw-card-view': true,
                     'sw-icon': true,
@@ -398,34 +397,6 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
                 },
             }),
         );
-    });
-
-    /* @deprecated: tag:v6.7.0 - Remove this test */
-    // eslint-disable-next-line max-len
-    it('should be have countries in country select when have toggle display intra-community delivery checkbox', async () => {
-        const wrapper = await createWrapper({}, ['document.editor']);
-
-        await wrapper.vm.$nextTick();
-        await wrapper.setData({
-            isShowDisplayNoteDelivery: true,
-            documentConfig: {
-                config: {
-                    deliveryCountries: [
-                        '0110c22a5a92481aa8722a782dfc2573',
-                        '0143d24eb0264eb89cc34f50d427b828',
-                    ],
-                },
-            },
-        });
-
-        const displayAdditionalNoteDeliveryCheckbox = wrapper.find(
-            '.sw-settings-document-detail__field_additional_note_delivery input',
-        );
-
-        await displayAdditionalNoteDeliveryCheckbox.setChecked();
-
-        expect(displayAdditionalNoteDeliveryCheckbox.element.checked).toBe(true);
-        expect(wrapper.vm.documentConfig.config.deliveryCountries).toHaveLength(2);
     });
 
     it('should have assignment card at the top of the page', async () => {

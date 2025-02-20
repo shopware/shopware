@@ -174,8 +174,11 @@ export default {
         },
 
         currencyColumns() {
-            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-            return this.currencies
+            if (!this.currencies || !Array.isArray(this.currencies)) {
+                return [];
+            }
+
+            return [...this.currencies]
                 .sort((_a, b) => {
                     return b.isSystemDefault ? 1 : -1;
                 })
@@ -641,9 +644,13 @@ export default {
                 .then(() => {
                     // create success notification
                     const titleSaveSuccess = this.$tc('global.default.success');
-                    const messageSaveSuccess = this.$tc('sw-product.detail.messageSaveSuccess', 0, {
-                        name: productName,
-                    });
+                    const messageSaveSuccess = this.$tc(
+                        'sw-product.detail.messageSaveSuccess',
+                        {
+                            name: productName,
+                        },
+                        0,
+                    );
 
                     this.createNotificationSuccess({
                         title: titleSaveSuccess,

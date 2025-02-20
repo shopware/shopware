@@ -39,12 +39,14 @@ class LanguageSerializerTest extends TestCase
 
     public function testSimple(): void
     {
-        $this->createCountry();
+        $localeId = Uuid::randomHex();
+        $this->createCountry($localeId);
 
         $config = new Config([], [], []);
         $language = [
             'locale' => [
                 'code' => 'xx-XX',
+                'id' => $localeId,
             ],
         ];
 
@@ -53,6 +55,7 @@ class LanguageSerializerTest extends TestCase
         $deserialized = iterator_to_array($this->serializer->deserialize($config, $this->languageRepository->getDefinition(), $serialized));
 
         static::assertSame($this->languageId, $deserialized['id']);
+        static::assertSame($localeId, $deserialized['locale']['id']);
     }
 
     public function testSupportsOnlyCountry(): void
@@ -74,9 +77,8 @@ class LanguageSerializerTest extends TestCase
         }
     }
 
-    private function createCountry(): void
+    private function createCountry(string $localeId): void
     {
-        $localeId = Uuid::randomHex();
         $this->languageRepository->upsert([
             [
                 'id' => $this->languageId,

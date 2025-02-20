@@ -22,7 +22,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -48,17 +47,12 @@ class DocumentGenerator
     ) {
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - Parameter $fileType will be added - reason:new-optional-parameter
-     */
     public function readDocument(
         string $documentId,
         Context $context,
         string $deepLinkCode = '',
-        /* , string $fileType = PdfRenderer::FILE_EXTENSION */
+        string $fileType = PdfRenderer::FILE_EXTENSION
     ): ?RenderedDocument {
-        $fileType = \func_get_args()[3] ?? PdfRenderer::FILE_EXTENSION;
-
         $criteria = new Criteria([$documentId]);
 
         if ($deepLinkCode !== '') {
@@ -109,12 +103,6 @@ class DocumentGenerator
 
         if (!$document instanceof RenderedDocument) {
             throw DocumentException::generationError($rendered->getOrderError($operation->getOrderId())?->getMessage());
-        }
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $document->setContent($this->fileRendererRegistry->render($document));
-
-            $this->rendererRegistry->finalize($documentType, $operation, $context, $config, $rendered);
         }
 
         return $document;
@@ -334,14 +322,6 @@ class DocumentGenerator
             return null;
         }
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $document->setContent($this->fileRendererRegistry->render($document));
-
-            if ($documentType && $result) {
-                $this->rendererRegistry->finalize($documentType, $operation, $context, new DocumentRendererConfig(), $result);
-            }
-        }
-
         if ($document->getContent() === '') {
             return null;
         }
@@ -377,6 +357,14 @@ class DocumentGenerator
         $document = clone $document;
         $document->setContentType(HtmlRenderer::FILE_CONTENT_TYPE);
         $document->setFileExtension(HtmlRenderer::FILE_EXTENSION);
+
+        try {
+            $content = $this->fileRendererRegistry->render($document);
+        } catch (\Throwable) {
+            return null;
+        }
+
+        $document->setContent($content);
 
         return $this->resolveMediaId($operation, $context, $document);
     }

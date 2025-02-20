@@ -127,7 +127,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
                         </div>`,
                     },
                     'sw-product-variant-info': true,
-                    'sw-button': true,
                     'sw-button-group': true,
                     'sw-button-process': true,
                     'sw-context-button': true,

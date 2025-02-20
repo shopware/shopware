@@ -42,8 +42,8 @@ class SwTwigFunction
     public static function getAttribute(Environment $env, Source $source, mixed $object, mixed $item, array $arguments = [], $type = /* Template::ANY_CALL */ 'any', $isDefinedTest = false, $ignoreStrictCheck = false, bool $sandboxed = false, int $lineno = -1)
     {
         try {
-            FieldVisibility::$isInTwigRenderingContext = true;
             if ($object instanceof Struct) {
+                FieldVisibility::$isInTwigRenderingContext = true;
                 if ($type === Template::METHOD_CALL) {
                     // @phpstan-ignore-next-line
                     return $object->$item(...$arguments);

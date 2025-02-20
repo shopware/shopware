@@ -6,6 +6,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [#6912 - fix: require with minimum-stability stable (fixes: #6912) (#6929)](https://github.com/shopware/shopware/issues/6912)
 *  [#6919 - Fix Commercial Update](./changelog/release-6-6-10-1/2025-02-19-fix-commercial-update.md)
 *  [#6936 - fix: Class SwTwigFunction not found exception](https://github.com/shopware/shopware/issues/6936)
+*  [#6949 - fix: Bulk edit for variants](https://github.com/shopware/shopware/issues/6949)
 
 ## 6.6.10.0
 *  [#3661 - Add supports to GoogleAnalytics BeginCheckoutEvent](./changelog/release-6-6-10-0/2024-11-29-add-supports-to-ga-begincheckoutevent.md) ([Sascha Heilmeier](https://github.com/scarbous))

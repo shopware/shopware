@@ -21,7 +21,7 @@ class ProductSortingEntity extends Entity
     /**
      * @var array<array{field: string, priority: int, order: ?string, naturalSorting: bool|int|null}>
      */
-    protected array $fields;
+    protected array $fields = [];
 
     protected ?string $label = null;
 

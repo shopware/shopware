@@ -9,17 +9,13 @@ class Translations
 {
     /**
      * @var array<string, string|null>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $german;
+    protected array $german;
 
     /**
      * @var array<string, string|null>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $english;
+    protected array $english;
 
     /**
      * @param array<string, string|null> $german

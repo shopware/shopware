@@ -78,16 +78,6 @@ class PropertyNativeTypeRule implements Rule
                 continue;
             }
 
-            /**
-             * Will be natively typed with the next major version
-             *
-             * @deprecated tag:v6.7.0 Remove this if condition, as from then on, every property should have a type
-             */
-            $docComment = $param->getDocComment();
-            if ($docComment instanceof Doc && str_contains($docComment->getText(), '@deprecated tag:v6.7.0')) {
-                continue;
-            }
-
             $var = $param->var;
             if (!$var instanceof Variable) {
                 continue;

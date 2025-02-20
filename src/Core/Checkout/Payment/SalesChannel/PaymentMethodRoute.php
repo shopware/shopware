@@ -63,13 +63,6 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
 
         $paymentMethods->sortPaymentMethodsByPreference($context);
 
-        /**
-         * @deprecated tag:v6.7.0 - onlyAvailable flag will be removed, use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute instead
-         */
-        if ($request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable')) {
-            $paymentMethods = $paymentMethods->filterByActiveRules($context);
-        }
-
         $result->assign(['entities' => $paymentMethods, 'elements' => $paymentMethods->getElements(), 'total' => $paymentMethods->count()]);
 
         $this->scriptExecutor->execute(new PaymentMethodRouteHook(

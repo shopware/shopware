@@ -277,9 +277,7 @@ class DefinitionValidator
 
             if ($property->getDocComment()
                 && (str_contains($property->getDocComment(), '@internal')
-                    || str_contains($property->getDocComment(), '@deprecated')
-                    /** @deprecated tag:v6.7.0 check can be removed if everything is natively typed, otherwise this would skip a lot of properties */
-                    && !str_contains($property->getDocComment(), 'natively typed'))
+                    || str_contains($property->getDocComment(), '@deprecated'))
             ) {
                 continue;
             }

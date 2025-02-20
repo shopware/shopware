@@ -12,9 +12,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-/**
- * @experimental stableVersion:v6.7.0 feature:BREADCRUMB_STORE_API
- */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('inventory')]
 class BreadcrumbRoute extends AbstractBreadcrumbRoute

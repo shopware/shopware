@@ -23,55 +23,18 @@ based on: https://getbootstrap.com/docs/5.2/components/modal
     }
 }
 
-@if feature('v6.7.0.0') {
-    .address-editor-modal {
-        .address-editor-actions .btn .icon {
-            vertical-align: top;
-            margin-top: 2px;
-        }
-
-        .address:first-line {
-            font-weight: $font-weight-bold;
-        }
-
-        .address-editor-edit,
-        .address-editor-create {
-            cursor: pointer;
-        }
+.address-editor-modal {
+    .address-editor-actions .btn .icon {
+        vertical-align: top;
+        margin-top: 2px;
     }
-} @else {
-    .address-editor-select,
+
+    .address:first-line {
+        font-weight: $font-weight-bold;
+    }
+
     .address-editor-edit,
     .address-editor-create {
         cursor: pointer;
-
-        &:not(.collapsed) {
-            @extend .btn-primary;
-        }
-    }
-
-    .address-editor-select {
-        margin-bottom: $spacer;
-    }
-
-    .address-editor-list-wrapper,
-    .address-editor-create-address-wrapper {
-        padding-top: $spacer-lg;
-        padding-bottom: $spacer-lg;
-    }
-
-    .address-editor-card {
-        padding-top: $spacer-md;
-
-        &:not(:last-child) {
-            padding-bottom: $spacer-md;
-            border-bottom: 1px solid $border-color;
-        }
-    }
-
-    @include media-breakpoint-up(md) {
-        .address-editor-select {
-            margin-bottom: 0;
-        }
     }
 }

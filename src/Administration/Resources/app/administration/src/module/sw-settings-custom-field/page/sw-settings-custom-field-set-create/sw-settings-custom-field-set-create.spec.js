@@ -45,7 +45,6 @@ async function createWrapper() {
                     'sw-empty-state': true,
                     'sw-custom-field-set-detail-base': true,
                     'sw-button-process': true,
-                    'sw-card': true,
                     'sw-card-view': true,
                     'sw-skeleton': true,
                 },

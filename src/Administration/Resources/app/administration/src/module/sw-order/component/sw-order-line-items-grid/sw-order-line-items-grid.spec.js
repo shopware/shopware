@@ -253,7 +253,7 @@ async function createWrapper() {
                     sync: true,
                 }),
                 'sw-product-variant-info': await wrapTestComponent('sw-product-variant-info', { sync: true }),
-                'sw-switch-field': true,
+
                 'router-link': {
                     template: '<a class="router-link" href="#"><slot></slot></a>',
                     props: ['to'],

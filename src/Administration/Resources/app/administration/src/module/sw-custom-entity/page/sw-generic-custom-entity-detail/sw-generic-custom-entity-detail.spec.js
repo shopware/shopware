@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 import swGenericCustomEntityDetail from 'src/module/sw-custom-entity/page/sw-generic-custom-entity-detail';
 import 'src/app/component/base/sw-button-process';
@@ -115,7 +115,7 @@ const customEntityRepository = {
 };
 
 async function createWrapper({ activeTab = 'main', routeId = null, entityName = testEntityName } = {}) {
-    return shallowMount(await Shopware.Component.build('sw-generic-custom-entity-detail'), {
+    return mount(await Shopware.Component.build('sw-generic-custom-entity-detail'), {
         global: {
             stubs: {
                 'sw-page': {
@@ -132,8 +132,8 @@ async function createWrapper({ activeTab = 'main', routeId = null, entityName = 
                 'sw-card-view': {
                     template: '<div class="sw-card-view"><slot></slot></div>',
                 },
-                'sw-card': {
-                    template: '<div class="sw-card"><slot></slot></div>',
+                'mt-card': {
+                    template: '<div class="mt-card"><slot></slot></div>',
                 },
                 'sw-tabs': {
                     template: `<div class="sw-tabs"><slot></slot><slot name="content" active="${activeTab}"></slot></div>`,
@@ -284,7 +284,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
 
             // Check title and amount of children in each card
             data.cards.forEach((card, cardIndex) => {
-                expect(cardElements.at(cardIndex).attributes().title).toBe(`custom_test_entity.cards.${card.name}`);
+                expect(wrapper.find(`[title="custom_test_entity.cards.${card.name}"]`).exists()).toBe(true);
 
                 const fieldElements = cardElements.at(cardIndex).findAll('.sw-generic-custom-entity-detail__field');
                 expect(fieldElements).toHaveLength(card.fieldCount);

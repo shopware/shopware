@@ -60,7 +60,6 @@
     {% block sw_property_option_detail_footer %}
     <template #modal-footer>
         {% block sw_property_option_detail_footer_cancel %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             size="small"
             @click="onCancel"
@@ -70,7 +69,6 @@
         {% endblock %}
 
         {% block sw_property_option_detail_footer_save %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),

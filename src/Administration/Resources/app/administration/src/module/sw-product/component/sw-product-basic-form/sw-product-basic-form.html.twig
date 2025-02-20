@@ -103,14 +103,14 @@
         >
             <template #content="props">
 
-                <sw-switch-field
+                <mt-switch
                     :error="productMarkAsTopsellerError"
                     :map-inheritance="props"
                     :help-text="highlightHelpText"
                     :label="$tc('sw-product.settingsForm.labelMarkAsTopseller')"
                     :disabled="props.isInherited || !allowEdit"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :checked="props.currentValue"
+                    @change="props.updateCurrentValue"
                 />
 
             </template>

@@ -13,22 +13,22 @@
     <template #modal-footer>
         {% block sw_order_save_changes_beforehand_modal_actions %}
         {% block sw_order_save_changes_beforehand_modal_action_cancel %}
-        <sw-button
+        <mt-button
             size="small"
             @click="onCancel"
         >
             {{ $tc('sw-order.saveChangesBeforehandModal.cancelButton') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_order_save_changes_beforehand_modal_action_confirm %}
-        <sw-button
+        <mt-button
             variant="primary"
             size="small"
             @click="onConfirm"
         >
             {{ $tc('sw-order.saveChangesBeforehandModal.confirmButton') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
         {% endblock %}
     </template>

@@ -87,7 +87,6 @@ async function createWrapper(privileges = []) {
                 },
 
                 stubs: {
-                    'sw-card': true,
                     'sw-progress-bar': {
                         template: '<div class="sw-progress-bar"><slot></slot></div>',
                     },

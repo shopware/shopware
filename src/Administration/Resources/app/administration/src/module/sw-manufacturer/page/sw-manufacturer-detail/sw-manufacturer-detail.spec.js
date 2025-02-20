@@ -60,8 +60,8 @@ async function createWrapper(privileges = []) {
                 'mt-text-editor': {
                     template: '<div class="mt-text-editor"/>',
                 },
-                'sw-card': {
-                    template: '<div class="sw-card"><slot /></div>',
+                'mt-card': {
+                    template: '<div class="mt-card"><slot /></div>',
                 },
                 'sw-text-field': {
                     template: '<div class="sw-field"/>',

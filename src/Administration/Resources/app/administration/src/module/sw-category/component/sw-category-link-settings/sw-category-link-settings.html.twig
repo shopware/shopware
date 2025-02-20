@@ -1,5 +1,5 @@
 {%  block sw_category_link_settings %}
-<sw-card
+<mt-card
     class="sw-category-link-settings"
     position-identifier="sw-category-link-settings"
     :title="$tc('sw-category.base.link.title')"
@@ -87,12 +87,13 @@
     {% endblock %}
 
     {% block sw_category_detail_link_new_tab %}
-    <sw-switch-field
-        v-model:value="category.linkNewTab"
+
+    <mt-switch
+        v-model="category.linkNewTab"
         class="sw-category-link-settings__link-new-tab"
         :disabled="!acl.can('category.editor') || undefined"
         :label="$tc('sw-category.base.link.linkNewTabLabel')"
     />
     {% endblock %}
-</sw-card>
+</mt-card>
 {%  endblock %}

@@ -46,7 +46,6 @@
     {% block sw_settings_currency_list_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_currency_list_smart_bar_actions_add %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             class="sw-settings-currency-list__button-create"
             :disabled="!acl.can('currencies.creator') || undefined"
@@ -128,7 +127,6 @@
                         {% block sw_settings_currency_list_delete_modal_footer %}
                         <template #modal-footer>
                             {% block sw_settings_currency_list_delete_modal_cancel %}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 size="small"
                                 @click="onCloseDeleteModal"
@@ -138,7 +136,6 @@
                             {% endblock %}
 
                             {% block sw_settings_currency_list_delete_modal_confirm %}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 variant="critical"
                                 size="small"

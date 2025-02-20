@@ -88,7 +88,6 @@ async function createWrapper() {
                 'sw-order-user-card': true,
                 'sw-container': true,
                 'sw-order-state-select': true,
-                'sw-card': true,
                 'sw-order-line-items-grid': true,
                 'sw-card-section': true,
                 'sw-description-list': true,

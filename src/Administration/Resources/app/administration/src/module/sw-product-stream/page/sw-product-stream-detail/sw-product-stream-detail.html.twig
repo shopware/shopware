@@ -17,7 +17,6 @@
     {% block sw_product_stream_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_product_stream_detail_actions_abort %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="tooltipCancel"
             :disabled="isLoading"
@@ -53,7 +52,6 @@
             {% block sw_product_stream_detail_actions_save_context_menu %}
             <sw-context-button>
                 <template #button>
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         class="sw-product-stream-detail__button-context-menu"
                         square
@@ -109,7 +107,7 @@
                 {% endblock %}
 
                 {% block sw_product_stream_detail_basic_info %}
-                <sw-card
+                <mt-card
                     position-identifier="sw-product-stream-detail-basic-info"
                     :large="true"
                     :title="$tc('sw-product-stream.detail.titleCard')"
@@ -141,11 +139,11 @@
                         :disabled="!acl.can('product_stream.editor')"
                     />
                     {% endblock %}
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_product_stream_detail_filter %}
-                <sw-card
+                <mt-card
                     :large="true"
                     position-identifier="sw-product-stream-detail-filter"
                     class="sw-product-stream-detail__condition_container"
@@ -168,7 +166,6 @@
                     {% endblock %}
 
                     {% block sw_product_stream_detail_filter_preview_button %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         class="sw-product-stream-detail__open_modal_preview"
                         @click.prevent="openModalPreview"
@@ -176,7 +173,7 @@
                         {{ $tc('sw-product-stream.detail.buttonOpenPreview') }}
                     </mt-button>
                     {% endblock %}
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_prouct_stream_detail_preview_modal %}
@@ -189,7 +186,7 @@
                 {% endblock %}
 
                 {% block sw_prouct_stream_detail_custom_field_sets %}
-                <sw-card
+                <mt-card
                     v-if="showCustomFields"
                     position-identifier="sw-product-stream-detail-custom-field-sets"
                     :large="true"
@@ -200,7 +197,7 @@
                         :disabled="!acl.can('product_stream.editor')"
                         :sets="customFieldSets"
                     />
-                </sw-card>
+                </mt-card>
                 {% endblock %}
             </template>
         </sw-card-view>

@@ -202,15 +202,19 @@ export default {
                 },
             );
 
-            Object.values(this.toBeAdded[this.selectedAssignment]).forEach((toBeAdded) => {
-                selection[toBeAdded.id] = toBeAdded;
-            });
+            if(this.toBeAdded?.[this.selectedAssignment]) {
+                Object.values(this.toBeAdded[this.selectedAssignment]).forEach((toBeAdded) => {
+                    selection[toBeAdded.id] = toBeAdded;
+                });
+            }
 
-            Object.values(this.toBeDeleted[this.selectedAssignment]).forEach((toBeDeleted) => {
-                if (selection.hasOwnProperty(toBeDeleted.id)) {
-                    delete selection[toBeDeleted.id];
-                }
-            });
+            if(this.toBeDeleted?.[this.selectedAssignment]) {
+                Object.values(this.toBeDeleted[this.selectedAssignment]).forEach((toBeDeleted) => {
+                    if (selection.hasOwnProperty(toBeDeleted.id)) {
+                        delete selection[toBeDeleted.id];
+                    }
+                });
+            }
 
             return selection;
         },

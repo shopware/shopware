@@ -1,6 +1,6 @@
 {% block sw_generic_cms_page_assignment %}
 <div>
-    <sw-card
+    <mt-card
         class="sw-generic-cms-page-assignment"
         position-identifier="sw-generic-cms-page-assignment"
         :title="$tc('sw-category.base.cms.title')"
@@ -33,7 +33,6 @@
                     v-if="cmsPage"
                     class="sw-generic-cms-page-assignment__page-selection-actions"
                 >
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         class="sw-generic-cms-page-assignment__change-layout-action"
                         size="small"
@@ -42,7 +41,6 @@
                         {{ $tc('sw-category.base.cms.changeLayout') }}
                     </mt-button>
 
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         class="sw-generic-cms-page-assignment__open-in-pagebuilder"
                         size="small"
@@ -51,7 +49,6 @@
                         {{ $tc('sw-category.base.cms.editInPagebuilder') }}
                     </mt-button>
 
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         size="small"
                         class="sw-generic-cms-page-assignment__layout-reset"
@@ -69,7 +66,6 @@
                     v-else
                     class="sw-generic-cms-page-assignment__page-selection-actions"
                 >
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         class="sw-generic-cms-page-assignment__change-layout-action"
                         size="small"
@@ -78,7 +74,6 @@
                         {{ $tc('sw-category.base.cms.changeLayoutEmpty') }}
                     </mt-button>
 
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         class="sw-generic-cms-page-assignment__create-layout"
                         size="small"
@@ -89,7 +84,7 @@
                 </div>
             </div>
         </div>
-    </sw-card>
+    </mt-card>
 
     <sw-cms-page-form
         v-if="cmsPage"

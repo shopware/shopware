@@ -32,14 +32,14 @@
     <template #content>
         <sw-card-view>
             {% block sw_settings_snippet_set_list_card_title %}
-            <sw-card position-identifier="sw-settings-snippet-set-list-title">
+            <mt-card position-identifier="sw-settings-snippet-set-list-title">
                 <h3>{{ $tc('sw-settings-snippet.setList.title') }}</h3>
                 <p>{{ $tc('sw-settings-snippet.setList.description') }}</p>
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
             {% block sw_settings_snippet_set_list_card_list %}
-            <sw-card
+            <mt-card
                 position-identifier="sw-settings-snippet-set-list-card-list"
                 :is-loading="isLoading"
                 :title="$tc('sw-settings-snippet.setList.cardTitle')"
@@ -50,7 +50,6 @@
                         {% block sw_settings_snippet_set_list_card_list_container_header %}
                         <div class="sw-settings-snippet-set-list__actions">
                             {% block sw_settings_snippet_set_list_card_list_container_header_btn_export %}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 v-if="false"
                                 size="small"
@@ -62,7 +61,6 @@
                             {% endblock %}
 
                             {% block sw_settings_snippet_set_list_card_list_container_header_btn_edit_set %}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 v-tooltip="getNoPermissionsTooltip('snippet.editor')"
                                 class="sw-settings-snippet-set-list__edit-set-action"
@@ -82,7 +80,6 @@
                                 split-button
                             >
                                 {% block sw_settings_snippet_set_list_card_list_container_header_btn_add_set %}
-                                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                                 <mt-button
                                     class="sw-settings-snippet-set-list__action-add"
                                     size="small"
@@ -102,7 +99,6 @@
 
                                     {% block sw_settings_snippet_set_list_card_btn_copy %}
                                     <template #button>
-                                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                                         <mt-button
                                             class="sw-settings-snippet-set-list__action-context-menu"
                                             size="small"
@@ -305,7 +301,6 @@
                                 {% block sw_settings_snippet_set_list_delete_modal_footer %}
                                 <template #modal-footer>
                                     {% block sw_settings_snippet_set_list_delete_modal_cancel %}
-                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                                     <mt-button
                                         size="small"
                                         @click="onCloseDeleteModal"
@@ -315,7 +310,6 @@
                                     {% endblock %}
 
                                     {% block sw_settings_snippet_set_list_delete_modal_confirm %}
-                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                                     <mt-button
                                         variant="critical"
                                         size="small"
@@ -345,7 +339,6 @@
                                 {% block sw_settings_snippet_set_list_clone_modal_footer %}
                                 <template #modal-footer>
                                     {% block sw_settings_snippet_set_list_clone_modal_cancel %}
-                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                                     <mt-button
                                         size="small"
                                         @click="closeCloneModal"
@@ -355,7 +348,6 @@
                                     {% endblock %}
 
                                     {% block sw_settings_snippet_set_list_clone_modal_confirm %}
-                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                                     <mt-button
                                         variant="primary"
                                         size="small"
@@ -388,7 +380,7 @@
                     </sw-grid>
                 </template>
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
         </sw-card-view>
     </template>

@@ -72,10 +72,9 @@ async function createWrapper(privileges = [], isShopwareDefaultTax = true) {
 
                     'sw-card-view': true,
                     'sw-language-switch': true,
-                    'sw-card': true,
                     'sw-container': true,
                     'sw-button-process': true,
-                    'sw-switch-field': true,
+
                     'sw-text-field': true,
                     'sw-number-field': true,
                     'sw-skeleton': true,

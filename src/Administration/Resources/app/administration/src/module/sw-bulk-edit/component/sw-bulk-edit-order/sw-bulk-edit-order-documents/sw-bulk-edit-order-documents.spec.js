@@ -9,7 +9,6 @@ async function createWrapper() {
             stubs: {
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-checkbox-field': true,
-                'sw-switch-field': true,
             },
             provide: {
                 repositoryFactory: {
@@ -67,8 +66,9 @@ describe('sw-bulk-edit-order-documents', () => {
                 disabled: true,
             },
         });
+
         expect(wrapper.find('sw-checkbox-field-stub').attributes().disabled).toBeTruthy();
-        expect(wrapper.find('sw-switch-field-stub').attributes().disabled).toBeTruthy();
+        expect(wrapper.findComponent('.mt-switch').props().disabled).toBeDefined();
 
         await wrapper.setProps({
             documents: {
@@ -76,6 +76,6 @@ describe('sw-bulk-edit-order-documents', () => {
             },
         });
         expect(wrapper.find('sw-checkbox-field-stub').attributes().disabled).toBeUndefined();
-        expect(wrapper.find('sw-switch-field-stub').attributes().disabled).toBeUndefined();
+        expect(wrapper.findComponent('.mt-switch').props().disabled).toBeUndefined();
     });
 });

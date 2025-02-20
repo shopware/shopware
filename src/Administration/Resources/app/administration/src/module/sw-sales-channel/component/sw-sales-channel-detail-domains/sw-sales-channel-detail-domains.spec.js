@@ -15,7 +15,7 @@ async function createWrapper(customProps = {}, domains = []) {
         {
             global: {
                 stubs: {
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot></slot><slot name="grid"></slot></div>',
                     },
                     'sw-data-grid': await wrapTestComponent('sw-data-grid', {

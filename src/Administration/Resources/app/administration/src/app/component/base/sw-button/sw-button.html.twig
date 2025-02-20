@@ -1,22 +1,9 @@
 {# @deprecated tag:v6.8.0 - Use `mt-button` instead. #}
 {% block sw_button %}
 <mt-button
-    v-if="useMeteorComponent"
     v-bind="$attrs"
     @click="onClick"
 >
     <slot></slot>
 </mt-button>
-{% endblock %}
-
-{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
-{# Deprecated component #}
-{% block sw_button_deprecated %}
-<sw-button-deprecated
-    v-else
-    v-bind="$attrs"
-    :router-link="routerLink"
->
-    <slot></slot>
-</sw-button-deprecated>
 {% endblock %}

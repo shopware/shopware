@@ -46,7 +46,6 @@
             {% endblock %}
 
             {% block sw_extension_permissions_modal_link %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 class="sw-extension-permissions-modal__link"
                 @click="openDetailsModal(key)"
@@ -71,7 +70,6 @@
                 {{ $tc('sw-extension-store.component.sw-extension-permissions-modal.domains') }}
             </span>
 
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 class="sw-extension-permissions-modal__link"
                 @click="toggleDomainsModal(true)"
@@ -93,7 +91,6 @@
     <template #modal-footer>
         {% block sw_extension_permissions_modal_footer_inner %}
         {% block sw_extension_permissions_modal_footer_close %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             :variant="actionLabel === null ? 'primary' : ''"
             size="small"
@@ -104,7 +101,6 @@
         {% endblock %}
 
         {% block sw_extension_permissions_modal_footer_action %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-if="actionLabel"
             variant="primary"

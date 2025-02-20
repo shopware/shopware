@@ -10,7 +10,7 @@ async function createWrapper() {
             global: {
                 stubs: {
                     'sw-context-button': true,
-                    'sw-switch-field': true,
+
                     'router-link': true,
                     'sw-context-menu-item': true,
                     'sw-loader': true,

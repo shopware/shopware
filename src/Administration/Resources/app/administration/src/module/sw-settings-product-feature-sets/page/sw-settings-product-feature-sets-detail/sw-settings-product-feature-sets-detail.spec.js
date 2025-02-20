@@ -36,8 +36,6 @@ const detailPage = async (additionalOptions = {}, privileges = []) => {
                     'sw-button-process': true,
                     'sw-card-view': await wrapTestComponent('sw-card-view'),
                     'sw-language-info': true,
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-ignore-class': true,
                     'sw-text-field': await wrapTestComponent('sw-text-field', {
                         sync: true,

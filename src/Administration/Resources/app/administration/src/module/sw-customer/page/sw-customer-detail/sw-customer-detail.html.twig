@@ -23,7 +23,6 @@
     <template #smart-bar-actions>
         {% block sw_customer_detail_actions_edit %}
         <span v-if="!editMode">
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-tooltip="{
                     message: $tc('sw-privileges.tooltip.warning'),
@@ -42,7 +41,6 @@
 
         <span v-else>
             {% block sw_customer_detail_actions_cancel %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 :disabled="isLoading"
                 @click="onAbortButtonClick"
@@ -93,7 +91,6 @@
                     </div>
                     <div class="sw-customer-detail__customer-registration-alert-actions">
                         {% block sw_customer_detail_content_customer_group_registration_actions %}
-                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                         <mt-button
                             variant="critical"
                             size="small"
@@ -102,7 +99,6 @@
                             {{ $tc('sw-customer.customerGroupRegistration.decline') }}
                         </mt-button>
 
-                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                         <mt-button
                             variant="primary"
                             size="small"

@@ -15,7 +15,6 @@ async function createWrapper(privileges = []) {
             global: {
                 renderStubDefaultSlot: true,
                 stubs: {
-                    'sw-card': true,
                     'sw-textarea-field': true,
                     'sw-text-field': true,
                     'sw-number-field': true,

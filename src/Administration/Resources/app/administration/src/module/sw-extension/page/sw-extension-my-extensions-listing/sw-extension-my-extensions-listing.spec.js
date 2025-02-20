@@ -56,8 +56,7 @@ async function createWrapper() {
                         'sw-extension-my-extensions-listing-controls',
                         { sync: true },
                     ),
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                     'sw-base-field': await wrapTestComponent('sw-base-field', {
                         sync: true,
                     }),
@@ -334,7 +333,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         const allExtensions = wrapper.findAll('.sw-self-maintained-extension-card');
         expect(allExtensions).toHaveLength(25);
 
-        const switchField = wrapper.find('.sw-field--switch input[type="checkbox"]');
+        const switchField = wrapper.find('.mt-switch input[type="checkbox"]');
         await switchField.trigger('click');
 
         const filteredExtensions = wrapper.findAll('.sw-self-maintained-extension-card');

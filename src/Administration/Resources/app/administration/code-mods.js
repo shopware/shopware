@@ -260,7 +260,8 @@ async function lintFiles(filePaths, fix, shopwareVersion) {
                                     fix: true,
                                     activatedComponents: [
                                         'sw-alert',
-                                        'sw-text-field'
+                                        'sw-text-field',
+                                        'sw-switch-field',
                                     ],
                                 }],
                                 'sw-deprecation-rules/no-deprecated-component-usage': ['error'],

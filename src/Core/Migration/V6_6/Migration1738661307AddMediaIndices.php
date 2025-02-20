@@ -21,7 +21,7 @@ class Migration1738661307AddMediaIndices extends MigrationStep
     {
         $this->dropIndexIfExists($connection, 'media', 'idx.media.file_extension');
         $connection->executeStatement(
-            <<<SQL
+            <<<'SQL'
             CREATE INDEX `idx.media.file_extension`
                 ON `media` (`file_extension`);
             SQL
@@ -37,9 +37,10 @@ class Migration1738661307AddMediaIndices extends MigrationStep
 
         if (!$this->columnExists($connection, 'media', 'file_hash')) {
             $connection->executeStatement(
-                <<<SQL
-                ALTER TABLE `media` ADD COLUMN `file_hash` VARCHAR(32) GENERATED ALWAYS AS (
-                    JSON_UNQUOTE(meta_data->"$.hash")
+                <<<'SQL'
+                ALTER TABLE `media` ADD COLUMN `file_hash` VARCHAR(32)
+                    GENERATED ALWAYS AS (
+                        JSON_UNQUOTE(JSON_EXTRACT(meta_data, '$.hash'))
                     ) STORED;
                 SQL
             );
@@ -47,7 +48,7 @@ class Migration1738661307AddMediaIndices extends MigrationStep
 
         $this->dropIndexIfExists($connection, 'media', 'idx.media.file_hash');
         $connection->executeStatement(
-            <<<SQL
+            <<<'SQL'
             CREATE INDEX `idx.media.file_hash`
                 ON `media` (`file_hash`);
             SQL

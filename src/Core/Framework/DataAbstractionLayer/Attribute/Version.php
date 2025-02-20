@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-class Version extends Field
+final class Version extends Field
 {
     public const TYPE = 'version';
 

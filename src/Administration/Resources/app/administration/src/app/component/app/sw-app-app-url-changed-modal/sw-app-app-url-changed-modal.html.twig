@@ -34,7 +34,6 @@
             :key="`content-strategies-${index}`"
             class="sw-app-app-url-changed-modal__content-choices"
         >
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 class="sw-app-app-url-changed-modal__content-migration-strategy"
                 :class="getActiveStyle(strategy)"
@@ -75,12 +74,10 @@
     </template>
 
     <template #modal-footer>
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button @click="closeModal">
             {{ $tc('global.default.cancel') }}
         </mt-button>
 
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             variant="primary"
             @click="confirm"

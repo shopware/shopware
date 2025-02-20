@@ -68,7 +68,7 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-order-customer-grid', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': {
+                'mt-card': {
                     template: `
                         <div class="sw-card__content">
                             <slot name="toolbar"></slot>

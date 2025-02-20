@@ -104,7 +104,6 @@ class AdministrationControllerTest extends TestCase
                     'systemLanguageId' => Defaults::LANGUAGE_SYSTEM,
                     'defaultLanguageIds' => [Defaults::LANGUAGE_SYSTEM],
                     'systemCurrencyId' => Defaults::CURRENCY,
-                    'disableExtensions' => false,
                     'systemCurrencyISOCode' => 'fakeIsoCode',
                     'liveVersionId' => Defaults::LIVE_VERSION,
                     'firstRunWizard' => false,

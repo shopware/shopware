@@ -449,7 +449,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         'sw-card-view': {
                             template: '<div class=""><slot></slot></div>',
                         },
-                        'sw-card': {
+                        'mt-card': {
                             template: '<div><slot></slot></div>',
                         },
                         'sw-context-button': true,

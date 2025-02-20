@@ -8,7 +8,7 @@
 >
 
     {% block sw_entity_advanced_selection_modal_content_card %}
-    <sw-card
+    <mt-card
         class="sw-entity-advanced-selection-modal__content"
         position-identifier="sw-entity-advanced-selection-modal-content"
         :large="true"
@@ -25,7 +25,6 @@
                 <template #filter>
                     <div class="sw-entity-advanced-selection-modal__filter-list-button">
                         {% block sw_entity_advanced_selection_modal_toolbar_filter_button %}
-                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                         <mt-button
                             size="small"
                             @click="filterWindowOpen = !filterWindowOpen"
@@ -160,12 +159,11 @@
             </sw-empty-state>
             {% endblock %}
         </template>
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     <template #modal-footer>
         {% block sw_entity_advanced_selection_modal_button_cancel %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             size="small"
             class="sw-entity-advanced-selection-modal__button-cancel"
@@ -176,7 +174,6 @@
         {% endblock %}
 
         {% block sw_entity_advanced_selection_modal_button_apply %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             variant="primary"
             size="small"

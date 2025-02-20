@@ -243,7 +243,7 @@ describe('components/sw-entity-multi-select', () => {
         await swEntityMultiSelect.find('input').trigger('change');
         await flushPromises();
 
-        swEntityMultiSelect.get('.sw-select-result-list__item-list li .mt-icon');
+        expect(swEntityMultiSelect.find('.sw-select-result-list__item-list li .mt-icon')).toBeDefined();
     });
 
     it('should be possible to clear the selection', async () => {

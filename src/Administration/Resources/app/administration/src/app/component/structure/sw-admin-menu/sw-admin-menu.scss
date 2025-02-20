@@ -224,7 +224,7 @@ $sw-admin-menu-active-text: $color-white;
             color: #fff;
         }
 
-        .sw-icon {
+        .mt-icon {
             flex-shrink: 0;
         }
 
@@ -290,7 +290,7 @@ $sw-admin-menu-active-text: $color-white;
             display: none;
         }
 
-        .sw-icon {
+        .mt-icon {
             margin: 0 16px 0 0;
             vertical-align: middle;
             position: relative;
@@ -300,7 +300,7 @@ $sw-admin-menu-active-text: $color-white;
         &:hover {
             color: $sw-admin-menu-active-text;
 
-            .sw-icon {
+            .mt-icon {
                 color: $sw-admin-menu-active-text;
             }
         }
@@ -349,7 +349,7 @@ $sw-admin-menu-active-text: $color-white;
         margin-top: -8px;
         color: $sw-admin-menu-color-text-primary;
 
-        &.sw-icon {
+        &.mt-icon {
             width: 16px;
             height: 16px;
             padding-top: 4px;

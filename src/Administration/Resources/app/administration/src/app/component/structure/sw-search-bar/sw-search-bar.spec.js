@@ -1528,7 +1528,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         await flushPromises();
 
         // should use correct icon
-        wrapper.get('.sw-search-bar__type-item .mt-icon.icon--regular-shopping-bag');
+        expect(wrapper.find('.sw-search-bar__type-item .mt-icon.icon--regular-shopping-bag')).toBeDefined();
     });
 
     it('should not call the search service when the search term reaches the maximum length', async () => {

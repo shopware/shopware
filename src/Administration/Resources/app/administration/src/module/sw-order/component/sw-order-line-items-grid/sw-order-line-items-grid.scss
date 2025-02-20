@@ -10,8 +10,8 @@ $sw-order-line-item-border: $color-gray-300;
         background: $color-gray-100;
 
         .sw-order-line-items-grid__delete-button {
-            &.mt-button--square:not([disabled]) .sw-icon,
-            &.mt-button--square:not(.mt-button--disabled) .sw-icon {
+            &.mt-button--square:not([disabled]) .mt-icon,
+            &.mt-button--square:not(.mt-button--disabled) .mt-icon {
                 color: $sw-order-line-item-grid-trash;
             }
         }
@@ -42,7 +42,7 @@ $sw-order-line-item-border: $color-gray-300;
         font-weight: $font-weight-bold;
     }
 
-    .sw-icon {
+    .mt-icon {
         width: 16px;
         height: 16px;
     }

@@ -3,7 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
-import { MtPopover, MtButton, MtIcon, MtSwitch } from '@shopware-ag/meteor-component-library';
+import { MtPopover, MtButton, MtSwitch } from '@shopware-ag/meteor-component-library';
 
 async function createWrapper(props = {}) {
     return mount(await wrapTestComponent('sw-extension-teaser-popover', { sync: true }), {

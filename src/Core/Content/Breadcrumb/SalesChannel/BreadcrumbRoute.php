@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Breadcrumb\SalesChannel;
 
-use Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb;
 use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;

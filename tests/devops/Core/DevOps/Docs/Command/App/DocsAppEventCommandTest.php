@@ -20,7 +20,7 @@ class DocsAppEventCommandTest extends TestCase
     public function testUptoDateEventDoc(): void
     {
         // Always check if the docs are up-to-date for the current minor branch
-        Feature::skipTestIfActive('v6.7.0.0', $this);
+        Feature::skipTestIfActive('v6.8.0.0', $this);
 
         $docsAppEventCommand = static::getContainer()->get(DocsAppEventCommand::class);
 

@@ -87,24 +87,26 @@
 
     <template #modal-footer>
         {% block sw_sales_channel_products_assignment_modal_footer_cancel %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-sales-channel-products-assignment-modal__close-button"
             size="small"
             @click="onCloseModal"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_sales_channel_products_assignment_modal_footer_submit %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             size="small"
             variant="primary"
             :is-loading="isAssignProductLoading || isProductLoading"
             @click="onAddProducts"
         >
             {{ $tc('sw-sales-channel.detail.products.buttonAddProducts', productCount, { productCount: productCount }) }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
 </sw-modal>

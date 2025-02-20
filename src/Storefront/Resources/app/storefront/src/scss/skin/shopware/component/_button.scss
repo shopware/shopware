@@ -18,10 +18,7 @@ https://getbootstrap.com/docs/5.2/components/buttons
     @extend .btn-lg;
     @include button-variant($buy-btn-bg, $buy-btn-bg, $buy-btn-color);
 
-    // @deprecated tag:v6.7.0 - The focus outline of all button variants will be unified to have the same appearance.
-    @if feature('ACCESSIBILITY_TWEAKS') {
-        --#{$prefix}btn-focus-box-shadow: #{$focus-ring-box-shadow};
-    }
+    --#{$prefix}btn-focus-box-shadow: #{$focus-ring-box-shadow};
 
     &.disabled,
     &:disabled {
@@ -56,12 +53,9 @@ https://getbootstrap.com/docs/5.2/components/buttons
     }
 }
 
-// @deprecated tag:v6.7.0 - The focus outline of all button variants will be unified to have the same appearance.
-@if feature('ACCESSIBILITY_TWEAKS') {
-    @each $variant, $value in $theme-colors {
-        .btn-#{$variant},
-        .btn-outline-#{$variant} {
-            --#{$prefix}btn-focus-box-shadow: #{$focus-ring-box-shadow};
-        }
+@each $variant, $value in $theme-colors {
+    .btn-#{$variant},
+    .btn-outline-#{$variant} {
+        --#{$prefix}btn-focus-box-shadow: #{$focus-ring-box-shadow};
     }
 }

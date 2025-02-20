@@ -25,7 +25,8 @@
             {% endblock %}
 
             {% block sw_property_option_list_toolbar_delete %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-tooltip="{
                     message: $tc('sw-privileges.tooltip.warning'),
                     disabled: acl.can('property.editor'),
@@ -41,12 +42,13 @@
                     name="regular-trash"
                     small
                 />
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_property_option_list_toolbar_add %}
             <sw-container v-tooltip="tooltipAdd">
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
                         disabled: acl.can('property.editor'),
@@ -58,7 +60,7 @@
                     @click="onAddOption(propertyGroup)"
                 >
                     {{ $tc('sw-property.detail.addOption') }}
-                </sw-button>
+                </mt-button>
             </sw-container>
             {% endblock %}
         </sw-container>
@@ -84,8 +86,9 @@
 
             <template #column-name="{ item, isInlineEdit }">
                 <template v-if="isInlineEdit">
-                    <sw-text-field
-                        v-model:value="item.name"
+
+                    <mt-text-field
+                        v-model="item.name"
                         size="small"
                     />
                 </template>

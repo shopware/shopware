@@ -44,7 +44,7 @@ describe('AddToCartPlugin tests', () => {
         const button = document.querySelector('button');
 
         // Click add to cart button
-        button.dispatchEvent(new Event('click', { bubbles: true }));
+        button.click();
 
         expect(pluginInstance.$emitter.publish).toHaveBeenNthCalledWith(1, 'beforeFormSubmit', expect.any(FormData));
         expect(pluginInstance.$emitter.publish).toHaveBeenNthCalledWith(2, 'openOffCanvasCart');

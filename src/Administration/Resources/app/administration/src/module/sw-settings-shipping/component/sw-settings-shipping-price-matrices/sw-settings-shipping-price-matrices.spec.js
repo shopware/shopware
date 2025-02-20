@@ -27,8 +27,6 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                         'sw-popover': true,
                         'sw-text-field': await wrapTestComponent('sw-text-field'),
                         'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                        'sw-button': await wrapTestComponent('sw-button'),
-                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                         'sw-context-button': await wrapTestComponent('sw-context-button', {
                             sync: true,
                         }),
@@ -232,8 +230,11 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
             ],
         };
 
-        const addPriceMatrixButton = wrapper.find('.sw-settings-shipping-price-matrices__actions .sw-button');
-        expect(addPriceMatrixButton.attributes('disabled')).toBeFalsy();
+        const addPriceMatrixButton = wrapper.findByText(
+            'button',
+            'sw-settings-shipping.priceMatrix.buttonAddAdditionalPriceMatrix',
+        );
+        expect(addPriceMatrixButton.attributes('disabled')).toBeUndefined();
     });
 
     it('should duplicate the price matrix', async () => {
@@ -485,7 +486,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     it('should add a new pricing rule and change the values', async () => {
         const wrapper = await wrapperWithAllPrices();
 
-        const addNewPriceRuleButton = wrapper.find('.sw-settings-shipping-price-matrix__top-container .sw-button__content');
+        const addNewPriceRuleButton = wrapper.findByText('button', 'sw-settings-shipping.priceMatrix.addNewShippingPrice');
         expect(addNewPriceRuleButton.text()).toBe('sw-settings-shipping.priceMatrix.addNewShippingPrice');
 
         let lastRowStart = wrapper.find('.sw-data-grid__row:last-child .sw-data-grid__cell--quantityStart input');

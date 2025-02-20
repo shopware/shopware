@@ -20,6 +20,7 @@ async function createWrapper(entityType = 'product') {
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                     'sw-popover': await wrapTestComponent('sw-popover'),
+                    'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                     'sw-select-result': await wrapTestComponent('sw-select-result'),
                     'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                     transition: false,
@@ -58,7 +59,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         jest.clearAllTimers();
     });
 
-    it.skip('should return array when calling `actualPathParts` computed property', async () => {
+    it('should return array when calling `actualPathParts` computed property', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -72,7 +73,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         ]);
     });
 
-    it.skip('should return valid price properties on `getPriceProperties` with given currencies', async () => {
+    it('should return valid price properties on `getPriceProperties` with given currencies', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -178,7 +179,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         expect(actual).toEqual(expected);
     });
 
-    it.skip('should return valid price properties on `getPriceProperties` with given currencies and path set', async () => {
+    it('should return valid price properties on `getPriceProperties` with given currencies and path set', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -302,7 +303,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         expect(actual).toEqual(expected);
     });
 
-    it.skip('should return valid price properties when getting price properties without given currencies', async () => {
+    it('should return valid price properties when getting price properties without given currencies', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -360,7 +361,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         expect(actual).toEqual(expected);
     });
 
-    it.skip('should return valid visibility properties on `getVisibilityProperties` with given visibilities', async () => {
+    it('should return valid visibility properties on `getVisibilityProperties` with given visibilities', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -374,7 +375,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         expect(actual).toEqual(expected);
     });
 
-    it.skip('should return valid translation properties on `getTranslationProperties', async () => {
+    it('should return valid translation properties on `getTranslationProperties', async () => {
         const mockProperties = [
             'metaDescription',
             'keywords',
@@ -436,7 +437,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         expect(actual).toEqual(expected);
     });
 
-    it.skip('should return media properties for product cover media value', async () => {
+    it('should return media properties for product cover media value', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -473,7 +474,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         expected.forEach((value) => expect(actual).toContainEqual(value));
     });
 
-    it.skip('should return product translation properties for product parent parent translation value', async () => {
+    it('should return product translation properties for product parent parent translation value', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -506,7 +507,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         expect(actual).toEqual(expect.arrayContaining(expected));
     });
 
-    it.skip('should return nothing for searching a invalid path', async () => {
+    it('should return nothing for searching a invalid path', async () => {
         jest.useFakeTimers();
 
         const wrapper = await createWrapper();
@@ -534,7 +535,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         expect(wrapper.find('.sw-select-result-list__empty').text()).toBeTruthy();
     });
 
-    it.skip('should return filtered product properties when searching', async () => {
+    it('should return filtered product properties when searching', async () => {
         jest.useFakeTimers();
         const wrapper = await createWrapper();
         await flushPromises();
@@ -610,7 +611,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         expect(actual).toEqual(expected);
     });
 
-    it.skip('should process translations, prices visibilities and remove property from properties array', async () => {
+    it('should process translations, prices visibilities and remove property from properties array', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -938,7 +939,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         ]);
     });
 
-    it.skip('should process assignedProducts and remove property from properties array', async () => {
+    it('should process assignedProducts and remove property from properties array', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -972,7 +973,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         });
     });
 
-    it.skip('should sort options', async () => {
+    it('should sort options', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -995,7 +996,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         ]);
     });
 
-    it.skip('should return custom field options by entity name', async () => {
+    it('should return custom field options by entity name', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -1028,7 +1029,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         expect(actual).toEqual(expected);
     });
 
-    it.skip('should show custom field options if selected value is custom field', async () => {
+    it('should show custom field options if selected value is custom field', async () => {
         jest.useFakeTimers();
 
         const wrapper = await createWrapper();
@@ -1058,7 +1059,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         expect(actual).toEqual(expected);
     });
 
-    it.skip('should show transactions of an order on search', async () => {
+    it('should show transactions of an order on search', async () => {
         jest.useFakeTimers();
 
         const wrapper = await createWrapper('order');
@@ -1091,7 +1092,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         ]);
     });
 
-    it.skip('should show deliveries of an order on search', async () => {
+    it('should show deliveries of an order on search', async () => {
         jest.useFakeTimers();
 
         const wrapper = await createWrapper('order');
@@ -1130,7 +1131,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         ]);
     });
 
-    it.skip('should add popover classes to the result list', async () => {
+    it('should add popover classes to the result list', async () => {
         const wrapper = await createWrapper('order');
         await flushPromises();
 

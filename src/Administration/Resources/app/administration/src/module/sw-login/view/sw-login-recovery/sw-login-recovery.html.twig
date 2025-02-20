@@ -26,9 +26,10 @@
         @submit.prevent="sendRecoveryMail"
     >
         {% block sw_login_recovery_form_email_field %}
-        <sw-text-field
+
+        <mt-text-field
             ref="swLoginRecoveryEmailField"
-            v-model:value="email"
+            v-model="email"
             :label="$tc('sw-login.recovery.email.label')"
             :placeholder="$tc('sw-login.recovery.email.placeholder')"
         />
@@ -36,12 +37,13 @@
 
         {% block sw_login_recovery_form_submit %}
         <div class="sw-login__submit">
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 variant="primary"
                 :disabled="!isEmailValid()"
             >
                 {{ $tc('sw-login.recovery.submit') }}
-            </sw-button>
+            </mt-button>
         </div>
         {% endblock %}
     </form>

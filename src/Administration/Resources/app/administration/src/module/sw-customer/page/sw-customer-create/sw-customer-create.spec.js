@@ -23,8 +23,6 @@ async function createWrapper({ customerRepositorySaveMock, languageRepositorySea
                 'sw-customer-address-form': true,
                 'sw-customer-base-form': true,
                 'sw-card-view': true,
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-button-process': await wrapTestComponent('sw-button-process'),
                 'sw-icon': true,
                 'sw-loader': true,

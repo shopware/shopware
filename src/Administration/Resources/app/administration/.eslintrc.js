@@ -172,6 +172,7 @@ module.exports = {
                 'test/eslint/**/*.html.twig',
             ],
             rules: {
+                'no-warning-comments': ['error', { location: 'anywhere' }],
                 'vue/component-name-in-template-casing': ['error', 'kebab-case', {
                     registeredComponentsOnly: true,
                     ignores: [],
@@ -206,6 +207,7 @@ module.exports = {
                     fix: true,
                     activatedComponents: [
                         'sw-alert',
+                        'sw-text-field'
                     ],
                 }],
                 // @deprecated v.6.7.0.0 - will be error in v.6.7
@@ -254,6 +256,7 @@ module.exports = {
                         maxArgs: 2,
                     },
                 ],
+                'jest/no-disabled-tests': 'error',
                 'func-names': 'off',
             },
             extends: [

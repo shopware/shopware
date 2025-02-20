@@ -77,7 +77,6 @@ const createWrapper = async (privileges = []) => {
                 'sw-textarea-field': true,
                 'sw-text-field': true,
                 'sw-code-editor': true,
-                'sw-button': true,
                 'sw-skeleton': true,
                 'sw-language-switch': true,
             },

@@ -16,10 +16,6 @@ async function createWrapper(config = null) {
                 stubs: {
                     'sw-modal': await wrapTestComponent('sw-modal'),
                     'sw-single-select': true,
-                    'sw-button': {
-                        emits: ['click'],
-                        template: '<button @click="$emit(\'click\')"><slot></slot></button>',
-                    },
                     'sw-icon': true,
                     'sw-loader': true,
                 },

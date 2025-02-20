@@ -29,24 +29,26 @@
     <template #modal-footer>
         {% block sw_extension_removal_modal_footer %}
         {% block sw_extension_removal_modal_footer_cancel %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             size="small"
             :disabled="isLoading"
             @click="emitClose"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_extension_removal_modal_footer_deactivate %}
-        <sw-button
-            variant="danger"
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
+            variant="critical"
             size="small"
             :is-loading="isLoading"
             @click="emitRemoval"
         >
             {{ btnLabel }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
         {% endblock %}
     </template>

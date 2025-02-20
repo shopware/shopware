@@ -56,7 +56,6 @@ async function createWrapper(privileges = []) {
                         <slot></slot>
                     </div>`,
                     },
-                    'sw-button': true,
                     'sw-icon': true,
                     'sw-search-bar': true,
                     'sw-language-switch': true,
@@ -111,7 +110,7 @@ describe('module/sw-settings-delivery-times/page/sw-settings-delivery-time-list'
 
         const createButton = wrapper.find('.sw-settings-delivery-time-list__create');
 
-        expect(createButton.attributes().disabled).toBeTruthy();
+        expect(createButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to create a new delivery time if user has create permission', async () => {

@@ -110,7 +110,7 @@ export default {
 
         buttonVariant() {
             if (this.variantsNumber <= 0) {
-                return 'danger';
+                return 'critical';
             }
             return 'primary';
         },

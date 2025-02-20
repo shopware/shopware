@@ -31,14 +31,15 @@
     {% block sw_settings_product_feature_set_list_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_product_feature_set_list_smart_bar_actions_add %}
-        <sw-button
-            :router-link="{ name: 'sw.settings.product.feature.sets.create' }"
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             :disabled="!acl.can('product_feature_sets.creator') || undefined"
             class="sw-settings-product-feature-sets-list-grid__create-button"
             variant="primary"
+            @click="$router.push({ name: 'sw.settings.product.feature.sets.create' })"
         >
             {{ $tc('sw-settings-product-feature-sets.list.buttonAddEssentialCharacteristics') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}
@@ -128,22 +129,24 @@
                         <template #modal-footer>
 
                             {% block sw_settings_product_feature_set_list_delete_modal_cancel %}
-                            <sw-button
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
                                 size="small"
                                 @click="onCloseDeleteModal"
                             >
                                 {{ $tc('global.default.cancel') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
 
                             {% block sw_settings_product_feature_set_list_delete_modal_confirm %}
-                            <sw-button
-                                variant="danger"
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
+                                variant="critical"
                                 size="small"
                                 @click="onConfirmDelete(item.id)"
                             >
                                 {{ $tc('sw-settings-product-feature-sets.list.buttonDelete') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
 
                         </template>

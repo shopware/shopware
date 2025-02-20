@@ -34,8 +34,9 @@
         >
 
             {% block sw_promotion_v2_generate_codes_modal_prefix %}
-            <sw-text-field
-                v-model:value="pattern.prefix"
+
+            <mt-text-field
+                v-model="pattern.prefix"
                 class="sw-promotion-v2-generate-codes-modal__prefix"
                 :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelPrefix')"
                 :placeholder="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.placeholderPrefix')"
@@ -53,8 +54,9 @@
             {% endblock %}
 
             {% block sw_promotion_v2_generate_codes_modal_suffix %}
-            <sw-text-field
-                v-model:value="pattern.suffix"
+
+            <mt-text-field
+                v-model="pattern.suffix"
                 class="sw-promotion-v2-generate-codes-modal__suffix"
                 :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelSuffix')"
                 :placeholder="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.placeholderSuffix')"
@@ -65,9 +67,10 @@
         {% endblock %}
 
         {% block sw_promotion_v2_generate_codes_modal_container_pattern_custom %}
-        <sw-text-field
+
+        <mt-text-field
             v-else
-            v-model:value="promotion.individualCodePattern"
+            v-model="promotion.individualCodePattern"
             class="sw-promotion-v2-generate-codes-modal__custom-pattern"
             :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCustomPattern')"
             :placeholder="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.placeholderCustomPattern')"
@@ -93,8 +96,9 @@
         >
 
             {% block sw_promotion_v2_generate_codes_modal_preview %}
-            <sw-text-field
-                v-model:value="preview"
+
+            <mt-text-field
+                v-model="preview"
                 class="sw-promotion-v2-generate-codes-modal__preview"
                 :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelPreview')"
                 disabled
@@ -120,13 +124,14 @@
     <template #modal-footer>
 
         {% block sw_promotion_v2_generate_codes_modal_cancel %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-promotion-v2-generate-codes-modal__button-cancel"
             size="small"
             @click="onClose"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_promotion_v2_generate_codes_modal_generate %}

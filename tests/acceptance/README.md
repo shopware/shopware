@@ -293,3 +293,56 @@ await shopCustomer.attemptsTo(AddPromotionCodeToCart(promotionName, promotionCod
 ```
 
 This will execute the test code of the task. In addition, it will automatically wrap the execution in a Playwright test step, that will use the actor pattern to add meaningful description to the generated report of the test suite. When debugging your tests you can easily identify in which task an issue occurred.
+
+## Playwright Visual Tests
+
+Visual testing ensures that your application's UI remains consistent and free from unintended changes. Playwright also provides built-in capabilities for visual regression testing. 
+
+### Capturing and Comparing Screenshots
+Playwright enables visual testing by capturing and comparing screenshots using the `toHaveScreenshot` method:
+```JavaScript
+ await expect(page).toHaveScreenshot() 
+```
+
+This method can be customized with various options. For a full list of available options, refer to the [official Playwright documentation](https://playwright.dev/docs/api/class-pageassertions#page-assertions-to-have-screenshot-1)
+
+
+**Note:** When running visual tests for the first time, you may encounter an error like this:
+```
+Error: A snapshot doesn't exist at {TEST_OUTPUT_PATH}, writing actual.
+```
+This is expected since there is no baseline image to compare against. Playwright automatically saves the first screenshot, which can then be used as a reference for future tests.
+
+
+### Updating Screenshots
+If your UI changes intentionally, you may need to update the reference (base image) screenshots.
+To update the reference screenshot you can use the **--update-snapshots** flag (or **-u**) flag.
+
+```
+npx playwright test --update-snapshots
+```
+
+You can also update only some specific snapshots using test name:
+
+```
+npx playwright test -u "**/test_name*.spec.ts"
+```
+
+### Debugging Visual Tests
+The best way to debug visual test failures is by reviewing the "Actual" and "Expected" images in the Playwright HTML report or any other reporting tool you use. The "Diff" view highlights discrepancies between screenshots, making it easier to identify differences.
+
+
+### Configuring Sensitivity in Visual Tests
+By default, Playwright detects even a **1-pixel difference**, which might be too strict depending on your design needs. You can fine-tune visual comparison settings using these options:
+- maxDiffPixelRatio – Acceptable ratio of different pixels compared to the total number of pixels (range: `0` to `1`).
+- maxDiffPixels – Maximum number of differing pixels allowed.
+- threshold – Defines the intensity change required for a pixel to be considered different (`0` to `1`, default: `0.2`).
+These settings can be applied per test or globally in **playwright.config.ts** file.
+
+
+### Best Practices for Visual Testing 
+- **Mask dynamic content** – Use the `mask` function or a custom stylesheet to hide dynamic elements (e.g., timestamps, user-generated content).
+- **Ensure environmental consistency** – Match OS versions, time zones, and rendering environments between your local machine and the test runner.
+- **Adjust sensitivity thresholds** – Modify `maxDiffPixels` and `threshold` based on your project’s requirements.
+- **Handle lazy-loaded elements** – Extend `toHaveScreenshot()` with an additional timeout if necessary.
+- **Wait for page stability** – Ensure the page is fully loaded and in the correct state before capturing screenshots (e.g., scroll to the target element if needed).

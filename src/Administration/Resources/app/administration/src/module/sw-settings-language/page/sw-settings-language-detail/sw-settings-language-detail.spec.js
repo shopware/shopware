@@ -114,7 +114,6 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
                 'sw-container': true,
                 'sw-language-switch': true,
                 'sw-language-info': true,
-                'sw-button': true,
                 'sw-button-process': true,
                 'sw-text-field': true,
                 'sw-entity-single-select': true,
@@ -200,7 +199,7 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
         await flushPromises();
 
         const saveButton = wrapper.find('.sw-settings-language-detail__save-action');
-        const languageNameField = wrapper.find('sw-text-field-stub[label="sw-settings-language.detail.labelName"]');
+        const languageNameField = wrapper.find('input[aria-label="sw-settings-language.detail.labelName"]');
         const languageParentIdField = wrapper.find(
             'sw-entity-single-select-stub[label="sw-settings-language.detail.labelParent"]',
         );
@@ -221,7 +220,7 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
         await flushPromises();
 
         const saveButton = wrapper.find('.sw-settings-language-detail__save-action');
-        const languageNameField = wrapper.find('sw-text-field-stub[label="sw-settings-language.detail.labelName"]');
+        const languageNameField = wrapper.find('input[aria-label="sw-settings-language.detail.labelName"]');
         const languageParentIdField = wrapper.find(
             'sw-entity-single-select-stub[label="sw-settings-language.detail.labelParent"]',
         );
@@ -231,7 +230,7 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
         );
 
         expect(saveButton.attributes().disabled).toBeTruthy();
-        expect(languageNameField.attributes().disabled).toBeTruthy();
+        expect(languageNameField.attributes().disabled).toBeDefined();
         expect(languageParentIdField.attributes().disabled).toBeTruthy();
         expect(languageTranslationCodeIdField.attributes().disabled).toBeTruthy();
         expect(languageLocaleIdField.attributes().disabled).toBeTruthy();

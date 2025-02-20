@@ -22,13 +22,14 @@
                 {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.textGetSupport') }}
             </div>
 
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 class="sw-app-wrong-app-url-modal__content-link-button"
-                variant="ghost"
+                ghost
                 :link="$tc('sw-app.component.sw-app-wrong-app-url-modal.linkToDocsArticle')"
             >
                 {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.labelLearnMoreButton') }}
-            </sw-button>
+            </mt-button>
 
             <div class="sw-app-wrong-app-url_modal__content-description-technical-details">
                 {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.textDetails') }}

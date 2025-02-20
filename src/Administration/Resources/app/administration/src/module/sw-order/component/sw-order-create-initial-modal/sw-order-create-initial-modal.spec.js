@@ -44,8 +44,6 @@ async function createWrapper() {
         'sw-order-customer-grid': true,
         'sw-order-line-items-grid-sales-channel': true,
         'sw-order-create-options': true,
-        'sw-button': await wrapTestComponent('sw-button', { sync: true }),
-        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
         'sw-icon': true,
         'sw-loader': true,
         'router-link': true,

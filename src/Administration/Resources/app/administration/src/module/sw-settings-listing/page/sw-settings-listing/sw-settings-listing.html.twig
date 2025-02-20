@@ -165,13 +165,14 @@
                             {% endblock %}
 
                             {% block sw_settings_listing_content_card_view_options_card_toolbar_add_product_option %}
-                            <sw-button
-                                variant="ghost"
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
+                                ghost
                                 size="small"
                                 @click="onAddNewProductSortingOption"
                             >
                                 {{ $tc('sw-settings-listing.index.productSorting.addButton') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
                         </sw-container>
                         {% endblock %}

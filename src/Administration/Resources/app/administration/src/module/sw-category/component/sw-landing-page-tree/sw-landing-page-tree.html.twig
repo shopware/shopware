@@ -126,15 +126,16 @@
 
     {% block sw_landing_page_tree_action %}
     <div class="sw-landing-page-tree__add-button">
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-landing-page-tree__add-button-button"
-            :router-link="newLandingPageUrl()"
             size="small"
-            variant="ghost"
+            ghost
             :disabled="disableContextMenu || !acl.can('landing_page.creator') || undefined"
+            @click="$router.push(newLandingPageUrl())"
         >
             {{ $tc('sw-landing-page.general.buttonCreate') }}
-        </sw-button>
+        </mt-button>
     </div>
     {% endblock %}
 

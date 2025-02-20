@@ -19,8 +19,6 @@ async function createWrapper(props) {
             props,
             global: {
                 stubs: {
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-label': await wrapTestComponent('sw-label'),
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
@@ -93,7 +91,6 @@ async function createWrapper(props) {
                     'sw-color-badge': true,
                     'sw-media-upload-v2': true,
                     'sw-pagination': true,
-                    'mt-button': true,
                     'sw-context-menu-item': true,
                     'sw-media-modal-replace': true,
                     'sw-media-modal-delete': true,

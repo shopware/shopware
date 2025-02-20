@@ -50,18 +50,20 @@
                         {% block sw_settings_snippet_set_list_card_list_container_header %}
                         <div class="sw-settings-snippet-set-list__actions">
                             {% block sw_settings_snippet_set_list_card_list_container_header_btn_export %}
-                            <sw-button
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
                                 v-if="false"
                                 size="small"
-                                variant="ghost"
+                                ghost
                                 disabled
                             >
                                 {{ $tc('sw-settings-snippet.setList.buttonExport') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
 
                             {% block sw_settings_snippet_set_list_card_list_container_header_btn_edit_set %}
-                            <sw-button
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
                                 v-tooltip="getNoPermissionsTooltip('snippet.editor')"
                                 class="sw-settings-snippet-set-list__edit-set-action"
                                 size="small"
@@ -70,7 +72,7 @@
                                 @click="onEditSnippetSets"
                             >
                                 {{ $tc('sw-settings-snippet.setList.buttonEditSet') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
 
                             {% block sw_settings_snippet_set_list_card_list_container_header_btn_split %}
@@ -80,15 +82,16 @@
                                 split-button
                             >
                                 {% block sw_settings_snippet_set_list_card_list_container_header_btn_add_set %}
-                                <sw-button
+                                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                                <mt-button
                                     class="sw-settings-snippet-set-list__action-add"
                                     size="small"
-                                    variant="ghost"
+                                    ghost
                                     :disabled="!acl.can('snippet.creator') || undefined"
                                     @click="onAddSnippetSet"
                                 >
                                     {{ $tc('sw-settings-snippet.setList.buttonAddSet') }}
-                                </sw-button>
+                                </mt-button>
                                 {% endblock %}
 
                                 {% block sw_settings_snippet_set_list_card_list_btn_copy_split %}
@@ -99,10 +102,11 @@
 
                                     {% block sw_settings_snippet_set_list_card_btn_copy %}
                                     <template #button>
-                                        <sw-button
+                                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                                        <mt-button
                                             class="sw-settings-snippet-set-list__action-context-menu"
                                             size="small"
-                                            variant="ghost"
+                                            ghost
                                             :disabled="!acl.can('snippet.creator') || undefined"
                                             square
                                         >
@@ -112,7 +116,7 @@
                                                 size="16"
                                             />
                                             {% endblock %}
-                                        </sw-button>
+                                        </mt-button>
                                     </template>
                                     {% endblock %}
 
@@ -184,9 +188,10 @@
 
                                 {% block sw_settings_snippet_set_list_card_list_grid_column_name_editor %}
                                 <template #inline-edit>
-                                    <sw-text-field
+
+                                    <mt-text-field
                                         ref="nameEditor"
-                                        v-model:value="item.name"
+                                        v-model="item.name"
                                         name="sw-field--item-name"
                                         :placeholder="$tc('sw-settings-snippet.setList.placeholderName')"
                                     />
@@ -300,22 +305,24 @@
                                 {% block sw_settings_snippet_set_list_delete_modal_footer %}
                                 <template #modal-footer>
                                     {% block sw_settings_snippet_set_list_delete_modal_cancel %}
-                                    <sw-button
+                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                                    <mt-button
                                         size="small"
                                         @click="onCloseDeleteModal"
                                     >
                                         {{ $tc('global.default.cancel') }}
-                                    </sw-button>
+                                    </mt-button>
                                     {% endblock %}
 
                                     {% block sw_settings_snippet_set_list_delete_modal_confirm %}
-                                    <sw-button
-                                        variant="danger"
+                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                                    <mt-button
+                                        variant="critical"
                                         size="small"
                                         @click="onConfirmDelete(item.id)"
                                     >
                                         {{ $tc('sw-settings-snippet.setList.buttonDelete') }}
-                                    </sw-button>
+                                    </mt-button>
                                     {% endblock %}
                                 </template>
                                 {% endblock %}
@@ -338,22 +345,24 @@
                                 {% block sw_settings_snippet_set_list_clone_modal_footer %}
                                 <template #modal-footer>
                                     {% block sw_settings_snippet_set_list_clone_modal_cancel %}
-                                    <sw-button
+                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                                    <mt-button
                                         size="small"
                                         @click="closeCloneModal"
                                     >
                                         {{ $tc('global.default.cancel') }}
-                                    </sw-button>
+                                    </mt-button>
                                     {% endblock %}
 
                                     {% block sw_settings_snippet_set_list_clone_modal_confirm %}
-                                    <sw-button
+                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                                    <mt-button
                                         variant="primary"
                                         size="small"
                                         @click="onConfirmClone(item.id)"
                                     >
                                         {{ $tc('sw-settings-snippet.setList.buttonClone') }}
-                                    </sw-button>
+                                    </mt-button>
                                     {% endblock %}
                                 </template>
                                 {% endblock %}

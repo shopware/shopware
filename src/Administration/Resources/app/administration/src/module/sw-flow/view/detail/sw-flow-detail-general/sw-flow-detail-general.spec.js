@@ -40,7 +40,7 @@ async function createWrapper(privileges = [], query = {}) {
                     'sw-card': {
                         template: '<div><slot></slot></div>',
                     },
-                    'sw-text-field': true,
+                    'mt-text-field': true,
                     'sw-textarea-field': true,
                     'sw-container': {
                         template: '<div><slot></slot></div>',

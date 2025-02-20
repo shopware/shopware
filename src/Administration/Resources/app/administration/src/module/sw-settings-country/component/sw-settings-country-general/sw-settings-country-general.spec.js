@@ -113,10 +113,10 @@ describe('module/sw-settings-country/component/sw-settings-country-general', () 
 
         await flushPromises();
 
-        const countryNameField = wrapper.find('sw-text-field-stub[label="sw-settings-country.detail.labelName"]');
+        const countryNameField = wrapper.find('.mt-text-field input[aria-label="sw-settings-country.detail.labelName"]');
         const countryPositionField = wrapper.find('sw-number-field-stub[label="sw-settings-country.detail.labelPosition"]');
-        const countryIsoField = wrapper.find('sw-text-field-stub[label="sw-settings-country.detail.labelIso"]');
-        const countryIso3Field = wrapper.find('sw-text-field-stub[label="sw-settings-country.detail.labelIso3"]');
+        const countryIsoField = wrapper.find('.mt-text-field input[aria-label="sw-settings-country.detail.labelIso"]');
+        const countryIso3Field = wrapper.find('.mt-text-field input[aria-label="sw-settings-country.detail.labelIso3"]');
         const countryActiveField = wrapper.find('sw-switch-field-stub[label="sw-settings-country.detail.labelActive"]');
         const countryShippingAvailableField = wrapper.find(
             'sw-switch-field-stub[label="sw-settings-country.detail.labelShippingAvailable"]',
@@ -153,10 +153,10 @@ describe('module/sw-settings-country/component/sw-settings-country-general', () 
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        const countryNameField = wrapper.find('sw-text-field-stub[label="sw-settings-country.detail.labelName"]');
+        const countryNameField = wrapper.find('.mt-text-field input[aria-label="sw-settings-country.detail.labelName"]');
         const countryPositionField = wrapper.find('sw-number-field-stub[label="sw-settings-country.detail.labelPosition"]');
-        const countryIsoField = wrapper.find('sw-text-field-stub[label="sw-settings-country.detail.labelIso"]');
-        const countryIso3Field = wrapper.find('sw-text-field-stub[label="sw-settings-country.detail.labelIso3"]');
+        const countryIsoField = wrapper.find('.mt-text-field input[aria-label="sw-settings-country.detail.labelIso"]');
+        const countryIso3Field = wrapper.find('.mt-text-field input[aria-label="sw-settings-country.detail.labelIso3"]');
         const countryActiveField = wrapper.find('sw-switch-field-stub[label="sw-settings-country.detail.labelActive"]');
         const countryShippingAvailableField = wrapper.find(
             'sw-switch-field-stub[label="sw-settings-country.detail.labelShippingAvailable"]',
@@ -176,10 +176,10 @@ describe('module/sw-settings-country/component/sw-settings-country-general', () 
 
         const countryIsEuField = wrapper.find('sw-switch-field-stub[label="sw-settings-country.detail.labelIsEu"]');
 
-        expect(countryNameField.attributes().disabled).toBeTruthy();
+        expect(countryNameField.attributes().disabled).toBeDefined();
         expect(countryPositionField.attributes().disabled).toBeTruthy();
-        expect(countryIsoField.attributes().disabled).toBeTruthy();
-        expect(countryIso3Field.attributes().disabled).toBeTruthy();
+        expect(countryIsoField.attributes().disabled).toBeDefined();
+        expect(countryIso3Field.attributes().disabled).toBeDefined();
         expect(countryActiveField.attributes().disabled).toBeTruthy();
         expect(countryShippingAvailableField.attributes().disabled).toBeTruthy();
         expect(countryTaxFreeField.attributes().disabled).toBeTruthy();

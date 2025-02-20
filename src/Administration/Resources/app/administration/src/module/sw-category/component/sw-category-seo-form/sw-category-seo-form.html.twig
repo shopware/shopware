@@ -1,8 +1,9 @@
 {% block sw_category_seo_form %}
 <div class="sw-category-seo-form">
     {% block sw_category_seo_form_meta_title %}
-    <sw-text-field
-        v-model:value="category.metaTitle"
+
+    <mt-text-field
+        v-model="category.metaTitle"
         maxlength="255"
         :disabled="!acl.can('category.editor')"
         :label="$tc('sw-category.base.seo.labelMetaTitle')"
@@ -23,8 +24,9 @@
     {% endblock %}
 
     {% block sw_category_seo_form_keywords %}
-    <sw-text-field
-        v-model:value="category.keywords"
+
+    <mt-text-field
+        v-model="category.keywords"
         :disabled="!acl.can('category.editor')"
         :label="$tc('sw-category.base.seo.labelKeywords')"
         :placeholder="$tc('sw-category.base.seo.placeholderKeywords')"

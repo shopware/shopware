@@ -2,8 +2,9 @@
 <div class="sw-cms-el-config-vimeo-video">
 
     {% block sw_cms_element_vimeo_video_config_video_id %}
-    <sw-text-field
-        v-model:value="videoID"
+
+    <mt-text-field
+        v-model="videoID"
         class="sw-cms-el-config-vimeo-video__video-id"
         :label="$tc('sw-cms.elements.vimeoVideo.config.label.videoId')"
         :placeholder="$tc('sw-cms.elements.vimeoVideo.config.placeholder.videoId')"
@@ -11,8 +12,9 @@
     {% endblock %}
 
     {% block sw_cms_element_vimeo_video_config_title %}
-    <sw-text-field
-        v-model:value="element.config.iframeTitle.value"
+
+    <mt-text-field
+        v-model="element.config.iframeTitle.value"
         :label="$tc('sw-cms.elements.vimeoVideo.config.label.videoTitle')"
         :placeholder="$tc('sw-cms.elements.vimeoVideo.config.placeholder.videoTitle')"
     />

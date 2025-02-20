@@ -54,9 +54,6 @@ async function createWrapper({
                 'sw-textarea-field': true,
                 'sw-custom-field-set-renderer': true,
             },
-            mocks: {
-                placeholder: () => {},
-            },
             computed: {
                 landingPage() {
                     return Shopware.Store.get('swCategoryDetail').landingPage;

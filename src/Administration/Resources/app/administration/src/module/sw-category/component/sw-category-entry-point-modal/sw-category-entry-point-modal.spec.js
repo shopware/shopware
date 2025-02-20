@@ -41,11 +41,9 @@ async function createWrapper() {
                     `,
                     },
                     'sw-single-select': true,
-                    'sw-text-field': true,
                     'sw-textarea-field': true,
                     'sw-cms-list-item': true,
                     'sw-switch-field': true,
-                    'sw-button': true,
                     'sw-cms-layout-modal': true,
                     'sw-icon': true,
                     'sw-discard-changes-modal': true,
@@ -104,12 +102,11 @@ describe('src/module/sw-category/component/sw-category-entry-point-modal', () =>
     it('should have disabled fields', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.find('.sw-category-entry-point-modal__show-in-main-navigation').attributes().disabled).toBe('true');
-        expect(wrapper.find('.sw-category-entry-point-modal__name-in-main-navigation').attributes().disabled).toBe('true');
+        expect(wrapper.findComponent('.sw-category-entry-point-modal__name-in-main-navigation').props().disabled).toBe(true);
         expect(wrapper.find('.sw-category-entry-point-modal__layout-item').attributes().disabled).toBe('true');
-        expect(wrapper.find('.sw-category-entry-point-modal__meta-title').attributes().disabled).toBe('true');
+        expect(wrapper.findComponent('.sw-category-entry-point-modal__meta-title').props().disabled).toBe(true);
         expect(wrapper.find('.sw-category-entry-point-modal__meta-description').attributes().disabled).toBe('true');
-        expect(wrapper.find('.sw-category-entry-point-modal__seo-keywords').attributes().disabled).toBe('true');
+        expect(wrapper.findComponent('.sw-category-entry-point-modal__seo-keywords').props().disabled).toBe(true);
     });
 
     it('should have sales channel options which contain no changes', async () => {

@@ -11,12 +11,13 @@
     {% block sw_settings_user_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_user_detail_actions_cancel %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="tooltipCancel"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_settings_user_detail_actions_save %}
@@ -59,8 +60,9 @@
                         class="sw-settings-user-detail__grid"
                     >
                         {% block sw_settings_user_detail_content_first_name %}
-                        <sw-text-field
-                            v-model:value="user.firstName"
+
+                        <mt-text-field
+                            v-model="user.firstName"
                             name="sw-field--user-firstName"
                             class="sw-settings-user-detail__grid-firstName"
                             :disabled="!acl.can('users_and_permissions.editor') || undefined"
@@ -71,8 +73,9 @@
                         {% endblock %}
 
                         {% block sw_settings_user_detail_content_last_name %}
-                        <sw-text-field
-                            v-model:value="user.lastName"
+
+                        <mt-text-field
+                            v-model="user.lastName"
                             name="sw-field--user-lastName"
                             class="sw-settings-user-detail__grid-lastName"
                             :disabled="!acl.can('users_and_permissions.editor') || undefined"
@@ -83,8 +86,9 @@
                         {% endblock %}
 
                         {% block sw_settings_user_detail_content_email %}
-                        <sw-text-field
-                            v-model:value.trim="user.email"
+
+                        <mt-text-field
+                            v-model="user.email"
                             name="sw-field--user-email"
                             class="sw-settings-user-detail__grid-eMail"
                             :error="userEmailError"
@@ -95,8 +99,9 @@
                         {% endblock %}
 
                         {% block sw_settings_user_detail_content_username %}
-                        <sw-text-field
-                            v-model:value="user.username"
+
+                        <mt-text-field
+                            v-model="user.username"
                             name="sw-field--user-username"
                             class="sw-settings-user-detail__grid-username"
                             :error-message="isUsernameUsed ? $tc('sw-users-permissions.users.user-detail.errorUsernameUsed') : ''"
@@ -104,7 +109,7 @@
                             :disabled="!acl.can('users_and_permissions.editor') || undefined"
                             required
                             :label="$tc('sw-users-permissions.users.user-detail.labelUsername')"
-                            @update:value="checkUsername"
+                            @update:model-value="checkUsername"
                         />
                         {% endblock %}
 
@@ -188,8 +193,9 @@
                         {% endblock %}
 
                         {% block sw_settings_user_detail_grid_content_job_title %}
-                        <sw-text-field
-                            v-model:value="user.title"
+
+                        <mt-text-field
+                            v-model="user.title"
                             name="sw-field--user-title"
                             class="sw-settings-user-detail__grid-jobTitle"
                             :disabled="!acl.can('users_and_permissions.editor') || undefined"
@@ -234,14 +240,15 @@
                     {% block sw_settings_user_detail_grid_toolbar %}
                     <template #toolbar>
                         {% block sw_settings_user_detail_grid_add_key %}
-                        <sw-button
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
                             variant="primary"
                             size="small"
                             :disabled="!$route.params.id || !acl.can('users_and_permissions.editor') || undefined"
                             @click="addAccessKey"
                         >
                             {{ $tc('sw-users-permissions.users.user-detail.addAccessKey') }}
-                        </sw-button>
+                        </mt-button>
                         {% endblock %}
                     </template>
                     {% endblock %}
@@ -324,19 +331,21 @@
 
             {% block sw_settings_user_detail_grid_inner_slot_delete_modal_footer %}
             <template #modal-footer>
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="small"
                     @click="onCloseDeleteModal"
                 >
                     {{ $tc('global.default.cancel') }}
-                </sw-button>
-                <sw-button
+                </mt-button>
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="small"
-                    variant="danger"
+                    variant="critical"
                     @click="onConfirmDelete(showDeleteModal)"
                 >
                     {{ $tc('sw-users-permissions.users.user-detail.modal.buttonDelete') }}
-                </sw-button>
+                </mt-button>
             </template>
             {% endblock %}
         </sw-modal>
@@ -354,8 +363,9 @@
             {% block sw_settings_user_detail_detail_modal_inner %}
 
             {% block sw_settings_user_detail_detail_modal_inner_field_access_key %}
-            <sw-text-field
-                v-model:value="currentIntegration.accessKey"
+
+            <mt-text-field
+                v-model="currentIntegration.accessKey"
                 :label="$tc('sw-users-permissions.users.user-detail.modal.idFieldLabel')"
                 :disabled="true"
                 :copyable="true"
@@ -365,9 +375,10 @@
 
             {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key %}
             {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key_field %}
-            <sw-text-field
+
+            <mt-text-field
                 v-if="showSecretAccessKey"
-                v-model:value="currentIntegration.secretAccessKey"
+                v-model="currentIntegration.secretAccessKey"
                 :label="$tc('sw-users-permissions.users.user-detail.modal.secretFieldLabel')"
                 :disabled="true"
                 :password-toggle-able="false"
@@ -388,15 +399,16 @@
             {% endblock %}
 
             {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key_button %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-if="!showSecretAccessKey"
                 class="sw-settings-user-detail__secret-help-text-button sw-field"
-                variant="danger"
+                variant="critical"
                 :block="true"
                 @click="addAccessKey"
             >
                 {{ $tc('sw-users-permissions.users.user-detail.modal.buttonCreateNewApiKeys') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_settings_user_detail_detail_modal_inner_field_help_text %}
@@ -423,17 +435,19 @@
             {% block sw_settings_user_detail_detail_modal_inner_footer %}
             <template #modal-footer>
                 {% block sw_settings_user_detail_detail_modal_inner_footer_cancel %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="small"
                     :disabled="isModalLoading || undefined"
                     @click="onCloseDetailModal"
                 >
                     {{ $tc('global.default.cancel') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_settings_user_detail_detail_modal_inner_footer_apply %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="small"
                     class="sw-settings-user-detail__save-action"
                     :disabled="isModalLoading && !!currentIntegration.label || undefined"
@@ -441,7 +455,7 @@
                     @click="onSaveIntegration"
                 >
                     {{ showSecretAccessKey ? $tc('sw-users-permissions.users.user-detail.modal.buttonApply') : $tc('sw-users-permissions.users.user-detail.modal.buttonApplyEdit') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </template>
             {% endblock %}

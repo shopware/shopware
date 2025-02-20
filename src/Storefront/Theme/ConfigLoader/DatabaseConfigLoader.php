@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
-use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeConfigField;
 use Shopware\Storefront\Theme\ThemeEntity;
@@ -29,7 +28,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
      */
     public function __construct(
         private readonly EntityRepository $themeRepository,
-        private readonly StorefrontPluginRegistryInterface $extensionRegistry,
+        private readonly StorefrontPluginRegistry $extensionRegistry,
         private readonly EntityRepository $mediaRepository,
         private readonly string $baseTheme = StorefrontPluginRegistry::BASE_THEME_NAME
     ) {

@@ -48,7 +48,6 @@ async function createWrapper(privileges = [], props = {}) {
                     template: '<a :href="`${to.name}/${to.params.flowTemplateId}`">asdf</a>',
                 },
                 'sw-icon': true,
-                'sw-button': true,
                 'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
                 'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                 'sw-context-menu-item': true,

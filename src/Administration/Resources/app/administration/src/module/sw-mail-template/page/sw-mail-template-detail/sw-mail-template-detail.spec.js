@@ -154,10 +154,6 @@ async function createWrapper(privileges = []) {
                 'sw-container': {
                     template: '<div><slot></slot></div>',
                 },
-                'sw-button': await wrapTestComponent('sw-button', {
-                    sync: true,
-                }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-button-process': true,
                 'sw-language-info': true,
                 'sw-entity-single-select': true,

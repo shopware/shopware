@@ -21,7 +21,8 @@
                 >
                     <template #filter>
                         {% block sw_tax_rule_card_header_create_rule_button %}
-                        <sw-button
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
                             v-tooltip.bottom="{
                                 message: $tc('sw-privileges.tooltip.warning'),
                                 disabled: acl.can('tax.editor'),
@@ -37,7 +38,7 @@
                             {{ $tc('sw-settings-tax.taxRuleCard.labelCreateNew') }}
                             {% endblock %}
 
-                        </sw-button>
+                        </mt-button>
                         {% endblock %}
                     </template>
                 </sw-card-filter>
@@ -150,22 +151,24 @@
                         {% block sw_settings_tax_list_delete_modal_footer %}
                         <template #modal-footer>
                             {% block sw_settings_tax_list_delete_modal_cancel %}
-                            <sw-button
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
                                 size="small"
                                 @click="onCloseDeleteModal"
                             >
                                 {{ $tc('global.default.cancel') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
 
                             {% block sw_settings_tax_list_delete_modal_confirm %}
-                            <sw-button
-                                variant="danger"
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
+                                variant="critical"
                                 size="small"
                                 @click="onConfirmDelete(item.id)"
                             >
                                 {{ $tc('sw-settings-tax.list.buttonDelete') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
                         </template>
                         {% endblock %}
@@ -220,20 +223,21 @@
             {% endblock %}
 
             {% block sw_tax_rule_card_empty_state_button %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-tooltip.bottom="{
                     message: $tc('sw-privileges.tooltip.warning'),
                     disabled: acl.can('tax.editor'),
                     showOnDisabledElements: true
                 }"
                 class="sw-settings-tax-rule-card__empty-state--button"
-                variant="ghost"
+                ghost
                 size="small"
                 :disabled="disabled || !acl.can('tax.editor') || undefined"
                 @click="showModal = true"
             >
                 {{ $tc('sw-settings-tax.taxRuleCard.labelCreateNew') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </div>
     </template>

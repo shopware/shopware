@@ -13,7 +13,6 @@ describe('src/app/component/media/sw-media-field', () => {
                 renderStubDefaultSlot: true,
                 stubs: {
                     'sw-media-media-item': true,
-                    'sw-button': true,
                     'sw-popover': {
                         template: `
                         <div>

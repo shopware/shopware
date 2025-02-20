@@ -12,22 +12,24 @@
     <template #modal-footer>
         {% block sw_order_leave_page_modal_actions %}
         {% block sw_order_leave_page_modal_action_cancel %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             size="small"
             @click="onCancel"
         >
             {{ $tc('sw-order.leavePageModal.cancelButton') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_order_leave_page_modal_action_confirm %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             variant="primary"
             size="small"
             @click="onConfirm"
         >
             {{ $tc('sw-order.leavePageModal.confirmButton') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
         {% endblock %}
     </template>

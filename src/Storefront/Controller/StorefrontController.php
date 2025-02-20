@@ -41,13 +41,6 @@ abstract class StorefrontController extends AbstractController
     public const INFO = 'info';
     public const WARNING = 'warning';
 
-    /**
-     * @deprecated tag:v6.7.0 - setTwig is not necessary, setContainer is enough reason:decoration-will-be-removed
-     */
-    public function setTwig(Environment $twig): void
-    {
-    }
-
     public static function getSubscribedServices(): array
     {
         $services = parent::getSubscribedServices();

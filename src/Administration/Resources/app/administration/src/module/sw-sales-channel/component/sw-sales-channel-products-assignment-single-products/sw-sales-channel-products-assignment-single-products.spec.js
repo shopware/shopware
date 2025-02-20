@@ -50,10 +50,6 @@ async function createWrapper() {
                 'sw-data-grid': await wrapTestComponent('sw-data-grid', {
                     sync: true,
                 }),
-                'sw-button': await wrapTestComponent('sw-button', {
-                    sync: true,
-                }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field', { sync: true }),
                 'sw-text-field': await wrapTestComponent('sw-text-field', {
                     sync: true,

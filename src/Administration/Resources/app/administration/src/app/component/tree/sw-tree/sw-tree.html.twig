@@ -10,17 +10,18 @@
             v-if="searchable"
             class="sw-tree__search"
         >
-            <sw-text-field
-                v-model:value="currentTreeSearch"
+
+            <mt-text-field
+                v-model="currentTreeSearch"
                 name="treeSearch"
                 :placeholder="$tc('sw-tree.general.placeholderSearch')"
                 size="small"
-                @update:value="searchItems"
+                @update:model-value="searchItems"
             >
                 <template #prefix>
                     <sw-icon name="regular-search" />
                 </template>
-            </sw-text-field>
+            </mt-text-field>
         </div>
     </slot>
     {% endblock %}
@@ -32,15 +33,16 @@
             class="sw-tree-actions__headline"
         >
             <span> {{ $tc(`${translationContext}.general.treeHeadSelected`, 0, { count: checkedElementsCount }) }}:</span>
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 class="sw-tree-actions__delete_categories"
                 :disabled="!allowDeleteCategories || undefined"
-                variant="danger"
+                variant="critical"
                 size="small"
                 @click="onDeleteElements(null)"
             >
                 {{ $tc('global.default.delete') }}
-            </sw-button>
+            </mt-button>
         </div>
 
         <div
@@ -139,22 +141,24 @@
         {% block sw_tree_delete_modal_footer %}
         <template #modal-footer>
             {% block sw_tree_delete_modal_cancel %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
                 @click="onCloseDeleteModal"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_tree_delete_modal_confirm %}
-            <sw-button
-                variant="danger"
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
+                variant="critical"
                 size="small"
                 @click="onConfirmDelete()"
             >
                 {{ $tc('global.default.delete') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
         {% endblock %}

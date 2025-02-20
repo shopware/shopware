@@ -65,11 +65,12 @@
 
     <template v-if="element.config.displayMode.value === 'cover'">
         {% block sw_cms_element_image_config_min_height %}
-        <sw-text-field
-            v-model:value="element.config.minHeight.value"
+
+        <mt-text-field
+            v-model="element.config.minHeight.value"
             :label="$tc('sw-cms.elements.image.config.label.minHeight')"
             :placeholder="$tc('sw-cms.elements.image.config.placeholder.enterMinHeight')"
-            @update:value="onChangeMinHeight"
+            @update:model-value="onChangeMinHeight"
         />
         {% endblock %}
     </template>

@@ -19,7 +19,8 @@
 
     <template #smart-bar-actions>
         {% block sw_integration_list_smart_bar_actions %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('integration.creator'),
@@ -31,7 +32,7 @@
             @click="onCreateIntegration"
         >
             {{ $tc('sw-integration.general.buttonCreateIntegration') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
 
@@ -74,8 +75,9 @@
                         columns="2fr 1fr"
                         gap="24px"
                     >
-                        <sw-text-field
-                            v-model:value="currentIntegration.label"
+
+                        <mt-text-field
+                            v-model="currentIntegration.label"
                             name="sw-field--currentIntegration-label"
                             :label="$tc('sw-integration.detail.labelFieldLabel')"
                             :disabled="!acl.can('integration.editor')"
@@ -110,8 +112,9 @@
                     {% endblock %}
 
                     {% block sw_integration_list_detail_modal_inner_field_accesskey %}
-                    <sw-text-field
-                        v-model:value="currentIntegration.accessKey"
+
+                    <mt-text-field
+                        v-model="currentIntegration.accessKey"
                         name="sw-field--currentIntegration-accessKey"
                         :label="$tc('sw-integration.detail.idFieldLabel')"
                         :disabled="true"
@@ -122,9 +125,10 @@
 
                     {% block sw_integration_list_detail_modal_inner_field_secretaccesskey %}
                     <template v-if="showSecretAccessKey">
-                        <sw-text-field
+
+                        <mt-text-field
                             v-if="secretAccessKeyFieldTypeIsText"
-                            v-model:value="currentIntegration.secretAccessKey"
+                            v-model="currentIntegration.secretAccessKey"
                             name="sw-field--currentIntegration-secretAccessKey"
                             :label="$tc('sw-integration.detail.secretFieldLabel')"
                             :disabled="true"
@@ -145,15 +149,16 @@
                         />
                     </template>
 
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         v-if="!showSecretAccessKey"
-                        variant="danger"
+                        variant="critical"
                         :disabled="!acl.can('integration.editor')"
                         :block="true"
                         @click="onGenerateKeys"
                     >
                         {{ $tc('sw-integration.detail.buttonCreateNewApiKeys') }}
-                    </sw-button>
+                    </mt-button>
 
                     {% block sw_integration_list_detail_modal_inner_field_helpText %}
                     <div
@@ -178,17 +183,19 @@
                     {% block sw_integration_list_detail_modal_inner_footer %}
                     <template #modal-footer>
                         {% block sw_integration_list_detail_modal_inner_footer_cancel %}
-                        <sw-button
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
                             size="small"
                             :disabled="isModalLoading"
                             @click="onCloseDetailModal"
                         >
                             {{ $tc('global.default.cancel') }}
-                        </sw-button>
+                        </mt-button>
                         {% endblock %}
 
                         {% block sw_integration_list_detail_modal_inner_footer_apply %}
-                        <sw-button
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
                             size="small"
                             class="sw-integration-detail-modal__save-action"
                             :disabled="(isModalLoading && !!currentIntegration.label) || !acl.can('integration.editor')"
@@ -196,7 +203,7 @@
                             @click="onSaveIntegration"
                         >
                             {{ showSecretAccessKey ? $tc('sw-integration.detail.buttonApply') : $tc('sw-integration.detail.buttonApplyEdit') }}
-                        </sw-button>
+                        </mt-button>
                         {% endblock %}
                     </template>
                     {% endblock %}
@@ -299,20 +306,22 @@
 
                             {% block sw_integration_list_grid_inner_slot_delete_modal_footer %}
                             <template #modal-footer>
-                                <sw-button
+                                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                                <mt-button
                                     size="small"
                                     @click="onCloseDeleteModal"
                                 >
                                     {{ $tc('global.default.cancel') }}
-                                </sw-button>
+                                </mt-button>
 
-                                <sw-button
+                                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                                <mt-button
                                     size="small"
                                     variant="primary"
                                     @click="onConfirmDelete(item.id)"
                                 >
                                     {{ $tc('sw-integration.detail.buttonDelete') }}
-                                </sw-button>
+                                </mt-button>
                             </template>
                             {% endblock %}
                         </sw-modal>

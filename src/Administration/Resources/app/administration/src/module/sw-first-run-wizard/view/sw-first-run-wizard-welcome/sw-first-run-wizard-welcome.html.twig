@@ -75,22 +75,24 @@
         {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_footer %}
         <template #modal-footer>
             {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_action_cancel %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
                 @click="onCancelSwitch"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_action_switch %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
                 variant="primary"
                 @click="onConfirmLanguageSwitch"
             >
                 {{ $tc('sw-first-run-wizard.welcome.confirmLanguageSwitch') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
         {% endblock %}

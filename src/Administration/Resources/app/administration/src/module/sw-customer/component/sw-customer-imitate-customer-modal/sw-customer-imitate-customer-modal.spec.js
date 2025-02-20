@@ -43,7 +43,6 @@ async function createWrapper() {
                     'i18n-t': true,
 
                     'sw-icon': true,
-                    'sw-button': true,
                     'sw-loader': true,
                     'router-link': true,
                 },

@@ -15,14 +15,15 @@
     <template #smart-bar-actions>
 
         {% block sw_settings_rule_detail_actions_cancel %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="tooltipCancel"
             class="sw-settings-rule-detail__cancel-action"
             :disabled="isLoading"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         <sw-button-group
@@ -51,7 +52,8 @@
             {% block sw_settings_rule_detail_actions_save_context_menu %}
             <sw-context-button>
                 <template #button>
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         class="sw-settings-rule-detail__button-context-menu"
                         square
                         variant="primary"
@@ -61,7 +63,7 @@
                             name="regular-chevron-down-xs"
                             size="16"
                         />
-                    </sw-button>
+                    </mt-button>
                 </template>
 
                 {% block sw_settings_rule_detail_actions_save_context_menu_actions %}

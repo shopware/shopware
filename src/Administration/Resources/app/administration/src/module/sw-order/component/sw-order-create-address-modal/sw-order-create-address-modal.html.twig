@@ -29,23 +29,25 @@
         {% block sw_order_create_address_form_modal_footer %}
         <template #modal-footer>
             {% block sw_order_create_address_form_modal_cancel_button %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
                 @click="onCloseAddressModal"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_order_create_address_form_modal_apply_button %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 :is-loading="isLoading"
                 variant="primary"
                 size="small"
                 @click="onSubmitAddressForm"
             >
                 {{ $tc('sw-customer.detailAddresses.buttonSaveAndSelect') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
         {% endblock %}
@@ -65,7 +67,8 @@
             >
                 {% block sw_order_create_address_modal_add_button %}
                 <template #filter>
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         class="sw-order-create-address-modal__add-btn"
                         size="small"
                         @click="onAddNewAddress"
@@ -75,7 +78,7 @@
                             small
                         />
                         {{ $tc('sw-customer.detailAddresses.buttonAddAddress') }}
-                    </sw-button>
+                    </mt-button>
                 </template>
                 {% endblock %}
             </sw-card-filter>
@@ -121,12 +124,13 @@
                     </a>
                 </div>
                 <div class="sw-order-create-address-modal__select-btn">
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         v-if="!isCurrentSelected(address.id)"
                         @click="onSelectExistingAddress(address)"
                     >
                         {{ $tc('sw-customer.detailAddresses.buttonSelect') }}
-                    </sw-button>
+                    </mt-button>
                 </div>
             </div>
         </template>
@@ -137,12 +141,13 @@
     {% block sw_order_create_address_modal_actions %}
     <template #modal-footer>
         {% block sw_order_create_address_modal_cancel_button %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             size="small"
             @click="onCancel"
         >
             {{ $tc('sw-customer.detailAddresses.buttonClose') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

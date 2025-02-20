@@ -79,7 +79,8 @@
         <div class="sw-first-run-wizard-modal__footer">
             {% block sw_first_run_wizard_modal_footer_left %}
             <div class="footer-left">
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     v-for="button in buttons.left"
                     :key="button.action"
                     :variant="button.variant"
@@ -88,13 +89,14 @@
                     @click="onButtonClick(button.action)"
                 >
                     {{ button.label }}
-                </sw-button>
+                </mt-button>
             </div>
             {% endblock %}
 
             {% block sw_first_run_wizard_modal_footer_right %}
             <div class="footer-right">
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     v-for="button in buttons.right"
                     :key="button.action"
                     :variant="button.variant"
@@ -103,7 +105,7 @@
                     @click="onButtonClick(button.action)"
                 >
                     {{ button.label }}
-                </sw-button>
+                </mt-button>
             </div>
             {% endblock %}
         </div>

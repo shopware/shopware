@@ -11,13 +11,14 @@
     {% block sw_settings_shipping_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_shipping_detail_actions_abort %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="tooltipCancel"
             :disabled="isLoading || undefined"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_settings_shipping_detail_actions_save %}
@@ -74,8 +75,9 @@
                         gap="0px 30px"
                     >
                         {% block sw_settings_shipping_detail_base_content_field_name %}
-                        <sw-text-field
-                            v-model:value="shippingMethod.name"
+
+                        <mt-text-field
+                            v-model="shippingMethod.name"
                             name="sw-field--shippingMethod-name"
                             required
                             :disabled="!acl.can('shipping.editor') || undefined"
@@ -86,8 +88,9 @@
                         {% endblock %}
 
                         {% block sw_settings_shipping_detail_content_field_technical_name %}
-                        <sw-text-field
-                            v-model:value="shippingMethod.technicalName"
+
+                        <mt-text-field
+                            v-model="shippingMethod.technicalName"
                             name="sw-field--shippingMethod-technicalName"
                             class="sw-settings-shipping-detail__field-technical-name"
                             required
@@ -175,8 +178,9 @@
                     {% endblock %}
 
                     {% block sw_settings_shipping_detail_base_content_tracking_url_field %}
-                    <sw-text-field
-                        v-model:value="shippingMethod.trackingUrl"
+
+                    <mt-text-field
+                        v-model="shippingMethod.trackingUrl"
                         name="sw-field--shippingMethod-trackingUrl"
                         :disabled="!acl.can('shipping.editor') || undefined"
                         :label="$tc('sw-settings-shipping.detail.labelTrackingUrl')"

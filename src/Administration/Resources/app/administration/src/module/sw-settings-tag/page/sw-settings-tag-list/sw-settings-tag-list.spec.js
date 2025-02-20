@@ -131,7 +131,6 @@ async function createWrapper(privileges = []) {
                     'sw-search-bar': true,
                     'sw-icon': true,
                     'sw-loader': true,
-                    'sw-button': true,
                     'sw-modal': true,
                     'sw-empty-state': true,
                     'sw-card-filter': true,
@@ -178,7 +177,7 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
 
         const addButton = wrapper.find('.sw-settings-tag-list__button-create');
 
-        expect(addButton.attributes().disabled).toBeTruthy();
+        expect(addButton.attributes('disabled')).toBeDefined();
 
         const duplicateMenuItem = wrapper.find('.sw-settings-tag-list__duplicate-action');
 

@@ -60,8 +60,9 @@
             {% endblock %}
 
             {% block sw_cms_el_form_config_content_form_title %}
-            <sw-text-field
-                v-model:value="element.config.title.value"
+
+            <mt-text-field
+                v-model="element.config.title.value"
                 :label="$tc('sw-cms.elements.form.config.label.title')"
             />
             {% endblock %}

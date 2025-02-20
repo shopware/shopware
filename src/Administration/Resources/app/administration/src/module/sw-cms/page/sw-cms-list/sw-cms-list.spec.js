@@ -66,7 +66,6 @@ async function createWrapper(
                     'sw-media-modal-v2': {
                         template: '<div class="sw-media-modal-v2-mock"></div>',
                     },
-                    'sw-button': true,
                     'sw-card': {
                         template: '<div><slot name="grid"></slot></div>',
                     },
@@ -504,8 +503,8 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             ],
         });
 
-        const createButton = wrapper.find('sw-button-stub');
-        expect(createButton.attributes().disabled).toBe('true');
+        const createButton = wrapper.findByText('button', 'sw-cms.general.createNewLayout');
+        expect(createButton.attributes('disabled') !== undefined).toBe(true);
     });
 
     it('should show an enabled create new button', async () => {
@@ -525,8 +524,8 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             ],
         });
 
-        const createButton = wrapper.find('sw-button-stub');
-        expect(createButton.attributes().disabled).toBeUndefined();
+        const createButton = wrapper.findByText('button', 'sw-cms.general.createNewLayout');
+        expect(createButton.attributes('disabled')).toBeUndefined();
     });
 
     it('should show disabled context fields in data grid view', async () => {

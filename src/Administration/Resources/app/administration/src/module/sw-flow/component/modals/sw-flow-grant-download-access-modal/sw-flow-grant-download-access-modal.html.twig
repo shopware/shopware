@@ -19,22 +19,24 @@
     </div>
 
     <template #modal-footer>
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-flow-grant-download-access-modal__cancel-button"
             size="small"
             @click="onClose"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
 
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-flow-grant-download-access-modal__save-button"
             variant="primary"
             size="small"
             @click="onSave"
         >
             {{ $tc('sw-flow.modals.buttonSaveAction') }}
-        </sw-button>
+        </mt-button>
     </template>
 </sw-modal>
 {% endblock %}

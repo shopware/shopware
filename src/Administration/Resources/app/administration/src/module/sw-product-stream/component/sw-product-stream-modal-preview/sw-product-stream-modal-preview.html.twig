@@ -112,13 +112,14 @@
     {% block sw_product_stream_modal_preview_footer %}
     <template #modal-footer>
         {% block sw_product_stream_modal_preview_close_button %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-product-stream-modal-preview__close-action"
             variant="primary"
             @click.prevent="closeModal"
         >
             {{ $tc('sw-product-stream.previewModal.close') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Theme\Twig;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
-use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 
 #[Package('framework')]
 class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
@@ -12,7 +11,7 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
     /**
      * @internal
      */
-    public function __construct(private readonly StorefrontPluginRegistryInterface $themeRegistry)
+    public function __construct(private readonly StorefrontPluginRegistry $themeRegistry)
     {
     }
 

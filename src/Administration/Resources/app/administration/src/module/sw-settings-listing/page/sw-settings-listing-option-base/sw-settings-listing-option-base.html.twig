@@ -16,13 +16,14 @@
     <template #smart-bar-actions>
 
         {% block sw_settings_listing_option_base_smart_bar_actions_save %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             variant="primary"
             :disabled="isSaveButtonDisabled"
             @click="onSave"
         >
             {{ $t('global.default.save') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

@@ -10,13 +10,14 @@
     </template>
 
     <template #smart-bar-actions>
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="{ message: 'ESC', appearance: 'light' }"
             :disabled="isLoading"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
 
         <sw-button-process
             v-model:process-success="isSaveSuccessful"

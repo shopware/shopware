@@ -79,22 +79,24 @@
         {% block sw_notification_center_delete_modal_footer %}
         <template #modal-footer>
             {% block sw_notification_center_delete_modal_cancel %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
                 @click="onCloseDeleteModal"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_notification_center_delete_modal_confirm %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 variant="primary"
                 size="small"
                 @click="onConfirmDelete"
             >
                 {{ $tc('global.default.delete') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
         {% endblock %}

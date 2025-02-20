@@ -2435,6 +2435,22 @@ If you want to restore the previous browser support in your project or want to a
 BROWSERSLIST='>= 0.5%, last 2 major versions, not dead, Chrome >= 60, Firefox >= 60, Firefox ESR, iOS >= 12, Safari >= 12, not Explorer <= 11'
 ```
 
+## Major upgrades of NPM packages
+
+With v6.7.0 we upgrade the following NPM packages to their newest major version.
+The upgrades are done for packages related to the webpack JS-build process and do not require changes to the source code.
+If you are customizing the webpack config inside `<plugin root>/src/Resources/app/storefront/build/webpack.config.js`, please consolidate the changelogs of the affected packages.
+
+* Upgrade `copy-webpack-plugin` from `11.0.0` to `12.0.2`
+* Upgrade `css-loader` from `6.8.1` to `7.1.2`
+* Upgrade `postcss-loader` from `7.3.4` to `8.1.1`
+* Upgrade `sass-loader` from `13.3.3` to `16.0.4`
+* Upgrade `style-loader` from `3.3.3` to `4.0.0`
+* Upgrade `webpack-cli` from `5.1.4` to `6.0.1`
+* Upgrade `webpack-merge` from `5.10.0` to `6.0.1`
+* Upgrade `webpackbar` from `6.0.0` to `7.0.0`
+* Upgrade `webpack-dev-server` from `4.15.1` to `5.2.0`
+
 ## Removal of NPM packages
 
 With v6.7.0 the following NPM packages will be removed.

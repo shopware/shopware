@@ -4,23 +4,23 @@
     position-identifier="sw-generic-seo-general-card"
     :title="$tc('sw-landing-page.base.seo.titleGeneralInformation')"
 >
-    <sw-text-field
+    <mt-text-field
         class="sw-generic-seo-general-card__seo-meta-title-input"
         maxlength="255"
-        :value="seoMetaTitle"
+        :model-value="seoMetaTitle"
         :label="$tc('sw-landing-page.base.seo.labelMetaTitle')"
         :help-text="$tc('sw-landing-page.base.seo.helpTextMetaTitle')"
         :placeholder="$tc('sw-landing-page.base.seo.placeholderMetaTitle')"
-        @update:value="emitSeoMetaTitle"
+        @update:model-value="emitSeoMetaTitle"
     />
 
-    <sw-text-field
+    <mt-text-field
         class="sw-generic-seo-general-card__seo-url-input"
         maxlength="255"
-        :value="seoUrl"
+        :model-value="seoUrl"
         :label="$tc('sw-landing-page.base.seo.labelUrl')"
         :placeholder="$tc('sw-landing-page.base.seo.placeholderUrl')"
-        @update:value="emitSeoUrl"
+        @update:model-value="emitSeoUrl"
     />
 
     <sw-textarea-field

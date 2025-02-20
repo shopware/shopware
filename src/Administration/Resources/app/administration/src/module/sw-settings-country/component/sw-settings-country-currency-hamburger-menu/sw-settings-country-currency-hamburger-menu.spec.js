@@ -36,8 +36,6 @@ async function createWrapper(privileges = []) {
                 stubs: {
                     'sw-context-button': await wrapTestComponent('sw-context-button'),
                     'sw-context-menu': await wrapTestComponent('sw-context-menu'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-popover': true,
                     'sw-icon': {
                         template: '<div></div>',

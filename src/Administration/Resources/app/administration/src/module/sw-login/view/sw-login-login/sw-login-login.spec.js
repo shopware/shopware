@@ -65,8 +65,6 @@ async function createWrapper(loginSuccessfull) {
                 'sw-password-field': await wrapTestComponent('sw-password-field'),
                 'sw-password-field-deprecated': await wrapTestComponent('sw-password-field-deprecated'),
                 'router-link': true,
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),

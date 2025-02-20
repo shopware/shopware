@@ -102,13 +102,14 @@
 
     {% block sw_text_editor_toolbar_table_button_table_insert %}
     <div class="sw-text-editor-toolbar-table-button__insert">
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             size="small"
             variant="primary"
             @click="emitTable"
         >
             {{ $tc('global.default.add') }}
-        </sw-button>
+        </mt-button>
     </div>
     {% endblock %}
 </div>

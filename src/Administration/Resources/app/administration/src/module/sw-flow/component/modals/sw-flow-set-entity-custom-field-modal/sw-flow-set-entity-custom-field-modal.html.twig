@@ -109,22 +109,24 @@
     {% block sw_flow_set_entity_custom_field_modal_footer %}
     <template #modal-footer>
         {% block sw_flow_set_entity_custom_field_modal_footer_cancel_button %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-flow-set-entity-custom-field-modal__cancel-button"
             @click="onClose"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_flow_set_entity_custom_field_modal_footer_save_button %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-flow-set-entity-custom-field-modal__save-button"
             variant="primary"
             @click="onAddAction"
         >
             {{ sequence.id ? $tc('sw-flow.modals.buttonSaveAction') : $tc('sw-flow.modals.buttonAddAction') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

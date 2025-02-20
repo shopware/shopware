@@ -21,14 +21,15 @@
 
                 <template #content="props">
                     {% block sw_seo_url_card_seo_path_edit %}
-                    <sw-text-field
+
+                    <mt-text-field
                         :map-inheritance="props"
-                        :value="props.currentValue"
+                        :model-value="props.currentValue"
                         :disabled="props.isInherited || isHeadlessSalesChannel || !allowInput"
                         :disable-inheritance-toggle="isHeadlessSalesChannel"
                         :label="$tc('sw-seo-url.labelSeoPathInfo')"
                         :help-text="seoUrlHelptext"
-                        @update:value="props.updateCurrentValue"
+                        @update:model-value="props.updateCurrentValue"
                     />
                     {% endblock %}
                 </template>

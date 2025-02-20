@@ -86,7 +86,9 @@ describe('module/sw-custom-entity/component/sw-custom-entity-input-field', () =>
             await wrapper.setProps(mockData);
 
             const inputField = wrapper.getComponent(`.sw-custom-entity-input-field__${type}`);
-            expect(inputField.props('value')).toBe(mockData.value);
+            const propType = type === 'string' ? 'modelValue' : 'value';
+
+            expect(inputField.props(propType)).toBe(mockData.value);
             expect(inputField.props('label')).toBe(mockData.label);
             expect(inputField.props('placeholder')).toBe(mockData.placeholder);
             expect(inputField.props('helpText')).toBe(mockData['help-text']);

@@ -7,10 +7,6 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-help-center-v2', { sync: true }), {
         global: {
             stubs: {
-                'sw-button': await wrapTestComponent('sw-button', {
-                    sync: true,
-                }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-help-sidebar': true,
                 'sw-shortcut-overview': true,
                 'sw-extension-component-section': true,

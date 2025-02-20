@@ -101,6 +101,7 @@ class Migration1716196653AddTechnicalNameToImportExportProfileTest extends TestC
             $this->connection->insert('import_export_profile', [
                 'id' => Uuid::randomBytes(),
                 'name' => $name,
+                'technical_name' => Uuid::randomHex(),
                 'source_entity' => 'product',
                 'file_type' => 'text/csv',
                 'delimiter' => ';',

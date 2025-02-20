@@ -10,8 +10,9 @@
         <template v-if="rule">
             <div style="display: grid; grid-template-columns: 2fr 1fr; grid-column-gap: 32px">
                 {% block sw_settings_rule_detail_base_content_card_field_name %}
-                <sw-text-field
-                    v-model:value="rule.name"
+
+                <mt-text-field
+                    v-model="rule.name"
                     name="sw-field--rule-name"
                     :label="$tc('sw-settings-rule.detail.labelName')"
                     :placeholder="$tc('sw-settings-rule.detail.placeholderName')"

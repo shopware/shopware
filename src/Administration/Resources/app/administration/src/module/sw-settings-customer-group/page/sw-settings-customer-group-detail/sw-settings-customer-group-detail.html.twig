@@ -29,13 +29,14 @@
     {% block sw_settings_customer_group_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_customer_group_detail_actions_cancel %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="tooltipCancel"
             class="sw-settings-customer-group-detail__cancel"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_settings_customer_group_detail_actions_save %}
@@ -77,8 +78,9 @@
                         >
                             <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/attributes-order -->
                             {% block sw_settings_customer_group_detail_content_card_name %}
-                            <sw-text-field
-                                v-model:value="customerGroup.name"
+
+                            <mt-text-field
+                                v-model="customerGroup.name"
                                 name="sw-field--customerGroup-name"
                                 class="sw-settings-customer-group-detail__name"
                                 required
@@ -128,8 +130,9 @@
                     </div>
 
                     {% block sw_settings_customer_group_detail_content_registration_card_title %}
-                    <sw-text-field
-                        v-model:value="customerGroup.registrationTitle"
+
+                    <mt-text-field
+                        v-model="customerGroup.registrationTitle"
                         name="sw-field--customerGroup-registrationTitle"
                         required
                         validation="required"
@@ -193,9 +196,10 @@
                     {% endblock %}
 
                     {% block sw_settings_customer_group_detail_content_registration_technical_urls %}
-                    <sw-text-field
+
+                    <mt-text-field
                         v-if="customerGroupId"
-                        v-model:value="technicalUrl"
+                        v-model="technicalUrl"
                         name="sw-field--technicalUrl"
                         :label="$tc('sw-settings-customer-group.registration.technicalUrl')"
                         :copyable="true"
@@ -211,8 +215,9 @@
                     >
                         {% block sw_settings_customer_group_detail_content_registration_url_card_seo_url_inner %}
                         <!-- eslint-disable vue/valid-v-model -->
-                        <sw-text-field
-                            :value="getSeoUrl(seoUrl)"
+
+                        <mt-text-field
+                            :model-value="getSeoUrl(seoUrl)"
                             :label="$tc('sw-settings-customer-group.registration.seoUrlLabel', { salesChannelName: seoUrl.salesChannel.translated.name}, 0)"
                             :copyable="true"
                             :disabled="true"

@@ -74,8 +74,6 @@ describe('components/data-grid/sw-data-grid', () => {
                 sync: true,
             }),
             'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item', { sync: true }),
-            'sw-button': await wrapTestComponent('sw-button', { sync: true }),
-            'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
             'sw-popover': await wrapTestComponent('sw-popover'),
             'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
             'sw-base-field': await wrapTestComponent('sw-base-field', {
@@ -93,7 +91,6 @@ describe('components/data-grid/sw-data-grid', () => {
             'sw-inheritance-switch': true,
             'sw-ai-copilot-badge': true,
             'sw-help-text': true,
-            'mt-button': true,
             'sw-loader': true,
             'mt-floating-ui': true,
             'mt-switch': true,
@@ -151,8 +148,6 @@ describe('components/data-grid/sw-data-grid', () => {
                 sync: true,
             }),
             'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item', { sync: true }),
-            'sw-button': await wrapTestComponent('sw-button', { sync: true }),
-            'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
             'sw-popover': await wrapTestComponent('sw-popover'),
             'sw-base-field': await wrapTestComponent('sw-base-field', {
                 sync: true,
@@ -169,7 +164,6 @@ describe('components/data-grid/sw-data-grid', () => {
             'sw-inheritance-switch': true,
             'sw-ai-copilot-badge': true,
             'sw-help-text': true,
-            'mt-button': true,
             'sw-loader': true,
             'mt-floating-ui': true,
             'mt-switch': true,

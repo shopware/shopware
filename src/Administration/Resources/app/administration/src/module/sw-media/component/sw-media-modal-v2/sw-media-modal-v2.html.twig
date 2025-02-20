@@ -161,18 +161,20 @@
     {% block sw_media_modal_v2_modal_footer %}
     <template #modal-footer>
         {% block sw_media_modal_v2_button_cancel %}
-        <sw-button @click="onEmitModalClosed">
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button @click="onEmitModalClosed">
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_media_modal_v2_button_confirm_selection %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             variant="primary"
             @click="onEmitSelection"
         >
             {{ $tc('sw-media.sw-media-modal-v2.labelButtonSaveSelection') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

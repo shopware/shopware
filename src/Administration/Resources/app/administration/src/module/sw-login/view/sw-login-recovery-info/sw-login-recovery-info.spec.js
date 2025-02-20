@@ -5,7 +5,7 @@
 import { config, mount } from '@vue/test-utils';
 
 function hasNormalWarningAlert(wrapper) {
-    const alerts = wrapper.findAll('.sw-alert');
+    const alerts = wrapper.findAll('[role="banner"]');
 
     expect(alerts).toHaveLength(2);
     expect(alerts.at(0).text()).toBe('["sw-login.recovery.info.info"]');
@@ -26,8 +26,6 @@ async function createWrapper(routeParams) {
             stubs: {
                 'router-view': true,
                 'router-link': true,
-                'sw-alert': await wrapTestComponent('sw-alert'),
-                'sw-alert-deprecated': await wrapTestComponent('sw-alert-deprecated'),
                 'sw-icon': true,
             },
         },
@@ -65,7 +63,7 @@ describe('module/sw-login/recovery-info.spec.js', () => {
 
         expect(wrapper.get('.sw-login__form-headline').text()).toBe('["sw-login.recovery.info.headline"]');
 
-        const alerts = wrapper.findAll('.sw-alert');
+        const alerts = wrapper.findAll('[role="banner"]');
 
         expect(alerts).toHaveLength(1);
         expect(alerts.at(0).text()).toBe('["global.error-codes.FRAMEWORK__RATE_LIMIT_EXCEEDED",{"seconds":1},0]');

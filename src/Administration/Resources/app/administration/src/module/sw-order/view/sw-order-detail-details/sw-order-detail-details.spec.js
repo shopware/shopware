@@ -205,16 +205,16 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();
         const stateCard = wrapper.find('.sw-order-details-state-card[state-label="sw-order.stateCard.headlineOrderState"');
-        const emailField = wrapper.find('.sw-order-detail-details__email');
-        const phoneNumberField = wrapper.find('.sw-order-detail-details__phone-number');
-        const affiliateCodeField = wrapper.find('.sw-order-detail-details__affiliate-code');
-        const campaignCodeField = wrapper.find('.sw-order-detail-details__campaign-code');
+        const emailField = wrapper.findComponent('.sw-order-detail-details__email');
+        const phoneNumberField = wrapper.findComponent('.sw-order-detail-details__phone-number');
+        const affiliateCodeField = wrapper.findComponent('.sw-order-detail-details__affiliate-code');
+        const campaignCodeField = wrapper.findComponent('.sw-order-detail-details__campaign-code');
 
         expect(stateCard.attributes().disabled).toBeTruthy();
-        expect(emailField.attributes().disabled).toBeTruthy();
-        expect(phoneNumberField.attributes().disabled).toBeTruthy();
-        expect(affiliateCodeField.attributes().disabled).toBeTruthy();
-        expect(campaignCodeField.attributes().disabled).toBeTruthy();
+        expect(emailField.props().disabled).toBeTruthy();
+        expect(phoneNumberField.props().disabled).toBeTruthy();
+        expect(affiliateCodeField.props().disabled).toBeTruthy();
+        expect(campaignCodeField.props().disabled).toBeTruthy();
     });
 
     it('should not have a disabled on order card', async () => {

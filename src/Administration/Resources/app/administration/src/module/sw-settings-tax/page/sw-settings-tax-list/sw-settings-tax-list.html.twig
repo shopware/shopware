@@ -39,7 +39,8 @@
     {% block sw_settings_tax_list_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_tax_list_smart_bar_actions_add %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('tax.creator'),
@@ -48,10 +49,10 @@
             class="sw-settings-tax-list__button-create"
             variant="primary"
             :disabled="!acl.can('tax.creator') || undefined"
-            :router-link="{ name: 'sw.settings.tax.create' }"
+            @click="$router.push({ name: 'sw.settings.tax.create' })"
         >
             {{ $tc('sw-settings-tax.list.buttonAddTax') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}
@@ -200,22 +201,24 @@
                                 {% block sw_settings_tax_list_delete_modal_footer %}
                                 <template #modal-footer>
                                     {% block sw_settings_tax_list_delete_modal_cancel %}
-                                    <sw-button
+                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                                    <mt-button
                                         size="small"
                                         @click="onCloseDeleteModal"
                                     >
                                         {{ $tc('global.default.cancel') }}
-                                    </sw-button>
+                                    </mt-button>
                                     {% endblock %}
 
                                     {% block sw_settings_tax_list_delete_modal_confirm %}
-                                    <sw-button
-                                        variant="danger"
+                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                                    <mt-button
+                                        variant="critical"
                                         size="small"
                                         @click="onConfirmDelete(item.id)"
                                     >
                                         {{ $tc('sw-settings-tax.list.buttonDelete') }}
-                                    </sw-button>
+                                    </mt-button>
                                     {% endblock %}
                                 </template>
                                 {% endblock %}

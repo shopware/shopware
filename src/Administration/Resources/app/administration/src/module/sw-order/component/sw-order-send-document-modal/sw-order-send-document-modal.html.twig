@@ -52,16 +52,18 @@
     {% endblock %}
 
     {% block sw_order_send_document_modal_customer_mail_select %}
-    <sw-text-field
-        v-model:value="recipient"
+
+    <mt-text-field
+        v-model="recipient"
         :label="$tc('sw-order.documentSendModal.labelRecipient')"
         required
     />
     {% endblock %}
 
     {% block sw_order_send_document_modal_subject %}
-    <sw-text-field
-        v-model:value="subject"
+
+    <mt-text-field
+        v-model="subject"
         class="sw-order-send-document-modal__subject"
         :label="$tc('sw-order.documentSendModal.labelSubject')"
         required
@@ -84,21 +86,23 @@
 
     <template #modal-footer>
         {% block sw_order_send_document_modal_secondary_action %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             @click="$emit('modal-close')"
         >
             {{ $tc('sw-order.documentSendModal.labelClose') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_order_send_document_modal_primary_action %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             :disabled="primaryActionDisabled"
             variant="primary"
             @click="onSendDocument"
         >
             {{ $tc('sw-order.documentCard.labelSendDocument') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
 </sw-modal>

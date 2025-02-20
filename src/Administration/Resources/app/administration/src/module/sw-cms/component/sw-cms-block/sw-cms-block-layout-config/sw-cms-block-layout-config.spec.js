@@ -62,6 +62,6 @@ describe('module/sw-cms/component/sw-cms-block-layout-config', () => {
         const selector = `.sw-cms-block-layout-config__${kebabCase(property)}`;
 
         expect(wrapper.get(selector)).toBeTruthy();
-        expect(wrapper.get(selector).attributes('value')).toBe(value);
+        expect(wrapper.findComponent(selector).props('modelValue')).toBe(value);
     });
 });

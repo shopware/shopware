@@ -11,10 +11,7 @@ async function createWrapper(errors = {}, options = {}) {
         attachTo: document.body,
         global: {
             stubs: {
-                'sw-alert': await wrapTestComponent('sw-alert'),
-                'sw-alert-deprecated': await wrapTestComponent('sw-alert-deprecated'),
                 'sw-icon': true,
-                'mt-banner': true,
             },
             ...options,
         },
@@ -34,7 +31,7 @@ describe('src/app/component/base/sw-error-summary/index.js', () => {
     });
 
     it('should not show alert box without errors', () => {
-        const alert = wrapper.find('.sw-alert');
+        const alert = wrapper.find('[role="banner"]');
 
         expect(alert.exists()).toBeFalsy();
     });
@@ -66,14 +63,14 @@ describe('src/app/component/base/sw-error-summary/index.js', () => {
         );
         await flushPromises();
 
-        const alert = wrapper.find('.sw-alert');
+        const alert = wrapper.find('[role="banner"]');
         expect(alert.exists()).toBeTruthy();
 
         const quantity = wrapper.find('.sw-error-summary__quantity');
         expect(quantity.exists()).toBeTruthy();
         expect(quantity.text()).toBe('2x');
 
-        const message = wrapper.find('.sw-alert__message');
+        const message = wrapper.find('.mt-banner__message');
         expect(message.exists()).toBeTruthy();
         expect(message.text()).toBe('2x "Error 1"');
     });

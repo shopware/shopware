@@ -150,7 +150,6 @@ async function createWrapper(privileges = []) {
                 'sw-switch-field': true,
                 'sw-product-variant-info': true,
                 'sw-text-field-deprecated': true,
-                'sw-button': true,
                 'sw-ai-copilot-badge': true,
             },
         },

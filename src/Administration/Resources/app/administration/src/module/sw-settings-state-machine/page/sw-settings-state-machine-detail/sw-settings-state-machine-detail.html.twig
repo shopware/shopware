@@ -59,8 +59,9 @@
                     gap="0px 30px"
                 >
                     {% block sw_settings_state_machine_detail_content_card_name %}
-                    <sw-text-field
-                        v-model:value="stateMachine.name"
+
+                    <mt-text-field
+                        v-model="stateMachine.name"
                         :label="$tc('sw-settings-state-machine.detail.fieldLabels.name')"
                         :error="stateMachineNameError"
                         required
@@ -68,8 +69,9 @@
                     {% endblock %}
 
                     {% block sw_settings_state_machine_detail_content_card_technical_name %}
-                    <sw-text-field
-                        v-model:value="stateMachine.technicalName"
+
+                    <mt-text-field
+                        v-model="stateMachine.technicalName"
                         :label="$tc('sw-settings-state-machine.detail.fieldLabels.technicalName')"
                         :disabled="true"
                         required

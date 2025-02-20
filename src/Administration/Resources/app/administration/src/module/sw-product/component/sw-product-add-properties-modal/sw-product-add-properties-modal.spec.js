@@ -32,8 +32,6 @@ async function createWrapper() {
                     'sw-property-search': await wrapTestComponent('sw-property-search'),
                     'sw-pagination': await wrapTestComponent('sw-pagination'),
                     'sw-loader': await wrapTestComponent('sw-loader'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-icon': await wrapTestComponent('sw-icon'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),

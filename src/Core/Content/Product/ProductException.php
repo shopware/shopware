@@ -3,9 +3,9 @@
 namespace Shopware\Core\Content\Product;
 
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('inventory')]
@@ -18,6 +18,7 @@ class ProductException extends HttpException
     public const SORTING_NOT_FOUND = 'PRODUCT_SORTING_NOT_FOUND';
     public const PRODUCT_CONFIGURATION_OPTION_ALREADY_EXISTS = 'PRODUCT_CONFIGURATION_OPTION_EXISTS_ALREADY';
     public const PRODUCT_INVALID_OPTIONS_PARAMETER = 'PRODUCT_INVALID_OPTIONS_PARAMETER';
+    final public const PRODUCT_REVIEW_NOT_ACTIVE = 'PRODUCT__REVIEW_NOT_ACTIVE';
 
     public static function invalidCheapestPriceFacade(string $id): self
     {
@@ -86,8 +87,19 @@ class ProductException extends HttpException
         );
     }
 
-    public static function reviewNotActive(): ShopwareHttpException
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return `self` in the future
+     */
+    public static function reviewNotActive(): self|ReviewNotActiveExeption
     {
-        return new ReviewNotActiveExeption();
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new ReviewNotActiveExeption();
+        }
+
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::PRODUCT_REVIEW_NOT_ACTIVE,
+            'Reviews not activated'
+        );
     }
 }

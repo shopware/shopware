@@ -35,7 +35,6 @@ async function createWrapper(privileges = []) {
             `,
                     },
                     'sw-icon': true,
-                    'sw-button': true,
                     'sw-search-bar': true,
                     'sw-card-view': true,
                     'sw-tabs': true,
@@ -95,7 +94,7 @@ describe('module/sw-flow/page/sw-flow-index', () => {
         const wrapper = await createWrapper();
         const createButton = wrapper.find('.sw-flow-list__create');
 
-        expect(createButton.attributes().disabled).toBe('true');
+        expect(createButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be show a number of flows', async () => {

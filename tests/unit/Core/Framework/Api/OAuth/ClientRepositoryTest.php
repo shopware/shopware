@@ -155,12 +155,12 @@ class ClientRepositoryTest extends TestCase
      */
     public static function getClientEntityDataProvider(): iterable
     {
-        yield 'user origin clientIdentifier' => ['SWUAUSERCORRECT', new ApiClient('SWUAUSERCORRECT', true, 'foo')];
+        yield 'user origin clientIdentifier' => ['SWUAUSERCORRECT', new ApiClient('SWUAUSERCORRECT', true, 'foo', true)];
         yield 'user origin clientIdentifier invalid' => ['SWUAUSERINVALID', null];
-        yield 'integration origin clientIdentifier' => ['SWIAINTEGRATION', new ApiClient('SWIAINTEGRATION', true, 'foo')];
+        yield 'integration origin clientIdentifier' => ['SWIAINTEGRATION', new ApiClient('SWIAINTEGRATION', true, 'foo', true)];
         yield 'integration origin clientIdentifier invalid' => ['SWIAINTEGRATIONINVALID', null];
         yield 'integration origin clientIdentifier inactive' => ['SWIAINTEGRATIONINACTIVE', null];
         yield 'sales channel origin clientIdentifier' => ['SWSCSALESCHANNEL', null];
-        yield 'administration clientIdentifier' => ['administration', new ApiClient('administration', true)];
+        yield 'administration clientIdentifier' => ['administration', new ApiClient('administration', true, confidential: false)];
     }
 }

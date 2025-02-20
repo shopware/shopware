@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import findByText from '../../../../../test/_helper_/find-by-text';
 
 /**
  * @sw-package checkout
@@ -19,8 +20,6 @@ async function createWrapper() {
                     'sw-modal': {
                         template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
                     },
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-container': await wrapTestComponent('sw-container'),
                     'sw-customer-address-form': await wrapTestComponent('sw-customer-address-form'),
                     'sw-customer-address-form-options': await wrapTestComponent('sw-customer-address-form-options'),
@@ -98,7 +97,7 @@ describe('src/module/sw-order/component/sw-order-create-address-modal', () => {
         expect(Shopware.Store.get('error').api.customer_address).toBeUndefined();
 
         // submit form
-        await swModalEditAddress.find('.sw-button--primary').trigger('click');
+        await findByText(swModalEditAddress, 'button', 'sw-customer.detailAddresses.buttonSaveAndSelect').trigger('click');
 
         expect(Shopware.Store.get('error').api).toHaveProperty('customer_address.12345.company');
         expect(Shopware.Store.get('error').api.customer_address['12345'].company).toBeInstanceOf(ShopwareError);

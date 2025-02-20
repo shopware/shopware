@@ -78,7 +78,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-translat
         await flushPromises();
 
         expect(wrapper.find('.sw-custom-field-translated-labels__single').exists()).toBe(true);
-        expect(wrapper.findAll('.sw-field')).toHaveLength(2);
+        expect(wrapper.findAll('.mt-field')).toHaveLength(2);
     });
 
     it.each([
@@ -110,15 +110,15 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-translat
 
         expect(wrapper.findAll('.sw-custom-field-translated-labels__translated-labels-field')).toHaveLength(2);
         expect(wrapper.findAll('.sw-custom-field-translated-labels__translated-content-field')).toHaveLength(2);
-        expect(wrapper.findAll('.sw-custom-field-translated-labels__translated-content-field')[0].attributes('label')).toBe(
-            'label1 (locale.en-GB)',
-        );
+        expect(
+            wrapper.findAllComponents('.sw-custom-field-translated-labels__translated-content-field')[0].props('label'),
+        ).toBe('label1 (locale.en-GB)');
 
         await wrapper.findAll('.sw-custom-field-translated-labels__translated-labels-field')[1].trigger('click');
         expect(wrapper.findAll('.sw-custom-field-translated-labels__translated-content-field')).toHaveLength(2);
-        expect(wrapper.findAll('.sw-custom-field-translated-labels__translated-content-field')[0].attributes('label')).toBe(
-            'label1 (locale.de-DE)',
-        );
+        expect(
+            wrapper.findAllComponents('.sw-custom-field-translated-labels__translated-content-field')[0].props('label'),
+        ).toBe('label1 (locale.de-DE)');
     });
 
     it('should update multiple locales with tabs', async () => {

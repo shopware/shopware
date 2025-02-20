@@ -168,13 +168,14 @@
         <template #modal-footer>
 
             {% block sw_promotion_v2_settings_discount_type_advanced_prices_modal_footer_button_close %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 variant="primary"
                 size="small"
                 @click="onCloseAdvancedPricesModal"
             >
                 {{ $tc('sw-promotion-v2.detail.discounts.pricesModal.closeModal') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
         </template>

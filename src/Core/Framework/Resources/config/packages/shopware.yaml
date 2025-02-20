@@ -12,7 +12,6 @@ shopware:
             ban_method: "BAN" # This can defer from used reverse proxy
             hosts: [ "http://varnish" ]
             max_parallel_invalidations: 2
-            redis_url: "redis://redis"
             purge_all:
             fastly:
 
@@ -506,12 +505,7 @@ shopware:
 
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'
-        tagging:
-            each_snippet: true
-            each_config: true
-            each_theme_config: true
         invalidation:
-            delay: 0
             delay_options:
                 storage: mysql
             http_cache: ['logged-in', 'cart-filled']

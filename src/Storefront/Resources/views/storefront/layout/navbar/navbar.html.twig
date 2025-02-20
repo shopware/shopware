@@ -24,10 +24,6 @@
                         {% endblock %}
 
                         {% block layout_navbar_menu_items %}
-                            {# @deprecated tag:v6.7.0 - variable `activePath` will be removed #}
-                            {% if not feature('v6.7.0.0') %}
-                                {% set activePath = '|' ~ shopware.navigation.pathIdList|join('|') ~ '|' %}
-                            {% endif %}
 
                             {% for treeItem in header.navigation.tree %}
                                 {% set category = treeItem.category %}

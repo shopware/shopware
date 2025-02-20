@@ -35,6 +35,7 @@ const baseRules = {
     'vue/multi-word-component-names': ['error', {
         ignores: ['index.html'],
     }],
+    'func-names': 'off',
 };
 
 module.exports = {
@@ -171,6 +172,7 @@ module.exports = {
                 'test/eslint/**/*.html.twig',
             ],
             rules: {
+                'no-warning-comments': ['error', { location: 'anywhere' }],
                 'vue/component-name-in-template-casing': ['error', 'kebab-case', {
                     registeredComponentsOnly: true,
                     ignores: [],
@@ -201,9 +203,15 @@ module.exports = {
                 'vue/no-deprecated-slot-attribute': ['error'],
                 'vue/no-deprecated-slot-scope-attribute': ['error'],
                 // @deprecated v.6.7.0.0 - will be error in v.6.7
-                'sw-deprecation-rules/no-deprecated-components': ['warn', 'disableFix'],
+                'sw-deprecation-rules/no-deprecated-components': ['error', {
+                    fix: true,
+                    activatedComponents: [
+                        'sw-alert',
+                        'sw-text-field'
+                    ],
+                }],
                 // @deprecated v.6.7.0.0 - will be error in v.6.7
-                'sw-deprecation-rules/no-deprecated-component-usage': ['warn', 'disableFix'],
+                'sw-deprecation-rules/no-deprecated-component-usage': ['error', 'enableFix'],
                 'vue/no-useless-template-attributes': 'error',
                 'vue/no-lone-template': 'error',
 
@@ -240,6 +248,7 @@ module.exports = {
                 'jest/require-top-level-describe': 'error',
                 'jest/prefer-to-contain': 'error',
                 'jest/prefer-to-have-length': 'error',
+                'jest/no-disabled-tests': 'warn',
                 'jest/consistent-test-it': ['error', { fn: 'it', withinDescribe: 'it' }],
                 'jest/valid-expect': [
                     'error',
@@ -247,6 +256,8 @@ module.exports = {
                         maxArgs: 2,
                     },
                 ],
+                'jest/no-disabled-tests': 'error',
+                'func-names': 'off',
             },
             extends: [
                 'plugin:jest/recommended',

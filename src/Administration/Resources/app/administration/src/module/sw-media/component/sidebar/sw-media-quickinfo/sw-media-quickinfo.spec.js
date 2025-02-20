@@ -72,7 +72,7 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                             <slot></slot>
                         </div>`,
                 },
-                'sw-alert': true,
+
                 'sw-icon': true,
                 'sw-media-collapse': {
                     template: `

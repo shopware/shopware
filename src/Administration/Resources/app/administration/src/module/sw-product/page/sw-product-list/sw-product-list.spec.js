@@ -305,9 +305,6 @@ async function createWrapper() {
                     'sw-icon': {
                         template: '<div></div>',
                     },
-                    'sw-button': {
-                        template: '<div></div>',
-                    },
                     'sw-sidebar': {
                         template: '<div></div>',
                     },

@@ -26,12 +26,12 @@
         gap: 12px;
     }
 
-    &__actions .sw-button {
+    &__actions .mt-button {
         color: $color-darkgray-200;
         padding: 2px 12px;
     }
 
-    &__actions .sw-button .sw-button__content {
+    &__actions .mt-button .sw-button__content {
         justify-content: start;
     }
 }

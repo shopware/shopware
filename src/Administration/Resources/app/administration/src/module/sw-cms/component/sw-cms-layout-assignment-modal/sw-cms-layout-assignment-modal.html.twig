@@ -313,36 +313,39 @@
 
         <template #modal-footer>
             {% block sw_cms_layout_assignment_modal_confirm_changes_keep_editing %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 class="sw-cms-layout-assignment-modal__action-keep-editing"
                 size="small"
                 @click="onKeepEditing"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             <div class="sw-cms-layout-assignment-modal__confirm-changes-modal-main-actions">
                 {% block sw_cms_layout_assignment_modal_confirm_changes_discard %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     class="sw-cms-layout-assignment-modal__action-changes-discard"
-                    variant="ghost"
+                    ghost
                     size="small"
                     @click="onDiscardChanges"
                 >
                     {{ $tc('global.default.discard') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_cms_layout_assignment_modal_confirm_changes_confirm %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     class="sw-cms-layout-assignment-modal__action-changes-confirm"
                     variant="primary"
                     size="small"
                     @click="onConfirmChanges"
                 >
                     {{ $tc('global.default.confirm') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </div>
         </template>
@@ -352,18 +355,20 @@
     {% block sw_cms_layout_assignment_modal_actions %}
     <template #modal-footer>
         {% block sw_cms_layout_assignment_action_abort %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             :disabled="isLoading"
             class="sw-cms-layout-assignment-modal__action-cancel"
             size="small"
             @click="onAbort"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_cms_layout_assignment_action_confirm %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             :disabled="isLoading"
             class="sw-cms-layout-assignment-modal__action-confirm"
             size="small"
@@ -371,7 +376,7 @@
             @click="onConfirm"
         >
             {{ $tc('global.default.apply') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

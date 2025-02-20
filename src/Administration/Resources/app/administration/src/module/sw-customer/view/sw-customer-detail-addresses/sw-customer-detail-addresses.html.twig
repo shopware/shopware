@@ -15,7 +15,8 @@
             >
                 <template #filter>
                     {% block sw_customer_detail_addresses_add_button %}
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         class="sw-customer-detail-addresses__add-address-action"
                         :disabled="!customerEditMode"
                         size="small"
@@ -26,7 +27,7 @@
                             small
                         />
                         {{ $tc('sw-customer.detailAddresses.buttonAddAddress') }}
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
                 </template>
             </sw-card-filter>
@@ -59,22 +60,24 @@
             {% block sw_customer_detail_addresses_add_modal_footer %}
             <template #modal-footer>
                 {% block sw_customer_detail_addresses_add_modal_cancel %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="small"
                     @click="onCloseAddressModal"
                 >
                     {{ $tc('global.default.cancel') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_customer_detail_addresses_add_modal_apply %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     variant="primary"
                     size="small"
                     @click="onSaveAddress"
                 >
                     {{ $tc('global.default.apply') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </template>
             {% endblock %}
@@ -214,22 +217,24 @@
                         {% block sw_customer_detail_addresses_delete_modal_footer %}
                         <template #modal-footer>
                             {% block sw_customer_detail_addresses_delete_modal_cancel %}
-                            <sw-button
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
                                 size="small"
                                 @click="onCloseDeleteAddressModal"
                             >
                                 {{ $tc('global.default.cancel') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
 
                             {% block sw_customer_detail_addresses_delete_modal_confirm %}
-                            <sw-button
-                                variant="danger"
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
+                                variant="critical"
                                 size="small"
                                 @click="onConfirmDeleteAddress(item.id)"
                             >
                                 {{ $tc('sw-customer.detailAddresses.buttonDelete') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
                         </template>
                         {% endblock %}

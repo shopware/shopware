@@ -16,11 +16,12 @@
 
     {% block sw_media_media_item_name_container %}
     <template #name="{ item, isInlineEdit, startInlineEdit, endInlineEdit }">
-        <sw-text-field
+
+        <mt-text-field
             v-if="isInlineEdit"
             v-autofocus
             class="sw-media-base-item__name-field"
-            :value="item.fileName"
+            :model-value="item.fileName"
             name="media-item-name"
             @blur="onBlur($event, item, endInlineEdit)"
             @keyup.esc="endInlineEdit"

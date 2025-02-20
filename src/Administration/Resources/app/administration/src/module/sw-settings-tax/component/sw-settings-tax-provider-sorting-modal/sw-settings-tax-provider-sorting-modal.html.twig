@@ -35,12 +35,13 @@
     </template>
 
     <template #modal-footer>
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-settings-tax-provider-sorting-modal__cancel-button"
             @click="closeModal"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
 
         <sw-button-process
             class="sw-settings-tax-provider-sorting-modal__save-button"

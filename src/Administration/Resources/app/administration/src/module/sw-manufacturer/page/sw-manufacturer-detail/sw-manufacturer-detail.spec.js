@@ -75,7 +75,6 @@ async function createWrapper(privileges = []) {
                 'sw-language-info': true,
                 'sw-empty-state': true,
                 'sw-container': await wrapTestComponent('sw-container'),
-                'sw-button': true,
                 'sw-skeleton': true,
                 'sw-language-switch': true,
                 'sw-context-menu-item': true,
@@ -151,7 +150,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
         expect(logoUpload.exists()).toBeTruthy();
         expect(logoUpload.attributes('disabled')).toBeFalsy();
 
-        const elements = wrapper.findAll('.sw-field');
+        const elements = wrapper.findAll('.mt-field');
         expect(elements).toHaveLength(2);
         elements.forEach((el) => expect(el.attributes().disabled).toBeUndefined());
 
@@ -168,9 +167,9 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
         expect(logoUpload.exists()).toBeTruthy();
         expect(logoUpload.attributes('disabled')).toBeTruthy();
 
-        const elements = wrapper.findAll('.sw-field');
+        const elements = wrapper.findAllComponents('.mt-field');
         expect(elements).toHaveLength(2);
-        elements.forEach((el) => expect(el.attributes().disabled).toBe('true'));
+        elements.forEach((el) => expect(el.props().disabled).toBe(true));
 
         const textEditor = wrapper.find('.mt-text-editor');
         expect(textEditor.exists()).toBeTruthy();

@@ -7,18 +7,20 @@
 >
     {% block sw_snippet_field_edit_modal_body %}
     {% block sw_snippet_field_edit_modal_name_field %}
-    <sw-text-field
-        :value="translationKey"
+
+    <mt-text-field
+        :model-value="translationKey"
         disabled
         :label="$tc('global.sw-snippet-field-edit-modal.labelName')"
     />
     {% endblock %}
     {% block sw_snippet_field_edit_modal_snippet_fields %}
     <template v-if="textField">
-        <sw-text-field
+
+        <mt-text-field
             v-for="(snippet, index) in editableSnippets"
             :key="snippet.setId"
-            v-model:value="snippet.value"
+            v-model="snippet.value"
             v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
             class="sw-snippet-field-edit-modal__translation-field"
             :class="`sw-snippet-field-edit-modal__translation-field--${index}`"
@@ -47,15 +49,17 @@
     <template #modal-footer>
         {% block sw_snippet_field_edit_modal_footer %}
         {% block sw_snippet_field_edit_modal_close_button %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             size="small"
             @click="closeModal"
         >
             {{ $tc('global.sw-modal.labelClose') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
         {% block sw_snippet_field_edit_modal_footer_button %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip="getNoPermissionsTooltip('snippet.editor')"
             class="sw-snippet-field-edit-modal__save-action"
             size="small"
@@ -64,7 +68,7 @@
             @click="onSave"
         >
             {{ $tc('global.default.save') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
         {% endblock %}
     </template>

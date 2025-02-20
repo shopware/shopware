@@ -112,7 +112,7 @@
 
                         {% block sw_settings_cache_content_clear_data_cache_row_button %}
                         <sw-button-process
-                            variant="ghost"
+                            ghost
                             :is-loading="processes.normalClearCache"
                             :process-success="processSuccess.normalClearCache"
                             @update:process-success="resetButtons"
@@ -147,7 +147,7 @@
 
                         {% block sw_settings_cache_content_clear_cache_row_button %}
                         <sw-button-process
-                            variant="ghost"
+                            ghost
                             :is-loading="processes.normalClearCache"
                             :process-success="processSuccess.normalClearCache"
                             @update:process-success="resetButtons"
@@ -263,7 +263,7 @@
                         <sw-button-process
                             name="updateIndexesButton"
                             class="sw-button--large"
-                            variant="ghost"
+                            ghost
                             :is-loading="processes.updateIndexes"
                             :process-success="processSuccess.updateIndexes"
                             @update:process-success="resetButtons"

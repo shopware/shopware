@@ -33,23 +33,26 @@
                     v-if="cmsPage"
                     class="sw-generic-cms-page-assignment__page-selection-actions"
                 >
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         class="sw-generic-cms-page-assignment__change-layout-action"
                         size="small"
                         @click="openLayoutModal"
                     >
                         {{ $tc('sw-category.base.cms.changeLayout') }}
-                    </sw-button>
+                    </mt-button>
 
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         class="sw-generic-cms-page-assignment__open-in-pagebuilder"
                         size="small"
                         @click="openInCmsEditor"
                     >
                         {{ $tc('sw-category.base.cms.editInPagebuilder') }}
-                    </sw-button>
+                    </mt-button>
 
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         size="small"
                         class="sw-generic-cms-page-assignment__layout-reset"
                         square
@@ -59,28 +62,30 @@
                             name="regular-trash"
                             small
                         />
-                    </sw-button>
+                    </mt-button>
                 </div>
 
                 <div
                     v-else
                     class="sw-generic-cms-page-assignment__page-selection-actions"
                 >
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         class="sw-generic-cms-page-assignment__change-layout-action"
                         size="small"
                         @click="openLayoutModal"
                     >
                         {{ $tc('sw-category.base.cms.changeLayoutEmpty') }}
-                    </sw-button>
+                    </mt-button>
 
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         class="sw-generic-cms-page-assignment__create-layout"
                         size="small"
                         @click="createNewLayout"
                     >
                         {{ $tc('sw-category.base.cms.editInPagebuilderEmpty') }}
-                    </sw-button>
+                    </mt-button>
                 </div>
             </div>
         </div>

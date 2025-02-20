@@ -13,13 +13,14 @@
         {% endblock %}
 
         {% block sw_product_variants_configurator_restrictions_buttons %}
-        <sw-button
-            variant="ghost"
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
+            ghost
             size="small"
             @click="addEmptyRestrictionCombination"
         >
             {{ $tc('sw-product.variations.configuratorModal.addNewRestriction') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </div>
     {% endblock %}
@@ -115,12 +116,13 @@
             {% endblock %}
 
             {% block sw_product_variants_configurator_restrictions_modal_main_button_new_restriction %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 class="sw-product-variants-configurator-restrictions__button-new-restriction"
                 @click="addEmptyRestriction"
             >
                 {{ $tc('sw-product.variations.configuratorModal.singleRestrictionSeperation') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </div>
         {% endblock %}
@@ -128,21 +130,23 @@
         {% block sw_product_variants_configurator_restrictions_modal_footer %}
         <template #modal-footer>
             {% block sw_product_variants_configurator_restrictions_modal_footer_cancel %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
                 @click="cancelAddRestriction"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
             {% block sw_product_variants_configurator_restrictions_modal_footer_save_add_restriction %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 variant="primary"
                 size="small"
                 @click="saveAddRestriction"
             >
                 {{ $tc('sw-product.variations.configuratorModal.save') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
         {% endblock %}

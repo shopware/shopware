@@ -37,13 +37,14 @@
     </template>
 
     <template #smart-bar-actions>
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             variant="primary"
             class="sw-extension-config__save-action"
             @click.prevent="onSave"
         >
             {{ $tc('global.default.save') }}
-        </sw-button>
+        </mt-button>
     </template>
 
     <template #default>

@@ -9,12 +9,7 @@ use Shopware\Storefront\Pagelet\Pagelet;
 #[Package('discovery')]
 class GuestWishlistPagelet extends Pagelet
 {
-    /**
-     * @var ProductListResponse
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $searchResult;
+    protected ProductListResponse $searchResult;
 
     public function getSearchResult(): ProductListResponse
     {

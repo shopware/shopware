@@ -12,7 +12,8 @@
         >
             <template #filter>
                 {% block sw_customer_detail_order_add_button %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
                         disabled: acl.can('order.creator'),
@@ -28,7 +29,7 @@
                         small
                     />
                     {{ $tc('sw-customer.detailOrder.buttonCreateOrder') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </template>
         </sw-card-filter>
@@ -104,19 +105,20 @@
 
             <template #actions>
                 {% block sw_customer_detail_order_card_grid_empty_state_action %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
                         disabled: acl.can('order.creator'),
                         showOnDisabledElements: true
                     }"
-                    variant="ghost"
+                    ghost
                     class="sw-customer-detail-order__add-order-action"
                     :disabled="!acl.can('order.creator')"
                     @click="navigateToCreateOrder"
                 >
                     {{ $tc('sw-customer.detailOrder.buttonCreateOrder') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </template>
         </sw-empty-state>

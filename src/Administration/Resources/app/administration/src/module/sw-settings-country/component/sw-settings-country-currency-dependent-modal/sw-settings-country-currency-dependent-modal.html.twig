@@ -79,16 +79,18 @@
     {% block sw_settings_country_currency_dependent_modal_footer %}
     <template #modal-footer>
         {% block sw_settings_country_currency_dependent_modal_close %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-settings-country-currency-dependent-modal__cancel-button"
             size="small"
             :disabled="!acl.can('country.editor') || undefined"
             @click="closeModal"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
 
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-settings-country-currency-dependent-modal__save-button"
             variant="primary"
             size="small"
@@ -96,7 +98,7 @@
             @click="saveModal"
         >
             {{ $tc('global.default.save') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

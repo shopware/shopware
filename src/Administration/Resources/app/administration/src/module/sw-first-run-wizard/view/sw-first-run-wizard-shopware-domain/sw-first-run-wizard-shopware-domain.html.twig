@@ -14,8 +14,9 @@
     />
 
     <div v-if="createShopDomain">
-        <sw-text-field
-            v-model:value="newShopDomain"
+
+        <mt-text-field
+            v-model="newShopDomain"
             name="newShopDomain"
             validation="required"
             :label="'Shop domain'"
@@ -44,13 +45,12 @@
         v-if="domainError"
         class="sw-first-run-wizard-shopware-domain__error"
     >
-        <sw-alert
+        <mt-banner
             :title="domainError.title"
-            variant="error"
-            appearance="notification"
+            variant="critical"
         >
             {{ domainError.detail }}
-        </sw-alert>
+        </mt-banner>
     </div>
 
     <sw-loader v-if="isLoading" />

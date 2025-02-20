@@ -31,13 +31,14 @@
                 {{ $tc('sw-inactivity-login.modal.actions.backToLogin') }}
             </a>
 
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 variant="primary"
                 :is-loading="isLoading"
                 @click="loginUserWithPassword"
             >
                 {{ $tc('sw-login.index.buttonLogin') }}
-            </sw-button>
+            </mt-button>
         </template>
     </sw-modal>
 </div>

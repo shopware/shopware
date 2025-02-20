@@ -53,7 +53,6 @@ async function createWrapper(privileges = []) {
                     'sw-custom-field-type-checkbox': true,
                     'sw-number-field': true,
                     'sw-text-field': true,
-                    'sw-button': true,
                     'sw-multi-select': true,
                     'sw-loader': true,
                     'sw-switch-field': true,
@@ -71,11 +70,11 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-set-deta
         ]);
         await flushPromises();
 
-        const technicalNameField = wrapper.find('.sw-settings-custom-field-set-detail-base__technical-name');
+        const technicalNameField = wrapper.findComponent('.sw-settings-custom-field-set-detail-base__technical-name');
         const positionField = wrapper.find('.sw-settings-custom-field-set-detail-base__base-postion');
         const entitiesField = wrapper.find('.sw-settings-custom-field-set-detail-base__label-entities');
 
-        expect(technicalNameField.attributes('disabled')).toBeFalsy();
+        expect(technicalNameField.props('disabled')).toBeFalsy();
         expect(positionField.attributes('disabled')).toBeFalsy();
         expect(entitiesField.attributes('disabled')).toBeFalsy();
     });
@@ -83,11 +82,11 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-set-deta
     it('cannot edit fields', async () => {
         const wrapper = await createWrapper();
 
-        const technicalNameField = wrapper.find('.sw-settings-custom-field-set-detail-base__technical-name');
+        const technicalNameField = wrapper.findComponent('.sw-settings-custom-field-set-detail-base__technical-name');
         const positionField = wrapper.find('.sw-settings-custom-field-set-detail-base__base-postion');
         const entitiesField = wrapper.find('.sw-settings-custom-field-set-detail-base__label-entities');
 
-        expect(technicalNameField.attributes('disabled')).toBeTruthy();
+        expect(technicalNameField.props('disabled')).toBeTruthy();
         expect(positionField.attributes('disabled')).toBeTruthy();
         expect(entitiesField.attributes('disabled')).toBeTruthy();
     });

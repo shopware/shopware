@@ -14,7 +14,6 @@ async function createWrapper(propsData = {}) {
             },
             stubs: {
                 'sw-modal': true,
-                'sw-button': true,
                 'sw-switch-field': true,
             },
             provide: {},

@@ -38,7 +38,8 @@
     {% block sw_settings_delivery_time_list_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_delivery_time_list_smart_bar_actions_create %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('delivery_times.creator'),
@@ -47,10 +48,10 @@
             class="sw-settings-delivery-time-list__create"
             variant="primary"
             :disabled="!acl.can('delivery_times.creator') || undefined"
-            :router-link="{ name: 'sw.settings.delivery.time.create' }"
+            @click="$router.push({ name: 'sw.settings.delivery.time.create' })"
         >
             {{ $tc('sw-settings-delivery-time.general.buttonCreate') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

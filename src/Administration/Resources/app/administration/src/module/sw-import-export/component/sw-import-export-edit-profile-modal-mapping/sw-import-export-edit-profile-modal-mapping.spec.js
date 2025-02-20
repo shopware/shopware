@@ -64,13 +64,13 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                     },
                     stubs: {
                         'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
-                        'sw-button': await wrapTestComponent('sw-button'),
                         'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                         'sw-import-export-entity-path-select': true,
                         'sw-context-menu-item': true,
                         'sw-context-button': true,
                         'sw-switch-field': true,
                         'sw-text-field': await wrapTestComponent('sw-text-field'),
+                        'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                         'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                         'sw-block-field': await wrapTestComponent('sw-block-field'),
                         'sw-base-field': await wrapTestComponent('sw-base-field'),
@@ -129,14 +129,14 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         });
     });
 
-    it.skip('should be a Vue.js component', async () => {
+    it('should be a Vue.js component', async () => {
         wrapper = await createWrapper(getProfileMock());
         await flushPromises();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it.skip('should sort mappings by their position', async () => {
+    it('should sort mappings by their position', async () => {
         const mappingsInCorrectOrder = getDefaultMappingOrder();
 
         wrapper = await createWrapper(getProfileMock());
@@ -152,7 +152,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         });
     });
 
-    it.skip('should swap items downwards', async () => {
+    it('should swap items downwards', async () => {
         const mappingsInCorrectOrder = getDefaultMappingOrder();
 
         wrapper = await createWrapper(getProfileMock());
@@ -167,7 +167,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
             expect(mappingsInCorrectOrder[index].position).toBe(index);
         });
 
-        const downwardsButton = wrapper.find('.sw-data-grid__row--0 .sw-button-group .sw-button:last-of-type');
+        const downwardsButton = wrapper.find('.sw-data-grid__row--0 .sw-button-group .mt-button:last-of-type');
 
         await downwardsButton.trigger('click');
 
@@ -197,7 +197,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         expect(emittedMappings).toEqual(customMappingOrder);
     });
 
-    it.skip('should swap items upwards', async () => {
+    it('should swap items upwards', async () => {
         const mappingsInCorrectOrder = getDefaultMappingOrder();
 
         wrapper = await createWrapper(getProfileMock());
@@ -212,7 +212,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
             expect(mappingsInCorrectOrder[index].position).toBe(index);
         });
 
-        const downwardsButton = wrapper.find('.sw-data-grid__row--2 .sw-button-group .sw-button:first-of-type');
+        const downwardsButton = wrapper.find('.sw-data-grid__row--2 .sw-button-group .mt-button:first-of-type');
 
         await downwardsButton.trigger('click');
 
@@ -242,9 +242,9 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         expect(emittedMappings).toEqual(customMappingOrder);
     });
 
-    it.skip.each([
-        ['.sw-data-grid__row--0 .sw-button-group .sw-button:first-of-type'],
-        ['.sw-data-grid__row--2 .sw-button-group .sw-button:last-of-type'],
+    it.each([
+        ['.sw-data-grid__row--0 .sw-button-group .mt-button:first-of-type'],
+        ['.sw-data-grid__row--2 .sw-button-group .mt-button:last-of-type'],
     ])('should have a first disabled button', async (selector) => {
         const profileMock = getProfileMock();
         profileMock.systemDefault = false;
@@ -254,10 +254,10 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
 
         const upwardsButton = wrapper.find(selector);
 
-        expect(upwardsButton.classes()).toContain('sw-button--disabled');
+        expect(upwardsButton.attributes('disabled')).toBeDefined();
     });
 
-    it.skip('should add a mapping', async () => {
+    it('should add a mapping', async () => {
         const profileMock = getProfileMock();
         profileMock.systemDefault = false;
 
@@ -275,7 +275,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         expect(amountAfterCreation).toBe(4);
     });
 
-    it.skip('should have a disabled up button on newly created button', async () => {
+    it('should have a disabled up button on newly created button', async () => {
         const profileMock = getProfileMock();
         profileMock.systemDefault = false;
 
@@ -285,20 +285,20 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         const addButton = wrapper.find('.sw-import-export-edit-profile-modal-mapping__add-action');
         await addButton.trigger('click');
 
-        const firstMapping = wrapper.find('.sw-data-grid__row--0 .sw-button-group .sw-button:first-of-type');
-        expect(firstMapping.classes()).toContain('sw-button--disabled');
+        const firstMapping = wrapper.find('.sw-data-grid__row--0 .sw-button-group .mt-button:first-of-type');
+        expect(firstMapping.attributes('disabled')).toBeDefined();
 
         // check that the up button for the second mapping is not disabled
-        const secondMapping = wrapper.find('.sw-data-grid__row--1 .sw-button-group .sw-button:first-of-type');
+        const secondMapping = wrapper.find('.sw-data-grid__row--1 .sw-button-group .mt-button:first-of-type');
         expect(secondMapping.attributes('disabled')).toBeUndefined();
         expect(secondMapping.classes()).not.toContain('sw-button--disabled');
     });
 
-    it.skip('should have disabled buttons when searching', async () => {
+    it('should have disabled buttons when searching', async () => {
         wrapper = await createWrapper(getProfileMock());
         await flushPromises();
 
-        const enabledPositionButtons = wrapper.findAll('.sw-data-grid__cell--position .sw-button:not([disabled])');
+        const enabledPositionButtons = wrapper.findAll('.sw-data-grid__cell--position .mt-button:not([disabled])');
 
         expect(enabledPositionButtons).toHaveLength(4);
         enabledPositionButtons.forEach((button) => {
@@ -309,15 +309,15 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
             searchTerm: 'search term',
         });
 
-        const disabledPositionButtons = wrapper.findAll('.sw-data-grid__cell--position .sw-button');
+        const disabledPositionButtons = wrapper.findAll('.sw-data-grid__cell--position .mt-button');
 
         expect(disabledPositionButtons).toHaveLength(6);
         disabledPositionButtons.forEach((button) => {
-            expect(button.classes()).toContain('sw-button--disabled');
+            expect(button.attributes('disabled')).toBeDefined();
         });
     });
 
-    it.skip('should always use the direct neighbour when swapping items', async () => {
+    it('should always use the direct neighbour when swapping items', async () => {
         wrapper = await createWrapper(getProfileMock());
         await flushPromises();
 

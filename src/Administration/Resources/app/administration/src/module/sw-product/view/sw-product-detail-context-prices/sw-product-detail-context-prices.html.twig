@@ -50,7 +50,8 @@
                     {% endblock %}
 
                     {% block sw_product_detail_prices_price_card_toolbar_rule_delete %}
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         v-tooltip="{
                             message: $tc('sw-privileges.tooltip.warning'),
                             disabled: acl.can('product.editor'),
@@ -61,11 +62,12 @@
                         @click="onPriceGroupDelete(priceGroup.ruleId)"
                     >
                         {{ $tc('sw-product.prices.buttonPriceRuleDelete') }}
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
 
                     {% block sw_product_detail_prices_price_card_toolbar_add_price_rule %}
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         v-if="canAddPriceRule"
                         v-tooltip="{
                             message: $tc('sw-privileges.tooltip.warning'),
@@ -78,7 +80,7 @@
                         @click="onPriceGroupDuplicate(priceGroup)"
                     >
                         {{ $tc('sw-product.prices.buttonPriceRuleDuplicate') }}
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
 
                 </sw-container>
@@ -274,7 +276,8 @@
             columns="250x"
         >
             {% block sw_product_detail_prices_price_card_price_group_add_price_rule_button %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-if="canAddPriceRule"
                 v-tooltip="{
                     message: $tc('sw-privileges.tooltip.warning'),
@@ -282,13 +285,13 @@
                     showOnDisabledElements: true
                 }"
                 class="sw-product-detail-context-prices__add-new-rule"
-                variant="ghost"
+                ghost
                 :disabled="emptyPriceRuleExists || !acl.can('product.editor')"
                 size="small"
                 @click="onAddNewPriceGroup(null)"
             >
                 {{ $tc('sw-product.prices.buttonAddAdditionalPriceRuleGroup') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </sw-container>
         {% endblock %}

@@ -59,9 +59,6 @@
             "symfony/runtime": true
         }
     },
-    "conflict": {
-        "league/oauth2-server": "9.2.0"
-    },
     "require": {
         "php": "~8.2.0 || ~8.3.0 || ~8.4.0",
         "ext-curl": "*",
@@ -104,7 +101,6 @@
         "monolog/monolog": "^3.3.1",
         "nyholm/psr7": "^1.5",
         "opensearch-project/opensearch-php": "^2.3.1",
-        "padaliyajay/php-autoprefixer": "^1.4",
         "pentatrion/vite-bundle": "^7.0",
         "psr/cache": "^3.0.0",
         "psr/event-dispatcher": "^1.0.0",

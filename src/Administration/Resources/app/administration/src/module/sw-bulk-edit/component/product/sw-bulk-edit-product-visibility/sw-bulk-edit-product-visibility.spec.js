@@ -18,7 +18,6 @@ async function createWrapper() {
                     'sw-container': await wrapTestComponent('sw-container'),
                     'sw-icon': true,
                     'sw-product-visibility-detail': true,
-                    'sw-button': true,
                 },
                 provide: {
                     repositoryFactory: {

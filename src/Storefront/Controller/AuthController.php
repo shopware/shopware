@@ -33,7 +33,6 @@ use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageL
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
@@ -170,8 +169,7 @@ class AuthController extends StorefrontController
             $errorSnippet = $e->getSnippetKey();
         } catch (CustomerAuthThrottledException $e) {
             $waitTime = $e->getWaitTime();
-            // @deprecated tag:v6.7.0 - Remove catch for UnauthorizedHttpException
-        } catch (BadCredentialsException|CustomerNotFoundException|UnauthorizedHttpException) {
+        } catch (BadCredentialsException|CustomerNotFoundException) {
         } catch (PasswordPoliciesUpdatedException $e) {
             $this->addFlash(self::WARNING, $this->trans('account.passwordPoliciesUpdated'));
 

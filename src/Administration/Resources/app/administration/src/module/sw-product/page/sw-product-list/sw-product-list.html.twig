@@ -44,25 +44,27 @@
             split-button
         >
             {% block sw_product_list_smart_bar_actions_add %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-tooltip="{
                     message: $tc('sw-privileges.tooltip.warning'),
                     disabled: acl.can('product.creator'),
                     showOnDisabledElements: true
                 }"
                 class="sw-product-list__add-physical-button"
-                :router-link="{ name: 'sw.product.create', query: { creationStates: ['is-physical'] } }"
                 variant="primary"
                 :disabled="!acl.can('product.creator')"
+                @click="$router.push({ name: 'sw.product.create', query: { creationStates: ['is-physical'] } })"
             >
                 {{ $tc('sw-product.list.buttonAddProduct') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
             {% block sw_product_list_smart_bar_actions_add_download %}
             <sw-context-button class="sw-product-list__add-other-context-button">
                 <template #button>
                     {% block sw_product_list_smart_bar_actions_add_download_button %}
-                    <sw-button
+                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                    <mt-button
                         class="sw-product-list__button-context-menu"
                         square
                         variant="primary"
@@ -72,7 +74,7 @@
                             name="regular-chevron-down-xs"
                             size="16"
                         />
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
                 </template>
 
@@ -143,9 +145,10 @@
                 {% block sw_product_list_grid_columns_name %}
                 <template #column-name="{ item, isInlineEdit }">
                     {% block sw_product_list_grid_columns_name_inline_edit %}
-                    <sw-text-field
+
+                    <mt-text-field
                         v-if="isInlineEdit"
-                        v-model:value="item.name"
+                        v-model="item.name"
                         size="small"
                     />
                     {% endblock %}
@@ -153,7 +156,8 @@
                     {% block sw_product_list_grid_columns_name_content %}
                     <div v-else>
                         {% block sw_product_list_grid_columns_name_content_variant_button %}
-                        <sw-button
+                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                        <mt-button
                             v-if="productHasVariants(item)"
                             v-tooltip="{ message: $tc('sw-product.list.variantIndicatorTooltip') }"
                             class="sw-product-list__variant-indicator"
@@ -164,7 +168,7 @@
                                 name="regular-variants"
                                 size="14px"
                             />
-                        </sw-button>
+                        </mt-button>
                         {% endblock %}
 
                         {% block sw_product_list_grid_columns_name_content_link %}

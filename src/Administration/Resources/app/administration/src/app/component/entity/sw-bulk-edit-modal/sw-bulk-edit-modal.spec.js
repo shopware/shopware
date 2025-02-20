@@ -75,7 +75,6 @@ describe('src/app/component/entity/sw-bulk-edit-modal', () => {
                 template: '<div class="sw-checkbox-field"></div>',
             },
             'sw-icon': true,
-            'sw-button': true,
             'sw-select-field': true,
             'sw-loader': true,
             'sw-context-menu-item': true,

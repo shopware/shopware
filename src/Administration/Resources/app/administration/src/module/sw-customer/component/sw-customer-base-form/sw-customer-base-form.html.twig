@@ -34,8 +34,9 @@
             {% endblock %}
 
             {% block sw_customer_base_form_title_field %}
-            <sw-text-field
-                v-model:value="customer.title"
+
+            <mt-text-field
+                v-model="customer.title"
                 name="sw-field--customer-title"
                 :label="$tc('sw-customer.baseForm.labelTitle')"
                 :placeholder="$tc('sw-customer.baseForm.placeholderTitle')"
@@ -44,8 +45,9 @@
         </sw-container>
 
         {% block sw_customer_base_form_first_name_field %}
-        <sw-text-field
-            v-model:value="customer.firstName"
+
+        <mt-text-field
+            v-model="customer.firstName"
             name="sw-field--customer-firstName"
             required
             :label="$tc('sw-customer.baseForm.labelFirstName')"
@@ -55,8 +57,9 @@
         {% endblock %}
 
         {% block sw_customer_base_form_last_name_field %}
-        <sw-text-field
-            v-model:value="customer.lastName"
+
+        <mt-text-field
+            v-model="customer.lastName"
             name="sw-field--customer-lastName"
             required
             :label="$tc('sw-customer.baseForm.labelLastName')"
@@ -90,10 +93,11 @@
         {% endblock %}
 
         {% block sw_customer_base_form_vat_id_field %}
-        <sw-text-field
+
+        <mt-text-field
             v-if="isBusinessAccountType"
             id="vatId"
-            v-model:value="customer.vatIds[0]"
+            v-model="customer.vatIds[0]"
             name="vatId"
             :error="customerVatIdsError"
             :label="$tc('sw-customer.addressForm.labelVatId')"
@@ -141,8 +145,9 @@
         {% endblock %}
 
         {% block sw_customer_base_form_customer_number_field %}
-        <sw-text-field
-            v-model:value="customer.customerNumber"
+
+        <mt-text-field
+            v-model="customer.customerNumber"
             name="sw-field--customer-customerNumber"
             :label="$tc('sw-customer.baseForm.labelCustomerNumber')"
             :placeholder="$tc('sw-customer.baseForm.placeholderCustomerNumber')"

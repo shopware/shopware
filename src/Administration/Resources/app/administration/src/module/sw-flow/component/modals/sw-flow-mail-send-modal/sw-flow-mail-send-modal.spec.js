@@ -82,11 +82,6 @@ async function createWrapper(sequence = {}) {
                     </div>
                 `,
                 },
-                'sw-button': {
-                    emits: ['click'],
-                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                },
-                'sw-alert': true,
                 'sw-entity-multi-id-select': true,
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                 'sw-single-select': await wrapTestComponent('sw-single-select'),

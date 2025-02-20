@@ -57,7 +57,7 @@ describe('src/module/sw-settings-mailer/component/sw-settings-mailer-smtp', () =
         });
         await flushPromises();
 
-        const host = wrapper.find('.sw-field[label="sw-settings-mailer.card-smtp.host"] input').element.value;
+        const host = wrapper.find('input[aria-label="sw-settings-mailer.card-smtp.host"]').element.value;
         expect(host).toBe('https://example.com');
     });
 

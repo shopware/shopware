@@ -133,7 +133,6 @@
             <pay-url>https://payment.app/payment/process</pay-url>
             <finalize-url>https://payment.app/payment/finalize</finalize-url>
             <validate-url>https://payment.app/payment/validate</validate-url>
-            <capture-url>https://payment.app/payment/capture</capture-url>
             <refund-url>https://payment.app/payment/refund</refund-url>
             <recurring-url>https://payment.app/payment/recurring</recurring-url>
             <icon>Resources/payment.png</icon>

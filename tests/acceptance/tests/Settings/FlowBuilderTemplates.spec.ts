@@ -10,18 +10,15 @@ test('As an admin, I want to create new flows from templates, so that I can easi
         AdminApiContext,
 
     }) => {
-    //test.setTimeout(40_000);
-    // change flowTemplateName to test different flows/templates
-    const flowTemplateName = 'Order placed';
 
+    const flowTemplateName = 'Order placed';
     const flowTemplateSingleTerms = flowTemplateName.split(' ');
     const flowTemplateSearchTerm = flowTemplateSingleTerms[flowTemplateSingleTerms.length - 1];
     const uniqueId = IdProvider.getIdPair().uuid;
     const flowName = 'Test flow - ' + uniqueId;
 
     await test.step('Go to flow template detail page and retrieve template UUID', async () => {
-    // await ShopAdmin.goesTo(AdminFlowBuilderTemplates.url(`?limit=25&page=1&term=${flowTemplateSearchTerm}&sortBy=createdAt&sortDirection=DESC&naturalSorting=false`));
-    // todo: the line above replaces the following two lines as soon as NEXT-40094 is resolved
+    // todo: add search term to url() method as soon as NEXT-40094 is resolved
         await ShopAdmin.goesTo(AdminFlowBuilderTemplates.url());
         await ShopAdmin.expects(AdminFlowBuilderTemplates.searchBar).toBeVisible();
         await AdminFlowBuilderTemplates.searchBar.fill(flowTemplateSearchTerm);

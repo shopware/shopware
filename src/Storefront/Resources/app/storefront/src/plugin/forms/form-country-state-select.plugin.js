@@ -8,15 +8,15 @@ export default class CountryStateSelectPlugin extends Plugin {
 
     static options = {
         countrySelectSelector: '.country-select',
-        initialCountryAttribute: 'initial-country-id',
+        initialCountryAttribute: 'data-initial-country-id',
         countryStateSelectSelector: '.country-state-select',
-        initialCountryStateAttribute: 'initial-country-state-id',
+        initialCountryStateAttribute: 'data-initial-country-state-id',
         countryStatePlaceholderSelector: '[data-placeholder-option="true"]',
         vatIdFieldInput: '#vatIds',
         zipcodeFieldInput: '[data-input-name="zipcodeInput"]',
-        vatIdRequired: 'vat-id-required',
-        stateRequired: 'state-required',
-        zipcodeRequired: 'zipcode-required',
+        vatIdRequired: 'data-vat-id-required',
+        stateRequired: 'data-state-required',
+        zipcodeRequired: 'data-zipcode-required',
         scopeElementSelector: null,
         prefix: null,
     };

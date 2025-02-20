@@ -36,7 +36,7 @@ class ElementReplaceHelperSingleton {
      *
      * @param {NodeList|HTMLElement|string} src
      * @param {NodeList|HTMLElement|string} target
-     * @param {boolean} strict
+     * @param {boolean} strict - @deprecated tag:v6.8.0 - Parameter "strict" will be removed.
      *
      * @returns {boolean}
      */
@@ -61,7 +61,7 @@ class ElementReplaceHelperSingleton {
             return true;
         }
 
-        if (src instanceof NodeList) {
+        if (src instanceof NodeList && src.length) {
             src.forEach((srcEl, index) => {
                 if (srcEl.innerHTML) {
                     target[index].innerHTML = srcEl.innerHTML;
@@ -70,7 +70,7 @@ class ElementReplaceHelperSingleton {
             return true;
         }
 
-        if (target instanceof NodeList) {
+        if (target instanceof NodeList && target.length) {
             target.forEach((targetEl) => {
                 if (src.innerHTML) {
                     targetEl.innerHTML = src.innerHTML;
@@ -93,7 +93,7 @@ class ElementReplaceHelperSingleton {
      *
      * @param {HTMLElement} src
      * @param {Array} selectors
-     * @param {boolean} strict
+     * @param {boolean} strict - @deprecated tag:v6.8.0 - Parameter "strict" will be removed.
      *
      * @private
      */
@@ -133,7 +133,7 @@ export default class ElementReplaceHelper {
      *
      * @param {string|HTMLElement} markup
      * @param {array|string} selectors
-     * @param {boolean} strict
+     * @param {boolean} strict - @deprecated tag:v6.8.0 - Parameter "strict" will be removed.
      *
      */
     static replaceFromMarkup(markup, selectors, strict) {
@@ -145,7 +145,7 @@ export default class ElementReplaceHelper {
      *
      * @param {NodeList|HTMLElement|string} src
      * @param {NodeList|HTMLElement|string} target
-     * @param {boolean} strict
+     * @param {boolean} strict - @deprecated tag:v6.8.0 - Parameter "strict" will be removed.
      *
      * @returns {boolean}
      */

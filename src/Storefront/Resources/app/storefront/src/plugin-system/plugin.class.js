@@ -15,7 +15,7 @@ export default class Plugin {
      * @param {string} pluginName
      */
     constructor(el, options = {}, pluginName = false) {
-        if (!(el instanceof HTMLElement)) {
+        if (!(el instanceof Node)) {
             throw new Error('There is no valid element given.');
         }
 
@@ -78,10 +78,13 @@ export default class Plugin {
      * @private
      */
     _mergeOptions(options) {
+        if (typeof this.el.getAttribute !== 'function') {
+            return;
+        }
+
         const dashedPluginName = StringHelper.toDashCase(this._pluginName);
         const dataAttributeConfig = this.el.getAttribute(`data-${dashedPluginName}-config`);
         const dataAttributeOptions = this.el.getAttribute(`data-${dashedPluginName}-options`);
-
 
         // static plugin options
         // previously merged options

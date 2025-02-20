@@ -28,7 +28,7 @@ export default class FilterRatingSelectPlugin extends FilterMultiSelectPlugin {
         const values = {};
         const activeRadio = this.el.querySelector(`${this.options.checkboxSelector}:checked`);
 
-        this.currentRating = activeRadio.value;
+        this.currentRating = activeRadio ? activeRadio.value : false;
         this._updateCount();
 
         values[this.options.name] = this.currentRating ? this.currentRating.toString() : '';
@@ -146,7 +146,7 @@ export default class FilterRatingSelectPlugin extends FilterMultiSelectPlugin {
             return;
         }
 
-        if (this.currentRating === undefined) {
+        if (!this.currentRating) {
             this.mainFilterButton.setAttribute('aria-label', this.options.snippets.ariaLabel);
             return;
         }

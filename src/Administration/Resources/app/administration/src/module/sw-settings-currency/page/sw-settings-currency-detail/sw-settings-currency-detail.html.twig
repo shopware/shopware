@@ -10,13 +10,14 @@
     {% block sw_settings_currency_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_currency_detail_actions_abort %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="tooltipCancel"
             :disabled="isLoading"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_settings_currency_detail_actions_save %}
@@ -75,8 +76,9 @@
                     >
 
                         {% block sw_settings_currency_detail_content_field_name %}
-                        <sw-text-field
-                            v-model:value="currency.name"
+
+                        <mt-text-field
+                            v-model="currency.name"
                             name="sw-field--currency-name"
                             required
                             :disabled="!acl.can('currencies.editor')"
@@ -87,8 +89,9 @@
                         {% endblock %}
 
                         {% block sw_settings_currency_detail_content_field_iso_code %}
-                        <sw-text-field
-                            v-model:value="currency.isoCode"
+
+                        <mt-text-field
+                            v-model="currency.isoCode"
                             name="sw-field--currency-isoCode"
                             required
                             :disabled="!acl.can('currencies.editor')"
@@ -99,8 +102,9 @@
                         {% endblock %}
 
                         {% block sw_settings_currency_detail_content_field_short_name %}
-                        <sw-text-field
-                            v-model:value="currency.shortName"
+
+                        <mt-text-field
+                            v-model="currency.shortName"
                             name="sw-field--currency-shortName"
                             required
                             :disabled="!acl.can('currencies.editor')"
@@ -111,8 +115,9 @@
                         {% endblock %}
 
                         {% block sw_settings_currency_detail_content_field_symbol %}
-                        <sw-text-field
-                            v-model:value="currency.symbol"
+
+                        <mt-text-field
+                            v-model="currency.symbol"
                             name="sw-field--currency-symbol"
                             required
                             :disabled="!acl.can('currencies.editor')"
@@ -186,14 +191,15 @@
                             />
                             {% endblock %}
                             {% block sw_settings_currency_detail_content_card_country_price_rounding_toolbar_button %}
-                            <sw-button
-                                variant="ghost"
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
+                                ghost
                                 class="sw-settings-currency-detail__currency-country-toolbar-button"
                                 size="small"
                                 @click="onAddCountry"
                             >
                                 {{ $tc('sw-settings-currency.detail.buttonAddCountry') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
                         </div>
                         {% endblock %}

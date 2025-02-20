@@ -10,7 +10,8 @@
 
     <template #button>
         {% block sw_data_grid_settings_trigger %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-data-grid-settings__trigger"
             :disabled="disabled"
             :aria-label="$tc('global.sw-data-grid.tooltipListSettings')"
@@ -23,7 +24,7 @@
                 size="14px"
             />
             {% endblock %}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
 
@@ -94,7 +95,8 @@
             >
 
                 {% block sw_data_grid_settings_column_control_up %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="x-small"
                     square
                     :disabled="index === 0"
@@ -106,11 +108,12 @@
                         size="14px"
                     />
                     {% endblock %}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_data_grid_settings_column_control_down %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="x-small"
                     square
                     :disabled="index === (currentColumns.length - 1)"
@@ -123,7 +126,7 @@
                         size="14px"
                     />
                     {% endblock %}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </sw-button-group>
             {% endblock %}

@@ -55,7 +55,6 @@ async function createWrapper() {
                 'sw-search-bar': true,
                 'sw-notification-center': true,
                 'sw-language-switch': true,
-                'sw-button': true,
                 'sw-button-process': true,
                 'sw-card-view': true,
                 'sw-language-info': true,

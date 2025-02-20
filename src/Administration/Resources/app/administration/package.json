@@ -18,6 +18,7 @@
     "generate-api-docs": "./node_modules/.bin/jsdoc src -r -c jsdoc.config.js",
     "generate-component-import-resolver-map": "ts-node --transpileOnly ./scripts/componentImportResolver/generate.ts",
     "generate-data-set-list": "ts-node --transpileOnly ./scripts/generate-data-set-list/index.ts",
+    "generate-blocks-list": "ts-node --transpileOnly ./scripts/generate-block-list/index.ts",
     "generate-entity-schema-package": "ts-node --transpileOnly ./scripts/entitySchemaConverter/generate-package.ts",
     "generate-position-identifier-list": "ts-node --transpileOnly ./scripts/generate-position-identifier-list/index.ts",
     "preinstall": "node ./scripts/validate-package-json/index.mjs",
@@ -48,7 +49,7 @@
   ],
   "dependencies": {
     "@shopware-ag/meteor-admin-sdk": "5.6.2",
-    "@shopware-ag/meteor-component-library": "^4.0.1",
+    "@shopware-ag/meteor-component-library": "^4.2.0",
     "@shopware-ag/meteor-icon-kit": "5.4.0",
     "@swc/core": "1.10.7",
     "@types/fs-extra": "^11.0.4",

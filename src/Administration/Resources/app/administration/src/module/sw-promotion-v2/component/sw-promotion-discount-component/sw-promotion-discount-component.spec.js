@@ -65,7 +65,6 @@ async function createWrapper() {
                     'sw-one-to-many-grid': {
                         template: '<div class="sw-one-to-many-grid"></div>',
                     },
-                    'sw-button': true,
                 },
                 provide: {
                     repositoryFactory: {

@@ -40,18 +40,19 @@
     {% block sw_settings_rule_list_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_rule_list_smart_bar_actions_add %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('rule.creator'),
                 showOnDisabledElements: true
             }"
-            :router-link="{ name: 'sw.settings.rule.create' }"
             :disabled="!acl.can('rule.creator') || undefined"
             variant="primary"
+            @click="$router.push({ name: 'sw.settings.rule.create' })"
         >
             {{ $tc('sw-settings-rule.list.buttonAddRule') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

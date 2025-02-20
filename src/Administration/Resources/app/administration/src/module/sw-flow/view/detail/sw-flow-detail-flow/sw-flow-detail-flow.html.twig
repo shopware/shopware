@@ -6,9 +6,9 @@
         :class="{'sw-flow-detail-flow-template': isTemplate }"
         :style="flowContainerStyle"
     >
-        <sw-alert
+        <mt-banner
             v-if="isUnknownTrigger"
-            variant="warning"
+            variant="attention"
             class="sw-flow-detail-flow__warning-unknow-trigger"
         >
             <p>{{ $tc('sw-flow.flowNotification.messageUnknownTriggerWarning') }}</p>
@@ -18,15 +18,15 @@
                 <li>{{ $tc('sw-flow.flowNotification.textGuide2') }}</li>
                 <li>{{ $tc('sw-flow.flowNotification.textGuide3') }}</li>
             </ul>
-        </sw-alert>
+        </mt-banner>
 
-        <sw-alert
+        <mt-banner
             v-if="!isLoading && !isUnknownTrigger && showActionWarning "
-            variant="warning"
+            variant="attention"
             class="sw-flow-detail-flow__warning-box"
         >
             {{ $tc('sw-flow.detail.warningText') }}
-        </sw-alert>
+        </mt-banner>
         {% block sw_flow_detail_trigger_card %}
         <div class="sw-flow-detail-flow__trigger-card">
             {% block sw_flow_detail_flow_trigger_select %}

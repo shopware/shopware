@@ -8,115 +8,53 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('framework')]
 class ThemeConfigField extends Struct
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected string $name;
 
     /**
-     * @var array
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @var array<string, array<string, string>>|null
      */
-    protected $label;
+    protected ?array $label = null;
 
     /**
-     * @var array|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @var array<string, array<string, string>>|null
      */
-    protected $helpText;
+    protected ?array $helpText = null;
+
+    protected string $type;
 
     /**
-     * @var string
+     * @deprecated tag:v6.8.0 - Property will be typed natively as array|string
      *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $type;
-
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @var list<string>|string
+     *
+     * @phpstan-ignore shopware.propertyNativeType (Will be natively typed with next major)
      */
     protected $value;
 
-    /**
-     * @var bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $editable;
+    protected ?bool $editable = null;
+
+    protected ?string $block = null;
+
+    protected ?string $section = null;
+
+    protected ?string $tab = null;
+
+    protected ?int $order = null;
+
+    protected ?int $sectionOrder = null;
+
+    protected ?int $blockOrder = null;
+
+    protected ?int $tabOrder = null;
 
     /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @var array<string, mixed>|null
      */
-    protected $block;
+    protected ?array $custom = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $section;
+    protected ?bool $scss = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $tab;
-
-    /**
-     * @var int|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $order;
-
-    /**
-     * @var int|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $sectionOrder;
-
-    /**
-     * @var int|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $blockOrder;
-
-    /**
-     * @var int|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $tabOrder;
-
-    /**
-     * @var array|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $custom;
-
-    /**
-     * @var bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $scss;
-
-    /**
-     * @var bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $fullWidth;
+    protected ?bool $fullWidth = null;
 
     public function getName(): string
     {
@@ -128,11 +66,17 @@ class ThemeConfigField extends Struct
         $this->name = $name;
     }
 
+    /**
+     * @return array<string, array<string, string>>|null
+     */
     public function getLabel(): ?array
     {
         return $this->label;
     }
 
+    /**
+     * @param array<string, array<string, string>>|null $label
+     */
     public function setLabel(?array $label): void
     {
         $this->label = $label;
@@ -148,11 +92,21 @@ class ThemeConfigField extends Struct
         $this->type = $type;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Parameter will be natively typed
+     *
+     * @return list<string>|string
+     */
     public function getValue()
     {
         return $this->value;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:parameter-name-change - Parameter will be natively typed
+     *
+     * @param list<string>|string $value
+     */
     public function setValue($value): void
     {
         $this->value = $value;
@@ -238,21 +192,33 @@ class ThemeConfigField extends Struct
         $this->blockOrder = $blockOrder;
     }
 
+    /**
+     * @return array<string, array<string, string>>|null
+     */
     public function getHelpText(): ?array
     {
         return $this->helpText;
     }
 
+    /**
+     * @param array<string, array<string, string>>|null $helpText
+     */
     public function setHelpText(?array $helpText): void
     {
         $this->helpText = $helpText;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getCustom(): ?array
     {
         return $this->custom;
     }
 
+    /**
+     * @param array<string, mixed>|null $custom
+     */
     public function setCustom(?array $custom): void
     {
         $this->custom = $custom;

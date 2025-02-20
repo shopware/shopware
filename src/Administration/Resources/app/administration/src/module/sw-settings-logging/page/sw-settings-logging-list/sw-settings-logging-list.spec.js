@@ -42,7 +42,6 @@ async function createWrapper() {
                 },
                 'sw-extension-component-section': await wrapTestComponent('sw-extension-component-section', { sync: true }),
                 'sw-textarea-field': true,
-                'sw-button': true,
                 'sw-icon': true,
             },
             provide: {

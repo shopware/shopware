@@ -32,7 +32,6 @@ async function createWrapper() {
                     'sw-skeleton': true,
                     'sw-system-config': await wrapTestComponent('sw-system-config'),
                     'sw-search-bar': true,
-                    'sw-button': await wrapTestComponent('sw-button'),
                     'sw-loader': true,
                     'sw-card': await wrapTestComponent('sw-card'),
                     'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
@@ -45,9 +44,8 @@ async function createWrapper() {
                     'sw-help-center-v2': true,
                     'router-link': true,
                     'sw-app-actions': true,
-                    'sw-button-deprecated': true,
                     'sw-sales-channel-switch': true,
-                    'sw-alert': true,
+
                     'sw-form-field-renderer': true,
                     'sw-inherit-wrapper': true,
                     'sw-ai-copilot-badge': true,

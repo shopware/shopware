@@ -77,13 +77,6 @@ async function createWrapper(query = {}) {
                             'initial-search',
                         ],
                     },
-                    'sw-button': {
-                        template: '<div class="sw-button"></div>',
-                        props: [
-                            'router-link',
-                            'variant',
-                        ],
-                    },
                     'sw-entity-listing': {
                         template: '<div class="sw-entity-listing"></div>',
                         props: [

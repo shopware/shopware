@@ -1,5 +1,4 @@
 import ListingPlugin from 'src/plugin/listing/listing.plugin';
-import Feature from 'src/helper/feature.helper.js';
 
 describe('ListingPlugin tests', () => {
     let listingPlugin = undefined;
@@ -30,8 +29,6 @@ describe('ListingPlugin tests', () => {
                 </div>
             </div>
         `;
-
-        window.Feature = Feature;
 
         // mock listing plugins
         listingPlugin = new ListingPlugin(document.querySelector('[data-listing="true"]'));
@@ -67,7 +64,7 @@ describe('ListingPlugin tests', () => {
         expect(spyInit).toHaveBeenCalled();
     });
 
-    test('refreshRegistry calls the initializePlugins function', () => {
+    test('the initialize should not be called', () => {
         expect(spyInitializePlugins).not.toHaveBeenCalled();
     });
 

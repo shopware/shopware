@@ -76,11 +76,6 @@ export default {
             return this.productComparison.newProductExport;
         },
 
-        /** @deprecated tag:v6.7.0 - Use `isStorefront` instead */
-        isStoreFront() {
-            return this.isStorefront;
-        },
-
         isStorefront() {
             if (!this.salesChannel) {
                 return this.$route.params.typeId === Defaults.storefrontSalesChannelTypeId;

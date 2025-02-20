@@ -14,14 +14,15 @@
     {% block sw_property_detail_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_property_detail_smart_bar_actions_cancel %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip.bottom="tooltipCancel"
             class="sw-property-detail__back-action"
             :disabled="isLoading || undefined"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_property_detail_smart_bar_actions_save %}

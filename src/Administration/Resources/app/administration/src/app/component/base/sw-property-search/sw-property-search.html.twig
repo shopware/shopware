@@ -16,16 +16,17 @@
         >
             <div class="sw-property-search__search-field-container">
                 <slot name="toolbar-search-field">
-                    <sw-text-field
+
+                    <mt-text-field
                         ref="searchField"
-                        v-model:value="searchTerm"
+                        v-model="searchTerm"
                         name="sw-field--searchTerm"
                         class="sw-property-search__search-field"
                         :disabled="disabled"
                         :placeholder="$tc('sw-property-search.placeholderSearch')"
                         autocomplete="off"
                         @focus="onFocusSearch"
-                        @update:value="onSearchOptions"
+                        @update:model-value="onSearchOptions"
                     />
                 </slot>
             </div>

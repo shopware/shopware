@@ -108,12 +108,13 @@
 
             <template #actions>
                 {% block sw_product_detail_reviews_empty_state_button %}
-                <sw-button
-                    variant="ghost"
-                    :router-link="{ name: 'sw.review.index' }"
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
+                    ghost
+                    @click="$router.push({ name: 'sw.review.index' })"
                 >
                     {{ $tc('sw-product.reviewForm.emptyStateButton') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </template>
         </sw-empty-state>
@@ -133,22 +134,24 @@
             {% block sw_product_detail_reviews_modal_delete_footer %}
             <template #modal-footer>
                 {% block sw_product_detail_reviews_modal_delete_button_cancel %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="small"
                     @click="onCancelReviewDelete"
                 >
                     {{ $tc('global.default.cancel') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_product_detail_reviews_modal_delete_button_confirm %}
-                <sw-button
+                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                <mt-button
                     size="small"
-                    variant="danger"
+                    variant="critical"
                     @click="onConfirmReviewDelete"
                 >
                     {{ $tc('sw-product.reviewForm.modal.buttonDelete') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </template>
             {% endblock %}

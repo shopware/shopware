@@ -19,18 +19,13 @@
                     {% for group in configuratorSettings %}
                         {% block buy_widget_configurator_group %}
                             {% if group.displayType == 'select' %}
-                                <div class="product-detail-configurator-group{% if feature('ACCESSIBILITY_TWEAKS') %} mb-3{% endif %}">
-                                    {# @deprecated tag:v6.7.0 - Template `select.html.twig` is deprecated. Use `storefront/component/buy-widget/configurator/select.html.twig` instead. #}
-                                    {% if feature('v6.7.0.0') %}
-                                        {% sw_include '@Storefront/storefront/component/buy-widget/configurator/select.html.twig' %}
-                                    {% else %}
-                                        {% sw_include '@Storefront/storefront/page/product-detail/configurator/select.html.twig' %}
-                                    {% endif %}
+                                <div class="product-detail-configurator-group mb-3">
+                                    {% sw_include '@Storefront/storefront/component/buy-widget/configurator/select.html.twig' %}
                                 </div>
                             {% else %}
-                                <fieldset class="product-detail-configurator-group{% if feature('ACCESSIBILITY_TWEAKS') %} mb-3{% endif %}">
+                                <fieldset class="product-detail-configurator-group mb-3">
                                     {% block buy_widget_configurator_group_title %}
-                                        <legend class="product-detail-configurator-group-title{% if feature('ACCESSIBILITY_TWEAKS') %} fs-5 fw-bold{% endif %}">
+                                        <legend class="product-detail-configurator-group-title fs-5 fw-bold">
                                             {% block buy_widget_configurator_group_title_text %}
                                                 {{ 'component.product.configurator.legend'|trans({ '%group_name%': group.translated.name, '%hidden_cls%': 'visually-hidden' })|sw_sanitize }}
                                             {% endblock %}
@@ -38,7 +33,7 @@
                                     {% endblock %}
 
                                     {% block buy_widget_configurator_options %}
-                                        <div class="product-detail-configurator-options{% if feature('ACCESSIBILITY_TWEAKS') %} d-flex flex-wrap gap-2{% endif %}">
+                                        <div class="product-detail-configurator-options d-flex flex-wrap gap-2">
                                             {% for option in group.options %}
                                                 {% if elementId is defined and elementId is not null %}
                                                     {% set optionIdentifier = [group.id, option.id, elementId]|join('-') %}
@@ -48,10 +43,7 @@
 
                                                 {% set isActive = false %}
 
-                                                {# @deprecated tag:v6.7.0 - Variable `isCombinableCls` will always contain a string and no longer `false`. Will return `not-combinable disabled` instead. #}
-                                                {% set isCombinableCls = feature('ACCESSIBILITY_TWEAKS')
-                                                    ? (option.combinable ? 'is-combinable' : 'not-combinable disabled')
-                                                    : (option.combinable ? 'is-combinable' : false) %}
+                                                {% set isCombinableCls = option.combinable ? 'is-combinable' : 'not-combinable disabled' %}
 
                                                 {% if option.id in product.optionIds %}
                                                     {% set isActive = true %}
@@ -70,18 +62,18 @@
                                                 {% endif %}
 
                                                 {% block buy_widget_configurator_option %}
-                                                    <div class="product-detail-configurator-option{% if feature('ACCESSIBILITY_TWEAKS') %} d-inline-flex{% endif %}">
+                                                    <div class="product-detail-configurator-option d-inline-flex">
                                                         {% block buy_widget_configurator_option_radio %}
                                                             <input type="radio"
                                                                    name="{{ group.id }}"
                                                                    value="{{ option.id }}"
-                                                                   class="product-detail-configurator-option-input {{ isCombinableCls }}{% if feature('ACCESSIBILITY_TWEAKS') %} btn-check{% endif %}"
+                                                                   class="product-detail-configurator-option-input {{ isCombinableCls }} btn-check"
                                                                    id="{{ optionIdentifier }}"
                                                                    aria-labelledby="{{ optionIdentifier }}-label"
                                                                    {% if isActive %}checked="checked"{% endif %}>
 
                                                             {% block buy_widget_configurator_option_radio_label %}
-                                                                <label class="product-detail-configurator-option-label {{ isCombinableCls }} is-display-{{ displayType }}{% if feature('ACCESSIBILITY_TWEAKS') %} btn btn-outline-secondary d-inline-flex justify-content-center align-items-center{% endif %}"
+                                                                <label class="product-detail-configurator-option-label {{ isCombinableCls }} is-display-{{ displayType }} btn btn-outline-secondary d-inline-flex justify-content-center align-items-center"
                                                                     {% if displayType == 'color' and option.colorHexCode %}
                                                                         style="background-color: {{ option.colorHexCode }}"
                                                                     {% endif %}

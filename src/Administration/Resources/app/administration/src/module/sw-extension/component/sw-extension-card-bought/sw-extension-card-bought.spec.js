@@ -96,10 +96,6 @@ async function createWrapper(extension) {
                         </div>
                     `,
                 },
-                'sw-button': await wrapTestComponent('sw-button', {
-                    sync: true,
-                }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-extension-adding-failed': await wrapTestComponent('sw-extension-adding-failed', { sync: true }),
                 'sw-extension-icon': await wrapTestComponent('sw-extension-icon', { sync: true }),
                 'sw-extension-rating-modal': true,
@@ -404,7 +400,9 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         await wrapper.get('.sw-extension-card-base__remove-link').trigger('click');
         expect(wrapper.find('.sw-extension-removal-modal').exists()).toBe(true);
 
-        await wrapper.get('.sw-extension-removal-modal .sw-button--danger').trigger('click');
+        await wrapper
+            .findByText('button', 'sw-extension-store.component.sw-extension-removal-modal.labelCancel')
+            .trigger('click');
         expect(wrapper.find('.sw-extension-removal-modal').exists()).toBe(false);
         expect(cancelLicenceSpy).toHaveBeenCalledTimes(0);
         expect(removeExtensionSpy).toHaveBeenCalledTimes(1);
@@ -448,7 +446,9 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         await wrapper.get('.sw-extension-card-base__cancel-and-remove-link').trigger('click');
         expect(wrapper.find('.sw-extension-removal-modal').exists()).toBe(true);
 
-        await wrapper.get('.sw-extension-removal-modal .sw-button--danger').trigger('click');
+        await wrapper
+            .findByText('button', 'sw-extension-store.component.sw-extension-removal-modal.labelCancel')
+            .trigger('click');
         expect(wrapper.find('.sw-extension-removal-modal').exists()).toBe(false);
         expect(cancelLicenceSpy).toHaveBeenCalledTimes(1);
         expect(removeExtensionSpy).toHaveBeenCalledTimes(1);

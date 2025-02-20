@@ -47,9 +47,6 @@ async function createWrapper() {
                 'sw-entity-single-select': {
                     template: '<div class="sw-entity-single-select"></div>',
                 },
-                'sw-alert': {
-                    template: '<div class="sw-alert"><slot></slot></div>',
-                },
                 'sw-product-variant-info': true,
                 'sw-empty-state': true,
             },
@@ -115,7 +112,7 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
             manualAssignedProductsCount: 5,
         });
 
-        expect(wrapper.find('.sw-alert').text()).toBe(
+        expect(wrapper.find('[role="banner"]').text()).toBe(
             'sw-category.base.products.alertManualAssignedProductsOnAssignmentTypeStream',
         );
     });

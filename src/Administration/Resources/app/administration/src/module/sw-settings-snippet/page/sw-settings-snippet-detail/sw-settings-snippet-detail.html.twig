@@ -35,12 +35,13 @@
     {% block sw_settings_snippet_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_snippet_detail_actions_abort %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             :disabled="isLoading"
-            :router-link="backPath"
+            @click="$router.push(backPath)"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_settings_snippet_detail_actions_save %}
@@ -73,15 +74,16 @@
                 >
                     <div class="snippet-general-card">
                         {% block sw_settings_snippet_set_detail_card_information_key %}
-                        <sw-text-field
-                            v-model:value="translationKey"
+
+                        <mt-text-field
+                            v-model="translationKey"
                             v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
                             name="sw-field--translationKey"
                             :label="$tc('sw-settings-snippet.detail.labelName')"
                             :placeholder="$tc('sw-settings-snippet.detail.labelNamePlaceholder')"
                             :disabled="!(isCreate || isAddedSnippet)"
                             :error="invalidKeyError"
-                            @update:value="onChange"
+                            @update:model-value="onChange"
                         />
                         {% endblock %}
                     </div>
@@ -96,17 +98,18 @@
                 >
                     <div class="snippet-overview-card">
                         {% block sw_settings_snippet_set_detail_card_snippets_fields %}
-                        <sw-text-field
+
+                        <mt-text-field
                             v-for="(snippet, index) in snippets"
                             :key="snippet.setId"
-                            v-model:value="snippet.value"
+                            v-model="snippet.value"
                             v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
                             name="sw-field--snippet-value"
                             :class="`sw-settings-snippet-detail__translation-field--${index}`"
                             :disabled="!acl.can('snippet.editor') || isLoadingSnippets"
                             :label="$tc('sw-settings-snippet.detail.labelContent', { name: sets.get(snippet.setId).name }, 0)"
                             :placeholder="snippet.origin || $tc('sw-settings-snippet.general.placeholderValue')"
-                            @update:value="onChange"
+                            @update:model-value="onChange"
                         />
                         {% endblock %}
                     </div>

@@ -34,7 +34,8 @@
         v-if="showSmartBar"
         #smart-bar-actions
     >
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-for="button in smartBarButtons"
             :id="button.buttonId"
             :key="button.buttonId"
@@ -43,7 +44,7 @@
             @click="button.onClickCallback"
         >
             {{ $tc(button.label ?? '') }}
-        </sw-button>
+        </mt-button>
     </template>
     {% endblock %}
 

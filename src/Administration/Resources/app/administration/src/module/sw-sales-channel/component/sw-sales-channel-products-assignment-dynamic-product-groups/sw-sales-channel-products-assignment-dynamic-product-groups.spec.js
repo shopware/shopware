@@ -56,7 +56,6 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-sales-channel-products-assignment-dynamic-product-groups', { sync: true }), {
         global: {
             stubs: {
-                'sw-alert': true,
                 'sw-card': {
                     template: '<div><slot></slot><slot name="grid"></slot></div>',
                 },

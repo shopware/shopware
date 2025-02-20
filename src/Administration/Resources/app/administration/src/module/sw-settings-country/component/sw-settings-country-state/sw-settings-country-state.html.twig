@@ -19,7 +19,8 @@
             {% endblock %}
 
             {% block sw_settings_country_state_list_toolbar_delete %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-tooltip.bottom="{
                     message: $tc('sw-privileges.tooltip.warning'),
                     disabled: acl.can('country.editor'),
@@ -35,11 +36,12 @@
                     name="regular-trash"
                     small
                 />
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_settings_country_state_list_toolbar_add %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-tooltip.bottom="{
                     message: $tc('sw-privileges.tooltip.warning'),
                     disabled: acl.can('country.editor'),
@@ -52,7 +54,7 @@
                 @click="onAddCountryState"
             >
                 {{ $tc('sw-settings-country.detail.buttonAddCountryState') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
         </sw-container>

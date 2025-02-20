@@ -27,13 +27,14 @@
     <template #modal-footer>
 
         {% block sw_order_create_invalid_promotion_modal_actions_confirm %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             variant="primary"
             size="small"
             @click="onConfirm"
         >
             {{ $tc('sw-order.invalidPromotionModal.buttonConfirm') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

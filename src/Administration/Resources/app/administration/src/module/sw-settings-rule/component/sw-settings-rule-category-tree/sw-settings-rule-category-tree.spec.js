@@ -53,14 +53,15 @@ async function createWrapper(props = defaultProps) {
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-card': await wrapTestComponent('sw-card'),
+                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-settings-rule-tree-item': true,
                     'sw-extension-component-section': true,
                     'sw-ai-copilot-badge': true,
                     'sw-context-button': true,
                     'sw-loader': true,
                     'sw-icon': true,
-                    'sw-button': true,
                     'sw-tree-input-field': true,
                     'sw-tree-item': true,
                     'sw-field-copyable': true,
@@ -84,7 +85,7 @@ describe('src/module/sw-settings-rule/component/sw-settings-rule-category-tree',
         jest.clearAllTimers();
     });
 
-    it.skip('should not re-get tree items category entity is empty', async () => {
+    it('should not re-get tree items category entity is empty', async () => {
         const collection = createEntityCollectionMock('category', [
             categoryMock,
         ]);
@@ -99,7 +100,7 @@ describe('src/module/sw-settings-rule/component/sw-settings-rule-category-tree',
         expect(categoryRepositoryMock.search).toHaveBeenCalledTimes(0);
     });
 
-    it.skip.each([
+    it.each([
         { expected: true },
         { expected: false },
     ])('should hide headline: $expected', async ({ expected }) => {
@@ -112,7 +113,7 @@ describe('src/module/sw-settings-rule/component/sw-settings-rule-category-tree',
         expect(wrapper.find('.sw-tree-actions__headline').exists()).toBe(!expected);
     });
 
-    it.skip.each([
+    it.each([
         { expected: true },
         { expected: false },
     ])('should hide search: $expected', async ({ expected }) => {
@@ -125,7 +126,7 @@ describe('src/module/sw-settings-rule/component/sw-settings-rule-category-tree',
         expect(wrapper.find('.sw-tree__search').exists()).toBe(!expected);
     });
 
-    it.skip('should load categories with association', async () => {
+    it('should load categories with association', async () => {
         await createWrapper();
         await flushPromises();
 
@@ -136,7 +137,7 @@ describe('src/module/sw-settings-rule/component/sw-settings-rule-category-tree',
         expect(categoryRepositoryMock.search).toHaveBeenNthCalledWith(1, criteria, Context.api);
     });
 
-    it.skip('should search tree items by card search field input', async () => {
+    it('should search tree items by card search field input', async () => {
         jest.useFakeTimers();
         const term = 'test';
 
@@ -169,7 +170,7 @@ describe('src/module/sw-settings-rule/component/sw-settings-rule-category-tree',
         ]);
     });
 
-    it.skip('should check selected items', async () => {
+    it('should check selected items', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -178,7 +179,7 @@ describe('src/module/sw-settings-rule/component/sw-settings-rule-category-tree',
         expect(wrapper.emitted()).toHaveProperty('on-selection');
     });
 
-    it.skip('should add new fetched categories', async () => {
+    it('should add new fetched categories', async () => {
         categoryRepositoryMock.search.mockResolvedValueOnce(
             createEntityCollectionMock('category', [
                 {

@@ -5,7 +5,8 @@
     <template #smart-bar-actions>
 
         {% block sw_settings_payment_overview_smart_bar_actions_add %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('payment.creator'),
@@ -13,11 +14,11 @@
             }"
             class="sw-settings-payment-overview__button-create"
             :disabled="!acl.can('payment.creator') || undefined"
-            :router-link="{ name: 'sw.settings.payment.create' }"
             variant="primary"
+            @click="$router.push({ name: 'sw.settings.payment.create' })"
         >
             {{ $tc('sw-settings-payment.list.buttonAddPaymentMethod') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
     </template>

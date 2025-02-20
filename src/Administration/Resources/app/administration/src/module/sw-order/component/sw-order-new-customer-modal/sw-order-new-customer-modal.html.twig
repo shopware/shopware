@@ -98,23 +98,25 @@
     {% block sw_order_new_customer_modal_actions %}
     <template #modal-footer>
         {% block sw_order_new_customer_modal_action_close %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             size="small"
             @click="onClose"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_order_new_customer_modal_actions_apply %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             size="small"
             variant="primary"
             :is-loading="isLoading"
             @click="onSave"
         >
             {{ $tc('global.default.save') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

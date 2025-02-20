@@ -35,8 +35,6 @@ async function createWrapper(privileges = []) {
                     },
                     'sw-container': true,
                     'sw-number-field': true,
-                    'sw-text-field': true,
-                    'sw-button': true,
                     'sw-empty-state': true,
                 },
             },
@@ -69,7 +67,7 @@ describe('module/sw-settings-country/component/sw-country-state-detail', () => {
 
         const saveButton = wrapper.find('.sw-country-state-detail__save-button');
 
-        expect(saveButton.attributes().disabled).toBeTruthy();
+        expect(saveButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to edit a country state', async () => {
@@ -80,18 +78,16 @@ describe('module/sw-settings-country/component/sw-country-state-detail', () => {
         await flushPromises();
 
         const saveButton = wrapper.find('.sw-country-state-detail__save-button');
-        const countryStateNameField = wrapper.find('sw-text-field-stub[label="sw-country-state-detail.labelName"]');
-        const countryStateShortCodeField = wrapper.find(
-            'sw-text-field-stub[label="sw-country-state-detail.labelShortCode"]',
-        );
+        const countryStateNameField = wrapper.find('[aria-label="sw-country-state-detail.labelName"]');
+        const countryStateShortCodeField = wrapper.find('[aria-label="sw-country-state-detail.labelShortCode"]');
         const countryStatePositionField = wrapper.find(
             'sw-number-field-stub[label="sw-country-state-detail.labelPosition"]',
         );
 
         expect(saveButton.attributes().disabled).toBeFalsy();
-        expect(countryStateNameField.attributes().disabled).toBeUndefined();
-        expect(countryStateShortCodeField.attributes().disabled).toBeUndefined();
-        expect(countryStatePositionField.attributes().disabled).toBeUndefined();
+        expect(countryStateNameField.attributes('disabled')).toBeUndefined();
+        expect(countryStateShortCodeField.attributes('disabled')).toBeUndefined();
+        expect(countryStatePositionField.attributes('disabled')).toBeUndefined();
     });
 
     it('should not be able to edit a country state', async () => {
@@ -99,17 +95,15 @@ describe('module/sw-settings-country/component/sw-country-state-detail', () => {
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-country-state-detail__save-button');
-        const countryStateNameField = wrapper.find('sw-text-field-stub[label="sw-country-state-detail.labelName"]');
-        const countryStateShortCodeField = wrapper.find(
-            'sw-text-field-stub[label="sw-country-state-detail.labelShortCode"]',
-        );
+        const countryStateNameField = wrapper.find('[aria-label="sw-country-state-detail.labelName"]');
+        const countryStateShortCodeField = wrapper.find('[aria-label="sw-country-state-detail.labelShortCode"]');
         const countryStatePositionField = wrapper.find(
             'sw-number-field-stub[label="sw-country-state-detail.labelPosition"]',
         );
 
-        expect(saveButton.attributes().disabled).toBeTruthy();
-        expect(countryStateNameField.attributes().disabled).toBeTruthy();
-        expect(countryStateShortCodeField.attributes().disabled).toBeTruthy();
-        expect(countryStatePositionField.attributes().disabled).toBeTruthy();
+        expect(saveButton.attributes('disabled')).toBeDefined();
+        expect(countryStateNameField.attributes('disabled')).toBeDefined();
+        expect(countryStateShortCodeField.attributes('disabled')).toBeDefined();
+        expect(countryStatePositionField.attributes('disabled')).toBeDefined();
     });
 });

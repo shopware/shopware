@@ -12,6 +12,7 @@ const { Component, Mixin } = Shopware;
  * @example-type dynamic
  * @component-example
  * <sw-text-field label="Name" placeholder="placeholder goes here..."></sw-text-field>
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-text-field instead
  */
 Component.register('sw-text-field-deprecated', {
     template,

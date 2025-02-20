@@ -37,7 +37,7 @@ async function createWrapper() {
                     'sw-media-upload-v2': true,
                     'sw-upload-listener': true,
                     'sw-dynamic-url-field': true,
-                    'sw-alert': true,
+
                     'sw-media-modal-v2': true,
                     'sw-context-button': true,
                     'sw-context-menu-item': true,

@@ -295,13 +295,14 @@
         </sw-one-to-many-grid>
 
         <template #modal-footer>
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 variant="primary"
                 size="small"
                 @click="onCloseAdvancedPricesModal"
             >
                 {{ $tc('sw-promotion.detail.main.discounts.pricesModal.closeModal') }}
-            </sw-button>
+            </mt-button>
         </template>
     </sw-modal>
     {% endblock %}
@@ -323,23 +324,25 @@
         {% block sw_promotion_detail_discounts_modal_delete_footer %}
         <template #modal-footer>
             {% block sw_promotion_detail_discounts_modal_delete_action_cancel %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
                 @click="onCloseDeleteModal"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_promotion_detail_discounts_modal_delete_action_delete %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 size="small"
-                variant="danger"
+                variant="critical"
                 class="sw-promotion-discount-delete-button"
                 @click="onConfirmDelete"
             >
                 {{ $tc('sw-promotion.detail.main.discounts.delete.buttonDelete') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
         {% endblock %}

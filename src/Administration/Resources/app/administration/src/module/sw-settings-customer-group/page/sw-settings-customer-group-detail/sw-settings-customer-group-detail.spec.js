@@ -60,7 +60,6 @@ async function createWrapper(privileges = []) {
                     'sw-textarea-field': true,
                     'mt-text-editor': true,
                     'sw-language-info': true,
-                    'sw-button': true,
                     'sw-button-process': true,
                     'sw-switch-field': true,
                     'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select'),
@@ -192,7 +191,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             },
             {
                 name: 'form title field',
-                selector: '.sw-text-field-stub[label="sw-settings-customer-group.registration.title"]',
+                selector: '.mt-text-field',
             },
             { name: 'form editor', selector: 'mt-text-editor-stub' },
             {
@@ -259,7 +258,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             },
             {
                 name: 'form title field',
-                selector: '.sw-text-field-stub[label="sw-settings-customer-group.registration.title"]',
+                selector: '.mt-text-field',
             },
             { name: 'form editor', selector: 'mt-text-editor-stub' },
             {

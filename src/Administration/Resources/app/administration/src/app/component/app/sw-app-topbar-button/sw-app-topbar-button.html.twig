@@ -1,6 +1,7 @@
 {% block sw_app_topbar_button %}
 <div class="sw-app-topbar-button">
-    <sw-button
+    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+    <mt-button
         v-for="button in topBarButtons"
         :key="button.label"
         size="default"
@@ -12,6 +13,6 @@
             size="14px"
         />
         {{  button.label }}
-    </sw-button>
+    </mt-button>
 </div>
 {% endblock %}

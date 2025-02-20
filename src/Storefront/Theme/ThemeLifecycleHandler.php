@@ -28,7 +28,7 @@ class ThemeLifecycleHandler
         private readonly ThemeLifecycleService $themeLifecycleService,
         private readonly ThemeService $themeService,
         private readonly EntityRepository $themeRepository,
-        private readonly StorefrontPluginRegistryInterface $storefrontPluginRegistry,
+        private readonly StorefrontPluginRegistry $storefrontPluginRegistry,
         private readonly Connection $connection
     ) {
     }

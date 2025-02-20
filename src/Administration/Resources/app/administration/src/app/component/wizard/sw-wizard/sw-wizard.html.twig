@@ -16,25 +16,27 @@
         <slot name="footer-left-button">
             {% block sw_wizard_slot_footer_left_buttons %}
             {% block sw_wizard_slot_footer_left_buttons_close %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-if="currentlyActivePage === 0"
                 size="small"
                 :disabled="leftButtonDisabled"
                 @click="onClose"
             >
                 {{ $tc('sw-wizard.closeButton') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_wizard_slot_footer_left_buttons_back %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-else
                 size="small"
                 :disabled="leftButtonDisabled"
                 @click="previousPage"
             >
                 {{ $tc('sw-wizard.backButton') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% endblock %}
@@ -55,7 +57,8 @@
         <slot name="footer-right-button">
             {% block sw_wizard_slot_footer_right_button %}
             {% block sw_wizard_slot_footer_right_button_finish %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-if="currentlyActivePage >= pagesCount - 1"
                 size="small"
                 variant="primary"
@@ -63,11 +66,12 @@
                 @click="$emit('finish')"
             >
                 {{ $tc('sw-wizard.finishButton') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_wizard_slot_footer_right_button_next %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 v-else
                 size="small"
                 variant="primary"
@@ -75,7 +79,7 @@
                 @click="nextPage"
             >
                 {{ $tc('sw-wizard.nextButton') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
             {% endblock %}
 

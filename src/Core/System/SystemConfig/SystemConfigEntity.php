@@ -12,33 +12,16 @@ class SystemConfigEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $configurationKey;
+    protected string $configurationKey;
 
     /**
-     * @var array|bool|float|int|string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @var array<mixed>|bool|float|int|string|null
      */
-    protected $configurationValue;
+    protected array|bool|float|int|string|null $configurationValue;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannelId;
+    protected ?string $salesChannelId = null;
 
-    /**
-     * @var SalesChannelEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
     public function getConfigurationKey(): string
     {
@@ -51,17 +34,17 @@ class SystemConfigEntity extends Entity
     }
 
     /**
-     * @return array|bool|float|int|string|null
+     * @return array<mixed>|bool|float|int|string|null
      */
-    public function getConfigurationValue()
+    public function getConfigurationValue(): array|bool|float|int|string|null
     {
         return $this->configurationValue;
     }
 
     /**
-     * @param array|bool|float|int|string|null $configurationValue
+     * @param array<mixed>|bool|float|int|string|null $configurationValue
      */
-    public function setConfigurationValue($configurationValue): void
+    public function setConfigurationValue(array|bool|float|int|string|null $configurationValue): void
     {
         $this->configurationValue = $configurationValue;
     }

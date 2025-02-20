@@ -16,7 +16,6 @@ async function createWrapper() {
             global: {
                 stubs: {
                     'sw-card': true,
-                    'sw-button': true,
                     'sw-product-cross-selling-form': true,
                     'sw-empty-state': true,
                     'sw-skeleton': true,

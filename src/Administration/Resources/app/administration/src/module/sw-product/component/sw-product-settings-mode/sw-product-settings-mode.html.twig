@@ -7,7 +7,8 @@
 >
     <template #button>
         {% block sw_product_settings_mode_trigger %}
-        <sw-button
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             class="sw-product-settings-mode__trigger"
             size="x-small"
             square
@@ -19,7 +20,7 @@
                 size="16px"
             />
             {% endblock %}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
 

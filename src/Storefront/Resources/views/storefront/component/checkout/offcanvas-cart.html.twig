@@ -20,27 +20,18 @@
 
         <div class="offcanvas-cart">
             {% block component_offcanvas_cart_header %}
-                <div class="row align-items-center offcanvas-cart-header {% if not feature('ACCESSIBILITY_TWEAKS') %}h4{% endif %}">
+                <div class="row align-items-center offcanvas-cart-header">
 
-                    {# @deprecated tag:v6.7.0 - `<h4>` is added to cart header #}
-                    {%- if feature('ACCESSIBILITY_TWEAKS') -%}
-                        <div class="col">
-                            <h4>
-                            {{- 'checkout.cartHeader'|trans|sw_sanitize -}}
-                            </h4>
-                        </div>
-                    {%- else -%}
-                        <div class="col">
-                            {{ 'checkout.cartHeader'|trans|sw_sanitize }}
-                        </div>
-                    {%- endif -%}
+                    <div class="col">
+                        <h4>{{- 'checkout.cartHeader'|trans|sw_sanitize -}}</h4>
+                    </div>
 
                     {% set checkoutItemCounter = page.cart.lineItems|length %}
 
                     {% block component_offcanvas_cart_header_item_counter %}
                         {% if isCartNotEmpty %}
                             <div class="col-auto">
-                                <small class="offcanvas-cart-header-count {% if feature('ACCESSIBILITY_TWEAKS') %}h4{% endif %}">
+                                <small class="offcanvas-cart-header-count h4">
                                     {{- 'checkout.itemCounter'|trans({'%count%': checkoutItemCounter})|sw_sanitize -}}
                                 </small>
                             </div>
@@ -62,12 +53,7 @@
 
             {% if isCartNotEmpty %}
                 {% block component_offcanvas_cart_items %}
-                    {# @deprecated tag:v6.7.0 - Line items wrapper will be `<ul>` element instead of `<div>` #}
-                    {%- if feature('ACCESSIBILITY_TWEAKS') -%}
-                        <ul class="offcanvas-cart-items list-unstyled">
-                    {%- else -%}
-                        <div class="offcanvas-cart-items" role="list">
-                    {%- endif -%}
+                    <ul class="offcanvas-cart-items list-unstyled">
                         {% for lineItem in page.cart.lineItems %}
                             {% block component_offcanvas_cart_item %}
                                 {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
@@ -76,12 +62,7 @@
                                 } %}
                             {% endblock %}
                         {% endfor %}
-                    {# @deprecated tag:v6.7.0 - Line items wrapper will be `<ul>` element instead of `<div>` #}
-                    {%- if not feature('ACCESSIBILITY_TWEAKS') -%}
-                        </div>
-                    {%- else -%}
-                        </ul>
-                    {%- endif -%}
+                    </ul>
                 {% endblock %}
             {% else %}
                 {% block component_offcanvas_cart_empty %}

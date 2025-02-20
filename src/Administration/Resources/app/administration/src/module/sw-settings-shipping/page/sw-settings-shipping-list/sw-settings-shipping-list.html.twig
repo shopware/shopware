@@ -39,13 +39,14 @@
     {% block sw_settings_shipping_list_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_shipping_list_smart_bar_actions_add %}
-        <sw-button
-            :router-link="{ name: 'sw.settings.shipping.create' }"
+        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+        <mt-button
             :disabled="!acl.can('shipping.creator') || undefined"
             variant="primary"
+            @click="$router.push({ name: 'sw.settings.shipping.create' })"
         >
             {{ $tc('sw-settings-shipping.list.buttonAddShippingMethod') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}
@@ -175,22 +176,24 @@
                         {% block sw_settings_shipping_list_delete_modal_footer %}
                         <template #modal-footer>
                             {% block sw_settings_shipping_list_delete_modal_cancel %}
-                            <sw-button
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
                                 size="small"
                                 @click="onCloseDeleteModal"
                             >
                                 {{ $tc('global.default.cancel') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
 
                             {% block sw_settings_shipping_list_delete_modal_confirm %}
-                            <sw-button
-                                variant="danger"
+                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+                            <mt-button
+                                variant="critical"
                                 size="small"
                                 @click="onConfirmDelete(item.id)"
                             >
                                 {{ $tc('sw-settings-shipping.list.buttonDelete') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
                         </template>
                         {% endblock %}

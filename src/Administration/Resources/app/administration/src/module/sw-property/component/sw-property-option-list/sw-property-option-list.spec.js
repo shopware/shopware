@@ -2,6 +2,7 @@
  * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
+import findByText from '../../../../../test/_helper_/find-by-text';
 
 function getOptions() {
     const options = [
@@ -96,9 +97,6 @@ async function createWrapper() {
                 'sw-container': await wrapTestComponent('sw-container', {
                     sync: true,
                 }),
-                'sw-button': {
-                    template: '<button class="sw-button" @click="$emit(`click`)"></button>',
-                },
                 'sw-simple-search-field': {
                     template: '<div></div>',
                 },
@@ -151,15 +149,6 @@ async function createWrapper() {
                     props: ['value'],
                     emits: ['update:value'],
                 },
-                'sw-text-field': {
-                    template: `
-                        <input class="sw-text-field-stub"
-                            :value="value" type="text"
-                            @input="$emit(\'update:value\', $event.target.value)"/>
-                    `,
-                    props: ['value'],
-                    emits: ['update:value'],
-                },
                 'sw-contextual-field': {
                     template: '<div></div>',
                 },
@@ -196,11 +185,11 @@ describe('module/sw-property/component/sw-property-option-list', () => {
         const modal = wrapper.find('.sw-modal');
 
         // clear color value
-        await modal.get('.sw-text-field-stub').setValue('new name');
+        await modal.get('.mt-text-field input').setValue('new name');
         await modal.get('.sw-number-field-stub').setValue(0);
         await modal.get('.sw-colorpicker-stub').setValue('#000000');
 
-        await modal.find('button[variant="primary"]').trigger('click');
+        await findByText(modal, 'button', 'global.default.apply').trigger('click');
 
         // waiting for the modal to disappear
         await wrapper.vm.$nextTick();

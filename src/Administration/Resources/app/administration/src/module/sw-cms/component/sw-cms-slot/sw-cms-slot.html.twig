@@ -123,12 +123,13 @@
         {% block sw_cms_slot_content_settings_modal_footer %}
         <template #modal-footer>
             {% block sw_cms_slot_content_settings_modal_action_confirm %}
-            <sw-button
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button
                 variant="primary"
                 @click="onCloseSettingsModal"
             >
                 {{ $tc('sw-cms.detail.label.buttonElementSettingsConfirm') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
         {% endblock %}
@@ -228,9 +229,10 @@
         <template #modal-footer>
 
             {% block sw_cms_slot_content_element_modal_action_abort %}
-            <sw-button @click="onCloseElementModal">
+            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+            <mt-button @click="onCloseElementModal">
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
         {% endblock %}

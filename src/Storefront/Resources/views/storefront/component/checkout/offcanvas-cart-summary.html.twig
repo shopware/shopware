@@ -13,15 +13,14 @@
         <dl class="row offcanvas-summary-list" aria-label="{{ 'checkout.summaryOffCanvasLabel'|trans|striptags }}">
             {% block component_offcanvas_summary_total %}
                 {% block component_offcanvas_summary_total_label %}
-                    <dt class="{% if feature('ACCESSIBILITY_TWEAKS') %}col-8{% else %}col-7{% endif %} summary-label summary-total">
+                    <dt class="col-8 summary-label summary-total">
                         {{ 'checkout.subtotalAmount'|trans|sw_sanitize }}
                     </dt>
                 {% endblock %}
 
                 {% block component_offcanvas_summary_total_value %}
-                    <dd class="{% if feature('ACCESSIBILITY_TWEAKS') %}col-4{% else %}col-5{% endif %} summary-value summary-total">
-                        {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed in the shopping cart summary. #}
-                        <strong>{{ page.cart.price.positionPrice|currency }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %}</strong>
+                    <dd class="col-4 summary-value summary-total">
+                        <strong>{{ page.cart.price.positionPrice|currency }}</strong>
                     </dd>
                 {% endblock %}
             {% endblock %}
@@ -31,7 +30,7 @@
             {% for activeShipping in page.cart.deliveries.elements %}
                 {% block component_offcanvas_summary_content_info %}
                     <div class="row offcanvas-shipping-info">
-                        <span class="{% if feature('ACCESSIBILITY_TWEAKS') %}col-8{% else %}col-7{% endif %} shipping-label shipping-cost">
+                        <span class="col-8 shipping-label shipping-cost">
                             <strong>{{ 'checkout.summaryShipping'|trans|sw_sanitize }}</strong>
                             {% if loop.first %}
                                 {% if page.shippingMethods|length %}
@@ -44,10 +43,9 @@
                             {% endif %}
                         </span>
 
-                        <span class="{% if feature('ACCESSIBILITY_TWEAKS') %}col-4{% else %}col-5{% endif %} pb-2 shipping-value shipping-cost">
+                        <span class="col-4 pb-2 shipping-value shipping-cost">
                             {% set shippingTotalPrice = activeShipping.shippingCosts.totalPrice ?? 0 %}
-                            {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed in the shopping cart summary. #}
-                            <strong>{{ shippingTotalPrice < 0 ? '&minus;' : '+' }} {{ shippingTotalPrice|abs|currency }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %}</strong>
+                            <strong>{{ shippingTotalPrice < 0 ? '&minus;' : '+' }} {{ shippingTotalPrice|abs|currency }}</strong>
                         </span>
                     </div>
                 {% endblock %}
@@ -90,9 +88,6 @@
     {% block component_offcanvas_summary_tax_info %}
         <p class="offcanvas-cart-tax">
             <small>
-                {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed in the shopping cart summary. #}
-                {% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %}
-
                 {% if page.cart.price.taxStatus == 'gross' %}
                     {{ 'general.grossTaxInformation'|trans|sw_sanitize }}
                 {% else %}

@@ -12,7 +12,7 @@ class AccountOrderDetailPage extends Page
 {
     protected OrderEntity $order;
 
-    protected ?OrderLineItemCollection $lineItems;
+    protected ?OrderLineItemCollection $lineItems = null;
 
     public function getOrder(): OrderEntity
     {

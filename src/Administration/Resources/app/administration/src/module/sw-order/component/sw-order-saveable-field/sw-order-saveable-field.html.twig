@@ -18,21 +18,25 @@
     {% endblock %}
     {% block sw_order_saveable_field_actions %}
     {% block sw_order_saveable_field_cancel_button %}
-    <sw-button
+    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+    <mt-button
         size="x-small"
         square
+        aria-label="global.default.cancel"
         @click="onCancelButtonClicked"
     >
         <sw-icon
             name="regular-times-xs"
             small
         />
-    </sw-button>
+    </mt-button>
     {%  endblock %}
     {%  block sw_order_saveable_field_save_button %}
-    <sw-button
+    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
+    <mt-button
         size="x-small"
         variant="primary"
+        aria-label="global.default.save"
         square
         @click="onSaveButtonClicked"
     >
@@ -40,7 +44,7 @@
             name="regular-checkmark-xxs"
             small
         />
-    </sw-button>
+    </mt-button>
     {%  endblock %}
     {% endblock %}
 </sw-container>

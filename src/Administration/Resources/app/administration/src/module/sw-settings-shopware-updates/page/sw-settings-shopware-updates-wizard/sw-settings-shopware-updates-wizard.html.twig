@@ -63,9 +63,9 @@
             class="sw-shopware-updates-progressbar"
         >
             <div class="progress-wrapper">
-                <sw-progress-bar
-                    :value="progressbarValue"
-                    :max-value="100"
+                <mt-progress-bar
+                    :modelValue="progressbarValue"
+                    :maxValue="100"
                 />
                 <span class="progress-title">
                     <p v-if="step === 'download'">{{ $t('sw-settings-shopware-updates.infos.progress.download') }}</p>

@@ -207,7 +207,8 @@ module.exports = {
                     fix: true,
                     activatedComponents: [
                         'sw-alert',
-                        'sw-text-field'
+                        'sw-text-field',
+                        'sw-progress-bar'
                     ],
                 }],
                 // @deprecated v.6.7.0.0 - will be error in v.6.7

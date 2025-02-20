@@ -187,7 +187,7 @@ async function createWrapper() {
                     }),
                     'sw-product-variants-configurator-selection': true,
                     'sw-icon': true,
-                    'sw-progress-bar': true,
+                    'mt-progress-bar': true,
 
                     'sw-upload-listener': true,
                     'sw-media-compact-upload-v2': true,

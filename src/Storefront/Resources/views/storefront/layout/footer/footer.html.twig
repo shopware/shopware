@@ -36,7 +36,8 @@
                         {% endblock %}
 
                         {% block layout_footer_navigation_hotline_content %}
-                            {% set cmsPath = feature('ACCESSIBILITY_TWEAKS') ? 'frontend.cms.page.full' : 'frontend.cms.page' %}
+                            {% set cmsPath = 'frontend.cms.page.full' %}
+
                             <div id="collapseFooterHotline"
                                  class="footer-column-content collapse js-footer-column-content footer-contact"
                                  aria-labelledby="collapseFooterHotlineTitle"
@@ -47,7 +48,7 @@
                                     </p>
                                 </div>
                                 <div class="footer-contact-form">
-                                    {% set contactSnippetKey = feature('ACCESSIBILITY_TWEAKS') ? 'footer.serviceContactTextPage' : 'footer.serviceContactText' %}
+                                    {% set contactSnippetKey = 'footer.serviceContactTextPage' %}
 
                                     {{ contactSnippetKey|trans({
                                         '%url%': path(cmsPath, { id: config('core.basicInformation.contactPage') })
@@ -210,20 +211,16 @@
             {% endblock %}
 
             {% block layout_footer_vat %}
-                {% set cmsPath = feature('ACCESSIBILITY_TWEAKS') ? 'frontend.cms.page.full' : 'frontend.cms.page' %}
+                {% set cmsPath = 'frontend.cms.page.full' %}
+
                 {% if showVatNotice or showVatNotice is not defined %}
                     <div class="footer-vat">
-                        {%- if feature('ACCESSIBILITY_TWEAKS') -%}
-                            {% set shippingSnippetKey = context.taxState == 'gross' ? 'footer.includeVatTextPage' : 'footer.excludeVatTextPage' %}
-                        {%- else -%}
-                            {% set shippingSnippetKey = context.taxState == 'gross' ? 'footer.includeVatText' : 'footer.excludeVatText' %}
-                        {%- endif -%}
+                        {% set shippingSnippetKey = context.taxState == 'gross' ? 'footer.includeVatTextPage' : 'footer.excludeVatTextPage' %}
 
                         <p>
-                            {# @deprecated tag:v6.7.0 - The %star% translation parameter will be removed. Translation text will no longer contain the asterisk/star. #}
                             {{ shippingSnippetKey|trans({
                                 '%url%': path(cmsPath, { id: config('core.basicInformation.shippingPaymentInfoPage') }),
-                                '%star%': feature('ACCESSIBILITY_TWEAKS') ? '' : '* '
+                                '%star%': ''
                             })|raw }}
                         </p>
                     </div>

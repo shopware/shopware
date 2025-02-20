@@ -9,12 +9,13 @@
         :inherited-value="parentProduct.metaTitle"
     >
         <template #content="props">
-            <sw-text-field
+
+            <mt-text-field
                 :placeholder="$tc('sw-product.seoForm.placeholderMetaTitle')"
                 :error="productMetaTitleError"
                 :disabled="props.isInherited || !allowEdit"
-                :value="props.currentValue"
-                @update:value="props.updateCurrentValue"
+                :model-value="props.currentValue"
+                @update:model-value="props.updateCurrentValue"
             />
         </template>
     </sw-inherit-wrapper>
@@ -49,12 +50,13 @@
         :inherited-value="parentProduct.keywords"
     >
         <template #content="props">
-            <sw-text-field
+
+            <mt-text-field
                 :placeholder="$tc('sw-product.seoForm.placeholderKeywords')"
                 :error="productKeywordsError"
                 :disabled="props.isInherited || !allowEdit"
-                :value="props.currentValue"
-                @update:value="props.updateCurrentValue"
+                :model-value="props.currentValue"
+                @update:model-value="props.updateCurrentValue"
             />
         </template>
     </sw-inherit-wrapper>

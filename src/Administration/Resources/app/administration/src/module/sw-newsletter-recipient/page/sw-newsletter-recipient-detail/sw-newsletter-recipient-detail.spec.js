@@ -103,37 +103,41 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail
     it('should disable all inputs and disallow saving', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // check if the save-action-btn is disabled
         expect(
             wrapper.findByText('button', 'sw-newsletter-recipient.general.buttonSave').attributes('disabled'),
         ).toBeDefined();
 
-        const fields = wrapper.findAllComponents('.sw-field');
-        expect(fields).toHaveLength(11);
+        const mtFields = wrapper.findAllComponents('.mt-field');
+        const swFields = wrapper.findAllComponents('.sw-field');
+        expect(mtFields.length + swFields.length).toBe(11);
 
         // check that they are all disabled
-        expect(fields.every((field) => field.props('disabled'))).toBe(true);
+        expect(mtFields.every((field) => field.props('disabled'))).toBe(true);
+        expect(swFields.every((field) => field.props('disabled'))).toBe(true);
     });
 
     it('should enable all inputs and allow saving', async () => {
         global.activeAclRoles = ['newsletter_recipient.editor'];
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // check if the save-action-btn is enabled
         expect(
             wrapper.findByText('button', 'sw-newsletter-recipient.general.buttonSave').attributes('disabled'),
         ).toBeUndefined();
 
-        const fields = wrapper.findAllComponents('.sw-field');
-        expect(fields).toHaveLength(11);
+        const mtFields = wrapper.findAllComponents('.mt-field');
+        const swFields = wrapper.findAllComponents('.sw-field');
+        expect(mtFields.length + swFields.length).toBe(11);
 
+        /* eslint-disable jest/prefer-to-have-length */
         // check that they are all enabled minus the saleschannel select which is always disabled
-        expect(fields.filter((field) => !field.props('disabled'))).toHaveLength(10);
+        expect(mtFields.filter((field) => !field.props('disabled')).length).toBe(7);
+        expect(swFields.filter((field) => !field.props('disabled')).length).toBe(3);
+        /* eslint-enable jest/prefer-to-have-length */
 
         // now check that the salechannel is disabled
         expect(wrapper.getComponent('[label="sw-newsletter-recipient.general.salesChannel"]').props('disabled')).toBe(true);

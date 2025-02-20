@@ -264,9 +264,10 @@
         <template #column-name="{item, isInlineEdit}">
 
             {% block sw_product_variant_modal_body_grid_column_name_inline_edit %}
-            <sw-text-field
+
+            <mt-text-field
                 v-if="isInlineEdit"
-                v-model:value="item.name"
+                v-model="item.name"
                 :placeholder="$tc('sw-product.list.variantModalInlineEditProductNamePlaceholder')"
                 size="small"
             />

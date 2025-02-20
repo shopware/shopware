@@ -70,8 +70,9 @@
                     position-identifier="sw-mail-header-footer-detail-basic-info"
                 >
                     {% block sw_mail_header_footer_basic_form_name_field %}
-                    <sw-text-field
-                        v-model:value="mailHeaderFooter.name"
+
+                    <mt-text-field
+                        v-model="mailHeaderFooter.name"
                         name="sw-field--mailHeaderFooter-name"
                         validation="required"
                         required

@@ -40,18 +40,20 @@
         gap="20px"
     >
         {% block sw_custom_field_type_select_options_container_technical_name %}
-        <sw-text-field
-            v-model:value="option.value"
+
+        <mt-text-field
+            v-model="option.value"
             :label="$tc('sw-settings-custom-field.customField.detail.labelTechnicalName')"
         />
         {% endblock %}
 
         {% block sw_custom_field_type_select_options_container_labels %}
         <div>
-            <sw-text-field
+
+            <mt-text-field
                 v-for="locale in locales"
                 :key="locale"
-                v-model:value="option.label[locale]"
+                v-model="option.label[locale]"
                 class="sw-custom-field-type-select__option-label"
                 :label="getLabel(locale)"
             />

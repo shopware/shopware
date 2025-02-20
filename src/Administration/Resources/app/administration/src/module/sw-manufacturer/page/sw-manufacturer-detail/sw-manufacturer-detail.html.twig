@@ -79,8 +79,9 @@
                         <div class="sw-manufacturer-detail__base-info-wrapper">
 
                             {% block sw_manufacturer_detail_base_info_field_name %}
-                            <sw-text-field
-                                v-model:value="manufacturer.name"
+
+                            <mt-text-field
+                                v-model="manufacturer.name"
                                 :label="$tc('sw-manufacturer.detail.labelName')"
                                 :placeholder="placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.placeholderName'))"
                                 name="name"
@@ -92,8 +93,9 @@
                             {% endblock %}
 
                             {% block sw_manufacturer_detail_base_info_field_link %}
-                            <sw-text-field
-                                v-model:value="manufacturer.link"
+
+                            <mt-text-field
+                                v-model="manufacturer.link"
                                 :label="$tc('sw-manufacturer.detail.labelLink')"
                                 :placeholder="$tc('sw-manufacturer.detail.placeholderLink')"
                                 name="link"

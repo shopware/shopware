@@ -23,68 +23,59 @@
                                 {% set displayMode = 'cover' %}
                             {% endif %}
 
-                            {# @deprecated tag:v6.7.0 - Product image will no longer be a link. Use inner block `component_product_box_image_link_inner` instead. #}
-                            {% block component_product_box_image_link %}
-                                {# @deprecated tag:v6.7.0 - Product image will no longer be a link. The product name will be used as primary link and its click surface will be streched over the image. #}
-                                {% if not feature('ACCESSIBILITY_TWEAKS') %}
-                                    <a href="{{ seoUrl('frontend.detail.page', { productId: id }) }}"
-                                       title="{{ name }}"
-                                       class="product-image-link is-{{ displayMode }}">
-                                {% endif %}
-                                    {% block component_product_box_image_link_inner %}
-                                        {% if cover.url and cover.isSpatialObject() == false %}
-                                            {% set attributes = {
-                                                class: 'product-image is-' ~ displayMode,
-                                                title: (cover.translated.title ?: name)
-                                            } %}
+                            {% block component_product_box_image_inner %}
+                                {# @deprecated tag:v6.8.0 - Block will be removed. Use component_product_box_image_inner instead. #}
+                                {% block component_product_box_image_link_inner %}
 
-                                            {% if cover.getMediaType().getName() === 'VIDEO' %}
-                                                {% if config('core.listing.autoplayVideoInListing') %}
-                                                    {% set attributes = attributes|merge({
-                                                        autoplay: true,
-                                                        loop: true
-                                                    }) %}
-                                                {% endif %}
+                                    {% if cover.url and cover.isSpatialObject() == false %}
+                                        {% set attributes = {
+                                            class: 'product-image is-' ~ displayMode,
+                                            title: (cover.translated.title ?: name)
+                                        } %}
 
-                                                {% block component_product_box_video %}
-                                                    {% sw_include '@Storefront/storefront/utilities/video.html.twig' with {
-                                                        media: cover,
-                                                        attributes: attributes
-                                                    } %}
-                                                {% endblock %}
-                                            {% else %}
+                                        {% if cover.getMediaType().getName() === 'VIDEO' %}
+                                            {% if config('core.listing.autoplayVideoInListing') %}
                                                 {% set attributes = attributes|merge({
-                                                    alt: (cover.translated.alt ?: name),
-                                                    loading: 'lazy'
+                                                    autoplay: true,
+                                                    loop: true
                                                 }) %}
-
-                                                {% if displayMode == 'cover' or displayMode == 'contain' %}
-                                                    {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
-                                                {% endif %}
-
-                                                {% block component_product_box_image_thumbnail %}
-                                                    {% sw_thumbnails 'product-image-thumbnails' with {
-                                                        media: cover,
-                                                        sizes: sizes,
-                                                        attributes: attributes
-                                                    } %}
-                                                {% endblock %}
                                             {% endif %}
+
+                                            {% block component_product_box_video %}
+                                                {% sw_include '@Storefront/storefront/utilities/video.html.twig' with {
+                                                    media: cover,
+                                                    attributes: attributes
+                                                } %}
+                                            {% endblock %}
                                         {% else %}
-                                            {% block component_product_box_image_placeholder %}
-                                                <div class="product-image-placeholder">
-                                                    {% sw_icon 'placeholder' style {
-                                                        size: 'fluid',
-                                                        ariaHidden: true
-                                                    } %}
-                                                </div>
+                                            {% set attributes = attributes|merge({
+                                                alt: (cover.translated.alt ?: name),
+                                                loading: 'lazy'
+                                            }) %}
+
+                                            {% if displayMode == 'cover' or displayMode == 'contain' %}
+                                                {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
+                                            {% endif %}
+
+                                            {% block component_product_box_image_thumbnail %}
+                                                {% sw_thumbnails 'product-image-thumbnails' with {
+                                                    media: cover,
+                                                    sizes: sizes,
+                                                    attributes: attributes
+                                                } %}
                                             {% endblock %}
                                         {% endif %}
-                                    {% endblock %}
-                                {# @deprecated tag:v6.7.0 - Product image will no longer be a link. The product name will be used as primary link and its click surface will be streched over the image. #}
-                                {% if not feature('ACCESSIBILITY_TWEAKS') %}
-                                    </a>
-                                {% endif %}
+                                    {% else %}
+                                        {% block component_product_box_image_placeholder %}
+                                            <div class="product-image-placeholder">
+                                                {% sw_icon 'placeholder' style {
+                                                    size: 'fluid',
+                                                    ariaHidden: true
+                                                } %}
+                                            </div>
+                                        {% endblock %}
+                                    {% endif %}
+                                {% endblock %}
                             {% endblock %}
 
                             {% if config('core.cart.wishlistEnabled') %}
@@ -114,9 +105,8 @@
                             {% endblock %}
 
                             {% block component_product_box_name %}
-                                {# @deprecated tag:v6.7.0 - Product name will have class `stretched-link` and will be streched over the product image. #}
                                 <a href="{{ seoUrl('frontend.detail.page', { productId: id }) }}"
-                                   class="product-name{% if feature('ACCESSIBILITY_TWEAKS') %} stretched-link{% endif %}">
+                                   class="product-name stretched-link">
                                     {{ name }}
                                 </a>
                             {% endblock %}

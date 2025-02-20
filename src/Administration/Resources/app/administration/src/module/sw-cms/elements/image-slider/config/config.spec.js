@@ -12,6 +12,7 @@ async function createWrapper(activeTab = 'content', sliderItems = []) {
             sync: true,
         }),
         {
+            attachTo: document.body,
             global: {
                 renderStubDefaultSlot: true,
                 provide: {

@@ -143,13 +143,14 @@
                         {% endblock %}
 
                         {% block sw_cms_element_image_gallery_config_settings_min_height %}
-                        <sw-text-field
-                            v-model:value="element.config.minHeight.value"
+
+                        <mt-text-field
+                            v-model="element.config.minHeight.value"
                             :label="$tc('sw-cms.elements.image.config.label.minHeight')"
                             :placeholder="$tc('sw-cms.elements.image.config.placeholder.enterMinHeight')"
                             :help-text="$tc('sw-cms.elements.image.config.label.minHeightHelpText')"
                             :disabled="!['cover', 'contain'].includes(element.config.displayMode.value)"
-                            @update:value="onChangeMinHeight"
+                            @update:model-value="onChangeMinHeight"
                         />
                         {% endblock %}
 

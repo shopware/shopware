@@ -6,8 +6,9 @@
 >
     <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/attributes-order -->
     {% block sw_settings_custom_field_set_detail_base_technical_name %}
-    <sw-text-field
-        v-model:value="set.name"
+
+    <mt-text-field
+        v-model="set.name"
         name="sw-field--set-name"
         class="sw-settings-custom-field-set-detail-base__technical-name"
         :label="$tc(`sw-settings-custom-field.set.detail.labelTechnicalName`)"
@@ -15,7 +16,7 @@
         :disabled="!set._isNew || !acl.can('custom_field.editor') || undefined"
         :error="technicalNameError"
         required
-        @update:value="onTechnicalNameChange"
+        @update:model-value="onTechnicalNameChange"
     />
     {% endblock %}
 

@@ -112,8 +112,9 @@
                 >
                     {% block sw_settings_snippet_list_column_value_inline_edit %}
                     <template v-if="isInlineEdit">
-                        <sw-text-field
-                            v-model:value="item[set.id].value"
+
+                        <mt-text-field
+                            v-model="item[set.id].value"
                             :placeholder="item[set.id].origin || $tc('sw-settings-snippet.general.placeholderValue')"
                             :size="compact ? 'small' : 'default'"
                         />

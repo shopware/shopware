@@ -11,8 +11,9 @@
             gap="0px 30px"
         >
             {% block sw_category_detail_information_name %}
-            <sw-text-field
-                v-model:value="category.name"
+
+            <mt-text-field
+                v-model="category.name"
                 required
                 name="categoryName"
                 validation="required"

@@ -26,8 +26,9 @@
         gap="30px"
     >
         {% block sw_flow_create_mail_template_modal_subject %}
-        <sw-text-field
-            v-model:value="mailTemplate.subject"
+
+        <mt-text-field
+            v-model="mailTemplate.subject"
             name="sw-field--mailTemplate-subject"
             class="sw-flow-create-mail-template-modal__subject"
             required
@@ -38,8 +39,9 @@
         {% endblock %}
 
         {% block sw_flow_create_mail_template_modal_sender_name %}
-        <sw-text-field
-            v-model:value="mailTemplate.senderName"
+
+        <mt-text-field
+            v-model="mailTemplate.senderName"
             name="sw-field--mailTemplate-senderName"
             class="sw-flow-create-mail-template-modal__sender-name"
             :label="$tc('sw-flow.modals.mail.labelSenderName')"

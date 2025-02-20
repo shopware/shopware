@@ -6,8 +6,9 @@
 >
     <div>
         {% block sw_order_create_details_body_email %}
-        <sw-text-field
-            v-model:value="email"
+
+        <mt-text-field
+            v-model="email"
             disabled
             size="small"
             class="sw-order-create-details-body__item"
@@ -45,8 +46,9 @@
 
     <div>
         {% block sw_order_create_details_body_phone_number %}
-        <sw-text-field
-            v-model:value="phoneNumber"
+
+        <mt-text-field
+            v-model="phoneNumber"
             disabled
             size="small"
             class="sw-order-create-details-body__item"

@@ -29,7 +29,6 @@ async function createWrapper(category = {}) {
                 'sw-card': {
                     template: '<div class="sw-card"><slot></slot></div>',
                 },
-                'sw-text-field': true,
                 'sw-single-select': true,
                 'sw-entity-single-select': true,
                 'sw-switch-field': true,
@@ -59,8 +58,8 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
         expect(linkTypeField.attributes().options).toBeTruthy();
         expect(wrapper.vm.linkTypeValues).toHaveLength(2);
 
-        const textField = wrapper.find('sw-text-field-stub');
-        expect(textField.attributes().disabled).toBeFalsy();
+        const textField = wrapper.findComponent('.mt-text-field');
+        expect(textField.props().disabled).toBeFalsy();
 
         const newTabField = wrapper.find('sw-switch-field-stub');
         expect(newTabField.attributes().disabled).toBeFalsy();
@@ -78,8 +77,8 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
         expect(linkTypeField.attributes().options).toBeTruthy();
         expect(wrapper.vm.linkTypeValues).toHaveLength(2);
 
-        const textField = wrapper.find('sw-text-field-stub');
-        expect(textField.attributes().disabled).toBeFalsy();
+        const textField = wrapper.findComponent('.mt-text-field');
+        expect(textField.props().disabled).toBeFalsy();
 
         const newTabField = wrapper.find('sw-switch-field-stub');
         expect(newTabField.attributes().disabled).toBeFalsy();
@@ -160,8 +159,8 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
         const linkTypeField = wrapper.find('sw-single-select-stub');
         expect(linkTypeField.attributes().disabled).toBeTruthy();
 
-        const externalLinkField = wrapper.find('sw-text-field-stub');
-        expect(externalLinkField.attributes().disabled).toBeTruthy();
+        const externalLinkField = wrapper.findComponent('.mt-text-field');
+        expect(externalLinkField.props().disabled).toBeTruthy();
 
         const newTabField = wrapper.find('sw-switch-field-stub');
         expect(newTabField.attributes().disabled).toBeTruthy();

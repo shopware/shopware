@@ -255,9 +255,10 @@
             #column-productNumber="{ item, isInlineEdit, compact }"
         >
             {% block sw_product_variants_overview_data_grid_column_product_number_inline_edit %}
-            <sw-text-field
+
+            <mt-text-field
                 v-if="isInlineEdit"
-                v-model:value="item.productNumber"
+                v-model="item.productNumber"
                 :size="compact ? 'small' : 'default'"
             />
             {% endblock %}

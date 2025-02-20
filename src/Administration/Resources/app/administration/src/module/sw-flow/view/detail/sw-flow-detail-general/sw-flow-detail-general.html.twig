@@ -23,8 +23,9 @@
         :is-loading="isLoading"
     >
         {% block sw_flow_detail_general_information_name %}
-        <sw-text-field
-            v-model:value="flow.name"
+
+        <mt-text-field
+            v-model="flow.name"
             class="sw-flow-detail-general__general-name"
             :required="!isTemplate"
             :disabled="!acl.can('flow.editor') || undefined"

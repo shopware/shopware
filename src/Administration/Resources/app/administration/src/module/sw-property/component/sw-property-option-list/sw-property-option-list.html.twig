@@ -86,8 +86,9 @@
 
             <template #column-name="{ item, isInlineEdit }">
                 <template v-if="isInlineEdit">
-                    <sw-text-field
-                        v-model:value="item.name"
+
+                    <mt-text-field
+                        v-model="item.name"
                         size="small"
                     />
                 </template>

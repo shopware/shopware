@@ -74,7 +74,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
     it('should display name error', async () => {
         await wrapper.setProps({ labelError: {} });
 
-        expect(wrapper.find('.sw-settings-listing-edit__general-input .sw-field__error').exists()).toBe(true);
+        expect(wrapper.find('.sw-settings-listing-edit__general-input .mt-field__error').exists()).toBe(true);
     });
 
     it('should display the correct technical name', async () => {
@@ -87,7 +87,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
         await wrapper.setProps({ technicalNameError: {} });
 
         expect(
-            wrapper.find('.sw-settings-listing-option-general-info__field-technical-name .sw-field__error').exists(),
+            wrapper.find('.sw-settings-listing-option-general-info__field-technical-name .mt-field__error').exists(),
         ).toBe(true);
     });
 

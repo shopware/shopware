@@ -103,7 +103,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
         expect(loginStatus.exists()).toBe(false);
 
         // get fields
-        const shopwareIdField = wrapper.get('.sw-extension-my-extensions-account__shopware-id-field');
+        const shopwareIdField = wrapper.get('.sw-extension-my-extensions-account__shopware-id-field input');
         const passwordField = wrapper.get('.sw-extension-my-extensions-account__password-field');
         const loginButton = wrapper.find('.sw-extension-my-extensions-account__login-button');
 

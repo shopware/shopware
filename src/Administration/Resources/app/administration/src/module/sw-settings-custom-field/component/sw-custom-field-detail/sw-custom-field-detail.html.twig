@@ -30,8 +30,9 @@
         {% endblock %}
 
         {% block sw_custom_field_detail_modal_technical_name %}
-        <sw-text-field
-            v-model:value="currentCustomField.name"
+
+        <mt-text-field
+            v-model="currentCustomField.name"
             class="sw-custom-field-detail__technical-name"
             :label="$tc('sw-settings-custom-field.customField.detail.labelTechnicalName')"
             :help-text="$tc('sw-settings-custom-field.general.tooltipTechnicalName')"

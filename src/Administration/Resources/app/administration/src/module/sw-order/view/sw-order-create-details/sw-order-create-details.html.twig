@@ -123,8 +123,9 @@
             columns="1fr 1fr"
         >
             {% block sw_order_create_details_email %}
-            <sw-text-field
-                v-model:value="email"
+
+            <mt-text-field
+                v-model="email"
                 disabled
                 class="sw-order-create-details__email"
                 :label="$tc('sw-order.createBase.labelEmail')"
@@ -134,8 +135,9 @@
             {% endblock %}
 
             {% block sw_order_create_details_phone_number %}
-            <sw-text-field
-                v-model:value="phoneNumber"
+
+            <mt-text-field
+                v-model="phoneNumber"
                 disabled
                 class="sw-order-create-details__phone-number"
                 :label="$tc('sw-order.createBase.labelPhoneNumber')"

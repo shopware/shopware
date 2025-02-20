@@ -149,15 +149,6 @@ async function createWrapper() {
                     props: ['value'],
                     emits: ['update:value'],
                 },
-                'sw-text-field': {
-                    template: `
-                        <input class="sw-text-field-stub"
-                            :value="value" type="text"
-                            @input="$emit(\'update:value\', $event.target.value)"/>
-                    `,
-                    props: ['value'],
-                    emits: ['update:value'],
-                },
                 'sw-contextual-field': {
                     template: '<div></div>',
                 },
@@ -194,7 +185,7 @@ describe('module/sw-property/component/sw-property-option-list', () => {
         const modal = wrapper.find('.sw-modal');
 
         // clear color value
-        await modal.get('.sw-text-field-stub').setValue('new name');
+        await modal.get('.mt-text-field input').setValue('new name');
         await modal.get('.sw-number-field-stub').setValue(0);
         await modal.get('.sw-colorpicker-stub').setValue('#000000');
 

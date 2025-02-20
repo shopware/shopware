@@ -223,10 +223,10 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(fieldPassword.exists()).toBeTruthy();
         expect(fieldLanguage.exists()).toBeTruthy();
 
-        expect(fieldFirstName.attributes('value')).toBe('');
-        expect(fieldLastName.attributes('value')).toBe('admin');
-        expect(fieldEmail.attributes('value')).toBe('info@shopware.com');
-        expect(fieldUsername.attributes('value')).toBe('admin');
+        expect(fieldFirstName.props('modelValue')).toBe('');
+        expect(fieldLastName.props('modelValue')).toBe('admin');
+        expect(fieldEmail.props('modelValue')).toBe('info@shopware.com');
+        expect(fieldUsername.props('modelValue')).toBe('admin');
         expect(fieldProfilePicture.attributes('value')).toBeUndefined();
         expect(fieldPassword.attributes('value')).toBeUndefined();
         expect(fieldLanguage.attributes('value')).toBe('7dc07b43229843d387bb5f59233c2d66');
@@ -261,10 +261,10 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(fieldPassword.exists()).toBeTruthy();
         expect(fieldLanguage.exists()).toBeTruthy();
 
-        expect(fieldFirstName.attributes('value')).toBe('Max');
-        expect(fieldLastName.attributes('value')).toBe('Mustermann');
-        expect(fieldEmail.attributes('value')).toBe('max@mustermann.com');
-        expect(fieldUsername.attributes('value')).toBe('maxmuster');
+        expect(fieldFirstName.props('modelValue')).toBe('Max');
+        expect(fieldLastName.props('modelValue')).toBe('Mustermann');
+        expect(fieldEmail.props('modelValue')).toBe('max@mustermann.com');
+        expect(fieldUsername.props('modelValue')).toBe('maxmuster');
         expect(fieldProfilePicture.attributes('value')).toBeUndefined();
         expect(fieldPassword.attributes('value')).toBeUndefined();
         expect(fieldLanguage.attributes('value')).toBe('12345');
@@ -339,10 +339,10 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         const contextMenuItemEdit = wrapper.findComponent('.sw-settings-user-detail__grid-context-menu-edit');
         const contextMenuItemDelete = wrapper.findComponent('.sw-settings-user-detail__grid-context-menu-delete');
 
-        expect(fieldFirstName.attributes('disabled')).toBe('true');
-        expect(fieldLastName.attributes('disabled')).toBe('true');
-        expect(fieldEmail.attributes('disabled')).toBe('true');
-        expect(fieldUsername.attributes('disabled')).toBe('true');
+        expect(fieldFirstName.props('disabled')).toBe(true);
+        expect(fieldLastName.props('disabled')).toBe(true);
+        expect(fieldEmail.props('disabled')).toBe(true);
+        expect(fieldUsername.props('disabled')).toBe(true);
         expect(fieldProfilePicture.attributes().disabled).toBe('true');
         expect(fieldPassword.attributes().disabled).toBe('true');
         expect(fieldLanguage.attributes().disabled).toBe('true');

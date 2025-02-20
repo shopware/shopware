@@ -4,8 +4,9 @@
     :class="confirmFieldClasses"
 >
     {% block sw_confirm_field_input_field %}
-    <sw-text-field
-        v-model:value="draft"
+
+    <mt-text-field
+        v-model="draft"
         v-bind="$attrs"
         :required="required"
         :disabled="disabled"
@@ -15,7 +16,7 @@
         @blur="onBlurField"
         @keyup.enter="onSubmitFromKey"
         @keyup.esc="onCancelFromKey"
-        @update:value="onInput"
+        @update:model-value="onInput"
     />
     {% endblock %}
 

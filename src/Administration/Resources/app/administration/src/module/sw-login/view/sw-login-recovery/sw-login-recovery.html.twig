@@ -26,9 +26,10 @@
         @submit.prevent="sendRecoveryMail"
     >
         {% block sw_login_recovery_form_email_field %}
-        <sw-text-field
+
+        <mt-text-field
             ref="swLoginRecoveryEmailField"
-            v-model:value="email"
+            v-model="email"
             :label="$tc('sw-login.recovery.email.label')"
             :placeholder="$tc('sw-login.recovery.email.placeholder')"
         />

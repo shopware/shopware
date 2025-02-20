@@ -8,26 +8,10 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('inventory')]
 class AnalyzedKeyword extends Struct
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $keyword;
-
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $ranking;
-
     public function __construct(
-        string $keyword,
-        float $ranking
+        protected string $keyword,
+        protected float $ranking
     ) {
-        $this->keyword = $keyword;
-        $this->ranking = $ranking;
     }
 
     public function getKeyword(): string

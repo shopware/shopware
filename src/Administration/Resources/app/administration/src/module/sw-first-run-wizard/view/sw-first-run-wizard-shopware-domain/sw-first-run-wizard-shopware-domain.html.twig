@@ -14,8 +14,9 @@
     />
 
     <div v-if="createShopDomain">
-        <sw-text-field
-            v-model:value="newShopDomain"
+
+        <mt-text-field
+            v-model="newShopDomain"
             name="newShopDomain"
             validation="required"
             :label="'Shop domain'"

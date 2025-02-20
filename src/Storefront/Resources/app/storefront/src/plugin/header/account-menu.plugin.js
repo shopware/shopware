@@ -17,13 +17,6 @@ export default class OffCanvasAccountMenu extends Plugin {
         additionalClass: 'account-menu-offcanvas',
 
         /**
-         * class is used to hide the dropdown on viewports where the offcanvas is used
-         *
-         * @deprecated tag:v6.7.0 - Hidden class will be removed because the dropdown does not open in the first place when _isInAllowedViewports() is true.
-         */
-        hiddenClass: 'd-none',
-
-        /**
          * from which direction the offcanvas opens
          */
         offcanvasPostion: 'left',
@@ -58,8 +51,6 @@ export default class OffCanvasAccountMenu extends Plugin {
         if (this._isInAllowedViewports() === false) {
             return;
         }
-
-        this._dropdown.classList.add(this.options.hiddenClass);
 
         OffCanvas.open(this._dropdown.innerHTML, null, this.options.offcanvasPostion, true, OffCanvas.REMOVE_OFF_CANVAS_DELAY());
         OffCanvas.setAdditionalClassName(this.options.additionalClass);
@@ -97,20 +88,9 @@ export default class OffCanvasAccountMenu extends Plugin {
             const bsDropdownInstance = bootstrap.Dropdown.getInstance(this.el);
 
             if (this._isInAllowedViewports() === true) {
-                /**
-                 * @deprecated tag:v6.7.0 - hiddenClass will be removed because the dropdown does not open when _isInAllowedViewports() is true.
-                 * This is now handled by _onClickPreventDropdown() method. Instead of hiding the opened dropdown again by adding a hidden class,
-                 * we prevent that the dropdown opens in the first place in allowed viewports. When a dropdown is already opened and the viewport changes
-                 * to the allowed viewports, the dropdown will be closed using Bootstraps API instead of adding a hidden class.
-                 */
-                this._dropdown.classList.add(this.options.hiddenClass);
-
                 if (bsDropdownInstance) {
                     bsDropdownInstance.hide();
                 }
-            } else {
-                // @deprecated tag:v6.7.0 - Hidden class and else-case will be removed because the dropdown does not open when _isInAllowedViewports() is true.
-                this._dropdown.classList.remove(this.options.hiddenClass);
             }
         }
 

@@ -14,16 +14,16 @@
         @update:value="changeShowReplyToField"
     />
 
-    <sw-text-field
+    <mt-text-field
         v-if="showReplyToField"
-        v-model:value="replyTo"
+        v-model="replyTo"
         name="sw-field--replyTo"
         class="sw-flow-mail-send-modal__reply-to"
         :label="$tc('sw-flow.modals.mail.labelReplyTo')"
         :placeholder="$tc('sw-flow.modals.mail.placeholderReplyTo')"
         :error="replyToError"
         required
-        @update:value="replyToError = null"
+        @update:model-value="replyToError = null"
     />
 
     {% block sw_flow_mail_send_modal_recipient %}
@@ -53,9 +53,10 @@
 
         {% block sw_event_action_detail_recipients_grid_column_email %}
         <template #column-email="{ item, column, isInlineEdit, compact }">
-            <sw-text-field
+
+            <mt-text-field
                 v-if="isInlineEdit"
-                v-model:value="item.email"
+                v-model="item.email"
                 name="sw-field--item-email"
                 class="sw-flow-mail-send-modal__recipient-email"
                 :size="compact ? 'small' : 'default'"
@@ -70,9 +71,10 @@
 
         {% block sw_event_action_detail_recipients_grid_column_name %}
         <template #column-name="{ item, column, isInlineEdit, compact }">
-            <sw-text-field
+
+            <mt-text-field
                 v-if="isInlineEdit"
-                v-model:value="item.name"
+                v-model="item.name"
                 name="sw-field--item-name"
                 class="sw-flow-mail-send-modal__recipient-name"
                 :size="compact ? 'small' : 'default'"

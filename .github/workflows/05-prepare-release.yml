@@ -28,18 +28,22 @@ jobs:
         with:
           fetch-depth: "0"
           fetch-tags: "true"
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: 8.2
           coverage: none
           extensions: gd, xml, dom, curl, pdo, mysqli, mbstring, pdo_mysql, bcmath
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+
       - name: build shopware
         run: |
           composer setup
+
       - uses: actions/upload-artifact@v4
         with:
           name: context
@@ -76,7 +80,7 @@ jobs:
     runs-on: ubuntu-24.04
     environment: ${{ format('manyrepos ({0})', github.ref_type) }}
     # we use this image to get an older git version, which does not suffer from a performance regression
-    container: alpine:3.19
+    container: node:alpine3.19
     if: github.repository == 'shopware/shopware'
     strategy:
       matrix:
@@ -90,6 +94,7 @@ jobs:
       GIT_AUTHOR_NAME: "shopwareBot"
       GIT_COMMITTER_EMAIL: "shopwarebot@shopware.com"
       GIT_COMMITTER_NAME: "shopwareBot"
+      DEBUG: ${{ github.event.act && '1' || '' }}
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -100,23 +105,29 @@ jobs:
 
       - name: install deps
         run: apk add git git-subtree bash composer
+
       - name: Mark dir as safe
         run: git config --global --add safe.directory $PWD
+
       - name: split
         run: |
           bash .github/bin/split.bash split_repo "${{ matrix.package }}"
           git config --global --add safe.directory $PWD/repos/${{ matrix.package }}
           rm -Rf .git
+
       - name: Include assets
         run: |
           bash .github/bin/split.bash include_assets "${{ matrix.package }}"
+
       - name: Require core version
         run: |
           bash .github/bin/split.bash require_core_version "${{ matrix.package }}" "${{ github.ref_name }}" ${{ github.ref_type }}
+
       - name: Commit assets
         if: matrix.package != 'core'
         run: |
           bash .github/bin/split.bash commit "${{ matrix.package }}" "${{ github.ref_name }} (+ assets)"
+
       - name: Tag commit
         if: github.ref_type == 'tag'
         run: |
@@ -128,20 +139,24 @@ jobs:
           cat repos/${{ matrix.package }}/composer.json
           git -C repos/${{ matrix.package }} log -n 2
           git -C repos/${{ matrix.package }} diff @^.. | head -n 100
+
       - name: Create temporary branch
         if: github.ref_type != 'tag' && !github.ref_protected
         run: |
           bash .github/bin/split.bash branch "${{ matrix.package }}" "tmp-${{ github.sha }}"
+
       - name: Create named branch
         if: github.ref_type != 'tag' && github.ref_protected
         run: |
           bash .github/bin/split.bash branch "${{ matrix.package }}" "${{ github.ref_name }}"
+
       - name: Push
         if: github.ref_type == 'tag' || github.ref_protected
         run: |
           bash .github/bin/split.bash push "${{ matrix.package }}" https://git:${{ secrets.MANYREPO_SYNC_TOKEN }}@github.com/shopware "${{ github.ref_name }}"
+
       - name: Push temporary branch
-        if: github.ref_type != 'tag' && !github.ref_protected
+        if: github.ref_type != 'tag' && !github.ref_protected && !env.ACT
         run: |
           bash .github/bin/split.bash push "${{ matrix.package }}" https://git:${{ secrets.MANYREPO_SYNC_TOKEN }}@github.com/shopware "tmp-${{ github.sha }}"
 

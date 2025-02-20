@@ -16,8 +16,9 @@
         {% endblock %}
 
         {% block sw_bulk_edit_order_documents_skip_sent_documents %}
-        <sw-switch-field
-            v-model:value="value.skipSentDocuments"
+
+        <mt-switch
+            v-model="value.skipSentDocuments"
             :label="$tc('sw-bulk-edit.order.status.documents.skipSentDocuments')"
             :disabled="documents?.disabled || undefined"
         />

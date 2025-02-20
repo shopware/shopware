@@ -47,7 +47,6 @@
     {% block sw_settings_customer_group_list_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_customer_group_list_actions_create %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
@@ -69,7 +68,7 @@
     <template #content>
         <sw-card-view>
             {% block sw_settings_customer_group_list_card_content %}
-            <sw-card
+            <mt-card
                 position-identifier="sw-settings-customer-group-list"
             >
 
@@ -99,7 +98,6 @@
                     >
 
                         <template #bulk-modal-delete-items>
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 variant="critical"
                                 size="small"
@@ -121,7 +119,6 @@
                         </template>
 
                         <template #delete-modal-delete-item="{ item }">
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 variant="critical"
                                 size="small"
@@ -142,7 +139,7 @@
                 </template>
                 {% endblock %}
 
-            </sw-card>
+            </mt-card>
             {% endblock %}
         </sw-card-view>
 

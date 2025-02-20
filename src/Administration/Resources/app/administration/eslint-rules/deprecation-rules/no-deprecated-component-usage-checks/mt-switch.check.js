@@ -196,11 +196,11 @@ const handleMtSwitch = (context, node) => {
     if (valueAttribute) {
         context.report({
             node: valueAttribute,
-            message: `[${mtSwitchComponentName}] The "value" prop is removed. Use "checked" instead.`,
+            message: `[${mtSwitchComponentName}] The "value" prop is removed. Use "modelValue" instead.`,
             *fix(fixer) {
                 if (context.options.includes('disableFix')) return;
 
-                yield fixer.replaceText(valueAttribute.key, 'checked');
+                yield fixer.replaceText(valueAttribute.key, 'modelValue');
             }
         });
     }
@@ -208,7 +208,7 @@ const handleMtSwitch = (context, node) => {
     if (vModelValue) {
         context.report({
             node: vModelValue,
-            message: `[${mtSwitchComponentName}] The "value" prop is removed. Use ":checked" in combination with "@change".`,
+            message: `[${mtSwitchComponentName}] The "value" prop is removed. Use "v-model" instead.`,
             *fix(fixer)  {
                 if (context.options.includes('disableFix')) return;
 
@@ -216,8 +216,7 @@ const handleMtSwitch = (context, node) => {
                 // Remove quotes at the beginning and end of the string if exist
                 const vModelExpression = vModelExpressionRaw.replace(/^['"]|['"]$/g, '');
 
-                yield fixer.replaceText(vModelValue.key, ':checked');
-                yield fixer.insertTextAfter(vModelValue, ` @change="${vModelExpression} = $event"`);
+                yield fixer.replaceText(vModelValue.key, 'v-model');
             }
         });
     }
@@ -225,11 +224,11 @@ const handleMtSwitch = (context, node) => {
     if (valueAttributeExpression) {
         context.report({
             node: valueAttributeExpression,
-            message: `[${mtSwitchComponentName}] The "value" prop is removed. Use "checked" instead.`,
+            message: `[${mtSwitchComponentName}] The "value" prop is removed. Use "modelValue" instead.`,
             *fix(fixer) {
                 if (context.options.includes('disableFix')) return;
 
-                yield fixer.replaceText(valueAttributeExpression.key.argument, 'checked');
+                yield fixer.replaceText(valueAttributeExpression.key.argument, 'modelValue');
             }
         });
     }
@@ -576,7 +575,7 @@ const mtSwitchInvalidChecks = [
         }],
     },
     {
-        name: '"mt-switch" wrong v-model "value" usage. Should be replaced with "checked" using event listener to @change',
+        name: '"mt-switch" wrong v-model "value" usage. Should be replaced with "v-model"',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -584,14 +583,14 @@ const mtSwitchInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-switch :checked="myExampleValue" @change="myExampleValue = $event" />
+                <mt-switch v-model="myExampleValue" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "value" prop is removed. Use ":checked" in combination with "@change".',
+            message: '[mt-switch] The "value" prop is removed. Use "v-model" instead.',
         }],
     },
     {
-        name: '"mt-switch" wrong v-model "value" usage. Should be replaced with "checked" using event listener to @change [disabledFix]',
+        name: '"mt-switch" wrong v-model "value" usage. Should be replaced with "v-model" [disabledFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -599,11 +598,11 @@ const mtSwitchInvalidChecks = [
                 <mt-switch v-model:value="myExampleValue" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "value" prop is removed. Use ":checked" in combination with "@change".',
+            message: '[mt-switch] The "value" prop is removed. Use "v-model" instead.',
         }],
     },
     {
-        name: '"mt-switch" wrong "value" prop usage. Should be replaced with "checked".',
+        name: '"mt-switch" wrong "value" prop usage. Should be replaced with "modelValue".',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -611,14 +610,14 @@ const mtSwitchInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-switch checked="true" />
+                <mt-switch modelValue="true" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "value" prop is removed. Use "checked" instead.',
+            message: '[mt-switch] The "value" prop is removed. Use "modelValue" instead.',
         }],
     },
     {
-        name: '"mt-switch" wrong "value" prop usage. Should be replaced with "checked". [disabledFix]',
+        name: '"mt-switch" wrong "value" prop usage. Should be replaced with "modelValue". [disabledFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -626,11 +625,11 @@ const mtSwitchInvalidChecks = [
                 <mt-switch value="true" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "value" prop is removed. Use "checked" instead.',
+            message: '[mt-switch] The "value" prop is removed. Use "modelValue" instead.',
         }],
     },
     {
-        name: '"mt-switch" wrong "value" prop usage. Should be replaced with "checked". [expression]',
+        name: '"mt-switch" wrong "value" prop usage. Should be replaced with "modelValue". [expression]',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -638,14 +637,14 @@ const mtSwitchInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-switch :checked="myValue" />
+                <mt-switch :modelValue="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "value" prop is removed. Use "checked" instead.',
+            message: '[mt-switch] The "value" prop is removed. Use "modelValue" instead.',
         }],
     },
     {
-        name: '"mt-switch" wrong "value" prop usage. Should be replaced with "checked". [expression, disabledFix]',
+        name: '"mt-switch" wrong "value" prop usage. Should be replaced with "modelValue". [expression, disabledFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -653,11 +652,11 @@ const mtSwitchInvalidChecks = [
                 <mt-switch :value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "value" prop is removed. Use "checked" instead.',
+            message: '[mt-switch] The "value" prop is removed. Use "modelValue" instead.',
         }],
     },
     {
-        name: '"mt-switch" wrong "value" prop usage. Should be replaced with "checked". [withoutBinding]',
+        name: '"mt-switch" wrong "value" prop usage. Should be replaced with "modelValue". [withoutBinding]',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -665,14 +664,14 @@ const mtSwitchInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-switch checked />
+                <mt-switch modelValue />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "value" prop is removed. Use "checked" instead.',
+            message: '[mt-switch] The "value" prop is removed. Use "modelValue" instead.',
         }],
     },
     {
-        name: '"mt-switch" wrong "value" prop usage. Should be replaced with "checked". [withoutBinding, disabledFix]',
+        name: '"mt-switch" wrong "value" prop usage. Should be replaced with "modelValue". [withoutBinding, disabledFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -680,7 +679,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch value />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "value" prop is removed. Use "checked" instead.',
+            message: '[mt-switch] The "value" prop is removed. Use "modelValue" instead.',
         }],
     },
     {

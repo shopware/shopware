@@ -45,11 +45,7 @@ test('As a new customer, I cannot register as a commercial customer without prov
     await ShopCustomer.attemptsTo(Register(customer));
     await ShopCustomer.expects(StorefrontAccountLogin.vatRegNoInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
 
-    if (InstanceMeta.features['ACCESSIBILITY_TWEAKS']) {
-        await ShopCustomer.expects(StorefrontAccountLogin.vatRegNoInput).toHaveAttribute('aria-required');
-    } else {
-        await ShopCustomer.expects(StorefrontAccountLogin.vatRegNoInput).toHaveAttribute('required');
-    }
+    await ShopCustomer.expects(StorefrontAccountLogin.vatRegNoInput).toHaveAttribute('aria-required');
 
     await ShopCustomer.expects(StorefrontAccountLogin.page.getByText('I\'m a new customer!')).toBeVisible();
 });

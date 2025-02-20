@@ -8,14 +8,15 @@
         v-html="$tc('sw-first-run-wizard.shopwareDomain.message')"
     ></p>
 
-    <sw-switch-field
-        v-model:value="createShopDomain"
+    <mt-switch
+        v-model="createShopDomain"
         :label="$tc('sw-first-run-wizard.shopwareDomain.labelCreateDomain')"
     />
 
     <div v-if="createShopDomain">
-        <sw-text-field
-            v-model:value="newShopDomain"
+
+        <mt-text-field
+            v-model="newShopDomain"
             name="newShopDomain"
             validation="required"
             :label="'Shop domain'"

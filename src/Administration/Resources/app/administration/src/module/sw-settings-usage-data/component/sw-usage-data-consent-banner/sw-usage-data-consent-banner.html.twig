@@ -185,7 +185,6 @@
         class="sw-usage-data-consent-banner__footer"
     >
         <span>
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-if="!isAccepted"
                 class="sw-usage-data-consent-banner__footer-accept-button"
@@ -195,7 +194,6 @@
                 {{ $tc('sw-usage-data-consent-banner.acceptDataCollection') }}
             </mt-button>
 
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-if="canBeHidden"
                 class="sw-usage-data-consent-banner__footer-decline-button"
@@ -216,7 +214,6 @@
             </div>
         </span>
 
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-if="isAccepted && !canBeHidden"
             class="sw-usage-data-consent-banner__footer-reject-button"

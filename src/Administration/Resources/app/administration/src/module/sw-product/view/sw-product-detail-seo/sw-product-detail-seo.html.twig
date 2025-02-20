@@ -6,7 +6,7 @@
 
 <div v-else>
     {% block sw_product_detail_seo_general %}
-    <sw-card
+    <mt-card
         position-identifier="sw-product-detail-seo"
         :title="$tc('sw-product.seo.cardTitleSeo')"
     >
@@ -16,7 +16,7 @@
             :allow-edit="acl.can('product.editor')"
         />
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_product_detail_seo_urls %}

@@ -44,16 +44,18 @@
     <div class="sw-cms-section-config__settings">
 
         {% block sw_cms_section_config_name_field %}
-        <sw-text-field
-            v-model:value="section.name"
+
+        <mt-text-field
+            v-model="section.name"
             :label="$tc('sw-cms.detail.label.sectionNameField')"
             :help-text="$tc('sw-cms.detail.tooltip.sectionNameField')"
         />
         {% endblock %}
 
         {% block sw_cms_sidebar_section_config_css_classes_field %}
-        <sw-text-field
-            v-model:value="section.cssClass"
+
+        <mt-text-field
+            v-model="section.cssClass"
             :label="$tc('sw-cms.detail.label.cssClassField')"
             :help-text="$tc('sw-cms.detail.helpText.cssClassField')"
         />

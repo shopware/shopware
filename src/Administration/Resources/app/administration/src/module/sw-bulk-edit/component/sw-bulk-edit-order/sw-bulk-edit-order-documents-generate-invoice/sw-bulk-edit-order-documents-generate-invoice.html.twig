@@ -19,8 +19,9 @@
     {% endblock %}
 
     {% block sw_bulk_edit_order_documents_generate_invoice_toggle_skip %}
-    <sw-switch-field
-        v-model:value="generateData.forceDocumentCreation"
+
+    <mt-switch
+        v-model="generateData.forceDocumentCreation"
         :label="$tc('sw-bulk-edit.order.documents.forceDocumentCreation')"
         :help-text="$tc('sw-bulk-edit.order.documents.forceDocumentCreationHelpText')"
     />

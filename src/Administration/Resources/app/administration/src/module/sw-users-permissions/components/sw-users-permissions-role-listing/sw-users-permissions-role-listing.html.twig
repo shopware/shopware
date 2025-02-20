@@ -1,5 +1,5 @@
 {% block sw_users_permissions_role_listing %}
-<sw-card
+<mt-card
     class="sw-users-permissions-role-listing"
     position-identifier="sw-users-permissions-role-listing"
     :title="$tc('sw-users-permissions.roles.general.cardLabel')"
@@ -21,7 +21,6 @@
             {% endblock %}
 
             {% block sw_users_permissions_role_listing_toolbar_add_role_button %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 ghost
                 size="small"
@@ -109,7 +108,6 @@
                 {% block sw_users_permissions_role_listing_grid_actions_modals_modal_footer %}
                 <template #modal-footer>
                     {% block sw_users_permissions_role_listing_grid_actions_modals_modal_close_delete %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         size="small"
                         @click="onCloseDeleteModal"
@@ -119,7 +117,6 @@
                     {% endblock %}
 
                     {% block sw_users_permissions_role_listing_grid_actions_modals_modal_confirm_delete %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         variant="critical"
                         size="small"
@@ -158,5 +155,5 @@
     />
     {% endblock %}
 
-</sw-card>
+</mt-card>
 {% endblock %}

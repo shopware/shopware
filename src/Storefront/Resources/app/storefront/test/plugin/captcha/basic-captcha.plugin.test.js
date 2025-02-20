@@ -1,6 +1,5 @@
 import BasicCaptchaPlugin from 'src/plugin/captcha/basic-captcha.plugin';
 import FormValidation from 'src/helper/form-validation.helper';
-import Feature from 'src/helper/feature.helper';
 
 describe('BasicCaptchaPlugin tests', () => {
     let basicCaptchaPlugin;
@@ -18,9 +17,6 @@ describe('BasicCaptchaPlugin tests', () => {
                 </div>
             </form>
         `;
-
-        window.Feature = Feature;
-        window.Feature.init({ 'ACCESSIBILITY_TWEAKS': true });
 
         window.validationMessages = {
             required: 'Input should not be empty.',

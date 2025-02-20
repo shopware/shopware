@@ -15,7 +15,7 @@
         </ul>
     </mt-banner>
 
-    <sw-card
+    <mt-card
         class="sw-flow-detail-general__general-card"
         position-identifier="sw-flow-detail-general"
         :class="{'sw-flow-detail-general__template': isTemplate }"
@@ -23,8 +23,9 @@
         :is-loading="isLoading"
     >
         {% block sw_flow_detail_general_information_name %}
-        <sw-text-field
-            v-model:value="flow.name"
+
+        <mt-text-field
+            v-model="flow.name"
             class="sw-flow-detail-general__general-name"
             :required="!isTemplate"
             :disabled="!acl.can('flow.editor') || undefined"
@@ -62,9 +63,10 @@
             {% endblock %}
 
             {% block sw_flow_detail_general_information_active %}
-            <sw-switch-field
+
+            <mt-switch
                 v-if="!isFlowTemplate"
-                v-model:value="flow.active"
+                v-model="flow.active"
                 name="sw-field--flow-active"
                 class="sw-flow-detail-general__general-active"
                 :disabled="!acl.can('flow.editor') || isUnknownTrigger || undefined"
@@ -72,7 +74,7 @@
             />
             {% endblock %}
         </sw-container>
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>
 {% endblock %}

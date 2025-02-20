@@ -72,10 +72,9 @@ async function createWrapper(privileges = [], isShopwareDefaultTax = true) {
 
                     'sw-card-view': true,
                     'sw-language-switch': true,
-                    'sw-card': true,
                     'sw-container': true,
                     'sw-button-process': true,
-                    'sw-switch-field': true,
+
                     'sw-text-field': true,
                     'sw-number-field': true,
                     'sw-skeleton': true,
@@ -102,11 +101,11 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-settings-tax-detail__save-action');
-        const taxNameField = wrapper.find('sw-text-field-stub[label="sw-settings-tax.detail.labelName"]');
+        const taxNameField = wrapper.find('input[aria-label="sw-settings-tax.detail.labelName"]');
         const taxRateField = wrapper.find('sw-number-field-stub[label="sw-settings-tax.detail.labelDefaultTaxRate"]');
 
         expect(saveButton.attributes().disabled).toBeFalsy();
-        expect(taxNameField.attributes().disabled).toBeTruthy();
+        expect(taxNameField.attributes().disabled).toBeDefined();
         expect(taxRateField.attributes().disabled).toBeUndefined();
     });
 
@@ -119,7 +118,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
         );
         await wrapper.vm.$nextTick();
 
-        const taxNameField = wrapper.find('sw-text-field-stub[label="sw-settings-tax.detail.labelName"]');
+        const taxNameField = wrapper.find('input[aria-label="sw-settings-tax.detail.labelName"]');
         expect(taxNameField.attributes().disabled).toBeUndefined();
     });
 
@@ -128,11 +127,11 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-settings-tax-detail__save-action');
-        const taxNameField = wrapper.find('sw-text-field-stub[label="sw-settings-tax.detail.labelName"]');
+        const taxNameField = wrapper.find('input[aria-label="sw-settings-tax.detail.labelName"]');
         const taxRateField = wrapper.find('sw-number-field-stub[label="sw-settings-tax.detail.labelDefaultTaxRate"]');
 
         expect(saveButton.attributes().disabled).toBeTruthy();
-        expect(taxNameField.attributes().disabled).toBeTruthy();
+        expect(taxNameField.attributes().disabled).toBeDefined();
         expect(taxRateField.attributes().disabled).toBeTruthy();
     });
 

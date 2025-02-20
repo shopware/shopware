@@ -106,7 +106,7 @@ async function createWrapper() {
                 'sw-text-field': true,
                 'sw-datepicker': true,
                 'sw-checkbox-field': true,
-                'sw-switch-field': true,
+
                 'sw-context-button': {
                     template: '<div class="sw-context-button"><slot></slot></div>',
                 },

@@ -1,9 +1,10 @@
 {% block sw_snippet_field %}
 <div class="sw-snippet-field">
-    <sw-text-field
+
+    <mt-text-field
         v-if="textField"
         v-bind="$attrs"
-        :value="textValue"
+        :model-value="textValue"
         :type="fieldType"
         disabled
     />

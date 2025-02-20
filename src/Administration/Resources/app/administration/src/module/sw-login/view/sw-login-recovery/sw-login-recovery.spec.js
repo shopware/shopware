@@ -82,7 +82,7 @@ describe('module/sw-login/recovery.spec.js', () => {
     });
 
     it('should redirect on submit', async () => {
-        await wrapper.get('#email').setValue('test@example.com');
+        await wrapper.get('input').setValue('test@example.com');
 
         expect(wrapper.find('.sw-alert').exists()).toBe(false);
 

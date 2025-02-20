@@ -38,7 +38,7 @@ async function createWrapper() {
                     'sw-entity-single-select': true,
                     'sw-container': true,
                     'sw-field': true,
-                    'sw-switch-field': true,
+
                     'sw-number-field': true,
                     'sw-media-add-thumbnail-form': true,
                     'sw-icon': true,

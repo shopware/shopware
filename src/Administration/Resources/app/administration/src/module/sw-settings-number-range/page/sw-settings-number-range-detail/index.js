@@ -175,6 +175,26 @@ export default {
             'name',
             'typeId',
         ]),
+
+        stateInput: {
+            get() {
+                return String(this.state);
+            },
+
+            set(value) {
+                this.state = Number(value);
+            },
+        },
+
+        previewInput: {
+            get() {
+                return String(this.preview);
+            },
+
+            set(value) {
+                this.preview = Number(value);
+            },
+        },
     },
 
     watch: {

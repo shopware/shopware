@@ -15,7 +15,6 @@
     {% block sw_settings_document_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_document_detail_actions_abort %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="tooltipCancel"
             :disabled="isLoading || undefined"
@@ -51,7 +50,7 @@
 
             <template v-else>
                 {% block sw_settings_document_detail_assignment_card %}
-                <sw-card
+                <mt-card
                     position-identifier="sw-settings-document-detail-assignment"
                     :title="$tc('sw-settings-document.detail.assignmentCard')"
                     :is-loading="isLoading || typeIsLoading"
@@ -134,11 +133,11 @@
                         </sw-multi-select>
                         {% endblock %}
                     </sw-container>
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_settings_document_detail_content_card %}
-                <sw-card
+                <mt-card
                     position-identifier="sw-settings-document-detail-content"
                     :title="$tc('sw-settings-document.detail.configCard')"
                     :is-loading="isLoading"
@@ -149,8 +148,9 @@
                     >
                         {% block sw_settings_document_detail_content_field_name %}
                         <div class="sw-settings-document-detail__field_name">
-                            <sw-text-field
-                                v-model:value="documentConfig.name"
+
+                            <mt-text-field
+                                v-model="documentConfig.name"
                                 name="sw-field--documentConfig-name"
                                 :label="$tc('sw-settings-document.detail.labelName')"
                                 :placeholder="$tc('sw-settings-document.detail.placeholderName')"
@@ -178,8 +178,9 @@
                         {% endblock %}
                         {% block sw_settings_document_detail_content_field_file_name_prefix %}
                         <div class="sw-settings-document-detail__field_file_name_prefix">
-                            <sw-text-field
-                                v-model:value="documentConfig.filenamePrefix"
+
+                            <mt-text-field
+                                v-model="documentConfig.filenamePrefix"
                                 name="sw-field--documentConfig-filenamePrefix"
                                 :disabled="!acl.can('document.editor') || undefined"
                                 :label="$tc('sw-settings-document.detail.labelFileNamePrefix')"
@@ -188,8 +189,9 @@
                         {% endblock %}
                         {% block sw_settings_document_detail_content_field_file_name_suffix %}
                         <div class="sw-settings-document-detail__field_file_name_suffix">
-                            <sw-text-field
-                                v-model:value="documentConfig.filenameSuffix"
+
+                            <mt-text-field
+                                v-model="documentConfig.filenameSuffix"
                                 name="sw-field--documentConfig-filenameSuffix"
                                 :disabled="!acl.can('document.editor') || undefined"
                                 :label="$tc('sw-settings-document.detail.labelFileNameSuffix')"
@@ -273,11 +275,11 @@
                         {% endblock %}
 
                     </sw-container>
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_settings_document_detail_company_card %}
-                <sw-card
+                <mt-card
                     class="sw-settings-document-detail__company_card"
                     position-identifier="sw-settings-document-detail-company"
                     :title="$tc('sw-settings-document.detail.companyCard')"
@@ -305,11 +307,11 @@
                         </template>
                         {% endblock %}
                     </sw-container>
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_settings_document_detail_custom_field_sets %}
-                <sw-card
+                <mt-card
                     v-if="showCustomFields"
                     position-identifier="sw-settings-document-detail-custom-field-sets"
                     :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
@@ -320,7 +322,7 @@
                         :disabled="!acl.can('document.editor') || undefined"
                         :sets="customFieldSets"
                     />
-                </sw-card>
+                </mt-card>
                 {% endblock %}
             </template>
         </sw-card-view>

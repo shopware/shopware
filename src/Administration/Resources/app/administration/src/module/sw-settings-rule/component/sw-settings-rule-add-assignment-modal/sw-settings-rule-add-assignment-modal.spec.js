@@ -101,8 +101,6 @@ async function createWrapper(props = defaultProps) {
                     'sw-product-variant-info': true,
                     'sw-icon': true,
                     'sw-pagination': true,
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated'),
                     'sw-extension-component-section': true,
                     'sw-ai-copilot-badge': true,
                     'sw-context-button': true,

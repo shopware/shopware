@@ -1,5 +1,5 @@
 {% block sw_property_detail_base %}
-<sw-card
+<mt-card
     v-if="propertyGroup"
     position-identifier="sw-property-detail-base"
     :title="$tc('sw-property.detail.cardTitleGroupInfo')"
@@ -7,8 +7,9 @@
 >
 
     {% block sw_property_detail_base_name %}
-    <sw-text-field
-        v-model:value="propertyGroup.name"
+
+    <mt-text-field
+        v-model="propertyGroup.name"
         name="sw-field--propertyGroup-name"
         required
         :error="propertyGroupNameError"
@@ -34,8 +35,9 @@
         gap="0px 30px"
     >
         {% block sw_property_detail_base_filterable %}
-        <sw-switch-field
-            v-model:value="propertyGroup.filterable"
+
+        <mt-switch
+            v-model="propertyGroup.filterable"
             name="propertyGroupFilterable"
             class="sw-property-detail__filterable"
             :label="$tc('sw-property.detail.labelFilterable')"
@@ -44,8 +46,9 @@
         {% endblock %}
 
         {% block sw_property_detail_base_visible_on_detail %}
-        <sw-switch-field
-            v-model:value="propertyGroup.visibleOnProductDetailPage"
+
+        <mt-switch
+            v-model="propertyGroup.visibleOnProductDetailPage"
             name="propertyGroupvisibleOnProductDetailPage"
             class="sw-property-detail__visible-on-detail"
             :label="$tc('sw-property.detail.labelvisibleOnProductDetailPage')"
@@ -111,5 +114,5 @@
         {% endblock %}
     </sw-container>
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

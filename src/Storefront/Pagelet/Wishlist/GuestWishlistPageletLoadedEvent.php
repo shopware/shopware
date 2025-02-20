@@ -10,14 +10,11 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('discovery')]
 class GuestWishlistPageletLoadedEvent extends PageletLoadedEvent
 {
-    protected GuestWishlistPagelet $pagelet;
-
     public function __construct(
-        GuestWishlistPagelet $pagelet,
+        protected GuestWishlistPagelet $pagelet,
         SalesChannelContext $salesChannelContext,
-        Request $request
+        Request $request,
     ) {
-        $this->pagelet = $pagelet;
         parent::__construct($salesChannelContext, $request);
     }
 

@@ -11,8 +11,8 @@
         gap="0px 14px"
     >
         {% block sw_order_document_settings_modal_form_document_number %}
-        <sw-text-field
-            v-model:value="documentConfig.documentNumber"
+        <mt-text-field
+            v-model="documentNumber"
             :label="$tc('sw-order.documentModal.labelDocumentNumber')"
         />
         {% endblock %}
@@ -31,8 +31,9 @@
 
     {% block sw_order_document_settings_modal_form_file_upload %}
     {% block sw_order_document_settings_modal_form_file_upload_toggle %}
-    <sw-switch-field
-        v-model:value="uploadDocument"
+
+    <mt-switch
+        v-model="uploadDocument"
         name="sw-field--uploadDocument"
         class="sw-order-document-settings-modal__file-toggle"
         :label="$tc('sw-order.documentModal.fileInputLabel')"
@@ -90,7 +91,6 @@
     <template #modal-footer>
         <sw-button-group split-button>
             {% block sw_order_document_settings_modal_form_document_footer_preview %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 class="sw-order-document-settings-modal__preview-button"
                 size="small"
@@ -104,7 +104,6 @@
 
             <sw-context-button :menu-width="160">
                 <template #button>
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         square
                         size="small"
@@ -128,7 +127,6 @@
 
         <div>
             {% block sw_order_document_settings_modal_form_document_footer_cancel %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
                 @click="onCancel"
@@ -140,7 +138,6 @@
             {% block sw_order_document_settings_modal_form_document_footer_split_button %}
             <sw-button-group split-button>
                 {% block sw_order_document_settings_modal_form_document_footer_split_button_create %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     class="sw-order-document-settings-modal__create"
                     variant="primary"
@@ -159,7 +156,6 @@
                 >
                     {% block sw_order_document_settings_modal_form_document_footer_split_button_context_arrow %}
                     <template #button>
-                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                         <mt-button
                             square
                             variant="primary"

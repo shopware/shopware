@@ -33,7 +33,7 @@ async function createWrapper(privileges = []) {
                     'sw-card-view': {
                         template: '<div><slot></slot></div>',
                     },
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot></slot></div>',
                     },
                     'sw-container': {
@@ -61,7 +61,7 @@ async function createWrapper(privileges = []) {
                     'mt-text-editor': true,
                     'sw-language-info': true,
                     'sw-button-process': true,
-                    'sw-switch-field': true,
+
                     'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select'),
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
@@ -187,16 +187,16 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             },
             {
                 name: 'registration form switch',
-                selector: 'sw-switch-field-stub[label="sw-settings-customer-group.detail.registrationForm"]',
+                selector: '.sw-settings-customer-group-detail__registration-form-switch',
             },
             {
                 name: 'form title field',
-                selector: '.sw-text-field-stub[label="sw-settings-customer-group.registration.title"]',
+                selector: '.mt-text-field',
             },
             { name: 'form editor', selector: 'mt-text-editor-stub' },
             {
                 name: 'only company switch',
-                selector: 'sw-switch-field-stub[label="sw-settings-customer-group.registration.onlyCompaniesCanRegister"]',
+                selector: '.sw-settings-customer-group-detail__registration-only-companies-can-register',
             },
             {
                 name: 'seo meta field',
@@ -254,16 +254,16 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             },
             {
                 name: 'registration form switch',
-                selector: 'sw-switch-field-stub[label="sw-settings-customer-group.detail.registrationForm"]',
+                selector: '.sw-settings-customer-group-detail__registration-form-switch',
             },
             {
                 name: 'form title field',
-                selector: '.sw-text-field-stub[label="sw-settings-customer-group.registration.title"]',
+                selector: '.mt-text-field',
             },
             { name: 'form editor', selector: 'mt-text-editor-stub' },
             {
                 name: 'only company switch',
-                selector: 'sw-switch-field-stub[label="sw-settings-customer-group.registration.onlyCompaniesCanRegister"]',
+                selector: '.sw-settings-customer-group-detail__registration-only-companies-can-register',
             },
             {
                 name: 'seo meta field',

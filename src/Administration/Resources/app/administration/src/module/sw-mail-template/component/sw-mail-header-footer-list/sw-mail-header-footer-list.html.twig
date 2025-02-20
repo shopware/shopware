@@ -1,5 +1,5 @@
 {% block sw_mail_header_footer_list_grid %}
-<sw-card
+<mt-card
     :title="$tc('sw-mail-header-footer.list.textMailHeaderFooterOverview')"
     position-identifier="sw-mail-header-footer-list"
 >
@@ -52,7 +52,6 @@
             </template>
 
             <template #bulk-modal-delete-items>
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     variant="critical"
                     size="small"
@@ -63,7 +62,6 @@
             </template>
 
             <template #delete-modal-delete-item="{ item }">
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     variant="critical"
                     size="small"
@@ -88,5 +86,5 @@
     </template>
     {% endblock %}
 
-</sw-card>
+</mt-card>
 {% endblock %}

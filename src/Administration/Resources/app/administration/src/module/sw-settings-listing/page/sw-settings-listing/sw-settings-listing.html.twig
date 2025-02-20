@@ -61,7 +61,7 @@
             {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
             <div v-show="!isLoading">
                 {% block sw_settings_listing_content_card_view_default_sales_channel %}
-                <sw-card
+                <mt-card
                     class="sw-settings-listing__sales-channel-card"
                     position-identifier="sw-settings-listing-sales-channel"
                     :title="$tc('sw-settings-listing.index.defaultSalesChannel.title')"
@@ -70,7 +70,7 @@
                         ref="defaultSalesChannelCard"
                         :is-loading="isLoading"
                     />
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_settings_listing_content_card_view_system_config %}
@@ -137,7 +137,7 @@
                 {% endblock %}
 
                 {% block sw_settings_listing_content_card_view_options_card %}
-                <sw-card
+                <mt-card
                     class="sw-settings-listing-index__sorting-options-card"
                     position-identifier="sw-settings-listing-sorting-options"
                     :title="$tc('sw-settings-listing.index.productSorting.title')"
@@ -165,7 +165,6 @@
                             {% endblock %}
 
                             {% block sw_settings_listing_content_card_view_options_card_toolbar_add_product_option %}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 ghost
                                 size="small"
@@ -263,7 +262,7 @@
                         {% endblock %}
                     </sw-empty-state>
                     {% endblock %}
-                </sw-card>
+                </mt-card>
                 {% endblock %}
             </div>
         </sw-card-view>

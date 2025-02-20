@@ -247,6 +247,7 @@ const i18n = createI18n({
     locale: 'en',
     fallbackLocale: 'en',
     silentFallbackWarn: true,
+    silentTranslationWarn: true,
     sync: true,
     messages: {},
     allowComposition: true,
@@ -322,6 +323,26 @@ global.allowedErrors = [
             }
 
             return msg.includes('has already been registered in target app');
+        },
+    },
+    {
+        method: 'warn',
+        msgCheck: (msg) => {
+            if (typeof msg !== 'string') {
+                return false;
+            }
+
+            return msg.includes('[intlify] Not found');
+        },
+    },
+    {
+        method: 'warn',
+        msgCheck: (msg) => {
+            if (typeof msg !== 'string') {
+                return false;
+            }
+
+            return msg.includes('[intlify] Fall back to translate');
         },
     },
     {

@@ -65,7 +65,6 @@ class MacroOverrideNode extends MacroNode
         }
 
         $node = new CaptureNode($this->getNode('body'), $this->getNode('body')->lineno);
-        $code = $this->getSourceContext()?->getCode();
 
         $compiler
             ->write('')
@@ -77,18 +76,14 @@ class MacroOverrideNode extends MacroNode
             ->write("\$blocks = [];\n\n")
             ->write('$result =  ') // Store the result of the macro, instead of directly returning it
             ->subcompile($node)
-            ->raw("\n");
-        // customization to return actual class instead of markup
-        if ($code && str_contains($code, 'use Shopware\Core\Framework\Adapter\Twig\SwTwigFunction;')) {
-            $compiler
-                ->write("if (Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::\$macroResult !== null) {\n")
-                ->write('$result = Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::$macroResult;' . "\n")
-                ->write('Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::$macroResult = null;' . "\n")
-                ->write("}\n")
-                ->write("return \$result;\n");
-        }
-        // end of customization
-        $compiler
+            ->raw("\n")
+            // customization to return actual class instead of markup
+            ->write("if (\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::\$macroResult !== null) {\n")
+            ->write('$result = \Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::$macroResult;' . "\n")
+            ->write('\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::$macroResult = null;' . "\n")
+            ->write("}\n")
+            ->write("return \$result;\n")
+            // end of customization
             ->outdent()
             ->write("}\n\n")
         ;

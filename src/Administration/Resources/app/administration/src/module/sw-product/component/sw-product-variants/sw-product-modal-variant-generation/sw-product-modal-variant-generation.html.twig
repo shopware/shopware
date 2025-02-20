@@ -116,7 +116,6 @@
     {% block sw_product_modal_variant_generation_footer %}
     <template #modal-footer>
         {% block sw_product_modal_variant_generation_footer_cancel %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             size="small"
             @click="onModalCancel"
@@ -125,7 +124,6 @@
         </mt-button>
         {% endblock %}
         {% block sw_product_modal_variant_generation_footer_generate %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             class="sw-product-variant-generation__next-action"
             variant="primary"
@@ -272,7 +270,6 @@
     </template>
 
     <template #modal-footer>
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             size="small"
             @click="showUploadModal = false"
@@ -280,7 +277,6 @@
             {{ $tc('sw-product.variations.backVariationsButton') }}
         </mt-button>
 
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             :disabled="isGenerateButtonDisabled"
             class="sw-product-variant-generation__generate-action"

@@ -97,9 +97,9 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                     </div>
                 `,
                     },
-                    'sw-card': {
+                    'mt-card': {
                         template: `
-                    <div class="sw-card">
+                    <div class="mt-card">
                         <slot name="grid"></slot>
                     </div>
                 `,

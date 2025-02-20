@@ -18,8 +18,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                         'sw-settings-shipping-price-matrix': await wrapTestComponent('sw-settings-shipping-price-matrix', {
                             sync: true,
                         }),
-                        'sw-card': true,
-
+                        'mt-card': true,
                         'sw-container': true,
                         'sw-select-rule-create': true,
                         'sw-single-select': true,
@@ -175,7 +174,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
         await flushPromises();
 
-        const matrices = wrapper.findAllComponents('.sw-settings-shipping-price-matrix');
+        const matrices = wrapper.findAll('.sw-settings-shipping-price-matrix');
 
         expect(matrices).toHaveLength(1);
     });
@@ -193,7 +192,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
         await nextTick();
 
-        const matrices = wrapper.findAllComponents('.sw-settings-shipping-price-matrix');
+        const matrices = wrapper.findAll('.sw-settings-shipping-price-matrix');
 
         expect(matrices).toHaveLength(2);
     });
@@ -214,7 +213,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
         await nextTick();
 
-        const matrices = wrapper.findAllComponents('.sw-settings-shipping-price-matrix');
+        const matrices = wrapper.findAll('.sw-settings-shipping-price-matrix');
 
         expect(matrices).toHaveLength(5);
     });

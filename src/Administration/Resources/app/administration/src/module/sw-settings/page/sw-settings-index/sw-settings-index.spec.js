@@ -131,8 +131,8 @@ async function createWrapper(
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                     'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot></slot></div>',
+                    'mt-card': {
+                        template: '<div class="mt-card"><slot></slot></div>',
                     },
                     'sw-settings-item': await wrapTestComponent('sw-settings-item'),
                     'router-link': {

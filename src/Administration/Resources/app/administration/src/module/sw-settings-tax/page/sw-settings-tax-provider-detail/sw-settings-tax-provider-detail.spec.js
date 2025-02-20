@@ -59,7 +59,7 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                     },
                     'sw-button-process': true,
                     'sw-skeleton': true,
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot></slot><slot name="grid"></slot></div>',
                     },
                     'sw-card-view': {

@@ -1,5 +1,5 @@
 {% block sw_product_feature_set_card %}
-<sw-card
+<mt-card
     :title="$tc('sw-settings-product-feature-sets.valuesCard.cardTitle')"
     class="sw-settings-product-feature-sets-values-card"
     position-identifier="sw-settings-product-feature-sets-values-card"
@@ -29,7 +29,6 @@
                     {% endblock %}
 
                     {% block sw_product_feature_set_toolbar_delete %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         :disabled="deleteButtonDisabled || !allowEdit || undefined"
                         square
@@ -46,7 +45,6 @@
 
                     {% block sw_product_feature_set_toolbar_add %}
                     <sw-container>
-                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                         <mt-button
                             :disabled="isLoading || !allowEdit || undefined"
                             ghost
@@ -130,7 +128,6 @@
             {% endblock %}
 
             {% block sw_product_feature_set_card_empty_state_button %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 ghost
                 size="small"
@@ -153,5 +150,5 @@
     />
     {% endblock %}
 
-</sw-card>
+</mt-card>
 {% endblock %}

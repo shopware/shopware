@@ -34,7 +34,7 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-container': true,
-                'sw-card': {
+                'mt-card': {
                     template: '<div><slot></slot><slot name="grid"></slot></div>',
                 },
                 'sw-card-section': {

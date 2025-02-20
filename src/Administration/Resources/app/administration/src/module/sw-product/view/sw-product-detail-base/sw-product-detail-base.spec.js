@@ -39,7 +39,7 @@ async function createWrapper() {
                 'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper', { sync: true }),
                 'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch', { sync: true }),
                 'sw-empty-state': true,
-                'sw-card': {
+                'mt-card': {
                     template: '<div><slot></slot><slot name="title"></slot><slot name="grid"></slot></div>',
                 },
                 'sw-context-menu-item': true,
@@ -58,7 +58,6 @@ async function createWrapper() {
                 'router-link': true,
                 'sw-skeleton': true,
                 'sw-extension-teaser-popover': true,
-                'mt-card': true,
                 'mt-text-editor': true,
             },
             mocks: {

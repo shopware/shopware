@@ -1,5 +1,5 @@
 {% block sw_customer_detail_order_card %}
-<sw-card
+<mt-card
     class="sw-customer-detail-order"
     position-identifier="sw-customer-detail-order"
 >
@@ -12,7 +12,6 @@
         >
             <template #filter>
                 {% block sw_customer_detail_order_add_button %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
@@ -105,7 +104,6 @@
 
             <template #actions>
                 {% block sw_customer_detail_order_card_grid_empty_state_action %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
@@ -124,5 +122,5 @@
         </sw-empty-state>
     </template>
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

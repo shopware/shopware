@@ -29,8 +29,8 @@ async function createWrapper(privileges = [], customPropsData = {}) {
         'sw-settings-country-address-handling': await wrapTestComponent('sw-settings-country-address-handling', {
             sync: true,
         }),
-        'sw-card': {
-            template: '<div class="sw-card"><slot></slot></div>',
+        'mt-card': {
+            template: '<div class="mt-card"><slot></slot></div>',
         },
         'sw-container': true,
         'sw-ignore-class': true,

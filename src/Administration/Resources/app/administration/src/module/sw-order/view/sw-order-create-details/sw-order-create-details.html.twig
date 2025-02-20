@@ -14,7 +14,7 @@
     {% endblock %}
 
     {% block sw_order_create_details_payment %}
-    <sw-card
+    <mt-card
         class="sw-order-create-details__payment"
         position-identifier="sw-order-create-details-payment"
         :title="$tc('sw-order.createBase.detailsTab.labelTransactionCard')"
@@ -55,11 +55,11 @@
                 required
             />
         </sw-container>
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_order_create_details_shipping %}
-    <sw-card
+    <mt-card
         class="sw-order-create-details__shipping"
         position-identifier="sw-order-create-details-shipping"
         :title="$tc('sw-order.createBase.detailsTab.labelDeliveryCard')"
@@ -108,11 +108,11 @@
                 :label="$tc('sw-order.detailDeliveries.labelDeliveryDate')"
             />
         </sw-container>
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_order_create_details_order %}
-    <sw-card
+    <mt-card
         class="sw-order-create-details__order"
         position-identifier="sw-order-create-details-order"
         :title="$tc('sw-order.createBase.detailsTab.labelOrderCard')"
@@ -191,7 +191,7 @@
             @update:value="toggleAutomaticPromotions"
         />
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>
 {% endblock %}

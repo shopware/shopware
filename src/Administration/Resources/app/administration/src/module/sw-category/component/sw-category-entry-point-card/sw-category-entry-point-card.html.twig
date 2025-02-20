@@ -1,5 +1,5 @@
 {% block sw_category_entry_point_card %}
-<sw-card
+<mt-card
     class="sw-category-entry-point-card"
     position-identifier="sw-category-entry-point"
     :title="$tc('sw-category.base.entry-point-card.cardTitle')"
@@ -59,7 +59,6 @@
     {% endblock %}
 
     {% block sw_category_entry_point_card_button_configure_home %}
-    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
     <mt-button
         class="sw-category-entry-point-card__button-configure-home"
         ghost
@@ -78,5 +77,5 @@
         @modal-close="closeConfigureHomeModal"
     />
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

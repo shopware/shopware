@@ -31,8 +31,8 @@ async function createWrapper(privileges = []) {
                     },
                 },
                 stubs: {
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot></slot></div>',
+                    'mt-card': {
+                        template: '<div class="mt-card"><slot></slot></div>',
                     },
                     'sw-product-packaging-form': await wrapTestComponent('sw-product-packaging-form', { sync: true }),
                     'sw-product-properties': true,

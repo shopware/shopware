@@ -34,8 +34,8 @@ async function createWrapper() {
                             'disabled',
                         ],
                     },
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot></slot></div>',
+                    'mt-card': {
+                        template: '<div class="mt-card"><slot></slot></div>',
                     },
                     'sw-promotion-rule-select': {
                         template: '<div class="sw-promotion-rule-select"></div>',

@@ -16,7 +16,7 @@
         v-if="priceRuleGroupsExists"
         columns="100%"
     >
-        <sw-card
+        <mt-card
             v-for="(priceGroup, key, index) in priceRuleGroups"
             :key="priceGroup.ruleId"
             class="context-price"
@@ -50,7 +50,6 @@
                     {% endblock %}
 
                     {% block sw_product_detail_prices_price_card_toolbar_rule_delete %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         v-tooltip="{
                             message: $tc('sw-privileges.tooltip.warning'),
@@ -66,7 +65,6 @@
                     {% endblock %}
 
                     {% block sw_product_detail_prices_price_card_toolbar_add_price_rule %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         v-if="canAddPriceRule"
                         v-tooltip="{
@@ -268,7 +266,7 @@
             </div>
             {% endblock %}
 
-        </sw-card>
+        </mt-card>
 
         {% block sw_product_detail_prices_price_card_price_group_add_price_rule %}
         <sw-container
@@ -276,7 +274,6 @@
             columns="250x"
         >
             {% block sw_product_detail_prices_price_card_price_group_add_price_rule_button %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-if="canAddPriceRule"
                 v-tooltip="{
@@ -298,7 +295,7 @@
 
     </sw-container>
 
-    <sw-card
+    <mt-card
         v-else
         class="sw-product-detail-context-prices__empty-state-card"
         position-identifier="sw-product-detail-context-prices-empty-state-card"
@@ -391,7 +388,7 @@
             {% endblock %}
         </div>
         {% endblock %}
-    </sw-card>
+    </mt-card>
 
     {% endblock %}
 </sw-container>

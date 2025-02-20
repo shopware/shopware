@@ -118,7 +118,7 @@ async function createWrapper(
 </div>`,
                     },
                     'sw-card-view': true,
-                    'sw-card': {
+                    'mt-card': {
                         template: `
     <div class="sw-card-stub">
         <slot></slot>

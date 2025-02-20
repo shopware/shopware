@@ -45,7 +45,7 @@
             </div>
 
             {% block sw_cms_page_form_section_empty_state_block %}
-            <sw-card
+            <mt-card
                 v-if="section.blocks.length === 0"
                 position-identifier="sw-cms-page-form-empty"
                 class="sw-cms-page-form__block-card is--empty"
@@ -56,7 +56,7 @@
                     {{ $tc('sw-cms.section.sectionEmptyState') }}
                 </p>
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
             <template
@@ -103,12 +103,13 @@
                 {% endblock %}
 
                 {% block sw_cms_page_form_card %}
-                <sw-card
+                <mt-card
                     position-identifier="sw-cms-page-form-block"
                     class="sw-cms-page-form__block-card"
                     :title="$tc(getBlockTitle(block))"
                 >
-                    <template #header-right>
+                    <template #headerRight>
+                        here
                         <div class="sw-cms-page-form__block-device-actions">
                             <sw-icon :name="getDeviceActive('mobile', section, block)" />
 
@@ -141,7 +142,7 @@
                         {% endblock %}
                     </div>
                     {% endblock %}
-                </sw-card>
+                </mt-card>
                 {% endblock %}
             </template>
         </div>

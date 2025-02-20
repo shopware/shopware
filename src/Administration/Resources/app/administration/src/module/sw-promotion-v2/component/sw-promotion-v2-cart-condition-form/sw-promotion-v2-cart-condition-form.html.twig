@@ -28,7 +28,7 @@
     <template v-if="promotion.useSetGroups">
 
         {% block sw_promotion_v2_cart_condition_setgroup_card %}
-        <sw-card
+        <mt-card
             v-for="(group, index) in promotion.setgroups"
             :id="`sw-promotion-v2-cart-condition-form__setgroup-card-${index + 1}`"
             :key="group.id"
@@ -146,12 +146,11 @@
                 {% endblock %}
 
             </sw-container>
-        </sw-card>
+        </mt-card>
         {% endblock %}
 
         {% block sw_promotion_v2_cart_condition_add_group_button %}
         <div class="sw-promotion-v2-cart-condition-form__add-group-button-container">
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 ghost
                 class="sw-promotion-v2-cart-condition-form__add-group-button"

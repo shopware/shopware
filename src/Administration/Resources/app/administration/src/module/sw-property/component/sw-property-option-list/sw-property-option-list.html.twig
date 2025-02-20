@@ -1,5 +1,5 @@
 {% block sw_property_option_list %}
-<sw-card
+<mt-card
     :is-loading="isLoading"
     class="sw-property-option-list"
     position-identifier="sw-property-option-list"
@@ -25,7 +25,6 @@
             {% endblock %}
 
             {% block sw_property_option_list_toolbar_delete %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-tooltip="{
                     message: $tc('sw-privileges.tooltip.warning'),
@@ -47,7 +46,6 @@
 
             {% block sw_property_option_list_toolbar_add %}
             <sw-container v-tooltip="tooltipAdd">
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
@@ -146,5 +144,5 @@
     {% block sw_property_option_list_loader %}
     <sw-loader v-if="isLoading" />
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

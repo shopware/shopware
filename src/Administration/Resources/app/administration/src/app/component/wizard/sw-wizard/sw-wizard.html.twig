@@ -16,7 +16,6 @@
         <slot name="footer-left-button">
             {% block sw_wizard_slot_footer_left_buttons %}
             {% block sw_wizard_slot_footer_left_buttons_close %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-if="currentlyActivePage === 0"
                 size="small"
@@ -28,7 +27,6 @@
             {% endblock %}
 
             {% block sw_wizard_slot_footer_left_buttons_back %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-else
                 size="small"
@@ -57,7 +55,6 @@
         <slot name="footer-right-button">
             {% block sw_wizard_slot_footer_right_button %}
             {% block sw_wizard_slot_footer_right_button_finish %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-if="currentlyActivePage >= pagesCount - 1"
                 size="small"
@@ -70,7 +67,6 @@
             {% endblock %}
 
             {% block sw_wizard_slot_footer_right_button_next %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-else
                 size="small"

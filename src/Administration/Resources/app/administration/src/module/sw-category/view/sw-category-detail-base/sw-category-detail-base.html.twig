@@ -1,7 +1,7 @@
 {% block sw_category_detail_base %}
 <div class="sw-category-detail-base">
     {% block sw_category_detail_information %}
-    <sw-card
+    <mt-card
         position-identifier="sw-category-detail-base"
         :title="$tc('sw-category.base.general.headlineInformationCard')"
         :is-loading="isLoading"
@@ -65,7 +65,7 @@
         </div>
         {% endblock %}
 
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_category_detail_entry_point %}
@@ -89,7 +89,7 @@
     </template>
 
     {% block sw_category_detail_attribute_sets %}
-    <sw-card
+    <mt-card
         v-if="customFieldSetsArray.length > 0"
         position-identifier="sw-category-detail-attribute-sets"
         :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
@@ -99,7 +99,7 @@
             :entity="category"
             :sets="customFieldSetsArray"
         />
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>
 {% endblock %}

@@ -66,7 +66,7 @@ async function createWrapper(
                     'sw-media-modal-v2': {
                         template: '<div class="sw-media-modal-v2-mock"></div>',
                     },
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot name="grid"></slot></div>',
                     },
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),

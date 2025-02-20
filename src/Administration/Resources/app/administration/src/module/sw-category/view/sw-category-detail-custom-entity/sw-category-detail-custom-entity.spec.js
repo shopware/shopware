@@ -56,8 +56,8 @@ async function createWrapper() {
         {
             global: {
                 stubs: {
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot /></div>',
+                    'mt-card': {
+                        template: '<div class="mt-card"><slot /></div>',
                         props: [
                             'title',
                             'position-identifier',

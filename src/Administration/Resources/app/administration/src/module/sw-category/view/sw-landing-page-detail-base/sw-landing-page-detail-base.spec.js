@@ -23,8 +23,8 @@ async function createWrapper({
     return mount(await wrapTestComponent('sw-landing-page-detail-base', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': {
-                    template: '<div class="sw-card"><slot></slot></div>',
+                'mt-card': {
+                    template: '<div class="mt-card"><slot></slot></div>',
                 },
                 'sw-container': {
                     template: '<div class="sw-container"><slot></slot></div>',

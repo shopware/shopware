@@ -1,5 +1,5 @@
 {% block sw_custom_field_list %}
-<sw-card
+<mt-card
     class="sw-custom-field-list"
     position-identifier="sw-custom-field-list"
 >
@@ -20,7 +20,6 @@
             {% endblock %}
 
             {% block sw_custom_field_list_toolbar_delete %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-tooltip.bottom="{
                     message: $tc('sw-privileges.tooltip.warning'),
@@ -41,7 +40,6 @@
             {% endblock %}
 
             {% block sw_custom_field_list_toolbar_add %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-tooltip.bottom="{
                     message: $tc('sw-privileges.tooltip.warning'),
@@ -236,7 +234,6 @@
         {% block sw_custom_field_list_custom_field_delete_actions %}
         <template #modal-footer>
             {% block sw_custom_field_list_custom_field_delete_action_cancel %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
                 @click="onCancelDeleteCustomField"
@@ -246,7 +243,6 @@
             {% endblock %}
 
             {% block sw_custom_field_list_custom_field_delete_action_confirm %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 variant="critical"
                 size="small"
@@ -263,5 +259,5 @@
     {% block sw_custom_field_list_loader %}
     <sw-loader v-if="isLoading" />
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

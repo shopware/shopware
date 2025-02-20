@@ -26,7 +26,6 @@
         class="sw-confirm-field__button-list"
     >
         {% block sw_confirm_field_cancel_button %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             :disabled="disabled"
             class="sw-confirm-field__button sw-confirm-field__button--cancel"
@@ -46,7 +45,6 @@
         {% endblock %}
 
         {% block sw_confirm_field_confirm_button %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             class="sw-confirm-field__button sw-confirm-field__button--submit"
             :disabled="preventEmptySubmit && !draft || disabled"

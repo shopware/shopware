@@ -133,7 +133,6 @@ const createWrapper = async (customOptions, privileges = []) => {
                     'sw-button-process': true,
                     'sw-card-view': true,
                     'sw-icon': true,
-                    'sw-card': true,
                     'sw-container': true,
                     'sw-form-field-renderer': true,
                     'sw-checkbox-field': {
@@ -411,7 +410,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         await flushPromises();
 
-        const swCardComponents = wrapper.findAll('sw-card-stub');
+        const swCardComponents = wrapper.findAll('.mt-card');
 
         expect(swCardComponents.length).toBeGreaterThan(0);
         expect(swCardComponents.at(0).attributes()['position-identifier']).toBe('sw-settings-document-detail-assignment');

@@ -1,3 +1,12 @@
+# 6.6.10.1
+## Fix `ServiceNotFoundException` during platform update
+
+Updating shopware to 6.6.10.0 with the commercial plugin activated lead to `ServiceNotFoundException` being thrown until the commercial plugin was updated as well. 
+To fix the error an alias to the old service was added to ensure the commercial plugin does not error during the update process.
+## Fix `MessengerMiddlewareCompilerPass` middleware assertion
+
+The `MessengerMiddlewareCompilerPass` now handles cases when middlewares are not defined yet. This change ensures that the middleware is correctly registered in the application.
+
 # 6.6.10.0
 ## Deprecated EntityExtension::getDefinitionClass
 Since (app) custom entities and entities defined via PHP attributes do not have a definition class, the method `EntityExtension::getDefinitionClass` has been deprecated. 

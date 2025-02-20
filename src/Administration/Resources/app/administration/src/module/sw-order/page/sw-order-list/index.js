@@ -150,12 +150,16 @@ export default {
                     toPlaceholder: this.$tc('global.default.to'),
                 },
                 'payment-status-filter': {
+                    // eslint-disable-next-line no-warning-comments
+                    // TODO: backwards compatibility ?
                     property: 'primaryOrderTransaction.stateMachineState',
                     criteria: this.getStatusCriteria('order_transaction.state'),
                     label: this.$tc('sw-order.filters.paymentStatusFilter.label'),
                     placeholder: this.$tc('sw-order.filters.paymentStatusFilter.placeholder'),
                 },
                 'delivery-status-filter': {
+                    // eslint-disable-next-line no-warning-comments
+                    // TODO: backwards compatibility ?
                     property: 'primaryOrderDelivery.stateMachineState',
                     criteria: this.getStatusCriteria('order_delivery.state'),
                     label: this.$tc('sw-order.filters.deliveryStatusFilter.label'),
@@ -462,7 +466,15 @@ export default {
         },
 
         getVariantFromPaymentState(order) {
-            let technicalName = order.transactions.last().stateMachineState.technicalName;
+            let technicalName;
+
+            // @deprecated tag:v6.8.0 this fallback is only kept for backwards compatibility
+            if (!order.primaryOrderTransaction) {
+                technicalName = order.transactions.last().stateMachineState.technicalName;
+            } else {
+                technicalName = order.transactions.primaryOrderTransaction.stateMachineState.technicalName;
+            }
+
             // set the payment status to the first transaction that is not cancelled
             for (let i = 0; i < order.transactions.length; i += 1) {
                 if (
@@ -525,12 +537,12 @@ export default {
             await this.$nextTick();
 
             const ordersExcludeDelivery = Object.values(this.$refs.orderGrid.selection).filter((order) => {
-                if (!this.order.primaryOrderDelivery) {
-                    // @deprecated tag:v6.8.0 this fallback is only kept for backwards compatibility
-                    return this.order.deliveries[0];
+                // @deprecated tag:v6.8.0 this fallback is only kept for backwards compatibility
+                if (!order.primaryOrderDelivery) {
+                    return !order.deliveries[0];
                 }
 
-                return this.order.primaryOrderDelivery;
+                return !order.primaryOrderDelivery;
             });
             const excludeDelivery = ordersExcludeDelivery.length > 0 ? '1' : '0';
 
@@ -543,16 +555,18 @@ export default {
         },
 
         transaction(item) {
-            if (!item.primaryOrderTransaction) {
-                for (let i = 0; i < item.transactions.length; i += 1) {
-                    if (!['cancelled', 'failed'].includes(this.order.transactions[i].stateMachineState.technicalName)) {
-                        return this.order.transactions[i];
-                    }
+            for (let i = 0; i < item.transactions.length; i += 1) {
+                if (!['cancelled', 'failed'].includes(item.transactions[i].stateMachineState.technicalName)) {
+                    return item.transactions[i];
                 }
-                return this.order.transactions.last();
             }
 
-            return this.order.primaryOrderTransaction;
+            // @deprecated tag:v6.8.0 this fallback is only kept for backwards compatibility
+            if (!item.primaryOrderTransaction) {
+                return item.transactions.last();
+            }
+
+            return item.primaryOrderTransaction;
         },
 
         getDelivery(order) {

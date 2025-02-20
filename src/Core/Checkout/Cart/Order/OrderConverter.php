@@ -329,7 +329,7 @@ class OrderConverter
             SalesChannelContextService::VERSION_ID => $context->getVersionId(),
         ];
 
-        /** @deprecated tag:v6.8.0 */
+        /** @deprecated tag:v6.8.0 use primaryOrderDelivery */
         if (!$order->getPrimaryOrderDelivery()) {
             $delivery = $order->getDeliveries()?->first();
         } else {
@@ -338,6 +338,7 @@ class OrderConverter
 
         if ($delivery !== null) {
             $options[SalesChannelContextService::SHIPPING_METHOD_ID] = $delivery->getShippingMethodId();
+        }
 
         if ($billingAddressId) {
             $options[SalesChannelContextService::BILLING_ADDRESS_ID] = $billingAddressId;
@@ -347,11 +348,11 @@ class OrderConverter
             $options[SalesChannelContextService::SHIPPING_ADDRESS_ID] = $shippingAddressId;
         }
 
-        /** @deprecated tag:v6.8.0 */
+        /** @deprecated tag:v6.8.0 use primaryOrderDelivery */
         if (!$order->getPrimaryOrderDelivery()) {
             $shippingMethodId = $order->getDeliveries()?->first()?->getShippingMethodId();
         } else {
-            $shippingMethodId = $order->getPrimaryOrderDelivery()?->getShippingMethodId();
+            $shippingMethodId = $order->getPrimaryOrderDelivery()->getShippingMethodId();
         }  
 
         if ($shippingMethodId !== null) {

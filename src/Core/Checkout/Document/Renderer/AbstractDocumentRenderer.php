@@ -66,7 +66,13 @@ abstract class AbstractDocumentRenderer
             return false;
         }
 
-        $orderDelivery = $order->getDeliveries()?->first();
+        /** @deprecated tag:v6.8.0 */
+        if (!$order->getPrimaryOrderDelivery()) {
+            $orderDelivery = $order->getDeliveries()?->first();
+        } else {
+            $orderDelivery = $order->getPrimaryOrderDelivery();
+        }
+
         if (!$orderDelivery) {
             return false;
         }

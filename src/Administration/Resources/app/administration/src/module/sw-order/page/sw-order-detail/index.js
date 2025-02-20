@@ -117,7 +117,7 @@ export default {
             const primaryOrderDeliveryId = this.order.primaryOrderDelivery?.id;
 
             if (!primaryOrderDeliveryId) {
-                // @deprecated tag:v6.7.0 this fallback is only kept for backwards compatibility
+                // @deprecated tag:v6.8.0 this fallback is only kept for backwards compatibility
                 return array.slice(this.order.deliveries, 1) || [];
             }
 
@@ -314,7 +314,12 @@ export default {
                 };
 
                 if (addressMapping.type === 'shipping') {
-                    mapping.deliveryId = this.order.deliveries[0].id;
+                    if (!this.order.primaryOrderDelivery) {
+                        // @deprecated tag:v6.8.0 this fallback is only kept for backwards compatibility
+                        mapping.deliveryId = this.order.deliveries[0].id;
+                    }
+
+                    mapping.deliveryId = this.order.primaryOrderDelivery.id;
                 }
 
                 mappings.push(mapping);

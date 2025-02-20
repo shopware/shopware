@@ -82,8 +82,14 @@ class RecalculationService
         $orderData['id'] = $order->getId();
         $orderData['stateId'] = $order->getStateId();
 
-        if ($order->getDeliveries()?->first()?->getStateId() && $shouldIncludeDeliveries) {
-            $orderData['deliveries'][0]['stateId'] = $order->getDeliveries()->first()->getStateId();
+        if (!$order->getPrimaryOrderDelivery()) {
+            if ($order->getDeliveries()?->first()?->getStateId() && $shouldIncludeDeliveries) {
+                $orderData['deliveries'][0]['stateId'] = $order->getDeliveries()->first()->getStateId();
+            }
+        } else {
+            if ($order->getPrimaryOrderDelivery()->getStateId() && $shouldIncludeDeliveries) {
+                $orderData['deliveries'][0]['stateId'] = $order->getPrimaryOrderDelivery()->getStateId();
+            }
         }
 
         // change scope to be able to write protected state fields of transactions and deliveries
@@ -134,8 +140,15 @@ class RecalculationService
         $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
         $orderData['id'] = $order->getId();
         $orderData['stateId'] = $order->getStateId();
-        if ($order->getDeliveries()?->first()?->getStateId()) {
-            $orderData['deliveries'][0]['stateId'] = $order->getDeliveries()->first()->getStateId();
+
+        if (!$order->getPrimaryOrderDelivery()) {
+            if ($order->getDeliveries()?->first()?->getStateId()) {
+                $orderData['deliveries'][0]['stateId'] = $order->getDeliveries()->first()->getStateId();
+            }
+        } else {
+            if ($order->getPrimaryOrderDelivery()->getStateId()) {
+                $orderData['deliveries'][0]['stateId'] = $order->getDeliveries()?->first()?->getStateId();
+            }
         }
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($orderData): void {

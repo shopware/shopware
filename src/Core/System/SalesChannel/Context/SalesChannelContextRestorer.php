@@ -79,7 +79,12 @@ class SalesChannelContextRestorer
             $options[SalesChannelContextService::PAYMENT_METHOD_ID] = $paymentMethodId;
         }
 
-        $delivery = $order->getDeliveries() !== null ? $order->getDeliveries()->first() : null;
+        if (!$order->getPrimaryOrderDelivery()) {
+            $delivery = $order->getDeliveries() !== null ? $order->getDeliveries()->first() : null;
+        } else {
+            $delivery = $order->getDeliveries() !== null ? $order->getPrimaryOrderDelivery() : null;
+        }
+
         if ($delivery !== null) {
             $options[SalesChannelContextService::SHIPPING_METHOD_ID] = $delivery->getShippingMethodId();
         }

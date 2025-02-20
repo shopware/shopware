@@ -138,7 +138,7 @@ export default {
 
         transaction() {
             if (!this.order.primaryOrderTransaction) {
-                // @deprecated tag:v6.7.0 this fallback is only kept for backwards compatibility
+                // @deprecated tag:v6.8.0 this fallback is only kept for backwards compatibility
                 for (let i = 0; i < this.order.transactions.length; i += 1) {
                     if (!['cancelled', 'failed'].includes(this.order.transactions[i].stateMachineState.technicalName)) {
                         return this.order.transactions[i];
@@ -152,7 +152,7 @@ export default {
 
         delivery() {
             if (!this.order.primaryOrderDelivery) {
-                // @deprecated tag:v6.7.0 this fallback is only kept for backwards compatibility
+                // @deprecated tag:v6.8.0 this fallback is only kept for backwards compatibility
                 return this.order.deliveries[0];
             }
 

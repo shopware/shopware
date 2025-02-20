@@ -89,25 +89,13 @@ class OrderEntity extends Entity
 
     protected string $stateId;
 
-    /**
-     * @var OrderDeliveryEntity|null
-     */
-    protected $primaryOrderDelivery;
+    protected ?OrderDeliveryEntity $primaryOrderDelivery;
 
-    /**
-     * @var string|null
-     */
-    protected $primaryOrderDeliveryId;
+    protected ?string $primaryOrderDeliveryId;
 
-    /**
-     * @var OrderTransactionEntity|null
-     */
-    protected $primaryOrderTransaction;
+    protected ?OrderTransactionEntity $primaryOrderTransaction;
 
-    /**
-     * @var string|null
-     */
-    protected $primaryOrderTransactionId;
+    protected ?string $primaryOrderTransactionId;
 
     protected ?DocumentCollection $documents = null;
 

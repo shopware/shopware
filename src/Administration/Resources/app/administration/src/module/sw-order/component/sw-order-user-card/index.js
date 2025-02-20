@@ -79,7 +79,7 @@ export default {
 
         delivery() {
             if (!this.currentOrder.primaryOrderDelivery) {
-                // @deprecated tag:v6.7.0 this fallback is only kept for backwards compatibility
+                // @deprecated tag:v6.8.0 this fallback is only kept for backwards compatibility
                 return this.currentOrder.deliveries[0];
             }
 

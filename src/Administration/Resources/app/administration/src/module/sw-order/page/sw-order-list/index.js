@@ -151,13 +151,13 @@ export default {
                 },
                 'payment-status-filter': {
                     property: 'primaryOrderTransaction.stateMachineState',
-                    criteria: this.getStatusCriteria('primary_order_transaction.state'),
+                    criteria: this.getStatusCriteria('order_transaction.state'),
                     label: this.$tc('sw-order.filters.paymentStatusFilter.label'),
                     placeholder: this.$tc('sw-order.filters.paymentStatusFilter.placeholder'),
                 },
                 'delivery-status-filter': {
                     property: 'primaryOrderDelivery.stateMachineState',
-                    criteria: this.getStatusCriteria('primary_order_delivery.state'),
+                    criteria: this.getStatusCriteria('order_delivery.state'),
                     label: this.$tc('sw-order.filters.deliveryStatusFilter.label'),
                     placeholder: this.$tc('sw-order.filters.deliveryStatusFilter.placeholder'),
                 },
@@ -525,7 +525,12 @@ export default {
             await this.$nextTick();
 
             const ordersExcludeDelivery = Object.values(this.$refs.orderGrid.selection).filter((order) => {
-                return !order.deliveries[0];
+                if (!this.order.primaryOrderDelivery) {
+                    // @deprecated tag:v6.8.0 this fallback is only kept for backwards compatibility
+                    return this.order.deliveries[0];
+                }
+
+                return this.order.primaryOrderDelivery;
             });
             const excludeDelivery = ordersExcludeDelivery.length > 0 ? '1' : '0';
 
@@ -538,27 +543,25 @@ export default {
         },
 
         transaction(item) {
-            for (let i = 0; i < item.transactions.length; i += 1) {
-                if (
-                    ![
-                        'cancelled',
-                        'failed',
-                    ].includes(item.transactions[i].stateMachineState.technicalName)
-                ) {
-                    return item.transactions[i];
+            if (!item.primaryOrderTransaction) {
+                for (let i = 0; i < item.transactions.length; i += 1) {
+                    if (!['cancelled', 'failed'].includes(this.order.transactions[i].stateMachineState.technicalName)) {
+                        return this.order.transactions[i];
+                    }
                 }
+                return this.order.transactions.last();
             }
 
-            return item.transactions.last();
+            return this.order.primaryOrderTransaction;
         },
 
         getDelivery(order) {
             if (!order.primaryOrderDelivery) {
-                // @deprecated tag:v6.7.0 this fallback is only kept for backwards compatibility
+                // @deprecated tag:v6.8.0 this fallback is only kept for backwards compatibility
                 return order.deliveries ? order.deliveries[0] : null;
             }
 
             return order.primaryOrderDelivery;
-        }
+        },
     },
 };

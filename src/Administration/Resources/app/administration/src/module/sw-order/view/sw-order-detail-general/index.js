@@ -72,7 +72,7 @@ export default {
 
         delivery() {
             if (!this.order.primaryOrderDelivery) {
-                // @deprecated tag:v6.7.0 this fallback is only kept for backwards compatibility
+                // @deprecated tag:v6.8.0 this fallback is only kept for backwards compatibility
                 return this.order.deliveries[0];
             }
 
@@ -83,7 +83,7 @@ export default {
             const primaryOrderDeliveryId = this.delivery?.id;
 
             if (!primaryOrderDeliveryId) {
-                // @deprecated tag:v6.7.0 this fallback is only kept for backwards compatibility
+                // @deprecated tag:v6.8.0 this fallback is only kept for backwards compatibility
                 return array.slice(this.order.deliveries, 1) || [];
             }
 

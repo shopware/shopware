@@ -151,10 +151,10 @@ class OrderConverter
                 usort(
                     $data['deliveries'],
                     function (array $deliveryA, array $deliveryB) {
-                        return $deliveryB['shippingCosts']->getTotalPrice() <=> $deliveryA['position']->getTotalPrice();
+                        // @phpstan-ignore-next-line
+                        return $deliveryB['shippingCosts']->getTotalPrice() <=> $deliveryA['positions'][0]['price']->getTotalPrice();
                     }
                 );
-                $data['deliveries'] = array_values($data['deliveries']);
                 $data['deliveries'][0]['id'] = $primaryOrderDeliveryId;
                 $data['primaryOrderDeliveryId'] = $primaryOrderDeliveryId;
             }
@@ -311,7 +311,13 @@ class OrderConverter
             SalesChannelContextService::VERSION_ID => $context->getVersionId(),
         ];
 
-        $delivery = $order->getDeliveries()?->first();
+        /** @deprecated tag:v6.8.0 */
+        if (!$order->getPrimaryOrderDelivery()) {
+            $delivery = $order->getDeliveries()?->first();
+        } else {
+            $delivery = $order->getPrimaryOrderDelivery();
+        }
+
         if ($delivery !== null) {
             $options[SalesChannelContextService::SHIPPING_METHOD_ID] = $delivery->getShippingMethodId();
         }

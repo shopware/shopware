@@ -173,6 +173,7 @@ class ProductExportRepositoryTest extends TestCase
         $entity = $this->productExportRepository->search($criteria, $this->context)->getEntities()->get($id);
         static::assertInstanceOf(ProductExportEntity::class, $entity);
         $productStream = $entity->getProductStream();
+        static::assertNotNull($productStream);
         static::assertSame($productStreamId, $productStream->getId());
     }
 
@@ -202,6 +203,8 @@ class ProductExportRepositoryTest extends TestCase
         $entity = $this->productExportRepository->search($criteria, $this->context)->getEntities()->get($id);
         static::assertInstanceOf(ProductExportEntity::class, $entity);
         $salesChannel = $entity->getSalesChannel();
+
+        static::assertNotNull($salesChannel);
         static::assertSame($this->getSalesChannelId(), $salesChannel->getId());
     }
 
@@ -231,6 +234,7 @@ class ProductExportRepositoryTest extends TestCase
         $entity = $this->productExportRepository->search($criteria, $this->context)->getEntities()->get($id);
         static::assertInstanceOf(ProductExportEntity::class, $entity);
         $salesChannelDomain = $entity->getSalesChannelDomain();
+        static::assertNotNull($salesChannelDomain);
         static::assertSame($this->getSalesChannelDomainId(), $salesChannelDomain->getId());
     }
 

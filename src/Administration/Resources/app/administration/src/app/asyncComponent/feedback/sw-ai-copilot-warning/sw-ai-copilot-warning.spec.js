@@ -5,13 +5,7 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-ai-copilot-warning', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-icon': true,
-            },
-        },
-    });
+    return mount(await wrapTestComponent('sw-ai-copilot-warning', { sync: true }));
 }
 
 describe('src/app/asyncComponent/feedback/sw-ai-copilot-warning/index.ts', () => {
@@ -25,15 +19,8 @@ describe('src/app/asyncComponent/feedback/sw-ai-copilot-warning/index.ts', () =>
     });
 
     it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
-    it('should render the default text', () => {
-        expect(wrapper.find('.sw-ai-copilot-warning').text()).toBe('sw-ai-copilot-warning.text');
-    });
-
-    it('should render correct icon', async () => {
-        expect(wrapper.find('sw-icon-stub').attributes().name).toBe('solid-exclamation-triangle');
+        wrapper.get('.sw-ai-copilot-warning');
+        wrapper.get('.mt-icon.icon--solid-exclamation-triangle');
     });
 
     it('should be able to override the default text with custom text', async () => {

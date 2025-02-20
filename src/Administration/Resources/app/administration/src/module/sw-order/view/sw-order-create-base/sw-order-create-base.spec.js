@@ -48,7 +48,6 @@ async function createWrapper() {
                 'sw-order-create-address-modal': true,
                 'sw-order-create-promotion-modal': true,
                 'sw-error-summary': true,
-                'sw-icon': true,
                 'sw-loader': true,
                 'router-link': true,
             },

@@ -50,7 +50,6 @@ async function createWrapper(orderData = []) {
                 },
                 'sw-empty-state': true,
                 'sw-entity-listing': true,
-                'sw-icon': true,
                 'router-link': true,
                 'sw-time-ago': true,
                 'sw-context-menu-item': true,

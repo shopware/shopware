@@ -82,7 +82,6 @@ async function createWrapper(privileges = []) {
                 'sw-product-modal-variant-generation': true,
                 'sw-product-modal-delivery': true,
                 'sw-product-add-properties-modal': true,
-                'sw-icon': true,
             },
         },
     });

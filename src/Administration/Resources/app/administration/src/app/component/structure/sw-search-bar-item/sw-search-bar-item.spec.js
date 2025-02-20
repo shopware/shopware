@@ -59,7 +59,6 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
         return mount(swSearchBarItemComponent, {
             global: {
                 stubs: {
-                    'sw-icon': true,
                     'sw-highlight-text': true,
                     'sw-shortcut-overview-item': true,
                     'router-link': {
@@ -94,7 +93,7 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
 
     it('should be a Vue.js component', async () => {
         wrapper = await createWrapper({
-            entityIconName: 'default-shopping-basket',
+            entityIconName: 'regular-shopping-basket',
             entityIconColor: 'blue',
             column: 1,
             index: 1,
@@ -110,7 +109,7 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
 
     it('should add clicked search result into recently search stack', async () => {
         wrapper = await createWrapper({
-            entityIconName: 'default-shopping-basket',
+            entityIconName: 'regular-shopping-basket',
             entityIconColor: 'blue',
             column: 1,
             index: 1,
@@ -159,7 +158,7 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
 
     it('should return filters from filter registry', async () => {
         wrapper = await createWrapper({
-            entityIconName: 'default-shopping-basket',
+            entityIconName: 'regular-shopping-basket',
             entityIconColor: 'blue',
             column: 1,
             index: 1,

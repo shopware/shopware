@@ -75,9 +75,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-language-switch': true,
                     'sw-notification-center': true,
                     'sw-help-center': true,
-                    'sw-icon': true,
                     'sw-help-text': true,
-
                     'sw-label': true,
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),

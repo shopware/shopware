@@ -226,7 +226,6 @@ async function createWrapper(props = defaultProps, provide = {}) {
                         </div>
                     `,
                 },
-                'sw-icon': true,
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                 'sw-context-button': await wrapTestComponent('sw-context-button'),

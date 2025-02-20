@@ -74,7 +74,6 @@ async function createWrapper(privileges = []) {
                 stubs: {
                     'sw-ignore-class': true,
                     'sw-container': await wrapTestComponent('sw-container'),
-                    'sw-icon': true,
                     'sw-simple-search-field': true,
                     'sw-context-menu-item': true,
                     'sw-extension-component-section': true,

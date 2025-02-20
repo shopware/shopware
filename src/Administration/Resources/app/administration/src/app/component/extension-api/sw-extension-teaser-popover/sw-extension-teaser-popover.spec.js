@@ -14,7 +14,6 @@ async function createWrapper(props = {}) {
         global: {
             stubs: {
                 'mt-button': MtButton,
-                'mt-icon': MtIcon,
                 'mt-switch': MtSwitch,
                 'mt-popover': MtPopover,
                 'sw-iframe-renderer': true,

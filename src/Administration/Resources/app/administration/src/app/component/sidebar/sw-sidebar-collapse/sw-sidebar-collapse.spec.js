@@ -10,12 +10,6 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-sidebar-collapse', { sync: true }), {
         global: {
             stubs: {
-                'mt-icon': {
-                    props: [
-                        'name',
-                    ],
-                    template: '<span class="mt-icon">{{ name }}</span>',
-                },
                 'sw-collapse': true,
             },
             mocks: {

@@ -39,7 +39,6 @@ async function createWrapper(privileges = [], customPropsData = {}) {
         'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated'),
         'sw-field-error': true,
         'sw-help-text': true,
-        'sw-icon': true,
         'sw-extension-component-section': true,
         'sw-multi-snippet-drag-and-drop': await wrapTestComponent('sw-multi-snippet-drag-and-drop'),
         'sw-select-base': await wrapTestComponent('sw-select-base'),

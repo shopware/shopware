@@ -47,9 +47,6 @@ async function createWrapper(defaultValues = {}) {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
-                'sw-icon': {
-                    template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
-                },
                 'sw-single-select': await wrapTestComponent('sw-single-select'),
                 'sw-multi-select': await wrapTestComponent('sw-multi-select'),
                 'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select'),
@@ -845,7 +842,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeUndefined();
 
             // remove inheritance
-            await inheritanceSwitch.find('.sw-icon').trigger('click');
+            await inheritanceSwitch.find('.mt-icon').trigger('click');
 
             // check if inheritance switch is not inherit anymore
             field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);
@@ -912,7 +909,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
 
             // restore inheritance
-            await inheritanceSwitch.find('.sw-icon').trigger('click');
+            await inheritanceSwitch.find('.mt-icon').trigger('click');
             await flushPromises();
 
             // check if inheritance switch is not inherit anymore
@@ -979,7 +976,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
 
             // restore inheritance
-            await inheritanceSwitch.find('.sw-icon').trigger('click');
+            await inheritanceSwitch.find('.mt-icon').trigger('click');
 
             // check if inheritance switch is not inherit anymore
             field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);

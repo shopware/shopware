@@ -82,7 +82,6 @@ async function createWrapper() {
                 },
                 'sw-file-input': true,
                 'sw-product-variant-info': true,
-                'sw-icon': true,
                 'sw-loader': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,

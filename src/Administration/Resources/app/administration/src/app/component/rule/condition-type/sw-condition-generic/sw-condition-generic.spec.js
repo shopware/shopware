@@ -76,7 +76,6 @@ async function createWrapper(condition = {}) {
                 'sw-context-menu-item': true,
                 'sw-field-error': true,
                 'sw-condition-type-select': true,
-                'sw-icon': true,
                 'sw-loader': true,
                 'sw-label': true,
                 'sw-highlight-text': true,

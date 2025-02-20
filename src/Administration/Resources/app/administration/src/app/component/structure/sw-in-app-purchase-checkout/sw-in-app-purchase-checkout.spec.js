@@ -11,10 +11,8 @@ async function createWrapper() {
             stubs: {
                 'sw-modal': await wrapTestComponent('sw-modal'),
                 'sw-extension-store-landing-page': true,
-                'sw-icon': true,
                 'sw-loader': true,
                 'sw-label': true,
-                'sw-icon-deprecated': true,
             },
             provide: {
                 shortcutService: {

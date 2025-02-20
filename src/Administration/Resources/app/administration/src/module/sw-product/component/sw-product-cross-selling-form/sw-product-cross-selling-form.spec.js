@@ -30,7 +30,6 @@ async function createWrapper() {
                     'sw-select-field': true,
                     'sw-number-field': true,
                     'sw-entity-single-select': true,
-                    'sw-icon': true,
                     'sw-product-cross-selling-assignment': true,
                     'sw-product-stream-modal-preview': true,
                     'sw-modal': true,

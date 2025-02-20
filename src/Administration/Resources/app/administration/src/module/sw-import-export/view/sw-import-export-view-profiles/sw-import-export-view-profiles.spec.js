@@ -66,7 +66,6 @@ async function createWrapper(profiles = null) {
                     'router-link': true,
                     'sw-bulk-edit-modal': true,
                     'sw-checkbox-field': true,
-                    'sw-icon': true,
                     'sw-data-grid-settings': true,
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-inline-edit': true,

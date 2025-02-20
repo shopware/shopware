@@ -42,9 +42,6 @@ async function createWrapper() {
                     'sw-context-button': {
                         template: '<div></div>',
                     },
-                    'sw-icon': {
-                        template: '<div></div>',
-                    },
                     'router-link': true,
                     'sw-checkbox-field': {
                         template: '<div></div>',

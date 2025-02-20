@@ -86,7 +86,6 @@ async function createWrapper() {
                 },
 
                 stubs: {
-                    'sw-icon': true,
                     'sw-modal': await wrapTestComponent('sw-modal', {
                         sync: true,
                     }),

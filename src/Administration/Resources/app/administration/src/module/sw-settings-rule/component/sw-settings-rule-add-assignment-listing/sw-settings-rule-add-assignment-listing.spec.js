@@ -87,7 +87,6 @@ async function createWrapper(props = defaultProps) {
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-product-variant-info': true,
-                    'sw-icon': true,
                     'sw-extension-component-section': true,
                     'sw-ai-copilot-badge': true,
                     'sw-context-button': true,

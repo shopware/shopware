@@ -106,9 +106,6 @@ async function createWrapper() {
                 'sw-context-button': {
                     template: '<div></div>',
                 },
-                'sw-icon': {
-                    template: '<div></div>',
-                },
                 'sw-property-option-detail': await wrapTestComponent('sw-property-option-detail', { sync: true }),
                 'sw-modal': {
                     template: `

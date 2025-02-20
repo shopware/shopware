@@ -12,7 +12,6 @@ async function createWrapper() {
         {
             global: {
                 stubs: {
-                    'mt-icon': true,
                     'sw-extension-teaser-popover': true,
                 },
             },

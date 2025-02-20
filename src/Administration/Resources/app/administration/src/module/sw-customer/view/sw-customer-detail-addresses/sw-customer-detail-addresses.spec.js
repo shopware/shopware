@@ -26,7 +26,6 @@ async function createWrapper() {
                     },
                     'sw-field': true,
                     'sw-modal': true,
-                    'sw-icon': true,
                     'sw-one-to-many-grid': {
                         props: ['collection'],
                         template: `

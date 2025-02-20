@@ -86,7 +86,6 @@ async function createWrapper(privileges = []) {
                 },
                 'sw-language-switch': true,
                 'sw-search-bar': true,
-                'sw-icon': true,
                 'sw-container': {
                     template: '<div><slot></slot></div>',
                 },

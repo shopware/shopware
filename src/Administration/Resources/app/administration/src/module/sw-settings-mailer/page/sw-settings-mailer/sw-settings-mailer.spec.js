@@ -16,7 +16,6 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
                         'sw-page': {
                             template: '<div />',
                         },
-                        'sw-icon': true,
                         'sw-button-process': true,
                         'sw-skeleton': true,
                         'sw-select-field': true,

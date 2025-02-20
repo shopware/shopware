@@ -155,7 +155,6 @@ async function createWrapper({ salesChannel, products } = {}) {
                     },
                     'sw-pagination': true,
                     'sw-simple-search-field': true,
-                    'sw-icon': true,
                     'sw-sales-channel-products-assignment-modal': true,
                     'sw-context-menu-item': true,
                     'sw-extension-component-section': true,

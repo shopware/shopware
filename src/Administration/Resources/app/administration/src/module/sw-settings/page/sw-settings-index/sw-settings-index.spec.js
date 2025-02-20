@@ -18,7 +18,7 @@ async function createWrapper(
         {
             group: 'system',
             to: 'sw.settings.store.index',
-            icon: 'default-device-laptop',
+            icon: 'regular-laptop',
             id: 'sw-settings-store',
             name: 'settings-store',
             label: 'c',
@@ -27,7 +27,7 @@ async function createWrapper(
         {
             group: 'system',
             to: 'sw.settings.user.list',
-            icon: 'default-avatar-single',
+            icon: 'regular-user',
             id: 'sw-settings-user',
             name: 'settings-user',
             label: 'a',
@@ -36,7 +36,7 @@ async function createWrapper(
         {
             group: 'system',
             to: 'sw.settings.foo.list',
-            icon: 'default-avatar-single',
+            icon: 'regular-user',
             id: 'sw-settings-foo',
             name: 'settings-foo',
             label: 'b',
@@ -45,7 +45,7 @@ async function createWrapper(
         {
             group: 'shop',
             to: 'sw.settings.snippet.index',
-            icon: 'default-object-globe',
+            icon: 'regular-globe',
             id: 'sw-settings-snippet',
             name: 'settings-snippet',
             label: 'h',
@@ -54,7 +54,7 @@ async function createWrapper(
         {
             group: 'shop',
             to: 'sw.settings.listing.index',
-            icon: 'default-symbol-products',
+            icon: 'regular-products',
             id: 'sw-settings-listing',
             name: 'settings-listing',
             label: 's',
@@ -77,7 +77,7 @@ async function createWrapper(
                     id: Shopware.Utils.createId(),
                 },
             },
-            icon: 'default-object-books',
+            icon: 'regular-books',
             id: 'sw-extension-books',
             name: 'settings-app-book',
             label: {
@@ -93,7 +93,7 @@ async function createWrapper(
                     id: Shopware.Utils.createId(),
                 },
             },
-            icon: 'default-object-books',
+            icon: 'regular-books',
             id: 'sw-extension-briefcase',
             name: 'settings-app-briefcase',
             label: {
@@ -137,9 +137,6 @@ async function createWrapper(
                     'sw-settings-item': await wrapTestComponent('sw-settings-item'),
                     'router-link': {
                         template: '<a><slot></slot></a>',
-                    },
-                    'sw-icon': {
-                        template: '<span></span>',
                     },
                     'sw-extension-component-section': true,
                 },
@@ -222,7 +219,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         const settingsItemToAdd = {
             group: 'shop',
             to: 'sw.bar.index',
-            icon: 'bar',
+            icon: 'regular-storefront',
             id: 'sw-settings-bar',
             name: 'settings-bar',
             label: 'b',
@@ -255,7 +252,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         const settingsItemToAdd = {
             group: 'shop',
             to: 'sw.bar.index',
-            icon: 'bar',
+            icon: 'regular-storefront',
             id: 'sw-settings-bar',
             name: 'settings-bar',
             label: 'b',
@@ -276,7 +273,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             privilege: 'system.foo_bar',
             group: 'shop',
             to: 'sw.bar.index',
-            icon: 'bar',
+            icon: 'regular-storefront',
             id: 'sw-settings-bar',
             name: 'settings-bar',
             label: 'b',
@@ -297,7 +294,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             privilege: 'system.foo_bar',
             group: 'shop',
             to: 'sw.bar.index',
-            icon: 'bar',
+            icon: 'regular-storefront',
             id: 'sw-settings-bar',
             name: 'settings-bar',
             label: 'b',
@@ -313,11 +310,96 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         expect(barSetting).toBeUndefined();
     });
 
+    it('should hide icon background when backgroundEnabled is false', async () => {
+        const settingsItemToAdd = {
+            group: 'shop',
+            to: 'sw.bar.index',
+            icon: 'regular-storefront',
+            id: 'settings-background-disabled',
+            name: 'settings-background-disabled',
+            label: 'b',
+            backgroundEnabled: false,
+        };
+
+        Shopware.Store.get('settingsItems').addItem(settingsItemToAdd);
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
+
+        settingsGroups.forEach(
+            ([
+                settingsGroup,
+                settingsItems,
+            ]) => {
+                const settingsGroupWrapper = wrapper.find(`#sw-settings__content-grid-${settingsGroup}`);
+                const settingsItemsWrappers = settingsGroupWrapper.findAll('.sw-settings-item');
+
+                settingsItemsWrappers.forEach((settingsItemsWrapper, index) => {
+                    const iconClasses = settingsItemsWrapper.find('.sw-settings-item__icon').attributes().class;
+
+                    if (settingsItems[index].backgroundEnabled === false) {
+                        // eslint-disable-next-line jest/no-conditional-expect
+                        expect(iconClasses).not.toContain('background--enabled');
+                    } else {
+                        // eslint-disable-next-line jest/no-conditional-expect
+                        expect(iconClasses).toContain('background--enabled');
+                    }
+                });
+            },
+        );
+    });
+
+    it('should not hide the tab when user has access to any settings inside the tab', async () => {
+        const settingsItemToAdd = {
+            privilege: 'system.foo_bar',
+            group: 'shop',
+            to: 'sw.bar.index',
+            icon: 'regular-storefront',
+            id: 'sw-settings-bar',
+            name: 'settings-bar',
+            label: 'b',
+        };
+
+        Shopware.Store.get('settingsItems').addItem(settingsItemToAdd);
+
+        const wrapper = await createWrapper('system.foo_bar');
+
+        const systemTab = wrapper.find('.sw-settings__tab-system');
+        const shopTab = wrapper.find('.sw-settings__tab-shop');
+
+        expect(systemTab.exists()).toBe(false);
+        expect(shopTab.exists()).toBe(true);
+    });
+
+    it('should hide the tab when user has no access to any settings inside the tab', async () => {
+        const settingsItemToAdd = {
+            privilege: 'system.foo_bar',
+            group: 'system',
+            to: 'sw.bar.index',
+            icon: 'regular-storefront',
+            id: 'sw-settings-bar',
+            name: 'settings-bar',
+            label: 'b',
+        };
+
+        Shopware.Store.get('settingsItems').addItem(settingsItemToAdd);
+
+        const wrapper = await createWrapper('system.foo_bar');
+
+        const systemTab = wrapper.find('.sw-settings__tab-system');
+        const shopTab = wrapper.find('.sw-settings__tab-shop');
+
+        expect(systemTab.exists()).toBe(true);
+        expect(shopTab.exists()).toBe(false);
+    });
+
     it('should correctly resolve dynamic group functions and add the item', async () => {
         const settingsItemToAdd = {
             group: () => 'dynamicGroup',
             to: 'sw.dynamic.index',
-            icon: 'dynamic-icon',
+            icon: 'regular-storefront',
             id: 'sw-dynamic-setting',
             name: 'settings-dynamic',
             label: 'Dynamic Setting',
@@ -339,7 +421,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             privilege: 'system.foo_bar',
             group: 'shop',
             to: 'sw.bar.index',
-            icon: 'bar-icon',
+            icon: 'regular-storefront',
             id: 'sw-settings-bar',
             name: 'settings-bar',
             label: 'Bar Setting',

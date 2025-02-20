@@ -102,7 +102,6 @@ async function createWrapper() {
                 },
                 'sw-container': true,
 
-                'sw-icon': true,
                 'sw-tree': {
                     props: ['items'],
                     template: `

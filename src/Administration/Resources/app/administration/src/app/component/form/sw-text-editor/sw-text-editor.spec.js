@@ -33,7 +33,6 @@ async function createWrapper(allowInlineDataMapping = true) {
                 'sw-code-editor': {
                     template: '<div id="sw-code-editor"></div>',
                 },
-                'sw-icon': { template: '<div class="sw-icon"></div>' },
                 'sw-select-field': true,
                 'sw-field-error': true,
                 'sw-text-editor-table-toolbar': true,
@@ -193,7 +192,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(wrapper.vm.isCodeEdit).toBe(false);
 
         // switch to code editor mode
-        await wrapper.find('.sw-icon[name="regular-code-xs"]').trigger('click');
+        await wrapper.find('.mt-icon.icon--regular-code-xs').trigger('click');
 
         await wrapper.vm.$nextTick();
         expect(wrapper.vm.isCodeEdit).toBe(true);
@@ -208,7 +207,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(wrapper.vm.placeholderVisible).toBe(false);
 
         // switch to text editor mode and make sure that the placeholder is not displayed
-        await wrapper.find('.sw-icon[name="regular-code-xs"]').trigger('click');
+        await wrapper.find('.mt-icon.icon--regular-code-xs').trigger('click');
 
         await wrapper.vm.$nextTick();
         expect(wrapper.vm.isCodeEdit).toBe(false);

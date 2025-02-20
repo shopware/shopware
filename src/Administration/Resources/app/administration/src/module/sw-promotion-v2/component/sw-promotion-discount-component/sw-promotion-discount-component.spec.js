@@ -38,9 +38,6 @@ async function createWrapper() {
                             'disabled',
                         ],
                     },
-                    'sw-icon': {
-                        template: '<div class="sw-icon"></div>',
-                    },
                     'mt-card': {
                         template: '<div class="mt-card"><slot></slot></div>',
                     },

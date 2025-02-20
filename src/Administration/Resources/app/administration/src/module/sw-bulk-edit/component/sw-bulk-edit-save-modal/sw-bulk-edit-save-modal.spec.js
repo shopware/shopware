@@ -26,9 +26,6 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-modal': await wrapTestComponent('sw-modal'),
-                'sw-icon': {
-                    template: '<div class="sw-icon" />',
-                },
                 'router-view': {
                     template: '<div class="router-view"><slot v-bind="slotBindings"></slot></div>',
                     data() {

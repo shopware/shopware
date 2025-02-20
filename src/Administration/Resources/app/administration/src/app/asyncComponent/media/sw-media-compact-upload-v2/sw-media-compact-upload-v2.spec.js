@@ -20,7 +20,6 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
                     stubs: {
                         'sw-context-button': true,
                         'sw-context-menu-item': true,
-                        'sw-icon': true,
                         'sw-media-url-form': true,
                         'sw-media-preview-v2': true,
                         'sw-context-menu-divider': true,

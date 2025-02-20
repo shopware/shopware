@@ -794,7 +794,6 @@ const createWrapper = async (options = {}) => {
                 'sw-popover': {
                     template: '<div><slot></slot></div>',
                 },
-                'sw-icon': true,
                 'sw-description-list': true,
                 'sw-color-badge': true,
                 'sw-data-grid-settings': true,

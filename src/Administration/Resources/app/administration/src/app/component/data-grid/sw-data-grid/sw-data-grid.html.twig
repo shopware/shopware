@@ -112,7 +112,6 @@
                             >
 
                                 {% block sw_data_grid_header_columns_icon %}
-                                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                                 <mt-icon
                                     v-if="column.iconLabel && column.iconTooltip"
                                     v-tooltip="column.iconTooltip"
@@ -121,7 +120,6 @@
                                     {{ $te((column.label ?? 'undefined')) ? $tc(column.label) : column.label }}
                                 </mt-icon>
 
-                                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                                 <mt-icon
                                     v-else-if="column.iconLabel"
                                     :name="column.iconLabel"
@@ -166,7 +164,6 @@
                                     mode="out-in"
                                 >
                                     {% block sw_data_grid_sort_indicator_icon_asc %}
-                                    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                                     <mt-icon
                                         v-if="currentSortDirection === 'ASC'"
                                         key="ASC"
@@ -176,7 +173,6 @@
                                     {% endblock %}
 
                                     {% block sw_data_grid_sort_indicator_icon_desc %}
-                                    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                                     <mt-icon
                                         v-else
                                         key="DESC"
@@ -406,7 +402,6 @@
                                     @click="onClickCancelInlineEdit(item)"
                                 >
                                     {% block sw_data_grid_inline_edit_actions_cancel_icon %}
-                                    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                                     <mt-icon name="regular-times-xs" />
                                     {% endblock %}
                                 </mt-button>
@@ -423,7 +418,6 @@
                                     @click="onClickSaveInlineEdit(item)"
                                 >
                                     {% block sw_data_grid_inline_edit_actions_save_icon %}
-                                    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                                     <mt-icon
                                         name="regular-checkmark-xxs"
                                     />

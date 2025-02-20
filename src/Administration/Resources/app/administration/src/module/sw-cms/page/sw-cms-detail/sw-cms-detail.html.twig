@@ -33,7 +33,6 @@
                             @click="onClickBack"
                             @keyup.enter="onClickBack"
                         >
-                            <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                             <mt-icon name="regular-times" />
                         </a>
                         {% endblock %}
@@ -70,7 +69,6 @@
                         class="sw-cms-detail__device-actions"
                     >
                         {% block sw_cms_detail_toolbar_device_actions_mobile %}
-                        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                         <mt-icon
                             name="regular-mobile"
                             :class="{ 'is--active': currentDeviceView === 'mobile' }"
@@ -79,7 +77,6 @@
                         {% endblock %}
 
                         {% block sw_cms_detail_toolbar_device_actions_tablet_landscape %}
-                        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                         <mt-icon
                             name="regular-tablet"
                             :class="{ 'is--active': currentDeviceView === 'tablet-landscape' }"
@@ -88,7 +85,6 @@
                         {% endblock %}
 
                         {% block sw_cms_detail_toolbar_device_actions_desktop %}
-                        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                         <mt-icon
                             name="regular-desktop"
                             :class="{ 'is--active': currentDeviceView === 'desktop' }"
@@ -97,7 +93,6 @@
                         {% endblock %}
 
                         {% block sw_cms_detail_toolbar_device_actions_form %}
-                        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                         <mt-icon
                             name="regular-bars-square"
                             :class="{ 'is--active': currentDeviceView === 'form', 'is--disabled': !acl.can('cms.editor') }"

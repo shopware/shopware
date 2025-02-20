@@ -66,13 +66,11 @@
                                 :disabled="isLoading"
                                 @click.prevent="onAssignmentChange(item)"
                             >
-                                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                                 <mt-icon
                                     v-if="item.entity === selectedEntity"
                                     name="regular-folder-open"
                                     size="16px"
                                 />
-                                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                                 <mt-icon
                                     v-else
                                     name="regular-folder"

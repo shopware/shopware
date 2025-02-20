@@ -21,13 +21,11 @@
             @click="changeMode(disabled)"
             @keydown.enter="changeMode(disabled)"
         >
-            <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
             <mt-icon
                 v-if="sslActive"
                 name="regular-lock"
                 size="16px"
             />
-            <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
             <mt-icon
                 v-else
                 name="regular-lock-open"

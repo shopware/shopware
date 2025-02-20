@@ -32,7 +32,6 @@
                         variant="primary"
                         class="sw-media-upload-v2__button-context-menu"
                     >
-                        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                         <mt-icon name="regular-chevron-down-xs" />
                     </mt-button>
                 </template>
@@ -140,7 +139,6 @@
                     v-else
                     class="sw-media-upload-v2__preview is--fallback"
                 >
-                    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                     <mt-icon
                         class="sw-media-upload-v2__fallback-icon"
                         name="regular-image"
@@ -152,7 +150,6 @@
             <template v-if="!showPreview && variant === 'regular'">
                 {% block sw_media_upload_v2_regular_caption %}
                 <div class="sw-media-upload-v2__upload-caption">
-                    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                     <mt-icon name="regular-cloud-upload" />
                     {{ $tc('global.sw-media-upload-v2.caption') }}
                 </div>
@@ -173,7 +170,6 @@
                     <div class="sw-media-upload-v2__file-headline">
                         {{ mediaNameFilter(source, source.name) }}
                     </div>
-                    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                     <mt-icon
                         v-if="!disabled"
                         class="sw-media-upload-v2__remove-icon"
@@ -205,7 +201,6 @@
                             :disabled="disabled"
                             @click="onClickOpenMediaSidebar"
                         >
-                            <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                             <mt-icon
                                 v-if="variant === 'small'"
                                 name="regular-plus"

@@ -15,12 +15,10 @@
             @click="buttonHandler($event, buttonConfig)"
             @keydown.enter="buttonHandler($event, buttonConfig)"
         >
-            <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
             <mt-icon
                 :name="buttonConfig.icon"
                 size="12"
             />
-            <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
             <mt-icon
                 v-if="buttonConfig.children"
                 name="regular-chevron-down"
@@ -82,7 +80,6 @@
             >
                 {% block sw_text_editor_toolbar_button_child_item %}
                 <div>
-                    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                     <mt-icon
                         v-if="child.icon"
                         :name="child.icon"

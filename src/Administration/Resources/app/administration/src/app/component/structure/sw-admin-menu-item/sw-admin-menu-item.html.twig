@@ -21,7 +21,6 @@
     >
 
         {% block sw_admin_menu_item_icon %}
-        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
         <mt-icon
             v-if="displayIcon"
             :size="iconSize"
@@ -42,7 +41,6 @@
         {% endblock %}
 
         {% block sw_admin_menu_item_arrow_indicato %}
-        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
         <mt-icon
             v-if="entry.level > 1 && children.length"
             name="regular-chevron-right"
@@ -65,7 +63,6 @@
     >
 
         {% block sw_admin_menu_item_external_icon %}
-        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
         <mt-icon
             v-if="displayIcon"
             :size="iconSize"
@@ -86,7 +83,6 @@
         {% endblock %}
 
         {% block sw_admin_menu_item_external_arrow_indicato %}
-        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
         <mt-icon
             v-if="entry.level > 1 && children.length"
             name="regular-chevron-right"
@@ -107,7 +103,6 @@
     >
 
         {% block sw_admin_menu_item_navigation_icon %}
-        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
         <mt-icon
             v-if="displayIcon"
             :size="iconSize"
@@ -130,7 +125,6 @@
         <slot name="additional-text"></slot>
 
         {% block sw_admin_menu_item_arrow_indicator %}
-        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
         <mt-icon
             v-if="entry.level > 1 && children.length"
             name="regular-chevron-right"

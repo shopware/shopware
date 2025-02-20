@@ -15,12 +15,10 @@
                 class="sw-search-bar__button"
                 @click="toggleOffCanvas"
             >
-                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                 <mt-icon
                     v-if="isOffCanvasShown"
                     name="regular-times"
                 />
-                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                 <mt-icon
                     v-else
                     name="regular-bars-s"
@@ -37,7 +35,6 @@
                 class="sw-search-bar__button"
                 @click="showSearchBar"
             >
-                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                 <mt-icon name="regular-search" />
             </button>
             {% endblock %}
@@ -61,7 +58,6 @@
                 @keydown.enter="onOpenModuleFiltersDropDown"
             >
                 {{ getLabelSearchType() }}
-                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                 <mt-icon
                     name="regular-chevron-down-xxs"
                 />
@@ -96,7 +92,6 @@
                 class="sw-search-bar__field-icon sw-search-bar__field-close"
                 @click="hideSearchBar"
             >
-                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                 <mt-icon
                     name="regular-times-s"
                     size="16px"
@@ -104,7 +99,6 @@
             </button>
 
             <span class="sw-search-bar__field-icon sw-search-bar__field-search-icon">
-                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                 <mt-icon
                     name="regular-search-s"
                     size="16px"
@@ -174,7 +168,6 @@
                                 class="sw-search-bar-item sw-search-bar-item--v2"
                             >
                                 {% block sw_search_bar_results_list_bar_item_icon %}
-                                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                                 <mt-icon
                                     name="regular-double-chevron-right-s"
                                     color="rgb(179, 191, 204)"
@@ -237,7 +230,6 @@
                     v-html="$tc('global.sw-search-bar.placeholderSearchShortcutInfo')"
                 ></p>
 
-                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                 <mt-icon
                     size="16px"
                     name="regular-cog"
@@ -278,7 +270,6 @@
                 <span
                     class="sw-search-bar__type-item-name"
                 >
-                    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                     <mt-icon
                         class="sw-search-bar__type-item-icon"
                         :style="{ 'color': getEntityIconColor(type.entityName) }"
@@ -315,7 +306,6 @@
                     v-html="$tc('global.sw-search-bar.placeholderSearchShortcutInfo')"
                 ></p>
 
-                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                 <mt-icon
                     size="16px"
                     name="regular-cog"
@@ -347,7 +337,6 @@
                 <span
                     class="sw-search-bar__type-item-name"
                 >
-                    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                     <mt-icon
                         class="sw-search-bar__type-item-icon"
                         :style="{ 'color': getEntityIconColor(type.entityName) }"
@@ -433,7 +422,6 @@
                     v-html="$tc('global.sw-search-bar.placeholderSearchShortcutInfo')"
                 ></p>
 
-                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                 <mt-icon
                     :style="{ 'color': '#7d8c9b' }"
                     name="regular-cog"

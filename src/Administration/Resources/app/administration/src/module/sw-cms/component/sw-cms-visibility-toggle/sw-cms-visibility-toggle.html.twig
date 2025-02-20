@@ -1,7 +1,6 @@
 {% block sw_cms_visibility_toggle %}
 <div class="sw-cms-visibility-toggle-wrapper">
     <div class="sw-cms-visibility-toggle">
-        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
         <mt-icon
             name="regular-eye-slash"
             size="24"
@@ -12,7 +11,6 @@
             @click="$emit('toggle')"
         >
             <span>{{ text }}</span>
-            <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
             <mt-icon
                 :name="isCollapsed ? 'regular-chevron-down-xs' : 'regular-chevron-up-xs'"
                 size="10"

@@ -59,13 +59,11 @@
                                     v-if="previewLoadingStates[seoUrlTemplate.id]"
                                     size="16px"
                                 />
-                                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                                 <mt-icon
                                     v-else-if="errorMessages[seoUrlTemplate.id]"
                                     v-tooltip="$tc('sw-seo-url-template-card.general.tooltipInvalidTemplate')"
                                     name="regular-times"
                                 />
-                                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                                 <mt-icon
                                     v-else-if="noEntityError.includes(seoUrlTemplate.id)"
                                     v-tooltip="$tc('sw-seo-url-template-card.general.textUrlNoEntitiesForPreview', {
@@ -73,7 +71,6 @@
                                     }, 0)"
                                     name="regular-exclamation-triangle"
                                 />
-                                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                                 <mt-icon
                                     v-else-if="!props.currentValue"
                                     v-tooltip="$tc('sw-seo-url-template-card.general.textUrlPreviewEmptyTemplate', {
@@ -81,7 +78,6 @@
                                     }, 1)"
                                     name="regular-exclamation-triangle"
                                 />
-                                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                                 <mt-icon
                                     v-else
                                     v-tooltip="$tc('sw-seo-url-template-card.general.tooltipValidTemplate')"

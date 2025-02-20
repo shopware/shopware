@@ -25,7 +25,6 @@
             :disabled="disabled"
             :placeholder="placeholderText"
         >
-        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
         <mt-icon
             v-if="!required && timezoneFormattedValue && !disabled"
             class="sw-field--datepicker__button-reset-value"
@@ -38,7 +37,6 @@
         v-if="showTimeZoneHint"
         #hint
     >
-        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
         <mt-icon
             name="solid-clock"
             size="12px"
@@ -47,7 +45,6 @@
     </template>
 
     <template #sw-contextual-field-suffix>
-        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
         <mt-icon
             :name="suffixName"
             @click.stop="openDatepicker"

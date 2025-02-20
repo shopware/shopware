@@ -95,13 +95,11 @@
                             @click="onListModeChange"
                             @keydown.enter="onListModeChange"
                         >
-                            <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                             <mt-icon
                                 v-if="listMode === 'grid'"
                                 name="regular-view-normal"
                                 size="16"
                             />
-                            <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                             <mt-icon
                                 v-if="listMode === 'list'"
                                 name="regular-view-grid"
@@ -252,7 +250,6 @@
 
                                     {% block sw_cms_list_listing_list_data_grid_column_name %}
                                     <template #column-name="{ item }">
-                                        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                                         <mt-icon
                                             v-if="item.locked"
                                             name="regular-lock"
@@ -273,7 +270,6 @@
 
                                     {% block sw_cms_list_listing_list_data_grid_column_assignments %}
                                     <template #column-assignments="{ item }">
-                                        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                                         <mt-icon
 
                                             size="10px"

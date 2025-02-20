@@ -57,7 +57,6 @@
                         :key="operation.operation"
                         class="sw-extension-permissions-details-modal__operation"
                     >
-                        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                         <mt-icon
                             v-if="permissions.includes(operation.operation)"
                             name="regular-checkmark-xs"
@@ -65,7 +64,6 @@
                             color="#37D046"
                         />
 
-                        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                         <mt-icon
                             v-else-if="category !== 'additional_privileges'"
                             name="regular-times-s"

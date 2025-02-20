@@ -189,14 +189,12 @@
                             :disabled="block.appName === 'SwagCeToRiseUpsellingApp'"
                             @click="onToggleBlockFavorite(block.name)"
                         >
-                            <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                             <mt-icon
                                 v-if="cmsBlockFavorites.isFavorite(block.name)"
                                 name="solid-heart"
                                 size="20"
                                 class="sw-cms-sidebar__icon-cms-block-favorite"
                             />
-                            <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                             <mt-icon
                                 v-else
                                 name="regular-heart"

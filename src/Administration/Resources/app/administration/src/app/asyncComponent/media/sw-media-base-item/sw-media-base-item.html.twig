@@ -38,13 +38,11 @@
                 appearance="pill"
                 size="medium"
             >
-                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                 <mt-icon
                     v-if="item.config?.spatial?.arReady ?? defaultArReady"
                     name="regular-AR"
                     size="16px"
                 />
-                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                 <mt-icon
                     v-else
                     name="regular-3d"
@@ -113,7 +111,6 @@
     {% endblock %}
 
     {% block sw_media_base_item_loading_indicator %}
-    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
     <mt-icon
         v-if="isLoading"
         class="sw-media-base-item__loader"

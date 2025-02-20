@@ -1,7 +1,7 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 
-.mt-icon {
+.sw-icon {
     @include size(24px);
 
     display: inline-block;
@@ -14,7 +14,7 @@
         vertical-align: middle;
     }
 
-    &.mt-icon--fill > svg {
+    &.sw-icon--fill > svg {
         fill: currentcolor;
 
         path,
@@ -23,11 +23,11 @@
         }
     }
 
-    &.mt-icon--small {
+    &.sw-icon--small {
         @include size(16px);
     }
 
-    &.mt-icon--large {
+    &.sw-icon--large {
         @include size(32px);
     }
 }

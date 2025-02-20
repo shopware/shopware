@@ -24,7 +24,6 @@
                     @click="onPageTypeSelect(pageType.name)"
                     @keyup.enter="onPageTypeSelect(pageType.name)"
                 >
-                    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                     <mt-icon
                         :name="pageType.icon"
                         size="24"
@@ -40,7 +39,6 @@
                 class="sw-cms-create-wizard__back"
                 :to="{ name: 'sw.cms.index' }"
             >
-                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                 <mt-icon
                     name="regular-times-s"
                     size="16px"
@@ -80,7 +78,6 @@
                 @click="goToStep('pageType')"
                 @keydown.enter="goToStep('pageType')"
             >
-                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                 <mt-icon
                     name="regular-long-arrow-left"
                     size="16px"
@@ -113,7 +110,6 @@
                         :style="pagePreviewStyle"
                     ></div>
                     <div class="sw-cms-create-wizard__preview_info">
-                        <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                         <mt-icon
                             :name="currentPageType?.icon"
                             size="16"
@@ -172,7 +168,6 @@
                 @click="goToStep('sectionType')"
                 @keydown.enter="goToStep('sectionType')"
             >
-                <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                 <mt-icon
                     name="regular-long-arrow-left"
                     size="16px"

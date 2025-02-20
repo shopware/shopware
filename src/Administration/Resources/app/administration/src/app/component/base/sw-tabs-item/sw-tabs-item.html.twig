@@ -13,7 +13,6 @@
     <slot></slot>
     {% endblock %}
 
-    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
     <mt-icon
         v-if="hasError"
         v-tooltip="{ message: errorTooltip }"
@@ -22,7 +21,6 @@
         size="12px"
     />
 
-    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
     <mt-icon
         v-if="!hasError && hasWarning"
         v-tooltip="{ message: warningTooltip }"
@@ -45,7 +43,6 @@
 >
     {% block sw_tabs_item_slot_native %}
     <slot></slot>
-    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
     <mt-icon
         v-if="hasError"
         v-tooltip="{ message: errorTooltip }"
@@ -53,7 +50,6 @@
         name="solid-exclamation-circle"
         size="12px"
     />
-    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
     <mt-icon
         v-if="!hasError && hasWarning"
         v-tooltip="{ message: warningTooltip }"

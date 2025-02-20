@@ -19,7 +19,6 @@
             :to="{ name: 'sw.product.detail.variants', params: { id: $route.params.parentId } }"
             :style="{ 'color': $route.meta.$module?.color }"
         >
-            <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
             <mt-icon
                 name="regular-chevron-left"
                 size="16px"
@@ -77,7 +76,6 @@
                 <mt-banner variant="info">
                     <template #customIcon>
                         <div class="sw-bulk-edit-product__inheritance-icon">
-                            <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                             <mt-icon
                                 name="regular-link"
                                 color="#7363e5"
@@ -180,7 +178,6 @@
                             @keydown.enter="displayAdvancePricesModal = true"
                         >
                             {{ $tc('sw-bulk-edit.product.advancedPrices.newAdvancedPrices', { count: entity[formField.name] ? Object.keys(priceRuleGroups).length : 0 }, 0) }}
-                            <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                             <mt-icon
                                 name="regular-long-arrow-right"
                                 size="16px"

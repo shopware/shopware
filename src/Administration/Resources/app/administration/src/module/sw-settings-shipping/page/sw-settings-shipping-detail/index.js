@@ -217,7 +217,7 @@ export default {
                     Shopware.Store.get('swShippingDetail').shippingMethod = res;
 
                     this.ruleConditionDataProviderService.getRestrictedRules('shippingMethodPrices').then((result) => {
-                        Shopware.Store.get('swShippingDetail').restrictedRuleIds = this.usedRules.concat(result);
+                        Shopware.Store.get('swShippingDetail').restrictedRuleIds = this.restrictedRuleIds.concat(result);
                     });
 
                     this.loadCustomFieldSets().then(() => {

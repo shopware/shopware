@@ -143,12 +143,12 @@ describe('components/base/sw-product-variants-configurator-selection', () => {
         wrapper.vm.selectOptions = selectionOptionsMock;
 
         await wrapper.setProps({
-            disabled: true,
+            isAddOnly: true,
         });
 
         const entityCollection = getPropertyCollection();
         await wrapper.setProps({
-            disabled: false,
+            isAddOnly: false,
             options: entityCollection,
         });
         expect(selectionOptionsMock).toHaveBeenCalled();

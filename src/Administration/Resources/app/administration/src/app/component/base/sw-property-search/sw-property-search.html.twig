@@ -22,7 +22,7 @@
                         v-model="searchTerm"
                         name="sw-field--searchTerm"
                         class="sw-property-search__search-field"
-                        :disabled="disabled"
+                        :disabled="isAddOnly"
                         :placeholder="$tc('sw-property-search.placeholderSearch')"
                         autocomplete="off"
                         @focus="onFocusSearch"

@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\System\SalesChannel\Context;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -53,7 +52,6 @@ use Shopware\Core\Test\TestDefaults;
  */
 #[Package('discovery')]
 #[CoversClass(BaseContextFactory::class)]
-#[CoversClass(ContextProvider::class)]
 class BaseContextFactoryTest extends TestCase
 {
     /**
@@ -93,7 +91,6 @@ class BaseContextFactoryTest extends TestCase
         $currencyCountryRepository = new StaticEntityRepository([new CurrencyCountryRoundingCollection($entitySearchResult[CurrencyCountryRoundingDefinition::ENTITY_NAME] ?? [])]);
 
         $connection = $this->createMock(Connection::class);
-        $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
         $connection->expects(static::once())->method('fetchAssociative')->willReturn($fetchDataResult);
 
         if ($fetchDataResult === false) {

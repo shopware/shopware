@@ -76,25 +76,17 @@ class ContextProvider
 
         $versionId = $session[SalesChannelContextService::VERSION_ID] ?? Defaults::LIVE_VERSION;
 
-        $event = $this->eventDispatcher->dispatch(new ContextCreatedEvent(
-            $origin,
-            [],
-            Uuid::fromBytesToHex($data['sales_channel_currency_id']),
-            $languageChain,
-            $versionId,
-            (float) $data['sales_channel_currency_factor'],
-            true
-        ));
-
-        return new Context(
-            $event->source,
-            $event->ruleIds,
-            $event->currencyId,
-            $event->languageIdChain,
-            $event->versionId,
-            $event->currencyFactor,
-            $event->considerInheritance,
-        );
+        return $this->eventDispatcher->dispatch(new ContextCreatedEvent(
+            new Context(
+                $origin,
+                [],
+                Uuid::fromBytesToHex($data['sales_channel_currency_id']),
+                $languageChain,
+                $versionId,
+                (float) $data['sales_channel_currency_factor'],
+                true
+            ),
+        ))->context;
     }
 
     /**

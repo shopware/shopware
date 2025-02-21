@@ -23,14 +23,14 @@
         @update:model-value="emitSeoUrl"
     />
 
-    <sw-textarea-field
+    <mt-textarea
         class="sw-generic-seo-general-card__seo-meta-description-input"
-        :value="seoMetaDescription"
+        :model-value="seoMetaDescription"
         maxlength="255"
         :label="$tc('sw-landing-page.base.seo.labelMetaDescription')"
         :help-text="$tc('sw-landing-page.base.seo.helpTextMetaDescription')"
         :placeholder="$tc('sw-landing-page.base.seo.placeholderMetaDescription')"
-        @update:value="emitSeoMetaDescription"
+        @update:model-value="emitSeoMetaDescription"
     />
 
     <div class="sw-generic-seo-general-card__google-preview-container">

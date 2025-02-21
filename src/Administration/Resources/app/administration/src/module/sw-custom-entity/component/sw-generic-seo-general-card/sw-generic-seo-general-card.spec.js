@@ -11,10 +11,10 @@ async function createWrapper() {
                 'mt-card': {
                     template: '<div class="mt-card"><slot></slot></div>',
                 },
-                'sw-textarea-field': {
+                'mt-textarea': {
                     template: '<textarea class="sw-text-field" />',
                     props: [
-                        'value',
+                        'modelValue',
                         'label',
                         'help-text',
                         'placeholder',
@@ -64,10 +64,10 @@ describe('src/module/sw-custom-entity/component/sw-generic-seo-general-card', ()
         expect(seoMetaDescriptionInput.props('label')).toBe('sw-landing-page.base.seo.labelMetaDescription');
         expect(seoMetaDescriptionInput.props('maxlength')).toBe('255');
 
-        expect(seoMetaDescriptionInput.props('value')).toBe('');
+        expect(seoMetaDescriptionInput.props('modelValue')).toBe('');
         expect(seoMetaDescriptionDisplay.text()).toBe('');
 
-        await seoMetaDescriptionInput.vm.$emit('update:value', TEST_SEO_META_DESCRIPTION);
+        await seoMetaDescriptionInput.vm.$emit('update:modelValue', TEST_SEO_META_DESCRIPTION);
         expect(wrapper.emitted('update:seo-meta-description')).toEqual([
             [TEST_SEO_META_DESCRIPTION],
         ]);
@@ -76,7 +76,7 @@ describe('src/module/sw-custom-entity/component/sw-generic-seo-general-card', ()
             seoMetaDescription: TEST_SEO_META_DESCRIPTION,
         });
 
-        expect(seoMetaDescriptionInput.props('value')).toBe(TEST_SEO_META_DESCRIPTION);
+        expect(seoMetaDescriptionInput.props('modelValue')).toBe(TEST_SEO_META_DESCRIPTION);
         expect(seoMetaDescriptionDisplay.text()).toBe(TEST_SEO_META_DESCRIPTION);
     });
 

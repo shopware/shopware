@@ -74,8 +74,8 @@
                     </sw-container>
 
                     {% block sw_flow_rule_modal_detail_description %}
-                    <sw-textarea-field
-                        v-model:value="rule.description"
+                    <mt-textarea
+                        v-model="rule.description"
                         name="sw-field--rule-description"
                         class="sw-flow-rule-modal__description"
                         :label="$tc('sw-flow.modals.rule.labelDescription')"

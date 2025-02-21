@@ -76,8 +76,7 @@ async function createWrapper() {
                 'sw-loader': true,
                 'sw-card-section': true,
                 'sw-entity-single-select': true,
-
-                'sw-textarea-field': true,
+                'mt-textarea': true,
                 'sw-language-switch': true,
                 'sw-skeleton': true,
                 'sw-rating-stars': true,

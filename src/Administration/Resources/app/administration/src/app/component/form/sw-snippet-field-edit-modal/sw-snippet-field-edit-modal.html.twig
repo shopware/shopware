@@ -31,10 +31,10 @@
     </template>
 
     <template v-else-if="textArea">
-        <sw-textarea-field
+        <mt-textarea
             v-for="(snippet, index) in editableSnippets"
             :key="snippet.setId"
-            v-model:value="snippet.value"
+            v-model="snippet.value"
             v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
             class="sw-snippet-field-edit-modal__translation-field"
             :class="`sw-snippet-field-edit-modal__translation-field--${index}`"

@@ -129,11 +129,11 @@
                             gap="0px 30px"
                         >
                             {% block sw_settings_payment_detail_base_content_field_description %}
-                            <sw-textarea-field
-                                v-model:value="paymentMethod.description"
+                            <mt-textarea
+                                v-model="paymentMethod.description"
                                 name="sw-field--paymentMethod-description"
                                 :disabled="!acl.can('payment.editor') || undefined"
-                                :value="paymentMethod.description"
+                                :model-value="paymentMethod.description"
                                 class="sw-settings-payment-detail__description"
                                 :label="$tc('sw-settings-payment.detail.labelDescription')"
                                 :placeholder="placeholder(paymentMethod, 'description', $tc('sw-settings-payment.detail.placeholderDescription'))"

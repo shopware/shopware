@@ -35,12 +35,12 @@
 
         {% block sw_settings_country_currency_dependent_grid_column_value %}
         <template #column-amount="{ item }">
-            <sw-number-field
-                v-model:value="item.amount"
+            <mt-number-field
+                v-model="item.amount"
                 class="sw-settings-country-currency-dependent-modal__input"
                 :min="0"
                 :disabled="(!item.enabled || !acl.can('country.editor')) || undefined"
-                @update:value="reCalculatorInherited(item)"
+                @update:model-value="reCalculatorInherited(item)"
             />
         </template>
         {% endblock %}

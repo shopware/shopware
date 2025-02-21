@@ -102,8 +102,8 @@
                         {% endblock %}
 
                         {% block sw_settings_shipping_detail_base_content_field_position %}
-                        <sw-number-field
-                            v-model:value="shippingMethod.position"
+                        <mt-number-field
+                            v-model="shippingMethod.position"
                             name="sw-field--shippingMethod-position"
                             class="sw-settings-shipping-detail__field-position"
                             :disabled="!acl.can('shipping.editor') || undefined"

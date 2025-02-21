@@ -358,9 +358,9 @@
         <template #column-stock="{item, isInlineEdit}">
 
             {% block sw_product_variant_modal_body_grid_column_stock_inline_edit %}
-            <sw-number-field
+            <mt-number-field
                 v-if="isInlineEdit"
-                v-model:value="item.stock"
+                v-model="item.stock"
                 :placeholder="$tc('sw-product.list.variantModalInlineEditStockPlaceholder')"
                 size="small"
             />

@@ -70,8 +70,8 @@
                 />
                 {% endblock %}
                 {% block sw_prduct_cross_selling_form_position_field %}
-                <sw-number-field
-                    v-model:value="crossSelling.position"
+                <mt-number-field
+                    v-model="crossSelling.position"
                     number-type="int"
                     :min="1"
                     :label="$tc('sw-product.crossselling.inputCrossSellingPosition')"
@@ -111,8 +111,8 @@
                     {% endblock %}
 
                     {% block sw_prduct_cross_selling_form_limit_field %}
-                    <sw-number-field
-                        v-model:value="crossSelling.limit"
+                    <mt-number-field
+                        v-model="crossSelling.limit"
                         number-type="int"
                         :label="$tc('sw-product.crossselling.inputCrossSellingLimit')"
                         :disabled="!allowEdit"

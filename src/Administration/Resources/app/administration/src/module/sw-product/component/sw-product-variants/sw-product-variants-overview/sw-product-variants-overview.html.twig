@@ -230,9 +230,9 @@
             #column-stock="{ item, isInlineEdit, compact }"
         >
             {% block sw_product_variants_overview_data_grid_column_stock_inline_edit_field %}
-            <sw-number-field
+            <mt-number-field
                 v-if="isInlineEdit && (!variantIsDigital(item) || item.isCloseout === true)"
-                v-model:value="item.stock"
+                v-model="item.stock"
                 :size="compact ? 'small' : 'default'"
             />
             {% endblock %}

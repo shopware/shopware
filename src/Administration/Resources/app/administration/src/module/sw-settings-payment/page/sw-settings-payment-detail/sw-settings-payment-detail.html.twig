@@ -113,8 +113,8 @@
                             {% endblock %}
 
                             {% block sw_settings_payment_detail_content_field_position %}
-                            <sw-number-field
-                                v-model:value="paymentMethod.position"
+                            <mt-number-field
+                                v-model="paymentMethod.position"
                                 name="sw-field--paymentMethod-position"
                                 class="sw-settings-payment-detail__field-position"
                                 :disabled="!acl.can('payment.editor') || undefined"

@@ -134,8 +134,8 @@
                     {% endblock %}
 
                     {% block sw_media_modal_folder_settings_thumbnails_quality_field %}
-                    <sw-number-field
-                        v-model:value="configuration.thumbnailQuality"
+                    <mt-number-field
+                        v-model="configuration.thumbnailQuality"
                         number-type="int"
                         :label="$tc('global.sw-media-modal-folder-settings.labelThumbnailQuality')"
                         :min="0"

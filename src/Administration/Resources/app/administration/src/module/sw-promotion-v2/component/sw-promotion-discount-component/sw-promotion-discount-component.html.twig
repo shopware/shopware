@@ -138,21 +138,21 @@
         />
         {% endblock %}
         {% block sw_promotion_discount_component_value %}
-        <sw-number-field
+        <mt-number-field
             class="sw-promotion-discount-component__discount-value"
             validation="required"
             required
             :digits="50"
-            :value="discount.value"
+            :model-value="discount.value"
             :label="$tc('sw-promotion.detail.main.discounts.labelValue')"
             :placeholder="$tc('sw-promotion.detail.main.discounts.placeholderValue')"
             :disabled="isEditingDisabled"
-            @update:value="onDiscountValueChanged"
+            @update:model-value="onDiscountValueChanged"
         >
             <template #suffix>
                 {{ valueSuffix }}
             </template>
-        </sw-number-field>
+        </mt-number-field>
         {% endblock %}
     </sw-container>
 
@@ -164,17 +164,17 @@
         justify="end"
     >
         {% block sw_promotion_discount_max_value_field %}
-        <sw-number-field
-            v-model:value="discount.maxValue"
+        <mt-number-field
+            v-model="discount.maxValue"
             :label="$tc('sw-promotion.detail.main.discounts.labelMaxValue')"
             :help-text="maxValueAdvancedPricesTooltip"
             :disabled="isEditingDisabled"
-            @update:value="onMaxValueChanged"
+            @update:model-value="onMaxValueChanged"
         >
             <template #suffix>
                 {{ maxValueSuffix }}
             </template>
-        </sw-number-field>
+        </mt-number-field>
         {% endblock %}
         {% block sw_promotion_discount_max_value_advanced_prices %}
         <a
@@ -240,8 +240,8 @@
             </template>
 
             <template #column-price="{ item }">
-                <sw-number-field
-                    v-model:value="item.price"
+                <mt-number-field
+                    v-model="item.price"
                     type="text"
                     size="small"
                     :disabled="isEditingDisabled"
@@ -249,7 +249,7 @@
                     <template #suffix>
                         {{ item.currency.symbol }}
                     </template>
-                </sw-number-field>
+                </mt-number-field>
             </template>
         </sw-one-to-many-grid>
 

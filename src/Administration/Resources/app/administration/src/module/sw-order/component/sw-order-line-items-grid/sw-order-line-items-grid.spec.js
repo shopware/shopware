@@ -255,8 +255,8 @@ async function createWrapper() {
                     template: '<a class="router-link" href="#"><slot></slot></a>',
                     props: ['to'],
                 },
-                'sw-number-field': {
-                    template: '<input class="sw-number-field" type="number" v-model="value" />',
+                'mt-number-field': {
+                    template: '<input class="mt-number-field" type="number" v-model="value" />',
                     props: {
                         value: 0,
                         size: 'default',

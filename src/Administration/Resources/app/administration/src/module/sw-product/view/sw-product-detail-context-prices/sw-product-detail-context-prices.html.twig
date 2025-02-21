@@ -132,8 +132,8 @@
                     #column-quantityStart="{ item, itemIndex, compact }"
                 >
                     {% block sw_product_detail_prices_price_card_price_group_grid_quantity_start_field %}
-                    <sw-number-field
-                        v-model:value="item.quantityStart"
+                    <mt-number-field
+                        v-model="item.quantityStart"
                         v-tooltip="getStartQuantityTooltip(itemIndex, item.quantityStart)"
                         :name="`${item.ruleId}-${item.quantityStart}-quantityStart`"
                         validation="required"
@@ -151,8 +151,8 @@
                     #column-quantityEnd="{ item, itemIndex, compact }"
                 >
                     {% block sw_product_detail_prices_price_card_price_group_grid_quantity_end_field %}
-                    <sw-number-field
-                        v-model:value="item.quantityEnd"
+                    <mt-number-field
+                        v-model="item.quantityEnd"
                         :validation="item.quantityEnd === null || item.quantityEnd > item.quantityStart"
                         placeholder="∞"
                         :name="`${item.ruleId}-${item.quantityStart}-quantityEnd`"
@@ -160,7 +160,7 @@
                         :max="priceGroup.prices[itemIndex + 1] ? priceGroup.prices[itemIndex + 1].quantityStart - 1 : null"
                         :size="compact ? 'small' : 'default'"
                         :disabled="!acl.can('product.editor')"
-                        @update:value="onQuantityEndChange(item, priceGroup)"
+                        @update:model-value="onQuantityEndChange(item, priceGroup)"
                     />
                     {% endblock %}
                 </template>

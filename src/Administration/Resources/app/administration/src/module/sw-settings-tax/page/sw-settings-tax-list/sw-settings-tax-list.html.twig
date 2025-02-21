@@ -113,8 +113,8 @@
                         {% block sw_settings_tax_list_grid_column_default_tax_rate %}
                         <template #column-taxRate="{ item, isInlineEdit, compact }">
                             <template v-if="isInlineEdit">
-                                <sw-number-field
-                                    v-model:value="item.taxRate"
+                                <mt-number-field
+                                    v-model="item.taxRate"
                                     :digits="3"
                                     :size="compact ? 'small' : 'default'"
                                 >
@@ -123,7 +123,7 @@
                                             <span v-html="$sanitize($tc('sw-settings-tax.general.taxRateSymbol'))"></span>
                                         </span>
                                     </template>
-                                </sw-number-field>
+                                </mt-number-field>
                             </template>
                             <template v-else>
                                 {{ item.taxRate }}%

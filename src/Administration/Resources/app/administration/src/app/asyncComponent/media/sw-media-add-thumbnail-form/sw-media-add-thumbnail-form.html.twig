@@ -4,8 +4,8 @@
     {% block sw_media_add_thumbnail_form_form_container %}
     <div class="sw-media-add-thumbnail-form__form-container">
         {% block sw_media_add_thumbnail_form_width %}
-        <sw-number-field
-            v-model:value="width"
+        <mt-number-field
+            v-model="width"
             class="sw-media-add-thumbnail-form__input-width"
             :label="$tc('global.sw-media-add-thumbnail-form.labelMaximumSize')"
             :min="1"
@@ -29,8 +29,8 @@
         {% endblock %}
 
         {% block sw_media_add_thumbnail_form_height %}
-        <sw-number-field
-            v-model:value="height"
+        <mt-number-field
+            v-model="height"
             class="sw-media-add-thumbnail-form__input-height"
             :min="1"
             :validation="height > 0"

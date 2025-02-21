@@ -196,16 +196,16 @@
         <template #column-unitPrice="{ item, isInlineEdit }">
 
             {% block sw_order_line_items_grid_grid_columns_unit_price_inline_edit %}
-            <sw-number-field
+            <mt-number-field
                 v-if="isInlineEdit && !itemCreatedFromProduct(item.id)"
-                v-model:value="item.priceDefinition.price"
+                v-model="item.priceDefinition.price"
                 name="sw-field--item-priceDefinition-price"
                 placeholder="0"
                 size="small"
                 :min="getMinItemPrice(item.id)"
                 :digits="order.itemRounding.decimals"
                 number-align-end
-                @update:value="checkItemPrice($event, item)"
+                @update:model-value="checkItemPrice($event, item)"
             />
             {% endblock %}
 
@@ -232,16 +232,16 @@
         <template #column-quantity="{ item, isInlineEdit }">
 
             {% block sw_order_line_items_grid_grid_columns_quantity_inline_edit %}
-            <sw-number-field
+            <mt-number-field
                 v-if="isInlineEdit && !isCreditItem(item.id)"
-                :value="item.quantity"
+                :model-value="item.quantity"
                 name="sw-field--item-quantity"
                 number-type="int"
                 :min="1"
                 size="small"
                 placeholder="0"
                 number-align-end
-                @update:value="updateItemQuantity(item, $event)"
+                @update:model-value="updateItemQuantity(item, $event)"
             />
             {% endblock %}
 
@@ -259,10 +259,10 @@
         <template #column-price.taxRules[0]="{ item, isInlineEdit }">
 
             {% block sw_order_line_items_grid_grid_columns_tax_inline_edit %}
-            <sw-number-field
+            <mt-number-field
                 v-if="isInlineEdit && showTaxRulesInlineEdit(item)"
                 key="order-line-item-tax-edit-default"
-                v-model:value="item.priceDefinition.taxRules[0].taxRate"
+                v-model="item.priceDefinition.taxRules[0].taxRate"
                 name="sw-field--item-priceDefinition-taxRules[0]-taxRate"
                 size="small"
                 placeholder="0"

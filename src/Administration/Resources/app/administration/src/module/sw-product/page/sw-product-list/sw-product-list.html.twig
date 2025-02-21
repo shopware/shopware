@@ -240,8 +240,8 @@
                 <template #column-stock="{ item, isInlineEdit, compact }">
                     {% block sw_product_list_grid_columns_stock_inline_edit %}
                     <template v-if="isInlineEdit">
-                        <sw-number-field
-                            v-model:value="item.stock"
+                        <mt-number-field
+                            v-model="item.stock"
                             :size="compact ? 'small' : 'default'"
                         />
                     </template>

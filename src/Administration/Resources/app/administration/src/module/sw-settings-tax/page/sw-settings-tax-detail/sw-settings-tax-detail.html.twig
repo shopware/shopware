@@ -82,8 +82,8 @@
                         {% endblock %}
 
                         {% block sw_settings_tax_detail_content_field_tax_rate %}
-                        <sw-number-field
-                            v-model:value="tax.taxRate"
+                        <mt-number-field
+                            v-model="tax.taxRate"
                             name="sw-field--tax-taxRate"
                             required
                             :digits="3"
@@ -97,7 +97,7 @@
                                     <span v-html="$sanitize($tc('sw-settings-tax.general.taxRateSymbol'))"></span>
                                 </span>
                             </template>
-                        </sw-number-field>
+                        </mt-number-field>
                         {% endblock %}
 
                         <div class="sw-settings-tax-detail__switches">

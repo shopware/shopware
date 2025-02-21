@@ -10,9 +10,8 @@
     <component
         :is="component"
         ref="edit-field"
-        :value="value"
         :placeholder="placeholder"
-        v-bind="$attrs"
+        v-bind="computedAttrs"
     />
     {% endblock %}
     {% endblock %}

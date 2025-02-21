@@ -349,7 +349,7 @@ async function createWrapper() {
                 'sw-media-preview-v2': true,
                 'router-link': true,
                 'sw-product-variant-info': true,
-                'sw-number-field': true,
+                'mt-number-field': true,
                 'sw-inheritance-switch': true,
                 'sw-price-preview': true,
                 'sw-color-badge': true,

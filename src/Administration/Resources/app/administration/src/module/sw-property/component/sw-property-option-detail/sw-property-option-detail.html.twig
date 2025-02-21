@@ -18,8 +18,8 @@
     {% endblock %}
 
     {% block sw_property_option_detail_position %}
-    <sw-number-field
-        v-model:value="currentOption.position"
+    <mt-number-field
+        v-model="currentOption.position"
         name="sw-field--currentOption-position"
         pattern="[0-9]"
         :step="1"

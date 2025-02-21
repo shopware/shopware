@@ -99,8 +99,8 @@
             {% endblock %}
 
             {% block sw_sales_channel_detail_base_general_input_navigation_category_depth %}
-            <sw-number-field
-                v-model:value="salesChannel.navigationCategoryDepth"
+            <mt-number-field
+                v-model="salesChannel.navigationCategoryDepth"
                 number-type="int"
                 :min="1"
                 :disabled="!acl.can('sales_channel.editor') || undefined"

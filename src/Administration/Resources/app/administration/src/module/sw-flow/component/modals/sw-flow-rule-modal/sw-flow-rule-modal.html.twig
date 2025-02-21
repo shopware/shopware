@@ -61,8 +61,8 @@
                         {% endblock %}
 
                         {% block sw_flow_rule_modal_detail_priority %}
-                        <sw-number-field
-                            v-model:value="rule.priority"
+                        <mt-number-field
+                            v-model="rule.priority"
                             name="sw-field--rule-priority"
                             class="sw-flow-rule-modal__priority"
                             required

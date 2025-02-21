@@ -28,7 +28,7 @@ async function createWrapper() {
                 },
 
                 'sw-text-field': true,
-                'sw-number-field': true,
+                'mt-number-field': true,
                 'sw-container': {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
@@ -167,7 +167,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     it('should have the navigation category depth field disabled', async () => {
         const wrapper = await createWrapper();
 
-        const field = wrapper.get('sw-number-field-stub[label="sw-sales-channel.detail.navigationCategoryDepth"]');
+        const field = wrapper.get('mt-number-field-stub[label="sw-sales-channel.detail.navigationCategoryDepth"]');
 
         expect(field.attributes().disabled).toBe('true');
     });
@@ -177,7 +177,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
         const wrapper = await createWrapper();
 
-        const field = wrapper.get('sw-number-field-stub[label="sw-sales-channel.detail.navigationCategoryDepth"]');
+        const field = wrapper.get('mt-number-field-stub[label="sw-sales-channel.detail.navigationCategoryDepth"]');
 
         expect(field.attributes().disabled).toBeUndefined();
     });

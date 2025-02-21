@@ -101,7 +101,7 @@ Component.register('sw-multi-select-filter', {
                       if (!this.filter.displayVariants) {
                           return {
                               id: value.id,
-                              [this.labelProperty]: value?.[this.labelProperty],
+                              [this.labelProperty]: value?.translated?.[this.labelProperty] || value?.[this.labelProperty],
                           };
                       }
 

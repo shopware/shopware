@@ -51,7 +51,6 @@ async function createWrapper(privileges = [], hasSnippetFromApp = false, customF
                 `,
                 },
                 'sw-icon': true,
-                'sw-button': true,
                 'sw-entity-listing': {
                     props: ['items'],
                     template: `
@@ -63,12 +62,9 @@ async function createWrapper(privileges = [], hasSnippetFromApp = false, customF
                     </div>
                 `,
                 },
-                'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                 'sw-empty-state': true,
                 'sw-search-bar': true,
-                'sw-alert': true,
                 'sw-extension-component-section': true,
                 'sw-ai-copilot-badge': true,
                 'sw-context-button': true,

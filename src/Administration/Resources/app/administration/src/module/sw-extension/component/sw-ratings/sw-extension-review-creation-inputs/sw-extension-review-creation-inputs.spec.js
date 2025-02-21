@@ -67,7 +67,7 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
         };
 
         const wrapper = await createWrapper(headlineError);
-        const headlineInput = wrapper.get('.sw-field');
+        const headlineInput = wrapper.get('.mt-text-field');
 
         expect(headlineInput.attributes('class')).toContain('has--error');
     });

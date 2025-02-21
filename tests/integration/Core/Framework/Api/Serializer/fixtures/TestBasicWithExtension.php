@@ -162,7 +162,6 @@ class TestBasicWithExtension extends SerializationFixture
                     'attributes' => [
                         'test' => [
                             'extensions' => [],
-                            '_uniqueIdentifier' => null,
                             'translated' => [],
                             'test' => 'testValue',
                         ],
@@ -205,11 +204,9 @@ class TestBasicWithExtension extends SerializationFixture
         return [
             'id' => '1d23c1b015bf43fb97e89008cf42d6fe',
             'createdAt' => '2018-01-15T08:01:16.000+00:00',
-            '_uniqueIdentifier' => null,
             'translated' => [],
             'extensions' => [
                 'toOne' => [
-                    '_uniqueIdentifier' => null,
                     'translated' => [],
                     'extensions' => [],
                     'id' => '6f51622eb3814c75ae0263cece27ce72',
@@ -217,14 +214,12 @@ class TestBasicWithExtension extends SerializationFixture
                 ],
                 'toMany' => [
                     [
-                        '_uniqueIdentifier' => null,
                         'translated' => [],
                         'extensions' => [],
                         'id' => '548faa1f7846436c85944f4aea792d96',
                         'name' => 'toMany#1',
                     ],
                     [
-                        '_uniqueIdentifier' => null,
                         'translated' => [],
                         'extensions' => [],
                         'id' => '3e352be2d85846dd97529c0f6b544870',
@@ -232,7 +227,6 @@ class TestBasicWithExtension extends SerializationFixture
                     ],
                 ],
                 'test' => [
-                    '_uniqueIdentifier' => null,
                     'translated' => [],
                     'extensions' => [],
                     'test' => 'testValue',

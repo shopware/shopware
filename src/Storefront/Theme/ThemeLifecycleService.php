@@ -39,7 +39,7 @@ class ThemeLifecycleService
      * @internal
      */
     public function __construct(
-        private readonly StorefrontPluginRegistryInterface $pluginRegistry,
+        private readonly StorefrontPluginRegistry $pluginRegistry,
         private readonly EntityRepository $themeRepository,
         private readonly EntityRepository $mediaRepository,
         private readonly EntityRepository $mediaFolderRepository,

@@ -28,9 +28,6 @@ async function createWrapper() {
                     },
                     'sw-skeleton': true,
                     'sw-avatar': true,
-                    'sw-button': {
-                        template: '<button @click="$emit(\'click\')"><slot></slot></button>',
-                    },
                     'sw-meteor-card': {
                         template: '<div><slot></slot></div>',
                     },
@@ -106,7 +103,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
         expect(loginStatus.exists()).toBe(false);
 
         // get fields
-        const shopwareIdField = wrapper.get('.sw-extension-my-extensions-account__shopware-id-field');
+        const shopwareIdField = wrapper.get('.sw-extension-my-extensions-account__shopware-id-field input');
         const passwordField = wrapper.get('.sw-extension-my-extensions-account__password-field');
         const loginButton = wrapper.find('.sw-extension-my-extensions-account__login-button');
 

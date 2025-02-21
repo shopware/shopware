@@ -48,7 +48,7 @@
 
         {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_text %}
         <p class="sw-first-run-wizard-welcome__modal-text">
-            {{ $tc('sw-first-run-wizard.welcome.switchLanguageMessage', {}, { pluginName: latestTouchedPlugin.name }) }}
+            {{ $tc('sw-first-run-wizard.welcome.switchLanguageMessage', { pluginName: latestTouchedPlugin.name }, {}) }}
         </p>
         <sw-select-field
             v-model:value="user.localeId"
@@ -75,22 +75,22 @@
         {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_footer %}
         <template #modal-footer>
             {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_action_cancel %}
-            <sw-button
+            <mt-button
                 size="small"
                 @click="onCancelSwitch"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_action_switch %}
-            <sw-button
+            <mt-button
                 size="small"
                 variant="primary"
                 @click="onConfirmLanguageSwitch"
             >
                 {{ $tc('sw-first-run-wizard.welcome.confirmLanguageSwitch') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
         {% endblock %}

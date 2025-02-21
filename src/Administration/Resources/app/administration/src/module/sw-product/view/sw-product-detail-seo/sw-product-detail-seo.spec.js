@@ -108,7 +108,7 @@ async function createWrapper(privileges = []) {
                 validationService: {},
             },
             stubs: {
-                'sw-card': {
+                'mt-card': {
                     data() {
                         return { currentSalesChannelId: null };
                     },
@@ -147,10 +147,9 @@ async function createWrapper(privileges = []) {
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-skeleton': true,
                 'sw-textarea-field': true,
-                'sw-switch-field': true,
+
                 'sw-product-variant-info': true,
                 'sw-text-field-deprecated': true,
-                'sw-button': true,
                 'sw-ai-copilot-badge': true,
             },
         },

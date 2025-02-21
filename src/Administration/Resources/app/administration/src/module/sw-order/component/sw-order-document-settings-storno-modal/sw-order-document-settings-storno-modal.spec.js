@@ -86,14 +86,10 @@ async function createWrapper() {
                     'sw-text-field': true,
                     'sw-datepicker': true,
                     'sw-checkbox-field': true,
-                    'sw-switch-field': true,
+
                     'sw-context-button': {
                         template: '<div class="sw-context-button"><slot></slot></div>',
                     },
-                    'sw-button': await wrapTestComponent('sw-button', {
-                        sync: true,
-                    }),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-button-group': await wrapTestComponent('sw-button-group', { sync: true }),
                     'sw-context-menu-item': true,
                     'sw-upload-listener': true,

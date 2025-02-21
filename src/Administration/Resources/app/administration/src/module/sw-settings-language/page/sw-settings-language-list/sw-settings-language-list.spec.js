@@ -72,11 +72,10 @@ async function createWrapper(privileges = []) {
                     </div>
                 `,
                     },
-                    'sw-switch-field': true,
+
                     'sw-search-bar': true,
                     'sw-language-switch': true,
                     'sw-icon': true,
-                    'sw-button': true,
                     'sw-sidebar': true,
                     'sw-sidebar-item': true,
                     'sw-collapse': true,
@@ -138,7 +137,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
 
         const addButton = wrapper.find('.sw-settings-language-list__button-create');
 
-        expect(addButton.attributes().disabled).toBeTruthy();
+        expect(addButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to view a language', async () => {

@@ -40,14 +40,11 @@ $body-secondary-color: $sw-text-color !default;
 $border-color: $sw-border-color !default;
 
 // Focus outlines
-// @deprecated tag:v6.7.0 - The focus outline will have full opacity (1) and an additional body colored box-shadow for visual spacing.
-$focus-ring-width: if(feature('ACCESSIBILITY_TWEAKS'), 0.25rem, 0.2rem) !default;
-$focus-ring-opacity: if(feature('ACCESSIBILITY_TWEAKS'), 1, 0.6) !default;
+$focus-ring-width: 0.25rem !default;
+$focus-ring-opacity: 1 !default;
 $focus-ring-color: rgba($primary, $focus-ring-opacity) !default;
 $focus-ring-blur: 0 !default;
-$focus-ring-box-shadow: if(feature('ACCESSIBILITY_TWEAKS'),
-    (0 0 0 0.125rem $body-bg, 0 0 $focus-ring-blur $focus-ring-width $focus-ring-color),
-    (0 0 $focus-ring-blur $focus-ring-width $focus-ring-color)) !default;
+$focus-ring-box-shadow: (0 0 0 0.125rem $body-bg, 0 0 $focus-ring-blur $focus-ring-width $focus-ring-color) !default;
 
 $border-radius: 0 !default;
 $border-radius-lg: 0 !default;
@@ -55,14 +52,10 @@ $border-radius-sm: 0 !default;
 
 // Typography
 $font-family-base: $sw-font-family-base !default;
-
-// @deprecated tag:v6.7.0 - The standard paragraph spacing will be increased to apply to accessibility standards.
-$paragraph-margin-bottom: if(feature('ACCESSIBILITY_TWEAKS'), 2rem, 1rem) !default;
-
-// @deprecated tag:v6.7.0 - The standard font-size will be set to 1rem and the other sizes adjusted accordingly.
-$font-size-base: if(feature('ACCESSIBILITY_TWEAKS'), 1rem, 0.875rem) !default;
-$font-size-lg: if(feature('ACCESSIBILITY_TWEAKS'), 1.125rem, 1rem) !default;
-$font-size-sm: if(feature('ACCESSIBILITY_TWEAKS'), 0.875rem, 0.75rem) !default;
+$paragraph-margin-bottom: 2rem !default;
+$font-size-base: 1rem !default;
+$font-size-lg: 1.125rem !default;
+$font-size-sm: 0.875rem !default;
 $font-weight-normal: 400 !default;
 
 $h1-font-size: 36px !default;
@@ -72,13 +65,12 @@ $h4-font-size: 20px !default;
 $h5-font-size: 16px !default;
 $h6-font-size: 14px !default;
 
-// @deprecated tag:v6.7.0 - The standard font-size of 1rem will be used for $nav-link-font-size.
-$nav-link-font-size: if(feature('ACCESSIBILITY_TWEAKS'), $font-size-base, $font-size-lg) !default;
+$nav-link-font-size: $font-size-base !default;
 
 $headings-font-weight: 700 !default;
 $headings-font-family: $sw-font-family-headline !default;
 
-$link-decoration: if(feature('ACCESSIBILITY_TWEAKS'), underline, none) !default;
+$link-decoration: underline !default;
 $link-hover-decoration: underline !default;
 
 // Buttons + Forms
@@ -122,10 +114,7 @@ $input-btn-focus-width: $focus-ring-width !default;
 $input-btn-focus-color: $focus-ring-color !default;
 $form-select-focus-border-color: $input-focus-border-color !default;
 $form-select-focus-width: $input-btn-focus-width !default;
-// @deprecated tag:v6.7.0 - The focus outline will have full opacity (1) and an additional body colored box-shadow for visual spacing.
-$form-select-focus-box-shadow: if(feature('ACCESSIBILITY_TWEAKS'),
-    (0 0 0 0.125rem $body-bg, 0 0 $focus-ring-blur $focus-ring-width $focus-ring-color),
-    (0 0 0 $form-select-focus-width $input-btn-focus-color)) !default;
+$form-select-focus-box-shadow: (0 0 0 0.125rem $body-bg, 0 0 $focus-ring-blur $focus-ring-width $focus-ring-color) !default;
 
 // Pagination
 $pagination-color: $sw-text-color !default;
@@ -178,11 +167,9 @@ $offcanvas-border-color: transparent !default;
 $offcanvas-backdrop-opacity: 1 !default;
 
 // Alerts
-// @deprecated tag:v6.7.0 - The alert padding will be on the actual Bootstrap `.alert` container instead of the custom `.alert-content-container` class.
-$alert-padding-x: if(feature('ACCESSIBILITY_TWEAKS'), 0.5rem, 0) !default;
-$alert-padding-y: if(feature('ACCESSIBILITY_TWEAKS'), 0.5rem, 0) !default;
-// @deprecated tag:v6.7.0 - The alert border will be 1px.
-$alert-border-width: if(feature('ACCESSIBILITY_TWEAKS'), 1px, 0) !default;
+$alert-padding-x: 0.5rem !default;
+$alert-padding-y: 0.5rem !default;
+$alert-border-width: 1px !default;
 
 // Badges
 $badge-border-radius: 50px !default;

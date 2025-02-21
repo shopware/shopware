@@ -15,14 +15,12 @@ async function createWrapper() {
             },
             global: {
                 stubs: {
-                    'sw-card': true,
-                    'sw-button': true,
                     'sw-product-cross-selling-form': true,
                     'sw-empty-state': true,
                     'sw-skeleton': true,
                     'sw-icon': true,
                     'sw-inheritance-switch': true,
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+
                     'router-link': true,
                 },
                 provide: {

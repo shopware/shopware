@@ -11,18 +11,15 @@ trait EntityCustomFieldsTrait
 {
     /**
      * @var array<mixed>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
     #[CustomFields]
-    protected $customFields;
+    protected ?array $customFields = null;
 
     /**
      * @return array<mixed>|null
      */
     public function getCustomFields(): ?array
     {
-        /** @phpstan-ignore property.deprecated (@deprecated tag:v6.7.0 - remove once property is natively typed) */
         return $this->customFields;
     }
 
@@ -56,7 +53,6 @@ trait EntityCustomFieldsTrait
      */
     public function getCustomFieldsValues(string ...$fields): array
     {
-        /** @phpstan-ignore property.deprecated (@deprecated tag:v6.7.0 - remove once property is natively typed) */
         return \array_intersect_key($this->customFields ?? [], \array_flip($fields));
     }
 
@@ -72,7 +68,6 @@ trait EntityCustomFieldsTrait
      */
     public function getCustomFieldsValue(string $field): mixed
     {
-        /** @phpstan-ignore property.deprecated (@deprecated tag:v6.7.0 - remove once property is natively typed) */
         return $this->customFields[$field] ?? null;
     }
 
@@ -81,7 +76,6 @@ trait EntityCustomFieldsTrait
      */
     public function setCustomFields(?array $customFields): void
     {
-        /** @phpstan-ignore property.deprecated (@deprecated tag:v6.7.0 - remove once property is natively typed) */
         $this->customFields = $customFields;
     }
 
@@ -119,9 +113,7 @@ trait EntityCustomFieldsTrait
      */
     public function changeCustomFields(array $customFields): void
     {
-        /** @phpstan-ignore property.deprecated (@deprecated tag:v6.7.0 - remove once property is natively typed) */
         $this->customFields = \array_replace(
-            /** @phpstan-ignore property.deprecated (@deprecated tag:v6.7.0 - remove once property is natively typed) */
             $this->customFields ?? [],
             $customFields
         );

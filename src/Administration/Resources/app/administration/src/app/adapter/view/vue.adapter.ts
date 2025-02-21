@@ -75,7 +75,7 @@ export default class VueAdapter extends ViewAdapter {
         this.app.config.compilerOptions.whitespace = 'preserve';
         this.app.config.performance = process.env.NODE_ENV !== 'production';
         this.app.config.globalProperties.$t = i18n.global.t;
-        this.app.config.globalProperties.$tc = i18n.global.tc;
+        this.app.config.globalProperties.$tc = i18n.global.t;
         this.app.config.warnHandler = (msg: string, instance: unknown, trace: string) => {
             const warnArgs = [
                 `[Vue warn]: ${msg}`,
@@ -96,6 +96,7 @@ export default class VueAdapter extends ViewAdapter {
                 throw new Error(msg);
             }
         };
+
         // This is a hack for providing the data scope to the components.
         Object.defineProperty(this.app.config.globalProperties, '$dataScope', {
             get: getBlockDataScope,
@@ -126,9 +127,17 @@ export default class VueAdapter extends ViewAdapter {
         this.app.use(vuexRoot);
         this.app.use(i18n);
 
+        // This is a hack for providing the i18n scope to the components.
+        Object.defineProperty(this.app.config.globalProperties, '$i18n', {
+            get: () => {
+                return i18n.global;
+            },
+            enumerable: true,
+        });
+
         // Add global properties to root view instance
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-        this.app.$tc = i18n.global.tc;
+        this.app.$tc = i18n.global.t;
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
         this.app.$t = i18n.global.t;
 
@@ -245,7 +254,6 @@ export default class VueAdapter extends ViewAdapter {
             'MtColorpicker',
             'MtDatepicker',
             'MtEmailField',
-            'MtExternalLink',
             'MtNumberField',
             'MtPasswordField',
             'MtSelect',
@@ -253,7 +261,6 @@ export default class VueAdapter extends ViewAdapter {
             'MtSwitch',
             'MtTextField',
             'MtTextarea',
-            'MtUrlField',
             'MtIcon',
             'MtDataTable',
             'MtPagination',
@@ -261,10 +268,15 @@ export default class VueAdapter extends ViewAdapter {
             'MtToast',
             'MtFloatingUi',
             'MtPopover',
+            'MtTextEditorToolbarButton',
+            'MtModal',
+            'MtModalRoot',
+            'MtModalClose',
         ];
 
         meteorComponents.forEach((componentName) => {
             const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
+            // @ts-expect-error - component exists
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this.app.component(componentNameAsKebabCase, MeteorImport[componentName]);
         });
@@ -515,11 +527,13 @@ export default class VueAdapter extends ViewAdapter {
         void useSession().setAdminLocale(lastKnownLocale);
 
         const options = {
+            legacy: false,
             locale: lastKnownLocale,
             fallbackLocale,
             silentFallbackWarn: true,
             sync: true,
             messages,
+            allowComposition: true,
         };
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access

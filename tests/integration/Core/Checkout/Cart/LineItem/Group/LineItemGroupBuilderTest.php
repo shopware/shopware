@@ -27,7 +27,6 @@ use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
-use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -419,13 +418,11 @@ class LineItemGroupBuilderTest extends TestCase
     #[Group('lineitemgroup')]
     public function testPackagerNotFound(): void
     {
-        static::markTestSkipped('#6556');
-
         $cart = $this->buildCart(3);
 
         $group = $this->buildGroup('UNKNOWN', 2, self::KEY_SORTER_PRICE_ASC, new RuleCollection());
 
-        $this->expectException(PromotionException::class);
+        $this->expectExceptionObject(CartException::lineItemGroupPackagerNotFoundException('UNKNOWN'));
 
         $this->unitTestBuilder->findGroupPackages([$group], $cart, $this->context);
     }
@@ -437,13 +434,11 @@ class LineItemGroupBuilderTest extends TestCase
     #[Group('lineitemgroup')]
     public function testSorterNotFound(): void
     {
-        static::markTestSkipped('#6556');
-
         $cart = $this->buildCart(3);
 
         $group = $this->buildGroup(self::KEY_PACKAGER_COUNT, 2, 'UNKNOWN', new RuleCollection());
 
-        $this->expectException(PromotionException::class);
+        $this->expectExceptionObject(CartException::lineItemGroupSorterNotFoundException('UNKNOWN'));
 
         $this->unitTestBuilder->findGroupPackages([$group], $cart, $this->context);
     }

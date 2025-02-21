@@ -43,16 +43,12 @@ async function createWrapper() {
         {
             global: {
                 stubs: {
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot></slot></div>',
+                    'mt-card': {
+                        template: '<div class="mt-card"><slot></slot></div>',
                     },
                     'sw-cms-list-item': {
                         template: '<div class="sw-cms-list-item"></div>',
                         props: ['page'],
-                    },
-                    'sw-button': {
-                        emits: ['click'],
-                        template: '<div class="sw-button" @click="$emit(`click`)"></div>',
                     },
                     'sw-cms-layout-modal': {
                         template: '<div class="sw-cms-layout-modal"></div>',

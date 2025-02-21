@@ -28,14 +28,9 @@ describe('components/data-grid/sw-data-grid-settings', () => {
                     'sw-context-button': true,
                     'sw-field-error': await wrapTestComponent('sw-field-error', { sync: true }),
                     'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                    'sw-button': await wrapTestComponent('sw-button', {
-                        sync: true,
-                    }),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-icon': true,
                     'sw-context-menu-divider': true,
                     'sw-button-group': true,
@@ -54,12 +49,12 @@ describe('components/data-grid/sw-data-grid-settings', () => {
     });
 
     it('should change value of compact based on prop', async () => {
-        const switchButton = wrapper.findAll('.sw-field--switch__input input');
+        const switchButton = wrapper.findAll('.mt-switch input');
         expect(switchButton[0].element.checked).toBe(true);
     });
 
     it('should change value of previews based on prop', async () => {
-        const switchButton = wrapper.findAll('.sw-field--switch__input input');
+        const switchButton = wrapper.findAll('.mt-switch input');
         expect(switchButton[1].element.checked).toBe(false);
     });
 
@@ -86,7 +81,7 @@ describe('components/data-grid/sw-data-grid-settings', () => {
         ]);
 
         // move company from 1 to 2
-        let companyDownButton = wrapper.find('.sw-data-grid__settings-item--1 .sw-button.down');
+        let companyDownButton = wrapper.find('.sw-data-grid__settings-item--1 .mt-button.down');
         await companyDownButton.trigger('click');
 
         expect(wrapper.emitted('change-column-order')[0]).toEqual([
@@ -113,7 +108,7 @@ describe('components/data-grid/sw-data-grid-settings', () => {
         ]);
 
         // move company from 2 to 3
-        companyDownButton = wrapper.find('.sw-data-grid__settings-item--2 .sw-button.down');
+        companyDownButton = wrapper.find('.sw-data-grid__settings-item--2 .mt-button.down');
         await companyDownButton.trigger('click');
 
         expect(wrapper.emitted('change-column-order')[1]).toEqual([
@@ -140,7 +135,7 @@ describe('components/data-grid/sw-data-grid-settings', () => {
         ]);
 
         // move date from 2 to 1
-        const dateUpButton = wrapper.find('.sw-data-grid__settings-item--2 .sw-button:not(.down)');
+        const dateUpButton = wrapper.find('.sw-data-grid__settings-item--2 .mt-button:not(.down)');
         await dateUpButton.trigger('click');
 
         expect(wrapper.emitted('change-column-order')[2]).toEqual([

@@ -43,10 +43,6 @@ async function createWrapper(profiles = null) {
         {
             global: {
                 stubs: {
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-simple-search-field': true,
                     'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
                     'sw-import-export-edit-profile-modal': {
@@ -165,7 +161,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         await createProfileButton.trigger('click');
         await flushPromises();
 
-        document.body.querySelector('.sw-button--danger').click();
+        document.body.querySelector('.mt-button--critical').click();
         await flushPromises();
 
         expect(wrapper.vm.profiles).toHaveLength(1);

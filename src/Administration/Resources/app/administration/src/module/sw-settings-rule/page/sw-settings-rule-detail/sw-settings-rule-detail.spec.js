@@ -203,8 +203,6 @@ async function createWrapper(props = defaultProps, provide = {}) {
         global: {
             plugins: [router],
             stubs: {
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-button-process': await wrapTestComponent('sw-button-process'),
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
                 'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
@@ -245,8 +243,6 @@ async function createWrapper(props = defaultProps, provide = {}) {
                 'sw-custom-field-set-renderer': true,
                 'sw-error-summary': true,
                 'sw-condition-tree': true,
-                'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated'),
                 'sw-entity-tag-select': true,
                 'sw-multi-select': true,
                 'sw-textarea-field': true,
@@ -740,7 +736,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.find('.sw-modal').exists()).toBe(true);
         expect(wrapper.find('.sw-discard-changes-modal-delete-text').exists()).toBe(true);
 
-        await wrapper.find('.sw-modal .sw-button').trigger('click');
+        await wrapper.findByText('button', 'sw-discard-changes-modal.actions.keepEditing').trigger('click');
         expect(wrapper.find('.sw-discard-changes-modal-delete-text').exists()).toBe(false);
     });
 
@@ -775,7 +771,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.find('.sw-modal').exists()).toBe(true);
         expect(wrapper.find('.sw-discard-changes-modal-delete-text').exists()).toBe(true);
 
-        await wrapper.find('.sw-modal .sw-button--danger').trigger('click');
+        await wrapper.findByText('button', 'sw-discard-changes-modal.actions.discard').trigger('click');
         await flushPromises();
 
         expect(routerSpy).toHaveBeenNthCalledWith(1, nextRoute);

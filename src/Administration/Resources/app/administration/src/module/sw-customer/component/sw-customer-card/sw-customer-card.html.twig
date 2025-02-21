@@ -1,12 +1,12 @@
 {% block sw_customer_card %}
-<sw-card
+<mt-card
     class="sw-customer-card"
     position-identifier="sw-customer"
     :title="title"
     :is-loading="isLoading"
 >
     {% block sw_customer_card_header_right %}
-    <template #header-right>
+    <template #headerRight>
         {% block sw_customer_card_imitate_customer_modal %}
         <sw-customer-imitate-customer-modal
             v-if="showImitateCustomerModal"
@@ -16,7 +16,7 @@
         {% endblock %}
 
         {% block sw_customer_card_action_customer_impersonation %}
-        <sw-button
+        <mt-button
             v-tooltip="{
                 message: $tc(customer.guest ? 'sw-customer.card.tooltipImitateCustomerGuest' : 'sw-privileges.tooltip.warning'),
                 disabled: !customer.guest && acl.can('api_proxy_imitate-customer'),
@@ -36,7 +36,7 @@
             <template v-else>
                 {{ $tc('sw-customer.card.buttonImitateCustomer') }}
             </template>
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}
@@ -112,8 +112,9 @@
                                 {% endblock %}
 
                                 {% block sw_customer_card_metadata_customer_name_editor_title %}
-                                <sw-text-field
-                                    v-model:value="customer.title"
+
+                                <mt-text-field
+                                    v-model="customer.title"
                                     name="sw-field--customer-title"
                                     :label="$tc('sw-customer.card.labelTitle')"
                                     :placeholder="$tc('sw-customer.card.placeholderTitle')"
@@ -126,8 +127,9 @@
                                 gap="10px"
                             >
                                 {% block sw_customer_card_metadata_customer_name_editor_first_name %}
-                                <sw-text-field
-                                    v-model:value="customer.firstName"
+
+                                <mt-text-field
+                                    v-model="customer.firstName"
                                     name="sw-field--customer-firstName"
                                     :label="$tc('sw-customer.card.labelFirstName')"
                                     validation="required"
@@ -138,8 +140,9 @@
                                 {% endblock %}
 
                                 {% block sw_customer_card_metadata_customer_name_editor_last_name %}
-                                <sw-text-field
-                                    v-model:value="customer.lastName"
+
+                                <mt-text-field
+                                    v-model="customer.lastName"
                                     name="sw-field--customer-lastName"
                                     :label="$tc('sw-customer.card.labelLastName')"
                                     validation="required"
@@ -151,8 +154,9 @@
                             </sw-container>
 
                             {% block sw_customer_card_metadata_customer_name_editor_company %}
-                            <sw-text-field
-                                v-model:value="customer.company"
+
+                            <mt-text-field
+                                v-model="customer.company"
                                 name="sw-field--customer-company"
                                 :required="isBusinessAccountType"
                                 :error="customerCompanyError"
@@ -165,9 +169,10 @@
                         {% endblock %}
 
                         {% block sw_customer_card_vat_ids %}
-                        <sw-text-field
+
+                        <mt-text-field
                             v-if="editMode && isBusinessAccountType"
-                            v-model:value="customer.vatIds[0]"
+                            v-model="customer.vatIds[0]"
                             name="vatId"
                             :label="$tc('sw-customer.card.labelVatId')"
                             :placeholder="$tc('sw-customer.card.placeholderVatId')"
@@ -276,5 +281,5 @@
         </sw-container>
     </template>
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

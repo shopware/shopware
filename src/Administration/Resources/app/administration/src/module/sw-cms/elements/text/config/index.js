@@ -1,3 +1,5 @@
+// eslint-disable-next-line max-len
+import SwTextEditorToolbarButtonCmsDataMappingButton from 'src/app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-cms-data-mapping';
 import template from './sw-cms-el-config-text.html.twig';
 
 const { Mixin } = Shopware;
@@ -14,6 +16,34 @@ export default {
     mixins: [
         Mixin.getByName('cms-element'),
     ],
+
+    computed: {
+        availableDataMappings() {
+            let mappings = [];
+
+            Object.entries(Shopware.Store.get('cmsPage').currentMappingTypes).forEach((entry) => {
+                const [
+                    type,
+                    value,
+                ] = entry;
+
+                if (type === 'string') {
+                    mappings = [
+                        ...mappings,
+                        ...value,
+                    ];
+                }
+            });
+
+            return mappings;
+        },
+
+        customTextEditorButtons() {
+            return [
+                SwTextEditorToolbarButtonCmsDataMappingButton(() => this.availableDataMappings),
+            ];
+        },
+    },
 
     created() {
         this.createdComponent();

@@ -129,9 +129,13 @@ export default {
         onSave() {
             const setLabel = this.identifier;
             const titleSaveSuccess = this.$tc('global.default.success');
-            const messageSaveSuccess = this.$tc('sw-settings-custom-field.set.detail.messageSaveSuccess', 0, {
-                name: setLabel,
-            });
+            const messageSaveSuccess = this.$tc(
+                'sw-settings-custom-field.set.detail.messageSaveSuccess',
+                {
+                    name: setLabel,
+                },
+                0,
+            );
             this.isSaveSuccessful = false;
             this.isLoading = true;
 

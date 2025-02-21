@@ -30,11 +30,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 
-/**
- * @experimental stableVersion:v6.7.0 feature:BREADCRUMB_STORE_API
- * related methods: getProductBreadcrumbUrls, loadProduct, getCategoryForProduct, loadCategory,
- * getCategoryBreadcrumbUrls, loadCategories, loadSeoUrls, convertCategoriesToBreadcrumbUrls, filterCategorySeoUrls
- */
 #[Package('discovery')]
 class CategoryBreadcrumbBuilder
 {

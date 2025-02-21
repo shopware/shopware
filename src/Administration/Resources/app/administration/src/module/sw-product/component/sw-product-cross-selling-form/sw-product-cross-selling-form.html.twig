@@ -1,7 +1,7 @@
 {% block sw_product_cross_selling_form %}
 <div class="product-detail-cross-selling-form">
     {% block sw_prduct_cross_selling_form_card %}
-    <sw-card
+    <mt-card
         :title="crossSelling.name"
         position-identifier="sw-product-cross-selling-form"
     >
@@ -32,8 +32,9 @@
                 align="start"
             >
                 {% block sw_prduct_cross_selling_form_title_field %}
-                <sw-text-field
-                    v-model:value="crossSelling.name"
+
+                <mt-text-field
+                    v-model="crossSelling.name"
                     name="sw-field--crossSelling-name"
                     :label="$tc('sw-product.crossselling.inputCrossSellingTitle')"
                     required
@@ -43,8 +44,9 @@
                 />
                 {% endblock %}
                 {% block sw_prduct_cross_selling_form_active_field %}
-                <sw-switch-field
-                    v-model:value="crossSelling.active"
+
+                <mt-switch
+                    v-model="crossSelling.active"
                     class="sw-product-detail-cross-selling__active-switch"
                     :label="$tc('sw-product.crossselling.inputCrossSellingActive')"
                     :disabled="!allowEdit"
@@ -175,7 +177,7 @@
             />
             {% endblock %}
         </div>
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_product_detail_cross_selling_form_modal_delete %}
@@ -195,23 +197,23 @@
         {% block sw_product_detail_cross_selling_form_modal_delete_footer %}
         <template #modal-footer>
             {% block sw_product_detail_cross_selling_modal_delete_action_cancel %}
-            <sw-button
+            <mt-button
                 size="small"
                 @click="onCloseDeleteModal"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_product_detail_cross_selling_form_modal_delete_action_delete %}
-            <sw-button
+            <mt-button
                 class="sw-product-detail-cross-selling__delete-button"
                 size="small"
-                variant="danger"
+                variant="critical"
                 @click="onConfirmDelete"
             >
                 {{ $tc('sw-product.crossselling.deleteButtonDelete') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
         {% endblock %}

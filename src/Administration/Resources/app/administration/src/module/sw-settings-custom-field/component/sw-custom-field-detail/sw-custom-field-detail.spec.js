@@ -74,7 +74,7 @@ async function createWrapper(privileges = []) {
                     'sw-modal': await wrapTestComponent('sw-modal'),
                     'sw-container': true,
                     'sw-custom-field-type-checkbox': true,
-                    'sw-switch-field': true,
+
                     'sw-number-field': true,
                     'sw-text-field': true,
                     'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
@@ -84,10 +84,8 @@ async function createWrapper(privileges = []) {
                     'sw-field-error': true,
                     'sw-icon': true,
                     'sw-help-text': true,
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-loader': true,
-                    'sw-alert': true,
+
                     'router-link': true,
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,
@@ -110,12 +108,12 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         await flushPromises();
 
         const modalTypeField = wrapper.find('.sw-custom-field-detail__modal-type select');
-        const technicalNameField = wrapper.find('.sw-custom-field-detail__technical-name');
+        const technicalNameField = wrapper.findComponent('.sw-custom-field-detail__technical-name');
         const modalPositionField = wrapper.find('.sw-custom-field-detail__modal-position');
         const modalSaveButton = wrapper.find('.sw-custom-field-detail__footer-save');
 
         expect(modalTypeField.attributes('disabled')).toBeFalsy();
-        expect(technicalNameField.attributes('disabled')).toBeFalsy();
+        expect(technicalNameField.props('disabled')).toBeFalsy();
         expect(modalPositionField.attributes('disabled')).toBeFalsy();
         expect(modalSaveButton.attributes('disabled')).toBeFalsy();
     });
@@ -125,12 +123,12 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         await flushPromises();
 
         const modalTypeField = wrapper.find('.sw-custom-field-detail__modal-type select');
-        const technicalNameField = wrapper.find('.sw-custom-field-detail__technical-name');
+        const technicalNameField = wrapper.findComponent('.sw-custom-field-detail__technical-name');
         const modalPositionField = wrapper.find('.sw-custom-field-detail__modal-position');
         const modalSaveButton = wrapper.find('.sw-custom-field-detail__footer-save');
 
         expect(modalTypeField.attributes('disabled')).toBeDefined();
-        expect(technicalNameField.attributes('disabled')).toBeDefined();
+        expect(technicalNameField.props('disabled')).toBeTruthy();
         expect(modalPositionField.attributes('disabled')).toBeDefined();
         expect(modalSaveButton.attributes('disabled')).toBeDefined();
     });

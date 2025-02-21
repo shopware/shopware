@@ -182,20 +182,16 @@ async function createWrapper() {
                 stubs: {
                     'sw-tabs': true,
                     'sw-tabs-item': true,
-                    'sw-button': await wrapTestComponent('sw-button', {
-                        sync: true,
-                    }),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-modal': await wrapTestComponent('sw-modal', {
                         sync: true,
                     }),
                     'sw-product-variants-configurator-selection': true,
                     'sw-icon': true,
                     'sw-progress-bar': true,
-                    'sw-alert': true,
+
                     'sw-upload-listener': true,
                     'sw-media-compact-upload-v2': true,
-                    'sw-switch-field': true,
+
                     'sw-data-grid': true,
                     'sw-card-filter': true,
                     'sw-pagination': true,
@@ -617,7 +613,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
             showUploadModal: true,
         });
 
-        expect(wrapper.get('.sw-product-variant-generation__generate-action').classes('sw-button--disabled')).toBe(false);
+        expect(wrapper.get('.sw-product-variant-generation__generate-action').attributes('disabled')).toBeUndefined();
     });
 
     it('generate button should be disabled when not every variant has downloadable files', async () => {
@@ -637,7 +633,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
             showUploadModal: true,
         });
 
-        expect(wrapper.get('.sw-product-variant-generation__generate-action').classes('sw-button--disabled')).toBe(true);
+        expect(wrapper.get('.sw-product-variant-generation__generate-action').attributes('disabled')).toBeDefined();
     });
 
     it('should generate digital variants', async () => {

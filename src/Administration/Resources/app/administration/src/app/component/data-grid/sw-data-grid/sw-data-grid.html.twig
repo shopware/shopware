@@ -393,7 +393,7 @@
                             <template v-if="isInlineEditActive && currentInlineEditId === item[itemIdentifierProperty]">
 
                                 {% block sw_data_grid_inline_edit_actions_cancel %}
-                                <sw-button
+                                <mt-button
                                     class="sw-data-grid__inline-edit-cancel"
                                     size="x-small"
                                     :title="$tc('global.default.cancel')"
@@ -404,11 +404,11 @@
                                     {% block sw_data_grid_inline_edit_actions_cancel_icon %}
                                     <sw-icon name="regular-times-xs" />
                                     {% endblock %}
-                                </sw-button>
+                                </mt-button>
                                 {% endblock %}
 
                                 {% block sw_data_grid_inline_edit_actions_save %}
-                                <sw-button
+                                <mt-button
                                     class="sw-data-grid__inline-edit-save"
                                     variant="primary"
                                     size="x-small"
@@ -422,7 +422,7 @@
                                         name="regular-checkmark-xxs"
                                     />
                                     {% endblock %}
-                                </sw-button>
+                                </mt-button>
                                 {% endblock %}
                             </template>
                             {% endblock %}

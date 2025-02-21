@@ -38,8 +38,8 @@ async function createWrapper(orderData = []) {
             },
 
             stubs: {
-                'sw-card': {
-                    template: `<div class="sw-card">
+                'mt-card': {
+                    template: `<div class="mt-card">
                     <slot name="toolbar"></slot>
                     <slot name="grid"></slot>
                     <slot></slot>
@@ -50,7 +50,6 @@ async function createWrapper(orderData = []) {
                 },
                 'sw-empty-state': true,
                 'sw-entity-listing': true,
-                'sw-button': true,
                 'sw-icon': true,
                 'router-link': true,
                 'sw-time-ago': true,

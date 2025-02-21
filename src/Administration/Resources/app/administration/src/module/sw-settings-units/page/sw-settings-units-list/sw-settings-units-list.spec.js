@@ -85,8 +85,7 @@ async function createWrapper(privileges = []) {
                     'sw-search-bar': true,
                     'sw-icon': true,
                     'sw-language-switch': true,
-                    'sw-button': true,
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot></slot><slot name="grid"></slot></div>',
                     },
                     'sw-card-view': {
@@ -142,7 +141,7 @@ describe('module/sw-settings-units/page/sw-settings-units-list', () => {
 
         const addButton = wrapper.find('.sw-settings-units__create-action');
 
-        expect(addButton.attributes().disabled).toBeTruthy();
+        expect(addButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to edit a unit', async () => {

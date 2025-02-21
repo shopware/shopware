@@ -11,7 +11,7 @@ async function createWrapper() {
                 'sw-card-view': await wrapTestComponent('sw-card-view', {
                     sync: true,
                 }),
-                'sw-card': {
+                'mt-card': {
                     template: `
                         <div class="sw-card__content">
                             <slot name="grid"></slot>
@@ -26,8 +26,6 @@ async function createWrapper() {
                 'sw-card-section': await wrapTestComponent('sw-card-section', { sync: true }),
                 'sw-description-list': await wrapTestComponent('sw-description-list', { sync: true }),
                 'sw-order-saveable-field': await wrapTestComponent('sw-order-saveable-field', { sync: true }),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-number-field': await wrapTestComponent('sw-number-field'),
                 'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated'),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
@@ -46,7 +44,7 @@ async function createWrapper() {
                 'sw-order-create-details-footer': true,
                 'sw-order-promotion-tag-field': true,
                 'sw-order-line-items-grid-sales-channel': true,
-                'sw-switch-field': true,
+
                 'sw-order-create-address-modal': true,
                 'sw-order-create-promotion-modal': true,
                 'sw-error-summary': true,
@@ -215,7 +213,7 @@ describe('src/module/sw-order/view/sw-order-create-base', () => {
         await saveableField.setValue(20);
         await saveableField.trigger('input');
 
-        button = wrapper.find('.sw-order-saveable-field .sw-button--primary');
+        button = wrapper.findByAriaLabel('button', 'global.default.save');
         await button.trigger('click');
 
         expect(wrapper.vm.cartDelivery.shippingCosts.totalPrice).toBe(20);

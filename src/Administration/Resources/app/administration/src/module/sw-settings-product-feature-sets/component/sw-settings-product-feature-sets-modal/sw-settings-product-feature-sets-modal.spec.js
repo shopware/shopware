@@ -70,7 +70,6 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                             sync: true,
                         }),
                         'sw-base-field': await wrapTestComponent('sw-base-field'),
-                        'sw-button': true,
                         'sw-icon': true,
                         'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
                         'sw-data-grid': await wrapTestComponent('sw-data-grid'),

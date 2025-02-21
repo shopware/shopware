@@ -20,15 +20,13 @@ async function createWrapper(
                 'sw-modal': {
                     template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
                 },
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
                 'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
                 'sw-customer-address-form': true,
                 'sw-customer-base-form': true,
                 'sw-icon': true,
-                'sw-switch-field': true,
+
                 'sw-extension-component-section': true,
                 'router-link': true,
                 'sw-loader': true,
@@ -237,7 +235,7 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
 
         wrapper.vm.customerRepository.save = jest.fn(() => Promise.resolve());
 
-        const saveButton = wrapper.find('.sw-button--primary');
+        const saveButton = wrapper.findByText('button', 'global.default.save');
 
         await saveButton.trigger('click');
 

@@ -10,6 +10,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class AclValidPermissionsHelper
 {
+    public const INVALID_KEY_ERROR_MESSAGE = 'Permission "%s" is not a valid backend ACL key. If it\'s an entity based permission, please check if entity is listed in the entity-schema.json. If it\'s a custom permissions, please check if it should be added to the allowlist.';
+
+    public const MISSING_SCHEMA_ERROR_MESSAGE = 'The entity-schema.json file is missing. Please make sure to generate it first via the administration command. Could not look up permission "%s" in the schema.';
+
     private const SCHEMA_FILE = __DIR__ . '/../../../../../Administration/Resources/app/administration/test/_mocks_/entity-schema.json';
 
     private const CUSTOM_PERMISSIONS = [
@@ -34,31 +38,39 @@ class AclValidPermissionsHelper
     ];
 
     /**
-     * @var array<string>
+     * @var ?array<string>
      */
-    private array $permissions = [];
+    private ?array $permissions = null;
 
     public function __construct(string $schemaPath = self::SCHEMA_FILE)
     {
+        if (!file_exists($schemaPath)) {
+            return;
+        }
+
         $this->permissions = $this->preparePermissions($schemaPath);
-        if ($this->permissions === []) {
-            throw new \RuntimeException('Could not load permissions from schema');
+        if ($this->permissions === null) {
+            throw new \RuntimeException('Could not load permissions from entity schema');
         }
     }
 
     public function aclKeyValid(string $key): bool
     {
+        if ($this->permissions === null) {
+            throw new \RuntimeException('Entity schema file not found');
+        }
+
         return \in_array($key, $this->permissions, true);
     }
 
     /**
-     * @return array<string>
+     * @return ?array<string>
      */
-    private function preparePermissions(string $schemaPath): array
+    private function preparePermissions(string $schemaPath): ?array
     {
         $entities = $this->getEntitiesFromSchema($schemaPath);
         if ($entities === null) {
-            return [];
+            return null;
         }
 
         $permissions = [];
@@ -77,10 +89,6 @@ class AclValidPermissionsHelper
      */
     private function getEntitiesFromSchema(string $path): ?array
     {
-        if (!file_exists($path)) {
-            return null;
-        }
-
         $content = file_get_contents($path);
         if ($content === false) {
             return null;

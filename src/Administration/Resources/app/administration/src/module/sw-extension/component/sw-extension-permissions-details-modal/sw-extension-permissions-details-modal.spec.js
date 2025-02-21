@@ -25,7 +25,6 @@ async function createWrapper({ permissions, modalTitle, selectedEntity }) {
                         ],
                         template: '<div class="icon">name:{{ name }} color:{{ color }}</div>',
                     },
-                    'sw-button': true,
                 },
             },
             props: {

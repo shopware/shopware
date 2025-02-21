@@ -32,10 +32,7 @@ async function createWrapper() {
                     'sw-skeleton': true,
                     'sw-system-config': await wrapTestComponent('sw-system-config'),
                     'sw-search-bar': true,
-                    'sw-button': await wrapTestComponent('sw-button'),
                     'sw-loader': true,
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-ignore-class': true,
                     'sw-extension-component-section': true,
                     'sw-error-summary': true,
@@ -45,9 +42,8 @@ async function createWrapper() {
                     'sw-help-center-v2': true,
                     'router-link': true,
                     'sw-app-actions': true,
-                    'sw-button-deprecated': true,
                     'sw-sales-channel-switch': true,
-                    'sw-alert': true,
+
                     'sw-form-field-renderer': true,
                     'sw-inherit-wrapper': true,
                     'sw-ai-copilot-badge': true,
@@ -173,7 +169,7 @@ describe('module/sw-settings-media/page/sw-settings-media', () => {
         await flushPromises();
 
         await wrapper.vm.$nextTick();
-        expect(wrapper.find('.sw-card-view').find('.sw-system-config').find('.sw-card').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-card-view').find('.sw-system-config').find('.mt-card').exists()).toBeTruthy();
     });
 
     it('should change the slider value', async () => {

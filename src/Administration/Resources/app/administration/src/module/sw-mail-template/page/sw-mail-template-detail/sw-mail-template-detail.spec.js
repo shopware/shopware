@@ -148,16 +148,12 @@ async function createWrapper(privileges = []) {
                 'sw-card-view': {
                     template: '<div><slot></slot></div>',
                 },
-                'sw-card': {
+                'mt-card': {
                     template: '<div><slot></slot></div>',
                 },
                 'sw-container': {
                     template: '<div><slot></slot></div>',
                 },
-                'sw-button': await wrapTestComponent('sw-button', {
-                    sync: true,
-                }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-button-process': true,
                 'sw-language-info': true,
                 'sw-entity-single-select': true,
@@ -166,7 +162,7 @@ async function createWrapper(privileges = []) {
                 'sw-modal': true,
                 'sw-text-field': true,
                 'sw-context-menu-item': true,
-                'sw-alert': true,
+
                 'sw-code-editor': {
                     props: [
                         'disabled',

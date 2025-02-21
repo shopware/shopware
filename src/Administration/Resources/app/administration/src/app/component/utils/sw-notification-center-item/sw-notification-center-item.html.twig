@@ -59,13 +59,13 @@
                 class="sw-notification-center-item__actions-item-container"
             >
                 {% block sw_notification_center_item_actions_item %}
-                <sw-button
+                <mt-button
                     block
                     size="small"
                     @click="handleAction(action)"
                 >
                     {{ action.label }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </div>
             {% endblock %}

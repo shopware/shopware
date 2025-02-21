@@ -71,7 +71,6 @@ async function createWrapper() {
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-inline-edit': true,
                     'router-link': true,
-                    'sw-button': true,
                     'sw-data-grid-skeleton': true,
                     'sw-highlight-text': true,
                     'sw-provide': { template: `<slot/>`, inheritAttrs: false },

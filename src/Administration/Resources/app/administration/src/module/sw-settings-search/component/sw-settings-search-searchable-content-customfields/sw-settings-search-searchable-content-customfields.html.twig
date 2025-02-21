@@ -19,14 +19,14 @@
 
         <template #actions>
             {% block sw_settings_search_searchable_content_customfields_empty_state_action %}
-            <sw-button
-                variant="ghost"
+            <mt-button
+                ghost
                 size="small"
                 :disabled="!acl.can('product_search_config.creator')"
                 @click="onAddField"
             >
                 {{ $tc('sw-settings-search.generalTab.buttonAddContent') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
     </sw-empty-state>

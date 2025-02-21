@@ -35,7 +35,6 @@ describe('context.store', () => {
                 firstRunWizard: null,
                 systemCurrencyId: null,
                 systemCurrencyISOCode: null,
-                disableExtensions: false,
             }),
         );
 
@@ -75,15 +74,15 @@ describe('context.store', () => {
     });
 
     it('adds a `true` value to app context', () => {
-        store.addAppValue({ key: 'disableExtensions', value: 'true' as unknown as boolean });
+        store.addAppValue({ key: 'firstRunWizard', value: 'true' as unknown as boolean });
 
-        expect(store.app.disableExtensions).toBe(true);
+        expect(store.app.firstRunWizard).toBe(true);
     });
 
     it('adds a `false` value to app context', () => {
-        store.addAppValue({ key: 'disableExtensions', value: 'false' as unknown as boolean });
+        store.addAppValue({ key: 'firstRunWizard', value: 'false' as unknown as boolean });
 
-        expect(store.app.disableExtensions).toBe(false);
+        expect(store.app.firstRunWizard).toBe(false);
     });
 
     it('adds a value to api context', () => {

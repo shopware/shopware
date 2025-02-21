@@ -78,9 +78,7 @@ async function createWrapper() {
             global: {
                 renderStubDefaultSlot: true,
                 stubs: {
-                    'sw-card': true,
                     'sw-container': true,
-                    'sw-button': true,
                     'sw-icon': true,
                     'sw-field-error': true,
                     'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
@@ -108,7 +106,6 @@ async function createWrapper() {
                     ),
                     'sw-settings-search-example-modal': true,
                     'sw-loader': true,
-                    'mt-text-field': true,
                     'sw-field-copyable': true,
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,

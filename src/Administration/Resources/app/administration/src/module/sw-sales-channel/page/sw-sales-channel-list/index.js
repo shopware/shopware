@@ -134,22 +134,6 @@ export default {
             });
         },
 
-        /** @deprecated tag:v6.7.0 - Will be removed. */
-        setProductAggregations(buckets) {
-            this.productsForSalesChannel = buckets.reduce(
-                (productsForSalesChannel, bucket) => ({
-                    ...productsForSalesChannel,
-                    [bucket.key]: bucket.visible_products?.count,
-                }),
-                {},
-            );
-        },
-
-        /** @deprecated tag:v6.7.0 - Will be removed. */
-        getCountForSalesChannel(salesChannelId) {
-            return this.productsForSalesChannel[salesChannelId] ?? 0;
-        },
-
         checkForDomainLink(salesChannel) {
             const domainLink = this.domainLinkService.getDomainLink(salesChannel);
 

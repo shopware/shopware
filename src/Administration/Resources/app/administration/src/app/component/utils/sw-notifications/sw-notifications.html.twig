@@ -12,43 +12,48 @@
         <transition-group name="sw-notifications-slide-fade">
 
             {% block sw_notifications_item %}
-            <sw-alert
+            <mt-banner
                 v-for="(notification, index) in notifications"
                 :key="notification.uuid"
                 :class="['sw-notifications__notification--' + index, 'sw-notification__alert']"
                 :title="notification.title"
-                :variant="notification.variant"
-                :appearance="notification.system ? 'system' : 'notification'"
+                :variant="getNotificationVariant(notification)"
+                :data-theme="notification.system ? 'dark' : undefined"
                 :notification-index="notification.uuid"
                 :closable="true"
                 @close="onClose(notification)"
             >
 
                 {% block sw_notifications_item_content %}
-                <div v-html="$sanitize(notification.message, { ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'br'], ALLOWED_ATTR: ['href', 'target'] })"></div>
+                <div
+                    class="sw-notifications__message"
+                    v-html="$sanitize(notification.message, { ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'br'], ALLOWED_ATTR: ['href', 'target'] })"
+                ></div>
                 {% endblock %}
 
-                {% block sw_notifications_item_actions_slot %}
-                <template #actions>
-                    <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
+                {# TODO: Implement buttons and add tests for action buttons #}
+                <div
+                    v-if="notification.actions.length"
+                    class="sw-notifications__actions"
+                >
                     {% block sw_notifications_item_actions %}
                     <template
                         v-for="action in notification.actions"
                         :key="action.label"
                     >
                         {% block sw_notifications_item_action_item %}
-                        <sw-button
+                        <mt-button
                             :disabled="action.disabled"
+                            variant="secondary"
                             @click="handleAction(action, notification)"
                         >
                             {{ action.label }}
-                        </sw-button>
+                        </mt-button>
                         {% endblock %}
                     </template>
                     {% endblock %}
-                </template>
-                {% endblock %}
-            </sw-alert>
+                </div>
+            </mt-banner>
             {% endblock %}
         </transition-group>
         {% endblock %}

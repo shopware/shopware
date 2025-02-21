@@ -46,12 +46,8 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                 global: {
                     renderStubDefaultSlot: true,
                     stubs: {
-                        'sw-card': await wrapTestComponent('sw-card'),
-                        'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                         'sw-container': true,
                         'sw-simple-search-field': true,
-                        'sw-button': await wrapTestComponent('sw-button'),
-                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                         'sw-icon': true,
                         'sw-data-grid': await wrapTestComponent('sw-data-grid', {
                             sync: true,
@@ -132,7 +128,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
     });
 
     it('has the correct class', async () => {
-        expect(wrapper.get('.sw-card').classes()).toContain(classes.componentRoot);
+        expect(wrapper.get('.mt-card').classes()).toContain(classes.componentRoot);
     });
 
     it('shows a list of features', async () => {

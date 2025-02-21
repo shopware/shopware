@@ -97,7 +97,6 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                         'sw-data-grid-column-boolean': true,
                         'sw-data-grid-inline-edit': true,
                         'router-link': true,
-                        'sw-button': true,
                         'sw-data-grid-skeleton': true,
                         'sw-loader': true,
                         'sw-inheritance-switch': true,

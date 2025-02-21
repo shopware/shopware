@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\ImportExportProfileDefinition;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_7\Migration1717573310ImportExportTechnicalNameRequired;
@@ -24,8 +23,6 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('v6.7.0.0', $this);
-
         $this->connection = static::getContainer()->get(Connection::class);
     }
 

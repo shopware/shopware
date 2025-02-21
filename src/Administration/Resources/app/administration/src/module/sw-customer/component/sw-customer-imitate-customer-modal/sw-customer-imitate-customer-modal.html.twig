@@ -6,7 +6,7 @@
     @modal-close="onCancel"
 >
     {% block sw_customer_imitate_customer_modal_alert %}
-    <sw-alert>
+    <mt-banner>
         <i18n-t
             keypath="sw-customer.imitateCustomerModal.modalInfo"
             tag="p"
@@ -15,7 +15,7 @@
                 <b>{{ $tc('sw-customer.imitateCustomerModal.modalInfoLogout') }}</b>
             </template>
         </i18n-t>
-    </sw-alert>
+    </mt-banner>
     {% endblock %}
 
     {% block sw_customer_imitate_customer_modal_description %}
@@ -63,12 +63,12 @@
     <template #modal-footer>
         <div>
             {% block sw_customer_imitate_customer_modal_footer_cancel %}
-            <sw-button
+            <mt-button
                 size="small"
                 @click="onCancel"
             >
                 {{ $tc('sw-customer.imitateCustomerModal.labelCancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </div>
     </template>

@@ -22,8 +22,8 @@ Shopware.Service('cmsService').registerCmsBlock({
     defaultConfig: {
         marginBottom: '20px',
         marginTop: '20px',
-        marginLeft: '20px',
-        marginRight: '20px',
+        marginLeft: null,
+        marginRight: null,
         sizingMode: 'boxed',
     },
     slots: {

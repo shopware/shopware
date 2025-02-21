@@ -55,7 +55,6 @@ async function createWrapper(propsData) {
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                 'sw-customer-address-form-options': await wrapTestComponent('sw-customer-address-form-options'),
-                'sw-button': true,
                 'sw-loader': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,

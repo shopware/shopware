@@ -17,9 +17,6 @@ async function createWrapper() {
                 'sw-modal': {
                     template: '<div class="sw-modal"><slot name="modal-footer">Test</slot></div>',
                 },
-                'sw-button': {
-                    template: '<div class="sw-button"></div>',
-                },
             },
         },
         props: {

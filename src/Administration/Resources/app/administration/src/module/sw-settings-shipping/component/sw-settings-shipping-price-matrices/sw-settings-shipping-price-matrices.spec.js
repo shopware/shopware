@@ -18,8 +18,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                         'sw-settings-shipping-price-matrix': await wrapTestComponent('sw-settings-shipping-price-matrix', {
                             sync: true,
                         }),
-                        'sw-card': true,
-                        'sw-alert': true,
+                        'mt-card': true,
                         'sw-container': true,
                         'sw-select-rule-create': true,
                         'sw-single-select': true,
@@ -27,8 +26,6 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                         'sw-popover': true,
                         'sw-text-field': await wrapTestComponent('sw-text-field'),
                         'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                        'sw-button': await wrapTestComponent('sw-button'),
-                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                         'sw-context-button': await wrapTestComponent('sw-context-button', {
                             sync: true,
                         }),
@@ -177,7 +174,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
         await flushPromises();
 
-        const matrices = wrapper.findAllComponents('.sw-settings-shipping-price-matrix');
+        const matrices = wrapper.findAll('.sw-settings-shipping-price-matrix');
 
         expect(matrices).toHaveLength(1);
     });
@@ -195,7 +192,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
         await nextTick();
 
-        const matrices = wrapper.findAllComponents('.sw-settings-shipping-price-matrix');
+        const matrices = wrapper.findAll('.sw-settings-shipping-price-matrix');
 
         expect(matrices).toHaveLength(2);
     });
@@ -216,7 +213,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
         await nextTick();
 
-        const matrices = wrapper.findAllComponents('.sw-settings-shipping-price-matrix');
+        const matrices = wrapper.findAll('.sw-settings-shipping-price-matrix');
 
         expect(matrices).toHaveLength(5);
     });
@@ -232,8 +229,11 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
             ],
         };
 
-        const addPriceMatrixButton = wrapper.find('.sw-settings-shipping-price-matrices__actions .sw-button');
-        expect(addPriceMatrixButton.attributes('disabled')).toBeFalsy();
+        const addPriceMatrixButton = wrapper.findByText(
+            'button',
+            'sw-settings-shipping.priceMatrix.buttonAddAdditionalPriceMatrix',
+        );
+        expect(addPriceMatrixButton.attributes('disabled')).toBeUndefined();
     });
 
     it('should duplicate the price matrix', async () => {
@@ -485,7 +485,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     it('should add a new pricing rule and change the values', async () => {
         const wrapper = await wrapperWithAllPrices();
 
-        const addNewPriceRuleButton = wrapper.find('.sw-settings-shipping-price-matrix__top-container .sw-button__content');
+        const addNewPriceRuleButton = wrapper.findByText('button', 'sw-settings-shipping.priceMatrix.addNewShippingPrice');
         expect(addNewPriceRuleButton.text()).toBe('sw-settings-shipping.priceMatrix.addNewShippingPrice');
 
         let lastRowStart = wrapper.find('.sw-data-grid__row:last-child .sw-data-grid__cell--quantityStart input');

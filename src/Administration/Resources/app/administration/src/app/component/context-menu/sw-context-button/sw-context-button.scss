@@ -54,6 +54,10 @@ $sw-context-button-color-disabled: $color-gray-100;
         top: 100%;
         transform: translate(-35px, 10px);
     }
+
+    .mt-button {
+        line-height: initial;
+    }
 }
 
 .sw-popover__wrapper.sw-context-button__menu-popover {

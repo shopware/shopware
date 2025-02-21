@@ -26,29 +26,29 @@
 
     {% block sw_condition_and_container_actions %}
     <div class="sw-condition-and-container__actions">
-        <sw-button
+        <mt-button
             v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')"
-            variant="ghost"
+            ghost
             size="small"
             class="sw-condition-and-container__actions--and"
             :disabled="disabled"
             @click="onAddPlaceholder"
         >
             {{ $tc('global.sw-condition.condition.AddAndCondition') }}
-        </sw-button>
+        </mt-button>
 
-        <sw-button
+        <mt-button
             v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')"
-            variant="ghost"
+            ghost
             size="small"
             class="sw-condition-and-container__actions--sub"
             :disabled="disabled"
             @click="onAddOrContainer"
         >
             {{ $tc('global.sw-condition.condition.AddSubCondition') }}
-        </sw-button>
+        </mt-button>
 
-        <sw-button
+        <mt-button
             v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')"
             size="small"
             class="sw-condition-and-container__actions--delete"
@@ -56,7 +56,7 @@
             @click="onDeleteAll"
         >
             {{ $tc('global.sw-condition.condition.deleteConditions') }}
-        </sw-button>
+        </mt-button>
     </div>
     {% endblock %}
 </div>

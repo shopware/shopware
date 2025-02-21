@@ -7,7 +7,7 @@
     {% block sw_flow_list_smart_bar_actions %}{% endblock %}
 
     {% block sw_flow_list_content %}
-    <sw-card
+    <mt-card
         class="sw-flow-list-card"
         position-identifier="sw-flow-list-card"
     >
@@ -108,26 +108,26 @@
                     @modal-close="onCloseDeleteModal"
                 >
                     {% block sw_flow_list_grid_action_modal_confirm_delete_text %}
-                    <sw-alert variant="warning">
+                    <mt-banner variant="attention">
                         {{ deleteWarningMessage() }}
-                    </sw-alert>
+                    </mt-banner>
                     {% endblock %}
 
                     <template #modal-footer>
                         {% block sw_flow_list_grid_action_modal_buttons %}
-                        <sw-button
+                        <mt-button
                             size="small"
                             @click="onCloseDeleteModal"
                         >
                             {{ $tc('global.default.cancel') }}
-                        </sw-button>
-                        <sw-button
+                        </mt-button>
+                        <mt-button
                             size="small"
-                            variant="danger"
+                            variant="critical"
                             @click="onConfirmDelete(item)"
                         >
                             {{ $tc('global.default.delete') }}
-                        </sw-button>
+                        </mt-button>
                         {% endblock %}
                     </template>
                 </sw-modal>
@@ -136,9 +136,9 @@
 
             {% block sw_flow_list_grid_bulk_modal_delete_confirm_text %}
             <template #bulk-modal-delete-confirm-text="{ selectionCount }">
-                <sw-alert variant="warning">
+                <mt-banner variant="attention">
                     {{ bulkDeleteWarningMessage(selectionCount) }}
-                </sw-alert>
+                </mt-banner>
             </template>
             {% endblock %}
         </sw-entity-listing>
@@ -163,7 +163,7 @@
 
         {% block sw_flow_list_modal_content_custom %}
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>
 {% endblock %}

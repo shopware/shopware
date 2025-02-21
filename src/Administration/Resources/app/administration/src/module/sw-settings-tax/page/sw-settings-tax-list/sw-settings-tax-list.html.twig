@@ -39,7 +39,7 @@
     {% block sw_settings_tax_list_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_tax_list_smart_bar_actions_add %}
-        <sw-button
+        <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('tax.creator'),
@@ -48,10 +48,10 @@
             class="sw-settings-tax-list__button-create"
             variant="primary"
             :disabled="!acl.can('tax.creator') || undefined"
-            :router-link="{ name: 'sw.settings.tax.create' }"
+            @click="$router.push({ name: 'sw.settings.tax.create' })"
         >
             {{ $tc('sw-settings-tax.list.buttonAddTax') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}
@@ -66,7 +66,7 @@
     <template #content>
         <sw-card-view>
             {% block sw_settings_tax_list_content_card %}
-            <sw-card
+            <mt-card
                 position-identifier="sw-settings-tax-list-content"
                 class="sw-tax-card"
                 :title="$tc('sw-settings-tax.list.taxCardTitle')"
@@ -193,29 +193,29 @@
                             >
                                 {% block sw_settings_tax_list_delete_modal_confirm_delete_text %}
                                 <p class="sw-settings-tax-list__confirm-delete-text">
-                                    {{ $tc('sw-settings-tax.list.textDeleteConfirm', 0, { name: item.name }) }}
+                                    {{ $tc('sw-settings-tax.list.textDeleteConfirm', { name: item.name }, 0) }}
                                 </p>
                                 {% endblock %}
 
                                 {% block sw_settings_tax_list_delete_modal_footer %}
                                 <template #modal-footer>
                                     {% block sw_settings_tax_list_delete_modal_cancel %}
-                                    <sw-button
+                                    <mt-button
                                         size="small"
                                         @click="onCloseDeleteModal"
                                     >
                                         {{ $tc('global.default.cancel') }}
-                                    </sw-button>
+                                    </mt-button>
                                     {% endblock %}
 
                                     {% block sw_settings_tax_list_delete_modal_confirm %}
-                                    <sw-button
-                                        variant="danger"
+                                    <mt-button
+                                        variant="critical"
                                         size="small"
                                         @click="onConfirmDelete(item.id)"
                                     >
                                         {{ $tc('sw-settings-tax.list.buttonDelete') }}
-                                    </sw-button>
+                                    </mt-button>
                                     {% endblock %}
                                 </template>
                                 {% endblock %}
@@ -226,10 +226,10 @@
                     </sw-entity-listing>
                     {% endblock %}
                 </template>
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
-            <sw-card
+            <mt-card
                 position-identifier="sw-settings-tax-provider-list-content"
                 class="sw-settings-tax-provider-list-content"
                 :title="$tc('sw-settings-tax.list.taxProvider.cardTitle')"
@@ -284,11 +284,11 @@
                                         </router-link>
                                     </div>
 
-                                    <sw-switch-field
+                                    <mt-switch
                                         :label="$tc('sw-settings-tax.list.taxProvider.labelActive')"
                                         :disabled="!acl.can('tax.editor') || undefined"
-                                        :value="taxProvider.active"
-                                        @update:value="onChangeTaxProviderActive(taxProvider)"
+                                        :checked="taxProvider.active"
+                                        @change="onChangeTaxProviderActive(taxProvider)"
                                     />
                                 </div>
                             </template>
@@ -299,7 +299,7 @@
                         <sw-skeleton />
                     </template>
                 </template>
-            </sw-card>
+            </mt-card>
 
             <sw-settings-tax-provider-sorting-modal
                 v-if="showSortingModal"

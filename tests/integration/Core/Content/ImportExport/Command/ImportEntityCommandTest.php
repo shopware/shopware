@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Command\ImportEntityCommand;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -61,32 +60,6 @@ class ImportEntityCommandTest extends TestCase
             'expireDate' => date('d.m.Y'),
         ];
         $commandTester->setInputs([self::DEFAULT_CATEGORY_IMPORT_PROFILE]);
-        $commandTester->execute($args);
-
-        $message = $commandTester->getDisplay();
-        static::assertMatchesRegularExpression(\sprintf('/\[OK\] Successfully imported %d records in \d+ seconds/', $num), $message);
-
-        $firstId = '017de84fb11a4e318fd3231317d7def4';
-        $lastId = 'fd98f6a0f00f4b05b40e63da076dfd7d';
-
-        $repository = static::getContainer()->get('category.repository');
-        $result = $repository->searchIds(new Criteria([$firstId, $lastId]), Context::createDefaultContext());
-
-        static::assertCount(2, $result->getIds());
-    }
-
-    public function testImportWithProfile(): void
-    {
-        Feature::skipTestIfActive('v6.7.0.0', $this);
-
-        $num = 67;
-
-        $commandTester = new CommandTester($this->importEntityCommand);
-        $args = [
-            'file' => self::TEST_IMPORT_FILE_PATH,
-            'expireDate' => date('d.m.Y'),
-            'profile' => self::DEFAULT_CATEGORY_IMPORT_PROFILE,
-        ];
         $commandTester->execute($args);
 
         $message = $commandTester->getDisplay();

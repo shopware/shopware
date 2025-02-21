@@ -449,7 +449,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         'sw-card-view': {
                             template: '<div class=""><slot></slot></div>',
                         },
-                        'sw-card': {
+                        'mt-card': {
                             template: '<div><slot></slot></div>',
                         },
                         'sw-context-button': true,
@@ -528,7 +528,6 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         'sw-field-error': true,
                         'sw-language-switch': true,
                         'sw-simple-search-field': true,
-                        'sw-button': true,
                         'sw-container': true,
                         'sw-help-text': true,
                         'sw-highlight-text': true,

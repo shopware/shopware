@@ -1,8 +1,11 @@
+/**
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-button instead.
+ */
 @import "~scss/variables";
 
 $sw-button-transition: all 0.15s ease-out;
 
-.sw-button {
+.mt-button {
     border: 1px solid $color-gray-400;
     background: $color-gray-50;
     color: $color-darkgray-200;
@@ -38,18 +41,18 @@ $sw-button-transition: all 0.15s ease-out;
         visibility: hidden;
     }
 
-    &:hover:not(.sw-button--disabled),
+    &:hover:not(.mt-button--disabled),
     &:hover:not([disabled]) {
         background: $color-gray-100;
     }
 
-    &:active:not(.sw-button--disabled) {
+    &:active:not(.mt-button--disabled) {
         background: $color-gray-200;
         border-color: $color-gray-400;
     }
 
     &:disabled,
-    &.sw-button--disabled {
+    &.mt-button--disabled {
         color: $color-gray-500;
         border-color: $color-gray-200;
         cursor: not-allowed;
@@ -67,7 +70,7 @@ $sw-button-transition: all 0.15s ease-out;
         border-color: $color-gray-800 transparent transparent transparent;
     }
 
-    &.sw-button--primary {
+    &.mt-button--primary {
         background: $color-shopware-brand-500;
         color: $color-white;
         line-height: 36px;
@@ -102,7 +105,7 @@ $sw-button-transition: all 0.15s ease-out;
             background: $color-shopware-brand-200;
         }
 
-        &.sw-button--square .sw-icon {
+        &.mt-button--square .sw-icon {
             color: $color-white;
         }
     }
@@ -138,7 +141,7 @@ $sw-button-transition: all 0.15s ease-out;
         }
 
         &:disabled,
-        &.sw-button--disabled {
+        &.mt-button--disabled {
             background: $color-module-yellow-200;
             color: $color-gray-800;
 
@@ -179,7 +182,7 @@ $sw-button-transition: all 0.15s ease-out;
         }
 
         &:disabled,
-        &.sw-button--disabled {
+        &.mt-button--disabled {
             background: $color-crimson-200;
 
             .sw-icon {
@@ -210,7 +213,7 @@ $sw-button-transition: all 0.15s ease-out;
         }
 
         &:disabled,
-        &.sw-button--disabled {
+        &.mt-button--disabled {
             background-color: transparent;
             border-color: $color-shopware-brand-200;
             color: $color-shopware-brand-200;
@@ -235,7 +238,7 @@ $sw-button-transition: all 0.15s ease-out;
         }
 
         &:disabled,
-        &.sw-button--disabled {
+        &.mt-button--disabled {
             background-color: transparent;
             border-color: $color-crimson-200;
             color: $color-crimson-200;
@@ -275,7 +278,7 @@ $sw-button-transition: all 0.15s ease-out;
         font-size: $font-size-xxs;
         line-height: $line-height-xs;
 
-        &.sw-button--square {
+        &.mt-button--square {
             width: 24px;
         }
     }
@@ -286,12 +289,12 @@ $sw-button-transition: all 0.15s ease-out;
         font-size: $font-size-xxs;
         line-height: 26px;
 
-        &.sw-button--square {
+        &.mt-button--square {
             width: 32px;
         }
     }
 
-    &.sw-button--square {
+    &.mt-button--square {
         width: 40px;
         padding-left: 0;
         padding-right: 0;

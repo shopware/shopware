@@ -66,7 +66,7 @@
             class="sw-sales-channel-modal-grid__actions"
             label="actions"
         >
-            <sw-button
+            <mt-button
                 v-tooltip="{
                     message: $tc('sw-sales-channel.modal.messageNoProductStreams'),
                     showOnDisabledElements: true,
@@ -80,7 +80,7 @@
                 @click="onAddChannel(item.id)"
             >
                 {{ $tc('sw-sales-channel.modal.buttonAddChannel') }}
-            </sw-button>
+            </mt-button>
         </sw-grid-column>
         {% endblock %}
         {% endblock %}

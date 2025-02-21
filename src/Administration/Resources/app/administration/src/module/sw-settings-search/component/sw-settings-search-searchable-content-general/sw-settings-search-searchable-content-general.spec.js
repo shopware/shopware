@@ -50,7 +50,6 @@ async function createWrapper() {
                     'sw-checkbox-field': true,
                     'sw-data-grid-column-boolean': true,
                     'sw-bulk-edit-modal': true,
-                    'sw-button': true,
                     'sw-icon': true,
                     'sw-data-grid-settings': true,
                     'sw-data-grid-inline-edit': true,

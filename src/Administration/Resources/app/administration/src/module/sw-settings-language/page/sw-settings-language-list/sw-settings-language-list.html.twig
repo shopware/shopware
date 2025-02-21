@@ -46,7 +46,7 @@
     <template #smart-bar-actions>
 
         {% block sw_settings_language_list_smart_bar_actions_add %}
-        <sw-button
+        <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: allowCreate,
@@ -55,10 +55,10 @@
             class="sw-settings-language-list__button-create"
             variant="primary"
             :disabled="!allowCreate || undefined"
-            :router-link="{ name: 'sw.settings.language.create' }"
+            @click="$router.push({ name: 'sw.settings.language.create' })"
         >
             {{ $tc('sw-settings-language.list.buttonAddLanguage') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
     </template>
@@ -89,9 +89,10 @@
             {% block sw_settings_language_list_content_list_columns %}
             {% block sw_settings_language_list_content_list_column_name %}
             <template #column-name="{ item, column, compact, isInlineEdit }">
-                <sw-text-field
+
+                <mt-text-field
                     v-if="isInlineEdit"
-                    v-model:value="item.name"
+                    v-model="item.name"
                     :size="compact ? 'small' : 'default'"
                 />
                 <router-link
@@ -146,7 +147,7 @@
 
             {% block sw_settings_language_list_content_list_delete_confirm_action %}
             <template #delete-confirm-text="{ item }">
-                {{ $tc('sw-settings-language.list.textDeleteConfirm', 1, { name: item.name } ) }}
+                {{ $tc('sw-settings-language.list.textDeleteConfirm', { name: item.name }, 1 ) }}
             </template>
             {% endblock %}
             {% endblock %}
@@ -205,16 +206,18 @@
                     <template #content>
 
                         {% block sw_settings_language_list_grid_sidebar_filter_content_root_languages %}
-                        <sw-switch-field
-                            v-model:value="filterRootLanguages"
+
+                        <mt-switch
+                            v-model="filterRootLanguages"
                             class="sw-settings-language-list__filterField"
                             :label="$tc('sw-settings-language.list.textFilterRootLanguages')"
                         />
                         {% endblock %}
 
                         {% block sw_settings_language_list_grid_sidebar_filter_content_inherited_languages %}
-                        <sw-switch-field
-                            v-model:value="filterInheritedLanguages"
+
+                        <mt-switch
+                            v-model="filterInheritedLanguages"
                             class="sw-settings-language-list__filterField"
                             :label="$tc('sw-settings-language.list.textFilterInheritedLanguages')"
                         />

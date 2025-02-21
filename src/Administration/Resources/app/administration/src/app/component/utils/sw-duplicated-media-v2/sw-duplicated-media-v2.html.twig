@@ -8,7 +8,7 @@
     {% block sw_duplicated_media_v2_body %}
     {% block sw_duplicated_media_v2_body_description %}
     <p class="sw-duplicated-media-v2__description">
-        {{ $tc('global.sw-duplicated-media-v2.description', 1, { fileName: `${currentTask.fileName}.${currentTask.extension}` }) }}
+        {{ $tc('global.sw-duplicated-media-v2.description', { fileName: `${currentTask.fileName}.${currentTask.extension}` }, 1) }}
     </p>
     {% endblock %}
 
@@ -109,17 +109,17 @@
         {% endblock %}
 
         {% block sw_duplicated_media_v2_cancel_button %}
-        <sw-button
+        <mt-button
             size="small"
             :disabled="isLoading"
             @click="skipCurrentFile"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_duplicated_media_v2_upload_button %}
-        <sw-button
+        <mt-button
             class="sw-duplicated-media-v2__upload"
             :disabled="isLoading"
             size="small"
@@ -127,7 +127,7 @@
             @click="solveDuplicate"
         >
             {{ buttonLabel }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

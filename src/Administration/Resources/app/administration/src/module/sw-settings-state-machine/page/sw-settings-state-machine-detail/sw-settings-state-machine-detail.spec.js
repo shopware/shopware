@@ -67,7 +67,6 @@ async function createWrapper(privileges = []) {
                             </div>
                         `,
                     },
-                    'sw-card': true,
                     'sw-card-deprecated': true,
                     'sw-container': true,
                     'sw-text-field': true,
@@ -186,7 +185,6 @@ describe('module/sw-settings-state-machine/page/sw-settings-state-machine-detail
         });
 
         await wrapper.vm.onSave();
-
 
         expect(wrapper.vm.stateMachineRepository.save).toHaveBeenCalled();
         expect(wrapper.vm.loadStateMachine).toHaveBeenCalled();

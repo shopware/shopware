@@ -80,10 +80,10 @@ describe('sw-app-actions', () => {
         stubs = {
             'sw-app-action-button': await Shopware.Component.build('sw-app-action-button'),
             'sw-icon': await Shopware.Component.build('sw-icon'),
+            'sw-icon-deprecated': true,
             'sw-context-button': await Shopware.Component.build('sw-context-button'),
             'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
             'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
-            'sw-button': await Shopware.Component.build('sw-button'),
             'icons-solid-ellipsis-h-s': {
                 template: '<span class="sw-icon sw-icon--solid-ellipsis-h-s"></span>',
             },
@@ -95,8 +95,6 @@ describe('sw-app-actions', () => {
             },
             'sw-extension-icon': await Shopware.Component.build('sw-extension-icon'),
             'sw-checkbox-field': true,
-            'mt-button': true,
-            'sw-button-deprecated': true,
             'mt-floating-ui': true,
         };
 

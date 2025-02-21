@@ -15,54 +15,19 @@ class IntegrationEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $label;
+    protected string $label;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $accessKey;
+    protected string $accessKey;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $secretAccessKey;
+    protected string $secretAccessKey;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $admin;
+    protected bool $admin;
 
-    /**
-     * @var \DateTimeInterface|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $lastUsageAt;
+    protected ?\DateTimeInterface $lastUsageAt = null;
 
-    /**
-     * @var AppEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $app;
+    protected ?AppEntity $app = null;
 
-    /**
-     * @var AclRoleCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $aclRoles;
+    protected ?AclRoleCollection $aclRoles = null;
 
     protected ?\DateTimeInterface $deletedAt = null;
 

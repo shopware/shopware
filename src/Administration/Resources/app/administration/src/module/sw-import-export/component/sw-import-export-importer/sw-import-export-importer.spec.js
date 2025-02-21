@@ -64,7 +64,6 @@ async function createWrapper() {
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
                 'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
-                'sw-alert': await wrapTestComponent('sw-alert'),
                 'sw-modal': {
                     template: `
                         <div class="sw-modal">
@@ -86,15 +85,11 @@ async function createWrapper() {
                 'sw-icon': true,
                 'sw-loader': true,
                 'sw-ai-copilot-badge': true,
-                'sw-button': true,
                 'sw-help-text': true,
-                'sw-switch-field': true,
+
                 'sw-import-export-progress': true,
                 'sw-inheritance-switch': true,
                 'sw-field-error': true,
-                'sw-alert-deprecated': {
-                    template: '<div><slot></slot></div>',
-                },
             },
             provide: {
                 importExport: {

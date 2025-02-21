@@ -1,65 +1,67 @@
 {% block sw_settings_country_address_handling %}
 <div class="sw-settings-country-address-handling">
     {% block sw_settings_country_address_handling_options %}
-    <sw-card
+    <mt-card
         position-identifier="sw-settings-country-address-handling-options"
         :title="$tc('sw-settings-country.detail.titleOptions')"
         :is-loading="isLoading"
     >
         <sw-container class="sw-settings-country-address-handling__options-container">
-            <sw-switch-field
-                :value="country.forceStateInRegistration"
+
+            <mt-switch
+                :checked="country.forceStateInRegistration"
                 class="sw-settings-country-address-handling__option-items"
                 bordered
                 :disabled="!acl.can('country.editor') || undefined"
                 :label="$tc('sw-settings-country.detail.labelForceStateInRegistration')"
-                @update:value="updateCountry('forceStateInRegistration', $event)"
+                @change="updateCountry('forceStateInRegistration', $event)"
             />
 
-            <sw-switch-field
-                :value="country.postalCodeRequired"
+            <mt-switch
+                :checked="country.postalCodeRequired"
                 class="sw-settings-country-address-handling__option-items"
                 bordered
                 :disabled="!acl.can('country.editor') || undefined"
                 :label="$tc('sw-settings-country.detail.labelPostalCodeRequired')"
-                @update:value="updateCountry('postalCodeRequired', $event)"
+                @change="updateCountry('postalCodeRequired', $event)"
             />
 
-            <sw-switch-field
-                :value="country.checkPostalCodePattern"
+            <mt-switch
+                :checked="country.checkPostalCodePattern"
                 class="sw-settings-country-address-handling__option-items"
                 bordered
                 :disabled="!hasDefaultPostalCodePattern || !acl.can('country.editor') || undefined"
                 :label="$tc('sw-settings-country.detail.labelCheckPostalCodePattern')"
                 :help-text="$tc('sw-settings-country.detail.helpTextCheckPostalCodePattern')"
-                @update:value="updateCountry('checkPostalCodePattern', $event)"
+                @change="updateCountry('checkPostalCodePattern', $event)"
             />
 
             <div class="sw-settings-country-address-handling__option-items advanced-postal-code">
-                <sw-switch-field
-                    :value="country.checkAdvancedPostalCodePattern"
+
+                <mt-switch
+                    :checked="country.checkAdvancedPostalCodePattern"
                     class="sw-settings-country-address-handling__option-items"
                     :disabled="!acl.can('country.editor') || disabledAdvancedPostalCodePattern || undefined"
                     :label="$tc('sw-settings-country.detail.labelCheckAdvancedPostalCodePattern')"
-                    :help-text="$tc('sw-settings-country.detail.helpTextAdvancedPostalCodePattern', 0, {5: '{5}', 4: '{4}', 2: '{2}'})"
-                    @update:value="updateCountry('checkAdvancedPostalCodePattern', $event)"
+                    :help-text="$tc('sw-settings-country.detail.helpTextAdvancedPostalCodePattern', {5: '{5}', 4: '{4}', 2: '{2}'}, 0)"
+                    @change="updateCountry('checkAdvancedPostalCodePattern', $event)"
                 />
 
-                <sw-text-field
-                    :value="country.advancedPostalCodePattern"
+                <mt-text-field
+                    :model-value="country.advancedPostalCodePattern"
                     class="sw-settings-country-address-handling__text-field"
                     :class="{'is--disabled': !country.checkAdvancedPostalCodePattern}"
                     :disabled="!acl.can('country.editor') || undefined"
                     :placeholder="$tc('sw-settings-country.detail.placeholderAdvancedPostalCodePattern')"
-                    @update:value="updateCountry('advancedPostalCodePattern', $event)"
+                    @update:model-value="updateCountry('advancedPostalCodePattern', $event)"
                 />
             </div>
         </sw-container>
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_settings_country_address_handling_formatting %}
-    <sw-card
+    <mt-card
         position-identifier="sw-settings-country-address-handling-formatting"
         :title="$tc('sw-settings-country.detail.titleFormatting')"
         :is-loading="isLoading"
@@ -102,16 +104,17 @@
 
                 <sw-settings-country-preview-template :formatting-address="formattingAddress" />
 
-                <sw-button
+                <mt-button
                     class="sw-settings-country-address-handling__button-reset"
-                    variant="ghost-danger"
+                    variant="critical"
+                    ghost
                     @click="resetMarkup"
                 >
                     {{ $tc('sw-settings-country.detail.buttonResetMarkup') }}
-                </sw-button>
+                </mt-button>
             </div>
         </sw-container>
-    </sw-card>
+    </mt-card>
 
     <sw-settings-country-new-snippet-modal
         v-if="isOpenModal"

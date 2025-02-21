@@ -316,10 +316,14 @@ Component.register('sw-entity-single-select', {
                             this.resultCollection = result;
 
                             const newEntity = this.repository.create(this.context, -1);
-                            newEntity.name = this.$tc('global.sw-single-select.labelEntityAdd', 0, {
-                                term: this.searchTerm,
-                                entity: this.entityCreationLabel,
-                            });
+                            newEntity.name = this.$tc(
+                                'global.sw-single-select.labelEntityAdd',
+                                {
+                                    term: this.searchTerm,
+                                    entity: this.entityCreationLabel,
+                                },
+                                0,
+                            );
 
                             this.resultCollection.unshift(newEntity);
 
@@ -579,17 +583,25 @@ Component.register('sw-entity-single-select', {
 
                     this.$emit('option-select', Utils.string.camelCase(this.entity), entity);
                     this.createNotificationSuccess({
-                        message: this.$tc('global.sw-single-select.labelEntityAddedSuccess', 0, {
-                            term: entity.name,
-                            entity: this.entityCreationLabel,
-                        }),
+                        message: this.$tc(
+                            'global.sw-single-select.labelEntityAddedSuccess',
+                            {
+                                term: entity.name,
+                                entity: this.entityCreationLabel,
+                            },
+                            0,
+                        ),
                     });
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('global.notification.notificationSaveErrorMessage', 0, {
-                            entityName: this.entity,
-                        }),
+                        message: this.$tc(
+                            'global.notification.notificationSaveErrorMessage',
+                            {
+                                entityName: this.entity,
+                            },
+                            0,
+                        ),
                     });
                     Shopware.Utils.debug.error('Only Entities with "name" as the only required field are creatable.');
                     this.isLoading = false;

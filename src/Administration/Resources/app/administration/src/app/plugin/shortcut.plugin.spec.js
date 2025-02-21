@@ -369,12 +369,11 @@ describe('app/plugins/shortcut.plugin', () => {
                     'sw-block-field': await Shopware.Component.build('sw-block-field'),
                     'sw-base-field': await Shopware.Component.build('sw-base-field'),
                     'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
-                    'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
+
                     'sw-field-error': true,
                     'sw-compact-colorpicker': await Shopware.Component.build('sw-compact-colorpicker'),
                     'sw-colorpicker': await Shopware.Component.build('sw-colorpicker'),
                     'sw-container': await Shopware.Component.build('sw-container'),
-                    'sw-button': await Shopware.Component.build('sw-button'),
                     'sw-text-editor-table-toolbar': true,
                     'sw-code-editor': true,
                     'sw-text-editor-link-menu': true,

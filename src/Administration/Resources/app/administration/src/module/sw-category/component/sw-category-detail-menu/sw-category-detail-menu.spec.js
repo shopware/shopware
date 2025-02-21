@@ -8,24 +8,16 @@ async function createWrapper({ mediaRepositoryMock = undefined } = {}) {
     const wrapper = mount(await wrapTestComponent('sw-category-detail-menu', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': {
-                    template: '<div class="sw-card"><slot></slot></div>',
+                'mt-card': {
+                    template: '<div class="mt-card"><slot></slot></div>',
                 },
                 'sw-upload-listener': true,
                 'sw-media-upload-v2': {
                     template: '<div class="sw-media-upload-v2"></div>',
                     props: ['disabled'],
                 },
-                'sw-switch-field': {
-                    template:
-                        '<input class="sw-switch-field" type="checkbox" :value="value" @change="$emit(\'update:value\', $event.target.checked)" />',
-                    props: [
-                        'value',
-                        'disabled',
-                    ],
-                },
-                'sw-text-editor': {
-                    template: '<div class="sw-text-editor"></div>',
+                'mt-text-editor': {
+                    template: '<div class="mt-text-editor"></div>',
                     props: ['disabled'],
                 },
                 'sw-media-modal-v2': {
@@ -71,7 +63,7 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
 
         const { wrapper } = await createWrapper();
 
-        const switchField = wrapper.getComponent('.sw-switch-field');
+        const switchField = wrapper.getComponent('.mt-switch');
 
         expect(switchField.props('disabled')).toBe(false);
     });
@@ -79,7 +71,7 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
     it('should disable the visibility switch field when the acl privilege is missing', async () => {
         const { wrapper } = await createWrapper();
 
-        const switchField = wrapper.getComponent('.sw-switch-field');
+        const switchField = wrapper.getComponent('.mt-switch');
 
         expect(switchField.props('disabled')).toBe(true);
     });
@@ -107,7 +99,7 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
 
         const { wrapper } = await createWrapper();
 
-        const textEditor = wrapper.getComponent('.sw-text-editor');
+        const textEditor = wrapper.getComponent('.mt-text-editor');
 
         expect(textEditor.props('disabled')).toBe(false);
     });
@@ -115,7 +107,7 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
     it('should disable the text editor for the description', async () => {
         const { wrapper } = await createWrapper();
 
-        const textEditor = wrapper.getComponent('.sw-text-editor');
+        const textEditor = wrapper.getComponent('.mt-text-editor');
 
         expect(textEditor.props('disabled')).toBe(true);
     });

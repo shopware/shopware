@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Webhook\Hookable;
 
 #[Package('framework')]
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-final - Will be considered final
+ * @final
  */
 class SystemConfigChangedHook implements Hookable
 {

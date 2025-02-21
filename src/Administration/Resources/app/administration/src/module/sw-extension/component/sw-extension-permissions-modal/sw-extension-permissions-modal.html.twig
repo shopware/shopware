@@ -46,7 +46,7 @@
             {% endblock %}
 
             {% block sw_extension_permissions_modal_link %}
-            <sw-button
+            <mt-button
                 class="sw-extension-permissions-modal__link"
                 @click="openDetailsModal(key)"
             >
@@ -55,7 +55,7 @@
                     name="regular-long-arrow-right"
                     size="12px"
                 />
-            </sw-button>
+            </mt-button>
             {% endblock %}
             {% endblock %}
         </div>
@@ -70,7 +70,7 @@
                 {{ $tc('sw-extension-store.component.sw-extension-permissions-modal.domains') }}
             </span>
 
-            <sw-button
+            <mt-button
                 class="sw-extension-permissions-modal__link"
                 @click="toggleDomainsModal(true)"
             >
@@ -80,7 +80,7 @@
                     name="regular-long-arrow-right"
                     size="12px"
                 />
-            </sw-button>
+            </mt-button>
         </div>
         {% endblock %}
     </div>
@@ -91,24 +91,24 @@
     <template #modal-footer>
         {% block sw_extension_permissions_modal_footer_inner %}
         {% block sw_extension_permissions_modal_footer_close %}
-        <sw-button
+        <mt-button
             :variant="actionLabel === null ? 'primary' : ''"
             size="small"
             @click="close"
         >
             {{ closeBtnLabel }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_extension_permissions_modal_footer_action %}
-        <sw-button
+        <mt-button
             v-if="actionLabel"
             variant="primary"
             size="small"
             @click="closeWithAction"
         >
             {{ actionLabel }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
         {% endblock %}
     </template>

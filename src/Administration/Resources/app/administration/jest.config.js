@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 // For a detailed explanation regarding each configuration property, visit:
@@ -43,7 +43,7 @@ module.exports = {
 
     testRunner: 'jest-jasmine2',
 
-    resolver: '<rootDir>/jest-resolver.js',
+    resolver: '<rootDir>/test/_helper_/jest-resolver.js',
 
     runner: 'groups',
 
@@ -78,13 +78,14 @@ module.exports = {
     },
 
     transformIgnorePatterns: [
-        '/node_modules/(?!(@shopware-ag/meteor-icon-kit|uuidv7|other)/)',
+        '/node_modules/(?!(@shopware-ag/meteor-component-library|@shopware-ag/meteor-icon-kit|uuidv7|other)/)',
     ],
 
     moduleNameMapper: {
         '^test(.*)$': '<rootDir>/test$1',
         '^\@shopware-ag\/admin-extension-sdk\/es\/(.*)': '<rootDir>/node_modules/@shopware-ag/admin-extension-sdk/umd/$1',
         '^\@shopware-ag\/meteor-admin-sdk\/es\/(.*)': '<rootDir>/node_modules/@shopware-ag/meteor-admin-sdk/umd/$1',
+        '^@shopware-ag/meteor-component-library$': '<rootDir>/node_modules/@shopware-ag/meteor-component-library/dist/common/index.js',
         '^lodash-es$': 'lodash',
         vue$: 'vue/dist/vue.cjs.js',
     },
@@ -105,6 +106,7 @@ module.exports = {
         }],
     ] : [
         'default',
+        '<rootDir>/test/_helper_/failedSpecFileReporter.js',
     ],
 
     testMatch: [

@@ -790,8 +790,6 @@ const createWrapper = async (options = {}) => {
                 'sw-grid': await wrapTestComponent('sw-grid'),
                 'sw-grid-row': await wrapTestComponent('sw-grid-row'),
                 'sw-grid-column': await wrapTestComponent('sw-grid-column'),
-                'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-ignore-class': true,
                 'sw-popover': {
                     template: '<div><slot></slot></div>',
@@ -799,7 +797,6 @@ const createWrapper = async (options = {}) => {
                 'sw-icon': true,
                 'sw-description-list': true,
                 'sw-color-badge': true,
-                'sw-button': true,
                 'sw-data-grid-settings': true,
                 'sw-data-grid-skeleton': true,
                 'sw-pagination': true,
@@ -817,7 +814,7 @@ const createWrapper = async (options = {}) => {
                 'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },
             mocks: {
-                $tc: (key, pluralization) => {
+                $tc: (key, _, pluralization) => {
                     if (!pluralization) return key;
 
                     switch (key) {

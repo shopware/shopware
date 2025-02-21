@@ -178,15 +178,23 @@ export default {
         },
 
         consentAffirmationModalTitle() {
-            return this.$tc('sw-extension-store.component.sw-extension-permissions-modal.titleNewPermissions', 1, {
-                extensionLabel: this.extension.label,
-            });
+            return this.$tc(
+                'sw-extension-store.component.sw-extension-permissions-modal.titleNewPermissions',
+                {
+                    extensionLabel: this.extension.label,
+                },
+                1,
+            );
         },
 
         consentAffirmationModalDescription() {
-            return this.$tc('sw-extension-store.component.sw-extension-permissions-modal.descriptionNewPermissions', 1, {
-                extensionLabel: this.extension.label,
-            });
+            return this.$tc(
+                'sw-extension-store.component.sw-extension-permissions-modal.descriptionNewPermissions',
+                {
+                    extensionLabel: this.extension.label,
+                },
+                1,
+            );
         },
 
         extensionManagementDisabled() {

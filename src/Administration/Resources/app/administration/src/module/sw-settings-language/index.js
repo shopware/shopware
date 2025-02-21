@@ -8,7 +8,7 @@ Shopware.Component.register('sw-settings-language-list', () => import('./page/sw
 Shopware.Component.register('sw-settings-language-detail', () => import('./page/sw-settings-language-detail'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
-const { Module, Feature } = Shopware;
+const { Module } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-language', {
@@ -52,14 +52,7 @@ Module.register('sw-settings-language', {
     },
 
     settingsItem: {
-        group: function () {
-            // @deprecated tag:v6.7.0 - Remove condition and function callback
-            if (!Feature.isActive('v6.7.0.0')) {
-                return 'shop';
-            }
-
-            return 'general';
-        },
+        group: 'general',
         to: 'sw.settings.language.index',
         icon: 'regular-flag',
         privilege: 'language.viewer',

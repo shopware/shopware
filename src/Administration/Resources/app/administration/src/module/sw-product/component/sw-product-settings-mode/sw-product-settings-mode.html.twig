@@ -7,7 +7,7 @@
 >
     <template #button>
         {% block sw_product_settings_mode_trigger %}
-        <sw-button
+        <mt-button
             class="sw-product-settings-mode__trigger"
             size="x-small"
             square
@@ -19,7 +19,7 @@
                 size="16px"
             />
             {% endblock %}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
 
@@ -27,11 +27,12 @@
     {% block sw_product_settings_mode_main %}
     <div class="sw-product-settings-mode__container">
         {% block sw_product_settings_mode_advanced_switch %}
-        <sw-switch-field
-            v-model:value="advancedMode.enabled"
+
+        <mt-switch
+            :checked="advancedMode.enabled"
             class="sw-product-settings-mode__advanced-mode"
-            size="medium"
             :label="$tc(advancedMode.label)"
+            @change="advancedMode.enabled = $event"
             @update:value="onChangeSetting"
         />
         {% endblock %}

@@ -531,7 +531,6 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         beforeAll(() => {
             global.allowedErrors.push({
                 method: 'warn',
-                hurensohn: true,
                 msgCheck: (_, msg) => {
                     if (typeof msg !== 'string') {
                         return false;
@@ -702,14 +701,12 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                 'mt-colorpicker',
                 'mt-datepicker',
                 'mt-email-field',
-                'mt-external-link',
                 'mt-number-field',
                 'mt-password-field',
                 'mt-select',
                 'mt-switch',
                 'mt-text-field',
                 'mt-textarea',
-                'mt-url-field',
                 'mt-icon',
                 'mt-data-table',
                 'mt-pagination',

@@ -21,12 +21,12 @@
     {% block sw_settings_seo_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_seo_smart_bar_actions_add %}
-        <sw-button
+        <mt-button
             variant="primary"
             @click="onClickSave()"
         >
             {{ $tc('sw-settings-seo.general.buttonSave') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

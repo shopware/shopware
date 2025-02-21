@@ -20,7 +20,6 @@ import {
     MtDatepicker,
     MtEmailField,
     MtEmptyState,
-    MtExternalLink,
     MtFloatingUi,
     MtIcon,
     MtLink,
@@ -38,9 +37,9 @@ import {
     MtTabs,
     MtTextField,
     MtTextarea,
-    MtToast,
-    MtUrlField,
+    MtToast, MtTextEditor,
 } from '@shopware-ag/meteor-component-library';
+import {createI18n} from "vue-i18n";
 import aclService from './_mocks_/acl.service.mock';
 import feature from './_mocks_/feature.service.mock';
 import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
@@ -48,6 +47,7 @@ import flushPromises from '../_helper_/flushPromises';
 import wrapTestComponent from '../_helper_/componentWrapper';
 import 'blob-polyfill';
 import { sendTimeoutExpired } from '../_helper_/allowedErrors';
+import findByText from '../_helper_/find-by-text';
 
 // initialize the Stores
 import '../../src/module/sw-cms/store/cms-page.store';
@@ -87,6 +87,7 @@ import '../../src/module/sw-profile/store/sw-profile.store';
 import '../../src/module/sw-promotion-v2/page/sw-promotion-v2-detail/store';
 import '../../src/module/sw-flow/store/flow.store';
 import '../../src/module/sw-bulk-edit/store/sw-bulk-edit.store';
+import findByAriaLabel from '../_helper_/find-by-aria-label';
 
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;
@@ -94,6 +95,14 @@ config.global.config.compilerOptions = {
     ...config.global.config.compilerOptions,
     whitespace: 'preserve',
 };
+
+
+config.plugins.VueWrapper.install((wrapper) => {
+    // add `findByText` to the global config
+    wrapper.findByText = (selector, text) => findByText(wrapper, selector, text);
+    // add `findByAriaLabel` to the global config
+    wrapper.findByAriaLabel = (selector, text) => findByAriaLabel(wrapper, selector, text);
+});
 
 // enable autoUnmount for wrapper after each test
 enableAutoUnmount(afterEach);
@@ -211,7 +220,6 @@ config.global.stubs = {
     'mt-datepicker': MtDatepicker,
     'mt-email-field': MtEmailField,
     'mt-empty-state': MtEmptyState,
-    'mt-external-link': MtExternalLink,
     'mt-floating-ui': MtFloatingUi,
     'mt-icon': MtIcon,
     'mt-link': MtLink,
@@ -230,14 +238,34 @@ config.global.stubs = {
     'mt-text-field': MtTextField,
     'mt-textarea': MtTextarea,
     'mt-toast': MtToast,
-    'mt-url-field': MtUrlField,
+    'mt-text-editor': MtTextEditor,
     ...config.global.stubs,
 };
+
+const i18n = createI18n({
+    legacy: false,
+    locale: 'en',
+    fallbackLocale: 'en',
+    silentFallbackWarn: true,
+    silentTranslationWarn: true,
+    sync: true,
+    messages: {},
+    allowComposition: true,
+    // Custom message resolver to avoid console warnings
+    messageResolver: (obj, path) => {
+        if (obj[path]) {
+            return obj[path];
+        }
+
+        return path;
+    }
+})
 
 // Add global plugins
 config.global.plugins = [
     VirtualCallStackPlugin,
     MeteorSdkDataPlugin,
+    i18n,
 ];
 
 // Add global directives
@@ -295,6 +323,26 @@ global.allowedErrors = [
             }
 
             return msg.includes('has already been registered in target app');
+        },
+    },
+    {
+        method: 'warn',
+        msgCheck: (msg) => {
+            if (typeof msg !== 'string') {
+                return false;
+            }
+
+            return msg.includes('[intlify] Not found');
+        },
+    },
+    {
+        method: 'warn',
+        msgCheck: (msg) => {
+            if (typeof msg !== 'string') {
+                return false;
+            }
+
+            return msg.includes('[intlify] Fall back to translate');
         },
     },
     {
@@ -412,10 +460,6 @@ global.console.warn = (...args) => {
     let silenceWarning = false;
     // eslint-disable-next-line array-callback-return
     global.allowedErrors.some(allowedError => {
-        if (allowedError.hurensohn) {
-            debugger;
-        }
-
         if (allowedError.method !== 'warn') {
             return;
         }

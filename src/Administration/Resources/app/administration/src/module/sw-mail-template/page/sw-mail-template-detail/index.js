@@ -333,7 +333,7 @@ export default {
 
                         this.createNotificationError({
                             message:
-                                this.$tc('sw-mail-template.detail.messageSaveError', 0, { subject: mailTemplateSubject }) +
+                                this.$tc('sw-mail-template.detail.messageSaveError', { subject: mailTemplateSubject }, 0) +
                                 errormsg,
                         });
                     }),
@@ -416,9 +416,13 @@ export default {
                         });
                     } else {
                         this.createNotificationError({
-                            message: this.$tc('sw-mail-template.general.notificationSyntaxValidationErrorMessage', 0, {
-                                errorMsg: error.response?.data?.errors?.[0]?.detail,
-                            }),
+                            message: this.$tc(
+                                'sw-mail-template.general.notificationSyntaxValidationErrorMessage',
+                                {
+                                    errorMsg: error.response?.data?.errors?.[0]?.detail,
+                                },
+                                0,
+                            ),
                         });
                     }
                 })

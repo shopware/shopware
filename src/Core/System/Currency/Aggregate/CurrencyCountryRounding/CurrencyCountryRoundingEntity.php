@@ -14,47 +14,17 @@ class CurrencyCountryRoundingEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currencyId;
+    protected string $currencyId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $countryId;
+    protected string $countryId;
 
-    /**
-     * @var CashRoundingConfig
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $itemRounding;
+    protected CashRoundingConfig $itemRounding;
 
-    /**
-     * @var CashRoundingConfig
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $totalRounding;
+    protected CashRoundingConfig $totalRounding;
 
-    /**
-     * @var CurrencyEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currency;
+    protected ?CurrencyEntity $currency = null;
 
-    /**
-     * @var CountryEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $country;
+    protected ?CountryEntity $country = null;
 
     public function getCurrencyId(): string
     {

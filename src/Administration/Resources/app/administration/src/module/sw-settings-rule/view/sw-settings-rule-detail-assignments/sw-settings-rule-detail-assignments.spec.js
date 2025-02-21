@@ -140,11 +140,7 @@ async function createWrapper(
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-context-button': await wrapTestComponent('sw-context-button'),
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-card-filter': await wrapTestComponent('sw-card-filter'),
                     'sw-empty-state': await wrapTestComponent('sw-empty-state'),
@@ -396,7 +392,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         const addButton = wrapper.find('.sw-settings-rule-detail-assignments__add-button');
 
         expect(addButton.exists()).toBe(true);
-        expect(addButton.attributes('disabled') === '').toBe(disabled);
+        expect(addButton.attributes('disabled') !== undefined).toBe(disabled);
     });
 
     it.each([
@@ -647,7 +643,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         await wrapper.find('.sw-settings-rule-detail-assignments__entity-listing .link-danger').trigger('click');
 
         expect(wrapper.find('.sw-entity-listing__confirm-bulk-delete-modal').exists()).toBe(true);
-        await wrapper.find('.sw-entity-listing__confirm-bulk-delete-modal .sw-button--danger').trigger('click');
+        await wrapper.findByText('button', 'global.default.remove').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-entity-listing__confirm-bulk-delete-modal').exists()).toBe(false);

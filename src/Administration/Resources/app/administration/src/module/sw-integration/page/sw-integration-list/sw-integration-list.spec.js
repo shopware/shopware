@@ -77,9 +77,9 @@ async function createWrapper(privileges = []) {
                         </div>
                         `,
                 },
-                'sw-card': {
+                'mt-card': {
                     template: `
-                        <div class="sw-card">
+                        <div class="mt-card">
                             <slot></slot>
                         </div>
                         `,
@@ -87,8 +87,6 @@ async function createWrapper(privileges = []) {
                 'sw-language-switch': true,
                 'sw-search-bar': true,
                 'sw-icon': true,
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-container': {
                     template: '<div><slot></slot></div>',
                 },
@@ -102,7 +100,7 @@ async function createWrapper(privileges = []) {
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-field-error': true,
                 'sw-field-copyable': true,
-                'sw-switch-field': true,
+
                 'sw-entity-multi-select': true,
                 'sw-empty-state': {
                     template: '<div class="sw-empty-state"></div>',
@@ -124,7 +122,7 @@ async function createWrapper(privileges = []) {
                     `,
                 },
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                'sw-alert': true,
+
                 'sw-label': true,
                 'router-link': true,
                 'sw-loader': true,
@@ -233,7 +231,7 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         const deleteModal = wrapper.find('.sw-modal');
         expect(deleteModal.exists()).toBeTruthy();
 
-        const deleteButton = wrapper.find('.sw-modal .sw-button--primary');
+        const deleteButton = wrapper.findByText('button', 'sw-integration.detail.buttonDelete');
         expect(deleteButton.text()).toBe('sw-integration.detail.buttonDelete');
         await deleteButton.trigger('click');
         await flushPromises();
@@ -253,8 +251,8 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         await editMenuItem.trigger('click');
         await flushPromises();
 
-        const adminRoleSwitch = wrapper.find('.sw-settings-user-detail__grid-is-admin');
-        expect(adminRoleSwitch.attributes().disabled).toBeDefined();
+        const adminRoleSwitch = wrapper.findComponent('.sw-settings-user-detail__grid-is-admin');
+        expect(adminRoleSwitch.props().disabled).toBe(true);
     });
 
     it('should have integration criteria with filters', async () => {

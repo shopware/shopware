@@ -89,9 +89,9 @@
 
             <div class="sw-help-sidebar__footer">
                 <div class="sw-help-sidebar__shortcut">
-                    <sw-button
+                    <mt-button
                         v-tooltip="{
-                            message: $tc('sw-shortcut-overview.iconTooltip', 0, { key: 'Shift + ?' }),
+                            message: $tc('sw-shortcut-overview.iconTooltip', { key: 'Shift + ?' }, 0),
                             appearance: 'light',
                             position: 'top',
                             zIndex: 1600,
@@ -106,7 +106,7 @@
                             size="16px"
                         />
                         {{ $tc('sw-shortcut-overview.title') }}
-                    </sw-button>
+                    </mt-button>
                 </div>
             </div>
         </div>

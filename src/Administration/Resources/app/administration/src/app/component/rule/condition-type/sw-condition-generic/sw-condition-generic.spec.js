@@ -91,7 +91,6 @@ async function createWrapper(condition = {}) {
                 'sw-help-text': true,
                 'sw-product-variant-info': true,
                 'sw-inheritance-switch': true,
-                'sw-button': true,
                 'sw-field-copyable': true,
             },
             provide: {

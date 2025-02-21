@@ -234,7 +234,3 @@ parameters:
             message: '#Call to an undefined method TElement of Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity::.*CustomFields.*\(\)#'
             count: 4
             path: src/Core/Framework/DataAbstractionLayer/EntityCollection.php
-
-        - # This attribute is intentionally not final, as it's extended by other field attributes
-            identifier: shopware.attributeNotFinal
-            path: src/Core/Framework/DataAbstractionLayer/Attribute/Field.php

@@ -83,8 +83,8 @@
                     {% endblock %}
 
                     {% block sw_mail_header_footer_basic_form_description_field %}
-                    <sw-textarea-field
-                        v-model:value="mailHeaderFooter.description"
+                    <mt-textarea
+                        v-model="mailHeaderFooter.description"
                         name="sw-field--mailHeaderFooter-description"
                         :label="$tc('sw-mail-header-footer.detail.basic.labelDescription')"
                         :placeholder="placeholder(mailHeaderFooter, 'description', $tc('sw-mail-header-footer.detail.basic.placeholderDescription'))"

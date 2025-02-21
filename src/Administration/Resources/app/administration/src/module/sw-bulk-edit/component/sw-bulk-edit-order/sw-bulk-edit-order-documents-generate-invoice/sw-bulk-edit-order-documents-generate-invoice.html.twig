@@ -11,8 +11,8 @@
     {% endblock %}
 
     {% block sw_bulk_edit_order_documents_generate_invoice_textarea %}
-    <sw-textarea-field
-        v-model:value="generateData.documentComment"
+    <mt-textarea
+        v-model="generateData.documentComment"
         :label="$tc('sw-bulk-edit.order.documents.generateInvoice.labelTextarea')"
         :placeholder="$tc('sw-bulk-edit.order.documents.generateInvoice.placeholderTextarea')"
     />

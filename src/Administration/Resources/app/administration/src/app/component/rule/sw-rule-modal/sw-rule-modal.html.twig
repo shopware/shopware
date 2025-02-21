@@ -36,9 +36,9 @@
     </sw-container>
 
     {% block sw_rule_modal_basic_info_description %}
-    <sw-textarea-field
+    <mt-textarea
         v-if="rule"
-        v-model:value="rule.description"
+        v-model="rule.description"
         name="sw-field--rule-description"
         :label="$tc('sw-rule-modal.labelDescription')"
         :placeholder="$tc('sw-rule-modal.placeholderDescription')"

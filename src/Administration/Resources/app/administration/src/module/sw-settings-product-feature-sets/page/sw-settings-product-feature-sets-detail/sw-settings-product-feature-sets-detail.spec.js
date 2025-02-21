@@ -43,12 +43,6 @@ const detailPage = async (additionalOptions = {}, privileges = []) => {
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', {
                         sync: true,
                     }),
-                    'sw-textarea-field': await wrapTestComponent('sw-textarea-field', {
-                        sync: true,
-                    }),
-                    'sw-textarea-field-deprecated': await wrapTestComponent('sw-textarea-field-deprecated', {
-                        sync: true,
-                    }),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
@@ -126,8 +120,8 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
 
     it('should show the description field', async () => {
         const root = wrapper.get(`.${classes.componentRoot}`);
-        const descriptionField = root.findComponent('.sw-field--textarea');
-        const descriptionFieldLabel = descriptionField.get(`.${classes.fieldLabel}`);
+        const descriptionField = root.findComponent('.mt-textarea');
+        const descriptionFieldLabel = descriptionField.get(`label`);
 
         expect(descriptionFieldLabel.text()).toEqual(text.labelDescriptionField);
         expect(descriptionField.props().placeholder).toEqual(text.placeholderDescriptionField);
@@ -154,7 +148,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
 
         expect(saveButton.attributes().disabled).toBe('true');
         expect(fieldName.props().disabled).toBe(true);
-        expect(fieldDescription.vm.$attrs.disabled).toBe(true);
+        expect(fieldDescription.vm.disabled).toBe(true);
         expect(productFeatureSetsValuesCard.attributes()['allow-edit']).toBeUndefined();
     });
 
@@ -183,7 +177,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
 
         expect(saveButton.attributes().disabled).toBeUndefined();
         expect(fieldName.props().disabled).toBe(false);
-        expect(fieldDescription.vm.$attrs.disabled).toBe(false);
+        expect(fieldDescription.vm.disabled).toBe(false);
         expect(productFeatureSetsValuesCard.attributes()['allow-edit']).toBe('true');
     });
 });

@@ -94,7 +94,7 @@ async function createWrapper(privileges = [], paymentMethod = {}) {
                     'sw-upload-listener': true,
                     'sw-media-upload-v2': true,
                     'sw-plugin-box': true,
-                    'sw-textarea-field': true,
+                    'mt-textarea': true,
                     'sw-select-rule-create': true,
                     'sw-sidebar': true,
                     'sw-sidebar-media-item': true,

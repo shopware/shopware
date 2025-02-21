@@ -72,7 +72,7 @@ class NotificationControllerTest extends TestCase
         $controller->saveNotification(new Request([], ['status' => 'ok']), $this->context);
     }
 
-    public function testSaveNotificationThrowsNotificationThrottledExceptionWhenLimitIsReachedAndUserIdExists(): void
+    public function testSaveNotificationThrowsApiExceptionWhenLimitIsReachedAndUserIdExists(): void
     {
         $exception = new RateLimitExceededException(42);
         $this->expectExceptionObject(ApiException::notificationThrottled($exception->getWaitTime(), $exception));
@@ -85,7 +85,7 @@ class NotificationControllerTest extends TestCase
         $controller->saveNotification(new Request([], ['status' => 'ok', 'message' => 'ok']), $this->context);
     }
 
-    public function testSaveNotificationThrowsNotificationThrottledExceptionWhenLimitIsReachedAndUserIdIsNull(): void
+    public function testSaveNotificationThrowsApiExceptionWhenLimitIsReachedAndUserIdIsNull(): void
     {
         $this->context = Context::createDefaultContext(new AdminApiSource(null, '345'));
         $exception = new RateLimitExceededException(12);

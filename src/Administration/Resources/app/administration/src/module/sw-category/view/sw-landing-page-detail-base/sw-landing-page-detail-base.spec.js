@@ -43,7 +43,7 @@ async function createWrapper({
                 },
                 'sw-entity-multi-select': true,
                 'mt-banner': true,
-                'sw-textarea-field': true,
+                'mt-textarea': true,
                 'sw-custom-field-set-renderer': true,
             },
             computed: {

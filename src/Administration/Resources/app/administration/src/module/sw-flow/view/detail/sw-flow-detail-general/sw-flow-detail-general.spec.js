@@ -41,7 +41,7 @@ async function createWrapper(privileges = [], query = {}) {
                         template: '<div><slot></slot></div>',
                     },
                     'mt-text-field': true,
-                    'sw-textarea-field': true,
+                    'mt-textarea': true,
                     'sw-container': {
                         template: '<div><slot></slot></div>',
                     },

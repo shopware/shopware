@@ -37,8 +37,8 @@
         {% endblock %}
 
         {% block sw_flow_detail_general_information_description %}
-        <sw-textarea-field
-            v-model:value="flow.description"
+        <mt-textarea
+            v-model="flow.description"
             name="sw-field--flow-description"
             class="sw-flow-detail-general__general-description"
             :disabled="!acl.can('flow.editor') || undefined"

@@ -9,10 +9,10 @@
         disabled
     />
 
-    <sw-textarea-field
+    <mt-textarea
         v-else-if="textareaField"
         v-bind="$attrs"
-        :value="textValue"
+        :model-value="textValue"
         :type="fieldType"
         disabled
     />

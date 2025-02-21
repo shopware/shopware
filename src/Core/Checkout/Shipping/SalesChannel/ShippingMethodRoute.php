@@ -45,7 +45,12 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
         return 'shipping-method-route-' . $salesChannelId;
     }
 
-    #[Route(path: '/store-api/shipping-method', name: 'store-api.shipping.method', methods: ['GET', 'POST'], defaults: ['_entity' => 'shipping_method'])]
+    #[Route(
+        path: '/store-api/shipping-method',
+        name: 'store-api.shipping.method',
+        defaults: ['_entity' => 'shipping_method'],
+        methods: ['GET', 'POST']
+    )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ShippingMethodRouteResponse
     {
         $this->dispatcher->dispatch(new AddCacheTagEvent(
@@ -70,8 +75,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
 
         $this->scriptExecutor->execute(new ShippingMethodRouteHook(
             $shippingMethods,
-            $request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable'),
-            $context
+            $context,
         ));
 
         return new ShippingMethodRouteResponse($result);

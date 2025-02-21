@@ -24,8 +24,6 @@ async function createWrapper() {
                 contextStoreService: {},
             },
             stubs: {
-                'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-avatar': true,
                 'sw-entity-single-select': true,
                 'sw-text-field': true,

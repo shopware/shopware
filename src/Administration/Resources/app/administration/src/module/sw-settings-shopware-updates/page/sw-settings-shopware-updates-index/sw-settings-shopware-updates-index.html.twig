@@ -50,7 +50,6 @@
             >
                 <template #card-element-last>
                     <div class="sw-settings-shopware-updates-index__check-for-updates-btn">
-                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                         <mt-button
                             ghost
                             :is-loading="isSearchingForUpdates"
@@ -75,7 +74,6 @@
             {{ $t('sw-settings-shopware-updates.updateModal.messageUpdateCheck', {version: updateInfo.version}) }}
 
             <template #modal-footer>
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="small"
                     @click="updateModalShown = false"
@@ -83,7 +81,6 @@
                     {{ $tc('global.default.cancel') }}
                 </mt-button>
 
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     variant="primary"
                     size="small"

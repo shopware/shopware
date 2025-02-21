@@ -115,7 +115,6 @@
 
         {% block sw_import_export_edit_profile_modal_footer %}
         <template #modal-footer>
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
                 @click="$emit('profile-close')"
@@ -123,7 +122,6 @@
                 {{ $tc('global.default.cancel') }}
             </mt-button>
             <template v-if="profile.systemDefault">
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     class="sw-import-export-edit-profile-modal__save-action"
                     size="small"
@@ -134,7 +132,6 @@
                 </mt-button>
             </template>
             <template v-else>
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     class="sw-import-export-edit-profile-modal__save-action"
                     size="small"
@@ -178,7 +175,6 @@
 
         {% block sw_import_export_edit_profile_violation_modal_footer %}
         <template #modal-footer>
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
                 @click="resetViolations"

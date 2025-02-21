@@ -39,8 +39,6 @@ async function createWrapper() {
                     'sw-entity-advanced-selection-modal': await wrapTestComponent('sw-entity-advanced-selection-modal'),
                     'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
                     'sw-modal': await wrapTestComponent('sw-modal'),
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-context-button': {
                         template: '<div></div>',
                     },
@@ -61,7 +59,6 @@ async function createWrapper() {
                     'sw-card-filter': true,
                     'sw-entity-advanced-selection-modal-grid': true,
                     'sw-empty-state': true,
-                    'mt-card': true,
                     'sw-extension-component-section': true,
                     'sw-ai-copilot-badge': true,
                 },

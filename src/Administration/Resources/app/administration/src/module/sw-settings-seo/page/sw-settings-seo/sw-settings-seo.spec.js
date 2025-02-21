@@ -9,7 +9,7 @@ const classes = {
     cardView: 'sw-card-view',
     templateCard: 'sw-seo-url-template-card',
     systemConfig: 'sw-system-config',
-    settingsCard: 'sw-card',
+    settingsCard: 'mt-card',
 };
 
 async function createWrapper() {
@@ -28,8 +28,6 @@ async function createWrapper() {
                     'sw-search-bar': true,
                     'sw-notification-center': true,
                     'sw-help-center': true,
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-ignore-class': true,
                     'sw-loader': true,
                     'sw-app-actions': true,

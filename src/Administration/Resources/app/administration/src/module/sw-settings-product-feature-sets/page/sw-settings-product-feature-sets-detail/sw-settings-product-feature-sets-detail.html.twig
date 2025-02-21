@@ -50,7 +50,7 @@
                 {% endblock %}
 
                 {% block sw_settings_product_feature_set_detail_content_card %}
-                <sw-card
+                <mt-card
                     :title="$tc('sw-settings-product-feature-sets.detail.titleCard')"
                     position-identifier="sw-settings-product-feature-sets-detail"
                 >
@@ -70,8 +70,8 @@
                     {% endblock %}
 
                     {% block sw_settings_product_feature_set_detail_content_field_description %}
-                    <sw-textarea-field
-                        v-model:value="productFeatureSet.description"
+                    <mt-textarea
+                        v-model="productFeatureSet.description"
                         :label="$tc('sw-settings-product-feature-sets.detail.labelDescription')"
                         class="sw-settings-product-feature-sets-detail__description"
                         :error="productFeatureSetDescriptionError"
@@ -80,7 +80,7 @@
                     />
                     {% endblock %}
 
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_settings_product_feature_set_detail_content_values_card %}

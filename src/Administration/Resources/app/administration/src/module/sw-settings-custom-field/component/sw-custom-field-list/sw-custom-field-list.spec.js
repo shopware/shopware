@@ -93,7 +93,7 @@ async function createWrapper(privileges = []) {
                     },
                 },
                 stubs: {
-                    'sw-card': true,
+                    'mt-card': true,
                     'sw-empty-state': {
                         template: '<div></div>',
                     },

@@ -33,7 +33,6 @@
             class="sw-tree-actions__headline"
         >
             <span> {{ $tc(`${translationContext}.general.treeHeadSelected`, 0, { count: checkedElementsCount }) }}:</span>
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 class="sw-tree-actions__delete_categories"
                 :disabled="!allowDeleteCategories || undefined"
@@ -141,7 +140,6 @@
         {% block sw_tree_delete_modal_footer %}
         <template #modal-footer>
             {% block sw_tree_delete_modal_cancel %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
                 @click="onCloseDeleteModal"
@@ -151,7 +149,6 @@
             {% endblock %}
 
             {% block sw_tree_delete_modal_confirm %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 variant="critical"
                 size="small"

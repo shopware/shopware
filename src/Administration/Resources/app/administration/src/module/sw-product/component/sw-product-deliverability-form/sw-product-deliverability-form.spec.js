@@ -58,7 +58,7 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
                             template: '<div><slot></slot></div>',
                         },
                         'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
-                        'sw-switch-field': true,
+
                         'sw-number-field': {
                             template: '<input class="sw-field">',
                         },

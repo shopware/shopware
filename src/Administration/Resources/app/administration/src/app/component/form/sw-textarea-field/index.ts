@@ -33,40 +33,18 @@ Component.register('sw-textarea-field', {
     },
 
     computed: {
-        useMeteorComponent() {
-            // Use new meteor component in major
-            if (Shopware.Feature.isActive('ENABLE_METEOR_COMPONENTS')) {
-                return true;
-            }
-
-            // Throw warning when deprecated component is used
-            Shopware.Utils.debug.warn(
-                'sw-textarea-field',
-                // eslint-disable-next-line max-len
-                'The old usage of "sw-textarea-field" is deprecated and will be removed in v6.7.0.0. Please use "mt-textarea" instead.',
-            );
-
-            return false;
-        },
-
         realValue: {
             get() {
                 return this.modelValue || this.value;
             },
             set(value: string) {
-                if (this.useMeteorComponent) {
-                    this.$emit('update:value', value);
-                } else {
-                    this.$emit('update:modelValue', value);
-                }
+                this.$emit('update:modelValue', value);
             },
         },
     },
 
     methods: {
         getSlots() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-
             return this.$slots;
         },
     },

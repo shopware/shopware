@@ -139,8 +139,7 @@ async function createWrapper() {
                 'sw-order-customer-address-select': await wrapTestComponent('sw-order-customer-address-select', {
                     sync: true,
                 }),
-                'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
-                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                 'sw-text-field': true,
                 'sw-entity-single-select': {
                     props: ['value'],
@@ -260,7 +259,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         );
         expect(shippingSelectionText.text()).toBe('Ebbinghoff 10, 48624, London, Nottingham, United Kingdom');
 
-        const switchSameAddress = wrapper.find('.sw-field--switch__input input[name="sw-field--isSameAsBillingAddress"]');
+        const switchSameAddress = wrapper.find('.mt-switch input[name="sw-field--isSameAsBillingAddress"]');
         await switchSameAddress.setChecked(true);
 
         expect(wrapper.vm.context.shippingAddressId).toBe('1');
@@ -275,7 +274,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const switchSameAddress = wrapper.find('.sw-field--switch__input input[name="sw-field--isSameAsBillingAddress"]');
+        const switchSameAddress = wrapper.find('.mt-switch input[name="sw-field--isSameAsBillingAddress"]');
         expect(switchSameAddress.element.checked).toBeFalsy();
 
         await switchSameAddress.setChecked(true);
@@ -295,7 +294,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
             },
         });
 
-        const switchSameAddress = wrapper.find('.sw-field--switch__input input[name="sw-field--isSameAsBillingAddress"]');
+        const switchSameAddress = wrapper.find('.mt-switch input[name="sw-field--isSameAsBillingAddress"]');
         expect(switchSameAddress.element.checked).toBeTruthy();
 
         await switchSameAddress.setChecked(false);

@@ -10,14 +10,12 @@
     <div class="sw-grid-row__actions">
         <slot name="actions">
             {% block sw_grid_row_slot_actions %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
                 @click="onInlineEditCancel(id, index)"
             >
                 {{ $tc('global.default.cancel') }}
             </mt-button>
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 class="sw-grid-row__inline-edit-action"
                 variant="primary"

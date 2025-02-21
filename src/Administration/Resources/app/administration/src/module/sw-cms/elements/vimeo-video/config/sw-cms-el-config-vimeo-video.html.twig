@@ -24,31 +24,35 @@
     <div class="sw-cms-el-config-vimeo-video__player-controls">
 
         {% block sw_cms_element_vimeo_video_config_autoplay %}
-        <sw-switch-field
-            v-model:value="element.config.autoplay.value"
+
+        <mt-switch
+            v-model="element.config.autoplay.value"
             :label="$tc('sw-cms.elements.vimeoVideo.config.label.autoPlay')"
             :help-text="$tc('sw-cms.elements.vimeoVideo.config.helpText.autoPlay')"
         />
         {% endblock %}
 
         {% block sw_cms_element_vimeo_video_config_do_not_track %}
-        <sw-switch-field
-            v-model:value="element.config.doNotTrack.value"
+
+        <mt-switch
+            v-model="element.config.doNotTrack.value"
             :label="$tc('sw-cms.elements.vimeoVideo.config.label.advancedPrivacy')"
             :help-text="$tc('sw-cms.elements.vimeoVideo.config.helpText.advancedPrivacy')"
         />
         {% endblock %}
 
         {% block sw_cms_element_vimeo_video_config_loop %}
-        <sw-switch-field
-            v-model:value="element.config.loop.value"
+
+        <mt-switch
+            v-model="element.config.loop.value"
             :label="$tc('sw-cms.elements.vimeoVideo.config.label.loop')"
         />
         {% endblock %}
 
         {% block sw_cms_element_vimeo_video_config_controls %}
-        <sw-switch-field
-            v-model:value="element.config.controls.value"
+
+        <mt-switch
+            v-model="element.config.controls.value"
             :label="$tc('sw-cms.elements.vimeoVideo.config.label.showControls')"
         />
         {% endblock %}
@@ -71,22 +75,25 @@
     <div class="sw-cms-el-config-vimeo-video__artist-information">
 
         {% block sw_cms_element_vimeo_video_config_byline %}
-        <sw-switch-field
-            v-model:value="element.config.byLine.value"
+
+        <mt-switch
+            v-model="element.config.byLine.value"
             :label="$tc('sw-cms.elements.vimeoVideo.config.label.byLine')"
         />
         {% endblock %}
 
         {% block sw_cms_element_vimeo_video_config_portrait %}
-        <sw-switch-field
-            v-model:value="element.config.portrait.value"
+
+        <mt-switch
+            v-model="element.config.portrait.value"
             :label="$tc('sw-cms.elements.vimeoVideo.config.label.showPortrait')"
         />
         {% endblock %}
 
         {% block sw_cms_element_vimeo_video_config_title %}
-        <sw-switch-field
-            v-model:value="element.config.title.value"
+
+        <mt-switch
+            v-model="element.config.title.value"
             :label="$tc('sw-cms.elements.vimeoVideo.config.label.showTitle')"
         />
         {% endblock %}
@@ -96,8 +103,9 @@
 
     {% block sw_cms_element_vimeo_video_config_needs_confirmation %}
     <div class="sw-cms-el-config-vimeo-video__confirmation">
-        <sw-switch-field
-            v-model:value="element.config.needsConfirmation.value"
+
+        <mt-switch
+            v-model="element.config.needsConfirmation.value"
             :label="$tc('sw-cms.elements.vimeoVideo.config.label.needsConfirmation')"
         />
     </div>

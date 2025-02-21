@@ -43,7 +43,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                         },
                     },
                     stubs: {
-                        'sw-card': {
+                        'mt-card': {
                             template: '<div><slot></slot></div>',
                         },
                         'sw-empty-state': {

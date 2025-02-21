@@ -10,7 +10,7 @@ describe('module/sw-import-export/components/sw-import-export-progress', () => {
         wrapper = mount(
             await wrapTestComponent('sw-import-export-progress', {
                 sync: true,
-            })
+            }),
         );
     });
 

@@ -8,7 +8,7 @@
     <template #content>
         <sw-card-view>
             {% block sw_settings_content_card_view %}
-            <sw-card
+            <mt-card
                 v-if="feature.isActive('v6.7.0.0')"
                 hero
                 class="sw-settings__card--hero"
@@ -54,7 +54,7 @@
                     </div>
                 </div>
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
             {# @deprecated tag:v6.7.0 - block will be removed #}
@@ -121,7 +121,7 @@
                     </h1>
                     {% endblock %}
 
-                    <sw-card
+                    <mt-card
                         class="sw-settings__card"
                         position-identifier="sw-settings-index-content"
                     >
@@ -160,7 +160,7 @@
                             </nav>
                         </slot>
                         {% endblock %}
-                    </sw-card>
+                    </mt-card>
                     {% endblock %}
                 </template>
             </sw-tabs>

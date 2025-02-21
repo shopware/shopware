@@ -27,11 +27,10 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-icon': true,
-                'sw-card': true,
                 'router-link': true,
                 'sw-container': true,
                 'sw-text-field': true,
-                'sw-switch-field': true,
+
                 'sw-single-select': true,
                 'sw-many-to-many-assignment-card': {
                     template: `

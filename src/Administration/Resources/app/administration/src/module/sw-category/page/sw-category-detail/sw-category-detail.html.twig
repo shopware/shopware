@@ -40,7 +40,6 @@
     <template #smart-bar-actions>
         <template v-if="category || landingPage">
             {% block sw_category_smart_bar_abort %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-tooltip.bottom="tooltipCancel"
                 :disabled="isLoading"
@@ -118,7 +117,6 @@
 
                 {% block sw_category_collapse_actions %}
                 <div v-if="categoryCheckedItem > 0">
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         class="sw-tree-actions__delete_categories"
                         variant="critical"
@@ -179,7 +177,6 @@
 
                 {% block sw_landing_page_collapse_actions %}
                 <div v-if="landingPageCheckedItem > 0">
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         class="sw-tree-actions__delete_categories"
                         variant="critical"

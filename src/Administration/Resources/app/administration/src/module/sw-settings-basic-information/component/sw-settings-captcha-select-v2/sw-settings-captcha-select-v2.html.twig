@@ -44,8 +44,9 @@
         {% endblock %}
 
         {% block sw_settings_captcha_select_v2_google_recaptcha_v2_invisible %}
-        <sw-switch-field
-            v-model:value="currentValue.googleReCaptchaV2.config.invisible"
+
+        <mt-switch
+            v-model="currentValue.googleReCaptchaV2.config.invisible"
             bordered
             name="googleReCaptchaV2Invisible"
             :label="$tc('sw-settings-basic-information.captcha.label.googleReCaptchaV2Invisible')"

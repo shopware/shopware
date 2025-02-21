@@ -85,8 +85,7 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                 'sw-media-tag': true,
                 'sw-custom-field-set-renderer': true,
                 'sw-field-error': true,
-                'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
-                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field', {
@@ -259,13 +258,13 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
             const arToggle = wrapper.find('.sw-media-sidebar__quickactions-switch.ar-ready-toggle');
             expect(arToggle.exists()).toBe(isSpatial);
 
-            const arToggleInput = wrapper.find('.sw-field--switch__input input');
+            const arToggleInput = wrapper.find('.mt-switch input');
             expect(arToggleInput.exists()).toBe(isSpatial);
 
             await arToggleInput.setChecked();
             expect(arToggleInput.element.checked).toBe(true);
 
-            await arToggle.trigger('update');
+            // await arToggle.trigger('change');
             expect(wrapper.emitted('update:item')).toBeTruthy();
             expect(wrapper.emitted('update:item')[0][0]).toEqual(
                 expect.objectContaining({
@@ -301,7 +300,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
             const arToggle = wrapper.findComponent('.sw-media-sidebar__quickactions-switch.ar-ready-toggle');
             expect(arToggle.exists()).toBe(true);
 
-            const arToggleInput = wrapper.find('.sw-field--switch__input input');
+            const arToggleInput = wrapper.find('.mt-switch input');
             expect(arToggleInput.exists()).toBe(true);
 
             expect(arToggleInput.element.checked).toBe(isArReady);

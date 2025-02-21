@@ -18,7 +18,6 @@ async function createWrapper({ customerRepositorySaveMock, languageRepositorySea
         <slot name="content"></slot>
     </div>`,
                 },
-                'sw-card': true,
                 'sw-language-switch': true,
                 'sw-customer-address-form': true,
                 'sw-customer-base-form': true,

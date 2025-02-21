@@ -20,7 +20,6 @@
     </template>
 
     <template #smart-bar-actions>
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
@@ -227,7 +226,7 @@
                         {% endblock %}
 
                         {% block sw_cms_list_listing_list_card %}
-                        <sw-card
+                        <mt-card
                             v-else-if="listMode === 'list'"
                             position-identifier="sw-cms-list-list-mode"
                             class="sw-cms-list__list-card"
@@ -378,7 +377,7 @@
                                 </sw-data-grid>
                                 {% endblock %}
                             </template>
-                        </sw-card>
+                        </mt-card>
                         {% endblock %}
                     </div>
                     {% endblock %}
@@ -450,7 +449,6 @@
                 {% block sw_cms_list_rename_modal_footer %}
                 <template #modal-footer>
                     {% block sw_cms_list_rename_modal_cancel %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         size="small"
                         @click="onCloseRenameModal"
@@ -460,7 +458,6 @@
                     {% endblock %}
 
                     {% block sw_cms_list_rename_modal_confirm %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         size="small"
                         variant="primary"
@@ -491,7 +488,6 @@
                 {% block sw_cms_list_delete_modal_footer %}
                 <template #modal-footer>
                     {% block sw_cms_list_delete_modal_cancel %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         size="small"
                         @click="onCloseDeleteModal"
@@ -501,7 +497,6 @@
                     {% endblock %}
 
                     {% block sw_cms_list_delete_modal_confirm %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         variant="critical"
                         size="small"

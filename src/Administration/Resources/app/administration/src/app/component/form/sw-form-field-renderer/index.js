@@ -239,6 +239,17 @@ Component.register('sw-form-field-renderer', {
 
             return {};
         },
+
+        componentPropName() {
+            switch (this.componentName) {
+                case 'mt-textarea':
+                    return 'modelValue';
+                case 'mt-switch':
+                    return 'modelValue';
+                default:
+                    return 'value';
+            }
+        },
     },
 
     watch: {
@@ -312,7 +323,7 @@ Component.register('sw-form-field-renderer', {
             const type = customType ?? this.type;
 
             const components = {
-                bool: 'sw-switch-field',
+                bool: 'mt-switch',
                 checkbox: 'sw-checkbox-field',
                 colorpicker: 'sw-colorpicker',
                 compactColorpicker: 'sw-compact-colorpicker',
@@ -330,10 +341,10 @@ Component.register('sw-form-field-renderer', {
                 'single-entity-id-select': 'sw-entity-single-select',
                 'single-select': 'sw-single-select',
                 string: 'sw-text-field',
-                switch: 'sw-switch-field',
+                switch: 'mt-switch',
                 tagged: 'sw-tagged-field',
                 text: 'sw-text-field',
-                textarea: 'sw-textarea-field',
+                textarea: 'mt-textarea',
                 time: 'sw-datepicker',
                 url: 'sw-url-field',
             };

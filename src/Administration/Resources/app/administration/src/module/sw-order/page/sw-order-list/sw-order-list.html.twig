@@ -36,7 +36,6 @@
         {% block sw_order_list_smart_bar_actions_slot %}
 
         {% block sw_order_list_smart_bar_actions_add %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
@@ -109,7 +108,6 @@
                     </sw-label>
                     {% endblock %}
 
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         v-if="item.customerComment"
                         v-tooltip="{ message: item.customerComment }"
@@ -272,7 +270,6 @@
                         {% block sw_order_list_delete_modal_footer %}
                         <template #modal-footer>
                             {% block sw_order_list_delete_modal_cancel %}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 size="small"
                                 @click="onCloseDeleteModal"
@@ -282,7 +279,6 @@
                             {% endblock %}
 
                             {% block sw_order_list_delete_modal_confirm %}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 variant="critical"
                                 size="small"

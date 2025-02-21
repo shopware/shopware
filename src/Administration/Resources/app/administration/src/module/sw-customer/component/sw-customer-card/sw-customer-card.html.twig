@@ -1,12 +1,12 @@
 {% block sw_customer_card %}
-<sw-card
+<mt-card
     class="sw-customer-card"
     position-identifier="sw-customer"
     :title="title"
     :is-loading="isLoading"
 >
     {% block sw_customer_card_header_right %}
-    <template #header-right>
+    <template #headerRight>
         {% block sw_customer_card_imitate_customer_modal %}
         <sw-customer-imitate-customer-modal
             v-if="showImitateCustomerModal"
@@ -16,7 +16,6 @@
         {% endblock %}
 
         {% block sw_customer_card_action_customer_impersonation %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip="{
                 message: $tc(customer.guest ? 'sw-customer.card.tooltipImitateCustomerGuest' : 'sw-privileges.tooltip.warning'),
@@ -282,5 +281,5 @@
         </sw-container>
     </template>
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

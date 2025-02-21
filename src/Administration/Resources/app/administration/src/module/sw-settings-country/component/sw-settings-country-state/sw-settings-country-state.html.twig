@@ -1,5 +1,5 @@
 {% block sw_settings_country_state_list_card %}
-<sw-card
+<mt-card
     v-if="!isLoading"
     position-identifier="sw-settings-country-state"
 >
@@ -19,7 +19,6 @@
             {% endblock %}
 
             {% block sw_settings_country_state_list_toolbar_delete %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-tooltip.bottom="{
                     message: $tc('sw-privileges.tooltip.warning'),
@@ -40,7 +39,6 @@
             {% endblock %}
 
             {% block sw_settings_country_state_list_toolbar_add %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-tooltip.bottom="{
                     message: $tc('sw-privileges.tooltip.warning'),
@@ -133,6 +131,6 @@
         @attribute-edit-cancel="onCancelCountryState"
     />
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}
 

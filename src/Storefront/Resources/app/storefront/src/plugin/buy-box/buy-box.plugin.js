@@ -6,6 +6,11 @@ import ElementReplaceHelper from 'src/helper/element-replace.helper';
 import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
 import DomAccess from 'src/helper/dom-access.helper';
 
+/**
+ * @deprecated tag:v6.8.0 - The BuyBoxPlugin is not used.
+ * The buy widget is not updated via ajax because the VariantSwitchPlugin already redirects to the new variant.
+ * The tax modal event listeners are not used because it uses the generic AjaxModalPlugin.
+ */
 export default class BuyBoxPlugin extends Plugin {
 
     static options = {

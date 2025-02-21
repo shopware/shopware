@@ -602,8 +602,8 @@ The following methods of the `\Shopware\Core\Framework\DataAbstractionLayer\Enti
 * `\Shopware\Core\Framework\DataAbstractionLayer\Entity::get` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException` instead of a `\InvalidArgumentException`.
 </details>
 
-## Entity Attributes classes made final
-We have made entity attribute classes final.
+## Attributes classes made final
+We have made attribute classes final. 
 <details>
   <summary>See the detailed list</summary>
 
@@ -625,6 +625,7 @@ We have made entity attribute classes final.
 * `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\State`
 * `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations`
 * `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\Version`
+* `\Shopware\Core\Framework\Event\IsFlowEventAware`
 </details>
 
 </details>

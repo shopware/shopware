@@ -37,6 +37,7 @@ use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\SalesChannel\Context\BaseContextFactory;
+use Shopware\Core\System\SalesChannel\Context\ContextProvider;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -44,6 +45,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -51,6 +53,7 @@ use Shopware\Core\Test\TestDefaults;
  */
 #[Package('discovery')]
 #[CoversClass(BaseContextFactory::class)]
+#[CoversClass(ContextProvider::class)]
 class BaseContextFactoryTest extends TestCase
 {
     /**
@@ -109,6 +112,8 @@ class BaseContextFactoryTest extends TestCase
             $connection->expects(static::atMost(1))->method('createQueryBuilder')->willReturn(new QueryBuilder($connection));
         }
 
+        $contextProvider = new ContextProvider($connection, new CollectingEventDispatcher());
+
         $factory = new BaseContextFactory(
             $salesChannelRepository,
             $currencyRepository,
@@ -117,9 +122,9 @@ class BaseContextFactoryTest extends TestCase
             $taxRepository,
             $paymentMethodRepository,
             $shippingMethodRepository,
-            $connection,
             $countryStateRepository,
-            $currencyCountryRepository
+            $currencyCountryRepository,
+            $contextProvider
         );
 
         $factory->create(TestDefaults::SALES_CHANNEL, $options);

@@ -27,7 +27,7 @@ Component.register('sw-tabs', {
     computed: {
         useMeteorComponent() {
             // Use new meteor component in major
-            if (Shopware.Feature.isActive('ENABLE_METEOR_COMPONENTS')) {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
                 return true;
             }
 
@@ -35,7 +35,7 @@ Component.register('sw-tabs', {
             Shopware.Utils.debug.warn(
                 'sw-tabs',
                 // eslint-disable-next-line max-len
-                'The old usage of "sw-tabs" is deprecated and will be removed in v6.7.0.0. Please use "mt-tabs" instead.',
+                'The old usage of "sw-tabs" is deprecated and will be removed in v6.8.0.0. Please use "mt-tabs" instead.',
             );
 
             return false;

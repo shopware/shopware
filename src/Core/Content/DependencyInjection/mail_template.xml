@@ -101,6 +101,9 @@
             <argument type="service" id="shopware.filesystem.public"/>
             <argument type="service" id="document.repository"/>
         </service>
+        <!-- @deprecated tag:v6.7.0 - alias will be removed, workaround to not break the container on update -->
+        <service id="Shopware\Core\Content\Mail\Service\MailerTransportLoader" alias="Shopware\Core\Content\Mail\Transport\MailerTransportLoader"/>
+
 
         <service id="Shopware\Core\Content\Mail\Transport\SmtpOauthTransportFactoryDecorator"
                  decorates="mailer.transport_factory.smtp">

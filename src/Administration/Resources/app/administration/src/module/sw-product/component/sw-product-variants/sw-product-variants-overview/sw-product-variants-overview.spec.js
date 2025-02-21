@@ -179,6 +179,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
             },
             getters: {
                 isLoading: () => false,
+                defaultPrice: () => {},
+                productTaxRate: () => {},
             },
             mutations: {
                 setVariants(state, variants) {
@@ -489,5 +491,47 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         await flushPromises();
 
         expect(productSaveSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should contain a currencyColumns computed property', async () => {
+        const wrapper = await createWrapper();
+
+        const swProductDetail = Shopware.State.get('swProductDetail');
+
+        swProductDetail.currencies = undefined;
+
+        expect(wrapper.vm.currencyColumns).toEqual([]);
+
+        swProductDetail.currencies = [
+            {
+                id: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                name: 'Euro',
+                isSystemDefault: true,
+                translated: {
+                    name: 'Euro',
+                }
+            },
+            {
+                id: 'b7d2554b0ce847cd82f3ac9bd1c0dfcb',
+                name: 'Dollar',
+                isSystemDefault: false,
+                translated: {
+                    name: 'Dollar',
+                }
+            }
+        ];
+
+        expect(wrapper.vm.currencyColumns).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                property: 'price.b7d2554b0ce847cd82f3ac9bd1c0dfca.net',
+                label: 'Euro',
+                visible: true,
+            }),
+            expect.objectContaining({
+                property: 'price.b7d2554b0ce847cd82f3ac9bd1c0dfcb.net',
+                label: 'Dollar',
+                visible: false,
+            }),
+        ]));
     });
 });

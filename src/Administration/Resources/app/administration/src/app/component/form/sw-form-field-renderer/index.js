@@ -323,33 +323,33 @@ Component.register('sw-form-field-renderer', {
             const type = customType ?? this.type;
 
             const components = {
-                bool: 'mt-switch',
-                checkbox: 'sw-checkbox-field',
-                colorpicker: 'sw-colorpicker',
+                bool: 'sw-switch-field-deprecated',
+                switch: 'sw-switch-field-deprecated',
+                textarea: 'sw-textarea-field-deprecated',
+                checkbox: 'sw-checkbox-field-deprecated',
+                colorpicker: 'sw-colorpicker-deprecated',
                 compactColorpicker: 'sw-compact-colorpicker',
-                date: 'sw-datepicker',
-                datetime: 'sw-datepicker',
-                email: 'sw-email-field',
-                float: 'sw-number-field',
-                int: 'sw-number-field',
+                date: 'sw-datepicker-deprecated',
+                datetime: 'sw-datepicker-deprecated',
+                time: 'sw-datepicker-deprecated',
+                email: 'sw-email-field-deprecated',
+                float: 'sw-number-field-deprecated',
+                int: 'sw-number-field-deprecated',
+                number: 'sw-number-field-deprecated',
                 'multi-entity-id-select': 'sw-entity-multi-id-select',
                 'multi-select': 'sw-multi-select',
-                number: 'sw-number-field',
-                password: 'sw-password-field',
+                password: 'sw-password-field-deprecated',
                 price: 'sw-price-field',
                 radio: 'sw-radio-field',
                 'single-entity-id-select': 'sw-entity-single-select',
                 'single-select': 'sw-single-select',
-                string: 'sw-text-field',
-                switch: 'mt-switch',
+                string: 'sw-text-field-deprecated',
+                text: 'sw-text-field-deprecated',
                 tagged: 'sw-tagged-field',
-                text: 'sw-text-field',
-                textarea: 'mt-textarea',
-                time: 'sw-datepicker',
-                url: 'sw-url-field',
+                url: 'sw-url-field-deprecated',
             };
 
-            return components[type] ?? 'sw-text-field';
+            return components[type] ?? 'sw-text-field-deprecated';
         },
 
         createRepository(entity) {

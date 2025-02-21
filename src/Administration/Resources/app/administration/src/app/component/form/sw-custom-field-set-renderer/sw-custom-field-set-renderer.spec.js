@@ -61,11 +61,13 @@ async function createWrapper(props) {
                     'sw-media-media-item': await wrapTestComponent('sw-media-media-item'),
                     'sw-media-base-item': await wrapTestComponent('sw-media-base-item'),
                     'sw-media-preview-v2': await wrapTestComponent('sw-media-preview-v2'),
-                    'sw-colorpicker': await wrapTestComponent('sw-text-field'),
+                    // Looks strange? Try to fix it and add to the count: I
+                    'sw-colorpicker-deprecated': await wrapTestComponent('sw-text-field-deprecated'),
                     'sw-upload-listener': true,
                     'sw-simple-search-field': true,
                     'sw-loader': true,
-                    'sw-datepicker': await wrapTestComponent('sw-text-field'),
+                    // Looks strange? Try to fix it and add to the count: I
+                    'sw-datepicker-deprecated': await wrapTestComponent('sw-text-field-deprecated'),
                     'sw-text-editor': {
                         props: ['value'],
                         template:
@@ -74,6 +76,7 @@ async function createWrapper(props) {
                     'sw-skeleton': await wrapTestComponent('sw-skeleton'),
                     'sw-skeleton-bar': await wrapTestComponent('sw-skeleton-bar'),
                     'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
+                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated'),
                     'sw-button-process': true,
                     'sw-media-collapse': true,
                     'mt-tabs': true,
@@ -509,7 +512,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             },
         },
         {
-            isMeteorComponent: true,
+            isMeteorComponent: false,
             testFieldLabel: 'active/inactive switch field',
             customFieldType: 'bool',
             customFieldConfigType: 'switch',

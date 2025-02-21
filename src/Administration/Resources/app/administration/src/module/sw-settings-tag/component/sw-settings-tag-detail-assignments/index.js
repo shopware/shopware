@@ -202,13 +202,13 @@ export default {
                 },
             );
 
-            if(this.toBeAdded?.[this.selectedAssignment]) {
+            if (this.toBeAdded?.[this.selectedAssignment]) {
                 Object.values(this.toBeAdded[this.selectedAssignment]).forEach((toBeAdded) => {
                     selection[toBeAdded.id] = toBeAdded;
                 });
             }
 
-            if(this.toBeDeleted?.[this.selectedAssignment]) {
+            if (this.toBeDeleted?.[this.selectedAssignment]) {
                 Object.values(this.toBeDeleted[this.selectedAssignment]).forEach((toBeDeleted) => {
                     if (selection.hasOwnProperty(toBeDeleted.id)) {
                         delete selection[toBeDeleted.id];

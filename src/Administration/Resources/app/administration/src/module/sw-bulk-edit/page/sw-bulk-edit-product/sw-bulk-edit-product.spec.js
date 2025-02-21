@@ -110,6 +110,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
                     'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                     'sw-bulk-edit-save-modal': await wrapTestComponent('sw-bulk-edit-save-modal'),
+                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated'),
                     'sw-bulk-edit-product-visibility': true,
                     'sw-product-visibility-select': true,
                     'sw-custom-field-set-renderer': true,
@@ -381,7 +382,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         await flushPromises();
 
-        await activeField.find('.mt-switch input').setValue('checked');
+        await activeField.find('.sw-field--switch__input input').setValue('checked');
 
         expect(wrapper.vm.bulkEditProduct.active.isChanged).toBeTruthy();
 

@@ -30,22 +30,6 @@ Component.register('sw-switch-field', {
         checkedValue() {
             return this.value || this.checked;
         },
-
-        useMeteorComponent() {
-            // Use new meteor component in major
-            if (Shopware.Feature.isActive('ENABLE_METEOR_COMPONENTS')) {
-                return true;
-            }
-
-            // Throw warning when deprecated component is used
-            Shopware.Utils.debug.warn(
-                'sw-switch-field',
-                // eslint-disable-next-line max-len
-                'The old usage of "sw-switch-field" is deprecated and will be removed in v6.7.0.0. Please use "mt-switch" instead.',
-            );
-
-            return false;
-        },
     },
 
     methods: {

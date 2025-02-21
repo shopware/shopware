@@ -4,6 +4,7 @@ issue: NEXT-40618
 ---
 # Storefront
 * Deprecated DomAccess Helper `storefront/src/helper/dom-access.helper.js` for 6.8 and replaced all usages within core files. The focus related methods were moved to FocusHandler Helper `storefront/src/helper/focus-handler.helper.js`. Use them as a replacement for `getFocusableElements()`, `getFirstFocusableElement()`, and `getLastFocusableElement()`. 
+* Changed default values in `form-country-state-select.plugin.js` of the options `vatIdRequired`, `stateRequired`, `zipcodeRequired`, `initialCountryAttribute`, and `initialCountryStateAttribute` to include the `data-` prefix for the right data attribute naming.
 ___
 # Next Major Version Changes
 ## Storefront

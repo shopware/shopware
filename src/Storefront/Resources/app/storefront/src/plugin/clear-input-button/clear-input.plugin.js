@@ -16,8 +16,7 @@ export default class ClearInputPlugin extends Plugin {
     };
 
     init() {
-        this.clearButtons = document.querySelectorAll(this.options.clearButtonSelector
-        );
+        this.clearButtons = document.querySelectorAll(this.options.clearButtonSelector);
 
         this.onInputChange();
         this._registerEventListener();

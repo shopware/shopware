@@ -1,5 +1,4 @@
 import Plugin from 'src/plugin-system/plugin.class';
-// @deprecated tag:v6.8.0 - HttpClient is deprecated. Using native fetch API instead.
 import HttpClient from 'src/service/http-client.service';
 import ButtonLoadingIndicatorUtil from 'src/utility/loading-indicator/button-loading-indicator.util';
 import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading-indicator.util';
@@ -30,7 +29,6 @@ export default class AddressEditorPlugin extends Plugin {
             throw new Error('One or both of the options "changeShipping" or "changeShipping" has to be true!');
         }
 
-        // @deprecated tag:v6.8.0 - HttpClient is deprecated. Using native fetch API instead.
         this._client = new HttpClient();
         this._registerEvents();
     }
@@ -68,9 +66,8 @@ export default class AddressEditorPlugin extends Plugin {
 
         this.$emitter.publish('beforeGetModal');
 
-        fetch(this.options.url, { method: 'POST', body: JSON.stringify(data), headers: { 'Content-Type': 'application/json' }})
-            .then(response => response.text())
-            .then(content => this._openModal(content));
+        this._client.abort();
+        this._client.post(this.options.url, JSON.stringify(data), content => this._openModal(content));
     }
 
     /**

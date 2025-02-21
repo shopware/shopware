@@ -1,6 +1,6 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
-// @deprecated tag:v6.8.0 - HttpClient is deprecated. Using native fetch API instead. Remove this import.
+/** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
 import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 import DeviceDetection from 'src/helper/device-detection.helper';
@@ -41,7 +41,7 @@ export default class OffCanvasCartPlugin extends Plugin {
     };
 
     init() {
-        // @deprecated tag:v6.8.0 - HttpClient is deprecated. Using native fetch API instead. Remove this property.
+        /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this.client = new HttpClient();
         this._registerOpenTriggerEvents();
     }
@@ -306,7 +306,7 @@ export default class OffCanvasCartPlugin extends Plugin {
         const url = window.router['frontend.cart.offcanvas'];
 
         const _callback = () => {
-            fetch(url, { method: 'GET', headers: { 'X-Requested-With': 'XMLHttpRequest' }})
+            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }})
                 .then(response => response.text())
                 .then(response => {
                     this._updateOffCanvasContent(response);

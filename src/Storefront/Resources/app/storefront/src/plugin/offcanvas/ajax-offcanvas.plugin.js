@@ -51,11 +51,12 @@ export default class AjaxOffCanvas extends OffCanvas {
         };
 
         if (data) {
-            fetch(url, { method: 'POST', body: JSON.stringify(data), headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            const processedData = data instanceof FormData ? data : JSON.stringify(data);
+            fetch(url, { method: 'POST', body: processedData, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                 .then(response => response.text())
                 .then(response => AjaxOffCanvas.executeCallback(cb, response));
         } else {
-            fetch(url, { method: 'GET', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                 .then(response => response.text())
                 .then(response => AjaxOffCanvas.executeCallback(cb, response));
         }

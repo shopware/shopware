@@ -1,5 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
-// @deprecated tag:v6.8.0 - HttpClient is deprecated. Using native fetch API instead. Remove this import.
+/** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
 import Storage from 'src/helper/storage/storage.helper';
 
@@ -11,7 +11,7 @@ export default class CartWidgetPlugin extends Plugin {
     };
 
     init() {
-        // @deprecated tag:v6.8.0 - HttpClient is deprecated. Using native fetch API instead. Remove this property.
+        /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._client = new HttpClient();
 
         this.insertStoredContent();
@@ -41,7 +41,7 @@ export default class CartWidgetPlugin extends Plugin {
      * and persist the response to the browser's session storage
      */
     fetch() {
-        fetch(window.router['frontend.checkout.info'], { method: 'GET', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        fetch(window.router['frontend.checkout.info'])
             .then(response => {
                 if (response.status >= 500) {
                     return;
@@ -54,7 +54,7 @@ export default class CartWidgetPlugin extends Plugin {
                         this.el.innerHTML = emptyCartWidget;
                     }
 
-                    return;
+                    return response.text();
                 }
 
                 return response.text();

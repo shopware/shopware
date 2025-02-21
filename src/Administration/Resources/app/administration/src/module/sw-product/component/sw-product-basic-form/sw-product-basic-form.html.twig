@@ -82,10 +82,10 @@
                 :placeholder="placeholder(product, 'description', $tc('sw-product.basicForm.placeholderDescriptionLong'))"
                 :error="productDescriptionError"
                 :disabled="isInherited || !allowEdit"
-                :value="currentValue"
+                :model-value="currentValue"
                 sanitize-input
                 sanitize-field-name="product_translation.description"
-                @update:value="updateCurrentValue"
+                @update:model-value="updateCurrentValue"
             />
         </template>
     </sw-inherit-wrapper>

@@ -292,8 +292,8 @@
 
             {% block sw_custoemr_base_metadata_birthday_editor %}
             <dd v-else>
-                <sw-datepicker
-                    v-model:value="customer.birthday"
+                <mt-datepicker
+                    v-model="customer.birthday"
                     name="sw-field--customer-birthday"
                     size="small"
                     date-type="date"

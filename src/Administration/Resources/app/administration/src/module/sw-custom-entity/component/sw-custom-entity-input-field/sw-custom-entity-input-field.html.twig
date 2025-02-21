@@ -54,15 +54,15 @@
         @change="onChange"
     />
 
-    <sw-datepicker
+    <mt-datepicker
         v-else-if="type === 'date'"
         class="sw-custom-entity-input-field__date"
         hide-hint
-        :value="currentValue"
+        :model-value="currentValue"
         :label="label"
         :placeholder="placeholder"
         :help-text="helpText"
-        @update:value="onChange"
+        @update:model-value="onChange"
     />
 
     <!-- ToDo NEXT-22874 - Implement email-field verification to entity_schema

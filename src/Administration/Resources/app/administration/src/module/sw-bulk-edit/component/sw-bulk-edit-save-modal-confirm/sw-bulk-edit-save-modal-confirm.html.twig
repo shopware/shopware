@@ -10,9 +10,10 @@
         class="sw-bulk-edit-save-modal-confirm__trigger-flows"
     >
         {% block sw_bulk_edit_save_modal_confirm_trigger_flows_switch %}
-        <sw-switch-field
+
+        <mt-switch
             v-if="!bulkEditData?.statusMails?.isChanged"
-            v-model:value="isFlowTriggered"
+            v-model="isFlowTriggered"
             name="sw-bulk-edit-save-modal-confirm-trigger-flows-switch"
             class="sw-bulk-edit-save-modal-confirm__trigger-flows-switch"
             :label="$tc('sw-bulk-edit.modal.confirm.switchLabel')"

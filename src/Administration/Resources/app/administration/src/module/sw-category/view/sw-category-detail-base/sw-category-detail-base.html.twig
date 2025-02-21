@@ -25,8 +25,9 @@
             {% endblock %}
 
             {% block sw_category_detail_information_active %}
-            <sw-switch-field
-                v-model:value="category.active"
+
+            <mt-switch
+                v-model="category.active"
                 :disabled="!acl.can('category.editor')"
                 name="categoryActive"
                 class="sw-category-detail-base__active"

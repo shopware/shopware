@@ -32,9 +32,10 @@
     {% endblock %}
 
     {% block sw_settings_custom_field_set_detail_base_translated %}
-    <sw-switch-field
+
+    <mt-switch
         v-if="set.config"
-        v-model:value="set.config.translated"
+        v-model="set.config.translated"
         name="sw-field--set-config-translated"
         class="sw-settings-custom-field-set-detail-base__base-translation"
         :disabled="!acl.can('custom_field.editor') || undefined"

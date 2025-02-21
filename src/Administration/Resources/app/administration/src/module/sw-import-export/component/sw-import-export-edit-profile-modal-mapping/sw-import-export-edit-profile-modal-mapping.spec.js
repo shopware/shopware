@@ -68,7 +68,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                         'sw-import-export-entity-path-select': true,
                         'sw-context-menu-item': true,
                         'sw-context-button': true,
-                        'sw-switch-field': true,
+
                         'sw-text-field': await wrapTestComponent('sw-text-field'),
                         'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                         'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),

@@ -33,8 +33,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
                         },
                         'sw-text-field': await wrapTestComponent('sw-text-field'),
                         'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                        'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                        'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                         'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                         'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', {
                             sync: true,
@@ -92,14 +91,14 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
     });
 
     it('should display the correct active state', async () => {
-        const switchField = wrapper.find('.sw-field--switch input');
+        const switchField = wrapper.find('.mt-switch input');
         const isActive = switchField.element.value;
 
         expect(isActive).toBe('on');
     });
 
     it('should not disable active state switch on normal product sortings', async () => {
-        const switchField = wrapper.find('.sw-field--switch input');
+        const switchField = wrapper.find('.mt-switch input');
         const isDisabled = switchField.attributes('disabled');
 
         expect(isDisabled).toBeUndefined();
@@ -108,7 +107,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
     it('should disable active state switch on default sortings', async () => {
         await wrapper.setProps({ isDefaultSorting: true });
 
-        const switchField = wrapper.find('.sw-field--switch input');
+        const switchField = wrapper.find('.mt-switch input');
         const isDisabled = switchField.attributes('disabled');
 
         expect(isDisabled).toBeDefined();

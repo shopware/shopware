@@ -7,8 +7,9 @@
 >
 
     {% block sw_category_detail_information_visible %}
-    <sw-switch-field
-        v-model:value="reversedVisibility"
+
+    <mt-switch
+        v-model="reversedVisibility"
         borderd
         :disabled="!acl.can('category.editor')"
         :label="$tc('sw-category.base.menu.visible')"

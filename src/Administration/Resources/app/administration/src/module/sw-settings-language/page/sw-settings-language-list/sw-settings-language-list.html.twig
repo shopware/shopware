@@ -206,16 +206,18 @@
                     <template #content>
 
                         {% block sw_settings_language_list_grid_sidebar_filter_content_root_languages %}
-                        <sw-switch-field
-                            v-model:value="filterRootLanguages"
+
+                        <mt-switch
+                            v-model="filterRootLanguages"
                             class="sw-settings-language-list__filterField"
                             :label="$tc('sw-settings-language.list.textFilterRootLanguages')"
                         />
                         {% endblock %}
 
                         {% block sw_settings_language_list_grid_sidebar_filter_content_inherited_languages %}
-                        <sw-switch-field
-                            v-model:value="filterInheritedLanguages"
+
+                        <mt-switch
+                            v-model="filterInheritedLanguages"
                             class="sw-settings-language-list__filterField"
                             :label="$tc('sw-settings-language.list.textFilterInheritedLanguages')"
                         />

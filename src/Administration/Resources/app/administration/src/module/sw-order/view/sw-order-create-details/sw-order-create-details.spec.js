@@ -36,7 +36,6 @@ async function createWrapper() {
                 'sw-datepicker': true,
                 'sw-text-field': true,
                 'sw-order-promotion-tag-field': true,
-                'sw-switch-field': true,
             },
             provide: {
                 cartStoreService: {},

@@ -147,7 +147,7 @@ async function createWrapper(privileges = []) {
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-skeleton': true,
                 'sw-textarea-field': true,
-                'sw-switch-field': true,
+
                 'sw-product-variant-info': true,
                 'sw-text-field-deprecated': true,
                 'sw-ai-copilot-badge': true,

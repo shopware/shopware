@@ -138,7 +138,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     },
                     'sw-language-info': true,
                     'router-view': true,
-                    'sw-switch-field': true,
+
                     'sw-context-menu-divider': true,
                     'sw-checkbox-field': true,
                     'sw-product-settings-mode': await wrapTestComponent('sw-product-settings-mode', { sync: true }),

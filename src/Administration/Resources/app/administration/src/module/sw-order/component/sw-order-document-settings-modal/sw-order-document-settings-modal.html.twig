@@ -31,8 +31,9 @@
 
     {% block sw_order_document_settings_modal_form_file_upload %}
     {% block sw_order_document_settings_modal_form_file_upload_toggle %}
-    <sw-switch-field
-        v-model:value="uploadDocument"
+
+    <mt-switch
+        v-model="uploadDocument"
         name="sw-field--uploadDocument"
         class="sw-order-document-settings-modal__file-toggle"
         :label="$tc('sw-order.documentModal.fileInputLabel')"

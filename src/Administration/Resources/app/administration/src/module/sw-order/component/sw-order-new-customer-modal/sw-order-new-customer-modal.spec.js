@@ -26,7 +26,7 @@ async function createWrapper(
                 'sw-customer-address-form': true,
                 'sw-customer-base-form': true,
                 'sw-icon': true,
-                'sw-switch-field': true,
+
                 'sw-extension-component-section': true,
                 'router-link': true,
                 'sw-loader': true,

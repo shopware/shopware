@@ -24,12 +24,6 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
                 global: {
                     renderStubDefaultSlot: true,
                     stubs: {
-                        'sw-switch-field': await wrapTestComponent('sw-switch-field', {
-                            sync: true,
-                        }),
-                        'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', {
-                            sync: true,
-                        }),
                         'sw-base-field': true,
                         'sw-field-error': true,
                     },
@@ -145,9 +139,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
         const systemRoles = wrapper.find(
             '.sw-users-permissions-additional-permissions_system + .sw-users-permissions-additional-permissions__switches',
         );
-        const systemFields = systemRoles.findAllComponents({
-            name: 'sw-switch-field-deprecated__wrapped',
-        });
+        const systemFields = systemRoles.findAllComponents('.mt-switch');
 
         expect(systemFields).toHaveLength(3);
 
@@ -158,9 +150,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
         const ordersRoles = wrapper.find(
             '.sw-users-permissions-additional-permissions_orders + .sw-users-permissions-additional-permissions__switches',
         );
-        const ordersFields = ordersRoles.findAllComponents({
-            name: 'sw-switch-field-deprecated__wrapped',
-        });
+        const ordersFields = ordersRoles.findAllComponents('.mt-switch');
 
         expect(ordersFields).toHaveLength(1);
         expect(ordersFields[0].props().label).toBe('sw-privileges.additional_permissions.orders.create_discounts');
@@ -175,10 +165,10 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
 
         await flushPromises();
 
-        const clearCacheField = wrapper.findAllComponents({ name: 'sw-switch-field-deprecated__wrapped' }).find((field) => {
+        const clearCacheField = wrapper.findAllComponents('.mt-switch').find((field) => {
             return field.classes().includes('sw_users_permissions_additional_permissions_system_clear_cache');
         });
-        expect(clearCacheField.props().value).toBeTruthy();
+        expect(clearCacheField.props().checked).toBeTruthy();
     });
 
     it('should contain the a false value in a field when the privilege is not in roles', async () => {
@@ -188,17 +178,17 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
     });
 
     it('should add the checked value to the role privileges', async () => {
-        const clearCacheField = wrapper.findAllComponents({ name: 'sw-switch-field-deprecated__wrapped' }).find((field) => {
+        const clearCacheField = wrapper.findAllComponents('.mt-switch').find((field) => {
             return field.classes().includes('sw_users_permissions_additional_permissions_system_clear_cache');
         });
 
         expect(clearCacheField.props().value).toBeFalsy();
 
-        await clearCacheField.find('input').trigger('click');
+        await clearCacheField.find('input').setChecked(true);
         await flushPromises();
 
         expect(wrapper.vm.role.privileges).toContain('system.clear_cache');
-        expect(clearCacheField.props().value).toBeTruthy();
+        expect(clearCacheField.props().checked).toBeTruthy();
     });
 
     it('should remove the value when it get unchecked', async () => {
@@ -208,19 +198,19 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
             },
         });
 
-        const clearCacheField = wrapper.findAllComponents({ name: 'sw-switch-field-deprecated__wrapped' }).find((field) => {
+        const clearCacheField = wrapper.findAllComponents('.mt-switch').find((field) => {
             return field.classes().includes('sw_users_permissions_additional_permissions_system_clear_cache');
         });
 
-        expect(clearCacheField.props().value).toBeTruthy();
+        expect(clearCacheField.props().checked).toBeTruthy();
 
-        await clearCacheField.find('input').trigger('click');
+        await clearCacheField.find('input').setChecked(false);
         await flushPromises();
         await clearCacheField.trigger('click');
         await wrapper.vm.$forceUpdate();
 
         expect(wrapper.vm.role.privileges).not.toContain('system.clear_cache');
-        expect(clearCacheField.props().value).toBeFalsy();
+        expect(clearCacheField.props().checked).toBeFalsy();
     });
 
     it('should disable all checkboxes', async () => {
@@ -238,7 +228,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
     });
 
     it('should add the checked value to all app privileges when the all option checked', async () => {
-        const allField = wrapper.findAllComponents({ name: 'sw-switch-field-deprecated__wrapped' }).find((field) => {
+        const allField = wrapper.findAllComponents('.mt-switch').find((field) => {
             return field.classes().includes('sw_users_permissions_additional_permissions_app_all');
         });
 
@@ -249,7 +239,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
 
         expect(wrapper.vm.role.privileges).toContain('app.all');
         expect(wrapper.vm.role.privileges).toContain('app.appExample');
-        expect(allField.props().value).toBeTruthy();
+        expect(allField.props().checked).toBeTruthy();
     });
 
     it('should unchecked all app privileges when the all option unchecked', async () => {
@@ -274,8 +264,8 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
         await allField.find('input').trigger('click');
         await flushPromises();
 
-        const appExampleField = wrapper.find('.sw_users_permissions_additional_permissions_app_appExample');
+        const appExampleField = wrapper.findComponent('.sw_users_permissions_additional_permissions_app_appExample');
 
-        expect(appExampleField.classes()).toContain('is--disabled');
+        expect(appExampleField.props().disabled).toBeDefined();
     });
 });

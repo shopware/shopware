@@ -86,7 +86,7 @@ async function createWrapper() {
                 'sw-loader': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
-                'sw-switch-field': true,
+
                 'sw-import-export-progress': true,
                 'sw-inheritance-switch': true,
                 'sw-field-error': true,

@@ -184,11 +184,12 @@
         {% endblock %}
 
         {% block sw_order_create_details_switch_disable_auto_promotion %}
-        <sw-switch-field
+
+        <mt-switch
             class="sw-order-create-details__disable-auto-promotion"
-            :value="disabledAutoPromotion"
+            :checked="disabledAutoPromotion"
             :label="$tc('sw-order.createBase.labelToggleAutomaticPromotions')"
-            @update:value="toggleAutomaticPromotions"
+            @change="toggleAutomaticPromotions"
         />
         {% endblock %}
     </mt-card>

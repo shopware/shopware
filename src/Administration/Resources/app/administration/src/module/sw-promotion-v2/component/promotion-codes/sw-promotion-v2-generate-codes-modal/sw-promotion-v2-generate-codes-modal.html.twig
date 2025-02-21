@@ -80,8 +80,9 @@
         {% endblock %}
 
         {% block sw_promotion_v2_generate_codes_modal_custom_pattern_switch %}
-        <sw-switch-field
-            v-model:value="customPatternMode"
+
+        <mt-switch
+            v-model="customPatternMode"
             class="sw-promotion-v2-generate-codes-modal__custom-pattern"
             :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelUseCustomPattern')"
             bordered

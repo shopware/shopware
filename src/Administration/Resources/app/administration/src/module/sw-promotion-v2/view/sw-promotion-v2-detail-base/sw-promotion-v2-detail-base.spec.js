@@ -21,10 +21,6 @@ async function createWrapper() {
                     template: '<div class="sw-field sw-number-field"></div>',
                     props: ['disabled'],
                 },
-                'sw-switch-field': {
-                    template: '<div class="sw-field sw-switch-field"></div>',
-                    props: ['disabled'],
-                },
                 'sw-select-field': {
                     template: '<div class="sw-field sw-select-field"></div>',
                     props: ['disabled'],

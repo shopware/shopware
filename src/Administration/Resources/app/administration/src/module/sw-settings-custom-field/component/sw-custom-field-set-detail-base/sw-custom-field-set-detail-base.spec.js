@@ -54,7 +54,7 @@ async function createWrapper(privileges = []) {
                     'sw-text-field': true,
                     'sw-multi-select': true,
                     'sw-loader': true,
-                    'sw-switch-field': true,
+
                     'sw-custom-field-translated-labels': true,
                 },
             },

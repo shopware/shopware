@@ -162,8 +162,9 @@
                     >
                         {% block sw_settings_number_range_detail_content_field_default %}
                         <div class="sw-settings-number-range-detail__field_default">
-                            <sw-switch-field
-                                v-model:value="advanced"
+
+                            <mt-switch
+                                v-model="advanced"
                                 name="sw-field--advanced"
                                 bordered
                                 :disabled="!acl.can('number_ranges.editor')"

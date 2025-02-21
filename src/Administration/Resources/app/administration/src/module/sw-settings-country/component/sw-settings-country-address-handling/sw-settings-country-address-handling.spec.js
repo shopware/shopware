@@ -35,8 +35,6 @@ async function createWrapper(privileges = [], customPropsData = {}) {
         'sw-container': true,
         'sw-ignore-class': true,
         'sw-text-field': true,
-        'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-        'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated'),
         'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
         'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated'),
         'sw-field-error': true,
@@ -226,25 +224,25 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         await flushPromises();
 
         const countryForceStateInRegistrationField = wrapper.find(
-            '.sw-field[label="sw-settings-country.detail.labelForceStateInRegistration"]',
+            'input[aria-label="sw-settings-country.detail.labelForceStateInRegistration"]',
         );
 
         const countryPostalCodeRequiredField = wrapper.find(
-            '.sw-field[label="sw-settings-country.detail.labelPostalCodeRequired"]',
+            'input[aria-label="sw-settings-country.detail.labelPostalCodeRequired"]',
         );
 
         const countryCheckPostalCodePatternField = wrapper.find(
-            '.sw-field[label="sw-settings-country.detail.labelCheckPostalCodePattern"]',
+            'input[aria-label="sw-settings-country.detail.labelCheckPostalCodePattern"]',
         );
 
         const countryCheckAdvancedPostalCodePatternField = wrapper.find(
-            '.sw-field[label="sw-settings-country.detail.labelCheckAdvancedPostalCodePattern"]',
+            'input[aria-label="sw-settings-country.detail.labelCheckAdvancedPostalCodePattern"]',
         );
 
-        expect(countryForceStateInRegistrationField.classes('is--disabled')).toBeFalsy();
-        expect(countryPostalCodeRequiredField.classes('is--disabled')).toBeFalsy();
-        expect(countryCheckPostalCodePatternField.classes('is--disabled')).toBeFalsy();
-        expect(countryCheckAdvancedPostalCodePatternField.classes('is--disabled')).toBeTruthy();
+        expect(countryForceStateInRegistrationField.attributes('disabled')).toBeUndefined();
+        expect(countryPostalCodeRequiredField.attributes('disabled')).toBeUndefined();
+        expect(countryCheckPostalCodePatternField.attributes('disabled')).toBeUndefined();
+        expect(countryCheckAdvancedPostalCodePatternField.attributes('disabled')).toBeDefined();
     });
 
     it('should not able to edit the address handling tab', async () => {
@@ -255,25 +253,25 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         await flushPromises();
 
         const countryForceStateInRegistrationField = wrapper.find(
-            '.sw-field[label="sw-settings-country.detail.labelForceStateInRegistration"]',
+            'input[aria-label="sw-settings-country.detail.labelForceStateInRegistration"]',
         );
 
         const countryPostalCodeRequiredField = wrapper.find(
-            '.sw-field[label="sw-settings-country.detail.labelPostalCodeRequired"]',
+            'input[aria-label="sw-settings-country.detail.labelPostalCodeRequired"]',
         );
 
         const countryCheckPostalCodePatternField = wrapper.find(
-            '.sw-field[label="sw-settings-country.detail.labelCheckPostalCodePattern"]',
+            'input[aria-label="sw-settings-country.detail.labelCheckPostalCodePattern"]',
         );
 
         const countryCheckAdvancedPostalCodePatternField = wrapper.find(
-            '.sw-field[label="sw-settings-country.detail.labelCheckAdvancedPostalCodePattern"]',
+            'input[aria-label="sw-settings-country.detail.labelCheckAdvancedPostalCodePattern"]',
         );
 
-        expect(countryForceStateInRegistrationField.classes('is--disabled')).toBeTruthy();
-        expect(countryPostalCodeRequiredField.classes('is--disabled')).toBeTruthy();
-        expect(countryCheckPostalCodePatternField.classes('is--disabled')).toBeTruthy();
-        expect(countryCheckAdvancedPostalCodePatternField.classes('is--disabled')).toBeTruthy();
+        expect(countryForceStateInRegistrationField.attributes('disabled')).toBeDefined();
+        expect(countryPostalCodeRequiredField.attributes('disabled')).toBeDefined();
+        expect(countryCheckPostalCodePatternField.attributes('disabled')).toBeDefined();
+        expect(countryCheckAdvancedPostalCodePatternField.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to toggle advanced postal code pattern', async () => {
@@ -295,16 +293,16 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         await flushPromises();
 
-        expect(wrapper.find('.advanced-postal-code > .sw-field--switch.is--disabled').exists()).toBeTruthy();
+        expect(wrapper.find('.advanced-postal-code > .mt-switch input').attributes('disabled')).toBeDefined();
 
         const checkAdvancedPostalCodePatternField = wrapper.findAll(
             '.sw-settings-country-address-handling__option-items',
         )[2];
-        await checkAdvancedPostalCodePatternField.find('.sw-field--switch__input input').setChecked();
+        await checkAdvancedPostalCodePatternField.find('.mt-switch input').setChecked();
 
         await flushPromises();
 
-        expect(wrapper.find('.advanced-postal-code > .sw-field--switch.is--disabled').exists()).toBeFalsy();
+        expect(wrapper.find('.advanced-postal-code > .mt-switch input').attributes('disabled')).toBeUndefined();
     });
 
     it('should be not able to toggle advanced postal code pattern', async () => {
@@ -327,21 +325,21 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         await flushPromises();
 
-        expect(wrapper.find('.advanced-postal-code > .sw-field--switch.is--disabled').exists()).toBeFalsy();
+        expect(wrapper.find('.advanced-postal-code > .mt-switch input').attributes('disabled')).toBeUndefined();
 
-        const checkPostalCodePatternField = wrapper.findAll('.sw-field--switch')[2];
+        const checkPostalCodePatternField = wrapper.findAll('.mt-switch')[2];
 
-        await checkPostalCodePatternField.find('.sw-field--switch__input input').setChecked(false);
+        await checkPostalCodePatternField.find('.mt-switch input').setChecked(false);
 
         await flushPromises();
 
-        expect(wrapper.find('.advanced-postal-code > .sw-field--switch.is--disabled').exists()).toBeTruthy();
+        expect(wrapper.find('.advanced-postal-code > .mt-switch input').attributes('disabled')).toBeDefined();
 
         const countryCheckAdvancedPostalCodePatternField = wrapper.find(
-            '.sw-field[label="sw-settings-country.detail.labelCheckAdvancedPostalCodePattern"]',
+            'input[aria-label="sw-settings-country.detail.labelCheckAdvancedPostalCodePattern"]',
         );
 
-        expect(countryCheckAdvancedPostalCodePatternField.classes('is--disabled')).toBeTruthy();
+        expect(countryCheckAdvancedPostalCodePatternField.attributes('disabled')).toBeDefined();
     });
 
     it('should revert advanced postal code pattern when toggle on Advanced validation rules', async () => {
@@ -360,21 +358,21 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         await flushPromises();
 
-        const checkPostalCodePatternField = wrapper.findAll('.sw-field--switch')[2];
+        const checkPostalCodePatternField = wrapper.findAll('.mt-switch')[2];
 
-        await checkPostalCodePatternField.find('.sw-field--switch__input input').setChecked(false);
+        await checkPostalCodePatternField.find('input').setChecked(false);
 
         await flushPromises();
 
         expect(wrapper.vm.country.checkAdvancedPostalCodePattern).toBe(false);
 
-        await checkPostalCodePatternField.find('.sw-field--switch__input input').setChecked();
+        await checkPostalCodePatternField.find('input').setChecked();
 
         await flushPromises();
 
-        const checkAdvancedPostalCodePattern = wrapper.findAll('.sw-field--switch')[3];
+        const checkAdvancedPostalCodePattern = wrapper.findAll('.mt-switch')[3];
 
-        await checkAdvancedPostalCodePattern.find('.sw-field--switch__input input').setChecked();
+        await checkAdvancedPostalCodePattern.find('input').setChecked();
 
         await flushPromises();
 
@@ -396,15 +394,15 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             await flushPromises();
 
             const countryCheckPostalCodePatternField = wrapper.find(
-                '.sw-field[label="sw-settings-country.detail.labelCheckPostalCodePattern"]',
+                'input[aria-label="sw-settings-country.detail.labelCheckPostalCodePattern"]',
             );
 
             const countryCheckAdvancedPostalCodePatternField = wrapper.find(
-                '.sw-field[label="sw-settings-country.detail.labelCheckAdvancedPostalCodePattern"]',
+                'input[aria-label="sw-settings-country.detail.labelCheckAdvancedPostalCodePattern"]',
             );
 
-            expect(countryCheckPostalCodePatternField.classes('is--disabled')).toBeTruthy();
-            expect(countryCheckAdvancedPostalCodePatternField.classes('is--disabled')).toBeFalsy();
+            expect(countryCheckPostalCodePatternField.attributes('disabled')).toBeDefined();
+            expect(countryCheckAdvancedPostalCodePatternField.attributes('disabled')).toBeUndefined();
         }
     });
 

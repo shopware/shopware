@@ -56,10 +56,6 @@ describe('components/data-grid/sw-data-grid', () => {
         }
 
         stubs = {
-            'sw-switch-field': await wrapTestComponent('sw-switch-field', {
-                sync: true,
-            }),
-            'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
             'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', {
                 sync: true,
             }),
@@ -131,10 +127,6 @@ describe('components/data-grid/sw-data-grid', () => {
 
     beforeAll(async () => {
         stubs = {
-            'sw-switch-field': await wrapTestComponent('sw-switch-field', {
-                sync: true,
-            }),
-            'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
             'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', {
                 sync: true,
             }),

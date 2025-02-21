@@ -45,9 +45,10 @@
             {% block sw_order_new_customer_modal_content_details %}
             <div v-if="active ==='details'">
                 {% block sw_order_new_customer_modal_content_details_guest %}
-                <sw-switch-field
-                    v-model:value="customer.guest"
-                    no-margin-top
+
+                <mt-switch
+                    v-model="customer.guest"
+                    remove-top-margin
                     :label="$tc('sw-order.newCustomerModal.labelGuest')"
                 />
                 {% endblock %}
@@ -64,9 +65,10 @@
             {% block sw_order_new_customer_modal_content_shipping %}
             <div v-if="active === 'shippingAddress'">
                 {% block sw_order_new_customer_modal_content_shipping_same_billing %}
-                <sw-switch-field
-                    v-model:value="isSameBilling"
-                    no-margin-top
+
+                <mt-switch
+                    v-model="isSameBilling"
+                    remove-top-margin
                     :label="$tc('sw-customer.addressForm.labelSameBillingAddress')"
                 />
                 {% endblock %}

@@ -49,8 +49,9 @@
 
         {% block sw_promotion_discount_condition_consider_product_rules_field %}
         <template v-if="displayAdvancedRuleOption">
-            <sw-switch-field
-                v-model:value="discount.considerAdvancedRules"
+
+            <mt-switch
+                v-model="discount.considerAdvancedRules"
                 bordered
                 :label="$tc('sw-promotion.detail.main.discounts.flagProductScopeLabel')"
                 :disabled="isEditingDisabled"

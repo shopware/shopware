@@ -244,8 +244,9 @@
                         {% endblock %}
 
                         {% block sw_review_detail_description_list_status %}
-                        <sw-switch-field
-                            v-model:value="review.status"
+
+                        <mt-switch
+                            v-model="review.status"
                             name="sw-field--review-status"
                             class="status-switch"
                             :disabled="!acl.can('review.editor') || undefined"

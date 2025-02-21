@@ -70,8 +70,9 @@
         <sw-container class="sw-settings-country-general__options-container">
 
             {% block sw_settings_country_general_content_field_active %}
-            <sw-switch-field
-                v-model:value="country.active"
+
+            <mt-switch
+                v-model="country.active"
                 name="sw-field--country-active"
                 class="sw-settings-country-general__option-items"
                 bordered
@@ -81,8 +82,9 @@
             {% endblock %}
 
             {% block sw_settings_country_general_content_field_shipping_available %}
-            <sw-switch-field
-                v-model:value="country.shippingAvailable"
+
+            <mt-switch
+                v-model="country.shippingAvailable"
                 name="sw-field--country-shippingAvailable"
                 class="sw-settings-country-general__option-items"
                 bordered
@@ -92,8 +94,9 @@
             {% endblock %}
 
             {% block sw_settings_country_general_content_field_tax_free %}
-            <sw-switch-field
-                v-model:value="country.customerTax.enabled"
+
+            <mt-switch
+                v-model="country.customerTax.enabled"
                 name="sw-field--country-customerTax-enabled"
                 class="sw-settings-country-general__option-items switch-field-customer-tax-free"
                 bordered
@@ -157,8 +160,9 @@
             </sw-container>
 
             {% block sw_settings_country_general_content_field_tax_free_companies %}
-            <sw-switch-field
-                v-model:value="country.companyTax.enabled"
+
+            <mt-switch
+                v-model="country.companyTax.enabled"
                 name="sw-field--country-companyTax-enabled"
                 class="sw-settings-country-general__option-items switch-field-company-tax-free"
                 bordered
@@ -237,8 +241,9 @@
             {% endblock %}
 
             {% block sw_settings_country_general_content_field_check_vat_id_format %}
-            <sw-switch-field
-                v-model:value="country.checkVatIdPattern"
+
+            <mt-switch
+                v-model="country.checkVatIdPattern"
                 name="sw-field--country-checkVatIdPattern"
                 class="sw-settings-country-general__field-check-vatid-format sw-settings-country-general__option-items"
                 bordered
@@ -249,8 +254,9 @@
             {% endblock %}
 
             {% block sw_settings_country_general_content_field_vat_id_required %}
-            <sw-switch-field
-                v-model:value="country.vatIdRequired"
+
+            <mt-switch
+                v-model="country.vatIdRequired"
                 name="sw-field--country-vatIdRequired"
                 class="sw-settings-country-general__vat-id-required sw-settings-country-general__option-items"
                 bordered
@@ -261,8 +267,9 @@
             {% endblock %}
 
             {% block sw_settings_country_general_content_field_is_eu %}
-            <sw-switch-field
-                v-model:value="country.isEu"
+
+            <mt-switch
+                v-model="country.isEu"
                 name="sw-field--country-isEu"
                 class="sw-settings-country-general__is-eu sw-settings-country-general__option-items"
                 bordered

@@ -97,12 +97,12 @@
                 {% block sw_product_detail_prices_price_card_price_group_grid_settings %}
                 <template #additionalSettings>
                     {% block sw_product_detail_prices_price_card_price_group_grid_settings_list_prices %}
-                    <sw-switch-field
-                        size="medium"
-                        :value="showListPrices[priceGroup.ruleId] !== false"
-                        no-margin-top
+
+                    <mt-switch
+                        :checked="showListPrices[priceGroup.ruleId] !== false"
+                        remove-top-margin
                         :label="$tc('sw-product.prices.settingShowListPrices')"
-                        @update:value="onChangeShowListPrices($event, priceGroup.ruleId)"
+                        @change="onChangeShowListPrices($event, priceGroup.ruleId)"
                     />
                     {% endblock %}
                 </template>
@@ -353,8 +353,9 @@
                     class="sw-product-detail-context-prices__inherit-toggle-wrapper"
                     :class="{ 'is--inherited': isInherited }"
                 >
-                    <sw-switch-field
-                        v-model:value="isInherited"
+
+                    <mt-switch
+                        v-model="isInherited"
                         class="sw-product-detail-context-prices__inherit-switch"
                         :disabled="!acl.can('product.editor')"
                     />

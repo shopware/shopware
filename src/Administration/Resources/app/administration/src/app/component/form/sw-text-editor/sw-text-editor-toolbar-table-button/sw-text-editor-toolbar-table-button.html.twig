@@ -2,8 +2,9 @@
 <div class="sw-text-editor-toolbar-table-button">
 
     {% block sw_text_editor_toolbar_table_button_table_head_switch %}
-    <sw-switch-field
-        v-model:value="addTableHead"
+
+    <mt-switch
+        v-model="addTableHead"
         :label="$tc('sw-text-editor-toolbar.table.addHeading')"
     />
     {% endblock %}

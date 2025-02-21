@@ -104,21 +104,23 @@
         {% endblock %}
 
         {% block sw_text_editor_toolbar_button_link_menu_content_type_opens_new_tab %}
-        <sw-switch-field
+
+        <mt-switch
             v-if="!['phone', 'email'].includes(linkCategory)"
-            v-model:value="opensNewTab"
+            v-model="opensNewTab"
             class="sw-text-editor-toolbar-button__link-menu-switch sw-text-editor-toolbar-button__link-menu-new-tab"
             :label="$tc('sw-text-editor-toolbar.link.openInNewTab')"
-            no-margin-top
+            remove-top-margin
         />
         {% endblock %}
 
         {% block sw_text_editor_toolbar_button_link_menu_content_type_display_as_button %}
-        <sw-switch-field
-            v-model:value="displayAsButton"
+
+        <mt-switch
+            v-model="displayAsButton"
             class="sw-text-editor-toolbar-button__link-menu-switch sw-text-editor-toolbar-button__link-menu-display-button"
             :label="$tc('sw-text-editor-toolbar.link.displayAsButton')"
-            no-margin-top
+            remove-top-margin
         />
         {% endblock %}
 

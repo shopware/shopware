@@ -24,8 +24,9 @@
         {% block sw_settings_listing_default_sales_channeld_setting %}
         <div class="sw-settings-listing-default-sales-channel__options-container">
             {% block sw_settings_listing_default_sales_channel_setting_active %}
-            <sw-switch-field
-                v-model:value="configData[null]['core.defaultSalesChannel.active']"
+
+            <mt-switch
+                v-model="configData[null]['core.defaultSalesChannel.active']"
                 class="sw-settings-listing-default-sales-channel__active-switch"
                 :label="$tc('sw-product.settingsForm.labelActive')"
             />

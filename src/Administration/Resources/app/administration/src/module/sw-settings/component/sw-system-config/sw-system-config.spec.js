@@ -1,3 +1,5 @@
+/* eslint-disable jest/no-conditional-expect */
+
 /**
  * @sw-package framework
  */
@@ -37,11 +39,7 @@ async function createWrapper(defaultValues = {}) {
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-password-field': await wrapTestComponent('sw-password-field'),
                 'sw-password-field-deprecated': await wrapTestComponent('sw-password-field-deprecated'),
-                'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
-                'sw-textarea-field-deprecated': await wrapTestComponent('sw-textarea-field-deprecated', { sync: true }),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                 'sw-number-field': await wrapTestComponent('sw-number-field'),
                 'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
@@ -77,7 +75,6 @@ async function createWrapper(defaultValues = {}) {
                 'sw-text-editor': await wrapTestComponent('sw-text-field'),
                 'sw-extension-component-section': true,
                 'sw-ai-copilot-badge': true,
-
                 'sw-context-button': true,
                 'sw-product-variant-info': true,
                 'sw-help-text': true,
@@ -214,6 +211,7 @@ function createConfig() {
     const firstCardElements = [
         {
             name: 'ConfigRenderer.config.textField',
+            isMeteorComponent: false,
             type: 'text',
             config: {
                 required: true,
@@ -237,6 +235,7 @@ function createConfig() {
         {
             name: 'ConfigRenderer.config.textareaField',
             type: 'textarea',
+            isMeteorComponent: true,
             config: {
                 label: {
                     'en-GB': 'textarea field',
@@ -257,6 +256,7 @@ function createConfig() {
         },
         {
             name: 'ConfigRenderer.config.urlField',
+            isMeteorComponent: false,
             type: 'url',
             config: {
                 defaultValue: 'https://www.shopware.com',
@@ -283,6 +283,7 @@ function createConfig() {
         },
         {
             name: 'ConfigRenderer.config.passwordField',
+            isMeteorComponent: false,
             type: 'password',
             config: {
                 defaultValue: 'V3RY_S3CR3T',
@@ -304,6 +305,7 @@ function createConfig() {
         },
         {
             name: 'ConfigRenderer.config.intField',
+            isMeteorComponent: false,
             type: 'int',
             config: {
                 defaultValue: 7,
@@ -330,6 +332,7 @@ function createConfig() {
         },
         {
             name: 'ConfigRenderer.config.floatField',
+            isMeteorComponent: false,
             type: 'float',
             config: {
                 defaultValue: 1.23,
@@ -356,6 +359,7 @@ function createConfig() {
         },
         {
             name: 'ConfigRenderer.config.boolField',
+            isMeteorComponent: true,
             type: 'bool',
             config: {
                 defaultValue: true,
@@ -371,14 +375,15 @@ function createConfig() {
                 childValue: false,
                 fallbackValue: false,
                 changeValueFunction: async (field) => {
+                    const currentValue = field.find('input').element.checked;
                     // change input value
-                    await field.find('input[type="checkbox"]').trigger('click');
-                    await field.find('input[type="checkbox"]').trigger('change');
+                    await field.find('input[type="checkbox"]').setChecked(!currentValue);
                 },
             },
         },
         {
             name: 'ConfigRenderer.config.checkboxField',
+            isMeteorComponent: false,
             type: 'checkbox',
             config: {
                 defaultValue: true,
@@ -402,6 +407,7 @@ function createConfig() {
         },
         {
             name: 'ConfigRenderer.config.datetimeField',
+            isMeteorComponent: false,
             type: 'datetime',
             config: {
                 defaultValue: '2000-01-01T12:00:00+00:00',
@@ -423,6 +429,7 @@ function createConfig() {
         },
         {
             name: 'ConfigRenderer.config.dateField',
+            isMeteorComponent: false,
             type: 'date',
             config: {
                 defaultValue: '2000-01-01T00:00:00+00:00',
@@ -444,6 +451,7 @@ function createConfig() {
         },
         {
             name: 'ConfigRenderer.config.timeField',
+            isMeteorComponent: false,
             type: 'time',
             config: {
                 defaultValue: '12:00:00+00:00',
@@ -465,6 +473,7 @@ function createConfig() {
         },
         {
             name: 'ConfigRenderer.config.colorpickerField',
+            isMeteorComponent: false,
             type: 'colorpicker',
             config: {
                 defaultValue: '#123abc',
@@ -486,6 +495,7 @@ function createConfig() {
         },
         {
             name: 'ConfigRenderer.config.singleSelectField',
+            isMeteorComponent: false,
             type: 'single-select',
             config: {
                 defaultValue: 'blue',
@@ -538,6 +548,7 @@ function createConfig() {
         },
         {
             name: 'ConfigRenderer.config.multiSelectField',
+            isMeteorComponent: false,
             type: 'multi-select',
             config: {
                 defaultValue: ['blue'],
@@ -597,6 +608,7 @@ function createConfig() {
         },
         {
             name: 'ConfigRenderer.config.entitySelectField',
+            isMeteorComponent: false,
             config: {
                 defaultValue: uuid.get('pullover'),
                 componentName: 'sw-entity-single-select',
@@ -631,6 +643,7 @@ function createConfig() {
         },
         {
             name: 'ConfigRenderer.config.mediaField',
+            isMeteorComponent: false,
             config: {
                 defaultValue: uuid.get('funny-image'),
                 componentName: 'sw-media-field',
@@ -666,6 +679,7 @@ function createConfig() {
         },
         {
             name: 'ConfigRenderer.config.textEditorField',
+            isMeteorComponent: false,
             config: {
                 defaultValue: '<p>I am a paragraph</p>',
                 componentName: 'sw-text-editor',
@@ -765,7 +779,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         expect(error).toBeInstanceOf(ShopwareError);
     });
 
-    createConfig()[0].elements.forEach(({ name, type, config, _test }) => {
+    createConfig()[0].elements.forEach(({ name, type, config, _test, isMeteorComponent }) => {
         it(`should render field with type "${type || name}" with the default value and should be able to change it`, async () => {
             const domValue = _test.defaultValueDom || config.defaultValue;
             const afterValueDom = _test.afterValueDom || _test.afterValue;
@@ -834,25 +848,46 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             // check if value in dom shows the inherit value
             let field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);
             await _test.domValueCheck(field, domValue);
-            let inheritanceSwitch = field.find('.sw-inheritance-switch');
+            let inheritanceSwitch;
+            if (isMeteorComponent) {
+                inheritanceSwitch = field.find('button.mt-field-label__inheritance-switch');
+            } else {
+                inheritanceSwitch = field.find('.sw-inheritance-switch');
+            }
 
             // check if switch show inheritance
-            expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
+            if (isMeteorComponent) {
+                expect(inheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
+            } else {
+                expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
+            }
 
             // check if inheritance switch is visible
-            inheritanceSwitch = field.find('.sw-inheritance-switch');
             expect(inheritanceSwitch.isVisible()).toBe(true);
 
             // check if value in actualConfigData is right (null or undefined)
             expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeUndefined();
 
             // remove inheritance
-            await inheritanceSwitch.find('.sw-icon').trigger('click');
+            if (isMeteorComponent) {
+                await inheritanceSwitch.trigger('click');
+            } else {
+                await inheritanceSwitch.find('.sw-icon').trigger('click');
+            }
 
             // check if inheritance switch is not inherit anymore
             field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);
-            inheritanceSwitch = field.find('.sw-inheritance-switch');
-            expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
+            if (isMeteorComponent) {
+                inheritanceSwitch = field.find('button.mt-field-label__inheritance-switch');
+            } else {
+                inheritanceSwitch = field.find('.sw-inheritance-switch');
+            }
+
+            if (isMeteorComponent) {
+                expect(inheritanceSwitch.attributes('aria-label')).toBe('Link inheritance');
+            } else {
+                expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
+            }
 
             // check if child gets parent value
             field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);
@@ -907,20 +942,42 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toEqual(childValue);
 
             // check if inheritance switch is visible
-            let inheritanceSwitch = field.find('.sw-inheritance-switch');
+            let inheritanceSwitch;
+            if (isMeteorComponent) {
+                inheritanceSwitch = field.find('button.mt-field-label__inheritance-switch');
+            } else {
+                inheritanceSwitch = field.find('.sw-inheritance-switch');
+            }
             expect(inheritanceSwitch.isVisible()).toBe(true);
 
             // check if switch show inheritance
-            expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
+            if (isMeteorComponent) {
+                expect(inheritanceSwitch.attributes('aria-label')).toBe('Link inheritance');
+            } else {
+                expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
+            }
 
             // restore inheritance
-            await inheritanceSwitch.find('.sw-icon').trigger('click');
+            if (isMeteorComponent) {
+                await inheritanceSwitch.trigger('click');
+            } else {
+                await inheritanceSwitch.find('.sw-icon').trigger('click');
+            }
             await flushPromises();
 
             // check if inheritance switch is not inherit anymore
             field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);
-            inheritanceSwitch = field.find('.sw-inheritance-switch');
-            expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
+            if (isMeteorComponent) {
+                inheritanceSwitch = field.find('button.mt-field-label__inheritance-switch');
+            } else {
+                inheritanceSwitch = field.find('.sw-inheritance-switch');
+            }
+
+            if (isMeteorComponent) {
+                expect(inheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
+            } else {
+                expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
+            }
 
             // check if child gets parent value
             field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);
@@ -973,19 +1030,41 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toEqual(childValue);
 
             // check if inheritance switch is visible
-            let inheritanceSwitch = field.find('.sw-inheritance-switch');
+            let inheritanceSwitch;
+            if (isMeteorComponent) {
+                inheritanceSwitch = field.find('button.mt-field-label__inheritance-switch');
+            } else {
+                inheritanceSwitch = field.find('.sw-inheritance-switch');
+            }
             expect(inheritanceSwitch.isVisible()).toBe(true);
 
             // check if switch show inheritance
-            expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
+            if (isMeteorComponent) {
+                expect(inheritanceSwitch.attributes('aria-label')).toBe('Link inheritance');
+            } else {
+                expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
+            }
 
             // restore inheritance
-            await inheritanceSwitch.find('.sw-icon').trigger('click');
+            if (isMeteorComponent) {
+                await inheritanceSwitch.trigger('click');
+            } else {
+                await inheritanceSwitch.find('.sw-icon').trigger('click');
+            }
 
             // check if inheritance switch is not inherit anymore
             field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);
-            inheritanceSwitch = field.find('.sw-inheritance-switch');
-            expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
+            if (isMeteorComponent) {
+                inheritanceSwitch = field.find('button.mt-field-label__inheritance-switch');
+            } else {
+                inheritanceSwitch = field.find('.sw-inheritance-switch');
+            }
+
+            if (isMeteorComponent) {
+                expect(inheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
+            } else {
+                expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
+            }
 
             // check if child gets fallback parent value
             field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);

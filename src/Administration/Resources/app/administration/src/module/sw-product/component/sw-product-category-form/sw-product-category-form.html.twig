@@ -52,14 +52,15 @@
             :inherited-value="parentProduct.active"
         >
             <template #content="props">
-                <sw-switch-field
+
+                <mt-switch
                     class="sw-field--product-active no-margin"
                     :error="productActiveError"
                     :map-inheritance="props"
                     :label="$tc('sw-product.settingsForm.labelActive')"
                     :disabled="props.isInherited || !allowEdit"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :checked="props.currentValue"
+                    @change="props.updateCurrentValue"
                 />
             </template>
         </sw-inherit-wrapper>

@@ -83,8 +83,9 @@
                         />
 
                         {% block sw_integration_list_detail_modal_inner_acl_is_admin %}
-                        <sw-switch-field
-                            v-model:value="currentIntegration.admin"
+
+                        <mt-switch
+                            v-model="currentIntegration.admin"
                             name="sw-field--currentIntegration-admin"
                             class="sw-settings-user-detail__grid-is-admin"
                             :label="$tc('sw-users-permissions.users.user-detail.labelAdministrator')"

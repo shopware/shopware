@@ -32,15 +32,6 @@ async function createWrapper(props = { type: 'string' }) {
                         'numberType',
                     ],
                 },
-                'sw-switch-field': {
-                    template: '<input/>',
-                    props: [
-                        'value',
-                        'label',
-                        'placeholder',
-                        'helpText',
-                    ],
-                },
                 'sw-datepicker': {
                     template: '<input/>',
                     props: [
@@ -86,7 +77,13 @@ describe('module/sw-custom-entity/component/sw-custom-entity-input-field', () =>
             await wrapper.setProps(mockData);
 
             const inputField = wrapper.getComponent(`.sw-custom-entity-input-field__${type}`);
-            const propType = type === 'string' ? 'modelValue' : 'value';
+            let propType = type === 'string' ? 'modelValue' : 'value';
+
+            if (type === 'boolean') {
+                propType = 'checked';
+                mockData.value = true;
+                mockData.placeholder = undefined;
+            }
 
             expect(inputField.props(propType)).toBe(mockData.value);
             expect(inputField.props('label')).toBe(mockData.label);

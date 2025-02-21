@@ -17,8 +17,9 @@
     {% endblock %}
 
     {% block sw_promotion_v2_cart_condition_form_use_setgroups_field %}
-    <sw-switch-field
-        v-model:value="promotion.useSetGroups"
+
+    <mt-switch
+        v-model="promotion.useSetGroups"
         class="sw-promotion-v2-cart-condition-form__use-setgroups"
         :disabled="!acl.can('promotion.editor')"
         :label="$tc('sw-promotion-v2.detail.conditions.setgroups.switchGroupsEnabled')"

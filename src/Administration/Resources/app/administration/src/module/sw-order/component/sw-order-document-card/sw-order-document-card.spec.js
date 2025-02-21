@@ -144,7 +144,7 @@ async function createWrapper() {
                 'sw-datepicker': true,
                 'sw-icon': true,
                 'sw-textarea-field': true,
-                'sw-switch-field': true,
+
                 'sw-button-group': await wrapTestComponent('sw-button-group', { sync: true }),
                 'sw-loader': true,
                 'sw-extension-component-section': true,

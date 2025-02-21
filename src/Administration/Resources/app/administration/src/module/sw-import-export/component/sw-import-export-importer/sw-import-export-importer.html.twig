@@ -39,8 +39,9 @@
 
     <template v-if="selectedProfile && selectedProfile.sourceEntity === 'product'">
         {% block sw_import_export_importer_profile_select_product_variants_switch %}
-        <sw-switch-field
-            v-model:value="config.includeVariants"
+
+        <mt-switch
+            v-model="config.includeVariants"
             class="sw-import-export-importer__variants-switch-field"
             :label="$tc('sw-import-export.importer.importVariants')"
         />

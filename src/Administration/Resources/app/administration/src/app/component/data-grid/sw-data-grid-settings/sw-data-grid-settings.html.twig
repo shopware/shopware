@@ -32,23 +32,23 @@
     <div class="sw-data-grid__settings-container">
 
         {% block sw_data_grid_settings_compact_switch %}
-        <sw-switch-field
-            v-model:value="currentCompact"
-            size="medium"
-            no-margin-top
+
+        <mt-switch
+            :checked="currentCompact"
+            remove-top-margin
             :label="$tc('global.sw-data-grid.labelSettingsCompactMode')"
-            @update:value="onChangeCompactMode(currentCompact)"
+            @change="onChangeCompactMode(currentCompact)"
         />
         {% endblock %}
 
         {% block sw_data_grid_settings_preview_switch %}
-        <sw-switch-field
+
+        <mt-switch
             v-if="enablePreviews"
-            v-model:value="currentPreviews"
-            size="medium"
-            no-margin-top
+            :checked="currentPreviews"
+            remove-top-margin
             :label="$tc('global.sw-data-grid.labelSettingsPreviewImages')"
-            @update:value="onChangePreviews(currentPreviews)"
+            @change="onChangePreviews(currentPreviews)"
         />
         {% endblock %}
 

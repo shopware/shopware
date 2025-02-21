@@ -36,8 +36,9 @@
             gap="0 30px"
         >
             {% block sw_sales_channel_detail_analytics_fields_active %}
-            <sw-switch-field
-                v-model:value="salesChannel.analytics.active"
+
+            <mt-switch
+                v-model="salesChannel.analytics.active"
                 :label="$tc('sw-sales-channel.detail.analytics.fields.active.label')"
                 name="analyticsActive"
                 :disabled="!acl.can('sales_channel.editor')"
@@ -45,8 +46,9 @@
             {% endblock %}
 
             {% block sw_sales_channel_detail_analytics_fields_track_orders %}
-            <sw-switch-field
-                v-model:value="salesChannel.analytics.trackOrders"
+
+            <mt-switch
+                v-model="salesChannel.analytics.trackOrders"
                 :label="$tc('sw-sales-channel.detail.analytics.fields.trackOrders.label')"
                 name="trackOrders"
                 :disabled="!acl.can('sales_channel.editor')"
@@ -54,8 +56,9 @@
             {% endblock %}
 
             {% block sw_sales_channel_detail_analytics_fields_anonymize_ip %}
-            <sw-switch-field
-                v-model:value="salesChannel.analytics.anonymizeIp"
+
+            <mt-switch
+                v-model="salesChannel.analytics.anonymizeIp"
                 :label="$tc('sw-sales-channel.detail.analytics.fields.anonymizeIp.label')"
                 name="anonymizeIp"
                 :disabled="!acl.can('sales_channel.editor')"

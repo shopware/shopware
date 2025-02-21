@@ -72,11 +72,12 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_general_input_favorite %}
-        <sw-switch-field
+
+        <mt-switch
             :disabled="!acl.can('user_config:create') || !acl.can('user_config:update') || salesChannel._isNew"
             :label="$tc('sw-sales-channel.detail.favouriteLabel')"
-            :value="isFavorite()"
-            @update:value="(isFavorite) => { salesChannelFavoritesService.update(isFavorite, salesChannel.id) }"
+            :checked="isFavorite()"
+            @change="(isFavorite) => { salesChannelFavoritesService.update(isFavorite, salesChannel.id) }"
         />
         {% endblock %}
 
@@ -460,8 +461,9 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_general_input_product_comparison_include_variants %}
-        <sw-switch-field
-            v-model:value="productExport.includeVariants"
+
+        <mt-switch
+            v-model="productExport.includeVariants"
             bordered
             :disabled="!acl.can('sales_channel.editor') || undefined"
             :label="$tc('sw-sales-channel.detail.productComparison.includeVariants')"
@@ -481,8 +483,9 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_general_input_product_comparison_generate_by_cronjob %}
-        <sw-switch-field
-            v-model:value="productExport.generateByCronjob"
+
+        <mt-switch
+            v-model="productExport.generateByCronjob"
             bordered
             :label="$tc('sw-sales-channel.detail.productComparison.generateByCronjob')"
             :disabled="disableGenerateByCronjob || !acl.can('sales_channel.editor') || undefined"
@@ -635,11 +638,12 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_status_input_active %}
-        <sw-switch-field
-            v-model:value="salesChannel.active"
+
+        <mt-switch
+            v-model="salesChannel.active"
             :label="$tc('sw-sales-channel.detail.labelInputActive')"
             :disabled="!acl.can('sales_channel.editor') || undefined"
-            @update:value="onToggleActive"
+            @update:model-value="onToggleActive"
         />
         {% endblock %}
 
@@ -654,8 +658,9 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_maintenance_input_active %}
-        <sw-switch-field
-            v-model:value="salesChannel.maintenance"
+
+        <mt-switch
+            v-model="salesChannel.maintenance"
             name="sw-field--salesChannel-maintenance"
             :disabled="!acl.can('sales_channel.editor') || undefined"
             :label="$tc('sw-sales-channel.detail.labelMaintenanceActive')"

@@ -34,7 +34,7 @@ async function createWrapper(privileges = []) {
                 },
                 stubs: {
                     'sw-internal-link': true,
-                    'sw-switch-field': true,
+
                     'sw-media-preview-v2': true,
                 },
             },
@@ -57,8 +57,8 @@ describe('module/sw-settings-payment/component/sw-payment-card', () => {
         const editLink = wrapper.find('sw-internal-link-stub');
         expect(editLink.attributes().disabled).toBeTruthy();
 
-        const activeToggle = wrapper.find('sw-switch-field-stub');
-        expect(activeToggle.attributes().disabled).toBeTruthy();
+        const activeToggle = wrapper.findComponent('.mt-switch');
+        expect(activeToggle.props().disabled).toBe(true);
     });
 
     it('should be able to edit a payment method', async () => {
@@ -68,7 +68,7 @@ describe('module/sw-settings-payment/component/sw-payment-card', () => {
         const editLink = wrapper.find('sw-internal-link-stub');
         expect(editLink.attributes().disabled).toBeFalsy();
 
-        const activeToggle = wrapper.find('sw-switch-field-stub');
+        const activeToggle = wrapper.find('.mt-switch');
         expect(activeToggle.attributes().disabled).toBeFalsy();
     });
 
@@ -76,8 +76,8 @@ describe('module/sw-settings-payment/component/sw-payment-card', () => {
         const wrapper = await createWrapper(['payment.editor']);
         await wrapper.vm.$nextTick();
 
-        const activeToggle = wrapper.findComponent('sw-switch-field-stub');
-        await activeToggle.vm.$emit('update:value', false);
+        const activeToggle = wrapper.findComponent('.mt-switch');
+        await activeToggle.vm.$emit('change', false);
 
         const expectedPaymentMethod = {
             id: '5e6f7g8h',
@@ -90,7 +90,7 @@ describe('module/sw-settings-payment/component/sw-payment-card', () => {
         expect(wrapper.emitted('set-payment-active')).toHaveLength(1);
         expect(wrapper.emitted('set-payment-active')[0]).toEqual([expectedPaymentMethod]);
 
-        await activeToggle.vm.$emit('update:value', false);
+        await activeToggle.vm.$emit('change', false);
 
         expect(wrapper.emitted('set-payment-active')).toHaveLength(1);
     });

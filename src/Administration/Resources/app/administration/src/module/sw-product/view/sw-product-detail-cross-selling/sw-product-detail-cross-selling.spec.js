@@ -20,7 +20,7 @@ async function createWrapper() {
                     'sw-skeleton': true,
                     'sw-icon': true,
                     'sw-inheritance-switch': true,
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+
                     'router-link': true,
                 },
                 provide: {

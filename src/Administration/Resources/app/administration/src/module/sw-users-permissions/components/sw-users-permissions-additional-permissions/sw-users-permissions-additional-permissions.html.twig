@@ -31,13 +31,14 @@
                 :key="roleName"
             >
                 {% block sw_users_permissions_additional_permissions_additional_privileges_switches_content_switch %}
-                <sw-switch-field
+
+                <mt-switch
                     :disabled="disabled"
                     :class="'sw_users_permissions_additional_permissions_' + privilege.key + '_' + roleName"
-                    :value="isPrivilegeSelected(privilege.key + '.' + roleName)"
+                    :checked="isPrivilegeSelected(privilege.key + '.' + roleName)"
                     :label="$tc('sw-privileges.additional_permissions.' + privilege.key + '.' + roleName)"
                     :bordered="true"
-                    @update:value="onSelectPrivilege(privilege.key + '.' + roleName, $event)"
+                    @change="onSelectPrivilege(privilege.key + '.' + roleName, $event)"
                 />
                 {% endblock %}
             </template>
@@ -74,17 +75,18 @@
                 :key="roleName"
             >
                 {% block sw_users_permissions_additional_permissions_app_privileges_switches_content_switch %}
-                <sw-switch-field
+
+                <mt-switch
                     v-if="roleName === 'all'"
                     :disabled="disabled"
                     class="sw_users_permissions_additional_permissions_app_all"
-                    :value="isPrivilegeSelected('app.' + roleName)"
+                    :checked="isPrivilegeSelected('app.' + roleName)"
                     :label="$tc('sw-privileges.additional_permissions.app.all')"
                     :bordered="true"
-                    @update:value="changeAllAppPermissionsForKey('app.' + roleName, $event)"
+                    @change="changeAllAppPermissionsForKey('app.' + roleName, $event)"
                 />
 
-                <sw-switch-field
+                <mt-switch
                     v-else
                     v-tooltip="{
                         message: $tc('sw-privileges.additional_permissions.app.disabledCheckboxMessage'),
@@ -93,10 +95,10 @@
                     }"
                     :disabled="isPrivilegeSelected('app.all') || disabled"
                     :class="'sw_users_permissions_additional_permissions_app_' + roleName"
-                    :value="isPrivilegeSelected('app.' + roleName)"
+                    :checked="isPrivilegeSelected('app.' + roleName)"
                     :label="roleName"
                     :bordered="true"
-                    @update:value="onSelectPrivilege('app.' + roleName, $event)"
+                    @change="onSelectPrivilege('app.' + roleName, $event)"
                 />
                 {% endblock %}
             </template>

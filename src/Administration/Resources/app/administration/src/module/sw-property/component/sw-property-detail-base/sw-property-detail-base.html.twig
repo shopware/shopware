@@ -35,8 +35,9 @@
         gap="0px 30px"
     >
         {% block sw_property_detail_base_filterable %}
-        <sw-switch-field
-            v-model:value="propertyGroup.filterable"
+
+        <mt-switch
+            v-model="propertyGroup.filterable"
             name="propertyGroupFilterable"
             class="sw-property-detail__filterable"
             :label="$tc('sw-property.detail.labelFilterable')"
@@ -45,8 +46,9 @@
         {% endblock %}
 
         {% block sw_property_detail_base_visible_on_detail %}
-        <sw-switch-field
-            v-model:value="propertyGroup.visibleOnProductDetailPage"
+
+        <mt-switch
+            v-model="propertyGroup.visibleOnProductDetailPage"
             name="propertyGroupvisibleOnProductDetailPage"
             class="sw-property-detail__visible-on-detail"
             :label="$tc('sw-property.detail.labelvisibleOnProductDetailPage')"

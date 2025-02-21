@@ -48,13 +48,6 @@ async function createWrapper() {
                         'disabled',
                     ],
                 },
-                'sw-switch-field': {
-                    template: '<input type="checkbox" class="sw-field sw-switch-field"></input>',
-                    props: [
-                        'value',
-                        'disabled',
-                    ],
-                },
                 'sw-promotion-v2-cart-condition-form': true,
             },
             provide: {

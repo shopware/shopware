@@ -65,15 +65,6 @@ async function createWrapper(startingValue) {
                         '<select class="sw-select-field" :value="value" @change="$emit(\'update:value\', $event.target.value)"><slot></slot></select>',
                     props: ['value'],
                 },
-                'sw-switch-field': {
-                    props: [
-                        'value',
-                        'label',
-                        'placeholder',
-                    ],
-                    template:
-                        '<input class="sw-switch-field" type="checkbox" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
-                },
                 'sw-email-field': {
                     props: [
                         'value',

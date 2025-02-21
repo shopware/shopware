@@ -18,11 +18,12 @@
     {% endblock %}
 
     {% block sw_sales_channel_detail_hreflang_content_enable %}
-    <sw-switch-field
-        v-model:value="salesChannel.hreflangActive"
+
+    <mt-switch
+        v-model="salesChannel.hreflangActive"
         :label="$tc('sw-sales-channel.detail.hreflang.enableCheckbox')"
         :disabled="disabled || undefined"
-        @update:value="salesChannel.hreflangDefaultDomainId = null"
+        @update:model-value="salesChannel.hreflangDefaultDomainId = null"
     />
     {% endblock %}
 

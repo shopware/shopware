@@ -26,14 +26,6 @@ async function createWrapper() {
                 'sw-container': {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
-                'sw-switch-field': {
-                    template:
-                        '<input class="sw-field sw-switch-field" type="checkbox" :value="value" @change="$emit(\'update:value\', $event.target.checked)" />',
-                    props: [
-                        'value',
-                        'disabled',
-                    ],
-                },
                 'sw-single-select': {
                     template: '<input type="select" class="sw-single-select"></input>',
                     props: ['disabled'],

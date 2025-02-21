@@ -70,7 +70,7 @@ async function createWrapper(propsData = {}) {
                         template: '<input class="sw-number-field"></input>',
                         props: ['value'],
                     },
-                    'sw-switch-field': true,
+
                     'sw-field-error': true,
                     'sw-modal': {
                         template: '<div class="sw-modal"><slot /></div>',

@@ -31,12 +31,12 @@ async function createWrapper() {
                         'maxlength',
                     ],
                 },
-                'sw-textarea-field': {
+                'mt-textarea': {
                     // eslint-disable-next-line max-len
                     template:
-                        '<textarea class="sw-text-field" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
+                        '<textarea class="sw-text-field" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
                     props: [
-                        'value',
+                        'modelValue',
                         'label',
                         'help-text',
                         'placeholder',
@@ -131,19 +131,19 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-card', (
         expect(ogDescriptionInput.props().helpText).toBe('sw-landing-page.base.seo.helpTextMetaDescription');
         expect(ogDescriptionInput.props().label).toBe('sw-landing-page.base.seo.labelSocialMediaDescription');
         expect(ogDescriptionInput.props().placeholder).toBe('sw-landing-page.base.seo.placeholderSocialMediaDescription');
-        expect(ogDescriptionInput.props().value).toBe('');
+        expect(ogDescriptionInput.props().modelValue).toBe('');
         expect(ogDescriptionInput.attributes()['max-length']).toBe('255');
 
         expect(ogDescriptionDisplay.text()).toBe('');
 
-        await ogDescriptionInput.vm.$emit('update:value', TEST_OG_DESCRIPTION);
+        await ogDescriptionInput.vm.$emit('update:modelValue', TEST_OG_DESCRIPTION);
         expect(wrapper.emitted('update:og-description')).toEqual([
             [TEST_OG_DESCRIPTION],
         ]);
 
         await wrapper.setProps({ ogDescription: TEST_OG_DESCRIPTION });
 
-        expect(ogDescriptionInput.props('value')).toBe(TEST_OG_DESCRIPTION);
+        expect(ogDescriptionInput.props('modelValue')).toBe(TEST_OG_DESCRIPTION);
         expect(ogDescriptionDisplay.text()).toBe(TEST_OG_DESCRIPTION);
     });
 

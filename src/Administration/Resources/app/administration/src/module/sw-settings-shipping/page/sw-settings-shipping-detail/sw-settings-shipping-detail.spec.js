@@ -72,7 +72,7 @@ async function createWrapper(privileges = [], props = {}) {
                         props: ['disabled'],
                         template: '<input class="sw-field" :disabled="disabled" />',
                     },
-                    'sw-textarea-field': {
+                    'mt-textarea': {
                         props: ['disabled'],
                         template: '<input class="sw-field sw-textarea-field" :disabled="disabled" />',
                     },

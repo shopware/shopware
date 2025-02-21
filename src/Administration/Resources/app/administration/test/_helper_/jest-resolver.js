@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 const url = require('url')
 
 module.exports = (request, options) => {

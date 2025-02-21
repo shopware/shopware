@@ -201,8 +201,8 @@
         {% endblock %}
 
         {% block sw_order_detail_details_order_customer_comment %}
-        <sw-textarea-field
-            v-model:value="order.customerComment"
+        <mt-textarea
+            v-model="order.customerComment"
             class="sw-order-detail-details__customer-comment"
             :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.detailBase.labelCustomerComment')"

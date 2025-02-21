@@ -94,8 +94,8 @@
                     {% endblock %}
 
                     {% block sw_mail_template_basic_form_description_field %}
-                    <sw-textarea-field
-                        v-model:value="mailTemplate.description"
+                    <mt-textarea
+                        v-model="mailTemplate.description"
                         name="sw-field--mailTemplate-description"
                         :label="$tc('sw-mail-template.detail.basic.labelDescription')"
                         :placeholder="$tc('sw-mail-template.detail.basic.placeholderDescription')"

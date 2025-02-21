@@ -171,8 +171,8 @@
         {% endblock %}
 
         {% block sw_category_entry_point_modal_selected_sales_channel_seo_meta_description %}
-        <sw-textarea-field
-            v-model:value="selectedSalesChannel.homeMetaDescription"
+        <mt-textarea
+            v-model="selectedSalesChannel.homeMetaDescription"
             class="sw-category-entry-point-modal__meta-description"
             :label="$tc('sw-category.base.entry-point-modal.metaDescriptionLabel')"
             :placeholder="selectedSalesChannel.translated.homeMetaDescription || $tc('sw-category.base.entry-point-modal.metaDescriptionPlaceholder')"

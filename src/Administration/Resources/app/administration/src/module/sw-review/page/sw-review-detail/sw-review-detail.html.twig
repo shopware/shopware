@@ -264,8 +264,8 @@
                 >
 
                     {% block sw_review_detail_basic_info_card_comment %}
-                    <sw-textarea-field
-                        v-model:value="review.comment"
+                    <mt-textarea
+                        v-model="review.comment"
                         name="sw-field--review-comment"
                         class="sw-review__comment-field"
                         :disabled="!acl.can('review.editor') || undefined"

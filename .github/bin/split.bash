@@ -133,9 +133,8 @@ branch() {
   local package_lower; package_lower=$(lowercase "${1}")
   local package; package="$(uppercase_first "${package_lower}")"
   local name; name="${2}"
-  local commit_id; commit_id=$(git -C "${PLATFORM_DIR}/repos/${package_lower}" log -n1 --format="%H")
 
-  git -C "${PLATFORM_DIR}/repos/${package_lower}" branch -f "${name}" "${commit_id}"
+  git -C "${PLATFORM_DIR}/repos/${package_lower}" checkout -B "${name}"
 }
 
 # Commits additional files in a split repository of a subpackage of platform.

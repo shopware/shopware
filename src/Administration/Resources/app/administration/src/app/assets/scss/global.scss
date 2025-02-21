@@ -93,3 +93,11 @@ a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .mt-button) {
     white-space: nowrap;
     width: 1px;
 }
+
+.mt-textarea {
+    margin-bottom: 24px;
+
+    button.mt-help-text {
+        margin-left: auto;
+    }
+}

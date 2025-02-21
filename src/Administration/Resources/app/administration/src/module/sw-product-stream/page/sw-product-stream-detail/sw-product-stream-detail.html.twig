@@ -129,9 +129,9 @@
                     {% endblock %}
 
                     {% block sw_product_basic_form_description_field %}
-                    <sw-textarea-field
+                    <mt-textarea
                         v-if="productStream"
-                        v-model:value="productStream.description"
+                        v-model="productStream.description"
                         v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')"
                         name="sw-field--productStream-description"
                         :label="$tc('sw-product-stream.detail.labelDescription')"

@@ -15,14 +15,14 @@
         @update:model-value="emitOgTitle"
     />
 
-    <sw-textarea-field
+    <mt-textarea
         class="sw-generic-social-media-card__og-description-input"
-        :value="ogDescription"
+        :model-value="ogDescription"
         max-length="255"
         :label="$tc('sw-landing-page.base.seo.labelSocialMediaDescription')"
         :help-text="$tc('sw-landing-page.base.seo.helpTextMetaDescription')"
         :placeholder="$tc('sw-landing-page.base.seo.placeholderSocialMediaDescription')"
-        @update:value="emitOgDescription"
+        @update:model-value="emitOgDescription"
     />
 
     <sw-media-upload-v2

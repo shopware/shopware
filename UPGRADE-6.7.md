@@ -452,7 +452,10 @@ In the following event, the CustomerEntity has no association loaded anymore:
   * `RefundPaymentHandlerInterface`
   * `RecurringPaymentHandlerInterface`
 * Synchronous and asynchronous payments have been unified to return an optional redirect response. This response defines whether the customer is redirected to a payment provider or immediately returned to the order completion page.
-* Payment handlers from plugins now receive only the `orderTransactionId`, request information (if applicable, e.g., not for recurring payments), and a `Context`. Any additional data required to process the payment must be retrieved by the payment handler itself to reduce database load. This also minimises dependency on the `SalesChannelContext`, which may contain information that does not accurately reflect the order (e.g., customer addresses may differ from the order’s addresses). For apps, the same information as before is still sent to the app server.
+* Payment handlers from plugins now receive only the `orderTransactionId`, request information (if applicable, e.g., not for recurring payments), and a `Context`.
+  Any additional data required to process the payment must be retrieved by the payment handler itself to reduce database load.
+  This also minimises dependency on the `SalesChannelContext`, which may contain information that does not accurately reflect the order (e.g., customer addresses may differ from the order’s addresses).
+  For apps, the same information as before is still sent to the app server.
 
 ## Payment: Capture step of prepared payments removed
 * The method `capture` has been removed from the `PreparedPaymentHandler` interface. This method is no longer being called for apps.
@@ -2523,6 +2526,12 @@ We made some changes in the app-system, which might affect your apps.
 <details>
   <summary>Detailed Changes</summary>
 
+## Manifest version increased
+The version of the manifest XSD file increased.
+Consider validating your `manifest.xml` against `src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd` now.
+With this change we removed the `capture-url` element from the `payment-method` type.
+Implement the `pay-url` instead.
+
 ## Payment: payment states
 For asynchronous payments, the default payment state `unconfirmed` was used for the `pay` call and `paid` for `finalized`. This is no longer the case. Payment states are no longer set by default.
 
@@ -2531,6 +2540,7 @@ The `finalize` step now transmits the `queryParameters` under the object key `re
 
 ## Payment: onlyAvailable flag removed from CheckoutGatewayRoute
 The `onlyAvailable` flag in the `Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute` in the request is removed. The route always filters the payment and shipping methods before calling the checkout gateway based on availability.
+
 </details>
 
 # Hosting & Configuration

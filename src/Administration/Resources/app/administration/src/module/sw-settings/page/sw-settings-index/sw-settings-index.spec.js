@@ -194,6 +194,63 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         );
     });
 
+    it('should render settings items in alphabetical order', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+        const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
+
+        settingsGroups.forEach(
+            ([
+                 settingsGroup,
+                 settingsItems,
+             ]) => {
+                const settingsGroupWrapper = wrapper.find(`#sw-settings__content-group-${settingsGroup}`);
+                const settingsItemsWrappers = settingsGroupWrapper.findAll('.sw-settings-item');
+
+                // check, that all settings items were rendered
+                expect(settingsItemsWrappers).toHaveLength(settingsItems.length);
+
+                // check, that settings items were rendered in alphabetical order
+                settingsItemsWrappers.forEach((settingsItemsWrapper, index) => {
+                    expect(settingsItemsWrapper.attributes().id).toEqual(settingsItems[index].id);
+                });
+            },
+        );
+    });
+
+    it('should render settings items in alphabetical order with updated items', async () => {
+        const settingsItemToAdd = {
+            group: 'shop',
+            to: 'sw.bar.index',
+            icon: 'bar',
+            id: 'sw-settings-bar',
+            name: 'settings-bar',
+            label: 'b',
+        };
+
+        Shopware.Store.get('settingsItems').addItem(settingsItemToAdd);
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+        const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
+
+        settingsGroups.forEach(
+            ([
+                 settingsGroup,
+                 settingsItems,
+             ]) => {
+                const settingsGroupWrapper = wrapper.find(`#sw-settings__content-group-${settingsGroup}`);
+                const settingsItemsWrappers = settingsGroupWrapper.findAll('.sw-settings-item');
+
+                expect(settingsItemsWrappers).toHaveLength(settingsItems.length);
+
+                settingsItemsWrappers.forEach((settingsItemsWrapper, index) => {
+                    expect(settingsItemsWrapper.attributes().id).toEqual(settingsItems[index].id);
+                });
+            },
+        );
+    });
+
     it('should add the setting to the settingsGroups in store', async () => {
         const settingsItemToAdd = {
             group: 'shop',

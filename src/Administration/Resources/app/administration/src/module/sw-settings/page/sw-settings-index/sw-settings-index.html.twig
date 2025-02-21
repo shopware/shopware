@@ -27,6 +27,7 @@
                     <div
                         v-for="(settingsItems, settingsGroup) in settingsGroups"
                         :key="settingsGroup"
+                        :id="`sw-settings__content-group-${settingsGroup}`"
                         class="sw-settings__content-group"
                     >
                         <h2>{{ getGroupLabel(settingsGroup) }}</h2>
@@ -37,7 +38,6 @@
                             :key="settingsItem.name"
                             :label="getLabel(settingsItem)"
                             :to="getRouteConfig(settingsItem)"
-                            :background-enabled="settingsItem.backgroundEnabled"
                         >
                             <template #icon>
                                 <component

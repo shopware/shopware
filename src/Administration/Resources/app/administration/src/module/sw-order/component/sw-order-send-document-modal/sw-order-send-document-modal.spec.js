@@ -210,9 +210,9 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
             mockMailTemplates[0].mailTemplateType.name,
         );
 
-        const textFields = wrapper.findAll('sw-text-field-stub');
-        expect(textFields[0].attributes('value')).toBe(String(mockOrderWithMailHeaderFooter.orderCustomer.email));
-        expect(textFields[1].attributes('value')).toBe(mockMailTemplates[0].subject);
+        const textFields = wrapper.findAllComponents('.mt-text-field');
+        expect(textFields[0].props('modelValue')).toBe(String(mockOrderWithMailHeaderFooter.orderCustomer.email));
+        expect(textFields[1].props('modelValue')).toBe(mockMailTemplates[0].subject);
     });
 
     it('should display mail template select', async () => {
@@ -280,8 +280,8 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
             mockMailTemplates[1].mailTemplateType.name,
         );
 
-        const textFields = wrapper.findAll('sw-text-field-stub');
-        expect(textFields[1].attributes('value')).toBe(mockMailTemplates[1].subject);
+        const textFields = wrapper.findAllComponents('.mt-text-field');
+        expect(textFields[1].props('modelValue')).toBe(mockMailTemplates[1].subject);
 
         const previewContent = wrapper.find('.sw-order-send-document-modal__email-content');
         expect(previewContent.element.innerHTML).toBe(
@@ -319,8 +319,8 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('');
-        expect(wrapper.find('sw-text-field-stub:nth-of-type(1)').text()).toBe('');
-        expect(wrapper.find('sw-text-field-stub:nth-of-type(2)').text()).toBe('');
+        expect(wrapper.findAll('.mt-text-field .mt-field__hint-wrapper')[0].text()).toBe('');
+        expect(wrapper.findAll('.mt-text-field .mt-field__hint-wrapper')[1].text()).toBe('');
         expect(wrapper.find('.sw-order-send-document-modal__email-content').text()).toBe('');
     });
 
@@ -334,8 +334,8 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await wrapper.find('.sw-select-option--2').trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('sw-text-field-stub:nth-of-type(1)').text()).toBe('');
-        expect(wrapper.find('sw-text-field-stub:nth-of-type(2)').text()).toBe('');
+        expect(wrapper.findAll('.mt-text-field .mt-field__hint-wrapper')[0].text()).toBe('');
+        expect(wrapper.findAll('.mt-text-field .mt-field__hint-wrapper')[1].text()).toBe('');
         expect(wrapper.find('.sw-order-send-document-modal__email-content').text()).toBe('');
     });
 

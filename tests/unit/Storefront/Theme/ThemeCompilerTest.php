@@ -812,7 +812,6 @@ PHP_EOL,
             $this->scssPhpCompiler,
             $this->messageBus,
             $themeFileDeleteDelay,
-            false
         );
     }
 }

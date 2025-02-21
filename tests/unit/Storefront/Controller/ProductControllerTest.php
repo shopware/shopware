@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
-use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
@@ -23,7 +22,6 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -195,12 +193,7 @@ class ProductControllerTest extends TestCase
 
         $requestBag = new RequestDataBag(['test' => 'test']);
 
-        if (Feature::isActive('v6.7.0.0')) {
-            $this->expectException(StorefrontException::class);
-        } else {
-            $this->expectException(ReviewNotActiveExeption::class);
-        }
-        $this->expectExceptionMessage('Reviews not activated');
+        $this->expectExceptionObject(StorefrontException::reviewNotActive());
 
         $this->controller->saveReview(
             $ids->get('productId'),

@@ -23,8 +23,6 @@
 /storefront/element/cms-element-buy-box.html.twig
 /storefront/page/account/addressbook/address-actions.html.twig
 /storefront/page/account/addressbook/index.html.twig
-/storefront/component/address/address-editor-modal-create-address.html.twig
-/storefront/component/address/address-editor-modal-list.html.twig
 /storefront/utilities/alert.html.twig
 
 # Ignored because of exchanging opening and closing tags behind {% if %} conditions

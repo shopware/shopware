@@ -148,7 +148,7 @@ async function createWrapper(privileges = []) {
                 'sw-card-view': {
                     template: '<div><slot></slot></div>',
                 },
-                'sw-card': {
+                'mt-card': {
                     template: '<div><slot></slot></div>',
                 },
                 'sw-container': {

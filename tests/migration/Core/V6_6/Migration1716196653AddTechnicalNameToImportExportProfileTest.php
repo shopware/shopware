@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_6\Migration1716196653AddTechnicalNameToImportExportProfile;
@@ -21,10 +20,29 @@ class Migration1716196653AddTechnicalNameToImportExportProfileTest extends TestC
 
     protected Connection $connection;
 
+    private static bool $nameColumnAdded = false;
+
+    public static function setUpBeforeClass(): void
+    {
+        $connection = self::getContainer()->get(Connection::class);
+        $columns = $connection->fetchAllAssociative('SHOW COLUMNS FROM `import_export_profile`');
+        $columns = array_column($columns, 'Field');
+
+        if (!\in_array('name', $columns, true)) {
+            $connection->executeStatement('ALTER TABLE `import_export_profile` ADD COLUMN `name` VARCHAR(255) NULL');
+            self::$nameColumnAdded = true;
+        }
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        if (self::$nameColumnAdded) {
+            self::getContainer()->get(Connection::class)->executeStatement('ALTER TABLE `import_export_profile` DROP COLUMN `name`');
+        }
+    }
+
     protected function setUp(): void
     {
-        Feature::skipTestIfActive('v6.7.0.0', $this);
-
         $this->connection = self::getContainer()->get(Connection::class);
     }
 
@@ -83,6 +101,7 @@ class Migration1716196653AddTechnicalNameToImportExportProfileTest extends TestC
             $this->connection->insert('import_export_profile', [
                 'id' => Uuid::randomBytes(),
                 'name' => $name,
+                'technical_name' => Uuid::randomHex(),
                 'source_entity' => 'product',
                 'file_type' => 'text/csv',
                 'delimiter' => ';',

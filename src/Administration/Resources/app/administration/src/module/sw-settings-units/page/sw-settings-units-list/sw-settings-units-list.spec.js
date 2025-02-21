@@ -85,7 +85,7 @@ async function createWrapper(privileges = []) {
                     'sw-search-bar': true,
                     'sw-icon': true,
                     'sw-language-switch': true,
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot></slot><slot name="grid"></slot></div>',
                     },
                     'sw-card-view': {

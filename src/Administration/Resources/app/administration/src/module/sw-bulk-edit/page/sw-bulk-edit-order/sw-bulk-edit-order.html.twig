@@ -41,7 +41,7 @@
         <sw-card-view
             v-if="selectedIds.length > 0 && isLoadedData"
         >
-            <sw-card
+            <mt-card
                 v-if="restrictedFields.length"
                 class="sw-bulk-edit-order__restricted-fields"
                 position-identifier="sw-bulk-edit-order-restricted-fields"
@@ -60,10 +60,10 @@
                         </li>
                     </ul>
                 </mt-banner>
-            </sw-card>
+            </mt-card>
 
             {% block sw_bulk_edit_order_content_order_status_card %}
-            <sw-card
+            <mt-card
                 class="sw-bulk-edit-order-base__status"
                 position-identifier="sw-bulk-edit-order-status"
                 :title="$tc('sw-bulk-edit.order.status.cardTitle')"
@@ -76,11 +76,11 @@
                     :entity="order"
                 />
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
             {% block sw_bulk_edit_order_content_documents %}
-            <sw-card
+            <mt-card
                 class="sw-bulk-edit-order-base__documents"
                 position-identifier="sw-bulk-edit-order-documents"
                 :title="$tc('sw-bulk-edit.order.documents.cardTitle')"
@@ -94,11 +94,11 @@
                     @change-value="onChangeDocument"
                 />
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
             {% block sw_bulk_edit_order_tags_card %}
-            <sw-card
+            <mt-card
                 class="sw-bulk-edit-order-base__tags"
                 position-identifier="sw-bulk-edit-order-tags"
                 :title="$tc('sw-bulk-edit.order.tags.cardTitle')"
@@ -111,11 +111,11 @@
                     :entity="order"
                 />
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
             {% block sw_bulk_edit_order_custom_field_card %}
-            <sw-card
+            <mt-card
                 class="sw-bulk-edit-order-base__custom_fields"
                 position-identifier="sw-bulk-edit-order-custom-fields"
                 :title="$tc('sw-bulk-edit.order.customFields.cardTitle')"
@@ -126,7 +126,7 @@
                     :sets="customFieldSets"
                     @change.self="onCustomFieldsChange"
                 />
-            </sw-card>
+            </mt-card>
             {% endblock %}
         </sw-card-view>
 

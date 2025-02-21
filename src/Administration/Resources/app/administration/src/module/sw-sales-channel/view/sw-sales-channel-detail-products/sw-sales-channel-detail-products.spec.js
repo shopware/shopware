@@ -104,8 +104,8 @@ async function createWrapper({ salesChannel, products } = {}) {
         {
             global: {
                 stubs: {
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot></slot><slot name="grid"></slot></div>',
+                    'mt-card': {
+                        template: '<div class="mt-card"><slot></slot><slot name="grid"></slot></div>',
                     },
                     'sw-container': {
                         template: `
@@ -498,7 +498,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
     it('should render loading state when loading product entities', async () => {
         const { wrapper } = await createWrapper();
 
-        expect(wrapper.getComponent('.sw-card').attributes('is-loading')).toBe('true');
+        expect(wrapper.getComponent('.mt-card').attributes('is-loading')).toBe('true');
         expect(wrapper.find('.sw-empty-state').exists()).toBe(false);
     });
 
@@ -506,7 +506,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         const { wrapper } = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.getComponent('.sw-card').attributes('is-loading')).toBeUndefined();
+        expect(wrapper.getComponent('.mt-card').attributes('is-loading')).toBeUndefined();
         expect(wrapper.find('.sw-empty-state').exists()).toBe(true);
     });
 

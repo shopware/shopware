@@ -8,8 +8,7 @@
     <template #content>
         <sw-card-view>
             {% block sw_settings_content_card_view %}
-            <sw-card
-                v-if="feature.isActive('v6.7.0.0')"
+            <mt-card
                 hero
                 class="sw-settings__card--hero"
                 position-identifier="sw-settings-index"
@@ -27,6 +26,7 @@
                 >
                     <div
                         v-for="(settingsItems, settingsGroup) in settingsGroups"
+                        :id="`sw-settings__content-group-${settingsGroup}`"
                         :key="settingsGroup"
                         class="sw-settings__content-group"
                     >
@@ -38,7 +38,6 @@
                             :key="settingsItem.name"
                             :label="getLabel(settingsItem)"
                             :to="getRouteConfig(settingsItem)"
-                            :background-enabled="settingsItem.backgroundEnabled"
                         >
                             <template #icon>
                                 <component
@@ -54,116 +53,7 @@
                     </div>
                 </div>
                 {% endblock %}
-            </sw-card>
-            {% endblock %}
-
-            {# @deprecated tag:v6.7.0 - block will be removed #}
-            {% block sw_settings_content_tabs %}
-            <sw-tabs
-                v-if="!feature.isActive('v6.7.0.0')"
-                class="sw-settings__tabs"
-                position-identifier="sw-settings-index"
-                :is-vertical="true"
-                :small="false"
-            >
-                <template #default="{ active }">
-                    {# @deprecated tag:v6.7.0 - block will be removed #}
-                    {% block sw_settings_content_tab_shop %}
-                    <sw-tabs-item
-                        v-if="settingsGroups['shop']"
-                        class="sw-settings__tab-shop"
-                        :route="{ name: 'sw.settings.index.shop'}"
-                        name="shop"
-                        :active-tab="active"
-                        :title="$tc('sw-settings.index.tabShop')"
-                    >
-                        {{ $tc('sw-settings.index.tabShop') }}
-                    </sw-tabs-item>
-                    {% endblock %}
-
-                    {# @deprecated tag:v6.7.0 - block will be removed #}
-                    {% block sw_settings_content_tab_system %}
-                    <sw-tabs-item
-                        v-if="settingsGroups['system']"
-                        class="sw-settings__tab-system"
-                        name="system"
-                        :route="{ name: 'sw.settings.index.system'}"
-                        :active-tab="active"
-                        :title="$tc('sw-settings.index.tabSystem')"
-                    >
-                        {{ $tc('sw-settings.index.tabSystem') }}
-                    </sw-tabs-item>
-                    {% endblock %}
-
-                    {# @deprecated tag:v6.7.0 - block will be removed #}
-                    {% block sw_settings_content_tab_plugins %}
-                    <sw-tabs-item
-                        v-if="hasPluginConfig()"
-                        class="sw-settings__tab-plugins"
-                        name="plugins"
-                        :route="{ name: 'sw.settings.index.plugins'}"
-                        :active-tab="active"
-                        :title="$tc('sw-settings.index.tabPlugins')"
-                    >
-                        {{ $tc('sw-settings.index.tabPlugins') }}
-                    </sw-tabs-item>
-                    {% endblock %}
-                </template>
-
-                <template #content="{ active }">
-                    {# @deprecated tag:v6.7.0 - block will be removed #}
-                    {% block sw_settings_content_card %}
-
-                    {# @deprecated tag:v6.7.0 - block will be removed #}
-                    {% block sw_settings_content_header %}
-                    <h1 class="sw-settings__content-header">
-                        {{ $tc('sw-settings.index.title') }}
-                    </h1>
-                    {% endblock %}
-
-                    <sw-card
-                        class="sw-settings__card"
-                        position-identifier="sw-settings-index-content"
-                    >
-                        {# @deprecated tag:v6.7.0 - block will be removed #}
-                        {% block sw_settings_content_card_content %}
-                        <slot
-                            v-for="(settingsItems, settingsGroup) in settingsGroups"
-                            :key="settingsGroup"
-                            :name="settingsGroup"
-                            :aria-label="$tc('sw-settings.index.title')"
-                        >
-                            <nav
-                                v-show="active === settingsGroup"
-                                :id="`sw-settings__content-grid-${settingsGroup}`"
-                                class="sw-settings__content-grid"
-                            >
-                                <sw-settings-item
-                                    v-for="settingsItem in settingsItems"
-                                    :id="settingsItem.id"
-                                    :key="settingsItem.name"
-                                    :label="getLabel(settingsItem)"
-                                    :to="getRouteConfig(settingsItem)"
-                                    :background-enabled="settingsItem.backgroundEnabled"
-                                >
-                                    <template #icon>
-                                        <component
-                                            :is="settingsItem.iconComponent"
-                                            v-if="settingsItem.iconComponent"
-                                        />
-                                        <sw-icon
-                                            v-else
-                                            :name="settingsItem.icon"
-                                        />
-                                    </template>
-                                </sw-settings-item>
-                            </nav>
-                        </slot>
-                        {% endblock %}
-                    </sw-card>
-                    {% endblock %}
-                </template>
-            </sw-tabs>
+            </mt-card>
             {% endblock %}
         </sw-card-view>
     </template>

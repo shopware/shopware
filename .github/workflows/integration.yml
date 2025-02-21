@@ -41,6 +41,7 @@ jobs:
       COMPOSER_ROOT_VERSION: 6.7.9999999-dev
       MAILER_DSN: "smtp://localhost:1025"
       MAILPIT_BASE_URL: "http://localhost:8025"
+      USE_CURRENTS: ${{ inputs.nightly == 'true' && matrix.php-version == '8.4' && !matrix.major && 'true' || 'false' }}
     services:
       database:
         image: mysql:8.0
@@ -118,7 +119,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run your tests with reporting
-        if: ${{ inputs.nightly == 'true' && matrix.php-version == '8.4' }}
+        if: ${{ env.USE_CURRENTS == 'true' }}
         working-directory: tests/acceptance
         env:
           CURRENTS_BUILD_ID: "${{ format('{0}-{1}-{2}', github.repository, github.run_id, github.run_attempt) }}${{ matrix.major }}"
@@ -130,7 +131,7 @@ jobs:
             -- --project ${{ matrix.name }} --trace=on
 
       - name: Run your tests
-        if: ${{ inputs.nightly != 'true' || matrix.php-version != '8.4'  }}
+        if: ${{ env.USE_CURRENTS != 'true' }}
         working-directory: tests/acceptance
         run: npx playwright test --project=${{ matrix.name }} ${{ matrix.name == 'Install' && '--trace=on' || '' }}
 

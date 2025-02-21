@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\Validation\Error\Error;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -41,6 +42,9 @@ class AppException extends HttpException
     public const JWKS_KEY_NOT_FOUND = 'FRAMEWORK__APP_JWKS_KEY_NOT_FOUND';
     final public const APP_UNALLOWED_HOST = 'APP__UNALLOWED_HOST';
     final public const INVALID_ARGUMENT = 'APP__INVALID_ARGUMENT';
+    final public const APP_CREATE_COMMAND_VALIDATION_ERROR = 'FRAMEWORK__APP_CREATE_COMMAND_VALIDATION_ERROR';
+    final public const APP_DIRECTORY_ALREADY_EXISTS = 'FRAMEWORK__APP_DIRECTORY_ALREADY_EXISTS';
+    final public const APP_DIRECTORY_CREATION_FAILED = 'FRAMEWORK__APP_DIRECTORY_CREATION_FAILED';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -179,8 +183,13 @@ class AppException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement in next major version as it is unused
+     */
     public static function installationFailed(string $appName, string $reason): self
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'));
+
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::INSTALLATION_FAILED,
@@ -215,8 +224,13 @@ class AppException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement in next major version as it is unused
+     */
     public static function checkoutGatewayPayloadInvalid(): self
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'));
+
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::CHECKOUT_GATEWAY_PAYLOAD_INVALID_CODE,
@@ -248,8 +262,13 @@ class AppException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement in next major version as it is unused
+     */
     public static function inAppPurchaseGatewayUrlEmpty(): self
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'));
+
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_CONFIGURATION,
@@ -348,6 +367,35 @@ class AppException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::INVALID_ARGUMENT,
             $string
+        );
+    }
+
+    public static function createCommandValidationError(string $message): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_CREATE_COMMAND_VALIDATION_ERROR,
+            $message
+        );
+    }
+
+    public static function directoryAlreadyExists(string $appName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_DIRECTORY_ALREADY_EXISTS,
+            'Directory for app "{{ appName }}" already exists',
+            ['appName' => $appName]
+        );
+    }
+
+    public static function directoryCreationFailed(string $path): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_DIRECTORY_CREATION_FAILED,
+            'Unable to create directory "{{ path }}". Please check permissions',
+            ['path' => $path]
         );
     }
 }

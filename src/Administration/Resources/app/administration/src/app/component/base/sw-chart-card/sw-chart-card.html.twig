@@ -1,5 +1,5 @@
 {% block sw_chart_card %}
-<sw-card
+<mt-card
     :subtitle="cardSubtitle"
     :position-identifier="positionIdentifier"
 >
@@ -26,7 +26,7 @@
     {% endblock %}
 
     {% block sw_chart_card_header %}
-    <template #header-right>
+    <template #headerRight>
         <div class="sw-chart-card__header-right">
             {% block sw_chart_card_header_slot_link %}
             <slot name="header-link"></slot>
@@ -64,5 +64,5 @@
     {% block sw_chart_card_inner_chart %}
     <sw-chart v-bind="$attrs" />
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

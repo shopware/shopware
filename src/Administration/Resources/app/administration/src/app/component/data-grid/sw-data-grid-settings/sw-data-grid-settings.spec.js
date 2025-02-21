@@ -28,8 +28,7 @@ describe('components/data-grid/sw-data-grid-settings', () => {
                     'sw-context-button': true,
                     'sw-field-error': await wrapTestComponent('sw-field-error', { sync: true }),
                     'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-icon': true,
@@ -50,12 +49,12 @@ describe('components/data-grid/sw-data-grid-settings', () => {
     });
 
     it('should change value of compact based on prop', async () => {
-        const switchButton = wrapper.findAll('.sw-field--switch__input input');
+        const switchButton = wrapper.findAll('.mt-switch input');
         expect(switchButton[0].element.checked).toBe(true);
     });
 
     it('should change value of previews based on prop', async () => {
-        const switchButton = wrapper.findAll('.sw-field--switch__input input');
+        const switchButton = wrapper.findAll('.mt-switch input');
         expect(switchButton[1].element.checked).toBe(false);
     });
 

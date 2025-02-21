@@ -59,7 +59,6 @@
                             "schema": {
                                 "type": "object",
                                 "required": [
-                                    "salutationId",
                                     "firstName",
                                     "lastName"
                                 ],
@@ -99,9 +98,7 @@
                                             "accountType": {
                                                 "description": "Type of the customer account. Default value is 'private'.",
                                                 "type": "string",
-                                                "enum": [
-                                                    "private"
-                                                ],
+                                                "enum": ["private"],
                                                 "default": "private"
                                             },
                                             "company": {
@@ -122,9 +119,7 @@
                                             "accountType": {
                                                 "description": "Type of the customer account. Can be `private` or `business`.",
                                                 "type": "string",
-                                                "enum": [
-                                                    "business"
-                                                ]
+                                                "enum": ["business"]
                                             },
                                             "company": {
                                                 "description": "Company of the customer. Only required when `accountType` is `business`.",
@@ -362,9 +357,7 @@
                                             }
                                         },
                                         "apiAlias": {
-                                            "enum": [
-                                                "array_struct"
-                                            ],
+                                            "enum": ["array_struct"],
                                             "type": "string"
                                         }
                                     }
@@ -812,7 +805,6 @@
                                 "required": [
                                     "email",
                                     "password",
-                                    "salutationId",
                                     "firstName",
                                     "lastName",
                                     "acceptedDataProtection",
@@ -825,9 +817,7 @@
                                             "accountType": {
                                                 "description": "Type of the customer account. Default value is 'private'.",
                                                 "type": "string",
-                                                "enum": [
-                                                    "private"
-                                                ],
+                                                "enum": ["private"],
                                                 "default": "private"
                                             },
                                             "company": {
@@ -848,9 +838,7 @@
                                             "accountType": {
                                                 "description": "Type of the customer account. Can be `private` or `business`.",
                                                 "type": "string",
-                                                "enum": [
-                                                    "business"
-                                                ]
+                                                "enum": ["business"]
                                             },
                                             "company": {
                                                 "description": "Company of the customer. Only required when `accountType` is `business`.",

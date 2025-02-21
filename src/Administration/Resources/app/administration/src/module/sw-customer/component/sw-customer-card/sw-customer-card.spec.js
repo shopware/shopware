@@ -24,8 +24,6 @@ async function createWrapper() {
                 contextStoreService: {},
             },
             stubs: {
-                'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-avatar': true,
                 'sw-entity-single-select': true,
                 'sw-text-field': true,
@@ -90,8 +88,8 @@ describe('module/sw-customer/page/sw-customer-card', () => {
                 accountType: 'business',
             },
         });
-        expect(wrapper.find('[label="sw-customer.card.labelCompany"]').exists()).toBeTruthy();
-        expect(wrapper.find('[label="sw-customer.card.labelVatId"]').exists()).toBeTruthy();
+        expect(wrapper.find('[aria-label="sw-customer.card.labelCompany"]').exists()).toBeTruthy();
+        expect(wrapper.find('[aria-label="sw-customer.card.labelVatId"]').exists()).toBeTruthy();
     });
 
     it('should hide vat fields when switching to private type', async () => {

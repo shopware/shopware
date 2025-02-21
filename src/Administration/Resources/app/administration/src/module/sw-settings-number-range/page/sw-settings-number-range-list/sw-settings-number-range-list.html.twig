@@ -47,7 +47,6 @@
     {% block sw_settings_number_range_list_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_number_range_list_smart_bar_actions_add %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
@@ -69,7 +68,7 @@
     <template #content>
         <sw-card-view>
             {% block sw_settings_number_range_list_content_card %}
-            <sw-card
+            <mt-card
                 v-if="isLoading || numberRange"
                 position-identifier="sw-settings-number-range-list-content"
             >
@@ -162,7 +161,6 @@
                                 {% block sw_settings_number_range_list_delete_modal_footer %}
                                 <template #modal-footer>
                                     {% block sw_settings_number_range_list_delete_modal_cancel %}
-                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                                     <mt-button
                                         size="small"
                                         @click="onCloseDeleteModal"
@@ -172,7 +170,6 @@
                                     {% endblock %}
 
                                     {% block sw_settings_number_range_list_delete_modal_confirm %}
-                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                                     <mt-button
                                         variant="critical"
                                         size="small"
@@ -197,7 +194,7 @@
                     {% endblock %}
                 </template>
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
         </sw-card-view>
     </template>

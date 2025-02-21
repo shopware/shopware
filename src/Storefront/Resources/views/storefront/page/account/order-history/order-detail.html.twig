@@ -223,24 +223,6 @@
                                 </div>
                             </div>
                         {% endblock %}
-
-                        {#
-                            @deprecated tag:v6.7.0 - Block page_account_order_item_detail_table_footnote and its content will be removed.
-                            Tax and shipping information is already displayed in the summary above.
-                        #}
-                        {% block page_account_order_item_detail_table_footnote %}
-                            {%- if not feature('ACCESSIBILITY_TWEAKS') -%}
-                                <div class="order-item-detail-footnote">
-                                    {% set taxSnippetKey = order.taxStatus == 'gross' ? 'includeVatText' : 'excludeVatText' %}
-                                    {% set cmsPath = 'frontend.cms.page' %}
-
-                                    {{ 'footer.%s'|format(taxSnippetKey)|trans({
-                                        '%url%': path(cmsPath, { id: config('core.basicInformation.shippingPaymentInfoPage') }),
-                                        '%star%': '* '
-                                    })|raw }}
-                                </div>
-                            {% endif %}
-                        {% endblock %}
                     </div>
                 {% endblock %}
             </div>

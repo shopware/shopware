@@ -65,34 +65,17 @@ This file contains the generic styling for all filter items.
 }
 
 .filter-active {
-    // @deprecated tag:v6.7.0 - The `filter-active` label will be a Bootstrap button instead of a span with custom CSS.
-    @if feature('ACCESSIBILITY_TWEAKS') {
-        --#{$prefix}btn-focus-box-shadow: #{$input-btn-focus-box-shadow};
-        --#{$prefix}btn-border-color: #{$input-border-color};
-        --#{$prefix}btn-hover-border-color: #{$primary};
-        --#{$prefix}btn-hover-color: #{$primary};
-        --#{$prefix}btn-hover-bg: #{$gray-100};
-        --#{$prefix}btn-active-border-color: #{$primary};
-        --#{$prefix}btn-active-color: #{$primary};
-        --#{$prefix}btn-font-weight: #{$font-weight-normal};
-        --#{$prefix}btn-border-radius: #{$border-radius-pill};
-        --#{$prefix}btn-padding-y: 0.125rem;
-        --#{$prefix}btn-line-height: 1.625rem;
-    } @else {
-        @include text-truncate();
-        display: inline-block;
-        align-items: center;
-        padding: 2px 35px 2px 14px;
-        border-radius: 50px;
-        height: 32px;
-        line-height: 26px;
-        border: 1px solid $border-color;
-        margin-right: 6px;
-        margin-bottom: 8px;
-        vertical-align: top;
-        position: relative;
-        max-width: 245px;
-    }
+    --#{$prefix}btn-focus-box-shadow: #{$input-btn-focus-box-shadow};
+    --#{$prefix}btn-border-color: #{$input-border-color};
+    --#{$prefix}btn-hover-border-color: #{$primary};
+    --#{$prefix}btn-hover-color: #{$primary};
+    --#{$prefix}btn-hover-bg: #{$gray-100};
+    --#{$prefix}btn-active-border-color: #{$primary};
+    --#{$prefix}btn-active-color: #{$primary};
+    --#{$prefix}btn-font-weight: #{$font-weight-normal};
+    --#{$prefix}btn-border-radius: #{$border-radius-pill};
+    --#{$prefix}btn-padding-y: 0.125rem;
+    --#{$prefix}btn-line-height: 1.625rem;
 }
 
 .filter-active-preview {
@@ -104,58 +87,14 @@ This file contains the generic styling for all filter items.
     margin-right: 0.25rem;
     background-position: center center;
     background-size: cover;
-    vertical-align: if(feature('ACCESSIBILITY_TWEAKS'), -.125em, text-bottom);
-}
-
-// @deprecated tag:v6.7.0 - Custom styling for `filter-active-remove` will be removed. The `filter-active` element will be the remove button. The "X" will be inline text.
-@if not feature('ACCESSIBILITY_TWEAKS') {
-    .filter-active-remove {
-        padding: 0 12px;
-        margin: 0;
-        line-height: 1;
-        border: 0 none;
-        font-weight: $font-weight-bold;
-        color: $dark;
-        font-size: 16px;
-        background-color: transparent;
-        appearance: none;
-        position: absolute;
-        top: 0;
-        right: 0;
-        display: block;
-        height: 100%;
-        bottom: 0;
-        width: 35px;
-        text-align: left;
-
-        &:focus-visible {
-            outline: none;
-            color: $primary;
-            box-shadow: inset $input-btn-focus-box-shadow;
-        }
-
-        &:hover {
-            color: $primary;
-        }
-    }
+    vertical-align: -.125em;
 }
 
 .btn.filter-reset-all {
-    // @deprecated tag:v6.7.0 - The `filter-reset-all` button will be a Bootstrap button using `--bs-btn-*` variables instead of custom CSS.
-    @if feature('ACCESSIBILITY_TWEAKS') {
-        --#{$prefix}btn-border-radius: #{$border-radius-pill};
-        --#{$prefix}btn-padding-y: 0.125rem;
-        --#{$prefix}btn-line-height: 1.625rem;
-        --#{$prefix}btn-font-weight: #{$font-weight-normal};
-    } @else {
-        display: inline-block;
-        border-radius: 50px;
-        height: 32px;
-        line-height: 26px;
-        font-weight: $font-weight-normal;
-        vertical-align: top;
-        margin-right: 8px;
-    }
+    --#{$prefix}btn-border-radius: #{$border-radius-pill};
+    --#{$prefix}btn-padding-y: 0.125rem;
+    --#{$prefix}btn-line-height: 1.625rem;
+    --#{$prefix}btn-font-weight: #{$font-weight-normal};
 }
 
 .is--sidebar {

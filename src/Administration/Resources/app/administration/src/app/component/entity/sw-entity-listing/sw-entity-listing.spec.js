@@ -42,7 +42,7 @@ async function createWrapper(propsData = {}) {
                 'sw-context-button': true,
                 'sw-icon': true,
                 'sw-field': true,
-                'sw-switch-field': true,
+
                 'sw-context-menu-divider': true,
                 'sw-pagination': true,
                 'sw-checkbox-field': true,

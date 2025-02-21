@@ -64,7 +64,6 @@ const createWrapper = async () => {
                     'sw-icon': true,
                     'sw-field-error': true,
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'mt-text-field': true,
                     'sw-field-copyable': true,
                     'sw-context-menu-item': true,
                     'sw-context-button': true,

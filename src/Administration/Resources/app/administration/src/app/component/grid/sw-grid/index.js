@@ -270,13 +270,6 @@ Component.register('sw-grid', {
             return typeof this.selection[itemId] !== 'undefined';
         },
 
-        /**
-         * @deprecated tag:v6.7.0 - isGridDisabled function will be removed.
-         */
-        isGridDisabled(itemId) {
-            return this.isSelected(itemId) && this.selection[itemId].gridDisabled;
-        },
-
         checkSelection() {
             this.allSelectedChecked = !this.items.some((item) => {
                 return this.selection[item.id] === undefined;

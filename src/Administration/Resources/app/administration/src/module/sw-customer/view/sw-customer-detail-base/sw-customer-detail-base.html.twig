@@ -21,7 +21,7 @@
         {% endblock %}
 
         {% block sw_customer_detail_base_default_addresses_card %}
-        <sw-card
+        <mt-card
             v-if="customer.defaultShippingAddress || customer.defaultBillingAddress"
             :title="$tc('sw-customer.detailBase.labelAddressesCard')"
             position-identifier="sw-customer-detail-base-default-addresses"
@@ -36,11 +36,11 @@
                 />
             </template>
             {% endblock %}
-        </sw-card>
+        </mt-card>
         {% endblock %}
 
         {% block sw_customer_detail_custom_field_sets %}
-        <sw-card
+        <mt-card
             v-if="!!customerCustomFieldSets && customerCustomFieldSets.length > 0"
             position-identifier="sw-customer-detail-base-custom-field-sets"
             :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
@@ -51,7 +51,7 @@
                 :disabled="!customerEditMode"
                 :sets="customerCustomFieldSets"
             />
-        </sw-card>
+        </mt-card>
         {% endblock %}
     </div>
     {% endblock %}

@@ -23,18 +23,7 @@ describe('src/app/component/base/sw-text-field', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should render the deprecated text-field when major feature flag is disabled', async () => {
-        global.activeFeatureFlags = [''];
-
-        const wrapper = await createWrapper();
-
-        expect(wrapper.html()).toContain('sw-text-field-deprecated');
-        expect(wrapper.html()).not.toContain('mt-text-field');
-    });
-
-    it('should render the mt-text-field when major feature flag is enabled', async () => {
-        global.activeFeatureFlags = ['ENABLE_METEOR_COMPONENTS'];
-
+    it('should render the mt-text-field', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.html()).toContain('mt-text-field');

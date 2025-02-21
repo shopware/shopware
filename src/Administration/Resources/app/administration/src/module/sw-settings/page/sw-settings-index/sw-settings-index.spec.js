@@ -131,8 +131,8 @@ async function createWrapper(
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                     'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot></slot></div>',
+                    'mt-card': {
+                        template: '<div class="mt-card"><slot></slot></div>',
                     },
                     'sw-settings-item': await wrapTestComponent('sw-settings-item'),
                     'router-link': {
@@ -201,10 +201,10 @@ describe('module/sw-settings/page/sw-settings-index', () => {
 
         settingsGroups.forEach(
             ([
-                settingsGroup,
-                settingsItems,
-            ]) => {
-                const settingsGroupWrapper = wrapper.find(`#sw-settings__content-grid-${settingsGroup}`);
+                 settingsGroup,
+                 settingsItems,
+             ]) => {
+                const settingsGroupWrapper = wrapper.find(`#sw-settings__content-group-${settingsGroup}`);
                 const settingsItemsWrappers = settingsGroupWrapper.findAll('.sw-settings-item');
 
                 // check, that all settings items were rendered
@@ -236,10 +236,10 @@ describe('module/sw-settings/page/sw-settings-index', () => {
 
         settingsGroups.forEach(
             ([
-                settingsGroup,
-                settingsItems,
-            ]) => {
-                const settingsGroupWrapper = wrapper.find(`#sw-settings__content-grid-${settingsGroup}`);
+                 settingsGroup,
+                 settingsItems,
+             ]) => {
+                const settingsGroupWrapper = wrapper.find(`#sw-settings__content-group-${settingsGroup}`);
                 const settingsItemsWrappers = settingsGroupWrapper.findAll('.sw-settings-item');
 
                 expect(settingsItemsWrappers).toHaveLength(settingsItems.length);
@@ -311,91 +311,6 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         const barSetting = settingsGroups.find((setting) => setting.id === 'sw-settings-bar');
 
         expect(barSetting).toBeUndefined();
-    });
-
-    it('should hide icon background when backgroundEnabled is false', async () => {
-        const settingsItemToAdd = {
-            group: 'shop',
-            to: 'sw.bar.index',
-            icon: 'bar',
-            id: 'settings-background-disabled',
-            name: 'settings-background-disabled',
-            label: 'b',
-            backgroundEnabled: false,
-        };
-
-        Shopware.Store.get('settingsItems').addItem(settingsItemToAdd);
-
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
-
-        settingsGroups.forEach(
-            ([
-                settingsGroup,
-                settingsItems,
-            ]) => {
-                const settingsGroupWrapper = wrapper.find(`#sw-settings__content-grid-${settingsGroup}`);
-                const settingsItemsWrappers = settingsGroupWrapper.findAll('.sw-settings-item');
-
-                settingsItemsWrappers.forEach((settingsItemsWrapper, index) => {
-                    const iconClasses = settingsItemsWrapper.find('.sw-settings-item__icon').attributes().class;
-
-                    if (settingsItems[index].backgroundEnabled === false) {
-                        // eslint-disable-next-line jest/no-conditional-expect
-                        expect(iconClasses).not.toContain('background--enabled');
-                    } else {
-                        // eslint-disable-next-line jest/no-conditional-expect
-                        expect(iconClasses).toContain('background--enabled');
-                    }
-                });
-            },
-        );
-    });
-
-    it('should not hide the tab when user has access to any settings inside the tab', async () => {
-        const settingsItemToAdd = {
-            privilege: 'system.foo_bar',
-            group: 'shop',
-            to: 'sw.bar.index',
-            icon: 'bar',
-            id: 'sw-settings-bar',
-            name: 'settings-bar',
-            label: 'b',
-        };
-
-        Shopware.Store.get('settingsItems').addItem(settingsItemToAdd);
-
-        const wrapper = await createWrapper('system.foo_bar');
-
-        const systemTab = wrapper.find('.sw-settings__tab-system');
-        const shopTab = wrapper.find('.sw-settings__tab-shop');
-
-        expect(systemTab.exists()).toBe(false);
-        expect(shopTab.exists()).toBe(true);
-    });
-
-    it('should hide the tab when user has no access to any settings inside the tab', async () => {
-        const settingsItemToAdd = {
-            privilege: 'system.foo_bar',
-            group: 'system',
-            to: 'sw.bar.index',
-            icon: 'bar',
-            id: 'sw-settings-bar',
-            name: 'settings-bar',
-            label: 'b',
-        };
-
-        Shopware.Store.get('settingsItems').addItem(settingsItemToAdd);
-
-        const wrapper = await createWrapper('system.foo_bar');
-
-        const systemTab = wrapper.find('.sw-settings__tab-system');
-        const shopTab = wrapper.find('.sw-settings__tab-shop');
-
-        expect(systemTab.exists()).toBe(true);
-        expect(shopTab.exists()).toBe(false);
     });
 
     it('should correctly resolve dynamic group functions and add the item', async () => {

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eu
 
-if [ -n "${DEBUG:-}" ] || [ -n "${ACTIONS_STEP_DEBUG:-}" ]; then
+if [ -n "${DEBUG:-}" ]; then
   set -x
 fi
 

@@ -13,10 +13,10 @@ async function createWrapper(props = { type: 'string' }) {
                         'helpText',
                     ],
                 },
-                'sw-textarea-field': {
+                'mt-textarea': {
                     template: '<input/>',
                     props: [
-                        'value',
+                        'modelValue',
                         'label',
                         'placeholder',
                         'helpText',
@@ -30,15 +30,6 @@ async function createWrapper(props = { type: 'string' }) {
                         'placeholder',
                         'helpText',
                         'numberType',
-                    ],
-                },
-                'sw-switch-field': {
-                    template: '<input/>',
-                    props: [
-                        'value',
-                        'label',
-                        'placeholder',
-                        'helpText',
                     ],
                 },
                 'sw-datepicker': {
@@ -86,7 +77,19 @@ describe('module/sw-custom-entity/component/sw-custom-entity-input-field', () =>
             await wrapper.setProps(mockData);
 
             const inputField = wrapper.getComponent(`.sw-custom-entity-input-field__${type}`);
-            expect(inputField.props('value')).toBe(mockData.value);
+            const modelValueTypes = [
+                'text',
+                'string',
+            ];
+            let propType = modelValueTypes.includes(type) ? 'modelValue' : 'value';
+
+            if (type === 'boolean') {
+                propType = 'checked';
+                mockData.value = true;
+                mockData.placeholder = undefined;
+            }
+
+            expect(inputField.props(propType)).toBe(mockData.value);
             expect(inputField.props('label')).toBe(mockData.label);
             expect(inputField.props('placeholder')).toBe(mockData.placeholder);
             expect(inputField.props('helpText')).toBe(mockData['help-text']);

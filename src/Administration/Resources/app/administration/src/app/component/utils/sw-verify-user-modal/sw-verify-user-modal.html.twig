@@ -21,7 +21,6 @@
     {% block sw_settings_user_detail_content_confirm_password_modal_footer %}
     <template #modal-footer>
         {% block sw_settings_user_detail_content_confirm_password_modal_actions_cancel %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             size="small"
             @click="onCloseConfirmPasswordModal"
@@ -31,7 +30,6 @@
         {% endblock %}
 
         {% block sw_settings_user_detail_content_confirm_password_modal_actions_change %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             variant="primary"
             :disabled="!confirmPassword"

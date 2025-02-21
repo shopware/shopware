@@ -1,15 +1,16 @@
 {% block sw_profile_index_general %}
 <div class="sw-profile-index-general">
     {% block sw_profile_index_general_information %}
-    <sw-card
+    <mt-card
         position-identifier="sw-profile-index-general"
         :title="$tc('sw-profile.index.titleInfoCard')"
         :is-loading="isUserLoading || !languageId"
     >
         <sw-container v-bind="{ columns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '0 30px' }">
             {% block sw_profile_index_general_information_firstname %}
-            <sw-text-field
-                v-model:value="user.firstName"
+
+            <mt-text-field
+                v-model="user.firstName"
                 name="sw-field--user-firstName"
                 :label="$tc('sw-profile.index.labelFirstNameField')"
                 :disabled="isDisabled || !acl.can('user.update_profile')"
@@ -17,8 +18,9 @@
             {% endblock %}
 
             {% block sw_profile_index_general_information_lastname %}
-            <sw-text-field
-                v-model:value="user.lastName"
+
+            <mt-text-field
+                v-model="user.lastName"
                 name="sw-field--user-lastName"
                 :label="$tc('sw-profile.index.labelLastNameField')"
                 :disabled="isDisabled || !acl.can('user.update_profile')"
@@ -28,8 +30,9 @@
 
         <sw-container v-bind="{ columns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '0 30px' }">
             {% block sw_profile_index_general_information_username %}
-            <sw-text-field
-                v-model:value="user.username"
+
+            <mt-text-field
+                v-model="user.username"
                 name="sw-field--user-username"
                 :label="$tc('sw-profile.index.labelUsernameField')"
                 :disabled="isDisabled || !acl.can('user.update_profile')"
@@ -59,8 +62,9 @@
         <sw-container v-bind="{ columns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '0 30px' }">
             <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/no-duplicate-attributes,vue/no-parsing-error -->
             {% block sw_profile_index_general_information_email %}
-            <sw-text-field
-                v-model:value="user.email"
+
+            <mt-text-field
+                v-model="user.email"
                 name="sw-field--user-email"
                 validation="email"
                 required
@@ -82,11 +86,11 @@
             />
             {% endblock %}
         </sw-container>
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_profile_index_general_image %}
-    <sw-card
+    <mt-card
         v-if="acl.can('media.creator')"
         position-identifier="sw-profile-index-general-image"
         :title="$tc('sw-profile.index.titleImageCard')"
@@ -111,11 +115,11 @@
             @media-upload-remove-image="onRemoveMedia"
         />
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_profile_index_general_password %}
-    <sw-card
+    <mt-card
         position-identifier="sw-profile-index-general-password"
         :title="$tc('sw-profile.index.titlePasswordCard')"
         :is-loading="isUserLoading || !languageId"
@@ -143,7 +147,7 @@
             autocomplete="off"
         />
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>
 {% endblock %}

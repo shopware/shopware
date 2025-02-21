@@ -68,7 +68,7 @@ describe('src/app/component/extension-api/sw-extension-teaser-popover', () => {
         });
 
         wrapper = await createWrapper();
-        const switchFieldComponent = wrapper.find('.mt-field--switch');
+        const switchFieldComponent = wrapper.find('.mt-switch');
         expect(switchFieldComponent.exists()).toBeTruthy();
     });
 

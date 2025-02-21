@@ -11,8 +11,9 @@
     >
         <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks, vue/attributes-order -->
         {% block sw_country_state_detail_modal_technical_name %}
-        <sw-text-field
-            v-model:value="countryState.name"
+
+        <mt-text-field
+            v-model="countryState.name"
             name="sw-field--countryState-name"
             :disabled="!acl.can('country.editor') || undefined"
             :label="$tc('sw-country-state-detail.labelName')"
@@ -21,8 +22,9 @@
         {% endblock %}
 
         {% block sw_country_state_detail_modal_shortcode %}
-        <sw-text-field
-            v-model:value="countryState.shortCode"
+
+        <mt-text-field
+            v-model="countryState.shortCode"
             name="sw-field--countryState-shortCode"
             :disabled="!acl.can('country.editor') || undefined"
             :label="$tc('sw-country-state-detail.labelShortCode')"
@@ -44,7 +46,6 @@
     {% block sw_country_state_detail_modal_footer %}
     <template #modal-footer>
         {% block sw_country_state_detail_modal_footer_cancel %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             size="small"
             @click="onCancel"
@@ -54,7 +55,6 @@
         {% endblock %}
 
         {% block sw_country_state_detail_modal_footer_save %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="tooltipSave"
             class="sw-country-state-detail__save-button"

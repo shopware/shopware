@@ -149,9 +149,11 @@ class CartPersister extends AbstractCartPersister
     private function serializeCart(Cart $cart): array
     {
         $errors = $cart->getErrors();
-        $data = $cart->getData();
+        if (!$cart->getBehavior()?->hasPermission(static::DEFER_CART_ERRORS_PERMISSION)) {
+            $cart->setErrors(new ErrorCollection());
+        }
 
-        $cart->setErrors(new ErrorCollection());
+        $data = $cart->getData();
         $cart->setData(null);
 
         $this->cartSerializationCleaner->cleanupCart($cart);

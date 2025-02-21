@@ -33,6 +33,10 @@ class CartSerializationCleaner
         foreach ($cart->getDeliveries() as $delivery) {
             $this->cleanupLineItems($delivery->getPositions()->getLineItems(), $event->getCustomFieldAllowList());
         }
+
+        foreach ($cart->getErrors() as $error) {
+            $this->cleanupCartError($error);
+        }
     }
 
     /**
@@ -87,5 +91,16 @@ class CartSerializationCleaner
                 )
             )
         );
+    }
+
+    private function cleanupCartError(\Exception $error): void
+    {
+        $traces = $error->getTrace();
+        foreach ($traces as &$trace) {
+            $trace['args'] = [];
+        }
+
+        $traceProperty = new \ReflectionProperty(\Exception::class, 'trace');
+        $traceProperty->setValue($error, $traces);
     }
 }

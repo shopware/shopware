@@ -2,8 +2,11 @@
 
 namespace Shopware\Core\System\SalesChannel\Context;
 
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Checkout\Cart\RuleLoaderResult;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Profiling\Profiler;
@@ -94,7 +97,16 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
             $context = $this->factory->create($token, $parameters->getSalesChannelId(), $session);
             $this->eventDispatcher->dispatch(new SalesChannelContextCreatedEvent($context, $token, $session));
 
-            $result = $this->ruleLoader->loadByToken($context, $token);
+            if (Feature::isActive('DEFERRED_CART_ERRORS')) {
+                $result = $context->withPermissions(
+                    [AbstractCartPersister::DEFER_CART_ERRORS_PERMISSION => true],
+                    function (SalesChannelContext $context) use ($token): RuleLoaderResult {
+                        return $this->ruleLoader->loadByToken($context, $token);
+                    },
+                );
+            } else {
+                $result = $this->ruleLoader->loadByToken($context, $token);
+            }
 
             $this->cartService->setCart($result->getCart());
 

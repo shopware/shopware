@@ -1,5 +1,5 @@
 {% block sw_settings_search_searchable_content %}
-<sw-card
+<mt-card
     class="sw-settings-search-searchable-content"
     position-identifier="sw-settings-search-searchable-content"
     :title="$tc('sw-settings-search.generalTab.labelSearchableContent')"
@@ -19,7 +19,6 @@
     >
         <div class="sw-settings-search__searchable-content-button-group">
             {% block sw_settings_search_searchable_add_item %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-if="defaultTab !== tabNames.generalTab"
                 class="sw-settings-search__searchable-content-add-button"
@@ -33,7 +32,6 @@
             {% endblock %}
 
             {% block sw_settings_search_searchable_reset_default %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-if="defaultTab !== tabNames.customTab"
                 class="sw-settings-search__searchable-content-reset-button"
@@ -148,5 +146,5 @@
         </template>
     </sw-tabs>
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

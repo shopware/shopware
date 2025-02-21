@@ -19,7 +19,6 @@
     {% block sw_settings_language_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_language_detail_actions_abort %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="tooltipCancel"
             @click="onCancel"
@@ -58,7 +57,7 @@
                 {% endblock %}
 
                 {% block sw_settings_language_detail_content_card %}
-                <sw-card
+                <mt-card
                     :title="$tc('sw-settings-language.detail.titleCard')"
                     position-identifier="sw-settings-language-detail-content"
                 >
@@ -207,11 +206,11 @@
                         {{ $tc('sw-settings-language.detail.textAlertChangeParent') }}
                     </mt-banner>
                     {% endblock %}
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_settings_language_detail_custom_field_sets %}
-                <sw-card
+                <mt-card
                     v-if="showCustomFields"
                     position-identifier="sw-settings-language-detail-custom-field-sets"
                     :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
@@ -222,7 +221,7 @@
                         :disabled="!acl.can('language.editor') || undefined"
                         :sets="customFieldSets"
                     />
-                </sw-card>
+                </mt-card>
                 {% endblock %}
             </template>
         </sw-card-view>

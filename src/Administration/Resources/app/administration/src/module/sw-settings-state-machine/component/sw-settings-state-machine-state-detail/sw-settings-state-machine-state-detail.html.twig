@@ -34,22 +34,22 @@
     {% block sw_settings_state_machine_state_detail_footer %}
     <template #modal-footer>
         {% block sw_settings_state_machine_state_detail_footer_cancel %}
-        <sw-button
+        <mt-button
             size="small"
             @click="onCancel"
         >
             {{ $tc('sw-settings-state-machine.state.detail.buttonCancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_settings_state_machine_state_detail_footer_save %}
-        <sw-button
+        <mt-button
             variant="primary"
             size="small"
             @click="onSave"
         >
             {{ $tc('sw-settings-state-machine.state.detail.buttonSave') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

@@ -31,7 +31,6 @@
             <div class="sw-product-variant-modal__filter-list-button">
 
                 {% block sw_product_variant_modal_option_list_toolbar_container_filter_list_button %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     class="sw-product-variant-modal__button-filter"
                     @click="toggleFilterMenu"
@@ -76,7 +75,6 @@
                         {% block sw_product_variant_modal_option_list_toolbar_container_filter_buttons %}
                         <div class="sw-product-variant-modal__filter-buttons">
                             {% block sw_product_variant_modal_option_list_toolbar_container_button_filter_reset %}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 class="sw-product-variant-modal__reset-filter"
                                 @click="resetFilterOptions"
@@ -86,7 +84,6 @@
                             {% endblock %}
 
                             {% block sw_product_variant_modal_option_list_toolbar_container_button_update_list %}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 variant="primary"
                                 @click="fetchProductVariants"
@@ -537,7 +534,6 @@
         <template #modal-footer>
 
             {% block sw_product_variant_modal_body_delete_modal_footer_close %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
                 @click="closeDeleteModal"
@@ -579,7 +575,6 @@
         {% endblock %}
 
         {% block sw_product_variant_modal_footer_close_button %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             size="small"
             @click="$emit('modal-close')"

@@ -49,14 +49,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-empty-state': await wrapTestComponent('sw-empty-state'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-bulk-edit-order-documents': await wrapTestComponent('sw-bulk-edit-order-documents'),
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
                     'sw-single-select': await wrapTestComponent('sw-single-select'),
                     'sw-number-field': await wrapTestComponent('sw-number-field'),
                     'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
@@ -100,7 +97,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'mt-checkbox': true,
                     'sw-context-button': true,
                     'sw-inheritance-switch': true,
-                    'mt-card': true,
                     'sw-ai-copilot-badge': true,
                     'sw-select-result': true,
                     'sw-select-result-list': true,
@@ -623,7 +619,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         const tagsCard = wrapper.find('.sw-bulk-edit-order-base__tags');
         expect(tagsCard).toBeTruthy();
 
-        const customFieldsCard = wrapper.find('.sw-card sw-bulk-edit-order-base__custom_fields');
+        const customFieldsCard = wrapper.find('.mt-card sw-bulk-edit-order-base__custom_fields');
         expect(customFieldsCard).toBeTruthy();
 
         wrapper.vm.bulkEditData.customFields.value = {

@@ -74,7 +74,7 @@ async function createWrapper(privileges = []) {
                     'sw-modal': await wrapTestComponent('sw-modal'),
                     'sw-container': true,
                     'sw-custom-field-type-checkbox': true,
-                    'sw-switch-field': true,
+
                     'sw-number-field': true,
                     'sw-text-field': true,
                     'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),

@@ -85,7 +85,7 @@ async function createWrapper(customCmsElementConfig) {
                     'sw-loader': true,
                     'sw-popover': true,
                     'sw-select-field': true,
-                    'sw-switch-field': true,
+
                     'sw-highlight-text': true,
                 },
                 provide: {

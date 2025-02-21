@@ -42,8 +42,8 @@ async function createWrapper(additionalProps = {}) {
         },
         global: {
             stubs: {
-                'sw-card': {
-                    template: '<div class="sw-card"><slot /><slot name="title"></slot></div>',
+                'mt-card': {
+                    template: '<div class="mt-card"><slot /><slot name="title"></slot></div>',
                     props: ['helpText'],
                 },
                 'sw-select-field': true,
@@ -105,7 +105,7 @@ describe('src/app/component/base/sw-chart-card', () => {
 
     it('should set the correct the position identifier from the prop to the card', async () => {
         const wrapper = await createWrapper();
-        const swCard = wrapper.find('.sw-card');
+        const swCard = wrapper.find('.mt-card');
 
         expect(swCard.attributes('position-identifier')).toBe('sw-chart-card__statistics-count');
 

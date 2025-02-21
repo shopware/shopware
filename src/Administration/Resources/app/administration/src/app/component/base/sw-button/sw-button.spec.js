@@ -21,15 +21,6 @@ describe('components/base/sw-button', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should render the deprecated button when major feature flag is disabled', async () => {
-        global.activeFeatureFlags = [''];
-
-        const wrapper = await createWrapper();
-
-        expect(wrapper.html()).toContain('sw-button-deprecated');
-        expect(wrapper.html()).not.toContain('mt-button');
-    });
-
     it('should render the mt-button when major feature flag is enabled', async () => {
         global.activeFeatureFlags = ['ENABLE_METEOR_COMPONENTS'];
 

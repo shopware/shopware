@@ -1,5 +1,5 @@
 {% block sw_order_customer_grid %}
-<sw-card
+<mt-card
     class="sw-order-customer-grid"
     position-identifier="sw-order-customer-grid"
     :is-loading="isSwitchingCustomer"
@@ -15,7 +15,6 @@
             {% endblock %}
 
             {% block sw_order_customer_grid_add_new_customer %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 class="sw-order-customer-grid__add-customer"
                 ghost
@@ -164,7 +163,6 @@
 
             <template #modal-footer>
                 {% block sw_order_customer_grid_sales_channel_action_close %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="small"
                     @click="onCloseSalesChannelSelectModal"
@@ -174,7 +172,6 @@
                 {% endblock %}
 
                 {% block sw_order_customer_grid_sales_channel_action_select %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="small"
                     variant="primary"
@@ -206,7 +203,6 @@
 
             <template #modal-footer>
                 {% block sw_order_customer_grid_customer_changes_modal_action_close %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="small"
                     @click="onCloseCustomerChangesModal"
@@ -216,7 +212,6 @@
                 {% endblock %}
 
                 {% block sw_order_customer_grid_customer_changes_modal_action_changes %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="small"
                     variant="primary"
@@ -230,5 +225,5 @@
         </sw-modal>
         {% endblock %}
     </template>
-</sw-card>
+</mt-card>
 {% endblock %}

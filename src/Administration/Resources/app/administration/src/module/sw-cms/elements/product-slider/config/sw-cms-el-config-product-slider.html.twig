@@ -244,8 +244,9 @@
                     {% endblock %}
 
                     {% block sw_cms_element_product_slider_config_settings_border %}
-                    <sw-switch-field
-                        v-model:value="element.config.border.value"
+
+                    <mt-switch
+                        v-model="element.config.border.value"
                         class="sw-cms-el-config-product-slider__tab-settings-layout-border"
                         :label="$tc('sw-cms.elements.productSlider.config.label.border')"
                         bordered
@@ -277,8 +278,9 @@
                 <div class="sw-cms-el-config-product-slider__tab-settings-rotate">
                     {% block sw_cms_element_product_slider_config_settings_rotate %}
                     {# @todo NEXT-40267 - Re-implement after tiny-slider has been replaced, due to accessibility issues #}
-                    <sw-switch-field
-                        :value="true"
+
+                    <mt-switch
+                        :checked="true"
                         class="sw-cms-el-config-product-slider__tab-settings-rotate-switch"
                         :label="$tc('sw-cms.elements.general.config.label.autoSlide')"
                         :help-text="$tc('sw-cms.elements.general.config.helpText.autoSlide')"

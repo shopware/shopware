@@ -2,7 +2,7 @@
 <div class="sw-sales-channel-detail-base">
 
     {% block sw_sales_channel_detail_base_general %}
-    <sw-card
+    <mt-card
         v-if="salesChannel"
         position-identifier="sw-sales-channel-detail-base-general"
         :is-loading="isLoading"
@@ -39,14 +39,12 @@
             <p>{{ $tc('sw-sales-channel.detail.productComparison.templates.modal-message') }}</p>
 
             <template #modal-footer>
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="small"
                     @click="$emit('template-modal-close')"
                 >
                     {{ $tc('global.default.cancel') }}
                 </mt-button>
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="small"
                     variant="primary"
@@ -74,11 +72,12 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_general_input_favorite %}
-        <sw-switch-field
+
+        <mt-switch
             :disabled="!acl.can('user_config:create') || !acl.can('user_config:update') || salesChannel._isNew"
             :label="$tc('sw-sales-channel.detail.favouriteLabel')"
-            :value="isFavorite()"
-            @update:value="(isFavorite) => { salesChannelFavoritesService.update(isFavorite, salesChannel.id) }"
+            :checked="isFavorite()"
+            @change="(isFavorite) => { salesChannelFavoritesService.update(isFavorite, salesChannel.id) }"
         />
         {% endblock %}
 
@@ -207,11 +206,11 @@
             property-name-in-domain="languageId"
         />
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_sales_channel_shipping_payment %}
-    <sw-card
+    <mt-card
         v-if="salesChannel"
         position-identifier="sw-sales-channel-detail-base-shipping-payment"
         :is-loading="isLoading"
@@ -292,7 +291,7 @@
             :description="$tc('sw-sales-channel.detail.descriptionTaxCalculation')"
             :options="taxCalculationTypeOptions"
         />
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_sales_channel_detail_base_options_hreflang %}
@@ -314,7 +313,7 @@
     {% endblock %}
 
     {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront %}
-    <sw-card
+    <mt-card
         v-if="salesChannel && isProductComparison"
         position-identifier="sw-sales-channel-detail-base-general-input-product-comparison-storefront"
         :is-loading="isLoading"
@@ -414,11 +413,11 @@
             />
         </div>
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_sales_channel_detail_base_general_input_product_comparison_settings %}
-    <sw-card
+    <mt-card
         v-if="salesChannel && isProductComparison"
         position-identifier="sw-sales-channel-detail-base-general-input-product-comparison-settings"
         :is-loading="isLoading"
@@ -462,8 +461,9 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_general_input_product_comparison_include_variants %}
-        <sw-switch-field
-            v-model:value="productExport.includeVariants"
+
+        <mt-switch
+            v-model="productExport.includeVariants"
             bordered
             :disabled="!acl.can('sales_channel.editor') || undefined"
             :label="$tc('sw-sales-channel.detail.productComparison.includeVariants')"
@@ -483,8 +483,9 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_general_input_product_comparison_generate_by_cronjob %}
-        <sw-switch-field
-            v-model:value="productExport.generateByCronjob"
+
+        <mt-switch
+            v-model="productExport.generateByCronjob"
             bordered
             :label="$tc('sw-sales-channel.detail.productComparison.generateByCronjob')"
             :disabled="disableGenerateByCronjob || !acl.can('sales_channel.editor') || undefined"
@@ -531,11 +532,11 @@
             readonly
             :disabled="true"
         />
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_sales_channel_detail_base_options_api %}
-    <sw-card
+    <mt-card
         v-if="salesChannel"
         position-identifier="sw-sales-channel-detail-base-options-api"
         :is-loading="isLoading"
@@ -563,7 +564,6 @@
             v-if="!isProductComparison"
             class="sw-sales-channel-detail__action-buttons"
         >
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
                 :disabled="!acl.can('sales_channel.editor') || undefined"
@@ -573,7 +573,6 @@
                 {{ $tc('sw-sales-channel.detail.buttonCreateNewApiKeys') }}
             </mt-button>
 
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
                 class="sw-sales-channel-detail-base__button-copy-key"
@@ -609,7 +608,6 @@
 
         {% block sw_sales_channel_detail_base_product_comparison_input_generate_key %}
         <div class="sw-sales-channel-detail__action-button">
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-if="isProductComparison"
                 ghost
@@ -623,11 +621,11 @@
         </div>
         {% endblock %}
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_sales_channel_detail_base_options_status %}
-    <sw-card
+    <mt-card
         v-if="salesChannel"
         position-identifier="sw-sales-channel-detail-base-options-status"
         :title="$tc('sw-sales-channel.detail.titleStatus')"
@@ -640,11 +638,12 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_status_input_active %}
-        <sw-switch-field
-            v-model:value="salesChannel.active"
+
+        <mt-switch
+            v-model="salesChannel.active"
             :label="$tc('sw-sales-channel.detail.labelInputActive')"
             :disabled="!acl.can('sales_channel.editor') || undefined"
-            @update:value="onToggleActive"
+            @update:model-value="onToggleActive"
         />
         {% endblock %}
 
@@ -659,8 +658,9 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_maintenance_input_active %}
-        <sw-switch-field
-            v-model:value="salesChannel.maintenance"
+
+        <mt-switch
+            v-model="salesChannel.maintenance"
             name="sw-field--salesChannel-maintenance"
             :disabled="!acl.can('sales_channel.editor') || undefined"
             :label="$tc('sw-sales-channel.detail.labelMaintenanceActive')"
@@ -696,11 +696,11 @@
             </router-link>
         </div>
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_sales_channel_detail_base_options_delete %}
-    <sw-card
+    <mt-card
         v-if="salesChannel && acl.can('sales_channel.deleter')"
         position-identifier="sw-sales-channel-detail-base-options-delete"
         :title="$tc('sw-sales-channel.detail.deleteModalTitle')"
@@ -718,7 +718,6 @@
 
             {% block sw_sales_channel_detail_base_options_delete_button %}
             <div class="sw-sales-channel-detail-base__button-delete">
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     variant="critical"
                     size="small"
@@ -753,7 +752,6 @@
             {% block sw_sales_channel_detail_options_delete_modal_footer %}
             <template #modal-footer>
                 {% block sw_sales_channel_detail_options_delete_modal_abort %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="small"
                     @click="onCloseDeleteModal"
@@ -763,7 +761,6 @@
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_options_delete_modal_confirm %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="small"
                     variant="critical"
@@ -776,11 +773,11 @@
             {% endblock %}
         </sw-modal>
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_sales_channel_detail_custom_field_sets %}
-    <sw-card
+    <mt-card
         v-if="salesChannel && customFieldSets.length > 0"
         position-identifier="sw-sales-channel-detail-base-custom-field-sets"
         :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
@@ -790,7 +787,7 @@
             :entity="salesChannel"
             :sets="customFieldSets"
         />
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>
 {% endblock %}

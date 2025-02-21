@@ -56,8 +56,8 @@ async function createWrapper(propsData = {}) {
             },
             global: {
                 stubs: {
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot /></div>',
+                    'mt-card': {
+                        template: '<div class="mt-card"><slot /></div>',
                     },
                     'sw-container': {
                         template: '<div class="sw-container"><slot /></div>',
@@ -70,7 +70,7 @@ async function createWrapper(propsData = {}) {
                         template: '<input class="sw-number-field"></input>',
                         props: ['value'],
                     },
-                    'sw-switch-field': true,
+
                     'sw-field-error': true,
                     'sw-modal': {
                         template: '<div class="sw-modal"><slot /></div>',

@@ -601,6 +601,32 @@ The following methods of the `\Shopware\Core\Framework\DataAbstractionLayer\Enti
 * `\Shopware\Core\Framework\DataAbstractionLayer\Entity::checkIfPropertyAccessIsAllowed` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException` instead of a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`.
 * `\Shopware\Core\Framework\DataAbstractionLayer\Entity::get` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException` instead of a `\InvalidArgumentException`.
 </details>
+
+## Entity Attributes classes made final
+We have made entity attribute classes final.
+<details>
+  <summary>See the detailed list</summary>
+
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\AllowEmptyString`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\AllowHtml`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\AutoIncrement`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\CustomFields`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\ForeignKey`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\Inherited`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToOne`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\OneToMany`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\OneToOne`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\Protection`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\ReferenceVersion`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\Required`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\Serialized`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\State`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\Version`
+</details>
+
 </details>
 
 # Administration

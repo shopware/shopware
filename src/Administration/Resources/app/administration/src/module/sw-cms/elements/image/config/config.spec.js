@@ -23,7 +23,6 @@ async function createWrapper() {
                     },
                 },
                 stubs: {
-                    'sw-switch-field': true,
                     'sw-select-field': {
                         template:
                             '<select class="sw-select-field" :value="value" @change="$emit(\'change\', $event.target.value)"><slot></slot></select>',

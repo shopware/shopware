@@ -37,7 +37,7 @@ async function createWrapper(privileges = [], query = {}) {
                 },
                 stubs: {
                     'sw-number-field': true,
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot></slot></div>',
                     },
                     'mt-text-field': true,
@@ -45,7 +45,7 @@ async function createWrapper(privileges = [], query = {}) {
                     'sw-container': {
                         template: '<div><slot></slot></div>',
                     },
-                    'sw-switch-field': true,
+                    'mt-switch': true,
                 },
             },
         },

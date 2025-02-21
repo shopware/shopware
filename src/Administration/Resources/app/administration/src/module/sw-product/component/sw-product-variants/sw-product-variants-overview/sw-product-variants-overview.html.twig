@@ -23,7 +23,6 @@
             <div class="sw-product-variants-overview__filter-list-button">
 
                 {% block sw_product_variants_overview_option_list_toolbar_container_filter_list_button %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button @click="filterWindowOpen = !filterWindowOpen">
                     {{ $tc('sw-product.variations.generatedFilterList') }}
                     <sw-icon name="regular-filter" />
@@ -64,14 +63,12 @@
                         {% block sw_product_variants_overview_option_list_toolbar_container_filter_buttons %}
                         <div class="sw-product-variants-overview__filter-buttons">
                             {% block sw_product_variants_overview_option_list_toolbar_container_button_filter_reset %}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button @click="resetFilterOptions()">
                                 {{ $tc('sw-product.variations.overview.filterReset') }}
                             </mt-button>
                             {% endblock %}
 
                             {% block sw_product_variants_overview_option_list_toolbar_container_button_update_list %}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 variant="primary"
                                 @click="getList()"
@@ -89,7 +86,6 @@
             {% endblock %}
 
             {% block sw_product_variants_overview_option_list_toolbar_buttons %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-tooltip="{
                     message: $tc('sw-privileges.tooltip.warning'),
@@ -104,7 +100,6 @@
                 {{ $tc('sw-product.variations.overview.generateVariants') }}
             </mt-button>
 
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 ghost
                 class="sw-product-variants__configure-storefront-action"
@@ -583,7 +578,6 @@
 
         <template #modal-footer>
             {% block sw_product_variants_overview_data_grid_action_modals_buttons %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 class="sw-product-variants-overview__modal--cancel-button"
                 size="small"
@@ -592,7 +586,6 @@
             >
                 {{ $tc('global.default.cancel') }}
             </mt-button>
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 variant="critical"
                 size="small"

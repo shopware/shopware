@@ -32,7 +32,6 @@ async function createWrapper(privileges = []) {
                     $route: { query: '' },
                 },
                 stubs: {
-                    'sw-card': true,
                     'sw-container': true,
                     'sw-simple-search-field': true,
                     'sw-empty-state': true,
@@ -68,8 +67,8 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
     });
 
     it('the card should contain the right title', async () => {
-        const title = wrapper.attributes().title;
-        expect(title).toBe('sw-users-permissions.roles.general.cardLabel');
+        const title = wrapper.findByText('h3', 'sw-users-permissions.roles.general.cardLabel');
+        expect(title.exists()).toBe(true);
     });
 
     it('should disable the create button', async () => {

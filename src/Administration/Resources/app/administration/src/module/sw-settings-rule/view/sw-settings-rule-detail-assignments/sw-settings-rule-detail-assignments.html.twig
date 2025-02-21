@@ -1,7 +1,7 @@
 {% block sw_settings_rule_detail_assignments %}
 <div class="sw-settings-rule-detail-assignments">
     {% block sw_settings_rule_detail_assignments_entity_cards %}
-    <sw-card
+    <mt-card
         v-for="entity in associationEntities"
         :key="entity.id"
         class="sw-settings-rule-detail-assignments__card"
@@ -17,7 +17,6 @@
             >
                 <template #filter>
                     {% block sw_settings_rule_detail_assignments_add_button %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         v-if="entity.allowAdd"
                         v-tooltip="getTooltipConfig(entity)"
@@ -108,7 +107,6 @@
                 </template>
 
                 <template #bulk-modal-delete-items="{ isBulkLoading, deleteItems }">
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         variant="critical"
                         size="small"
@@ -139,7 +137,7 @@
             {% endblock %}
             {% endblock %}
         </template>
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_settings_rule_detail_assignments_delete_modal %}
@@ -161,7 +159,6 @@
         <template #modal-footer>
 
             {% block sw_settings_rule_detail_assignments_delete_modal_cancel %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 class="sw-settings-rule-detail-assignments__delete-modal-cancel-button"
                 size="small"
@@ -173,7 +170,6 @@
 
             {% block sw_settings_rule_detail_assignments_delete_modal_confirm %}
             {% block sw_settings_rule_detail_assignments_delete_modal_confirm_single %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 class="sw-settings-rule-detail-assignments__delete-modal-delete-button"
                 size="small"

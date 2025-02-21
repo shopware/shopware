@@ -62,7 +62,7 @@ async function createWrapper() {
             },
 
             stubs: {
-                'sw-card': {
+                'mt-card': {
                     template: '<div><slot></slot></div>',
                 },
                 'sw-customer-card': {

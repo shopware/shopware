@@ -12,7 +12,6 @@
     <template #smart-bar-actions>
 
         {% block sw_manufacturer_detail_actions_abort %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="tooltipCancel"
             :disabled="manufacturerIsLoading || undefined"
@@ -67,7 +66,7 @@
                 {% endblock %}
 
                 {% block sw_manufacturer_detail_base_basic_info_card %}
-                <sw-card
+                <mt-card
                     position-identifier="sw-manufacturer-detail-basic-info"
                     :title="$tc('sw-manufacturer.detail.cardTitleManufacturerInfo')"
                 >
@@ -138,11 +137,11 @@
                         :disabled="!acl.can('product_manufacturer.editor') || undefined"
                     />
                     {% endblock %}
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_manufacturer_detail_custom_field_sets %}
-                <sw-card
+                <mt-card
                     v-if="customFieldSets.length > 0"
                     position-identifier="sw-manufacturer-detail-custom-field-sets"
                     :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
@@ -154,7 +153,7 @@
                         :sets="customFieldSets"
                         :disabled="!acl.can('product_manufacturer.editor') || undefined"
                     />
-                </sw-card>
+                </mt-card>
                 {% endblock %}
             </template>
         </sw-card-view>

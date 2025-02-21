@@ -10,7 +10,6 @@
     {% block sw_mail_header_footer_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_mail_header_footer_detail_actions_abort %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="{
                 message: 'ESC',
@@ -65,7 +64,7 @@
                 {% endblock %}
 
                 {% block sw_mail_header_footer_detail_basic_info %}
-                <sw-card
+                <mt-card
                     :title="$tc('sw-mail-header-footer.detail.basic.titleCard')"
                     position-identifier="sw-mail-header-footer-detail-basic-info"
                 >
@@ -103,11 +102,11 @@
                         :disabled="!acl.can('mail_templates.editor') || undefined"
                     />
                     {% endblock %}
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_mail_header_footer_detail_content_header %}
-                <sw-card
+                <mt-card
                     :title="$tc('sw-mail-header-footer.detail.header.titleCard')"
                     position-identifier="sw-mail-header-footer-detail-content-header"
                 >
@@ -138,11 +137,11 @@
                         :disabled="!acl.can('mail_templates.editor') || undefined"
                     />
                     {% endblock %}
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_mail_header_footer_detail_content_footer %}
-                <sw-card
+                <mt-card
                     :title="$tc('sw-mail-header-footer.detail.footer.titleCard')"
                     position-identifier="sw-mail-header-footer-detail-content-footer"
                 >
@@ -173,7 +172,7 @@
                         :disabled="!acl.can('mail_templates.editor') || undefined"
                     />
                     {% endblock %}
-                </sw-card>
+                </mt-card>
                 {% endblock %}
             </template>
         </sw-card-view>
@@ -196,7 +195,6 @@
             </div>
 
             <template #modal-footer>
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button @click="onClose">
                     {{ $tc('global.default.cancel') }}
                 </mt-button>

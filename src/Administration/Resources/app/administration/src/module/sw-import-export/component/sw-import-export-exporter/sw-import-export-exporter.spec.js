@@ -64,7 +64,7 @@ describe('components/sw-import-export-exporter', () => {
                         'sw-base-field': await wrapTestComponent('sw-base-field'),
                         'sw-loader': true,
                         'sw-icon': true,
-                        'sw-switch-field': true,
+
                         'sw-field-error': true,
                         'sw-import-export-progress': true,
                         'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),

@@ -35,7 +35,6 @@
     {% block sw_settings_snippet_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_snippet_detail_actions_abort %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             :disabled="isLoading"
             @click="$router.push(backPath)"
@@ -67,7 +66,7 @@
             {% block sw_settings_snippet_set_detail_card %}
             <div class="sw-settings-snippet-set-detail-card">
                 {% block sw_settings_snippet_set_detail_card_information %}
-                <sw-card
+                <mt-card
                     position-identifier="sw-settings-snippet-detail-information"
                     :title="$tc('sw-settings-snippet.detail.cardGeneralTitle')"
                     :is-loading="isLoading"
@@ -87,11 +86,11 @@
                         />
                         {% endblock %}
                     </div>
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_settings_snippet_set_detail_card_snippets %}
-                <sw-card
+                <mt-card
                     position-identifier="sw-settings-snippet-detail-snippets"
                     :title="$tc('sw-settings-snippet.detail.cardSnippetSetsTitle')"
                     :is-loading="isLoading || isLoadingSnippets"
@@ -113,7 +112,7 @@
                         />
                         {% endblock %}
                     </div>
-                </sw-card>
+                </mt-card>
                 {% endblock %}
             </div>
             {% endblock %}

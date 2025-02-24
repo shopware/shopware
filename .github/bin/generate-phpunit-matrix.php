@@ -7,7 +7,7 @@ $nightly = $_SERVER['argv'][1] ?? false;
 
 if ($nightly) {
     $php = ['8.2', '8.4'];
-    $db = ['mysql:8.0', 'mariadb:11'];
+    $db = ['mysql:8.0', 'mariadb:lts', 'quay.io/mariadb-foundation/mariadb-devel:verylatest'];
 }
 
 echo \json_encode([

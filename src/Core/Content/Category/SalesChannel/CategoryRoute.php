@@ -61,8 +61,8 @@ class CategoryRoute extends AbstractCategoryRoute
 
         $category = $this->loadCategory($navigationId, $context);
 
-        $categoryHasContentlessPageType = \in_array($category->getType(), [CategoryDefinition::TYPE_FOLDER, CategoryDefinition::TYPE_LINK], true);
-        if ($categoryHasContentlessPageType && $context->getSalesChannel()->getNavigationCategoryId() !== $navigationId) {
+//        $categoryHasContentlessPageType = \in_array($category->getType(), [CategoryDefinition::TYPE_FOLDER, CategoryDefinition::TYPE_LINK], true);
+        if ($category->getType() !== CategoryDefinition::TYPE_PAGE && $context->getSalesChannel()->getNavigationCategoryId() !== $navigationId) {
             throw CategoryException::categoryNotFound($navigationId);
         }
 

@@ -44,7 +44,6 @@ async function createWrapper(privileges = []) {
                         sync: true,
                     }),
                     'sw-ai-copilot-badge': true,
-                    'sw-icon': true,
                     'sw-data-grid-skeleton': true,
                     'sw-provide': true,
                     'router-link': true,

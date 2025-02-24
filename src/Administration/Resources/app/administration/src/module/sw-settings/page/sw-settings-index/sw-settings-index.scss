@@ -1,26 +1,6 @@
 @import "~scss/variables";
 
 .sw-settings-index {
-    /** @deprecated tag:v6.7.0 - Whole block can be removed when sw-settings__tabs will be removed */
-    .sw-settings__tabs {
-        display: grid;
-        grid-template-columns: minmax(126px, 1fr) minmax(0, $content-width) 1fr;
-
-        .sw-settings__content-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            grid-gap: 30px 10px;
-        }
-
-        .sw-tabs__content {
-            top: 100px;
-        }
-
-        .sw-settings__content-header {
-            margin-bottom: 64px;
-        }
-    }
-
     .sw-settings__card--hero {
         container-type: inline-size;
         color: var(--color-text-primary-default, #2d2e32);

@@ -109,7 +109,6 @@ async function createWrapper(buttonConfig) {
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-loader': true,
                 'router-link': true,
-                'sw-icon': true,
                 'mt-select': true,
                 'sw-help-text': true,
                 'sw-ai-copilot-badge': true,

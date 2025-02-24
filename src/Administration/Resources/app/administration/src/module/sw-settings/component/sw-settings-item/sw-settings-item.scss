@@ -3,64 +3,6 @@
 $sw-settings-item-text-color: $color-darkgray-200;
 $sw-settings-item-hover-text-color: $color-shopware-brand-500;
 
-/** @deprecated tag:v6.7.0 - Whole block can be removed when sw-settings__tabs will be removed */
-.sw-settings__tabs {
-    .sw-settings-item {
-        color: $sw-settings-item-text-color;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-
-        &.is--disabled {
-            opacity: 0.4;
-            cursor: default;
-            pointer-events: none;
-            filter: grayscale(50%);
-        }
-
-        .sw-settings-item__icon {
-            display: flex;
-            flex-shrink: 0;
-            align-items: center;
-            justify-content: center;
-            height: 48px;
-            width: 48px;
-            border-radius: 50%;
-            margin-right: 20px;
-
-            &.background--enabled {
-                background-color: darken($color-gray-100, 2%);
-            }
-
-            .sw-icon {
-                color: lighten($color-darkgray-200, 15%);
-                margin: auto;
-                width: 20px;
-                height: 20px;
-            }
-        }
-
-        .sw-settings-item__label {
-            font-size: $font-size-xs;
-            word-break: break-all;
-        }
-
-        &:hover {
-            color: $sw-settings-item-hover-text-color;
-
-            .sw-settings-item__icon {
-                &.background--enabled {
-                    background-color: darken($color-gray-100, 4%);
-                }
-
-                .sw-icon {
-                    color: $sw-settings-item-hover-text-color;
-                }
-            }
-        }
-    }
-}
-
 .sw-settings__card--hero {
     .sw-settings-item {
         color: var(--color-text-primary-default, #2d2e32);

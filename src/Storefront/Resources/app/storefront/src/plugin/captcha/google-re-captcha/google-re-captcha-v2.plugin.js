@@ -1,4 +1,3 @@
-import DomAccess from 'src/helper/dom-access.helper';
 import GoogleReCaptchaBasePlugin from 'src/plugin/captcha/google-re-captcha/google-re-captcha-base.plugin';
 
 export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
@@ -39,7 +38,7 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
             });
         } else {
             if (!this.grecaptchaInput.value) {
-                this.grecaptchaContainerIframe = DomAccess.querySelector(this.el, 'iframe');
+                this.grecaptchaContainerIframe = this.el.querySelector('iframe');
                 this.grecaptchaContainerIframe.classList.add(this.options.grecaptchaIframeHasErrorClassSelector);
             }
 
@@ -91,7 +90,7 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
             'error-callback': this._onGreCaptchaError.bind(this),
         });
 
-        this.grecaptchaContainerIframe = DomAccess.querySelector(this.el, 'iframe');
+        this.grecaptchaContainerIframe = this.el.querySelector('iframe');
     }
 
     /**

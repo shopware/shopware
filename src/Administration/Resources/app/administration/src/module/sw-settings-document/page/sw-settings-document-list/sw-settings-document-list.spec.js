@@ -64,7 +64,6 @@ async function createWrapper(privileges = []) {
                     'sw-label': true,
                     'sw-modal': true,
                     'sw-pagination': true,
-                    'sw-icon': true,
                     'sw-search-bar': true,
                     'router-link': true,
                     'sw-checkbox-field': true,

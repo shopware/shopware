@@ -114,7 +114,6 @@ async function createWrapper(privileges = []) {
                 `,
                     },
                     'sw-search-bar': true,
-                    'sw-icon': true,
                     'sw-language-switch': true,
                     'sw-button-process': true,
                     'sw-context-menu-item': true,

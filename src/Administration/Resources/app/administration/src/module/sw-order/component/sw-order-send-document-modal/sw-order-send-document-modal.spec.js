@@ -172,7 +172,6 @@ async function createWrapper(props = defaultProps, sendingSucceds = true, mailTe
                 },
                 'sw-text-field': true,
                 'sw-product-variant-info': true,
-                'sw-icon': true,
                 'router-link': true,
                 'sw-loader': true,
                 'sw-inheritance-switch': true,

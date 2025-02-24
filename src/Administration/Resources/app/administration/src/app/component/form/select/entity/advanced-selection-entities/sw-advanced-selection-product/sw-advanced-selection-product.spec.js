@@ -288,9 +288,6 @@ async function createWrapper() {
                         'sw-pagination': {
                             template: '<div></div>',
                         },
-                        'sw-icon': {
-                            template: '<div></div>',
-                        },
                         'router-link': true,
                         'sw-sidebar': {
                             template: '<div></div>',

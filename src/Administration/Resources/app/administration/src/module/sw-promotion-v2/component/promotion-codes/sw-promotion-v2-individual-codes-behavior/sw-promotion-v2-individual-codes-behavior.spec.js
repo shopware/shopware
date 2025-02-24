@@ -41,7 +41,6 @@ async function createWrapper(additionalPromotionData = {}) {
                         template: '<div class="sw-number-field"><slot></slot></div>',
                         props: ['value'],
                     },
-                    'sw-icon': true,
                     'sw-loader': true,
                 },
                 provide: {

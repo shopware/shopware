@@ -86,12 +86,12 @@
                 {% block sw_promotion_v2_list_grid_columns %}
                 {% block sw_promotion_v2_list_grid_columns_active %}
                 <template #column-active="{ item }">
-                    <sw-icon
+                    <mt-icon
                         v-if="item.active"
                         class="sw-promotion-v2-list__icon-activity is--active"
                         name="regular-checkmark-xs"
                     />
-                    <sw-icon
+                    <mt-icon
                         v-else
                         class="sw-promotion-v2-list__icon-activity is--inactive"
                         name="regular-times-s"

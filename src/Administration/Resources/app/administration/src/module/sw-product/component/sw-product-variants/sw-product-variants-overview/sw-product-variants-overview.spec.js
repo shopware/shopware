@@ -65,7 +65,6 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
                     sync: true,
                 }),
                 'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field', { sync: true }),
-                'sw-icon': true,
                 'sw-context-menu': await wrapTestComponent('sw-context-menu', { sync: true }),
                 'sw-tree': await wrapTestComponent('sw-tree', {
                     sync: true,

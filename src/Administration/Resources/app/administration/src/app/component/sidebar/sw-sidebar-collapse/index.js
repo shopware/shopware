@@ -25,7 +25,7 @@ Component.extend('sw-sidebar-collapse', 'sw-collapse', {
                     'up',
                     'left',
                     'right',
-                    'bottom',
+                    'down',
                 ].includes(value),
         },
     },

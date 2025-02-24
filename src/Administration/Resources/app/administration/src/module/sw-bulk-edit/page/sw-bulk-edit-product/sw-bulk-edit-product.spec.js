@@ -110,6 +110,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
                     'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                     'sw-bulk-edit-save-modal': await wrapTestComponent('sw-bulk-edit-save-modal'),
+                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated'),
                     'sw-bulk-edit-product-visibility': true,
                     'sw-product-visibility-select': true,
                     'sw-custom-field-set-renderer': true,
@@ -121,7 +122,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'sw-language-switch': true,
                     'sw-notification-center': true,
                     'sw-help-center': true,
-                    'sw-icon': true,
                     'sw-multi-tag-select': true,
                     'sw-entity-tag-select': true,
                     'sw-product-properties': true,
@@ -131,7 +131,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                     'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
-
                     'sw-label': true,
                     'sw-extension-component-section': true,
                     'sw-inheritance-switch': true,
@@ -381,7 +380,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         await flushPromises();
 
-        await activeField.find('.mt-switch input').setValue('checked');
+        await activeField.find('.sw-field--switch__input input').setValue('checked');
 
         expect(wrapper.vm.bulkEditProduct.active.isChanged).toBeTruthy();
 

@@ -42,7 +42,6 @@ async function createWrapper() {
                           <slot></slot>
                      </div>`,
                     },
-                    'sw-icon': true,
                     'sw-card-view': {
                         template: '<div class="sw-card-view"><slot></slot></div>',
                     },

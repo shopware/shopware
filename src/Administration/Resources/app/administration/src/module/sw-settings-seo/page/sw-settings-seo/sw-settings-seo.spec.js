@@ -21,7 +21,6 @@ async function createWrapper() {
             global: {
                 stubs: {
                     'sw-page': await wrapTestComponent('sw-page'),
-                    'sw-icon': true,
                     'sw-card-view': await wrapTestComponent('sw-card-view'),
                     'sw-seo-url-template-card': true,
                     'sw-system-config': await wrapTestComponent('sw-system-config'),

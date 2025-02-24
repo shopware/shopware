@@ -296,8 +296,10 @@ Component.register('sw-custom-field-set-renderer', {
             const customFieldClone = Shopware.Utils.object.cloneDeep(customField);
 
             const isMeteorComponent = [
-                'bool',
-                'switch',
+                // Disabled for now, enable once Inheritance is aligned on all meteor components
+                // 'bool',
+                // 'switch',
+                // 'text',
             ].includes(customField.type);
 
             if (customFieldClone.type === 'bool') {

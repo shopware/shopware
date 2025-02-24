@@ -45,7 +45,6 @@ async function createWrapper() {
             },
             global: {
                 stubs: {
-                    'sw-icon': true,
                     'sw-cms-section-actions': true,
                     'sw-cms-block': {
                         template: '<div class="sw-cms-block"><slot /></div>',

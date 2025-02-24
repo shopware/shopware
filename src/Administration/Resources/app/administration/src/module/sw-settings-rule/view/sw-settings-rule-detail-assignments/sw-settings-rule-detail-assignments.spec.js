@@ -153,7 +153,6 @@ async function createWrapper(
                     'sw-extension-component-section': true,
                     'sw-ai-copilot-badge': true,
                     'sw-loader': true,
-                    'sw-icon': true,
                     'sw-field-error': true,
                     'sw-data-grid-inline-edit': true,
                     'sw-pagination': true,

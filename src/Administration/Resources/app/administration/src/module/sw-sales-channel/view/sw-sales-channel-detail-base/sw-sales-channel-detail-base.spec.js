@@ -35,7 +35,6 @@ async function createWrapper() {
                 'sw-entity-single-select': true,
                 'sw-sales-channel-defaults-select': true,
                 'router-link': true,
-                'sw-icon': true,
                 'sw-radio-field': true,
                 'sw-multi-tag-ip-select': true,
                 'sw-select-number-field': true,

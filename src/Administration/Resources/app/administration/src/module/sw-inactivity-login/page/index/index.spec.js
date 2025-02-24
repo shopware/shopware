@@ -21,7 +21,6 @@ async function createWrapper(routerPushImplementation = jest.fn(), loginByUserna
                         </div>
                     `,
                 },
-                'sw-icon': await wrapTestComponent('sw-icon'),
                 'sw-loader': await wrapTestComponent('sw-loader'),
                 'sw-password-field': await wrapTestComponent('sw-password-field'),
                 'sw-password-field-deprecated': await wrapTestComponent('sw-password-field-deprecated'),
@@ -35,7 +34,6 @@ async function createWrapper(routerPushImplementation = jest.fn(), loginByUserna
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'router-link': true,
                 'sw-field-copyable': true,
-                'sw-icon-deprecated': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,

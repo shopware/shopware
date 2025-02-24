@@ -40,7 +40,6 @@ async function createWrapper() {
                     'sw-media-modal-v2': true,
                     'sw-context-button': true,
                     'sw-context-menu-item': true,
-                    'sw-icon': true,
                     'mt-switch': MtSwitch,
                 },
             },

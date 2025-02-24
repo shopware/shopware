@@ -34,7 +34,6 @@ async function createWrapper() {
             plugins: [router],
             stubs: {
                 'sw-extension-component-section': true,
-                'sw-icon': true,
                 'sw-external-link': true,
                 'sw-loader': true,
             },

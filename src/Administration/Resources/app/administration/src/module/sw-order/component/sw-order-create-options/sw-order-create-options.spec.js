@@ -174,7 +174,6 @@ async function createWrapper() {
                 },
                 'sw-highlight-text': true,
                 'sw-loader': true,
-                'sw-icon': true,
                 'sw-field-error': true,
                 'sw-number-field': {
                     template: `

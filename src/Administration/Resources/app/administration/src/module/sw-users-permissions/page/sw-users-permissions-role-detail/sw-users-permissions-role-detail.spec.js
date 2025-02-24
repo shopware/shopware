@@ -50,7 +50,6 @@ async function createWrapper(
     `,
                     },
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
-                    'sw-icon': true,
                     'sw-card-view': {
                         template: '<div class="sw-card-view"><slot></slot></div>',
                     },

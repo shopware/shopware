@@ -31,7 +31,6 @@ describe('components/data-grid/sw-data-grid-settings', () => {
 
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                    'sw-icon': true,
                     'sw-context-menu-divider': true,
                     'sw-button-group': true,
                     'sw-inheritance-switch': true,

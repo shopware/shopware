@@ -18,13 +18,6 @@ async function createWrapper({ permissions, modalTitle, selectedEntity }) {
                         template:
                             '<div><div class="sw-modal__title">{{ title }}</div><div class="sw-modal__body"><slot/></div><slot name="modal-footer"></slot></div>',
                     },
-                    'sw-icon': {
-                        props: [
-                            'name',
-                            'color',
-                        ],
-                        template: '<div class="icon">name:{{ name }} color:{{ color }}</div>',
-                    },
                 },
             },
             props: {
@@ -118,24 +111,26 @@ describe('sw-extension-permissions-details-modal', () => {
         expect(entityLabels.at(1).text()).toBe('entityCategories.product.entities.product_visibility');
         expect(entityLabels.at(2).text()).toBe('entityCategories.promotion.entities.promotion');
 
-        const allIcons = wrapper
-            .findAll('.sw-extension-permissions-details-modal__operation')
-            .map((td) => td.find('.icon').text());
+        const expectedIcons = [
+            ['regular-checkmark-xs', '#37D046'],
+            ['regular-times-s', '#DE294C'],
+            ['regular-checkmark-xs', '#37D046'],
+            ['regular-times-s', '#DE294C'],
+            ['regular-checkmark-xs', '#37D046'],
+            ['regular-times-s', '#DE294C'],
+            ['regular-checkmark-xs', '#37D046'],
+            ['regular-times-s', '#DE294C'],
+            ['regular-checkmark-xs', '#37D046'],
+            ['regular-times-s', '#DE294C'],
+            ['regular-checkmark-xs', '#37D046'],
+            ['regular-times-s', '#DE294C'],
+        ];
 
-        expect(allIcons).toStrictEqual([
-            'name:regular-checkmark-xs color:#37D046',
-            'name:regular-times-s color:#DE294C',
-            'name:regular-checkmark-xs color:#37D046',
-            'name:regular-times-s color:#DE294C',
-            'name:regular-checkmark-xs color:#37D046',
-            'name:regular-times-s color:#DE294C',
-            'name:regular-checkmark-xs color:#37D046',
-            'name:regular-times-s color:#DE294C',
-            'name:regular-checkmark-xs color:#37D046',
-            'name:regular-times-s color:#DE294C',
-            'name:regular-checkmark-xs color:#37D046',
-            'name:regular-times-s color:#DE294C',
-        ]);
+        const allIcons = wrapper.findAllComponents('.mt-icon');
+        allIcons.forEach((icon, index) => {
+            expect(icon.vm.name).toBe(expectedIcons[index][0]);
+            expect(icon.vm.color).toBe(expectedIcons[index][1]);
+        });
     });
 
     it('should display the permissions for all product permissions', async () => {
@@ -192,27 +187,29 @@ describe('sw-extension-permissions-details-modal', () => {
         expect(entityLabels.at(2).text()).toBe('entityCategories.promotion.entities.promotion');
         expect(entityLabels.at(3).text()).toBe('entityCategories.promotion.entities.promotion_individual_code');
 
-        const allIcons = wrapper
-            .findAll('.sw-extension-permissions-details-modal__operation')
-            .map((td) => td.find('.icon').text());
+        const expectedIcons = [
+            ['regular-checkmark-xs', '#37D046'],
+            ['regular-checkmark-xs', '#37D046'],
+            ['regular-checkmark-xs', '#37D046'],
+            ['regular-checkmark-xs', '#37D046'],
+            ['regular-times-s', '#DE294C'],
+            ['regular-times-s', '#DE294C'],
+            ['regular-checkmark-xs', '#37D046'],
+            ['regular-times-s', '#DE294C'],
+            ['regular-times-s', '#DE294C'],
+            ['regular-times-s', '#DE294C'],
+            ['regular-checkmark-xs', '#37D046'],
+            ['regular-times-s', '#DE294C'],
+            ['regular-checkmark-xs', '#37D046'],
+            ['regular-checkmark-xs', '#37D046'],
+            ['regular-checkmark-xs', '#37D046'],
+            ['regular-checkmark-xs', '#37D046'],
+        ];
 
-        expect(allIcons).toStrictEqual([
-            'name:regular-checkmark-xs color:#37D046',
-            'name:regular-checkmark-xs color:#37D046',
-            'name:regular-checkmark-xs color:#37D046',
-            'name:regular-checkmark-xs color:#37D046',
-            'name:regular-times-s color:#DE294C',
-            'name:regular-times-s color:#DE294C',
-            'name:regular-checkmark-xs color:#37D046',
-            'name:regular-times-s color:#DE294C',
-            'name:regular-times-s color:#DE294C',
-            'name:regular-times-s color:#DE294C',
-            'name:regular-checkmark-xs color:#37D046',
-            'name:regular-times-s color:#DE294C',
-            'name:regular-checkmark-xs color:#37D046',
-            'name:regular-checkmark-xs color:#37D046',
-            'name:regular-checkmark-xs color:#37D046',
-            'name:regular-checkmark-xs color:#37D046',
-        ]);
+        const allIcons = wrapper.findAllComponents('.sw-extension-permissions-details-modal__operation .mt-icon');
+        allIcons.forEach((icon, index) => {
+            expect(icon.vm.name).toBe(expectedIcons[index][0]);
+            expect(icon.vm.color).toBe(expectedIcons[index][1]);
+        });
     });
 });

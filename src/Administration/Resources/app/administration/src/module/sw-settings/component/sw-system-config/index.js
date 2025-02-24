@@ -211,31 +211,12 @@ export default {
 
         getElementBind(element, mapInheritance) {
             const bind = object.deepCopyObject(element);
-            const isMeteorComponent = [
-                'textarea',
-                'bool',
-            ].includes(element.type);
 
             if (!this.hasMapInheritanceSupport(element)) {
                 delete bind.config.label;
                 delete bind.config.helpText;
             } else {
                 bind.mapInheritance = mapInheritance;
-            }
-
-            if (element.type === 'bool') {
-                bind.checked = this.actualConfigData[this.currentSalesChannelId][element.name];
-                bind.inheritedValue = this.getInheritedValue(element);
-            }
-
-            // Special case for meteor components
-            if (bind.mapInheritance && isMeteorComponent) {
-                delete bind.mapInheritance;
-
-                bind.isInheritanceField = mapInheritance.isInheritField;
-                bind.isInherited = mapInheritance.isInherited;
-                bind.inheritanceRemove = mapInheritance.removeInheritance;
-                bind.inheritanceRestore = mapInheritance.restoreInheritance;
             }
 
             // Add select properties

@@ -18,9 +18,10 @@
         {% block sw_settings_country_list_smart_bar_header_title %}
         <h2>
             {% block sw_settings_country_list_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }} <sw-icon
+            {{ $tc('sw-settings.index.title') }}
+            <mt-icon
                 name="regular-chevron-right-xs"
-                small
+                size="16px"
             /> {{ $tc('sw-settings-country.list.textHeadline') }}
             {% endblock %}
 
@@ -101,16 +102,16 @@
                             </template>
                             <template v-else>
                                 {% block sw_settings_country_list_columns_active_label %}
-                                <sw-icon
+                                <mt-icon
                                     v-if="item.active"
                                     name="regular-checkmark-xs"
-                                    small
+                                    size="16px"
                                     class="is--active"
                                 />
-                                <sw-icon
+                                <mt-icon
                                     v-else
                                     name="regular-times-s"
-                                    small
+                                    size="16px"
                                     class="is--inactive"
                                 />
                                 {% endblock %}

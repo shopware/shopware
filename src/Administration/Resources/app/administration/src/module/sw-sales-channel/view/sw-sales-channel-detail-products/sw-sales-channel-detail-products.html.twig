@@ -103,8 +103,8 @@
 
                     <template #column-active="{ item }">
                         {% block sw_sales_channel_detail_products_listing_column_active %}
-                        <sw-icon
-                            small
+                        <mt-icon
+                            size="16px"
                             :name="item.active === false ? 'regular-times-s' : 'regular-checkmark-xs'"
                             :color="item.active === false ? '#de294c' : '#37d046'"
                         />

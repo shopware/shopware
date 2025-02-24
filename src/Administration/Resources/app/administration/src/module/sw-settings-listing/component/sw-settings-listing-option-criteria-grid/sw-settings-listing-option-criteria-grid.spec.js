@@ -54,9 +54,6 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                         'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', {
                             sync: true,
                         }),
-                        'sw-icon': {
-                            template: '<i></i>',
-                        },
                         'sw-base-field': await wrapTestComponent('sw-base-field'),
                         'sw-block-field': await wrapTestComponent('sw-block-field'),
                         'sw-field-error': await wrapTestComponent('sw-field-error'),

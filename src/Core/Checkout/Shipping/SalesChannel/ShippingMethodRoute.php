@@ -45,7 +45,12 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
         return 'shipping-method-route-' . $salesChannelId;
     }
 
-    #[Route(path: '/store-api/shipping-method', name: 'store-api.shipping.method', methods: ['GET', 'POST'], defaults: ['_entity' => 'shipping_method'])]
+    #[Route(
+        path: '/store-api/shipping-method',
+        name: 'store-api.shipping.method',
+        defaults: ['_entity' => 'shipping_method'],
+        methods: ['GET', 'POST']
+    )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ShippingMethodRouteResponse
     {
         $this->dispatcher->dispatch(new AddCacheTagEvent(
@@ -66,19 +71,11 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
 
         $shippingMethods->sortShippingMethodsByPreference($context);
 
-        /**
-         * @deprecated tag:v6.7.0 - onlyAvailable flag will be removed, use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute  instead
-         */
-        if ($request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable')) {
-            $shippingMethods = $shippingMethods->filterByActiveRules($context);
-        }
-
         $result->assign(['entities' => $shippingMethods, 'elements' => $shippingMethods->getElements(), 'total' => $shippingMethods->count()]);
 
         $this->scriptExecutor->execute(new ShippingMethodRouteHook(
             $shippingMethods,
-            $request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable'),
-            $context
+            $context,
         ));
 
         return new ShippingMethodRouteResponse($result);

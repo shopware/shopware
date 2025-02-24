@@ -16,7 +16,6 @@ async function createWrapper(
             global: {
                 stubs: {
                     'sw-label': true,
-                    'sw-icon': true,
                 },
                 provide: {
                     repositoryFactory: {

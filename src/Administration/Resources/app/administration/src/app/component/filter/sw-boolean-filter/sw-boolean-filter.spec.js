@@ -23,7 +23,6 @@ async function createWrapper() {
                 'sw-base-filter': await wrapTestComponent('sw-base-filter', {
                     sync: true,
                 }),
-                'sw-icon': true,
                 'sw-help-text': true,
                 'sw-ai-copilot-badge': true,
                 'sw-inheritance-switch': true,

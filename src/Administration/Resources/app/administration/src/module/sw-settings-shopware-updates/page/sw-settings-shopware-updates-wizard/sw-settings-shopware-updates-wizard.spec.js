@@ -148,9 +148,6 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                         'sw-loader': {
                             template: '<div></div>',
                         },
-                        'sw-icon': {
-                            template: '<div></div>',
-                        },
                         'router-link': {
                             template: '<a></a>',
                         },

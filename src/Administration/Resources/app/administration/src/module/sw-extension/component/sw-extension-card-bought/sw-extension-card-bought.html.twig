@@ -25,11 +25,10 @@
         class="sw-extension-card-bought__info-subscription-expiry"
         :class="subscriptionExpiredTextClasses"
     >
-        <sw-icon
+        <mt-icon
             v-if="isExpiredTestPhase || isExpiredRent"
             name="solid-exclamation-circle"
             size="14"
-            small
         />
         {{ subscriptionExpiredText }}
     </span>

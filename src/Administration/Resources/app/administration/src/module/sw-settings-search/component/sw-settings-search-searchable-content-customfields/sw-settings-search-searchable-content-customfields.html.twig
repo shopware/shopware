@@ -110,17 +110,17 @@
 
             <template v-else>
                 {% block sw_settings_search_searchable_content_customfields_searchable_label %}
-                <sw-icon
+                <mt-icon
                     v-if="item.searchable"
                     class="is--active"
                     name="regular-checkmark-xs"
-                    small
+                    size="16px"
                 />
-                <sw-icon
+                <mt-icon
                     v-else
                     class="is--inactive"
                     name="regular-times-s"
-                    small
+                    size="16px"
                 />
                 {% endblock %}
             </template>
@@ -139,17 +139,17 @@
 
             <template v-else>
                 {% block sw_settings_search_searchable_content_customfields_tokenize_label %}
-                <sw-icon
+                <mt-icon
                     v-if="item.tokenize"
                     class="is--active"
                     name="regular-checkmark-xs"
-                    small
+                    size="16px"
                 />
-                <sw-icon
+                <mt-icon
                     v-else
                     class="is--inactive"
                     name="regular-times-s"
-                    small
+                    size="16px"
                 />
                 {% endblock %}
             </template>

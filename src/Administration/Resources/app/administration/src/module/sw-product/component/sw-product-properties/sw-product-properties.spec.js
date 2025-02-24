@@ -164,7 +164,6 @@ async function createWrapper() {
                 'sw-product-add-properties-modal': true,
                 'sw-loader': true,
                 'sw-simple-search-field': true,
-                'sw-icon': true,
                 'sw-label': true,
                 'sw-help-text': true,
             },

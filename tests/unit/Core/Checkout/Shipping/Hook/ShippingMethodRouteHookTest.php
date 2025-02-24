@@ -20,12 +20,10 @@ class ShippingMethodRouteHookTest extends TestCase
     {
         $hook = new ShippingMethodRouteHook(
             $collection = new ShippingMethodCollection(),
-            true,
             $salesChannelContext = Generator::generateSalesChannelContext()
         );
 
         static::assertSame($collection, $hook->getCollection());
-        static::assertTrue($hook->isOnlyAvailable());
         static::assertSame($salesChannelContext, $hook->getSalesChannelContext());
 
         static::assertSame('shipping-method-route-request', $hook->getName());

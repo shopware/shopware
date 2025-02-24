@@ -45,7 +45,6 @@ async function createWrapper(privileges = [], props = {}) {
                     // eslint-disable-next-line no-template-curly-in-string
                     template: '<a :href="`${to.name}/${to.params.flowTemplateId}`">asdf</a>',
                 },
-                'sw-icon': true,
                 'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
                 'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                 'sw-context-menu-item': true,

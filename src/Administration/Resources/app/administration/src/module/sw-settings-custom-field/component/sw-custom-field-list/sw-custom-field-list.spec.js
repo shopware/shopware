@@ -121,7 +121,6 @@ async function createWrapper(privileges = []) {
                         template: '<div></div>',
                     },
                     'sw-pagination': await wrapTestComponent('sw-pagination'),
-                    'sw-icon': true,
                     'sw-loader': true,
                     'sw-modal': true,
                     'sw-text-field': true,

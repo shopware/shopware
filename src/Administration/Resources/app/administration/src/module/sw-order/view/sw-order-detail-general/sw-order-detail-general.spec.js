@@ -101,7 +101,6 @@ async function createWrapper() {
                 'sw-help-text': true,
                 'sw-field-error': true,
                 'sw-extension-component-section': true,
-                'sw-icon': true,
                 'router-link': true,
                 'sw-loader': true,
             },

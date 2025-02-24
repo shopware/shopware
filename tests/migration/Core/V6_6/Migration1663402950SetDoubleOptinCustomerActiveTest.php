@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_6\Migration1663402950SetDoubleOptinCustomerActive;
@@ -70,10 +69,6 @@ class Migration1663402950SetDoubleOptinCustomerActiveTest extends TestCase
             'guest' => 0,
             'created_at' => $now->format('Y-m-d H:i:s'),
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $data['default_payment_method_id'] = $this->connection->fetchOne('SELECT id FROM `payment_method` WHERE `active` = 1');
-        }
 
         return $this->connection->insert('customer', $data);
     }

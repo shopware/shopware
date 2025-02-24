@@ -8,13 +8,6 @@ async function createWrapper() {
         await wrapTestComponent('sw-cms-el-preview-cross-selling', {
             sync: true,
         }),
-        {
-            global: {
-                stubs: {
-                    'sw-icon': await wrapTestComponent('sw-icon'),
-                },
-            },
-        },
     );
 }
 

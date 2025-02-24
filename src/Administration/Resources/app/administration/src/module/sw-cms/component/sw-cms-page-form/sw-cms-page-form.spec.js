@@ -61,9 +61,6 @@ async function createWrapper() {
             },
             global: {
                 stubs: {
-                    'sw-icon': {
-                        template: '<div></div>',
-                    },
                     'sw-cms-el-config-text': {
                         template: '<div class="sw-cms-el-config-text">Config element</div>',
                         props: [

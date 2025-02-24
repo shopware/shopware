@@ -48,7 +48,6 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                     stubs: {
                         'sw-container': true,
                         'sw-simple-search-field': true,
-                        'sw-icon': true,
                         'sw-data-grid': await wrapTestComponent('sw-data-grid', {
                             sync: true,
                         }),

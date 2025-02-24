@@ -7,9 +7,6 @@ import { mount } from '@vue/test-utils';
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-app-topbar-button', { sync: true }), {
         global: {
-            stubs: {
-                'sw-icon': true,
-            },
             provide: {
                 acl: { can: () => true },
             },

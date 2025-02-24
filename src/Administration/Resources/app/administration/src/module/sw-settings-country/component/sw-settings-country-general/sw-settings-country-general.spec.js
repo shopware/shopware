@@ -72,8 +72,6 @@ async function createWrapper(privileges = [], customPropsData = {}) {
                     'sw-ignore-class': true,
                     'sw-container': await wrapTestComponent('sw-container'),
                     'sw-text-field': true,
-
-                    'sw-icon': true,
                     'sw-number-field': true,
                     'sw-settings-country-currency-dependent-modal': true,
                     'sw-entity-single-select': true,

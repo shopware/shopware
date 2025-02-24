@@ -204,7 +204,6 @@ async function createWrapper() {
                         props: ['to'],
                     },
                     'sw-empty-state': true,
-                    'sw-icon': true,
                     'sw-loader': true,
                     'sw-data-grid-settings': true,
                     'sw-data-grid-inline-edit': true,

@@ -24,7 +24,7 @@
                     @click="onPageTypeSelect(pageType.name)"
                     @keyup.enter="onPageTypeSelect(pageType.name)"
                 >
-                    <sw-icon
+                    <mt-icon
                         :name="pageType.icon"
                         size="24"
                     />
@@ -39,9 +39,9 @@
                 class="sw-cms-create-wizard__back"
                 :to="{ name: 'sw.cms.index' }"
             >
-                <sw-icon
+                <mt-icon
                     name="regular-times-s"
-                    small
+                    size="16px"
                 /> {{ $tc('global.default.cancel') }}
             </router-link>
             {% endblock %}
@@ -78,9 +78,9 @@
                 @click="goToStep('pageType')"
                 @keydown.enter="goToStep('pageType')"
             >
-                <sw-icon
+                <mt-icon
                     name="regular-long-arrow-left"
-                    small
+                    size="16px"
                 /> {{ $tc('sw-cms.createWizard.stepBack') }}
             </div>
             {% endblock %}
@@ -110,7 +110,7 @@
                         :style="pagePreviewStyle"
                     ></div>
                     <div class="sw-cms-create-wizard__preview_info">
-                        <sw-icon
+                        <mt-icon
                             :name="currentPageType?.icon"
                             size="16"
                         />
@@ -168,9 +168,9 @@
                 @click="goToStep('sectionType')"
                 @keydown.enter="goToStep('sectionType')"
             >
-                <sw-icon
+                <mt-icon
                     name="regular-long-arrow-left"
-                    small
+                    size="16px"
                 /> {{ $tc('sw-cms.createWizard.stepBack') }}
             </div>
             {% endblock %}

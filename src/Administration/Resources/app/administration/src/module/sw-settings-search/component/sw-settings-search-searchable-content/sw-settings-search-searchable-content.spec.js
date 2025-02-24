@@ -38,7 +38,6 @@ async function createWrapper(privileges = []) {
                     'sw-container': {
                         template: '<div class="sw-container"><slot></slot></div>',
                     },
-                    'sw-icon': true,
                     'sw-tabs': true,
                     'sw-tabs-item': true,
                     'sw-settings-search-example-modal': await wrapTestComponent('sw-settings-search-example-modal'),

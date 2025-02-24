@@ -143,7 +143,6 @@ async function createWrapper(
 
                     'sw-entity-multi-select': true,
                     'sw-single-select': true,
-                    'sw-icon': true,
                     'sw-data-grid': {
                         props: ['dataSource'],
                         template: `
@@ -344,7 +343,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(fieldEmail.props('disabled')).toBe(true);
         expect(fieldUsername.props('disabled')).toBe(true);
         expect(fieldProfilePicture.attributes().disabled).toBe('true');
-        expect(fieldPassword.attributes().disabled).toBe('true');
+        expect(fieldPassword.classes()).toContain('is--disabled');
         expect(fieldLanguage.attributes().disabled).toBe('true');
         expect(contextMenuItemEdit.attributes().disabled).toBe('true');
         expect(contextMenuItemDelete.attributes().disabled).toBe('true');

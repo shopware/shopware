@@ -67,20 +67,20 @@
 
                     {% block sw_promotion_v2_individual_codes_behavior_grid_redeemed_icon %}
                     {% block sw_promotion_v2_individual_codes_behavior_grid_redeemed_icon_true %}
-                    <sw-icon
+                    <mt-icon
                         v-if="!!item.payload"
                         class="sw-promotion-v2-individual-codes-behavior__redeemed-state is--active"
                         name="regular-checkmark-xs"
-                        small
+                        size="16px"
                     />
                     {% endblock %}
 
                     {% block sw_promotion_v2_individual_codes_behavior_grid_redeemed_icon_false %}
-                    <sw-icon
+                    <mt-icon
                         v-else
                         class="sw-promotion-v2-individual-codes-behavior__redeemed-state is--inactive"
                         name="regular-times-s"
-                        small
+                        size="16px"
                     />
                     {% endblock %}
                     {% endblock %}

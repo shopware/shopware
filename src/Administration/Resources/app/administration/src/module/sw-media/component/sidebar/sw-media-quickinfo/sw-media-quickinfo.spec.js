@@ -73,7 +73,6 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                         </div>`,
                 },
 
-                'sw-icon': true,
                 'sw-media-collapse': {
                     template: `
                         <div class="sw-media-quickinfo">

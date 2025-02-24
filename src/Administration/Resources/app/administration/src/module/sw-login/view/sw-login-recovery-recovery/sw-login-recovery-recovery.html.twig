@@ -6,10 +6,10 @@
             class="sw-login__back"
             :to="{ name: 'sw.login.index.login' }"
         >
-            <sw-icon
+            <mt-icon
                 class="sw-login__back-arrow"
                 name="regular-long-arrow-left"
-                small
+                size="16px"
             />
         </router-link>
         {{ $tc('sw-login.recovery.recovery.headline') }}
@@ -36,12 +36,12 @@
 
             {% block sw_login_recovery_recovery_form_submit %}
             <div class="sw-login__submit">
-                <sw-button
+                <mt-button
                     variant="primary"
                     :disabled="!validatePasswords()"
                 >
                     {{ $tc('sw-login.recovery.recovery.submit.label') }}
-                </sw-button>
+                </mt-button>
             </div>
             {% endblock %}
         </form>

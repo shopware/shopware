@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionsCompilerPass;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityCompiler;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetBundleRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AttributeEntityCompilerPass;
@@ -35,7 +33,6 @@ use Shopware\Core\Framework\MessageQueue\MessageHandlerCompilerPass;
 use Shopware\Core\Framework\Telemetry\Metrics\MeterProvider;
 use Shopware\Core\Framework\Test\DependencyInjection\CompilerPass\ContainerVisibilityCompilerPass;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -150,16 +147,6 @@ class Framework extends Bundle
         if ($this->container->getParameter('kernel.environment') !== 'test') {
             // Inject the meter early in the application lifecycle. This is needed to use the meter in special case (static contexts).
             MeterProvider::bindMeter($this->container);
-        }
-
-        // @deprecated tag:v6.7.0 - remove complete if condition
-        if (!Feature::isActive('DYNAMIC_ENTITY_EXTENSIONS')) {
-            $this->container
-                ->get(ExtensionRegistry::class)
-                ->configureExtensions(
-                    $this->container->get(DefinitionInstanceRegistry::class),
-                    $this->container->get(SalesChannelDefinitionInstanceRegistry::class)
-                );
         }
 
         CacheValueCompressor::$compress = $this->container->getParameter('shopware.cache.cache_compression');

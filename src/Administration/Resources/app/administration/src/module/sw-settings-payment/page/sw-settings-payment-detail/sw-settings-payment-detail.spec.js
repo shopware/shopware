@@ -82,21 +82,19 @@ async function createWrapper(privileges = [], paymentMethod = {}) {
                         </div>
                     `,
                     },
-                    'sw-button': true,
                     'sw-button-process': true,
                     'sw-language-switch': true,
                     'sw-card-view': true,
-                    'sw-card': true,
                     'sw-container': true,
 
-                    'sw-switch-field': true,
+                    'mt-switch': true,
                     'sw-number-field': true,
                     'sw-text-field': true,
                     'sw-language-info': true,
                     'sw-upload-listener': true,
                     'sw-media-upload-v2': true,
                     'sw-plugin-box': true,
-                    'sw-textarea-field': true,
+                    'mt-textarea': true,
                     'sw-select-rule-create': true,
                     'sw-sidebar': true,
                     'sw-sidebar-media-item': true,
@@ -141,7 +139,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
 
         await flushPromises();
 
-        const nameField = wrapper.find('.sw-settings-payment-detail__field-name');
+        const nameField = wrapper.findComponent('.sw-settings-payment-detail__field-name');
         const positionField = wrapper.find('.sw-settings-payment-detail__field-position');
         const commentField = wrapper.find('.sw-settings-payment-detail__description');
         const uploadField = wrapper.find('.sw-settings-payment-detail__logo-image-upload');
@@ -150,7 +148,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
         const afterOrderField = wrapper.find('.sw-settings-payment-detail__field-after-order');
         const ruleField = wrapper.find('.sw-settings-payment-detail__field-availability-rule');
 
-        expect(nameField.attributes().disabled).toBeTruthy();
+        expect(nameField.props().disabled).toBe(true);
         expect(positionField.attributes().disabled).toBeTruthy();
         expect(commentField.attributes().disabled).toBeTruthy();
         expect(uploadField.attributes().disabled).toBeTruthy();
@@ -204,9 +202,9 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
 
         await flushPromises();
 
-        const technicalInput = wrapper.find('.sw-settings-payment-detail__field-technical-name');
+        const technicalInput = wrapper.findComponent('.sw-settings-payment-detail__field-technical-name');
 
-        expect(technicalInput.attributes().disabled).toBeTruthy();
+        expect(technicalInput.props().disabled).toBe(true);
     });
 
     it('should disabled technical name input appId', async () => {
@@ -218,9 +216,9 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
 
         await flushPromises();
 
-        const technicalInput = wrapper.find('.sw-settings-payment-detail__field-technical-name');
+        const technicalInput = wrapper.findComponent('.sw-settings-payment-detail__field-technical-name');
 
-        expect(technicalInput.attributes().disabled).toBeTruthy();
+        expect(technicalInput.props().disabled).toBe(true);
     });
 
     it('should not disabled technical name input', async () => {

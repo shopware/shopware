@@ -50,7 +50,7 @@
             </div>
             <div v-if="active==='addresses'">
                 {% block sw_order_address_modal_tabs_content_select_address %}
-                <sw-button
+                <mt-button
                     v-for="address in availableAddresses"
                     :key="address.id"
                     block
@@ -62,7 +62,7 @@
                     {{ address.street }} <br>
                     {{ address.zipcode }} {{ address.city }}<br>
                     {{ placeholder(address.country, 'name') }}<br>
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </div>
             {% endblock %}
@@ -73,22 +73,22 @@
     {% block sw_order_address_modal_actions %}
     <template #modal-footer>
         {% block sw_order_address_modal_action_close %}
-        <sw-button
+        <mt-button
             size="small"
             @click="onClose"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_order_address_modal_actions_apply %}
-        <sw-button
+        <mt-button
             variant="primary"
             size="small"
             @click="onSave"
         >
             {{ $tc('global.default.apply') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

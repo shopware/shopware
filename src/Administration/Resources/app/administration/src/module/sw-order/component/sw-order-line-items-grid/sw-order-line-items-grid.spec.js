@@ -231,9 +231,6 @@ async function createWrapper() {
                 'sw-container': await wrapTestComponent('sw-container', {
                     sync: true,
                 }),
-                'sw-button': await await wrapTestComponent('sw-button', {
-                    sync: true,
-                }),
                 'sw-button-group': {
                     template: '<div class="sw-button-group"><slot></slot></div>',
                 },
@@ -252,11 +249,8 @@ async function createWrapper() {
                     sync: true,
                 }),
                 'sw-data-grid-settings': true,
-                'sw-icon': await await wrapTestComponent('sw-icon', {
-                    sync: true,
-                }),
                 'sw-product-variant-info': await wrapTestComponent('sw-product-variant-info', { sync: true }),
-                'sw-switch-field': true,
+
                 'router-link': {
                     template: '<a class="router-link" href="#"><slot></slot></a>',
                     props: ['to'],
@@ -283,16 +277,11 @@ async function createWrapper() {
                     `,
                 },
                 'sw-order-nested-line-items-modal': true,
-                'sw-button-deprecated': {
-                    emits: ['click'],
-                    template: '<button @click="$emit(\'click\')"><slot></slot></button>',
-                },
                 'sw-data-grid-column-boolean': true,
                 'sw-data-grid-inline-edit': true,
                 'sw-data-grid-skeleton': true,
                 'sw-base-field': true,
                 'sw-field-error': true,
-                'sw-icon-deprecated': true,
                 'sw-highlight-text': true,
                 'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },

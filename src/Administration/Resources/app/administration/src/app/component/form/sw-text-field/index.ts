@@ -27,22 +27,6 @@ Component.register('sw-text-field', {
     },
 
     computed: {
-        useMeteorComponent() {
-            // Use new meteor component in major
-            if (Shopware.Feature.isActive('ENABLE_METEOR_COMPONENTS')) {
-                return true;
-            }
-
-            // Throw warning when deprecated component is used
-            Shopware.Utils.debug.warn(
-                'sw-text-field',
-                // eslint-disable-next-line max-len
-                'The old usage of "sw-text-field" is deprecated and will be removed in v6.7.0.0. Please use "mt-text-field" instead.',
-            );
-
-            return false;
-        },
-
         compatValue: {
             get() {
                 if (this.value === null || this.value === undefined) {

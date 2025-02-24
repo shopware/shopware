@@ -12,14 +12,10 @@ async function createWrapper(additionalSlots = null) {
                 shortcutService: {
                     startEventListener: () => {},
                     stopEventListener: () => {},
-                    stubs: {
-                        'sw-icon': true,
-                    },
                 },
             },
             stubs: {
                 'sw-loader': true,
-                'sw-icon': true,
             },
         },
         slots: {

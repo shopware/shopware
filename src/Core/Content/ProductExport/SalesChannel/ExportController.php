@@ -9,6 +9,7 @@ use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotGeneratedException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
+use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Content\ProductExport\Service\ProductExporterInterface;
 use Shopware\Core\Content\ProductExport\Service\ProductExportFileHandlerInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
@@ -62,7 +63,13 @@ class ExportController
             throw $exportNotFoundException;
         }
 
-        $context = $this->contextFactory->create('', $productExport->getSalesChannelDomain()->getSalesChannelId());
+        $domain = $productExport->getSalesChannelDomain();
+
+        if ($domain === null) {
+            throw ProductExportException::salesChannelDomainNotFound($productExport->getId());
+        }
+
+        $context = $this->contextFactory->create('', $domain->getSalesChannelId());
 
         $filePath = $this->productExportFileHandler->getFilePath($productExport);
 

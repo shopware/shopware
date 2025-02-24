@@ -52,12 +52,12 @@
             :aria-pressed="priceForCurrency.linked"
             @click="onLockSwitch"
         >
-            <sw-icon
+            <mt-icon
                 v-if="priceForCurrency.linked"
                 name="regular-lock"
                 size="16"
             />
-            <sw-icon
+            <mt-icon
                 v-else
                 name="regular-lock-open"
                 size="16"
@@ -109,9 +109,9 @@
             @keydown.enter.prevent="showModal = true"
         >
             {{ $tc('sw-product.detailBase.linkMaintainCurrencyPrices') }}
-            <sw-icon
+            <mt-icon
                 name="regular-long-arrow-right"
-                small
+                size="16px"
             />
         </a>
     </sw-container>

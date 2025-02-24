@@ -1,5 +1,4 @@
 import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
-import clock from 'jest-plugin-clock';
 
 describe('cookie-storage.helper.js', () => {
     test('can create cookies', () => {
@@ -7,11 +6,6 @@ describe('cookie-storage.helper.js', () => {
     });
 
     test('can add and override cookies', () => {
-        const mockDate = new Date(2019, 12, 18, 0, 0,0);
-        const expirationDate = new Date(2019, 12, 23, 0, 0,0);
-
-        clock.set(mockDate);
-
         CookieStorageHelper.setItem('jest-test-cookie', 'test value', 5);
         CookieStorageHelper.setItem('another-cookie', 'test value');
 
@@ -32,7 +26,7 @@ describe('cookie-storage.helper.js', () => {
 
         expect(CookieStorageHelper.getItem('jest-test-cookie')).toEqual(cookieValue);
     });
-    
+
     test('returns false if a cookie is not set', () => {
         expect(CookieStorageHelper.getItem('i-hope-this-cookie-is-not-set')).toStrictEqual(false);
     });

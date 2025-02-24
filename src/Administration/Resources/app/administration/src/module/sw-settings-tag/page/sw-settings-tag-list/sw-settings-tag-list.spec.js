@@ -110,9 +110,9 @@ async function createWrapper(privileges = []) {
                     </div>
                 `,
                     },
-                    'sw-card': {
+                    'mt-card': {
                         template: `
-                    <div class="sw-card">
+                    <div class="mt-card">
                         <slot name="grid"></slot>
                     </div>
                 `,
@@ -129,14 +129,12 @@ async function createWrapper(privileges = []) {
                     },
                     'sw-context-menu-item': true,
                     'sw-search-bar': true,
-                    'sw-icon': true,
                     'sw-loader': true,
-                    'sw-button': true,
                     'sw-modal': true,
                     'sw-empty-state': true,
                     'sw-card-filter': true,
                     'sw-context-menu-divider': true,
-                    'sw-switch-field': true,
+
                     'sw-multi-select': true,
                     'sw-context-button': true,
 
@@ -178,7 +176,7 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
 
         const addButton = wrapper.find('.sw-settings-tag-list__button-create');
 
-        expect(addButton.attributes().disabled).toBeTruthy();
+        expect(addButton.attributes('disabled')).toBeDefined();
 
         const duplicateMenuItem = wrapper.find('.sw-settings-tag-list__duplicate-action');
 

@@ -12,14 +12,6 @@ export default class BasicCaptchaPlugin extends Plugin {
         basicCaptchaFieldId: '#basic-captcha-field',
         invalidFeedbackMessage: 'Incorrect input. Please try again.',
         formId: '',
-        /**
-         * @deprecated tag:v6.7.0 - The `preCheck` option becomes obsolete.
-         */
-        preCheck: false,
-        /**
-         * @deprecated tag:v6.7.0 - The `preCheck` option becomes obsolete.
-         */
-        preCheckId: '#precheck',
         preCheckRoute: {},
     };
 
@@ -30,28 +22,12 @@ export default class BasicCaptchaPlugin extends Plugin {
             return;
         }
 
-        if (window.Feature.isActive('ACCESSIBILITY_TWEAKS')) {
-            window.formValidation.addErrorMessage('basicCaptcha', this.options.invalidFeedbackMessage);
-        }
-
-        /**
-         * @deprecated tag:v6.7.0 - Properties become obsolete.
-         */
-        if (!window.Feature.isActive('ACCESSIBILITY_TWEAKS')) {
-            this._formSubmitting = false;
-        }
+        window.formValidation.addErrorMessage('basicCaptcha', this.options.invalidFeedbackMessage);
 
         this.formPluginInstances = window.PluginManager.getPluginInstancesFromElement(this._form);
         this._httpClient = new HttpClient();
         this._onLoadBasicCaptcha();
         this._registerEvents();
-
-        /**
-         * @deprecated tag:v6.7.0 - Properties become obsolete.
-         */
-        if (!window.Feature.isActive('ACCESSIBILITY_TWEAKS')) {
-            this.formValidating = false;
-        }
     }
 
     /**
@@ -63,22 +39,7 @@ export default class BasicCaptchaPlugin extends Plugin {
         const refreshCaptchaButton = this.el.querySelector(this.options.captchaRefreshIconId);
         refreshCaptchaButton.addEventListener('click', this._onLoadBasicCaptcha.bind(this));
 
-        if (window.Feature.isActive('ACCESSIBILITY_TWEAKS')) {
-            this._form.addEventListener('submit', this.validateCaptcha.bind(this));
-        }
-
-        /**
-         * @deprecated tag:v6.7.0 - Event listeners become obsolete.
-         */
-        if (!window.Feature.isActive('ACCESSIBILITY_TWEAKS')) {
-            this.formPluginInstances.forEach(plugin => {
-                plugin.$emitter.subscribe('onFormResponse', res => this.onHandleResponse(res.detail));
-
-                if (this.options.preCheck) {
-                    plugin.$emitter.subscribe('beforeSubmit', this._onValidate.bind(this));
-                }
-            });
-        }
+        this._form.addEventListener('submit', this.validateCaptcha.bind(this));
     }
 
     /**
@@ -163,32 +124,6 @@ export default class BasicCaptchaPlugin extends Plugin {
     }
 
     /**
-     * @deprecated tag:v6.7.0 - Use validateCaptcha() instead.
-     *
-     * @private
-     */
-    _onValidate() {
-        if (this.formValidating) {
-            return;
-        }
-
-        this.formValidating = true;
-        const data = JSON.stringify({
-            formId: this.options.formId,
-            shopware_basic_captcha_confirm: this.el.querySelector(this.options.basicCaptchaInputId).value,
-        });
-        this._httpClient.post(this.options.preCheckRoute.path, data, (res) => {
-            this.formValidating = false;
-            const response = JSON.parse(res);
-            if (response.session) {
-                this.onFormSubmit(response.session);
-                return;
-            }
-            this.onHandleResponse(res);
-        });
-    }
-
-    /**
      * tries to get the closest form
      *
      * @returns {HTMLElement|boolean}
@@ -200,46 +135,5 @@ export default class BasicCaptchaPlugin extends Plugin {
         } else {
             this._form = this.el.closest('form');
         }
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Method becomes obsolete. Handling is done via custom validator of the central form handling.
-     *
-     * @param fakeSession
-     */
-    onFormSubmit(fakeSession) {
-        const preCheckId = `#${this.options.formId}-precheck`;
-        this.el.querySelector(preCheckId).value = 'allowed';
-        this.el.querySelector(this.options.basicCaptchaInputId).value = fakeSession;
-
-        if (!this._form.checkValidity()) {
-            this.el.querySelector(preCheckId).value = '';
-            return;
-        }
-
-        this._form.submit();
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Method becomes obsolete.
-     *
-     * @param res
-     */
-    onHandleResponse(res) {
-        if (this.formValidating) {
-            return;
-        }
-        this.formValidating = true;
-        const response = JSON.parse(res)[0];
-        if (response.error !== 'invalid_captcha') {
-            return;
-        }
-        const basicCaptchaFieldId = this.el.querySelector(this.options.basicCaptchaFieldId);
-        ElementLoadingIndicatorUtil.create(basicCaptchaFieldId);
-
-        const srcEl = new DOMParser().parseFromString(response.input, 'text/html');
-        ElementReplaceHelper.replaceElement(srcEl.querySelector(this.options.basicCaptchaFieldId), basicCaptchaFieldId);
-        ElementLoadingIndicatorUtil.remove(basicCaptchaFieldId);
-        this._onLoadBasicCaptcha();
     }
 }

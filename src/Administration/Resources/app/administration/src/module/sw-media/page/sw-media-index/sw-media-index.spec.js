@@ -10,8 +10,6 @@ async function createWrapper() {
             stubs: {
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
-                'sw-icon': true,
-                'sw-button': true,
                 'sw-page': {
                     template: '<div><slot name="smart-bar-actions"></slot></div>',
                 },

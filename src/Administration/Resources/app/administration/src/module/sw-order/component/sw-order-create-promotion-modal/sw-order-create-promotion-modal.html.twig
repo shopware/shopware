@@ -29,16 +29,16 @@
     {% block sw_order_create_promotion_modal_footer %}
     <template #modal-footer>
         {% block sw_order_create_promotion_modal_footer_button_cancel %}
-        <sw-button
+        <mt-button
             size="small"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_order_create_promotion_modal_footer_button_save %}
-        <sw-button
+        <mt-button
             size="small"
             variant="primary"
             :is-loading="isLoading"
@@ -46,7 +46,7 @@
             @click="onSave"
         >
             {{ $tc('sw-order.promotionModal.buttonDisable') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

@@ -7,20 +7,20 @@
     <template #button>
 
         {% block sw_settings_country_currency_hamburger_menu_trigger %}
-        <sw-button
+        <mt-button
             class="sw-settings-country-currency-hamburger-menu__button"
             size="x-small"
             square
         >
 
             {% block sw_country_currency_hamburger_menu_icon %}
-            <sw-icon
+            <mt-icon
                 name="regular-bars-s"
-                small
+                size="16px"
             />
             {% endblock %}
 
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
     </template>

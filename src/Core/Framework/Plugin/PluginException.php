@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Plugin\Exception\KernelPluginLoaderException;
 use Shopware\Core\Framework\Plugin\Exception\PluginBaseClassNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerRemoveException;
@@ -42,6 +43,7 @@ class PluginException extends HttpException
     public const COULD_NOT_DETECT_COMPOSER_VERSION = 'FRAMEWORK__PLUGIN_COULD_NOT_DETECT_COMPOSER_VERSION';
     public const PLUGIN_COMPOSER_REQUIRE = 'FRAMEWORK__PLUGIN_COMPOSER_REQUIRE';
     public const PLUGIN_COMPOSER_REMOVE = 'FRAMEWORK__PLUGIN_COMPOSER_REMOVE';
+    public const KERNEL_PLUGIN_LOADER_ERROR = 'FRAMEWORK__KERNEL_PLUGIN_LOADER_ERROR';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -266,6 +268,23 @@ class PluginException extends HttpException
                 'pluginComposerName' => $pluginComposerName,
                 'output' => $output,
             ]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return `self` in the future
+     */
+    public static function kernelPluginLoaderError(string $pluginName, string $reason): self|KernelPluginLoaderException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new KernelPluginLoaderException($pluginName, $reason);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PLUGIN_COMPOSER_REMOVE,
+            'Failed to load plugin "{{ plugin }}". Reason: {{ reason }}',
+            ['plugin' => $pluginName, 'reason' => $reason]
         );
     }
 }

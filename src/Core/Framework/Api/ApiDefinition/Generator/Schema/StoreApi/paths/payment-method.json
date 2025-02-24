@@ -30,15 +30,6 @@
                                 "allOf": [
                                     {
                                         "$ref": "#/components/schemas/Criteria"
-                                    },
-                                    {
-                                        "properties": {
-                                            "onlyAvailable": {
-                                                "description": "List only available",
-                                                "type": "boolean"
-                                            }
-                                        },
-                                        "type": "object"
                                     }
                                 ]
                             }

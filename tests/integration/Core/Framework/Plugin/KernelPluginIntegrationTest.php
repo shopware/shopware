@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -351,6 +352,7 @@ class KernelPluginIntegrationTest extends TestCase
             $this->createMock(CustomEntitySchemaUpdater::class),
             $this->createMock(PluginService::class),
             $this->createMock(VersionSanitizer::class),
+            $this->createMock(DefinitionInstanceRegistry::class)
         );
     }
 

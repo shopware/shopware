@@ -110,9 +110,6 @@ Component.register('sw-select-result-list', {
             this.addEventListeners();
         },
 
-        // @deprecated tag:v6.7.0 - Will be removed without replacement
-        mountedComponent() {},
-
         beforeDestroyedComponent() {
             this.removeEventListeners();
         },

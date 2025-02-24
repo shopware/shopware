@@ -21,9 +21,6 @@ async function createWrapper(routerPushImplementation = jest.fn(), loginByUserna
                         </div>
                     `,
                 },
-                'sw-icon': await wrapTestComponent('sw-icon'),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-loader': await wrapTestComponent('sw-loader'),
                 'sw-password-field': await wrapTestComponent('sw-password-field'),
                 'sw-password-field-deprecated': await wrapTestComponent('sw-password-field-deprecated'),
@@ -37,7 +34,6 @@ async function createWrapper(routerPushImplementation = jest.fn(), loginByUserna
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'router-link': true,
                 'sw-field-copyable': true,
-                'sw-icon-deprecated': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
@@ -135,7 +131,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         const wrapper = await createWrapper(push, loginByUserName);
         await flushPromises();
 
-        const loginButton = wrapper.find('.sw-button');
+        const loginButton = wrapper.findByText('button', 'sw-login.index.buttonLogin');
         await loginButton.trigger('click');
 
         expect(loginByUserName).toHaveBeenCalledTimes(1);
@@ -152,7 +148,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         const wrapper = await createWrapper(jest.fn(), loginByUserName);
         await flushPromises();
 
-        const loginButton = wrapper.find('.sw-button');
+        const loginButton = wrapper.findByText('button', 'sw-login.index.buttonLogin');
         await loginButton.trigger('click');
         await flushPromises();
 
@@ -230,7 +226,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         const rememberMeInput = wrapper.find('.sw-field--checkbox input');
         await rememberMeInput.trigger('click');
 
-        const loginButton = wrapper.find('.sw-button');
+        const loginButton = wrapper.findByText('button', 'sw-login.index.buttonLogin');
         await loginButton.trigger('click');
 
         expect(push).toHaveBeenCalledTimes(1);

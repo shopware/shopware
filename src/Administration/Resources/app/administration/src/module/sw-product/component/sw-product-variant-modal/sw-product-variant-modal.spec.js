@@ -288,10 +288,6 @@ async function createWrapper() {
                 'sw-label': true,
                 'sw-simple-search-field': true,
                 'sw-empty-state': true,
-                'sw-button': {
-                    emits: ['click'],
-                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                },
                 'sw-container': {
                     template: '<div><slot></slot></div>',
                 },
@@ -339,7 +335,6 @@ async function createWrapper() {
                         },
                     },
                 },
-                'sw-icon': true,
                 'sw-data-grid': {
                     template: `
                         <div class="sw-data-grid">

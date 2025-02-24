@@ -8,36 +8,17 @@ use Shopware\Core\Framework\Log\Package;
 class XmlValidationError extends Error
 {
     /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $id;
-
-    /**
-     * @var array<string, mixed>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $errors;
-
-    /**
      * @var ErrorMessage[]
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $errorMessages;
+    protected array $errorMessages;
 
     /**
      * @param \LibXMLError[] $errors
      */
     public function __construct(
-        string $id,
-        array $errors = []
+        protected string $id,
+        protected array $errors = []
     ) {
-        $this->id = $id;
-        $this->errors = $errors;
-
         $this->errorMessages = array_map(
             function (\LibXMLError $error) {
                 $errorMessage = new ErrorMessage();
@@ -67,11 +48,17 @@ class XmlValidationError extends Error
         return 'xml-validation-failed';
     }
 
+    /**
+     * @return \LibXMLError[][]
+     */
     public function getParameters(): array
     {
         return ['errors' => $this->errors];
     }
 
+    /**
+     * @return ErrorMessage[]
+     */
     public function getErrorMessages(): array
     {
         return $this->errorMessages;

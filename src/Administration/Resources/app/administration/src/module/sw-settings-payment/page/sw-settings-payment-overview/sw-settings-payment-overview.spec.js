@@ -41,13 +41,11 @@ async function createWrapper(methods = [], cards = [], privileges = []) {
                         <slot></slot>
                     </div>`,
                     },
-                    'sw-button': true,
                     'sw-button-process': true,
-                    'sw-card': true,
+                    'mt-card': true,
                     'sw-card-view': true,
                     'sw-context-menu-item': true,
                     'sw-internal-link': true,
-
                     'sw-payment-card': true,
                     'sw-empty-state': true,
                     'sw-extension-component-section': true,
@@ -74,7 +72,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-overview', () => {
 
         const createButton = wrapper.find('.sw-settings-payment-overview__button-create');
 
-        expect(createButton.attributes().disabled).toBeTruthy();
+        expect(createButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to create a new payment method', async () => {
@@ -156,7 +154,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-overview', () => {
             [
                 {
                     positionId: 'positionId',
-                    component: 'sw-card',
+                    component: 'mt-card',
                     paymentMethodHandlers: [
                         'handler',
                         'handler2',
@@ -170,7 +168,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-overview', () => {
         expect(customLocation.exists()).toBeTruthy();
         expect(customLocation.attributes()['position-identifier']).toBe('positionId');
 
-        const customCard = wrapper.find('sw-card-stub[payment-methods]');
+        const customCard = wrapper.find('mt-card-stub[payment-methods]');
         expect(customCard.exists()).toBeTruthy();
 
         const emptyState = wrapper.find('sw-payment-card-stub');

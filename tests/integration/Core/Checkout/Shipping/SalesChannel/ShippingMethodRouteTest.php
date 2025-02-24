@@ -187,43 +187,6 @@ class ShippingMethodRouteTest extends TestCase
         static::assertNotEmpty($response['elements'][0]['availabilityRule']);
     }
 
-    public function testOnlyAvailableGet(): void
-    {
-        $this->browser
-            ->request(
-                'GET',
-                '/store-api/shipping-method?onlyAvailable=1',
-            );
-
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR) ?: [];
-
-        static::assertSame(2, $response['total']);
-        static::assertCount(2, $response['elements']);
-        static::assertNotContains($this->ids->get('shipping3'), array_column($response['elements'], 'id'));
-
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
-        static::assertArrayHasKey(ShippingMethodRouteHook::HOOK_NAME, $traces);
-    }
-
-    public function testOnlyAvailablePost(): void
-    {
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/shipping-method',
-                ['onlyAvailable' => 1],
-            );
-
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR) ?: [];
-
-        static::assertSame(2, $response['total']);
-        static::assertCount(2, $response['elements']);
-        static::assertNotContains($this->ids->get('shipping3'), array_column($response['elements'], 'id'));
-
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
-        static::assertArrayHasKey(ShippingMethodRouteHook::HOOK_NAME, $traces);
-    }
-
     private function createData(): void
     {
         $data = [

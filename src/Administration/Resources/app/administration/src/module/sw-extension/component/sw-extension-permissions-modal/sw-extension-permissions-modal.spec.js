@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import findByText from '../../../../../test/_helper_/find-by-text';
 
 async function createWrapper(propsData) {
     return mount(
@@ -12,17 +13,12 @@ async function createWrapper(propsData) {
                     $tc: (...args) => JSON.stringify([...args]),
                 },
                 stubs: {
-                    'sw-button': await wrapTestComponent('sw-button', {
-                        sync: true,
-                    }),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-modal': {
                         props: ['title'],
                         // eslint-disable-next-line max-len
                         template:
                             '<div><div class="sw-modal__title">{{ title }}</div><slot/><slot name="modal-footer"></slot></div>',
                     },
-                    'sw-icon': true,
                     'sw-extension-permissions-details-modal': true,
                     'sw-extension-domains-modal': true,
                     'router-link': true,
@@ -89,14 +85,17 @@ describe('src/module/sw-extension/component/sw-extension-permissions-modal', () 
             JSON.stringify(['entityCategories.product.title']),
         );
 
-        expect(category.at(0).find('.sw-button__content').text()).toBe(
+        let toggleButton = await findByText(
+            category.at(0),
+            'button',
             JSON.stringify([
                 'sw-extension-store.component.sw-extension-permissions-modal.textEntities',
             ]),
         );
+        expect(toggleButton.exists()).toBe(true);
 
         // open details modal
-        await category.at(0).find('.sw-button__content').trigger('click');
+        await toggleButton.trigger('click');
         expect(wrapper.vm.selectedEntity).toBe('product');
         expect(wrapper.vm.showDetailsModal).toBe(true);
 
@@ -109,14 +108,16 @@ describe('src/module/sw-extension/component/sw-extension-permissions-modal', () 
             JSON.stringify(['entityCategories.promotion.title']),
         );
 
-        expect(category.at(1).find('.sw-button__content').text()).toBe(
+        toggleButton = await findByText(
+            category.at(1),
+            'button',
             JSON.stringify([
                 'sw-extension-store.component.sw-extension-permissions-modal.textEntities',
             ]),
         );
 
         // open details modal
-        await category.at(1).find('.sw-button__content').trigger('click');
+        await toggleButton.trigger('click');
         expect(wrapper.vm.selectedEntity).toBe('promotion');
         expect(wrapper.vm.showDetailsModal).toBe(true);
     });

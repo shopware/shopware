@@ -50,11 +50,9 @@ async function createWrapper(privileges = []) {
                         </div>
                     `,
                     },
-                    'sw-button': true,
                     'sw-button-process': true,
                     'sw-language-switch': true,
                     'sw-card-view': true,
-                    'sw-card': true,
                     'sw-container': true,
                     'sw-text-field': true,
                     'sw-number-field': true,

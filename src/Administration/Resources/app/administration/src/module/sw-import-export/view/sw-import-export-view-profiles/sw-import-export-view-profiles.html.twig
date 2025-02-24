@@ -1,7 +1,7 @@
 {% block sw_import_export_view_profile %}
 <div class="sw-import-export-view-profiles">
     {% block sw_import_export_view_profile_profiles %}
-    <sw-card
+    <mt-card
         :title="$tc('sw-import-export.page.profileTab')"
         class="sw-import-export-view-profiles__grid-card"
         position-identifier="sw-import-export-view-profiles"
@@ -20,16 +20,16 @@
             {% endblock %}
 
             {% block sw_import_export_view_profile_profiles_toolbar_add_new_profile %}
-            <sw-button
+            <mt-button
                 v-tooltip="createTooltip"
                 class="sw-import-export-view-profiles__create-action"
-                variant="ghost"
+                ghost
                 :disabled="isLoading || isNotSystemLanguage"
                 size="small"
                 @click="onAddNewProfile"
             >
                 {{ $tc('sw-import-export.profile.addNewProfileLabel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </div>
         {% endblock %}
@@ -110,7 +110,7 @@
             </sw-entity-listing>
         </template>
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_import_export_view_profile_modal %}

@@ -1,9 +1,5 @@
 {% sw_extends '@Storefront/storefront/page/checkout/_page.html.twig' %}
 
-{% block base_head %}
-    {% sw_include '@Storefront/storefront/page/checkout/cart/meta.html.twig' %}
-{% endblock %}
-
 {% block page_checkout_container %}
     {% if page.cart.lineItems.count is same as(0) %}
         {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
@@ -26,29 +22,17 @@
 {% block page_checkout_main_content %}
     {% block page_checkout_cart %}
         {% block page_checkout_cart_header %}
-            {# @deprecated tag:v6.7.0 - Cart header will also display the current amount of line-items #}
-            {% if feature('ACCESSIBILITY_TWEAKS') %}
-                <h1 class="cart-main-header d-inline-block">
-                    {{ 'checkout.cartHeader'|trans|sw_sanitize }}
-                </h1>
-                <span class="cart-main-header-item-counter d-inline-block mb-4 fw-bold fs-3 ms-1 text-dark-emphasis">
-                    ({{- 'checkout.itemCounter'|trans({'%count%': page.cart.lineItems|length})|sw_sanitize -}})
-                </span>
-            {% else %}
-                <h1 class="cart-main-header">
-                    {{ 'checkout.cartHeader'|trans|sw_sanitize }}
-                </h1>
-            {% endif %}
+            <h1 class="cart-main-header d-inline-block">
+                {{ 'checkout.cartHeader'|trans|sw_sanitize }}
+            </h1>
+            <span class="cart-main-header-item-counter d-inline-block mb-4 fw-bold fs-3 ms-1 text-dark-emphasis">
+                ({{- 'checkout.itemCounter'|trans({'%count%': page.cart.lineItems|length})|sw_sanitize -}})
+            </span>
         {% endblock %}
 
         {% block page_checkout_cart_product_table %}
             <div class="card checkout-product-table">
-                {# @deprecated tag:v6.7.0 - Line items wrapper will be `<ul>` element instead of `<div>` #}
-                {%- if feature('ACCESSIBILITY_TWEAKS') -%}
-                    <ul class="card-body list-unstyled">
-                {%- else -%}
-                    <div class="card-body" role="list">
-                {%- endif -%}
+                <ul class="card-body list-unstyled">
                     {% block page_checkout_cart_table_header %}
                         {% sw_include '@Storefront/storefront/component/checkout/cart-header.html.twig' %}
                     {% endblock %}
@@ -62,12 +46,7 @@
                             {% endblock %}
                         {% endfor %}
                     {% endblock %}
-                {# @deprecated tag:v6.7.0 - Line items wrapper will be `<ul>` element instead of `<div>` #}
-                {%- if not feature('ACCESSIBILITY_TWEAKS') -%}
-                    </div>
-                {%- else -%}
-                    </ul>
-                {%- endif -%}
+                </ul>
             </div>
         {% endblock %}
 
@@ -140,12 +119,6 @@
                                        aria-expanded="false"
                                        aria-controls="collapseExample">
                                         {{ 'checkout.shippingCosts'|trans|sw_sanitize }}
-
-                                        {%- if not feature('ACCESSIBILITY_TWEAKS') -%}
-                                            {% block page_checkout_cart_shipping_costs_trigger_icon %}
-                                                {% sw_icon 'arrow-medium-right' style { pack:'solid', size: 'sm' } %}
-                                            {% endblock %}
-                                        {% endif %}
                                     </a>
                                 {% endif %}
                             {% endblock %}

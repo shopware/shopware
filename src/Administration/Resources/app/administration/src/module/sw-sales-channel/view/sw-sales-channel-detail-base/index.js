@@ -112,11 +112,6 @@ export default {
             return this.showSecretAccessKey ? 'text' : 'password';
         },
 
-        /** @deprecated tag:v6.7.0 - Use `isStorefront` instead */
-        isStoreFront() {
-            return this.isStorefront;
-        },
-
         isStorefront() {
             return this.salesChannel?.typeId === Defaults.storefrontSalesChannelTypeId;
         },

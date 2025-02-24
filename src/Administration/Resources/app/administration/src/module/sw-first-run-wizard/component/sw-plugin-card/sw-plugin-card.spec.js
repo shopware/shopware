@@ -28,9 +28,7 @@ async function createWrapper(plugin, showDescription) {
             },
             stubs: {
                 'sw-extension-icon': await Shopware.Component.build('sw-extension-icon'),
-                'sw-icon': true,
                 'sw-button-process': await wrapTestComponent('sw-button-process'),
-                'sw-button': await wrapTestComponent('sw-button'),
                 'sw-loader': await wrapTestComponent('sw-loader'),
                 'router-link': true,
             },
@@ -42,7 +40,7 @@ async function createWrapper(plugin, showDescription) {
  * @sw-package fundamentals@after-sales
  */
 describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
-    it.skip('displays correct icon and basic information', async () => {
+    it('displays correct icon and basic information', async () => {
         const pluginConfig = {
             iconPath: 'path/to/plugin-icon',
             active: true,
@@ -65,7 +63,7 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
         expect(wrapper.get('.sw-plugin-card__short-description').text()).toBe(pluginConfig.shortDescription);
     });
 
-    it.skip('hides description', async () => {
+    it('hides description', async () => {
         const pluginConfig = {
             iconPath: 'path/to/plugin-icon',
             active: true,
@@ -80,7 +78,7 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
         expect(wrapper.find('.sw-plugin-card__short-description').exists()).toBe(false);
     });
 
-    it.skip('truncates short description correctly', async () => {
+    it('truncates short description correctly', async () => {
         const shortDescription = Array.from({ length: 50 }, () => 'a').join(', ');
         expect(shortDescription.length).toBeGreaterThan(140);
 
@@ -102,7 +100,7 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
         expect(truncatedDescription.slice(0, 137)).toEqual(shortDescription.slice(0, 137));
     });
 
-    it.skip('displays that an extension is already installed', async () => {
+    it('displays that an extension is already installed', async () => {
         const wrapper = await createWrapper(
             {
                 iconPath: 'path/to/plugin-icon',
@@ -117,11 +115,11 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
 
         const isInstalled = wrapper.get('.plugin-installed');
 
-        expect(isInstalled.get('sw-icon-stub').attributes('name')).toBe('regular-check-circle-s');
+        expect(isInstalled.get('.mt-icon').classes()).toContain('icon--regular-check-circle-s');
         expect(isInstalled.text()).toBe('sw-first-run-wizard.general.pluginInstalled');
     });
 
-    it.skip('can install a plugin', async () => {
+    it('can install a plugin', async () => {
         const wrapper = await createWrapper(
             {
                 name: 'SwExamplePlugin',
@@ -151,7 +149,7 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
         ]);
     });
 
-    it.skip('can install an app', async () => {
+    it('can install an app', async () => {
         const wrapper = await createWrapper(
             {
                 name: 'SwExampleApp',
@@ -182,7 +180,7 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
         ]);
     });
 
-    it.skip('displays errors on failed installation', async () => {
+    it('displays errors on failed installation', async () => {
         const wrapper = await createWrapper(
             {
                 name: 'SwExamplePlugin',

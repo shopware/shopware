@@ -21,7 +21,7 @@ readonly class ThemeScripts
      * @internal
      */
     public function __construct(
-        private StorefrontPluginRegistryInterface $pluginRegistry,
+        private StorefrontPluginRegistry $pluginRegistry,
         private ThemeFileResolver $themeFileResolver,
         private RequestStack $requestStack,
         private AbstractThemePathBuilder $themePathBuilder,

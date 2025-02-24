@@ -2,7 +2,7 @@ import Plugin from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
 
 /**
- * @package content
+ * @package framework
  */
 export default class FormFieldTogglePlugin extends Plugin {
 

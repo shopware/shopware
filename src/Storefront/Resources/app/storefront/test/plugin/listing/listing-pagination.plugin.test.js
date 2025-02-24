@@ -1,5 +1,4 @@
 import ListingPlugin from 'src/plugin/listing/listing.plugin';
-import Feature from 'src/helper/feature.helper.js';
 
 const template = `
     <div class="cms-element-product-listing-wrapper" data-listing-pagination="true">
@@ -38,9 +37,6 @@ describe('listing-pagination.plugin', () => {
     let resumeFocusSpy;
 
     beforeEach(async () => {
-        window.Feature = Feature;
-        window.Feature.init({ 'ACCESSIBILITY_TWEAKS': true });
-
         // Import plugin class async because of feature toggles inside static options
         const { default: ListingPaginationPlugin }  = await import('src/plugin/listing/listing-pagination.plugin');
 
@@ -50,7 +46,7 @@ describe('listing-pagination.plugin', () => {
         window.PluginManager.getPluginInstanceFromElement = () => {
             // Listing plugin is using the same element as the pagination plugin
             return new ListingPlugin(element);
-        }
+        };
 
         window.PluginManager.initializePlugins = jest.fn();
 

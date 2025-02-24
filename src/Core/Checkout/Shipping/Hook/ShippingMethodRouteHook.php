@@ -29,8 +29,7 @@ class ShippingMethodRouteHook extends StoreApiRequestHook
      */
     public function __construct(
         private readonly ShippingMethodCollection $collection,
-        private readonly bool $onlyAvailable,
-        protected SalesChannelContext $salesChannelContext
+        protected SalesChannelContext $salesChannelContext,
     ) {
         parent::__construct($salesChannelContext->getContext());
     }
@@ -43,10 +42,5 @@ class ShippingMethodRouteHook extends StoreApiRequestHook
     public function getCollection(): ShippingMethodCollection
     {
         return $this->collection;
-    }
-
-    public function isOnlyAvailable(): bool
-    {
-        return $this->onlyAvailable;
     }
 }

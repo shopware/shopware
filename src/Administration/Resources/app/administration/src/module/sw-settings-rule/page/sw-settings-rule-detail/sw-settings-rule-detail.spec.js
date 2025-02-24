@@ -203,9 +203,9 @@ async function createWrapper(props = defaultProps, provide = {}) {
         global: {
             plugins: [router],
             stubs: {
-                'sw-button': await wrapTestComponent('sw-button'),
                 'sw-button-process': await wrapTestComponent('sw-button-process'),
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
+                'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
                 'sw-language-switch': await wrapTestComponent('sw-language-switch'),
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
@@ -215,6 +215,7 @@ async function createWrapper(props = defaultProps, provide = {}) {
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-discard-changes-modal': await wrapTestComponent('sw-discard-changes-modal'),
                 'sw-page': {
                     template: `
@@ -225,7 +226,6 @@ async function createWrapper(props = defaultProps, provide = {}) {
                         </div>
                     `,
                 },
-                'sw-icon': true,
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                 'sw-context-button': await wrapTestComponent('sw-context-button'),
@@ -242,7 +242,6 @@ async function createWrapper(props = defaultProps, provide = {}) {
                 'sw-custom-field-set-renderer': true,
                 'sw-error-summary': true,
                 'sw-condition-tree': true,
-                'sw-card': await wrapTestComponent('sw-card'),
                 'sw-entity-tag-select': true,
                 'sw-multi-select': true,
                 'sw-textarea-field': true,
@@ -302,14 +301,14 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         jest.clearAllMocks();
     });
 
-    it.skip('provides shortcuts for save and cancel', async () => {
+    it('provides shortcuts for save and cancel', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.$options.shortcuts.ESCAPE).toBe('onCancel');
         expect(wrapper.vm.$options.shortcuts['SYSTEMKEY+S']).toBe('onSave');
     });
 
-    it.skip.each([
+    it.each([
         { name: 'rule exists', rule: ruleMock, title: ruleMock.name },
         { name: 'rule not exists', rule: null, title: '' },
     ])('should return metaInfo: $name', async ({ rule, title }) => {
@@ -327,7 +326,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.vm.$createTitle).toHaveBeenNthCalledWith(1, title);
     });
 
-    it.skip('should create rule criteria with association and aggregations', async () => {
+    it('should create rule criteria with association and aggregations', async () => {
         await createWrapper();
         await flushPromises();
 
@@ -356,7 +355,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(call[0].aggregations.map((a) => a.name)).toEqual(aggregations);
     });
 
-    it.skip('should create rule condition repository: $name', async () => {
+    it('should create rule condition repository: $name', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -374,7 +373,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.vm.repositoryFactory.create.mock.calls).toEqual(expectedRepositories);
     });
 
-    it.skip.each([
+    it.each([
         {
             name: 'warning',
             roles: [],
@@ -391,7 +390,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.find('.sw-settings-rule-detail__save-action').attributes('tooltip-mock-message')).toBe(message);
     });
 
-    it.skip('should create tooltip for cancel button', async () => {
+    it('should create tooltip for cancel button', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -399,7 +398,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.find('.sw-settings-rule-detail__cancel-action').attributes('tooltip-mock-message')).toBe('ESC');
     });
 
-    it.skip('should render tab items', async () => {
+    it('should render tab items', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -407,7 +406,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.find('.sw-settings-rule-detail__tab-item-assignments').exists()).toBe(true);
     });
 
-    it.skip.each([
+    it.each([
         { name: 'product association', entity: 'product' },
         { name: 'no product association', entity: 'order' },
     ])('should load entity data and condition config on creation: $name', async ({ entity }) => {
@@ -436,7 +435,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         ]);
     });
 
-    it.skip.each([
+    it.each([
         { name: 'save', fails: false },
         { name: 'save fails', fails: true },
     ])('should save new rule: $name', async ({ fails }) => {
@@ -466,7 +465,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(fails ? 1 : 0);
     });
 
-    it.skip.each([
+    it.each([
         { name: 'save', fails: false },
         { name: 'save fails', fails: true },
     ])('should save existing rule: $name', async ({ fails }) => {
@@ -491,7 +490,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(fails ? 1 : 0);
     });
 
-    it.skip('should update conditions on change and sync', async () => {
+    it('should update conditions on change and sync', async () => {
         global.activeAclRoles = ['rule.editor'];
 
         const wrapper = await createWrapper();
@@ -527,7 +526,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(conditionRepositoryMock.syncDeleted).toHaveBeenCalledTimes(1);
     });
 
-    it.skip.each([
+    it.each([
         { name: 'rule changed', abort: false },
         { name: 'rule not changed', abort: true },
     ])('should change language switch', async ({ abort }) => {
@@ -552,7 +551,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         Shopware.Store.get('context').api.languageId = apiLanguageId;
     });
 
-    it.skip('should save language switch', async () => {
+    it('should save language switch', async () => {
         ruleRepositoryMock.hasChanges.mockReturnValueOnce(true);
         const wrapper = await createWrapper();
         await flushPromises();
@@ -569,7 +568,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(ruleRepositoryMock.save).toHaveBeenCalledTimes(1);
     });
 
-    it.skip('should cancel rule edit', async () => {
+    it('should cancel rule edit', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -582,7 +581,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         });
     });
 
-    it.skip('should clone duplicate rule', async () => {
+    it('should clone duplicate rule', async () => {
         global.activeAclRoles = [
             'rule.editor',
             'rule.creator',
@@ -608,7 +607,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         });
     });
 
-    it.skip('should reload rule when switching from assignments to base tab', async () => {
+    it('should reload rule when switching from assignments to base tab', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -625,7 +624,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(ruleRepositoryMock.search).toHaveBeenCalledTimes(2);
     });
 
-    it.skip.each(routeLeaveOrUpdateTestCases)(
+    it.each(routeLeaveOrUpdateTestCases)(
         'should check for unsaved data when route updates: $name',
         async ({ from, to, discard, check }) => {
             const wrapper = await createWrapper();
@@ -649,7 +648,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         },
     );
 
-    it.skip.each(routeLeaveOrUpdateTestCases)(
+    it.each(routeLeaveOrUpdateTestCases)(
         'should check for unsaved data when leaving route: $name',
         async ({ from, to, discard, check }) => {
             const wrapper = await createWrapper();
@@ -673,7 +672,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         },
     );
 
-    it.skip.each([
+    it.each([
         {
             name: 'no changes',
             ruleHasChanges: false,
@@ -724,7 +723,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.find('.sw-discard-changes-modal-delete-text').exists()).toBe(openModal);
     });
 
-    it.skip('should cancel discard confirm modal', async () => {
+    it('should cancel discard confirm modal', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -736,11 +735,11 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.find('.sw-modal').exists()).toBe(true);
         expect(wrapper.find('.sw-discard-changes-modal-delete-text').exists()).toBe(true);
 
-        await wrapper.find('.sw-modal .sw-button').trigger('click');
+        await wrapper.findByText('button', 'sw-discard-changes-modal.actions.keepEditing').trigger('click');
         expect(wrapper.find('.sw-discard-changes-modal-delete-text').exists()).toBe(false);
     });
 
-    it.skip.each([
+    it.each([
         {
             name: 'switch to assignments tab',
             to: 'sw.settings.rule.detail.assignments',
@@ -771,14 +770,14 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.find('.sw-modal').exists()).toBe(true);
         expect(wrapper.find('.sw-discard-changes-modal-delete-text').exists()).toBe(true);
 
-        await wrapper.find('.sw-modal .sw-button--danger').trigger('click');
+        await wrapper.findByText('button', 'sw-discard-changes-modal.actions.discard').trigger('click');
         await flushPromises();
 
         expect(routerSpy).toHaveBeenNthCalledWith(1, nextRoute);
         expect(ruleRepositoryMock.search).toHaveBeenCalledTimes(loadCalls);
     });
 
-    it.skip('should have disabled fields', async () => {
+    it('should have disabled fields', async () => {
         global.activeAclRoles = [];
 
         const wrapper = await createWrapper();
@@ -789,7 +788,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(buttonSave.attributes('disabled')).toBe('');
     });
 
-    it.skip('should have enabled fields', async () => {
+    it('should have enabled fields', async () => {
         global.activeAclRoles = ['rule.editor'];
 
         const wrapper = await createWrapper();
@@ -800,7 +799,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(buttonSave.attributes().disabled).toBeUndefined();
     });
 
-    it.skip('should render tabs in existing rule', async () => {
+    it('should render tabs in existing rule', async () => {
         global.activeAclRoles = ['rule.editor'];
 
         const wrapper = await createWrapper();
@@ -810,7 +809,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.get('.sw-settings-rule-detail__tabs').exists()).toBeTruthy();
     });
 
-    it.skip('should not render tabs in new rule', async () => {
+    it('should not render tabs in new rule', async () => {
         global.activeAclRoles = ['rule.editor'];
 
         const wrapper = await createWrapper({
@@ -823,7 +822,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.find('.sw-settings-rule-detail__tabs').exists()).toBeFalsy();
     });
 
-    it.skip('should prevent the user from saving the rule when rule awareness is violated', async () => {
+    it('should prevent the user from saving the rule when rule awareness is violated', async () => {
         global.activeAclRoles = ['rule.editor'];
 
         const wrapper = await createWrapper(defaultProps, {
@@ -847,7 +846,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.vm.ruleRepository.save).toHaveBeenCalledTimes(0);
     });
 
-    it.skip('should save without any awareness config', async () => {
+    it('should save without any awareness config', async () => {
         global.activeAclRoles = ['rule.editor'];
 
         const wrapper = await createWrapper(defaultProps, {
@@ -867,7 +866,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.vm.ruleRepository.save).toHaveBeenCalledTimes(1);
     });
 
-    it.skip('should trigger rule awareness by association count', async () => {
+    it('should trigger rule awareness by association count', async () => {
         global.activeAclRoles = ['rule.editor'];
         defaultAggregations.testRelation.buckets[0].testRelation.count = 1;
 
@@ -895,7 +894,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(awarenessFunc).toHaveBeenCalledTimes(1);
     });
 
-    it.skip('should not trigger rule awareness by association count when no associations exist', async () => {
+    it('should not trigger rule awareness by association count when no associations exist', async () => {
         global.activeAclRoles = ['rule.editor'];
         defaultAggregations.testRelation.buckets[0].testRelation.count = 0;
 
@@ -923,7 +922,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(awarenessFunc).toHaveBeenCalledTimes(0);
     });
 
-    it.skip('should not trigger rule awareness when rule is new and the entityCount was not generated', async () => {
+    it('should not trigger rule awareness when rule is new and the entityCount was not generated', async () => {
         global.activeAclRoles = ['rule.editor'];
 
         const wrapper = await createWrapper(defaultProps, {
@@ -954,7 +953,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.vm.getChildrenConditions).toHaveBeenCalledTimes(0);
     });
 
-    it.skip('should return conditions including nested conditions', async () => {
+    it('should return conditions including nested conditions', async () => {
         const conditionTree = [
             { id: 1, children: [{ id: 2, children: [] }] },
             { id: 3, children: [{ id: 4, children: [{ id: 5, children: [] }] }] },
@@ -974,7 +973,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.vm.conditionTreeFlat).toEqual(expectedFlatConditions);
     });
 
-    it.skip('should validate date ranges successfully', async () => {
+    it('should validate date ranges successfully', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -994,7 +993,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(isValid).toBe(true);
     });
 
-    it.skip('should invalidate incorrect date ranges', async () => {
+    it('should invalidate incorrect date ranges', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -1014,7 +1013,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(isValid).toBe(false);
     });
 
-    it.skip('should save rule with valid date ranges', async () => {
+    it('should save rule with valid date ranges', async () => {
         global.activeAclRoles = ['rule.editor'];
 
         const wrapper = await createWrapper();
@@ -1041,7 +1040,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(0);
     });
 
-    it.skip('should not save rule with invalid date ranges', async () => {
+    it('should not save rule with invalid date ranges', async () => {
         global.activeAclRoles = ['rule.editor'];
 
         const wrapper = await createWrapper();

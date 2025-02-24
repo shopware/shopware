@@ -8,12 +8,7 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-circle-icon': await wrapTestComponent('sw-circle-icon', { sync: true }),
-                'sw-button': await wrapTestComponent('sw-button', {
-                    sync: true,
-                }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'i18n-t': true,
-                'sw-icon': true,
                 'sw-label': true,
                 'router-link': true,
                 'sw-loader': true,
@@ -45,10 +40,10 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
 
         const wrapper = await createWrapper();
 
-        const closeButton = wrapper.getComponent('button.sw-button');
+        const closeButton = wrapper.findByText('button', 'global.default.close');
 
-        expect(closeButton.classes('sw-button--primary')).toBe(true);
-        expect(closeButton.classes('sw-button--block')).toBe(true);
+        expect(closeButton.classes().some((cls) => cls.includes('--primary'))).toBe(true);
+        expect(closeButton.classes().some((cls) => cls.includes('--block'))).toBe(true);
     });
 
     it('emits close if close button is clicked', async () => {
@@ -56,7 +51,7 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
 
         const wrapper = await createWrapper();
 
-        await wrapper.get('button.sw-button').trigger('click');
+        await wrapper.findByText('button', 'global.default.close').trigger('click');
 
         expect(wrapper.emitted().close).toBeTruthy();
     });

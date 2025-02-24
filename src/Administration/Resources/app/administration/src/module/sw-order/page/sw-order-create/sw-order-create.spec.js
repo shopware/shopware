@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import findByText from '../../../../../test/_helper_/find-by-text';
 
 /**
  * @sw-package checkout
@@ -68,7 +69,6 @@ describe('src/module/sw-order/page/sw-order-create', () => {
     beforeAll(async () => {
         stubs = {
             'router-view': true,
-            'sw-icon': true,
             'sw-loader': true,
             'sw-app-actions': true,
             'sw-notification-center': true,
@@ -81,8 +81,6 @@ describe('src/module/sw-order/page/sw-order-create', () => {
             'sw-tabs': await wrapTestComponent('sw-tabs', { sync: true }),
             'sw-tabs-item': true,
             'sw-page': await wrapTestComponent('sw-page', { sync: true }),
-            'sw-button': await wrapTestComponent('sw-button', { sync: true }),
-            'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
             'sw-button-process': await wrapTestComponent('sw-button-process', {
                 sync: true,
             }),
@@ -179,7 +177,7 @@ describe('src/module/sw-order/page/sw-order-create', () => {
         const modal = wrapper.find('.sw-modal');
         expect(modal.isVisible).toBeTruthy();
 
-        await modal.find('.sw-modal__footer .sw-button').trigger('click');
+        await findByText(modal, 'button', 'global.default.no').trigger('click');
 
         expect(wrapper.vm.isSaveSuccessful).toBeTruthy();
         expect(wrapper.vm.showRemindPaymentModal).not.toBeTruthy();
@@ -194,7 +192,7 @@ describe('src/module/sw-order/page/sw-order-create', () => {
         const modal = wrapper.find('.sw-modal');
         expect(modal.isVisible).toBeTruthy();
 
-        await modal.find('.sw-modal__footer .sw-button--primary').trigger('click');
+        await findByText(modal, 'button', 'sw-order.create.remindPaymentModal.primaryAction').trigger('click');
 
         expect(remindPaymentMock).toHaveBeenCalledTimes(1);
 

@@ -245,6 +245,7 @@ class OrderConverterTest extends TestCase
             $result['orderDateTime'],
             $result['stateId'],
             $result['languageId'],
+            $result['primaryOrderDeliveryId'],
         );
         for ($i = 0; $i < (is_countable($result['lineItems']) ? \count($result['lineItems']) : 0); ++$i) {
             unset($result['lineItems'][$i]['id']);
@@ -252,6 +253,7 @@ class OrderConverterTest extends TestCase
 
         for ($i = 0; $i < (is_countable($result['deliveries']) ? \count($result['deliveries']) : 0); ++$i) {
             unset(
+                $result['deliveries'][$i]['id'],
                 $result['deliveries'][$i]['shippingOrderAddress']['id'],
                 $result['deliveries'][$i]['shippingDateEarliest'],
                 $result['deliveries'][$i]['shippingDateLatest'],

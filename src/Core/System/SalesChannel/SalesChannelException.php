@@ -35,6 +35,11 @@ class SalesChannelException extends HttpException
     final public const SALES_CHANNEL_CONTEXT_PERMISSIONS_LOCKED = 'SYSTEM__SALES_CHANNEL_CONTEXT_PERMISSIONS_LOCKED';
     final public const ENCODING_INVALID_STRUCT_EXCEPTION = 'SYSTEM__ENCODING_INVALID_STRUCT_EXCEPTION';
     final public const ENCODING_MISSING_AGGREGATION_EXCEPTION = 'SYSTEM__ENCODING_MISSING_AGGREGATION_EXCEPTION';
+
+    final public const ORDER_ORDER_NOT_FOUND_CODE = 'SYSTEM__ORDER_ORDER_NOT_FOUND_CODE';
+
+    final public const ORDER_MISSING_ORDER_ASSOCIATION_CODE = 'SYSTEM__ORDER_MISSING_ORDER_ASSOCIATION_CODE';
+
     private const INVALID_UUID_MESSAGE_TEMPLATE = 'Provided %s is not a valid UUID';
 
     public static function salesChannelNotFound(string $salesChannelId): self
@@ -79,6 +84,16 @@ class SalesChannelException extends HttpException
             self::COUNTRY_DOES_NOT_EXISTS_EXCEPTION,
             self::$couldNotFindMessage,
             ['entity' => 'country', 'field' => 'id', 'value' => $countryId]
+        );
+    }
+
+    public static function orderNotFound(string $orderId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::ORDER_ORDER_NOT_FOUND_CODE,
+            self::$couldNotFindMessage,
+            ['entity' => 'order', 'field' => 'id', 'value' => $orderId]
         );
     }
 
@@ -236,6 +251,16 @@ class SalesChannelException extends HttpException
             self::ENCODING_MISSING_AGGREGATION_EXCEPTION,
             'Can not find encoded aggregation "{{ key }}" for data index "{{ index }}"',
             ['key' => $key, 'index' => $index]
+        );
+    }
+
+    public static function missingAssociation(string $association): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::ORDER_MISSING_ORDER_ASSOCIATION_CODE,
+            'The required association "{{ association }}" is missing .',
+            ['association' => $association]
         );
     }
 }

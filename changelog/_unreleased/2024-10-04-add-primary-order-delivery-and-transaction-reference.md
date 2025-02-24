@@ -6,9 +6,9 @@ author_email: hannes.wernery@pickware.de
 author_github: @hanneswernery
 ---
 # Core
-* Add reference `primaryOrderDelivery` to `Core/Checkout/Order/OrderDefinition.php` to reference the primary order
+* Added reference `primaryOrderDelivery` to `Core/Checkout/Order/OrderDefinition.php` to reference the primary order
 delivery that is shown in the Administration for direct access and management of the delivery (e.g. changing the state).
-* A similar reference `primaryOrderTransaction` is added to `Core/Checkout/Order/OrderDefinition.php` for the same
+* Added a similar reference `primaryOrderTransaction` is added to `Core/Checkout/Order/OrderDefinition.php` for the same
 reasons.
 
 ## Changes for plugins and apps

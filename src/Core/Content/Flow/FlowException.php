@@ -16,6 +16,8 @@ class FlowException extends HttpException
     final public const FLOW_ACTION_TRANSACTION_COMMIT_FAILED = 'FLOW_ACTION_TRANSACTION_COMMIT_FAILED';
     final public const FLOW_ACTION_TRANSACTION_UNCAUGHT_EXCEPTION = 'FLOW_ACTION_TRANSACTION_UNCAUGHT_EXCEPTION';
 
+    final public const FLOW_STATE_MACHINE_NOT_FOUND = 'FLOW_STATE_MACHINE_NOT_FOUND';
+
     public static function methodNotCompatible(string $method, string $class): FlowException
     {
         return new self(
@@ -51,5 +53,15 @@ class FlowException extends HttpException
                 $previous,
             ),
         };
+    }
+
+    public static function stateMachineNotFound(string $stateMachineName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::FLOW_STATE_MACHINE_NOT_FOUND,
+            'The StateMachine named "{{ name }}" was not found.',
+            ['name' => $stateMachineName]
+        );
     }
 }

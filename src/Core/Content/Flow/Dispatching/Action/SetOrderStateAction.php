@@ -8,6 +8,7 @@ use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\TransactionalAction;
 use Shopware\Core\Content\Flow\Dispatching\TransactionFailedException;
+use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -118,7 +119,7 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
         }
 
         if (!$machineId) {
-            throw StateMachineException::stateMachineNotFound($machine);
+            throw FlowException::stateMachineNotFound($machine);
         }
 
         $actionName = $this->getAvailableActionName($machine, $machineId, $toPlace);
@@ -140,7 +141,7 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
 
                 return;
             default:
-                throw StateMachineException::stateMachineNotFound($machine);
+                throw FlowException::stateMachineNotFound($machine);
         }
     }
 
@@ -157,16 +158,6 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
 
     private function getMachineIdFromOrderDelivery(string $orderId): ?string
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return $this->connection->fetchOne(
-                'SELECT LOWER(HEX(id)) FROM ' . self::ORDER_DELIVERY . ' WHERE order_id = :id AND version_id = :version ORDER BY JSON_EXTRACT(shipping_costs, \'$.totalPrice\') DESC',
-                [
-                    'id' => Uuid::fromHexToBytes($orderId),
-                    'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-                ],
-            ) ?: null;
-        }
-
         return $this->connection->fetchOne(
             'SELECT LOWER(HEX(id)) FROM ' . self::ORDER_DELIVERY . ' WHERE order_id = :id AND version_id = :version ORDER BY JSON_EXTRACT(shipping_costs, \'$.totalPrice\') DESC',
             [
@@ -230,16 +221,6 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
 
     private function getMachineIdFromOrderTransaction(string $orderId): ?string
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return $this->connection->fetchOne(
-                'SELECT LOWER(HEX(`primary_order_transaction_id`)) FROM `order` WHERE `id` = :id AND `version_id` = :version',
-                [
-                    'id' => Uuid::fromHexToBytes($orderId),
-                    'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-                ]
-            ) ?: null;
-        }
-
         return $this->connection->fetchOne(
             'SELECT LOWER(HEX(id)) FROM ' . self::ORDER_TRANSACTION . ' WHERE order_id = :id AND version_id = :version ORDER BY created_at DESC',
             [

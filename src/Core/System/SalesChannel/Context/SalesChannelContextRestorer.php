@@ -46,11 +46,11 @@ class SalesChannelContextRestorer
     {
         $order = $this->getOrderById($orderId, $context);
         if ($order === null) {
-            throw OrderException::orderNotFound($orderId);
+            throw SalesChannelException::orderNotFound($orderId);
         }
 
         if ($order->getOrderCustomer() === null) {
-            throw OrderException::missingAssociation('orderCustomer');
+            throw SalesChannelException::missingAssociation('orderCustomer');
         }
 
         $customer = $order->getOrderCustomer()->getCustomer();
@@ -199,7 +199,7 @@ class SalesChannelContextRestorer
     {
         $transactions = $order->getTransactions();
         if ($transactions === null) {
-            throw OrderException::missingAssociation('transactions');
+            throw SalesChannelException::missingAssociation('transactions');
         }
 
         foreach ($transactions as $transaction) {

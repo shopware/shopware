@@ -12,6 +12,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
@@ -105,12 +106,16 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
 
         $data = new ParameterBag();
 
-        $machineId = match ($machine) {
-            self::ORDER => $orderId,
-            self::ORDER_DELIVERY => $this->getMachineIdFromOrderDelivery($orderId),
-            self::ORDER_TRANSACTION => $this->getMachineIdFromOrderTransaction($orderId),
-            default => null,
-        };
+        if (!Feature::isActive('v6.8.0.0')) {
+            $machineId = $machine === self::ORDER ? $orderId : $this->getMachineId($machine, $orderId);
+        } else {
+            $machineId = match ($machine) {
+                self::ORDER => $orderId,
+                self::ORDER_DELIVERY => $this->getMachineIdFromOrderDelivery($orderId),
+                self::ORDER_TRANSACTION => $this->getMachineIdFromOrderTransaction($orderId),
+                default => $this->getMachineId($machine, $orderId),
+            };
+        }
 
         if (!$machineId) {
             throw StateMachineException::stateMachineNotFound($machine);
@@ -139,33 +144,37 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
         }
     }
 
-    //    private function getMachineId(string $machine, string $orderId): ?string
-    //    {
-    //        return $this->connection->fetchOne(
-    //            'SELECT LOWER(HEX(id)) FROM ' . $machine . ' WHERE order_id = :id AND version_id = :version ORDER BY created_at DESC',
-    //            [
-    //                'id' => Uuid::fromHexToBytes($orderId),
-    //                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-    //            ]
-    //        ) ?: null;
-    //    }
+    private function getMachineId(string $machine, string $orderId): ?string
+    {
+        return $this->connection->fetchOne(
+            'SELECT LOWER(HEX(id)) FROM ' . $machine . ' WHERE order_id = :id AND version_id = :version ORDER BY created_at DESC',
+            [
+                'id' => Uuid::fromHexToBytes($orderId),
+                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            ]
+        ) ?: null;
+    }
 
-    /**
-     * Returns the Id of the primary delivery of the given order.
-     * This is the order delivery with the highest shipping costs as Shopware creates additional order deliveries with
-     * negative shipping costs when applying a discount to the shipping costs. Just using the first or last order delivery
-     * without sorting first can result in the wrong order delivery to be used.
-     */
-    //    private function getMachineIdFromOrderDelivery(string $orderId): ?string
-    //    {
-    //        return $this->connection->fetchOne(
-    //            'SELECT LOWER(HEX(id)) FROM ' . self::ORDER_DELIVERY . ' WHERE order_id = :id AND version_id = :version ORDER BY JSON_EXTRACT(shipping_costs, \'$.totalPrice\') DESC',
-    //            [
-    //                'id' => Uuid::fromHexToBytes($orderId),
-    //                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-    //            ],
-    //        ) ?: null;
-    //    }
+    private function getMachineIdFromOrderDelivery(string $orderId): ?string
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return $this->connection->fetchOne(
+                'SELECT LOWER(HEX(id)) FROM ' . self::ORDER_DELIVERY . ' WHERE order_id = :id AND version_id = :version ORDER BY JSON_EXTRACT(shipping_costs, \'$.totalPrice\') DESC',
+                [
+                    'id' => Uuid::fromHexToBytes($orderId),
+                    'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                ],
+            ) ?: null;
+        }
+
+        return $this->connection->fetchOne(
+            'SELECT LOWER(HEX(id)) FROM ' . self::ORDER_DELIVERY . ' WHERE order_id = :id AND version_id = :version ORDER BY JSON_EXTRACT(shipping_costs, \'$.totalPrice\') DESC',
+            [
+                'id' => Uuid::fromHexToBytes($orderId),
+                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            ],
+        ) ?: null;
+    }
 
     private function getAvailableActionName(string $machine, string $machineId, string $toPlace): ?string
     {
@@ -219,44 +228,11 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
         return $id ?: null;
     }
 
-    private function getMachineIdFromOrderDelivery(string $orderId): ?string
-    {
-        $primaryOrderDeliveryId = $this->connection->fetchOne(
-            'SELECT LOWER(HEX(`primary_order_delivery_id`)) FROM `order` WHERE `id` = :id AND `version_id` = :version',
-            [
-                'id' => Uuid::fromHexToBytes($orderId),
-                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-            ]
-        ) ?: null;
-
-        if (!$primaryOrderDeliveryId) {
-            // @deprecated tag:v6.8.0 this fallback is only kept for backwards compatibility.
-            $primaryOrderDeliveryId = $this->connection->fetchOne(
-                'SELECT LOWER(HEX(id)) FROM ' . self::ORDER_DELIVERY . ' WHERE order_id = :id AND version_id = :version ORDER BY JSON_EXTRACT(shipping_costs, \'$.totalPrice\') DESC',
-                [
-                    'id' => Uuid::fromHexToBytes($orderId),
-                    'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-                ],
-            ) ?: null;
-        }
-
-        return $primaryOrderDeliveryId;
-    }
-
     private function getMachineIdFromOrderTransaction(string $orderId): ?string
     {
-        $primaryOrderTransactionId = $this->connection->fetchOne(
-            'SELECT LOWER(HEX(`primary_order_transaction_id`)) FROM `order` WHERE `id` = :id AND `version_id` = :version',
-            [
-                'id' => Uuid::fromHexToBytes($orderId),
-                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-            ]
-        ) ?: null;
-
-        if (!$primaryOrderTransactionId) {
-            // @deprecated tag:v6.8.0 this fallback is only kept for backwards compatibility.
-            $primaryOrderTransactionId = $this->connection->fetchOne(
-                'SELECT LOWER(HEX(id)) FROM ' . self::ORDER_TRANSACTION . ' WHERE order_id = :id AND version_id = :version ORDER BY created_at DESC',
+        if (!Feature::isActive('v6.8.0.0')) {
+            return $this->connection->fetchOne(
+                'SELECT LOWER(HEX(`primary_order_transaction_id`)) FROM `order` WHERE `id` = :id AND `version_id` = :version',
                 [
                     'id' => Uuid::fromHexToBytes($orderId),
                     'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
@@ -264,6 +240,12 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
             ) ?: null;
         }
 
-        return $primaryOrderTransactionId;
+        return $this->connection->fetchOne(
+            'SELECT LOWER(HEX(id)) FROM ' . self::ORDER_TRANSACTION . ' WHERE order_id = :id AND version_id = :version ORDER BY created_at DESC',
+            [
+                'id' => Uuid::fromHexToBytes($orderId),
+                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            ]
+        ) ?: null;
     }
 }

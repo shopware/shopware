@@ -150,16 +150,12 @@ export default {
                     toPlaceholder: this.$tc('global.default.to'),
                 },
                 'payment-status-filter': {
-                    // eslint-disable-next-line no-warning-comments
-                    // TODO: backwards compatibility ?
                     property: 'primaryOrderTransaction.stateMachineState',
                     criteria: this.getStatusCriteria('order_transaction.state'),
                     label: this.$tc('sw-order.filters.paymentStatusFilter.label'),
                     placeholder: this.$tc('sw-order.filters.paymentStatusFilter.placeholder'),
                 },
                 'delivery-status-filter': {
-                    // eslint-disable-next-line no-warning-comments
-                    // TODO: backwards compatibility ?
                     property: 'primaryOrderDelivery.stateMachineState',
                     criteria: this.getStatusCriteria('order_delivery.state'),
                     label: this.$tc('sw-order.filters.deliveryStatusFilter.label'),

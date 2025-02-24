@@ -22,7 +22,6 @@ class Migration1728040169AddPrimaryOrderDeliveryAndTransaction extends Migration
         // No foreign key set both from order -> (primary) order delivery and order -> (primary) order transaction on
         // purpose so the DAL can handle the circular reference. We have a similar situation with the order and order
         // address.
-        $limit = 1000;
 
         if (!$this->columnExists($connection, 'order', 'primary_order_delivery_id')) {
             $connection->executeStatement(

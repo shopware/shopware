@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\Flow\Rule;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\FlowRule;
 use Shopware\Core\Framework\Rule\Rule;
@@ -46,6 +49,32 @@ class OrderTransactionStatusRule extends FlowRule
     {
         if (!$scope instanceof FlowRuleScope || $this->stateIds === null) {
             return false;
+        }
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', '$paymentMethodId will be the primary order transaction');
+
+            if (!$transactions = $scope->getOrder()->getTransactions()) {
+                return false;
+            }
+
+            /** @var OrderTransactionEntity $last */
+            $last = $scope->getOrder()->getPrimaryOrderTransaction();
+            $paymentMethodId = $last->getStateId();
+
+            foreach ($transactions->getElements() as $transaction) {
+                $technicalName = $transaction->getStateMachineState()?->getTechnicalName();
+                if ($technicalName !== null
+                    && $technicalName !== OrderTransactionStates::STATE_FAILED
+                    && $technicalName !== OrderTransactionStates::STATE_CANCELLED
+                ) {
+                    $paymentMethodId = $transaction->getStateId();
+
+                    break;
+                }
+            }
+
+            return RuleComparison::stringArray($paymentMethodId, $this->stateIds, $this->operator);
         }
 
         if (!$scope->getOrder()->getPrimaryOrderTransaction()) {

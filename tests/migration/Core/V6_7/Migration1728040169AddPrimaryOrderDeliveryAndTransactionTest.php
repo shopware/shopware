@@ -27,9 +27,19 @@ class Migration1728040169AddPrimaryOrderDeliveryAndTransactionTest extends TestC
 
     private Connection $connection;
 
+    private string $orderId;
+
+    private string $transactionId;
+
+    private string $orderDeliveryId;
+
     protected function setUp(): void
     {
         $this->connection = static::getContainer()->get(Connection::class);
+
+        $this->orderId = Uuid::fromHexToBytes(Uuid::randomHex());
+        $this->transactionId = Uuid::fromHexToBytes(Uuid::randomHex());
+        $this->orderDeliveryId = Uuid::fromHexToBytes(Uuid::randomHex());
     }
 
     public function testGetCreationTimestamp(): void
@@ -60,19 +70,21 @@ class Migration1728040169AddPrimaryOrderDeliveryAndTransactionTest extends TestC
         foreach ($result as $row) {
             static::assertNotNull($row['primary_order_transaction_id']);
             static::assertNotNull($row['primary_order_delivery_id']);
+
+            static::assertSame($this->transactionId, $row['primary_order_transaction_id']);
+            static::assertSame($this->orderDeliveryId, $row['primary_order_delivery_id']);
         }
     }
 
     private function prepareOldDatabaseEntry(): void
     {
-        $orderId = Uuid::fromHexToBytes(Uuid::randomHex());
         $defaultShippingMethodId = $this->connection->executeQuery('SELECT id FROM shipping_method WHERE active = 1')->fetchOne();
         $defaultPaymentMethodId = $this->connection->executeQuery('SELECT id FROM payment_method WHERE active = 1 ORDER BY `position`')->fetchOne();
 
         $this->connection->insert(
             '`order`',
             [
-                'id' => $orderId,
+                'id' => $this->orderId,
                 'currency_factor' => 1.0,
                 'order_date_time' => '2020-01-01',
                 'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
@@ -96,9 +108,9 @@ class Migration1728040169AddPrimaryOrderDeliveryAndTransactionTest extends TestC
         $this->connection->insert(
             '`order_delivery`',
             [
-                'id' => Uuid::fromHexToBytes(Uuid::randomHex()),
+                'id' => $this->orderDeliveryId,
                 'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-                'order_id' => $orderId,
+                'order_id' => $this->orderId,
                 'order_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
                 'state_id' => Uuid::fromHexToBytes('0194FFCFE8C47343B75462085A5E1429'),
                 'shipping_method_id' => $defaultShippingMethodId,
@@ -113,9 +125,10 @@ class Migration1728040169AddPrimaryOrderDeliveryAndTransactionTest extends TestC
         $this->connection->insert(
             '`order_transaction`',
             [
-                'id' => Uuid::fromHexToBytes(Uuid::randomHex()),
+                'id' => $this->transactionId,
                 'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-                'order_id' => $orderId, 'order_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                'order_id' => $this->orderId,
+                'order_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
                 'state_id' => Uuid::fromHexToBytes('0194FFCFE8C47343B75462085A5E1429'),
                 'payment_method_id' => $defaultPaymentMethodId,
                 'amount' => 100,

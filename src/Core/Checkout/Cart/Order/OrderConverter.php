@@ -353,7 +353,7 @@ class OrderConverter
             $shippingMethodId = $order->getDeliveries()?->first()?->getShippingMethodId();
         } else {
             $shippingMethodId = $order->getPrimaryOrderDelivery()->getShippingMethodId();
-        }  
+        }
 
         if ($shippingMethodId !== null) {
             $options[SalesChannelContextService::SHIPPING_METHOD_ID] = $shippingMethodId;

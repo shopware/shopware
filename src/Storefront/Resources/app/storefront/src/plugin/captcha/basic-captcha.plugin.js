@@ -56,7 +56,7 @@ export default class BasicCaptchaPlugin extends Plugin {
         this._httpClient.get(url, (response) => {
             this.formValidating = false;
             const srcEl = new DOMParser().parseFromString(response, 'text/html');
-            ElementReplaceHelper.replaceElement(srcEl.querySelector(this.options.captchaImageId), captchaImageId, true);
+            ElementReplaceHelper.replaceElement(srcEl.querySelector(this.options.captchaImageId), captchaImageId);
             ElementLoadingIndicatorUtil.remove(captchaImageId);
         });
     }

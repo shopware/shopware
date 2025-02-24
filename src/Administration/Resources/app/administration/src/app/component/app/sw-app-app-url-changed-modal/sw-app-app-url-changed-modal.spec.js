@@ -68,16 +68,6 @@ describe('sw-app-app-url-changed-modal', () => {
                     </div>`,
             },
             'sw-loader': await wrapTestComponent('sw-loader'),
-            'sw-icon': true,
-            'icons-default-basic-shape-circle-filled': {
-                template: '<span class="sw-icon sw-icon--default-basic-shape-circle-filled"></span>',
-            },
-            'icons-regular-circle': {
-                template: '<span class="sw-icon sw-icon--regular-circle"></span>',
-            },
-            'icons-regular-times-s': {
-                template: '<span class="sw-icon sw-icon--regular-times-s"></span>',
-            },
             'router-link': true,
         };
     });

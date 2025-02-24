@@ -35,7 +35,6 @@
     {% block sw_customer_list_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_customer_list_smart_bar_actions_add %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
@@ -201,16 +200,16 @@
 
                     {% block sw_customer_list_grid_columns_active_content %}
                     <template v-else>
-                        <sw-icon
+                        <mt-icon
                             v-if="item.active"
                             name="regular-checkmark-xs"
-                            small
+                            size="16px"
                             class="is--active"
                         />
-                        <sw-icon
+                        <mt-icon
                             v-else
                             name="regular-times-s"
-                            small
+                            size="16px"
                             class="is--inactive"
                         />
                     </template>
@@ -273,7 +272,6 @@
                         <template #modal-footer>
 
                             {% block sw_customer_list_delete_modal_cancel %}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 size="small"
                                 @click="onCloseDeleteModal"
@@ -283,7 +281,6 @@
                             {% endblock %}
 
                             {% block sw_customer_list_delete_modal_confirm %}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 variant="critical"
                                 size="small"

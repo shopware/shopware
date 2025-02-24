@@ -37,9 +37,6 @@ async function createWrapper(privileges = []) {
                     'sw-context-button': await wrapTestComponent('sw-context-button'),
                     'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                     'sw-popover': true,
-                    'sw-icon': {
-                        template: '<div></div>',
-                    },
                     'mt-checkbox': {
                         template: '<div class="checkbox"></div>',
                     },

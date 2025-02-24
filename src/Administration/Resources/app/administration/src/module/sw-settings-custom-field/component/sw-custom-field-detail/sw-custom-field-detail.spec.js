@@ -74,7 +74,7 @@ async function createWrapper(privileges = []) {
                     'sw-modal': await wrapTestComponent('sw-modal'),
                     'sw-container': true,
                     'sw-custom-field-type-checkbox': true,
-                    'sw-switch-field': true,
+
                     'sw-number-field': true,
                     'sw-text-field': true,
                     'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
@@ -82,10 +82,8 @@ async function createWrapper(privileges = []) {
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-field-error': true,
-                    'sw-icon': true,
                     'sw-help-text': true,
                     'sw-loader': true,
-
                     'router-link': true,
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,

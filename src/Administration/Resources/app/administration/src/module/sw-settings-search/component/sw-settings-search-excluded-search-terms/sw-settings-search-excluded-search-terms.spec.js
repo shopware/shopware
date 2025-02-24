@@ -59,9 +59,9 @@ async function createWrapper(privileges = [], resetError = false) {
                 },
 
                 stubs: {
-                    'sw-card': {
+                    'mt-card': {
                         template: `
-                    <div class="sw-card">
+                    <div class="mt-card">
                         <slot name="toolbar"></slot>
                         <slot name="grid"></slot>
                         <slot></slot>
@@ -80,7 +80,6 @@ async function createWrapper(privileges = [], resetError = false) {
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
                     'sw-context-button': await wrapTestComponent('sw-context-button'),
-                    'sw-icon': true,
                     'sw-select-field': true,
                     'sw-popover': {
                         props: ['popoverClass'],

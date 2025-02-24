@@ -12,7 +12,7 @@
             {{ unitSnippet }}
         </span>
 
-        <sw-icon
+        <mt-icon
             class="sw-condition-unit-menu__icon"
             name="solid-chevron-down-s"
         />
@@ -26,7 +26,7 @@
 
     <sw-popover
         v-if="showMenu && defaultUnit"
-        :z-index="10"
+        :z-index="1001"
     >
         <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events -->
         <div

@@ -18,7 +18,6 @@ async function createWrapper() {
                 'sw-context-menu-item': true,
                 'sw-search-bar': true,
                 'sw-language-switch': true,
-                'sw-icon': true,
                 'sw-sidebar-item': true,
                 'sw-sidebar': true,
             },

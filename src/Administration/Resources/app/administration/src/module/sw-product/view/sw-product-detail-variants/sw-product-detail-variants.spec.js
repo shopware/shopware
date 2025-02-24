@@ -53,9 +53,9 @@ async function createWrapper(privileges = []) {
                 $tc: (key) => key,
             },
             stubs: {
-                'sw-card': {
+                'mt-card': {
                     template: `
-                    <div class="sw-card">
+                    <div class="mt-card">
                         <slot name="grid"></slot>
                         <slot></slot>
                     </div>
@@ -82,7 +82,6 @@ async function createWrapper(privileges = []) {
                 'sw-product-modal-variant-generation': true,
                 'sw-product-modal-delivery': true,
                 'sw-product-add-properties-modal': true,
-                'sw-icon': true,
             },
         },
     });

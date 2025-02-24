@@ -77,16 +77,15 @@ async function createWrapper(privileges = []) {
                         </div>
                         `,
                 },
-                'sw-card': {
+                'mt-card': {
                     template: `
-                        <div class="sw-card">
+                        <div class="mt-card">
                             <slot></slot>
                         </div>
                         `,
                 },
                 'sw-language-switch': true,
                 'sw-search-bar': true,
-                'sw-icon': true,
                 'sw-container': {
                     template: '<div><slot></slot></div>',
                 },
@@ -100,7 +99,7 @@ async function createWrapper(privileges = []) {
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-field-error': true,
                 'sw-field-copyable': true,
-                'sw-switch-field': true,
+
                 'sw-entity-multi-select': true,
                 'sw-empty-state': {
                     template: '<div class="sw-empty-state"></div>',
@@ -251,8 +250,8 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         await editMenuItem.trigger('click');
         await flushPromises();
 
-        const adminRoleSwitch = wrapper.find('.sw-settings-user-detail__grid-is-admin');
-        expect(adminRoleSwitch.attributes().disabled).toBeDefined();
+        const adminRoleSwitch = wrapper.findComponent('.sw-settings-user-detail__grid-is-admin');
+        expect(adminRoleSwitch.props().disabled).toBe(true);
     });
 
     it('should have integration criteria with filters', async () => {

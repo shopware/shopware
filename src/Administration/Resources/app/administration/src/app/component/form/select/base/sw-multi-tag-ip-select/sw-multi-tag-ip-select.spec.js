@@ -13,9 +13,6 @@ const createMultiDataIpSelect = async () => {
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
-                'sw-icon': {
-                    template: '<div></div>',
-                },
                 'sw-loader': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,

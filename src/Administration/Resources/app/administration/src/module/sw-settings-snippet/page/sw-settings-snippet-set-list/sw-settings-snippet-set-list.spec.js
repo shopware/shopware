@@ -86,8 +86,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
                         'sw-page': {
                             template: '<div class="sw-page"><slot name="content"></slot></div>',
                         },
-                        'sw-icon': true,
-                        'sw-card': {
+                        'mt-card': {
                             template: '<div><slot></slot><slot name="grid"></slot></div>',
                         },
                         'sw-card-view': {

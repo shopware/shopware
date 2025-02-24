@@ -19,6 +19,7 @@ class ProductException extends HttpException
     public const PRODUCT_CONFIGURATION_OPTION_ALREADY_EXISTS = 'PRODUCT_CONFIGURATION_OPTION_EXISTS_ALREADY';
     public const PRODUCT_INVALID_OPTIONS_PARAMETER = 'PRODUCT_INVALID_OPTIONS_PARAMETER';
     final public const PRODUCT_REVIEW_NOT_ACTIVE = 'PRODUCT__REVIEW_NOT_ACTIVE';
+    final public const PRODUCT_ORIGINAL_ID_NOT_FOUND = 'PRODUCT__ORIGINAL_ID_NOT_FOUND';
 
     public static function invalidCheapestPriceFacade(string $id): self
     {
@@ -100,6 +101,16 @@ class ProductException extends HttpException
             Response::HTTP_FORBIDDEN,
             self::PRODUCT_REVIEW_NOT_ACTIVE,
             'Reviews not activated'
+        );
+    }
+
+    public static function originalIdNotFound(string $originalId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PRODUCT_ORIGINAL_ID_NOT_FOUND,
+            'Cannot find originalId {{ originalId }} in listing mapping',
+            ['originalId' => $originalId]
         );
     }
 }

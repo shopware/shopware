@@ -118,8 +118,9 @@
         <sw-dynamic-url-field
             v-model:value="element.config.url.value"
         />
-        <sw-switch-field
-            v-model:value="element.config.newTab.value"
+
+        <mt-switch
+            v-model="element.config.newTab.value"
             class="sw-cms-el-config-image__link-tab"
             :label="$tc('sw-cms.elements.image.config.label.linkNewTab')"
         />

@@ -20,11 +20,10 @@ async function createWrapper(category = {}) {
     return mount(await wrapTestComponent('sw-category-entry-point-card', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': {
-                    template: '<div class="sw-card"><slot></slot></div>',
+                'mt-card': {
+                    template: '<div class="mt-card"><slot></slot></div>',
                 },
                 'sw-cms-list-item': true,
-                'sw-icon': true,
                 'sw-single-select': {
                     template: '<div class="sw-single-select"></div>',
                     props: ['disabled'],

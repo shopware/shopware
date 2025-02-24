@@ -1,6 +1,6 @@
 {% block sw_profile_index_search_preferences %}
 <div class="sw-profile-index-search-preferences">
-    <sw-card
+    <mt-card
         v-if="adminEsEnable"
         class="sw-card-elasticsearch-enabled"
         position-identifier="sw-card-elasticsearch-enabled"
@@ -12,10 +12,10 @@
         >
             {{ $tc('sw-profile.tabSearchPreferences.alert_elasticsearch.text') }}
         </mt-banner>
-    </sw-card>
+    </mt-card>
 
     {% block sw_profile_index_search_preferences_searchable_elements %}
-    <sw-card
+    <mt-card
         class="sw-profile-index-search-preferences-searchable-elements"
         position-identifier="sw-profile-index-search-preferences"
         :title="$tc('sw-profile.tabSearchPreferences.cardSearchableElements.title')"
@@ -35,7 +35,6 @@
                 gap="8px"
             >
                 {% block sw_profile_index_search_preferences_searchable_elements_button_select %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     class="sw-profile-index-search-preferences-searchable-elements__button-select-all"
                     @click="onSelect(true)"
@@ -45,7 +44,6 @@
                 {% endblock %}
 
                 {% block sw_profile_index_search_preferences_searchable_elements_button_deselect %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     class="sw-profile-index-search-preferences-searchable-elements__button-deselect-all"
                     @click="onSelect(false)"
@@ -55,7 +53,6 @@
                 {% endblock %}
 
                 {% block sw_profile_index_search_preferences_searchable_elements_button_reset %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     class="sw-profile-index-search-preferences-searchable-elements__button-reset-to-default"
                     @click="onReset"
@@ -101,7 +98,7 @@
             {% endblock %}
         </sw-container>
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>
 {% endblock %}

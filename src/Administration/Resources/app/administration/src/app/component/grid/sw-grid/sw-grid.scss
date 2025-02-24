@@ -22,7 +22,7 @@ $sw-grid-table-row-color-background: $color-white;
     grid-template-rows: auto;
     border: 1px solid $sw-grid-item-color-border;
 
-    .sw-card & {
+    .mt-card & {
         border: none;
         border-top: 1px solid $sw-grid-item-color-border;
     }

@@ -61,7 +61,6 @@ const setup = async (propOverride) => {
             stubs: [
                 'sw-price-field',
                 'sw-field',
-                'sw-icon',
             ],
         },
         props,

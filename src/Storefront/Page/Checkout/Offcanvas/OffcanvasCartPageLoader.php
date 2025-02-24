@@ -60,9 +60,6 @@ class OffcanvasCartPageLoader
 
     private function getShippingMethods(SalesChannelContext $context): ShippingMethodCollection
     {
-        $request = new Request();
-        $request->query->set('onlyAvailable', '1');
-
-        return $this->shippingMethodRoute->load($request, $context, new Criteria())->getShippingMethods();
+        return $this->shippingMethodRoute->load(new Request(), $context, new Criteria())->getShippingMethods();
     }
 }

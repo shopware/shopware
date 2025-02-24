@@ -7,16 +7,15 @@
     <template #smart-bar-header>
         <h2>
             {{ $tc('sw-settings.index.title') }}
-            <sw-icon
+            <mt-icon
                 name="regular-chevron-right-xs"
-                small
+                size="16px"
             />
             {{ $tc('sw-settings-units.general.mainMenuItemGeneral') }}
         </h2>
     </template>
 
     <template #smart-bar-actions>
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip="tooltipCreate"
             class="sw-settings-units__create-action"
@@ -37,7 +36,7 @@
 
     <template #content>
         <sw-card-view>
-            <sw-card
+            <mt-card
                 position-identifier="sw-settings-units-content"
                 :class="{ 'sw-settings-units-card-empty': isEmpty }"
             >
@@ -86,7 +85,7 @@
 
                     </sw-data-grid>
                 </template>
-            </sw-card>
+            </mt-card>
         </sw-card-view>
     </template>
 </sw-page>

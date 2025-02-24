@@ -29,14 +29,13 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
                     'sw-notification-center': true,
                     'sw-help-center-v2': true,
                     'sw-meteor-navigation': true,
-                    'sw-icon': true,
                     'sw-tabs': true,
                     'sw-sales-channel-switch': true,
 
                     'sw-form-field-renderer': true,
                     'sw-inherit-wrapper': true,
-                    'sw-card': true,
                     'sw-app-topbar-button': true,
+                    'sw-ai-copilot-badge': true,
                 },
                 provide: {
                     shopwareExtensionService: {

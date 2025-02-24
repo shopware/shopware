@@ -40,13 +40,10 @@ async function createWrapper(privileges = []) {
                     },
                 },
                 stubs: {
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-data-grid': await wrapTestComponent('sw-data-grid', {
                         sync: true,
                     }),
                     'sw-ai-copilot-badge': true,
-                    'sw-icon': true,
                     'sw-data-grid-skeleton': true,
                     'sw-provide': true,
                     'router-link': true,

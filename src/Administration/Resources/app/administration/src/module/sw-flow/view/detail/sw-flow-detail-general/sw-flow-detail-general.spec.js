@@ -37,15 +37,15 @@ async function createWrapper(privileges = [], query = {}) {
                 },
                 stubs: {
                     'sw-number-field': true,
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot></slot></div>',
                     },
                     'mt-text-field': true,
-                    'sw-textarea-field': true,
+                    'mt-textarea': true,
                     'sw-container': {
                         template: '<div><slot></slot></div>',
                     },
-                    'sw-switch-field': true,
+                    'mt-switch': true,
                 },
             },
         },

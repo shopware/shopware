@@ -25,12 +25,6 @@ export default {
             type: Boolean,
             default: false,
         },
-        backgroundEnabled: {
-            required: false,
-            type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
-            default: true,
-        },
     },
 
     computed: {

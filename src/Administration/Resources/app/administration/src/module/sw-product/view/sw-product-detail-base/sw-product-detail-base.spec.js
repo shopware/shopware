@@ -39,26 +39,22 @@ async function createWrapper() {
                 'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper', { sync: true }),
                 'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch', { sync: true }),
                 'sw-empty-state': true,
-                'sw-card': {
+                'mt-card': {
                     template: '<div><slot></slot><slot name="title"></slot><slot name="grid"></slot></div>',
                 },
                 'sw-context-menu-item': true,
                 'sw-media-modal-v2': true,
                 'sw-container': true,
                 'sw-text-editor': true,
-                'sw-switch-field': true,
+
                 'sw-product-media-form': true,
                 'sw-entity-single-select': true,
                 'sw-help-text': true,
-                'sw-icon': {
-                    template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
-                },
                 'sw-text-field': true,
                 'sw-select-field': true,
                 'router-link': true,
                 'sw-skeleton': true,
                 'sw-extension-teaser-popover': true,
-                'mt-card': true,
                 'mt-text-editor': true,
             },
             mocks: {
@@ -564,7 +560,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         expect(wrapper.vm.product.media).toHaveLength(0);
 
-        const inheritanceSwitch = wrapper.find('.sw-inheritance-switch--is-inherited .sw-icon');
+        const inheritanceSwitch = wrapper.find('.sw-inheritance-switch--is-inherited .mt-icon');
         expect(inheritanceSwitch.exists()).toBe(true);
 
         await inheritanceSwitch.trigger('click');
@@ -614,7 +610,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         expect(wrapper.vm.product.media.first()).toEqual(media1);
 
-        const notInheritanceSwitch = wrapper.find('.sw-inheritance-switch--is-not-inherited .sw-icon');
+        const notInheritanceSwitch = wrapper.find('.sw-inheritance-switch--is-not-inherited .mt-icon');
         expect(notInheritanceSwitch.exists()).toBe(true);
 
         await notInheritanceSwitch.trigger('click');

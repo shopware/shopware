@@ -10,8 +10,9 @@
     {% endblock %}
 
     {% block sw_promotion_v2_settings_trigger_radio_switch %}
-    <sw-switch-field
-        v-model:value="useTrigger"
+
+    <mt-switch
+        v-model="useTrigger"
         class="sw-promotion-v2-settings-trigger-settings__use-trigger"
         :label="$tc('sw-promotion-v2.detail.discounts.settings.trigger.labelUseTrigger')"
     />

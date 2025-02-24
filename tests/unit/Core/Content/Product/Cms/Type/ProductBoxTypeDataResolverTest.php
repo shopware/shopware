@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Content\Product\Cms\Type;
+namespace Shopware\Tests\Unit\Core\Content\Product\Cms\Type;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -25,7 +26,6 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -34,6 +34,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[CoversClass(ProductBoxCmsElementResolver::class)]
 class ProductBoxTypeDataResolverTest extends TestCase
 {
     private ProductBoxCmsElementResolver $productBoxResolver;
@@ -260,13 +261,8 @@ class ProductBoxTypeDataResolverTest extends TestCase
         $slot->setType('product-box');
         $slot->setFieldConfig($fieldConfig);
 
-        if (Feature::isActive('v6.7.0.0')) {
-            $this->expectException(PropertyNotFoundException::class);
-            $this->expectExceptionMessage(\sprintf('Property "foo" does not exist in entity "%s".', SalesChannelProductEntity::class));
-        } else {
-            $this->expectException(\InvalidArgumentException::class);
-            $this->expectExceptionMessage(\sprintf('Property foo do not exist in class %s', SalesChannelProductEntity::class));
-        }
+        $this->expectException(PropertyNotFoundException::class);
+        $this->expectExceptionMessage(\sprintf('Property "foo" does not exist in entity "%s".', SalesChannelProductEntity::class));
 
         $this->productBoxResolver->enrich($slot, $resolverContext, $result);
     }

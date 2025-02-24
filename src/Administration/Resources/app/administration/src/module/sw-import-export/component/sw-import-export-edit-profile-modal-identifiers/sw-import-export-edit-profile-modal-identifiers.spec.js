@@ -80,7 +80,6 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                         'sw-select-base': await wrapTestComponent('sw-select-base'),
                         'sw-single-select': await wrapTestComponent('sw-single-select'),
                         'sw-empty-state': true,
-                        'sw-icon': true,
                         'sw-field-error': true,
                         'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                         'sw-popover': await wrapTestComponent('sw-popover'),

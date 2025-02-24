@@ -149,15 +149,13 @@ async function createWrapper() {
                     searchRankingService: {},
                 },
                 stubs: {
-                    'sw-card': true,
                     'sw-card-section': true,
-                    'sw-switch-field': true,
+
                     'sw-container': true,
                     'sw-text-field': true,
                     'sw-settings-tag-detail-assignments': true,
                     'sw-tabs-deprecated': true,
                     'sw-card-filter': true,
-                    'sw-icon': true,
                     'sw-data-grid': true,
                     'sw-checkbox-field': true,
                     'sw-inheritance-switch': true,

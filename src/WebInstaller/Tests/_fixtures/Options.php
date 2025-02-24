@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file exists for testing our patching stuff to fix https://github.com/symfony/flex/pull/963
@@ -24,10 +24,12 @@ use Composer\Util\ProcessExecutor;
 class Options
 {
     private $options;
+
     private $writtenFiles = [];
+
     private $io;
 
-    public function __construct(array $options = [], IOInterface $io = null)
+    public function __construct(array $options = [], ?IOInterface $io = null)
     {
         $this->options = $options;
         $this->io = $io;
@@ -69,10 +71,10 @@ class Options
             return true;
         }
 
-        exec('git status --short --ignored --untracked-files=all -- '.ProcessExecutor::escape($file).' 2>&1', $output, $status);
+        exec('git status --short --ignored --untracked-files=all -- ' . ProcessExecutor::escape($file) . ' 2>&1', $output, $status);
 
-        if (0 !== $status) {
-            return $this->io && $this->io->askConfirmation(sprintf('Cannot determine the state of the "%s" file, overwrite anyway? [y/N] ', $file), false);
+        if ($status !== 0) {
+            return $this->io && $this->io->askConfirmation(\sprintf('Cannot determine the state of the "%s" file, overwrite anyway? [y/N] ', $file), false);
         }
 
         if (empty($output[0]) || preg_match('/^[ AMDRCU][ D][ \t]/', $output[0])) {
@@ -82,7 +84,7 @@ class Options
         $name = basename($file);
         $name = \strlen($output[0]) - \strlen($name) === strrpos($output[0], $name) ? substr($output[0], 3) : $name;
 
-        return $this->io && $this->io->askConfirmation(sprintf('File "%s" has uncommitted changes, overwrite? [y/N] ', $name), false);
+        return $this->io && $this->io->askConfirmation(\sprintf('File "%s" has uncommitted changes, overwrite? [y/N] ', $name), false);
     }
 
     public function toArray(): array

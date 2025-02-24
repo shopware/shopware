@@ -9,7 +9,6 @@ async function createWrapper() {
             stubs: {
                 'sw-datepicker': true,
                 'sw-textarea-field': true,
-                'sw-switch-field': true,
             },
         },
     });

@@ -40,7 +40,6 @@ async function createWrapper(
                 'sw-context-menu-item': true,
                 'sw-context-button': true,
                 'sw-vnode-renderer': await wrapTestComponent('sw-vnode-renderer', { sync: true }),
-                'sw-icon': true,
                 'sw-tree-item': await wrapTestComponent('sw-tree-item'),
                 'sw-skeleton': await wrapTestComponent('sw-skeleton'),
                 'sw-inheritance-switch': true,

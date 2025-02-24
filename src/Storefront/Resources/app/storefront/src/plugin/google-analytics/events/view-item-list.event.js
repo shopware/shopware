@@ -1,10 +1,9 @@
 import AnalyticsEvent from 'src/plugin/google-analytics/analytics-event';
-import DomAccessHelper from 'src/helper/dom-access.helper';
 
 export default class ViewItemListEvent extends AnalyticsEvent
 {
     supports() {
-        const listingWrapper = DomAccessHelper.querySelector(document, '.cms-element-product-listing-wrapper', false);
+        const listingWrapper = document.querySelector('.cms-element-product-listing-wrapper');
         return !!listingWrapper;
     }
 
@@ -19,7 +18,7 @@ export default class ViewItemListEvent extends AnalyticsEvent
     }
 
     getListItems() {
-        const productBoxes = DomAccessHelper.querySelectorAll(document, '.product-box', false);
+        const productBoxes = document.querySelectorAll('.product-box');
         const lineItems = [];
 
         if (!productBoxes) {

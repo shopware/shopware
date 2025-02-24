@@ -226,7 +226,6 @@ async function createWrapper(props = defaultProps, provide = {}) {
                         </div>
                     `,
                 },
-                'sw-icon': true,
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                 'sw-context-button': await wrapTestComponent('sw-context-button'),
@@ -243,8 +242,6 @@ async function createWrapper(props = defaultProps, provide = {}) {
                 'sw-custom-field-set-renderer': true,
                 'sw-error-summary': true,
                 'sw-condition-tree': true,
-                'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated'),
                 'sw-entity-tag-select': true,
                 'sw-multi-select': true,
                 'sw-textarea-field': true,

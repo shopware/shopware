@@ -99,7 +99,6 @@
                     class="sw-product-variants-media-upload__regular-button"
                 >
                     {% block sw_product_variants_media_upload_actions_regular_upload_button %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         class="sw-media-upload-v2__button upload"
                         :disabled="disabled"
@@ -112,14 +111,13 @@
                     {% endblock %}
 
                     {% block sw_product_variants_media_upload_actions_regular_open_button %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         variant="primary"
                         :disabled="disabled"
                         class="sw-product-variants-media-upload__browse-button"
                         @click="showMediaModal = true"
                     >
-                        <sw-icon
+                        <mt-icon
                             class="sw-product-variants-media-upload__browse-icon"
                             name="regular-image"
                         />
@@ -133,13 +131,12 @@
                     v-else
                     class="sw-product-variants-media-upload__compact-button"
                 >
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         variant="primary"
                         :disabled="disabled"
                         class="sw-product-variants-media-upload__browse-button"
                     >
-                        <sw-icon
+                        <mt-icon
                             class="sw-product-variants-media-upload__browse-icon"
                             name="regular-plus"
                         />

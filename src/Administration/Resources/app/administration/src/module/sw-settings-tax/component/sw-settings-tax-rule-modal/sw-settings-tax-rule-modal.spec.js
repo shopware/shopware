@@ -13,7 +13,6 @@ async function createWrapper() {
                 renderStubDefaultSlot: true,
                 stubs: {
                     'sw-modal': await wrapTestComponent('sw-modal'),
-                    'sw-icon': true,
                     'sw-container': true,
                     'sw-entity-single-select': true,
                     'sw-number-field': true,

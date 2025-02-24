@@ -70,7 +70,7 @@ async function createWrapper() {
                         props: ['disabled'],
                     },
                     'sw-loader': true,
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot name="toolbar">TOOLBAR</slot><slot>CONTENT</slot></div>',
                     },
                     'sw-skeleton': true,

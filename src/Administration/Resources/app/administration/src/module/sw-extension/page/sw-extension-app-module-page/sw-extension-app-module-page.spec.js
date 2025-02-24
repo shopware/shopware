@@ -24,7 +24,6 @@ async function createWrapper(props) {
                 'sw-loader': true,
                 'sw-app-topbar-button': true,
                 'sw-help-center-v2': true,
-                'sw-icon': true,
                 'router-link': true,
             },
             mocks: {

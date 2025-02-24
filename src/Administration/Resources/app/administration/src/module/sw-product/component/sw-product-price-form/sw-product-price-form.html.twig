@@ -84,9 +84,10 @@
             :to="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }"
             class="sw-card__quick-link"
         >
-            {{ $tc('sw-product.detailBase.linkAdvancedPrices') }} <sw-icon
+            {{ $tc('sw-product.detailBase.linkAdvancedPrices') }}
+            <mt-icon
                 name="regular-long-arrow-right"
-                small
+                size="16px"
             />
         </router-link>
         {% endblock %}
@@ -100,9 +101,10 @@
             @click.prevent="displayMaintainCurrencies = true"
             @keydown.enter.prevent="displayMaintainCurrencies = true"
         >
-            {{ $tc('sw-product.detailBase.linkMaintainCurrencyPrices') }} <sw-icon
+            {{ $tc('sw-product.detailBase.linkMaintainCurrencyPrices') }}
+            <mt-icon
                 name="regular-long-arrow-right"
-                small
+                size="16px"
             />
         </a>
         {% endblock %}

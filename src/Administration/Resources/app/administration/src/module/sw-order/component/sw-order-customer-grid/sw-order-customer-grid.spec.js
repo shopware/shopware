@@ -68,7 +68,7 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-order-customer-grid', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': {
+                'mt-card': {
                     template: `
                         <div class="sw-card__content">
                             <slot name="toolbar"></slot>
@@ -110,7 +110,6 @@ async function createWrapper() {
                     template:
                         '<input class="sw-card-filter" :value="term" @input="$emit(\'sw-card-filter-term-change\', $event.target.value)">',
                 },
-                'sw-icon': true,
                 'sw-field': true,
                 'router-link': true,
                 'sw-order-new-customer-modal': true,

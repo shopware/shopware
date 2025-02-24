@@ -2,8 +2,9 @@
 <div class="sw-text-editor-toolbar-table-button">
 
     {% block sw_text_editor_toolbar_table_button_table_head_switch %}
-    <sw-switch-field
-        v-model:value="addTableHead"
+
+    <mt-switch
+        v-model="addTableHead"
         :label="$tc('sw-text-editor-toolbar.table.addHeading')"
     />
     {% endblock %}
@@ -19,7 +20,7 @@
             @input-change="setSelectedCols"
             @update:value="setSelectedCols"
         />
-        <sw-icon
+        <mt-icon
             class="sw-text-editor-toolbar-table-button__grid-input-icon"
             name="regular-times"
             size="12"
@@ -102,7 +103,6 @@
 
     {% block sw_text_editor_toolbar_table_button_table_insert %}
     <div class="sw-text-editor-toolbar-table-button__insert">
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             size="small"
             variant="primary"

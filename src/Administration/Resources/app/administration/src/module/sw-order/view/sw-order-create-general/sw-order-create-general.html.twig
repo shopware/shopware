@@ -1,6 +1,6 @@
 {% block sw_order_create_general %}
 <div class="sw-order-create-general">
-    <sw-card
+    <mt-card
         class="sw-order-create-general__general-info"
         position-identifier="sw-order-create-general-info"
         :title="$tc('sw-order.createBase.generalTab.labelGeneralInfoCard')"
@@ -10,13 +10,13 @@
             :context="context"
             :is-loading="isLoading"
         />
-    </sw-card>
+    </mt-card>
 
     <sw-extension-component-section
         position-identifier="sw-order-create-base-line-items__before"
     />
 
-    <sw-card
+    <mt-card
         class="sw-order-create-general__line-items"
         position-identifier="sw-order-create-line-items"
         :is-loading="isLoading"
@@ -128,7 +128,7 @@
                 </sw-container>
             </sw-card-section>
         </template>
-    </sw-card>
+    </mt-card>
 
     <sw-extension-component-section
         position-identifier="sw-order-create-base-line-items__after"

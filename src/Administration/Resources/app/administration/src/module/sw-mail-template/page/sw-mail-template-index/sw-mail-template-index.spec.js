@@ -44,7 +44,6 @@ const createWrapper = async () => {
                      </div>`,
                     },
                     'sw-context-menu-item': true,
-                    'sw-icon': true,
                     'sw-search-bar': true,
                     'sw-language-switch': true,
                     'sw-mail-template-list': true,

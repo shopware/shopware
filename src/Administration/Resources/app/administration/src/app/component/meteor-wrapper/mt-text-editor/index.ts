@@ -21,15 +21,6 @@ Shopware.Component.register('mt-text-editor', {
     },
 
     props: {
-        /**
-         * @deprecated tag:v6.7.0 - The value prop is deprecated and will be replaced by modelValue
-         */
-        value: {
-            type: String,
-            required: false,
-            default: null,
-        },
-
         modelValue: {
             type: String,
             required: false,
@@ -55,20 +46,14 @@ Shopware.Component.register('mt-text-editor', {
 
     emits: [
         'update:modelValue',
-        'update:value',
     ],
 
     computed: {
         compatValue: {
             get() {
-                if (this.value === null || this.value === undefined) {
-                    return this.modelValue;
-                }
-
-                return this.value;
+                return this.modelValue;
             },
             set(value: string) {
-                this.$emit('update:value', value);
                 this.$emit('update:modelValue', value);
             },
         },

@@ -21,7 +21,7 @@
             :class="lockedButtonClass"
             @click="onLockSwitch"
         >
-            <sw-icon
+            <mt-icon
                 :name="isLocked ? 'regular-lock' : 'regular-lock-open'"
                 size="16px"
             />
@@ -43,7 +43,6 @@
     {% endblock %}
 
     {% block sw_media_add_thumbnail_add_button %}
-    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
     <mt-button
         class="sw-media-folder-settings__add-thumbnail-size-action"
         ghost

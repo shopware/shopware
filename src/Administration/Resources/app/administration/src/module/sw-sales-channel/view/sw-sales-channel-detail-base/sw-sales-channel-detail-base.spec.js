@@ -23,10 +23,10 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-sales-channel-detail-base', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': {
-                    template: '<div class="sw-card"><slot></slot></div>',
+                'mt-card': {
+                    template: '<div class="mt-card"><slot></slot></div>',
                 },
-                'sw-switch-field': true,
+
                 'sw-text-field': true,
                 'sw-number-field': true,
                 'sw-container': {
@@ -35,7 +35,6 @@ async function createWrapper() {
                 'sw-entity-single-select': true,
                 'sw-sales-channel-defaults-select': true,
                 'router-link': true,
-                'sw-icon': true,
                 'sw-radio-field': true,
                 'sw-multi-tag-ip-select': true,
                 'sw-select-number-field': true,
@@ -674,9 +673,11 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             },
         });
 
-        const field = wrapper.get('sw-switch-field-stub[label="sw-sales-channel.detail.productComparison.includeVariants"]');
+        const field = wrapper.get(
+            '.mt-switch input[aria-label="sw-sales-channel.detail.productComparison.includeVariants"]',
+        );
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes().disabled).toBeDefined();
     });
 
     it('should have the field for product export includeVariants enabled', async () => {
@@ -690,7 +691,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             },
         });
 
-        const field = wrapper.get('sw-switch-field-stub[label="sw-sales-channel.detail.productComparison.includeVariants"]');
+        const field = wrapper.get(
+            '.mt-switch input[aria-label="sw-sales-channel.detail.productComparison.includeVariants"]',
+        );
 
         expect(field.attributes().disabled).toBeUndefined();
     });
@@ -735,10 +738,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.get(
-            'sw-switch-field-stub[label="sw-sales-channel.detail.productComparison.generateByCronjob"]',
+            '.mt-switch input[aria-label="sw-sales-channel.detail.productComparison.generateByCronjob"]',
         );
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes().disabled).toBeDefined();
     });
 
     it('should have the switch field for product export generateByCronjob enabled', async () => {
@@ -753,7 +756,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.get(
-            'sw-switch-field-stub[label="sw-sales-channel.detail.productComparison.generateByCronjob"]',
+            '.mt-switch input[aria-label="sw-sales-channel.detail.productComparison.generateByCronjob"]',
         );
 
         expect(field.attributes().disabled).toBeUndefined();
@@ -930,9 +933,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     it('should have the switch field for salesChannel active disabled', async () => {
         const wrapper = await createWrapper();
 
-        const field = wrapper.get('sw-switch-field-stub[label="sw-sales-channel.detail.labelInputActive"]');
+        const field = wrapper.get('.mt-switch input[aria-label="sw-sales-channel.detail.labelInputActive"]');
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes().disabled).toBeDefined();
     });
 
     it('should have the switch field for salesChannel active enabled', async () => {
@@ -940,7 +943,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
         const wrapper = await createWrapper();
 
-        const field = wrapper.get('sw-switch-field-stub[label="sw-sales-channel.detail.labelInputActive"]');
+        const field = wrapper.get('.mt-switch input[aria-label="sw-sales-channel.detail.labelInputActive"]');
 
         expect(field.attributes().disabled).toBeUndefined();
     });
@@ -948,9 +951,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     it('should have the switch field for salesChannel maintenance disabled', async () => {
         const wrapper = await createWrapper();
 
-        const field = wrapper.get('sw-switch-field-stub[label="sw-sales-channel.detail.labelMaintenanceActive"]');
+        const field = wrapper.get('.mt-switch input[aria-label="sw-sales-channel.detail.labelMaintenanceActive"]');
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes().disabled).toBeDefined();
     });
 
     it('should have the switch field for salesChannel maintenance enabled', async () => {
@@ -958,7 +961,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
         const wrapper = await createWrapper();
 
-        const field = wrapper.get('sw-switch-field-stub[label="sw-sales-channel.detail.labelMaintenanceActive"]');
+        const field = wrapper.get('.mt-switch input[aria-label="sw-sales-channel.detail.labelMaintenanceActive"]');
 
         expect(field.attributes().disabled).toBeUndefined();
     });

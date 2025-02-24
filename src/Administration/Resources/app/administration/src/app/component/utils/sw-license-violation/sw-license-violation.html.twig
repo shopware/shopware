@@ -53,7 +53,6 @@
                     :key="action.externalLink"
                     class="sw-license-violation__table-actions-wrap"
                 >
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         class="sw-license-violation__table-action-remove"
                         variant="critical"
@@ -64,7 +63,6 @@
                         {{ $tc('sw-license-violation.deletePlugin') }}
                     </mt-button>
 
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         :link="action.externalLink"
                         ghost
@@ -83,7 +81,6 @@
             :label="$tc('sw-license-violation.checkboxMessage')"
         />
 
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             variant="primary"
             :disabled="!readNotice"
@@ -107,7 +104,6 @@
         </p>
 
         <template #modal-footer>
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
                 @click="onCloseDeleteModal"
@@ -115,7 +111,6 @@
                 {{ $tc('global.default.cancel') }}
             </mt-button>
 
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
                 variant="critical"

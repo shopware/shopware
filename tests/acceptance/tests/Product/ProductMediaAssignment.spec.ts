@@ -9,10 +9,7 @@ test('Shop administrator should be able to upload an image to the product galler
     UploadImage,
     SaveProduct,
     IdProvider,
-    InstanceMeta,
 }) => {
-
-    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0. Ticket: https://shopware.atlassian.net/browse/NEXT-40157');
 
     await test.slow();
 

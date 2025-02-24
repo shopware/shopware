@@ -15,6 +15,9 @@ final class LineItemIsNewRule extends Rule
 {
     final public const RULE_NAME = 'cartLineItemIsNew';
 
+    /**
+     * @internal
+     */
     public function __construct(protected bool $isNew = false)
     {
         parent::__construct();

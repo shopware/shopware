@@ -17,6 +17,9 @@ final class LineItemWithQuantityRule extends Rule
 {
     final public const RULE_NAME = 'cartLineItemWithQuantity';
 
+    /**
+     * @internal
+     */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
         protected ?string $id = null,

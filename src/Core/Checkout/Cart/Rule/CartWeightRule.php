@@ -17,6 +17,9 @@ final class CartWeightRule extends Rule
 
     protected float $weight;
 
+    /**
+     * @internal
+     */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
         ?float $weight = null

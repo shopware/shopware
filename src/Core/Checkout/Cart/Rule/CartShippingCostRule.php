@@ -15,6 +15,9 @@ final class CartShippingCostRule extends Rule
 {
     public const RULE_NAME = 'cartShippingCost';
 
+    /**
+     * @internal
+     */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
         protected ?float $cartShippingCost = null

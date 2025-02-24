@@ -16,6 +16,9 @@ final class LineItemPurchasePriceRule extends Rule
 {
     final public const RULE_NAME = 'cartLineItemPurchasePrice';
 
+    /**
+     * @internal
+     */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
         protected ?float $amount = null,

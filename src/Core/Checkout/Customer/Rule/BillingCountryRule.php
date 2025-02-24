@@ -18,6 +18,8 @@ final class BillingCountryRule extends Rule
 
     /**
      * @param list<string>|null $countryIds
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

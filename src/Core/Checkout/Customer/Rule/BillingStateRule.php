@@ -21,6 +21,8 @@ final class BillingStateRule extends Rule
 
     /**
      * @param list<string>|null $stateIds
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

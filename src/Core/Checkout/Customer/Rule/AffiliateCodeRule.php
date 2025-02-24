@@ -16,6 +16,9 @@ final class AffiliateCodeRule extends Rule
 {
     final public const RULE_NAME = 'customerAffiliateCode';
 
+    /**
+     * @internal
+     */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
         protected ?string $affiliateCode = null

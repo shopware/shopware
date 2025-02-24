@@ -16,6 +16,8 @@ final class LineItemPropertyRule extends Rule
 
     /**
      * @param list<string> $identifiers
+     *
+     * @internal
      */
     public function __construct(
         protected array $identifiers = [],

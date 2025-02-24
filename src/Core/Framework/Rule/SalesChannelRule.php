@@ -12,6 +12,8 @@ final class SalesChannelRule extends Rule
 
     /**
      * @param list<string>|null $salesChannelIds
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

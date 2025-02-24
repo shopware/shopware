@@ -18,6 +18,8 @@ final class OrderDocumentTypeSentRule extends FlowRule
 
     /**
      * @param list<string> $documentIds
+     *
+     * @internal
      */
     public function __construct(
         public string $operator = Rule::OPERATOR_EQ,

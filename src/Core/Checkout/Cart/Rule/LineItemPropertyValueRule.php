@@ -18,6 +18,8 @@ final class LineItemPropertyValueRule extends Rule
 
     /**
      * @param list<string>|null $identifiers
+     *
+     * @internal
      */
     public function __construct(
         public string $operator = Rule::OPERATOR_EQ,

@@ -20,6 +20,8 @@ final class LineItemInProductStreamRule extends Rule
 
     /**
      * @param list<string> $streamIds
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

@@ -13,6 +13,9 @@ final class OrderCreatedByAdminRule extends FlowRule
 {
     final public const RULE_NAME = 'orderCreatedByAdmin';
 
+    /**
+     * @internal
+     */
     public function __construct(protected bool $shouldOrderBeCreatedByAdmin = true)
     {
         parent::__construct();

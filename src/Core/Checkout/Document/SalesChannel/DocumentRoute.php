@@ -54,7 +54,7 @@ final class DocumentRoute extends AbstractDocumentRoute
 
         /** @var CustomerEntity $customer */
         $customer = $context->getCustomer();
-        if ($customer->getGuest() && $deepLinkCode === '') {
+        if ($customer?->getGuest() && $deepLinkCode === '') {
             throw DocumentException::customerNotLoggedIn();
         }
 

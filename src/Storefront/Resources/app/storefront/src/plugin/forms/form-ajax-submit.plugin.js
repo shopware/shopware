@@ -1,7 +1,6 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import FormSerializeUtil from 'src/utility/form/form-serialize.util';
 import HttpClient from 'src/service/http-client.service';
-import DomAccess from 'src/helper/dom-access.helper';
 import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-loading-indicator.util';
 import ElementReplaceHelper from 'src/helper/element-replace.helper';
 
@@ -166,8 +165,8 @@ export default class FormAjaxSubmitPlugin extends Plugin {
     }
 
     sendAjaxFormSubmit() {
-        const action = DomAccess.getAttribute(this._form, 'action');
-        const method = DomAccess.getAttribute(this._form, 'method');
+        const action = this._form.getAttribute('action');
+        const method = this._form.getAttribute('method');
 
         if (method === 'get') {
             this._client.get(action, this._onAfterAjaxSubmit.bind(this));
@@ -208,7 +207,7 @@ export default class FormAjaxSubmitPlugin extends Plugin {
     _onAfterAjaxSubmit(response) {
         if (this.options.replaceSelectors) {
             this._removeLoadingIndicators();
-            ElementReplaceHelper.replaceFromMarkup(response, this.options.replaceSelectors, false);
+            ElementReplaceHelper.replaceFromMarkup(response, this.options.replaceSelectors);
             window.PluginManager.initializePlugins();
         }
 

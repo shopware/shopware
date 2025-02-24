@@ -1,5 +1,4 @@
 import Plugin from 'src/plugin-system/plugin.class';
-import DomAccess from 'src/helper/dom-access.helper';
 import HttpClient from 'src/service/http-client.service';
 import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 import DeviceDetection from 'src/helper/device-detection.helper';
@@ -86,7 +85,7 @@ export default class OffCanvasCartPlugin extends Plugin {
      * @private
      */
     _registerRemoveProductTriggerEvents() {
-        const forms = DomAccess.querySelectorAll(document, this.options.removeProductTriggerSelector, false);
+        const forms = document.querySelectorAll(this.options.removeProductTriggerSelector);
         if (forms) {
             forms.forEach(form => form.addEventListener('submit', this._onRemoveProductFromCart.bind(this)));
         }
@@ -98,8 +97,8 @@ export default class OffCanvasCartPlugin extends Plugin {
      * @private
      */
     _registerChangeQuantityProductTriggerEvents() {
-        const selects = DomAccess.querySelectorAll(document, this.options.changeProductQuantityTriggerSelector, false);
-        const numberInputs = DomAccess.querySelectorAll(document, this.options.changeProductQuantityTriggerNumberSelector, false);
+        const selects = document.querySelectorAll(this.options.changeProductQuantityTriggerSelector);
+        const numberInputs = document.querySelectorAll(this.options.changeProductQuantityTriggerNumberSelector);
 
         if (selects) {
             selects.forEach(select => select.addEventListener('change', this._onChangeProductQuantity.bind(this)));
@@ -121,7 +120,7 @@ export default class OffCanvasCartPlugin extends Plugin {
      * @private
      */
     _registeraddPromotionTriggerEvents() {
-        const forms = DomAccess.querySelectorAll(document, this.options.addPromotionTriggerSelector, false);
+        const forms = document.querySelectorAll(this.options.addPromotionTriggerSelector);
 
         if (forms) {
             forms.forEach(form => form.addEventListener('submit', this._onAddPromotionToCart.bind(this)));
@@ -204,7 +203,7 @@ export default class OffCanvasCartPlugin extends Plugin {
         ElementLoadingIndicatorUtil.create(form.closest(selector));
 
         const cb = callback ? callback.bind(this) : this._onOffCanvasOpened.bind(this, this._updateOffCanvasContent.bind(this));
-        const requestUrl = DomAccess.getAttribute(form, 'action');
+        const requestUrl = form.getAttribute('action');
         const data = FormSerializeUtil.serialize(form);
 
         this.$emitter.publish('beforeFireRequest');

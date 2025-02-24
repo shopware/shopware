@@ -1,5 +1,4 @@
 import AnalyticsEvent from 'src/plugin/google-analytics/analytics-event';
-import DomAccessHelper from 'src/helper/dom-access.helper';
 import LineItemHelper from 'src/plugin/google-analytics/line-item.helper';
 
 export default class BeginCheckoutOnCartEvent extends AnalyticsEvent
@@ -9,7 +8,7 @@ export default class BeginCheckoutOnCartEvent extends AnalyticsEvent
     }
 
     execute() {
-        const beginCheckoutBtn = DomAccessHelper.querySelector(document, '.begin-checkout-btn', false);
+        const beginCheckoutBtn = document.querySelector('.begin-checkout-btn');
 
         if (!beginCheckoutBtn) {
             return;

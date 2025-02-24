@@ -16,7 +16,6 @@ test(
         const nonShippableCountry = await TestDataService.createCountry({ shippingAvailable: false });
         await TestDataService.assignSalesChannelCountry(DefaultSalesChannel.salesChannel.id, nonShippableCountry.id);
         const shippableCountry = await TestDataService.getCountry('de');
-        await TestDataService.assignSalesChannelCountry(DefaultSalesChannel.salesChannel.id, shippableCountry.id);
         const registrationData = {
             salutation: 'Mr.',
             firstName: 'Jeff',
@@ -86,8 +85,6 @@ test(
     }) => {
         const nonShippableCountry = await TestDataService.createCountry({ shippingAvailable: false});
         await TestDataService.assignSalesChannelCountry(DefaultSalesChannel.salesChannel.id, nonShippableCountry.id);
-        const shippableCountry = await TestDataService.getCountry('de');
-        await TestDataService.assignSalesChannelCountry(DefaultSalesChannel.salesChannel.id, shippableCountry.id);
 
         const address = {
             firstName: 'New First Name',

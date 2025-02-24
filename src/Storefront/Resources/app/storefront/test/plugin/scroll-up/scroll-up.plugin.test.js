@@ -89,7 +89,7 @@ describe('ScrollUpPlugin', () => {
         jest.runAllTimers();
 
         const scrollUpButton = document.querySelector('.js-scroll-up-button');
-        const firstFocusableElement = document.querySelector('.skip-to-main-content');
+        const topElement = document.querySelector('#page-top');
 
         // Click the scroll up button
         scrollUpButton.dispatchEvent(new Event('click', { bubbles: true }));
@@ -98,6 +98,6 @@ describe('ScrollUpPlugin', () => {
         expect(scrollToTopSpy).toHaveBeenCalled();
         expect(focusFirstElementSpy).toHaveBeenCalled();
         expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
-        expect(window.focusHandler.setFocus).toHaveBeenCalledWith(firstFocusableElement, { preventScroll: true });
+        expect(window.focusHandler.setFocus).toHaveBeenCalledWith(topElement, { preventScroll: true });
     });
 });

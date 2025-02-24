@@ -40,7 +40,11 @@ export default class GuestWishlistPagePlugin extends Plugin {
             .sort((a, b) => b.dateTime - a.dateTime)
             .map(item => item.productId);
 
-        fetch(this.options.pageletRouter.path, { method: 'POST', body: JSON.stringify({productIds}) })
+        fetch(this.options.pageletRouter.path, {
+            method: 'POST',
+            body: JSON.stringify({ productIds }),
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
             .then(response => response.text())
             .then(content => {
                 this.el.innerHTML = content;

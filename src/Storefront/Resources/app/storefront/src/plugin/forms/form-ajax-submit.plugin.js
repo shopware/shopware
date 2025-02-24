@@ -1,5 +1,6 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import FormSerializeUtil from 'src/utility/form/form-serialize.util';
+/** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
 import DomAccess from 'src/helper/dom-access.helper';
 import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-loading-indicator.util';
@@ -66,6 +67,7 @@ export default class FormAjaxSubmitPlugin extends Plugin {
         }
 
         this._callbacks = [];
+        /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._client = new HttpClient();
         this._registerEvents();
     }
@@ -170,9 +172,19 @@ export default class FormAjaxSubmitPlugin extends Plugin {
         const method = DomAccess.getAttribute(this._form, 'method');
 
         if (method === 'get') {
-            this._client.get(action, this._onAfterAjaxSubmit.bind(this));
+            fetch(action, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            })
+                .then(response => response.text())
+                .then(response => this._onAfterAjaxSubmit(response));
         } else {
-            this._client.post(action, this._getFormData(), this._onAfterAjaxSubmit.bind(this));
+            fetch(action, {
+                method: 'POST',
+                body: this._getFormData(),
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            })
+                .then(response => response.text())
+                .then(response => this._onAfterAjaxSubmit(response));
         }
     }
 

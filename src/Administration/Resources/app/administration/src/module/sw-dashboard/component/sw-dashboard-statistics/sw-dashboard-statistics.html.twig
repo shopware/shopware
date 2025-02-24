@@ -18,7 +18,7 @@
                 </span>
             </div>
 
-            <sw-card position-identifier="">
+            <mt-card position-identifier="">
                 <div class="sw-dashboard-statistics__intro-stats-today">
                     <div
                         v-if="hasOrderToday"
@@ -101,7 +101,7 @@
 
                     <sw-loader v-else-if="!todayOrderDataLoaded" />
                 </template>
-            </sw-card>
+            </mt-card>
         </template>
 
         <template v-if="hasOrderInMonth">

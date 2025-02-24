@@ -3,6 +3,8 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
@@ -39,7 +41,12 @@ class ShippingCityRule extends Rule
         }
 
         if (!\is_string($this->cityName) && $this->operator !== self::OPERATOR_EMPTY) {
-            throw new UnsupportedValueException(\gettype($this->cityName), self::class);
+            // @deprecated tag:v6.8.0 - remove this if block
+            if (!Feature::isActive('v6.8.0.0')) {
+                // @phpstan-ignore-next-line
+                throw new UnsupportedValueException(\gettype($this->cityName), self::class);
+            }
+            throw CustomerException::unsupportedValue(\gettype($this->cityName), self::class);
         }
 
         return RuleComparison::string($address->getCity(), $this->cityName ?? '', $this->operator);

@@ -5,6 +5,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Rule;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\NotRule;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
@@ -20,7 +22,11 @@ class NotRuleTest extends TestCase
 {
     public function testUnsupportedValue(): void
     {
-        $this->expectException(UnsupportedValueException::class);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(UnsupportedValueException::class);
+        } else {
+            $this->expectException(FeatureException::class);
+        }
         $rule = new NotRule();
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $rule->match(new CheckoutRuleScope($salesChannelContext));

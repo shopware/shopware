@@ -3,6 +3,8 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
@@ -40,7 +42,12 @@ class CustomerNumberRule extends Rule
         }
 
         if (!\is_array($this->numbers)) {
-            throw new UnsupportedValueException(\gettype($this->numbers), self::class);
+            // @deprecated tag:v6.8.0 - remove this if block
+            if (!Feature::isActive('v6.8.0.0')) {
+                // @phpstan-ignore-next-line
+                throw new UnsupportedValueException(\gettype($this->numbers), self::class);
+            }
+            throw CustomerException::unsupportedValue(\gettype($this->numbers), self::class);
         }
 
         return RuleComparison::stringArray($customer->getCustomerNumber(), array_map('strtolower', $this->numbers), $this->operator);

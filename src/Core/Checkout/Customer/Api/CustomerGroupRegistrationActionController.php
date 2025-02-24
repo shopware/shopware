@@ -3,6 +3,8 @@
 namespace Shopware\Core\Checkout\Customer\Api;
 
 use Doctrine\DBAL\Exception;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted;
@@ -22,6 +24,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class CustomerGroupRegistrationActionController
 {
     /**
+     * @param EntityRepository<CustomerCollection> $customerRepository
+     * @param EntityRepository<CustomerGroupCollection> $customerGroupRepository
+     *
      * @internal
      */
     public function __construct(

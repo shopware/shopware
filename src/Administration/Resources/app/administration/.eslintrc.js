@@ -211,6 +211,7 @@ module.exports = {
                         'sw-alert',
                         'sw-button',
                         'sw-text-field',
+                        'sw-email-field',
                         'sw-card',
                         'sw-switch-field',
                         'sw-textarea-field',

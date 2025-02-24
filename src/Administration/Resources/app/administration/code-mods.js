@@ -261,6 +261,7 @@ async function lintFiles(filePaths, fix, shopwareVersion) {
                                     activatedComponents: [
                                         'sw-alert',
                                         'sw-text-field',
+                                        'sw-email-field',
                                         'sw-switch-field',
                                         'sw-textarea-field',
                                         'sw-icon',

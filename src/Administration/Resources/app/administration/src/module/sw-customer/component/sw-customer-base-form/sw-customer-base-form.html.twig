@@ -69,8 +69,8 @@
         {% endblock %}
 
         {% block sw_customer_base_form_email_field %}
-        <sw-email-field
-            v-model:value="customer.email"
+        <mt-email-field
+            v-model="customer.email"
             name="sw-field--customer-email"
             required
             :label="$tc('sw-customer.baseForm.labelEmail')"

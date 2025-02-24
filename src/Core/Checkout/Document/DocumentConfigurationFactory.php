@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Document;
 
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Country\CountryEntity;
 
 #[Package('after-sales')]
 class DocumentConfigurationFactory
@@ -20,9 +21,8 @@ class DocumentConfigurationFactory
         foreach ($configs as $config) {
             $documentConfiguration = static::mergeConfiguration($documentConfiguration, $config);
         }
-        $documentConfiguration = static::mergeConfiguration($documentConfiguration, $specificConfig);
 
-        return $documentConfiguration;
+        return static::mergeConfiguration($documentConfiguration, $specificConfig);
     }
 
     public static function mergeConfiguration(DocumentConfiguration $baseConfig, DocumentBaseConfigEntity|DocumentConfiguration|array $additionalConfig): DocumentConfiguration
@@ -43,6 +43,8 @@ class DocumentConfigurationFactory
                 } elseif (str_starts_with($key, 'custom.')) {
                     $customKey = mb_substr($key, 7);
                     $baseConfig->__set('custom', array_merge((array) $baseConfig->__get('custom'), [$customKey => $value]));
+                } elseif ($key === 'companyCountry') {
+                    $baseConfig->setCompanyCountry((new CountryEntity())->assign($value));
                 } else {
                     $baseConfig->__set($key, $value);
                 }

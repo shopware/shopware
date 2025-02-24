@@ -10,11 +10,8 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @internal
- */
 #[Package('fundamentals@after-sales')]
-class CartWeightRule extends Rule
+final class CartWeightRule extends Rule
 {
     final public const RULE_NAME = 'cartWeight';
 

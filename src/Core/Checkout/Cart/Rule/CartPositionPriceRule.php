@@ -10,11 +10,8 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @internal
- */
 #[Package('fundamentals@after-sales')]
-class CartPositionPriceRule extends Rule
+final class CartPositionPriceRule extends Rule
 {
     final public const RULE_NAME = 'cartPositionPrice';
 

@@ -6,11 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @internal
- */
 #[Package('fundamentals@after-sales')]
-class AlwaysValidRule extends Rule
+final class AlwaysValidRule extends Rule
 {
     final public const RULE_NAME = 'alwaysValid';
 

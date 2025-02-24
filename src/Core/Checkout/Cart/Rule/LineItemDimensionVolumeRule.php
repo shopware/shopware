@@ -12,11 +12,8 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @internal
- */
 #[Package('fundamentals@after-sales')]
-class LineItemDimensionVolumeRule extends Rule
+final class LineItemDimensionVolumeRule extends Rule
 {
     final public const RULE_NAME = 'cartLineItemDimensionVolume';
 

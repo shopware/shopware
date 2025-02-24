@@ -11,11 +11,8 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @internal
- */
 #[Package('fundamentals@after-sales')]
-class LineItemReleaseDateRule extends Rule
+final class LineItemReleaseDateRule extends Rule
 {
     final public const RULE_NAME = 'cartLineItemReleaseDate';
 

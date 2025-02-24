@@ -11,11 +11,8 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @internal
- */
 #[Package('fundamentals@after-sales')]
-class LastNameRule extends Rule
+final class LastNameRule extends Rule
 {
     final public const RULE_NAME = 'customerLastName';
 

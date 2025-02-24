@@ -9,11 +9,8 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @internal
- */
 #[Package('fundamentals@after-sales')]
-class LineItemsInCartCountRule extends Rule
+final class LineItemsInCartCountRule extends Rule
 {
     final public const RULE_NAME = 'cartLineItemsInCartCount';
 

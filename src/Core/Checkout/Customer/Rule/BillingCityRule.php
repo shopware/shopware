@@ -13,11 +13,8 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-/**
- * @internal
- */
 #[Package('fundamentals@after-sales')]
-class BillingCityRule extends Rule
+final class BillingCityRule extends Rule
 {
     final public const RULE_NAME = 'customerBillingCity';
 

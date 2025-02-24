@@ -11,11 +11,8 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @internal
- */
 #[Package('fundamentals@after-sales')]
-class LineItemUnitPriceRule extends Rule
+final class LineItemUnitPriceRule extends Rule
 {
     final public const RULE_NAME = 'cartLineItemUnitPrice';
 

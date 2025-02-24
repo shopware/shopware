@@ -13,11 +13,8 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @internal
- */
 #[Package('fundamentals@after-sales')]
-class LineItemInProductStreamRule extends Rule
+final class LineItemInProductStreamRule extends Rule
 {
     final public const RULE_NAME = 'cartLineItemInProductStream';
 

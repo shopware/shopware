@@ -22,11 +22,8 @@ use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use Twig\Extension\DebugExtension;
 
-/**
- * @internal
- */
 #[Package('fundamentals@after-sales')]
-class ScriptRule extends Rule
+final class ScriptRule extends Rule
 {
     final public const RULE_NAME = 'scriptRule';
 

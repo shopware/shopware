@@ -12,11 +12,8 @@ use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @internal
- */
 #[Package('fundamentals@after-sales')]
-class LineItemGoodsTotalRule extends FilterRule
+final class LineItemGoodsTotalRule extends FilterRule
 {
     final public const RULE_NAME = 'cartLineItemGoodsTotal';
 

@@ -11,11 +11,8 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @internal
- */
 #[Package('fundamentals@after-sales')]
-class LineItemPropertyValueRule extends Rule
+final class LineItemPropertyValueRule extends Rule
 {
     public const RULE_NAME = 'cartLineItemPropertyValue';
 

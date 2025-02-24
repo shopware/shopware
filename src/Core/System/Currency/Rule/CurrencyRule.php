@@ -10,11 +10,8 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 
-/**
- * @internal
- */
 #[Package('fundamentals@after-sales')]
-class CurrencyRule extends Rule
+final class CurrencyRule extends Rule
 {
     final public const RULE_NAME = 'currency';
 

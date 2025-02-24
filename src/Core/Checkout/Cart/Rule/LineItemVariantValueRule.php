@@ -11,11 +11,8 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @internal
- */
 #[Package('fundamentals@after-sales')]
-class LineItemVariantValueRule extends Rule
+final class LineItemVariantValueRule extends Rule
 {
     public const RULE_NAME = 'cartLineItemVariantValue';
 

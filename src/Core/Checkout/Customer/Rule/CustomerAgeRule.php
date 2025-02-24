@@ -11,11 +11,8 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @internal
- */
 #[Package('fundamentals@after-sales')]
-class CustomerAgeRule extends Rule
+final class CustomerAgeRule extends Rule
 {
     final public const RULE_NAME = 'customerAge';
 

@@ -11,11 +11,8 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @internal
- */
 #[Package('fundamentals@after-sales')]
-class ShippingStreetRule extends Rule
+final class ShippingStreetRule extends Rule
 {
     final public const RULE_NAME = 'customerShippingStreet';
 

@@ -11,11 +11,8 @@ use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @internal
- */
 #[Package('fundamentals@after-sales')]
-class LineItemInCategoryRule extends Rule
+final class LineItemInCategoryRule extends Rule
 {
     final public const RULE_NAME = 'cartLineItemInCategory';
 

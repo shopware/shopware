@@ -10,11 +10,8 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @internal
- */
 #[Package('fundamentals@after-sales')]
-class OrderCountRule extends Rule
+final class OrderCountRule extends Rule
 {
     final public const RULE_NAME = 'customerOrderCount';
 

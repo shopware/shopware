@@ -14,11 +14,8 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @internal
- */
 #[Package('fundamentals@after-sales')]
-class PromotionValueRule extends FilterRule
+final class PromotionValueRule extends FilterRule
 {
     final public const RULE_NAME = 'promotionValue';
 

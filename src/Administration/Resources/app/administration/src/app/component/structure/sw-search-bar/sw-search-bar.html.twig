@@ -15,11 +15,11 @@
                 class="sw-search-bar__button"
                 @click="toggleOffCanvas"
             >
-                <sw-icon
+                <mt-icon
                     v-if="isOffCanvasShown"
                     name="regular-times"
                 />
-                <sw-icon
+                <mt-icon
                     v-else
                     name="regular-bars-s"
                 />
@@ -35,7 +35,7 @@
                 class="sw-search-bar__button"
                 @click="showSearchBar"
             >
-                <sw-icon name="regular-search" />
+                <mt-icon name="regular-search" />
             </button>
             {% endblock %}
         </div>
@@ -58,7 +58,7 @@
                 @keydown.enter="onOpenModuleFiltersDropDown"
             >
                 {{ getLabelSearchType() }}
-                <sw-icon
+                <mt-icon
                     name="regular-chevron-down-xxs"
                 />
             </span>
@@ -92,16 +92,16 @@
                 class="sw-search-bar__field-icon sw-search-bar__field-close"
                 @click="hideSearchBar"
             >
-                <sw-icon
+                <mt-icon
                     name="regular-times-s"
-                    small
+                    size="16px"
                 />
             </button>
 
             <span class="sw-search-bar__field-icon sw-search-bar__field-search-icon">
-                <sw-icon
+                <mt-icon
                     name="regular-search-s"
-                    small
+                    size="16px"
                 />
             </span>
             {% endblock %}
@@ -168,7 +168,7 @@
                                 class="sw-search-bar-item sw-search-bar-item--v2"
                             >
                                 {% block sw_search_bar_results_list_bar_item_icon %}
-                                <sw-icon
+                                <mt-icon
                                     name="regular-double-chevron-right-s"
                                     color="rgb(179, 191, 204)"
                                 />
@@ -230,8 +230,8 @@
                     v-html="$tc('global.sw-search-bar.placeholderSearchShortcutInfo')"
                 ></p>
 
-                <sw-icon
-                    small
+                <mt-icon
+                    size="16px"
                     name="regular-cog"
                     class="sw-search-bar__footer-action-setting"
                     :style="{ 'color': '#7d8c9b' }"
@@ -270,7 +270,7 @@
                 <span
                     class="sw-search-bar__type-item-name"
                 >
-                    <sw-icon
+                    <mt-icon
                         class="sw-search-bar__type-item-icon"
                         :style="{ 'color': getEntityIconColor(type.entityName) }"
                         :name="type.entityName ? getEntityIcon(type.entityName) : 'regular-circle'"
@@ -306,8 +306,8 @@
                     v-html="$tc('global.sw-search-bar.placeholderSearchShortcutInfo')"
                 ></p>
 
-                <sw-icon
-                    small
+                <mt-icon
+                    size="16px"
                     name="regular-cog"
                     class="sw-search-bar__footer-action-setting"
                     :style="{ 'color': '#7d8c9b' }"
@@ -337,7 +337,7 @@
                 <span
                     class="sw-search-bar__type-item-name"
                 >
-                    <sw-icon
+                    <mt-icon
                         class="sw-search-bar__type-item-icon"
                         :style="{ 'color': getEntityIconColor(type.entityName) }"
                         :name="type.entityName ? getEntityIcon(type.entityName) : 'regular-circle'"
@@ -422,10 +422,10 @@
                     v-html="$tc('global.sw-search-bar.placeholderSearchShortcutInfo')"
                 ></p>
 
-                <sw-icon
+                <mt-icon
                     :style="{ 'color': '#7d8c9b' }"
                     name="regular-cog"
-                    small
+                    size="16px"
                     class="sw-search-bar__footer-action-setting"
                     @click="toggleSearchPreferencesModal"
                 />

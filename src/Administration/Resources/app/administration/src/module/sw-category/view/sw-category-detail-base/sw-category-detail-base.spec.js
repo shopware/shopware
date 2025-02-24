@@ -20,27 +20,11 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-category-detail-base', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': {
-                    template: '<div class="sw-card"><slot></slot></div>',
+                'mt-card': {
+                    template: '<div class="mt-card"><slot></slot></div>',
                 },
                 'sw-container': {
                     template: '<div class="sw-container"><slot></slot></div>',
-                },
-                'sw-text-field': {
-                    template:
-                        '<input class="sw-text-field" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
-                    props: [
-                        'value',
-                        'disabled',
-                    ],
-                },
-                'sw-switch-field': {
-                    template:
-                        '<input class="sw-field sw-switch-field" type="checkbox" :value="value" @change="$emit(\'update:value\', $event.target.checked)" />',
-                    props: [
-                        'value',
-                        'disabled',
-                    ],
                 },
                 'sw-single-select': {
                     template: '<input type="select" class="sw-single-select"></input>',
@@ -56,9 +40,6 @@ async function createWrapper() {
                 'sw-category-entry-point-card': true,
                 'sw-category-link-settings': true,
                 'sw-custom-field-set-renderer': true,
-            },
-            mocks: {
-                placeholder: () => {},
             },
         },
         props: {

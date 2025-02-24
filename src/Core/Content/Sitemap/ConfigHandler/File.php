@@ -9,30 +9,28 @@ use Shopware\Core\Framework\Log\Package;
 class File implements ConfigHandlerInterface
 {
     /**
-     * @var array
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @var array<array<string, mixed>>
      */
-    private $excludedUrls;
+    private array $excludedUrls;
 
     /**
-     * @var array
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @var array<array<string, mixed>>
      */
-    private $customUrls;
+    private array $customUrls;
 
     /**
      * @internal
+     *
+     * @param array<string, array<array<string, mixed>>> $sitemapConfig
      */
-    public function __construct($sitemapConfig)
+    public function __construct(array $sitemapConfig)
     {
         $this->customUrls = $sitemapConfig[ConfigHandler::CUSTOM_URLS_KEY];
         $this->excludedUrls = $sitemapConfig[ConfigHandler::EXCLUDED_URLS_KEY];
     }
 
     /**
-     * {@inheritdoc}
+     * @return array<string, array<array<string, mixed>>>
      */
     public function getSitemapConfig(): array
     {
@@ -42,6 +40,11 @@ class File implements ConfigHandlerInterface
         ];
     }
 
+    /**
+     * @param array<array<string, mixed>> $customUrls
+     *
+     * @return array<array<string, mixed>>
+     */
     private function getSitemapCustomUrls(array $customUrls): array
     {
         array_walk($customUrls, static function (array &$customUrl): void {

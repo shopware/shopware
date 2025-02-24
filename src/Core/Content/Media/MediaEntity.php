@@ -145,6 +145,11 @@ class MediaEntity extends Entity
      */
     protected ?array $config;
 
+    /**
+     * @internal
+     */
+    protected ?string $fileHash = null;
+
     public function get(string $property)
     {
         if ($property === 'hasFile') {
@@ -651,5 +656,13 @@ class MediaEntity extends Entity
     public function isSpatialObject(): bool
     {
         return $this->mediaType instanceof SpatialObjectType;
+    }
+
+    /**
+     * @internal
+     */
+    public function getFileHash(): ?string
+    {
+        return $this->fileHash;
     }
 }

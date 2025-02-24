@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
@@ -57,7 +58,7 @@ class CreateAppCommand extends Command
 
         try {
             $this->validateDetails($details, $propertyDefinitions);
-        } catch (\RuntimeException $e) {
+        } catch (AppException $e) {
             $io->error($e->getMessage());
 
             return self::FAILURE;
@@ -70,7 +71,7 @@ class CreateAppCommand extends Command
 
         try {
             $this->createApp($dir, $details, $input->getOption('theme'));
-        } catch (\RuntimeException $e) {
+        } catch (AppException $e) {
             $io->error($e->getMessage());
 
             return self::FAILURE;
@@ -141,7 +142,7 @@ class CreateAppCommand extends Command
     {
         return static function (string $value) use ($regex, $message): string {
             if (preg_match($regex, $value) !== 1) {
-                throw new \RuntimeException($message);
+                throw AppException::createCommandValidationError($message);
             }
 
             return $value;
@@ -248,7 +249,8 @@ class CreateAppCommand extends Command
     {
         return <<<EOL
         <?xml version="1.0" encoding="UTF-8"?>
-        <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd">
+        <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd">
             <meta>
                 <name>{{name}}</name>
                 <label>{{label}}</label>
@@ -297,7 +299,7 @@ class CreateAppCommand extends Command
     private function createApp(string $appDirectory, array $details, bool $createThemeConfig): void
     {
         if (file_exists($appDirectory)) {
-            throw new \RuntimeException(\sprintf('App directory %s already exists', $details['name']));
+            throw AppException::directoryAlreadyExists($details['name']);
         }
 
         $manifestContent = $this->replaceTemplateValues(
@@ -325,10 +327,10 @@ class CreateAppCommand extends Command
         }
     }
 
-    private function createDirectory(string $pathName): void
+    private function createDirectory(string $path): void
     {
-        if (!mkdir($pathName, 0755, true) && !is_dir($pathName)) {
-            throw new \RuntimeException(\sprintf('Unable to create directory "%s". Please check permissions', $pathName));
+        if (!mkdir($path, 0755, true) && !is_dir($path)) {
+            throw AppException::directoryCreationFailed($path);
         }
     }
 

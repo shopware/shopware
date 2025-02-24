@@ -114,10 +114,9 @@ async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
                     `,
                     },
                     'sw-cms-toolbar': await wrapTestComponent('sw-cms-toolbar'),
-                    'sw-alert': true,
+
                     'sw-language-switch': true,
                     'sw-router-link': true,
-                    'sw-icon': true,
                     'router-link': true,
                     'sw-button-process': true,
                     'sw-cms-stage-add-section': true,
@@ -144,7 +143,6 @@ async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
                     'sw-loader': true,
                     'sw-cms-section': await wrapTestComponent('sw-cms-section'),
                     'sw-cms-layout-assignment-modal': true,
-                    'sw-button': true,
                     'sw-app-actions': true,
                     'sw-modal': {
                         template: `
@@ -269,7 +267,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
             isLoading: false,
         });
 
-        const formIcon = wrapper.find('sw-icon-stub[name="regular-bars-square"]');
+        const formIcon = wrapper.find('.mt-icon.icon--regular-bars-square');
         expect(formIcon.classes()).toContain('is--disabled');
 
         const saveAction = wrapper.find('.sw-cms-detail__save-action');
@@ -299,7 +297,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
             isLoading: false,
         });
 
-        const formIcon = wrapper.find('sw-icon-stub[name="regular-bars-square"]');
+        const formIcon = wrapper.find('.mt-icon.icon--regular-bars-square');
         expect(formIcon.classes()).not.toContain('is--disabled');
 
         const saveAction = wrapper.find('.sw-cms-detail__save-action');

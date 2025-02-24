@@ -24,11 +24,6 @@ async function createWrapper(customOptions = {}) {
                 droppable: {},
             },
             stubs: {
-                'sw-icon': {
-                    template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
-                },
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-context-button': await wrapTestComponent('sw-context-button'),
                 'sw-button-group': await wrapTestComponent('sw-button-group'),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
@@ -43,10 +38,8 @@ async function createWrapper(customOptions = {}) {
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                 'sw-popover': true,
                 'sw-help-text': true,
-                'mt-button': true,
                 'router-link': true,
                 'sw-loader': true,
-                'mt-text-field': true,
                 'sw-field-copyable': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
@@ -246,11 +239,6 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
                     },
                     stubs: {
                         'sw-media-upload-v2': await wrapTestComponent('sw-media-upload-v2'),
-                        'sw-icon': {
-                            template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
-                        },
-                        'sw-button': await wrapTestComponent('sw-button'),
-                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                         'sw-context-button': await wrapTestComponent('sw-context-button'),
                         'sw-button-group': await wrapTestComponent('sw-button-group'),
                         'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
@@ -265,7 +253,6 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
                         'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                         'sw-popover': true,
                         'sw-help-text': true,
-                        'mt-button': true,
                         'router-link': true,
                         'sw-loader': true,
                     },
@@ -319,11 +306,6 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
                     },
                     stubs: {
                         'sw-media-upload-v2': await wrapTestComponent('sw-media-upload-v2'),
-                        'sw-icon': {
-                            template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
-                        },
-                        'sw-button': await wrapTestComponent('sw-button'),
-                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                         'sw-context-button': await wrapTestComponent('sw-context-button'),
                         'sw-button-group': await wrapTestComponent('sw-button-group'),
                         'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
@@ -338,7 +320,6 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
                         'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                         'sw-popover': true,
                         'sw-help-text': true,
-                        'mt-button': true,
                         'router-link': true,
                         'sw-loader': true,
                     },

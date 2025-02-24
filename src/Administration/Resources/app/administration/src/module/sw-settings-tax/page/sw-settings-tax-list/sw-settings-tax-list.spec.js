@@ -97,9 +97,9 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                     </div>
                 `,
                     },
-                    'sw-card': {
+                    'mt-card': {
                         template: `
-                    <div class="sw-card">
+                    <div class="mt-card">
                         <slot name="grid"></slot>
                     </div>
                 `,
@@ -119,11 +119,9 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                     'sw-language-switch': true,
                     'sw-context-menu-item': true,
                     'sw-search-bar': true,
-                    'sw-icon': true,
-                    'sw-button': true,
                     'sw-modal': true,
                     'router-link': true,
-                    'sw-switch-field': true,
+
                     'sw-button-process': {
                         template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
                     },
@@ -165,7 +163,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
 
         const addButton = wrapper.find('.sw-settings-tax-list__button-create');
 
-        expect(addButton.attributes().disabled).toBeTruthy();
+        expect(addButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to edit a tax', async () => {
@@ -297,18 +295,22 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
         ]);
         await wrapper.vm.$nextTick();
 
-        const taxProviderActive = wrapper.find('sw-switch-field-stub[label="sw-settings-tax.list.taxProvider.labelActive"]');
+        const taxProviderActive = wrapper.find(
+            '.mt-switch input[aria-label="sw-settings-tax.list.taxProvider.labelActive"]',
+        );
 
-        expect(taxProviderActive.attributes().disabled).toBeFalsy();
+        expect(taxProviderActive.attributes().disabled).toBeUndefined();
     });
 
     it('should not be able to change tax provider active status', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        const taxProviderActive = wrapper.find('sw-switch-field-stub[label="sw-settings-tax.list.taxProvider.labelActive"]');
+        const taxProviderActive = wrapper.find(
+            '.mt-switch input[aria-label="sw-settings-tax.list.taxProvider.labelActive"]',
+        );
 
-        expect(taxProviderActive.attributes().disabled).toBeTruthy();
+        expect(taxProviderActive.attributes().disabled).toBeDefined();
     });
 
     it('should render an empty state tax providers', async () => {

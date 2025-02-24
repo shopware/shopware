@@ -13,7 +13,7 @@ use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
-use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
+use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeLifecycleHandler;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
@@ -29,7 +29,7 @@ class ThemeLifecycleHandlerTest extends TestCase
 {
     private MockObject&ThemeService $themeServiceMock;
 
-    private StorefrontPluginRegistryInterface&MockObject $configurationRegistryMock;
+    private StorefrontPluginRegistry&MockObject $configurationRegistryMock;
 
     private ThemeLifecycleService&MockObject $themeLifecycleServiceMock;
 
@@ -45,7 +45,7 @@ class ThemeLifecycleHandlerTest extends TestCase
     protected function setUp(): void
     {
         $this->themeServiceMock = $this->createMock(ThemeService::class);
-        $this->configurationRegistryMock = $this->createMock(StorefrontPluginRegistryInterface::class);
+        $this->configurationRegistryMock = $this->createMock(StorefrontPluginRegistry::class);
         $this->themeLifecycleServiceMock = $this->createMock(ThemeLifecycleService::class);
         $this->themeRepositoryMock = $this->createMock(EntityRepository::class);
         $this->connectionMock = $this->createMock(Connection::class);

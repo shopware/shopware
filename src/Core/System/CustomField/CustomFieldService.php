@@ -14,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -75,11 +74,6 @@ class CustomFieldService implements EventSubscriberInterface, ResetInterface
 
     public function validateBeforeWrite(EntityWriteEvent $event): void
     {
-        /** @deprecated tag:v6.7.0 - remove if condition */
-        if (!Feature::isActive('v6.7.0.0')) {
-            return;
-        }
-
         $commands = $event->getCommands();
 
         if (empty($commands)) {

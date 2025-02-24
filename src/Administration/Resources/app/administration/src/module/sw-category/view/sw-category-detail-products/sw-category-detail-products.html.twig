@@ -33,12 +33,12 @@
             {% endblock %}
 
             {% block sw_category_detail_product_assignment_manual_alert %}
-            <sw-alert
+            <mt-banner
                 v-if="category.productAssignmentType === 'product_stream' && manualAssignedProductsCount > 0"
                 variant="info"
             >
                 {{ $tc('sw-category.base.products.alertManualAssignedProductsOnAssignmentTypeStream') }}
-            </sw-alert>
+            </mt-banner>
             {% endblock %}
         </template>
         {% endblock %}
@@ -70,9 +70,9 @@
                     :to="{ name: 'sw.product.stream.detail', params: { id: category.productStreamId } }"
                 >
                     {{ $tc('sw-category.base.products.dynamicProductGroupDetailLinkText') }}
-                    <sw-icon
+                    <mt-icon
                         name="regular-long-arrow-right"
-                        small
+                        size="16px"
                     />
                 </router-link>
             </div>

@@ -4,24 +4,18 @@ namespace Shopware\Storefront\Framework\Twig\TokenParser;
 
 use Shopware\Core\Framework\Adapter\Twig\Node\SwInclude;
 use Shopware\Core\Framework\Log\Package;
+use Twig\Node\Expression\AbstractExpression;
 use Twig\Node\Expression\ArrayExpression;
 use Twig\Node\Expression\ConstantExpression;
-use Twig\Parser;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
 #[Package('framework')]
 final class IconTokenParser extends AbstractTokenParser
 {
-    /**
-     * @var Parser
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $parser;
-
     public function parse(Token $token): SwInclude
     {
+        /** @var AbstractExpression $expr */
         $expr = $this->parser->getExpressionParser()->parseExpression();
 
         $icon = $expr->getAttribute('value');

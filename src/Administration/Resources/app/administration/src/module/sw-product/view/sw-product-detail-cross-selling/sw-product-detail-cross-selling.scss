@@ -8,7 +8,7 @@
         border-color: $color-module-purple-900;
         color: $color-module-purple-900;
 
-        .sw-icon {
+        .mt-icon {
             color: $color-module-purple-900;
         }
 
@@ -21,12 +21,12 @@
         }
 
         &:disabled,
-        &.sw-button--disabled {
+        &.mt-button--disabled {
             background-color: transparent;
             border-color: $color-module-purple-200;
             color: $color-module-purple-200;
 
-            .sw-icon {
+            .mt-icon {
                 color: $color-module-purple-200;
             }
         }

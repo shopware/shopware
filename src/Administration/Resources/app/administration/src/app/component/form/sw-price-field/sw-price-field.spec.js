@@ -76,7 +76,6 @@ const setup = async (propOverride) => {
                 'sw-field-error': true,
                 'sw-inheritance-switch': true,
                 'sw-field-copyable': true,
-                'sw-icon': true,
                 'sw-container': true,
                 'sw-maintain-currencies-modal': true,
             },

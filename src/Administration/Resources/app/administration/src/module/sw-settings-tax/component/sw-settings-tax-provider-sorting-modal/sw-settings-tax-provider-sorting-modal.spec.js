@@ -32,10 +32,8 @@ async function createWrapper(privileges = []) {
                 },
                 stubs: {
                     'sw-modal': true,
-                    'sw-button': true,
                     'sw-button-process': true,
                     'sw-sortable-list': true,
-                    'sw-icon': true,
                 },
             },
             props: {

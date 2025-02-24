@@ -45,23 +45,17 @@ async function createWrapper() {
                         template: '<div class="sw-self-maintained-extension-card">{{ extension.label }}</div>',
                         props: ['extension'],
                     },
-                    'sw-button': await wrapTestComponent('sw-button', {
-                        sync: true,
-                    }),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-meteor-card': true,
                     'sw-pagination': await wrapTestComponent('sw-pagination', {
                         sync: true,
                     }),
-                    'sw-icon': true,
                     'sw-field': true,
                     // eslint-disable-next-line max-len
                     'sw-extension-my-extensions-listing-controls': await wrapTestComponent(
                         'sw-extension-my-extensions-listing-controls',
                         { sync: true },
                     ),
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                     'sw-base-field': await wrapTestComponent('sw-base-field', {
                         sync: true,
                     }),
@@ -69,12 +63,8 @@ async function createWrapper() {
                     'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
                     'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
                     'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
-                    'sw-alert': await wrapTestComponent('sw-alert', {
-                        sync: true,
-                    }),
                     'sw-skeleton': true,
                     'sw-external-link': true,
-                    'sw-alert-deprecated': true,
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,
                     'sw-help-text': true,
@@ -342,7 +332,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         const allExtensions = wrapper.findAll('.sw-self-maintained-extension-card');
         expect(allExtensions).toHaveLength(25);
 
-        const switchField = wrapper.find('.sw-field--switch input[type="checkbox"]');
+        const switchField = wrapper.find('.mt-switch input[type="checkbox"]');
         await switchField.trigger('click');
 
         const filteredExtensions = wrapper.findAll('.sw-self-maintained-extension-card');

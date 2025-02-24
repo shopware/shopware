@@ -94,15 +94,14 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-sales-channel-product-assignment-categories', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': {
+                'mt-card': {
                     template: '<div><slot></slot></div>',
                 },
                 'sw-card-section': {
                     template: '<div><slot></slot></div>',
                 },
                 'sw-container': true,
-                'sw-alert': true,
-                'sw-icon': true,
+
                 'sw-tree': {
                     props: ['items'],
                     template: `

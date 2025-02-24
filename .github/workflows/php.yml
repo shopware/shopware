@@ -111,12 +111,17 @@ jobs:
           set -e
           git remote add bc-checker-upstream https://github.com/shopware/platform.git
           git fetch bc-checker-upstream
-      - name: BC Checker lastest tag
-        if: github.event_name != 'pull_request'
-        run: composer run bc-check
       - name: BC Checker PR
+#       temporarily run against trunk, until we have a RC release tag
         if: github.event_name == 'pull_request' && !contains(github.base_ref, '/feature/')
         run: composer run bc-check -- --from="origin/${{ github.base_ref }}"
+#       ToDo: Activate BC checker for latest tag after RC release again
+#       - name: BC Checker lastest tag
+#         if: github.event_name != 'pull_request'
+#         run: composer run bc-check
+#       - name: BC Checker PR
+#         if: github.event_name == 'pull_request' && !contains(github.base_ref, '/feature/')
+#         run: composer run bc-check -- --from="origin/${{ github.base_ref }}"
 
   openapi-lint:
     runs-on: ubuntu-24.04
@@ -266,8 +271,7 @@ jobs:
     - phpunit
     - license-check
     - composer-audit
-    # add after first RC
-    # bc-checker
+    - bc-checker
 
     runs-on: Ubuntu-latest
     steps:

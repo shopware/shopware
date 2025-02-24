@@ -10,19 +10,11 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('discovery')]
 class SitemapPageLoadedEvent extends PageLoadedEvent
 {
-    /**
-     * @var SitemapPage
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $page;
-
     public function __construct(
-        SitemapPage $page,
+        protected SitemapPage $page,
         SalesChannelContext $salesChannelContext,
-        Request $request
+        Request $request,
     ) {
-        $this->page = $page;
         parent::__construct($salesChannelContext, $request);
     }
 

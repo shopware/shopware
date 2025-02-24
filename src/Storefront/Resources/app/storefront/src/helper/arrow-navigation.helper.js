@@ -1,4 +1,3 @@
-import DomAccess from 'src/helper/dom-access.helper';
 
 const ARROW_NAVIGATION_ACTIVE_CLASS = 'is-active';
 
@@ -45,7 +44,7 @@ export default class ArrowNavigationHelper {
      * @private
      */
     _onKeyDown(event) {
-        const parent = DomAccess.querySelector(document, this._parentSelector, false);
+        const parent = document.querySelector(this._parentSelector);
         if (!parent) return;
 
         this._items = parent.querySelectorAll(this._itemSelector);
@@ -90,7 +89,7 @@ export default class ArrowNavigationHelper {
         }
 
         try {
-            const a = DomAccess.querySelector(this._getCurrentSelection(), 'a');
+            const a = this._getCurrentSelection().querySelector('a');
             event.preventDefault();
             a.click();
         } catch (e) {

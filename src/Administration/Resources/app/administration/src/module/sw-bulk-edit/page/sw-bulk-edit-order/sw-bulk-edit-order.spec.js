@@ -36,8 +36,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                 stubs: {
                     'sw-page': await wrapTestComponent('sw-page'),
                     'sw-loader': true,
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
                     'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
                     'sw-bulk-edit-custom-fields': await wrapTestComponent('sw-bulk-edit-custom-fields'),
@@ -51,14 +49,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-empty-state': await wrapTestComponent('sw-empty-state'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-bulk-edit-order-documents': await wrapTestComponent('sw-bulk-edit-order-documents'),
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
                     'sw-single-select': await wrapTestComponent('sw-single-select'),
                     'sw-number-field': await wrapTestComponent('sw-number-field'),
                     'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
@@ -80,9 +75,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-language-switch': true,
                     'sw-notification-center': true,
                     'sw-help-center': true,
-                    'sw-icon': true,
                     'sw-help-text': true,
-                    'sw-alert': true,
                     'sw-label': true,
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
@@ -99,11 +92,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-error-summary': true,
                     'sw-app-topbar-button': true,
                     'sw-help-center-v2': true,
-                    'mt-button': true,
                     'mt-checkbox': true,
                     'sw-context-button': true,
                     'sw-inheritance-switch': true,
-                    'mt-card': true,
                     'sw-ai-copilot-badge': true,
                     'sw-select-result': true,
                     'sw-select-result-list': true,
@@ -626,7 +617,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         const tagsCard = wrapper.find('.sw-bulk-edit-order-base__tags');
         expect(tagsCard).toBeTruthy();
 
-        const customFieldsCard = wrapper.find('.sw-card sw-bulk-edit-order-base__custom_fields');
+        const customFieldsCard = wrapper.find('.mt-card sw-bulk-edit-order-base__custom_fields');
         expect(customFieldsCard).toBeTruthy();
 
         wrapper.vm.bulkEditData.customFields.value = {
@@ -731,7 +722,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await flushPromises();
 
-        expect(wrapper.find('.sw-bulk-edit-order__save-action').classes()).toContain('sw-button--disabled');
+        expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled') !== undefined).toBe(true);
 
         await wrapper.setData({
             isLoading: false,
@@ -750,7 +741,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                 },
             },
         });
-        expect(wrapper.find('.sw-bulk-edit-order__save-action').classes()).not.toContain('sw-button--disabled');
+        expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled')).toBeUndefined();
     });
 
     it('should get latest order status correctly', async () => {

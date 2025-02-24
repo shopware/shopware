@@ -30,8 +30,9 @@
         {% endblock %}
 
         {% block sw_custom_field_detail_modal_technical_name %}
-        <sw-text-field
-            v-model:value="currentCustomField.name"
+
+        <mt-text-field
+            v-model="currentCustomField.name"
             class="sw-custom-field-detail__technical-name"
             :label="$tc('sw-settings-custom-field.customField.detail.labelTechnicalName')"
             :help-text="$tc('sw-settings-custom-field.general.tooltipTechnicalName')"
@@ -50,13 +51,11 @@
         />
         {% endblock %}
 
-        {# @deprecated tag:v6.7.0 - Block will be removed without replacement #}
-        {% block sw_custom_field_detail_modal_required %}{% endblock %}
-
         {% block sw_custom_field_detail_modal_allow_cart_expose %}
-        <sw-switch-field
+
+        <mt-switch
             v-if="isProductCustomField"
-            v-model:value="currentCustomField.allowCartExpose"
+            v-model="currentCustomField.allowCartExpose"
             v-tooltip="getCartExposeTooltipConfig()"
             bordered
             :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipAllowCartExpose')"
@@ -68,8 +67,9 @@
         {% endblock %}
 
         {% block sw_custom_field_detail_modal_allow_customer_write %}
-        <sw-switch-field
-            v-model:value="currentCustomField.allowCustomerWrite"
+
+        <mt-switch
+            v-model="currentCustomField.allowCustomerWrite"
             bordered
             :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipAllowCustomerWrite')"
             class="sw-custom-field-detail__allow-customer-write"
@@ -79,8 +79,9 @@
         {% endblock %}
 
         {% block sw_custom_field_detail_modal_store_api_aware %}
-        <sw-switch-field
-            v-model:value="currentCustomField.storeApiAware"
+
+        <mt-switch
+            v-model="currentCustomField.storeApiAware"
             bordered
             :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipStoreApiAware')"
             class="sw-custom-field-detail__store-api-aware"
@@ -90,9 +91,9 @@
         {% endblock %}
 
         {% block sw_custom_field_detail_modal_snippet_info  %}
-        <sw-alert class="sw-custom-field-detail__info">
+        <mt-banner class="sw-custom-field-detail__info">
             {{ $tc('sw-settings-custom-field.customField.detail.infoText', { name: currentCustomField.name }, 0) }}
-        </sw-alert>
+        </mt-banner>
         {% endblock %}
     </sw-container>
 
@@ -109,16 +110,16 @@
     {% block sw_custom_field_detail_modal_footer %}
     <template #modal-footer>
         {% block sw_custom_field_detail_modal_footer_cancel %}
-        <sw-button
+        <mt-button
             size="small"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_custom_field_detail_modal_footer_save %}
-        <sw-button
+        <mt-button
             class="sw-custom-field-detail__footer-save"
             variant="primary"
             size="small"
@@ -126,7 +127,7 @@
             @click="onSave"
         >
             {{ labelSaveButton }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

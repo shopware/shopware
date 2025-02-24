@@ -6,14 +6,14 @@
 {% endblock %}
 
 {% block sw_settings_number_range_detail_content_global_product_warning %}
-<sw-alert
+<mt-banner
     v-if="isShowProductWarning"
     class="sw-number_range-quickinfo__alert-global-type sw-number_range-quickinfo__product-alert"
-    variant="warning"
+    variant="attention"
     :title="$tc('sw-settings-number-range.general.infoGlobalTypeTitle', { typeName: 'Product'}, 0)"
 >
     {{ $tc('sw-settings-number-range.general.infoGlobalType', { typeName: 'Product' }, 0) }}
-</sw-alert>
+</mt-banner>
 {% endblock %}
 
 {% block sw_settings_number_range_detail_assignment_card_global_warning %}

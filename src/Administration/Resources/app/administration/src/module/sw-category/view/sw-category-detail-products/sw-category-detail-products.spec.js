@@ -26,12 +26,9 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-category-detail-products', { sync: true }), {
         global: {
             stubs: {
-                'sw-icon': true,
-                'sw-card': true,
                 'router-link': true,
                 'sw-container': true,
                 'sw-text-field': true,
-                'sw-switch-field': true,
                 'sw-single-select': true,
                 'sw-many-to-many-assignment-card': {
                     template: `
@@ -46,9 +43,6 @@ async function createWrapper() {
                 },
                 'sw-entity-single-select': {
                     template: '<div class="sw-entity-single-select"></div>',
-                },
-                'sw-alert': {
-                    template: '<div class="sw-alert"><slot></slot></div>',
                 },
                 'sw-product-variant-info': true,
                 'sw-empty-state': true,
@@ -115,7 +109,7 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
             manualAssignedProductsCount: 5,
         });
 
-        expect(wrapper.find('.sw-alert').text()).toBe(
+        expect(wrapper.find('[role="banner"]').text()).toBe(
             'sw-category.base.products.alertManualAssignedProductsOnAssignmentTypeStream',
         );
     });

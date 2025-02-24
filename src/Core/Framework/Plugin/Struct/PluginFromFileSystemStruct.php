@@ -9,33 +9,13 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('framework')]
 class PluginFromFileSystemStruct extends Struct
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $baseClass;
+    protected string $baseClass;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $path;
+    protected string $path;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $managedByComposer;
+    protected bool $managedByComposer;
 
-    /**
-     * @var CompletePackageInterface
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $composerPackage;
+    protected CompletePackageInterface $composerPackage;
 
     public function getBaseClass(): string
     {

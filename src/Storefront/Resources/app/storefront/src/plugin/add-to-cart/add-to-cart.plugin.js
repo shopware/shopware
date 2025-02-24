@@ -3,7 +3,6 @@
  */
 
 import Plugin from 'src/plugin-system/plugin.class';
-import DomAccess from 'src/helper/dom-access.helper';
 import FormSerializeUtil from 'src/utility/form/form-serialize.util';
 
 /**
@@ -38,8 +37,8 @@ export default class AddToCartPlugin extends Plugin {
      */
     _prepareFormRedirect() {
         try {
-            const redirectInput = DomAccess.querySelector(this._form, this.options.redirectSelector);
-            const redirectParamInput = DomAccess.querySelector(this._form, this.options.redirectParamSelector);
+            const redirectInput = this._form.querySelector(this.options.redirectSelector);
+            const redirectParamInput = this._form.querySelector(this.options.redirectParamSelector);
 
             redirectInput.value = this.options.redirectTo;
             redirectParamInput.disabled = true;
@@ -76,7 +75,7 @@ export default class AddToCartPlugin extends Plugin {
     _formSubmit(event) {
         event.preventDefault();
 
-        const requestUrl = DomAccess.getAttribute(this._form, 'action');
+        const requestUrl = this._form.getAttribute('action');
         const formData = FormSerializeUtil.serialize(this._form);
 
         this.$emitter.publish('beforeFormSubmit', formData);

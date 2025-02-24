@@ -11,9 +11,6 @@ async function createSingleSelect(customOptions) {
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-icon': {
-                    template: '<div @click="$emit(\'click\', $event)"></div>',
-                },
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                 'sw-popover': await wrapTestComponent('sw-popover'),

@@ -34,15 +34,15 @@
         >
             <template #content="props">
 
-                <sw-switch-field
+                <mt-switch
                     name="sw-field--product-is-closeout"
                     :error="productIsCloseoutError"
                     :map-inheritance="props"
                     :label="$tc('sw-product.settingsForm.labelIsCloseout')"
                     :help-text="$tc('sw-product.settingsForm.isCloseoutHelpText')"
                     :disabled="props.isInherited || !allowEdit"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :checked="props.currentValue"
+                    @change="props.updateCurrentValue"
                 />
 
             </template>
@@ -118,13 +118,13 @@
         >
             <template #content="props">
 
-                <sw-switch-field
+                <mt-switch
                     :map-inheritance="props"
                     :error="productShippingFreeError"
                     :label="$tc('sw-product.settingsForm.labelShippingFree')"
                     :disabled="props.isInherited || !allowEdit"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :checked="props.currentValue"
+                    @change="props.updateCurrentValue"
                 />
 
             </template>

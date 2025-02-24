@@ -107,6 +107,20 @@ abstract class EntityDefinition
         }
     }
 
+    /**
+     * @internal
+     * Intended for use only in plugin lifecycle processes. Avoid using it for other cases as it can have unintended side effects.
+     */
+    final public function removeExtensions(string $namespacePrefix): void
+    {
+        foreach ($this->extensions as $key => $extension) {
+            if (\str_starts_with($extension::class, $namespacePrefix)) {
+                unset($this->extensions[$key]);
+                $this->fields = null;
+            }
+        }
+    }
+
     abstract public function getEntityName(): string;
 
     final public function getFields(): CompiledFieldCollection

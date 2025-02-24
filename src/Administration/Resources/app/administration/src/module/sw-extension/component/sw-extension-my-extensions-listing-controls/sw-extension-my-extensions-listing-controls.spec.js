@@ -8,8 +8,6 @@ async function createWrapper() {
         {
             global: {
                 stubs: {
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                     'sw-select-field': {
                         template: '<div><slot /></div>',
                     },
@@ -29,7 +27,7 @@ describe('src/module/sw-extension/component/sw-extension-my-extensions-listing-c
     it('should emit an event when clicking the switch', async () => {
         const wrapper = await createWrapper();
 
-        const switchField = wrapper.find('.sw-field--switch input[type="checkbox"]');
+        const switchField = wrapper.find('.mt-switch input[type="checkbox"]');
         await switchField.setChecked();
 
         const emittedEvent = wrapper.emitted()['update:active-state'];

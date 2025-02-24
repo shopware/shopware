@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 // For a detailed explanation regarding each configuration property, visit:
@@ -43,7 +43,7 @@ module.exports = {
 
     testRunner: 'jest-jasmine2',
 
-    resolver: '<rootDir>/jest-resolver.js',
+    resolver: '<rootDir>/test/_helper_/jest-resolver.js',
 
     runner: 'groups',
 
@@ -106,6 +106,7 @@ module.exports = {
         }],
     ] : [
         'default',
+        '<rootDir>/test/_helper_/failedSpecFileReporter.js',
     ],
 
     testMatch: [

@@ -11,11 +11,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\FilteredBulkEntityExtension;
 use Shopware\Core\System\DependencyInjection\CompilerPass\SalesChannelEntityCompilerPass;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -40,6 +42,12 @@ class SalesChannelEntityCompilerPassTest extends TestCase
 
         static::assertTrue($definition->getFields()->has('test'));
         static::assertInstanceOf(StringField::class, $definition->getFields()->get('test'));
+
+        $methodCalls = $container->getDefinition('sales_channel_definition.' . ProductDefinition::class)->getMethodCalls();
+        static::assertCount(2, $methodCalls);
+        static::assertEquals('addExtension', $methodCalls[1][0]);
+        static::assertInstanceOf(Reference::class, $methodCalls[1][1][0]);
+        static::assertSame(ProductEntityExtension::class, (string) $methodCalls[1][1][0]);
     }
 
     public function testBulky(): void
@@ -58,6 +66,12 @@ class SalesChannelEntityCompilerPassTest extends TestCase
 
         static::assertTrue($definition->getFields()->has('test'));
         static::assertInstanceOf(StringField::class, $definition->getFields()->get('test'));
+
+        $methodCalls = $container->getDefinition('sales_channel_definition.' . ProductDefinition::class)->getMethodCalls();
+        static::assertCount(2, $methodCalls);
+        static::assertEquals('addExtension', $methodCalls[1][0]);
+        static::assertInstanceOf(Definition::class, $methodCalls[1][1][0]);
+        static::assertSame(FilteredBulkEntityExtension::class, $methodCalls[1][1][0]->getClass());
     }
 
     public function getContainerBuilder(): ContainerBuilder

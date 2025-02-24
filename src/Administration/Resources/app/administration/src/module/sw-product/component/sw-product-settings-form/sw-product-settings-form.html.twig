@@ -36,14 +36,14 @@
         >
             <template #content="props">
 
-                <sw-text-field
+                <mt-text-field
                     :map-inheritance="props"
                     :error="productEanError"
                     :label="$tc('sw-product.settingsForm.labelEan')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderEan')"
                     :disabled="props.isInherited || !allowEdit"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
                 />
 
             </template>
@@ -58,14 +58,14 @@
         >
             <template #content="props">
 
-                <sw-text-field
+                <mt-text-field
                     :map-inheritance="props"
                     :error="productManufacturerNumberError"
                     :label="$tc('sw-product.settingsForm.labelManufacturerNumber')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderManufacturerNumber')"
                     :disabled="props.isInherited || !allowEdit"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
                 />
 
             </template>

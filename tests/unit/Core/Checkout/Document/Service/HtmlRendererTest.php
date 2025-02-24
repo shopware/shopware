@@ -44,7 +44,6 @@ class HtmlRendererTest extends TestCase
         );
 
         $rendered = new RenderedDocument(
-            '',
             '1001',
             InvoiceRenderer::TYPE,
             HtmlRenderer::FILE_EXTENSION,
@@ -84,7 +83,6 @@ class HtmlRendererTest extends TestCase
         ';
 
         $rendered = new RenderedDocument(
-            '',
             '1001',
             InvoiceRenderer::TYPE,
             HtmlRenderer::FILE_EXTENSION,
@@ -119,7 +117,6 @@ class HtmlRendererTest extends TestCase
     public function testRenderWithoutHtmlFormat(): void
     {
         $rendered = new RenderedDocument(
-            '',
             '1001',
             InvoiceRenderer::TYPE,
             HtmlRenderer::FILE_EXTENSION,
@@ -147,7 +144,6 @@ class HtmlRendererTest extends TestCase
         $this->expectException(DocumentException::class);
 
         $rendered = new RenderedDocument(
-            '',
             '1001',
             InvoiceRenderer::TYPE,
         );

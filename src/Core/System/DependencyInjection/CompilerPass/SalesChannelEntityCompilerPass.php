@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\FilteredBulkEntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
@@ -130,9 +129,7 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
         $definitionRegistry->replaceArgument(2, $entityNameMap);
         $definitionRegistry->replaceArgument(3, $repositoryNameMap);
 
-        if (Feature::isActive('DYNAMIC_ENTITY_EXTENSIONS')) {
-            $this->addExtensions($container, $baseDefinitions, $salesChannelDefinitions);
-        }
+        $this->addExtensions($container, $baseDefinitions, $salesChannelDefinitions);
     }
 
     /**
@@ -237,11 +234,17 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
             }
 
             $definition = $container->getDefinition($entityNameMap[$classObject->getEntityName()]);
-
             $definition->addMethodCall('addExtension', [new Reference($id)]);
 
             if (isset($salesChannelNameMap[$classObject->getEntityName()])) {
                 $definition = $container->getDefinition($salesChannelNameMap[$classObject->getEntityName()]);
+                $definition->addMethodCall('addExtension', [new Reference($id)]);
+            }
+
+            $extendedDefinition = self::PREFIX . $entityNameMap[$classObject->getEntityName()];
+
+            if ($container->hasDefinition($extendedDefinition)) {
+                $definition = $container->getDefinition($extendedDefinition);
                 $definition->addMethodCall('addExtension', [new Reference($id)]);
             }
         }
@@ -276,6 +279,13 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
 
                 if (isset($salesChannelNameMap[$entity])) {
                     $definition = $container->getDefinition($salesChannelNameMap[$entity]);
+                    $definition->addMethodCall('addExtension', [$filteredExtension]);
+                }
+
+                $extendedDefinition = self::PREFIX . $entityNameMap[$entity];
+
+                if ($container->hasDefinition($extendedDefinition)) {
+                    $definition = $container->getDefinition($extendedDefinition);
                     $definition->addMethodCall('addExtension', [$filteredExtension]);
                 }
             }

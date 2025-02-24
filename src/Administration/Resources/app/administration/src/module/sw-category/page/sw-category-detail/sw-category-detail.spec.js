@@ -25,7 +25,6 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
                             'allowDelete',
                         ],
                     },
-                    'sw-button': true,
                     'sw-button-process': {
                         template: '<div class="sw-button-process"><slot></slot></div>',
                         props: ['disabled'],
@@ -40,7 +39,6 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
                     },
                     'sw-collapse': await wrapTestComponent('sw-collapse'),
                     'sw-landing-page-tree': true,
-                    'sw-icon': true,
                     'sw-search-bar': true,
                     'sw-language-switch': true,
                     'sw-skeleton': true,

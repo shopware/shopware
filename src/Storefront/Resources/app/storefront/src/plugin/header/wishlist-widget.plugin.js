@@ -1,5 +1,4 @@
 import Plugin from 'src/plugin-system/plugin.class';
-import DomAccess from 'src/helper/dom-access.helper';
 
 export default class WishlistWidgetPlugin extends Plugin {
 
@@ -63,7 +62,7 @@ export default class WishlistWidgetPlugin extends Plugin {
             this._reInitWishlistButton(event.detail.productId);
         });
 
-        const listingEl = DomAccess.querySelector(document, '.cms-element-product-listing-wrapper', false);
+        const listingEl = document.querySelector('.cms-element-product-listing-wrapper');
 
         if (listingEl) {
             const listingPlugin = window.PluginManager.getPluginInstanceFromElement(listingEl, 'Listing');
@@ -80,7 +79,7 @@ export default class WishlistWidgetPlugin extends Plugin {
      * @private
      */
     _reInitWishlistButton(productId) {
-        const buttonElements = DomAccess.querySelectorAll(document, '.product-wishlist-' + productId, false);
+        const buttonElements = document.querySelectorAll('.product-wishlist-' + productId);
 
         if (!buttonElements) {
             return;

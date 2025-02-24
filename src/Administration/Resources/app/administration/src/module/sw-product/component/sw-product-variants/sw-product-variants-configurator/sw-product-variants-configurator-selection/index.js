@@ -27,7 +27,7 @@ export default {
     },
 
     watch: {
-        disabled() {
+        isAddOnly() {
             this.selectOptions(this.$refs.optionGrid);
         },
     },
@@ -59,7 +59,7 @@ export default {
                 });
 
                 // set reactive
-                this.$set(group, 'optionCount', optionCount.length);
+                group.optionCount = optionCount.length;
             });
 
             this.$emit('option-select');

@@ -61,11 +61,10 @@
     {% endblock %}
 
     {% block sw_cms_element_vimeo_video_config_color %}
-    <sw-colorpicker
-        v-model:value="element.config.color.value"
+    <mt-colorpicker
+        v-model="element.config.color.value"
         class="sw-cms-el-config-vimeo-video__color"
         :label="$tc('sw-cms.elements.vimeoVideo.config.label.controlsColor')"
-        color-output="hex"
         :z-index="1001"
         :alpha="false"
     />

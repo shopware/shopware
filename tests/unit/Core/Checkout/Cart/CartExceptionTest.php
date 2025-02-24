@@ -16,6 +16,24 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(CartException::class)]
 class CartExceptionTest extends TestCase
 {
+    public function testInvalidPriceFieldType(): void
+    {
+        $e = CartException::invalidPriceFieldType('badType');
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame(CartException::CART_INVALID_PRICE_FIELD_TYPE, $e->getErrorCode());
+        static::assertSame('The price field does not contain a valid "type" value. Received badType', $e->getMessage());
+    }
+
+    public function testDeliveryDateNotSupportedUnit(): void
+    {
+        $e = CartException::deliveryDateNotSupportedUnit('badUnit');
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame(CartException::CART_DELIVERY_DATE_NOT_SUPPORTED_UNIT, $e->getErrorCode());
+        static::assertSame('Not supported unit badUnit', $e->getMessage());
+    }
+
     public function testShippingMethodNotFound(): void
     {
         $e = CartException::shippingMethodNotFound('shipping-method-id');
@@ -404,6 +422,15 @@ class CartExceptionTest extends TestCase
         static::assertSame(Response::HTTP_CONFLICT, $e->getStatusCode());
         static::assertSame(CartException::CART_HASH_MISMATCH, $e->getErrorCode());
         static::assertSame('Content hash mismatch for cart token: some-token', $e->getMessage());
+    }
+
+    public function testUnsupportedOperator(): void
+    {
+        $e = CartException::unsupportedOperator('$', 'testClass');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(CartException::RULE_OPERATOR_NOT_SUPPORTED, $e->getErrorCode());
+        static::assertSame('Unsupported operator $ in testClass', $e->getMessage());
     }
 
     public function testWrongCartDataType(): void

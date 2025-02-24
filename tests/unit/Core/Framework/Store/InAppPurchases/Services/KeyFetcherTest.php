@@ -7,11 +7,11 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\InAppPurchase\Services\KeyFetcher;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
@@ -103,7 +103,7 @@ class KeyFetcherTest extends TestCase
 
     public function testGetKeyReturns400ResponseWithoutExistingKey(): void
     {
-        static::expectException(AppException::class);
+        static::expectException(StoreException::class);
         static::expectExceptionMessage('Unable to retrieve JWKS key');
 
         $systemConfig = $this->createMock(SystemConfigService::class);

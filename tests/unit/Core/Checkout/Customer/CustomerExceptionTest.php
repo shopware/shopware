@@ -295,4 +295,24 @@ class CustomerExceptionTest extends TestCase
         static::assertSame('Country with id "id-1" not found.', $exception->getMessage());
         static::assertSame(['countryId' => 'id-1'], $exception->getParameters());
     }
+
+    public function testUnsupportedOperator(): void
+    {
+        $exception = CustomerException::unsupportedOperator('$', 'testClass');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(CustomerException::RULE_OPERATOR_NOT_SUPPORTED, $exception->getErrorCode());
+        static::assertSame('Unsupported operator $ in testClass', $exception->getMessage());
+        static::assertSame(['operator' => '$', 'class' => 'testClass'], $exception->getParameters());
+    }
+
+    public function testUnsupportedValue(): void
+    {
+        $exception = CustomerException::unsupportedValue('badType', 'testClass');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(CustomerException::RULE_VALUE_NOT_SUPPORTED, $exception->getErrorCode());
+        static::assertSame('Unsupported value of type badType in testClass', $exception->getMessage());
+        static::assertSame(['type' => 'badType', 'class' => 'testClass'], $exception->getParameters());
+    }
 }

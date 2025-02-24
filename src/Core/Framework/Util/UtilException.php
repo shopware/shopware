@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Util;
 
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Exception\ComparatorException;
 use Shopware\Core\Framework\Util\Exception\UtilXmlParsingException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -17,6 +16,7 @@ class UtilException extends HttpException
     public const XML_ELEMENT_NOT_FOUND = 'UTIL__XML_ELEMENT_NOT_FOUND';
     public const FILESYSTEM_FILE_NOT_FOUND = 'UTIL__FILESYSTEM_FILE_NOT_FOUND';
     public const COULD_NOT_HASH_FILE = 'UTIL__COULD_NOT_HASH_FILE';
+    public const OPERATOR_NOT_SUPPORTED = 'UTIL__OPERATOR_NOT_SUPPORTED';
 
     public static function invalidJson(\JsonException $e): self
     {
@@ -73,8 +73,13 @@ class UtilException extends HttpException
         );
     }
 
-    public static function operatorNotSupported(string $operator): ComparatorException
+    public static function operatorNotSupported(string $operator): self
     {
-        return ComparatorException::operatorNotSupported($operator);
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::OPERATOR_NOT_SUPPORTED,
+            'Operator "{{ operator }}" is not supported.',
+            ['operator' => $operator]
+        );
     }
 }

@@ -6,9 +6,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleException;
 
 /**
  * @internal
@@ -147,7 +147,7 @@ class RuleComparisonTest extends TestCase
 
     public function testNumericComparisonThrowsExceptionIfUnsupportedOperatorIsUsed(): void
     {
-        $this->expectException(UnsupportedOperatorException::class);
+        $this->expectException(RuleException::class);
 
         RuleComparison::numeric(1.0, 1.0, 'unsupported');
     }

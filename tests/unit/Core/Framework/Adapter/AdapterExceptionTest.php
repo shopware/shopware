@@ -77,4 +77,14 @@ class AdapterExceptionTest extends TestCase
         static::assertSame('test', $exception->getMessage());
         static::assertEmpty($exception->getParameters());
     }
+
+    public function testUnsupportedOperator(): void
+    {
+        $exception = AdapterException::unsupportedOperator('$', 'testClass');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(AdapterException::FRAMEWORK_OPERATOR_NOT_SUPPORTED, $exception->getErrorCode());
+        static::assertSame('Unsupported operator $ in testClass', $exception->getMessage());
+        static::assertSame(['operator' => '$', 'class' => 'testClass'], $exception->getParameters());
+    }
 }

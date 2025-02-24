@@ -18,8 +18,6 @@ use Shopware\Core\Checkout\Customer\Exception\InvalidImitateCustomerTokenExcepti
 use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -55,6 +53,8 @@ class CustomerException extends HttpException
     public const CUSTOMER_CHANGE_PAYMENT_ERROR = 'CHECKOUT__CUSTOMER_CHANGE_PAYMENT_METHOD_NOT_FOUND';
     public const CUSTOMER_GUEST_AUTH_INVALID = 'CHECKOUT__CUSTOMER_AUTH_INVALID';
     public const IMITATE_CUSTOMER_INVALID_TOKEN = 'CHECKOUT__IMITATE_CUSTOMER_INVALID_TOKEN';
+    public const RULE_OPERATOR_NOT_SUPPORTED = 'CHECKOUT__RULE_OPERATOR_NOT_SUPPORTED';
+    public const RULE_VALUE_NOT_SUPPORTED = 'CHECKOUT__RULE_VALUE_NOT_SUPPORTED';
 
     public static function customerGroupNotFound(string $id): self
     {
@@ -286,13 +286,23 @@ class CustomerException extends HttpException
         return new InvalidImitateCustomerTokenException($token);
     }
 
-    public static function unsupportedOperator(string $operator, string $class): UnsupportedOperatorException
+    public static function unsupportedOperator(string $operator, string $class): self
     {
-        return new UnsupportedOperatorException($operator, $class);
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::RULE_OPERATOR_NOT_SUPPORTED,
+            'Unsupported operator {{ operator }} in {{ class }}',
+            ['operator' => $operator, 'class' => $class]
+        );
     }
 
-    public static function unsupportedValue(string $value, string $class): UnsupportedValueException
+    public static function unsupportedValue(string $type, string $class): self
     {
-        return new UnsupportedValueException($value, $class);
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::RULE_VALUE_NOT_SUPPORTED,
+            'Unsupported value of type {{ type }} in {{ class }}',
+            ['type' => $type, 'class' => $class]
+        );
     }
 }

@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Adapter;
 
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Symfony\Component\Asset\Exception\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Node\Expression\AbstractExpression;
@@ -23,6 +22,7 @@ class AdapterException extends HttpException
     public const INVALID_ASSET_URL = 'FRAMEWORK__INVALID_ASSET_URL';
     final public const INVALID_ARGUMENT = 'FRAMEWORK__INVALID_ARGUMENT_EXCEPTION';
     final public const STRING_TEMPLATE_RENDERING_FAILED = 'FRAMEWORK__STRING_TEMPLATE_RENDERING_FAILED';
+    public const FRAMEWORK_OPERATOR_NOT_SUPPORTED = 'FRAMEWORK__OPERATOR_NOT_SUPPORTED';
 
     public static function unexpectedTwigExpression(AbstractExpression $expression): self
     {
@@ -36,9 +36,14 @@ class AdapterException extends HttpException
         );
     }
 
-    public static function unsupportedOperator(string $operator, string $class): UnsupportedOperatorException
+    public static function unsupportedOperator(string $operator, string $class): self
     {
-        return new UnsupportedOperatorException($operator, $class);
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::FRAMEWORK_OPERATOR_NOT_SUPPORTED,
+            'Unsupported operator {{ operator }} in {{ class }}',
+            ['operator' => $operator, 'class' => $class]
+        );
     }
 
     public static function missingExtendsTemplate(string $template): self

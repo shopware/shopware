@@ -6,8 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Rule\Rule;
-use Shopware\Core\Framework\Util\Exception\ComparatorException;
 use Shopware\Core\Framework\Util\FloatComparator;
+use Shopware\Core\Framework\Util\UtilException;
 
 /**
  * @internal
@@ -23,8 +23,8 @@ class FloatComparatorTest extends TestCase
 
     public function testCompareThrowException(): void
     {
-        static::expectException(ComparatorException::class);
-        $this->expectExceptionMessage(ComparatorException::operatorNotSupported('empty')->getMessage());
+        static::expectException(UtilException::class);
+        $this->expectExceptionMessage(UtilException::operatorNotSupported('empty')->getMessage());
 
         FloatComparator::compare(1, 2, 'empty');
     }

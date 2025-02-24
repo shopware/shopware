@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Store;
 
 use GuzzleHttp\Exception\ClientException;
-use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
@@ -25,6 +24,7 @@ class StoreException extends HttpException
     public const MISSING_INTEGRATION_IN_CONTEXT_SOURCE = 'FRAMEWORK__STORE_MISSING_INTEGRATION_IN_CONTEXT_SOURCE';
     public const MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__STORE_MISSING_REQUEST_PARAMETER';
     public const INVALID_TYPE = 'FRAMEWORK__STORE_INVALID_TYPE';
+    public const JWKS_KEY_NOT_FOUND = 'FRAMEWORK__APP_JWKS_KEY_NOT_FOUND';
 
     public static function cannotDeleteManaged(string $pluginName): self
     {
@@ -119,9 +119,14 @@ class StoreException extends HttpException
         );
     }
 
-    public static function jwksNotFound(): AppException
+    public static function jwksNotFound(?\Throwable $e = null): self
     {
-        return AppException::jwksNotFound();
+        return new self(
+            statusCode: Response::HTTP_INTERNAL_SERVER_ERROR,
+            errorCode: self::JWKS_KEY_NOT_FOUND,
+            message: 'Unable to retrieve JWKS key',
+            previous: $e
+        );
     }
 
     public static function missingIntegrationInContextSource(string $actualContextSource): StoreException

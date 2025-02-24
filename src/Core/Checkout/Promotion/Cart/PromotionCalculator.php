@@ -36,8 +36,6 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\PackageFilter;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\SetGroupScopeFilter;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionExcludedError;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
-use Shopware\Core\Checkout\Promotion\Exception\DiscountCalculatorNotFoundException;
-use Shopware\Core\Checkout\Promotion\Exception\InvalidScopeDefinitionException;
 use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -80,7 +78,7 @@ class PromotionCalculator
      * the different discount line item types (percentage, absolute, ...) and then
      * recalculate the whole cart with these new items.
      *
-     * @throws DiscountCalculatorNotFoundException
+     * @throws PromotionException
      * @throws CartException
      */
     public function calculate(LineItemCollection $discountLineItems, Cart $original, Cart $calculated, SalesChannelContext $context, CartBehavior $behaviour): void
@@ -229,10 +227,8 @@ class PromotionCalculator
      * Calculates and returns the discount based on the settings of
      * the provided discount line item.
      *
-     * @throws DiscountCalculatorNotFoundException
      * @throws FilterSorterNotFoundException
      * @throws PromotionException
-     * @throws InvalidScopeDefinitionException
      * @throws CartException
      */
     private function calculateDiscount(LineItem $item, Cart $calculatedCart, SalesChannelContext $context): DiscountCalculatorResult
@@ -275,9 +271,9 @@ class PromotionCalculator
             $item->setStackable(true);
             $this->splitted[$item->getId()] = $this->lineItemQuantitySplitter->split($item, 1, $context);
         }
-
+        echo 'mini';
         $packages = $this->enrichPackagesWithCartData($packages, $calculatedCart, $context);
-
+        echo 'sas';
         // every scope packager can have an additional
         // list of rules that can be used to filter out items.
         // thus we enrich our current package with items
@@ -296,7 +292,7 @@ class PromotionCalculator
         // that are eligible for our discount by executing our graduation resolver.
         $packages = $this->advancedFilter->filterPackages($discount, $packages, $originalPackageCount);
         $packages = $this->enrichPackagesWithCartData($packages, $calculatedCart, $context);
-
+        echo 'ohou';
         $calculator = match ($discount->getType()) {
             PromotionDiscountEntity::TYPE_ABSOLUTE => new DiscountAbsoluteCalculator($this->absolutePriceCalculator),
             PromotionDiscountEntity::TYPE_PERCENTAGE => new DiscountPercentageCalculator($this->absolutePriceCalculator, $this->percentagePriceCalculator),

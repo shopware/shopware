@@ -3,9 +3,7 @@
 namespace Shopware\Core\Checkout\Promotion;
 
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
-use Shopware\Core\Checkout\Promotion\Exception\DiscountCalculatorNotFoundException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidCodePatternException;
-use Shopware\Core\Checkout\Promotion\Exception\InvalidScopeDefinitionException;
 use Shopware\Core\Checkout\Promotion\Exception\PatternNotComplexEnoughException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -34,6 +32,10 @@ class PromotionException extends HttpException
 
     public const PROMOTION_SET_GROUP_NOT_FOUND = 'CHECKOUT__PROMOTION_SETGROUP_NOT_FOUND';
 
+    public const CHECKOUT_DISCOUNT_CALCULATOR_NOT_FOUND = 'CHECKOUT__DISCOUNT_CALCULATOR_NOT_FOUND';
+
+    public const CHECKOUT_INVALID_DISCOUNT_SCOPE_DEFINITION = 'CHECKOUT__INVALID_DISCOUNT_SCOPE_DEFINITION';
+
     public static function codeAlreadyRedeemed(string $code): self
     {
         return new self(
@@ -44,9 +46,14 @@ class PromotionException extends HttpException
         );
     }
 
-    public static function discountCalculatorNotFound(string $type): DiscountCalculatorNotFoundException
+    public static function discountCalculatorNotFound(string $type): self
     {
-        return new DiscountCalculatorNotFoundException($type);
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CHECKOUT_DISCOUNT_CALCULATOR_NOT_FOUND,
+            'Promotion Discount Calculator "{{ type }}" has not been found!',
+            ['type' => $type]
+        );
     }
 
     public static function invalidCodePattern(string $codePattern): self
@@ -59,9 +66,14 @@ class PromotionException extends HttpException
         );
     }
 
-    public static function invalidScopeDefinition(string $scope): InvalidScopeDefinitionException
+    public static function invalidScopeDefinition(string $scope): self
     {
-        return new InvalidScopeDefinitionException($scope);
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CHECKOUT_INVALID_DISCOUNT_SCOPE_DEFINITION,
+            'Invalid discount calculator scope definition "{{ label }}"',
+            ['label' => $scope]
+        );
     }
 
     public static function patternNotComplexEnough(): self

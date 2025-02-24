@@ -10,10 +10,8 @@ use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Content\Flow\Exception\CustomerDeletedException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPriceFieldTypeException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
@@ -46,6 +44,7 @@ class CartException extends HttpException
     public const CART_ABSOLUTE_DISCOUNT_MISSING_PRICE_COLLECTION_CODE = 'CHECKOUT__CART_ABSOLUTE_DISCOUNT_MISSING_PRICE_COLLECTION';
     public const CART_DISCOUNT_TYPE_NOT_SUPPORTED_CODE = 'CHECKOUT__CART_DISCOUNT_TYPE_NOT_SUPPORTED';
     public const CART_INVALID_PERCENTAGE_DISCOUNT_CODE = 'CHECKOUT__CART_INVALID_PERCENTAGE_DISCOUNT';
+    public const CART_INVALID_PRICE_FIELD_TYPE = 'CHECKOUT__CART_INVALID_PRICE_FIELD_TYPE';
     public const CART_MISSING_DEFAULT_PRICE_COLLECTION_FOR_SURCHARGE_CODE = 'CHECKOUT__CART_MISSING_DEFAULT_PRICE_COLLECTION_FOR_SURCHARGE';
     public const CART_ABSOLUTE_SURCHARGE_MISSING_PRICE_COLLECTION_CODE = 'CHECKOUT__CART_ABSOLUTE_SURCHARGE_MISSING_PRICE_COLLECTION';
     public const CART_SURCHARGE_TYPE_NOT_SUPPORTED_CODE = 'CHECKOUT__CART_SURCHARGE_TYPE_NOT_SUPPORTED';
@@ -70,6 +69,7 @@ class CartException extends HttpException
     public const LINE_ITEM_GROUP_PACKAGER_NOT_FOUND = 'CHECKOUT__GROUP_PACKAGER_NOT_FOUND';
     public const LINE_ITEM_GROUP_SORTER_NOT_FOUND = 'CHECKOUT__GROUP_SORTER_NOT_FOUND';
     public const UNEXPECTED_VALUE_EXCEPTION = 'CHECKOUT__UNEXPECTED_VALUE_EXCEPTION';
+    public const RULE_OPERATOR_NOT_SUPPORTED = 'CHECKOUT__RULE_OPERATOR_NOT_SUPPORTED';
 
     public static function shippingMethodNotFound(string $id, ?\Throwable $e = null): self
     {
@@ -191,9 +191,14 @@ class CartException extends HttpException
         );
     }
 
-    public static function invalidPriceFieldType(string $type): InvalidPriceFieldTypeException
+    public static function invalidPriceFieldType(string $type): self
     {
-        return new InvalidPriceFieldTypeException($type);
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CART_INVALID_PRICE_FIELD_TYPE,
+            'The price field does not contain a valid "type" value. Received {{ type }}',
+            ['type' => $type]
+        );
     }
 
     public static function invalidQuantity(int $quantity): self
@@ -578,8 +583,13 @@ class CartException extends HttpException
         );
     }
 
-    public static function unsupportedOperator(string $operator, string $class): UnsupportedOperatorException
+    public static function unsupportedOperator(string $operator, string $class): self
     {
-        return new UnsupportedOperatorException($operator, $class);
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::RULE_OPERATOR_NOT_SUPPORTED,
+            'Unsupported operator {{ operator }} in {{ class }}',
+            ['operator' => $operator, 'class' => $class]
+        );
     }
 }

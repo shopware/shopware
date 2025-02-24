@@ -359,7 +359,7 @@ jobs:
       - name: Run update tests with reporting
         if: ${{ contains(github.workflow_ref, 'nightly') }}
         working-directory: new-shopware/tests/acceptance
-        run: npx pwc --project-id ${{ secrets.CURRENTS_PROJECT_ID }} --key ${{ secrets.CURRENTS_RECORD_KEY }} -- --project=Update --trace=on
+        run: npx pwc --project-id ${{ secrets.CURRENTS_PROJECT_ID_6_6 }} --key ${{ secrets.CURRENTS_RECORD_KEY }} -- --project=Update --trace=on
       - name: Run update tests
         if: ${{ !contains(github.workflow_ref, 'nightly') }}
         working-directory: new-shopware/tests/acceptance

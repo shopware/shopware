@@ -43,6 +43,8 @@ jobs:
             shard: 1
             shard-count: 1
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - uses: ./.github/actions/ats
         with: 
           project: ${{ matrix.name }}

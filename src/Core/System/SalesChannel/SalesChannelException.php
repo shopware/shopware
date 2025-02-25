@@ -4,7 +4,9 @@ namespace Shopware\Core\System\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
+use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
@@ -36,9 +38,9 @@ class SalesChannelException extends HttpException
     final public const ENCODING_INVALID_STRUCT_EXCEPTION = 'SYSTEM__ENCODING_INVALID_STRUCT_EXCEPTION';
     final public const ENCODING_MISSING_AGGREGATION_EXCEPTION = 'SYSTEM__ENCODING_MISSING_AGGREGATION_EXCEPTION';
 
-    final public const ORDER_ORDER_NOT_FOUND_CODE = 'SYSTEM__ORDER_ORDER_NOT_FOUND_CODE';
+    final public const ORDER_NOT_FOUND_CODE = 'SYSTEM__ORDER_NOT_FOUND_CODE';
 
-    final public const ORDER_MISSING_ORDER_ASSOCIATION_CODE = 'SYSTEM__ORDER_MISSING_ORDER_ASSOCIATION_CODE';
+    final public const MISSING_ORDER_ASSOCIATION_CODE = 'SYSTEM__MISSING_ORDER_ASSOCIATION_CODE';
 
     private const INVALID_UUID_MESSAGE_TEMPLATE = 'Provided %s is not a valid UUID';
 
@@ -87,11 +89,23 @@ class SalesChannelException extends HttpException
         );
     }
 
-    public static function orderNotFound(string $orderId): self
+    /*
+     * @deprecated tag:v6.8.0 - OrderException::orderNotFound will be replaced with SalesChannelException::missingAssociation
+    */
+    public static function orderNotFound(string $orderId): self|OrderException
     {
+        if (!Feature::isActive('v6.8.0.0')) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', 'SalesChannelException::orderNotFound')
+            );
+
+            return OrderException::orderNotFound($orderId);
+        }
+
         return new self(
             Response::HTTP_NOT_FOUND,
-            self::ORDER_ORDER_NOT_FOUND_CODE,
+            self::ORDER_NOT_FOUND_CODE,
             self::$couldNotFindMessage,
             ['entity' => 'order', 'field' => 'id', 'value' => $orderId]
         );
@@ -254,11 +268,18 @@ class SalesChannelException extends HttpException
         );
     }
 
-    public static function missingAssociation(string $association): self
+    /*
+     * @deprecated tag:v6.8.0 - OrderException::missingAssociation will be replaced with SalesChannelException::missingAssociation
+    */
+    public static function missingAssociation(string $association): self|OrderException
     {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return OrderException::missingAssociation($association);
+        }
+
         return new self(
             Response::HTTP_BAD_REQUEST,
-            self::ORDER_MISSING_ORDER_ASSOCIATION_CODE,
+            self::MISSING_ORDER_ASSOCIATION_CODE,
             'The required association "{{ association }}" is missing .',
             ['association' => $association]
         );

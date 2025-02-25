@@ -59,7 +59,6 @@ class OrderTransactionStatusRuleTest extends TestCase
     #[DataProvider('getMatchingValues')]
     public function testOrderPaymentStatusRuleMatching(bool $expected, string $orderStateId, array $selectedOrderStateIds, string $operator): void
     {
-
         $orderTransactionId = Uuid::randomHex();
 
         $stateMachineState = new StateMachineStateEntity();

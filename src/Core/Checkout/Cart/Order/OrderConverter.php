@@ -35,6 +35,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
@@ -147,16 +148,17 @@ class OrderConverter
             // In order to reference the primary order delivery we need to set ids. The primary order delivery is the
             // order delivery with the highest shipping costs (i.e. _not_ a shipping discount).
             if ($cart->getDeliveries()->count() > 0) {
-                $primaryOrderDeliveryId = Uuid::randomHex();
                 usort(
                     $data['deliveries'],
                     function (array $deliveryA, array $deliveryB) {
-                        // @phpstan-ignore-next-line
+                        if ($deliveryA['positions'] === []) {
+                            return $deliveryB['shippingCosts']->getTotalPrice();
+                        }
                         return $deliveryB['shippingCosts']->getTotalPrice() <=> $deliveryA['positions'][0]['price']->getTotalPrice();
                     }
                 );
-                $data['deliveries'][0]['id'] = $primaryOrderDeliveryId;
-                $data['primaryOrderDeliveryId'] = $primaryOrderDeliveryId;
+                $data['deliveries'][0]['id'] ??= Uuid::randomHex();
+                $data['primaryOrderDeliveryId'] = $data['deliveries'][0]['id'];
             }
         }
 
@@ -330,7 +332,7 @@ class OrderConverter
         ];
 
         /** @deprecated tag:v6.8.0 use primaryOrderDelivery */
-        if (!$order->getPrimaryOrderDelivery()) {
+        if (!Feature::isActive('v6.8.0.0')) {
             $delivery = $order->getDeliveries()?->first();
         } else {
             $delivery = $order->getPrimaryOrderDelivery();
@@ -349,10 +351,10 @@ class OrderConverter
         }
 
         /** @deprecated tag:v6.8.0 use primaryOrderDelivery */
-        if (!$order->getPrimaryOrderDelivery()) {
+        if (!Feature::isActive('v6.8.0.0')) {
             $shippingMethodId = $order->getDeliveries()?->first()?->getShippingMethodId();
         } else {
-            $shippingMethodId = $order->getPrimaryOrderDelivery()->getShippingMethodId();
+            $shippingMethodId = $order->getPrimaryOrderDelivery()?->getShippingMethodId();
         }
 
         if ($shippingMethodId !== null) {

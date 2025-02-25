@@ -32,6 +32,11 @@ class Migration1728040169AddPrimaryOrderDeliveryAndTransactionTest extends TestC
         $this->connection = static::getContainer()->get(Connection::class);
     }
 
+    protected function tearDown(): void
+    {
+        $this->connection->delete('`order`');
+    }
+
     public function testGetCreationTimestamp(): void
     {
         static::assertSame(1728040169, (new Migration1728040169AddPrimaryOrderDeliveryAndTransaction())->getCreationTimestamp());

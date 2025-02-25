@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -57,8 +58,8 @@ abstract class AbstractDocumentRenderer
             return false;
         }
 
-        /** @deprecated tag:v6.8.0 */
-        if (!$order->getPrimaryOrderDelivery()) {
+        /** @deprecated tag:v6.8.0 use primaryOrderDelivery */
+        if (!Feature::isActive('v6.8.0.0')) {
             $orderDelivery = $order->getDeliveries()?->first();
         } else {
             $orderDelivery = $order->getPrimaryOrderDelivery();

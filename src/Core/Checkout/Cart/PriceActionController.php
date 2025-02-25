@@ -100,13 +100,12 @@ class PriceActionController extends AbstractController
             $taxRate = $tax?->getTaxRate();
         }
 
-        if (!$tax) {
+        if ($taxRate === null) {
             throw CartException::taxRuleNotFound($taxId);
         }
 
         $data = [];
 
-        $taxRate = $tax->get('taxRate');
         foreach ($productPrices as $productId => $prices) {
             $calculatedPrices = [];
             foreach ($prices as $price) {

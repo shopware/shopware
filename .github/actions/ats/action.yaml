@@ -40,6 +40,11 @@ inputs:
     required: false
     description: Currents project id
 
+  currents-record-key:
+    default: ""
+    required: false
+    description: Currents record key
+
   # optimizations
   workers:
     default: "2"
@@ -96,6 +101,18 @@ runs:
         composer run build:js:admin
         composer npm:storefront run production # we cannot use build:js because it requires a db
         (cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js)
+
+    - name: Start Webserver
+      if: ${{ input.install == '' }}
+      shell: bash
+      working-directory: ${{ inputs.path }}
+      env:
+        SYMFONY_DAEMON: "1"
+        SYMFONY_NO_TLS: "1"
+        SYMFONY_ALLOW_HTTP: "1"
+        SYMFONY_PORT: "8000"
+        SYMFONY_ALLOW_ALL_IP: "1"
+      run: symfony server:start
 
     - uses: actions/setup-node@v4
       with:

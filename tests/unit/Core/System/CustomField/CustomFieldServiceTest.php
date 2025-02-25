@@ -156,6 +156,16 @@ class CustomFieldServiceTest extends TestCase
         $this->customFieldService->getCustomField('test');
     }
 
+    public function testGetCustomFieldShouldNotRefetchWithoutFields(): void
+    {
+        $this->connection->expects(static::once())
+            ->method('fetchAllKeyValue')
+            ->willReturn([]);
+
+        $this->customFieldService->getCustomField('test');
+        $this->customFieldService->getCustomField('test');
+    }
+
     public function testReset(): void
     {
         $this->connection->expects(static::exactly(2))

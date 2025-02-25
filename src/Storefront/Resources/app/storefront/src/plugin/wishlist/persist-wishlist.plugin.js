@@ -86,7 +86,10 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
             fetch(this.options.mergePath, {
                 method: 'POST',
                 body: JSON.stringify({ 'productIds': Object.keys(products) }),
-                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json',
+                },
             })
                 .then(response => response.text())
                 .then(response => {
@@ -114,7 +117,10 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
     _pagelet() {
         fetch(this.options.pageletPath, {
             method: 'POST',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/json',
+            },
         })
             .then(response => response.text())
             .then(response => {

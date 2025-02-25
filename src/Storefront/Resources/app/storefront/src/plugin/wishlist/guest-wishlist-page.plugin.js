@@ -43,7 +43,10 @@ export default class GuestWishlistPagePlugin extends Plugin {
         fetch(this.options.pageletRouter.path, {
             method: 'POST',
             body: JSON.stringify({ productIds }),
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/json',
+            },
         })
             .then(response => response.text())
             .then(content => {

@@ -62,7 +62,7 @@ runs:
       run: docker run --name redis -p 6379:6379 -d redis:alpine
     - name: Start mailpit
       shell: bash
-      run: docker run --name redis -p 1025:1025 -p 8025:8025 -d axllent/mailpit
+      run: docker run --name mailpit -p 1025:1025 -p 8025:8025 -d axllent/mailpit
 
     - name: Define environment
       shell: bash

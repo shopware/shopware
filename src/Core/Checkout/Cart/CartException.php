@@ -18,6 +18,9 @@ use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class CartException extends HttpException
 {
@@ -583,7 +586,7 @@ class CartException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::INVALID_PRICE_FIELD_TYPE,
-            'The price field does not contain a valid "type" value. Received {{ type }} ',
+            'The price field does not contain a valid "type" value. Received {{ type }}',
             ['type' => $type]
         );
     }

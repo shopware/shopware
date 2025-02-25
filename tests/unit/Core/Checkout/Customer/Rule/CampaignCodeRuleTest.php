@@ -110,6 +110,22 @@ class CampaignCodeRuleTest extends TestCase
         static::assertFalse($this->rule->match($invalidScope));
     }
 
+    public function testMatchThrowsException(): void
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(UnsupportedValueException::class);
+        } else {
+            $this->expectException(CustomerException::class);
+        }
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn(new CustomerEntity());
+
+        (new CampaignCodeRule())->match(
+            new CheckoutRuleScope($context)
+        );
+    }
+
     /**
      * @return \Traversable<list<mixed>>
      */

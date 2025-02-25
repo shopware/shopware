@@ -31,11 +31,11 @@ class CustomerEmailUnique extends Constraint
     public function __construct(array $options)
     {
         if (!($options['context'] ?? null) instanceof Context) {
-            throw CustomerException::missingOptionsException('context', self::class);
+            throw CustomerException::missingOption('context', self::class);
         }
 
         if (!($options['salesChannelContext'] ?? null) instanceof SalesChannelContext) {
-            throw CustomerException::missingOptionsException('salesChannelContext', self::class);
+            throw CustomerException::missingOption('salesChannelContext', self::class);
         }
 
         parent::__construct($options);

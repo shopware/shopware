@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Order\Api;
 
+use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\RecalculationService;
@@ -21,6 +22,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Route(defaults: ['_routeScope' => ['api']])]
 #[Package('checkout')]
 class OrderRecalculationController extends AbstractController

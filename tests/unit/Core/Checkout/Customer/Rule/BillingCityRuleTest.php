@@ -158,6 +158,23 @@ class BillingCityRuleTest extends TestCase
         static::assertFalse($this->rule->match($scope));
     }
 
+    public function testMatchThrowsException(): void
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(UnsupportedValueException::class);
+        } else {
+            $this->expectException(CustomerException::class);
+        }
+        $customer = new CustomerEntity();
+        $customer->setActiveBillingAddress(new CustomerAddressEntity());
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn($customer);
+
+        (new BillingCityRule())->match(
+            new CheckoutRuleScope($context)
+        );
+    }
+
     /**
      * @return array<string, array{string, bool, string}>
      */

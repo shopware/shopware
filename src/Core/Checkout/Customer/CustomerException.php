@@ -24,6 +24,9 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Exception\MissingOptionsException;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class CustomerException extends HttpException
 {
@@ -337,7 +340,7 @@ class CustomerException extends HttpException
         return new ProductNotFoundException($productId);
     }
 
-    public static function missingOptionsException(string $option, string $constraint): self|MissingOptionsException
+    public static function missingOption(string $option, string $constraint): self|MissingOptionsException
     {
         if (!Feature::isActive('v6.8.0.0')) {
             Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Exception will change to CustomerException');

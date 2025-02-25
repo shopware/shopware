@@ -18,7 +18,7 @@
     },
     "notification": {
       "successMessage": "Statusmaschine wurde gespeichert.",
-      "errorMessage": "Statusmaschine konnte nicht gespeichert werden. Bitte füllen Sie alle Pflichtfelder aus."
+      "errorMessage": "Statusmaschine konnte nicht gespeichert werden. Bitte fülle alle Pflichtfelder aus."
     },
     "state": {
       "list": {
@@ -31,13 +31,11 @@
       "detail": {
         "stateMachineStateCardTitle": "Statusmaschinen-Status",
         "labelName": "Name",
-        "labelTechnicalName": "Technischer Name",
-        "buttonCancel": "Abbrechen",
-        "buttonSave": "Speichern"
+        "labelTechnicalName": "Technischer Name"
       },
       "notification": {
         "successMessage": "Statusmaschinen-Status wurde gespeichert.",
-        "errorMessage": "Statusmaschinen-Status konnte nicht gespeichert werden. Bitte füllen Sie alle Pflichtfelder aus."
+        "errorMessage": "Statusmaschinen-Status konnte nicht gespeichert werden. Bitte fülle alle Pflichtfelder aus."
       }
     }
   },

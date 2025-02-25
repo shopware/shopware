@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class DifferentAddressesRule extends Rule

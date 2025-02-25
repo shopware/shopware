@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Language\LanguageDefinition;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@discovery')]
 class LanguageRule extends Rule

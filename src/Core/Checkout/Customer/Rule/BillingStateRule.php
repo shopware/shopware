@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class BillingStateRule extends Rule

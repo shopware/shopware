@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class BillingCityRule extends Rule

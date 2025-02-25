@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Rule;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class SimpleRule extends Rule

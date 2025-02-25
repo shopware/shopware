@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class IsNewsletterRecipientRule extends Rule

@@ -46,13 +46,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - uses: ./.github/actions/ats
-        with: 
+        with:
           project: ${{ matrix.name }}
           php-version: ${{ matrix.php-version }}
           shard: ${{ matrix.shard }}
           shard-count: ${{ matrix.shard-count }}
           workers: 2
           use-currents: ${{ inputs.nightly == 'true' && matrix.php-version == '8.4' && !matrix.major && 'true' || '' }}
+          currents-project-id: ${{ secrets.CURRENTS_PROJECT_ID }}
+          currents-record-key: ${{ secrets.CURRENTS_RECORD_KEY }}
 
   phpunit-matrix:
     runs-on: ubuntu-24.04

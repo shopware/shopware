@@ -1,6 +1,6 @@
 ---
 title: Use CheckoutGateway for SetPaymentOrderRoute payment validation
-issue: https://shopware.atlassian.net/browse/NEXT-40612
+issue: https://github.com/shopware/shopware/issues/6672
 author_github: @En0Ma1259
 ---
 # Core

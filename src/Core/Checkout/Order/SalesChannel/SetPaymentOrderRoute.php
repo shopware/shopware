@@ -64,12 +64,12 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
     )]
     public function setPayment(Request $request, SalesChannelContext $context): SetPaymentOrderRouteResponse
     {
-        $paymentMethodId = (string) $request->request->get('paymentMethodId');
+        $paymentMethodId = $request->request->getAlnum('paymentMethodId');
         if (!Uuid::isValid($paymentMethodId)) {
             throw OrderException::invalidUuid($paymentMethodId);
         }
 
-        $orderId = (string) $request->request->get('orderId');
+        $orderId = $request->request->getAlnum('orderId');
         if (!Uuid::isValid($orderId)) {
             throw OrderException::invalidUuid($orderId);
         }
@@ -82,7 +82,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
             [SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId]
         );
 
-        $this->validateRequest($context, $paymentMethodId, $order);
+        $this->validateRequest($request, $order, $context);
 
         $this->validatePaymentState($order);
 
@@ -144,10 +144,11 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         $this->eventDispatcher->dispatch($event);
     }
 
-    private function validateRequest(SalesChannelContext $salesChannelContext, string $paymentMethodId, OrderEntity $order): void
+    private function validateRequest(Request $request, OrderEntity $order, SalesChannelContext $salesChannelContext): void
     {
+        $paymentMethodId = $request->request->getAlnum('paymentMethodId');
         $cart = $this->orderConverter->convertToCart($order, $salesChannelContext->getContext());
-        $response = $this->checkoutGatewayRoute->load(new Request(), $cart, $salesChannelContext);
+        $response = $this->checkoutGatewayRoute->load($request, $cart, $salesChannelContext);
 
         if ($response->getPaymentMethods()->get($paymentMethodId) === null) {
             throw OrderException::paymentMethodNotAvailable($paymentMethodId);

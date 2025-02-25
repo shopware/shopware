@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
  * @deprecated tag:v6.8.0 - Can be removed as the tested class will be removed as well
  */
 #[CoversClass(StoreApiRouteCacheKeyEvent::class)]

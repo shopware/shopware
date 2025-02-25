@@ -8,9 +8,9 @@
 
 ## Removal of `StoreApiRouteCacheKeyEvent` and `StoreApiRouteCacheTagsEvent` and all it's child classes
 
-With the removal of the separate Store-API caching layer with shopware 6.7 those events where not used and emitted anymore, therefore we are removing them now without any replacement.
+With the removal of the separate Store-API caching layer with shopware 6.7, those events where not used and emitted anymore, therefore we are removing them now without any replacement.
 
-The concrete Events being removed:
+The concrete events being removed:
 - `\Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheKeyEvent`
 - `\Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheTagsEvent`
 - `\Shopware\Core\Content\Category\Event\CategoryRouteCacheKeyEvent`

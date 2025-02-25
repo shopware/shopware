@@ -28,6 +28,16 @@ class PromotionExceptionTest extends TestCase
         static::assertSame(['code' => 'code-123'], $exception->getParameters());
     }
 
+    public function testDiscountCalculatorNotFound(): void
+    {
+        $exception = PromotionException::discountCalculatorNotFound('type-123');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(PromotionException::CHECKOUT_DISCOUNT_CALCULATOR_NOT_FOUND, $exception->getErrorCode());
+        static::assertSame('Promotion Discount Calculator "type-123" has not been found!', $exception->getMessage());
+        static::assertSame(['type' => 'type-123'], $exception->getParameters());
+    }
+
     public function testInvalidCodePattern(): void
     {
         $exception = PromotionException::invalidCodePattern('code-123');
@@ -37,6 +47,16 @@ class PromotionExceptionTest extends TestCase
         static::assertSame(PromotionException::INVALID_CODE_PATTERN, $exception->getErrorCode());
         static::assertSame('Invalid code pattern "code-123".', $exception->getMessage());
         static::assertSame(['codePattern' => 'code-123'], $exception->getParameters());
+    }
+
+    public function testInvalidScopeDefinition(): void
+    {
+        $exception = PromotionException::invalidScopeDefinition('bad-scope');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(PromotionException::CHECKOUT_INVALID_DISCOUNT_SCOPE_DEFINITION, $exception->getErrorCode());
+        static::assertSame('Invalid discount calculator scope definition "bad-scope"', $exception->getMessage());
+        static::assertSame(['label' => 'bad-scope'], $exception->getParameters());
     }
 
     public function testPatternNotComplexEnough(): void

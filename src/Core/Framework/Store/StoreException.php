@@ -24,7 +24,7 @@ class StoreException extends HttpException
     public const MISSING_INTEGRATION_IN_CONTEXT_SOURCE = 'FRAMEWORK__STORE_MISSING_INTEGRATION_IN_CONTEXT_SOURCE';
     public const MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__STORE_MISSING_REQUEST_PARAMETER';
     public const INVALID_TYPE = 'FRAMEWORK__STORE_INVALID_TYPE';
-    public const JWKS_KEY_NOT_FOUND = 'FRAMEWORK__APP_JWKS_KEY_NOT_FOUND';
+    public const JWKS_KEY_NOT_FOUND = 'FRAMEWORK__STORE_JWKS_NOT_FOUND';
 
     public static function cannotDeleteManaged(string $pluginName): self
     {

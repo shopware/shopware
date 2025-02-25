@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Elasticsearch;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -20,6 +21,20 @@ class ElasticsearchExceptionTest extends TestCase
         static::assertSame('ELASTICSEARCH__DEFINITION_NOT_FOUND', $exception->getErrorCode());
         static::assertSame('Definition product not found', $exception->getMessage());
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+    }
+
+    public function testOperatorNotAllowed(): void
+    {
+        $exception = ElasticsearchException::operatorNotAllowed('foo');
+        static::assertSame('Operator foo not allowed', $exception->getMessage());
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertInstanceOf(\InvalidArgumentException::class, $exception);
+        } else {
+            static::assertInstanceOf(ElasticsearchException::class, $exception);
+            static::assertSame('ELASTICSEARCH__OPERATOR_NOT_ALLOWED', $exception->getErrorCode());
+            static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        }
     }
 
     public function testUnsupportedDefinition(): void

@@ -19,6 +19,15 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(FlowException::class)]
 class FlowExceptionTest extends TestCase
 {
+    public function customTriggerByNameNotFound(): void
+    {
+        $e = FlowException::customTriggerByNameNotFound('myEvent');
+
+        static::assertEquals(Response::HTTP_NOT_FOUND, $e->getStatusCode());
+        static::assertEquals(FlowException::ADMINISTRATION_CUSTOM_TRIGGER_BY_NAME_NOT_FOUND, $e->getErrorCode());
+        static::assertEquals('The provided event name myEvent is invalid or uninstalled and no custom trigger could be found.', $e->getMessage());
+    }
+
     public function testMethodNotCompatible(): void
     {
         $e = FlowException::methodNotCompatible('myMethod', 'myClass');

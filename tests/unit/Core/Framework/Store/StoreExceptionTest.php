@@ -69,6 +69,15 @@ class StoreExceptionTest extends TestCase
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
     }
 
+    public function testJwksNotFound(): void
+    {
+        $exception = StoreException::jwksNotFound();
+
+        static::assertSame('Unable to retrieve JWKS key', $exception->getMessage());
+        static::assertSame('FRAMEWORK__STORE_JWKS_NOT_FOUND', $exception->getErrorCode());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+    }
+
     public function testMissingIntegrationInContextSource(): void
     {
         $exception = StoreException::missingIntegrationInContextSource('context');

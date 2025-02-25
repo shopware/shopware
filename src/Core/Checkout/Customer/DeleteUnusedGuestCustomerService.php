@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Customer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -36,11 +38,11 @@ class DeleteUnusedGuestCustomerService
 
         $criteria = $this->getUnusedCustomerCriteria($maxLifeTime);
 
-        $criteria
-            ->setLimit(1)
-            ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+        $criteria->addAggregation(new CountAggregation('customer-count', 'id'));
 
-        return $this->customerRepository->search($criteria, $context)->getTotal();
+        $aggregation = $this->customerRepository->aggregate($criteria, $context)->get('customer-count');
+
+        return $aggregation instanceof CountResult ? $aggregation->getCount() : 0;
     }
 
     /**

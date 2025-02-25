@@ -24,9 +24,9 @@ use Symfony\Contracts\Service\ResetInterface;
 class ScriptPriceStubs implements ResetInterface
 {
     /**
-     * @var array<string, string>
+     * @var ?array<string, string>
      */
-    private array $currencies = [];
+    private ?array $currencies = null;
 
     public function __construct(
         private readonly Connection $connection,
@@ -79,7 +79,7 @@ class ScriptPriceStubs implements ResetInterface
 
     public function reset(): void
     {
-        $this->currencies = [];
+        $this->currencies = null;
     }
 
     /**
@@ -119,8 +119,8 @@ class ScriptPriceStubs implements ResetInterface
      */
     private function resolveIsoCodes(array $prices): array
     {
-        if (empty($this->currencies)) {
-            /** @var array<string, string> $currencies */
+        if ($this->currencies === null) {
+            /** @var array<string, string> */
             $currencies = $this->connection->fetchAllKeyValue('SELECT iso_code, LOWER(HEX(id)) FROM currency');
             $this->currencies = $currencies;
         }

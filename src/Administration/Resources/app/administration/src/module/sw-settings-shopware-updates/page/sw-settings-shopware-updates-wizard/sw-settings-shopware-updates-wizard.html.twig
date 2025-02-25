@@ -109,8 +109,8 @@
             </template>
 
             <template #modal-footer>
-                <sw-checkbox-field
-                    v-model:value="checkedBackupCheckbox"
+                <mt-checkbox
+                    v-model:checked="checkedBackupCheckbox"
                     class="sw-settings-shopware-updates-check__start-update-backup-checkbox"
                     :label="$tc('sw-settings-shopware-updates.updateModal.backupLabel')"
                 />

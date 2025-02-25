@@ -259,14 +259,17 @@ async function lintFiles(filePaths, fix, shopwareVersion) {
                                 'sw-deprecation-rules/no-deprecated-components': ['error', {
                                     fix: true,
                                     activatedComponents: [
+                                        'sw-button',
                                         'sw-alert',
                                         'sw-colorpicker',
                                         'sw-text-field',
+                                        'sw-card',
                                         'sw-switch-field',
                                         'sw-textarea-field',
                                         'sw-datepicker',
                                         'sw-icon',
                                         'sw-select-field',
+                                        'sw-checkbox-field',
                                     ],
                                 }],
                                 'sw-deprecation-rules/no-deprecated-component-usage': ['error'],

@@ -40,8 +40,8 @@
     {% endblock %}
 
     {% block sw_flow_set_order_state_modal_force_transition %}
-    <sw-checkbox-field
-        v-model:value="config.force_transition"
+    <mt-checkbox
+        v-model:checked="config.force_transition"
         name="sw-field--config-force_transition"
         class="sw-flow-set-order-state-modal__force-transition"
         :label="$tc('sw-flow.modals.status.forceTransition')"

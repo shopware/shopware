@@ -229,6 +229,7 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\CustomerRoute" public="true">
+            <argument type="service" id="customer.repository"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\DeleteCustomerRoute" public="true">

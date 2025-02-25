@@ -9,16 +9,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelException;
 class ResponseFields
 {
     /**
-     * @var array<mixed>|null
+     * @param array<string, list<string>>|null $includes
      */
-    protected ?array $includes = null;
-
-    /**
-     * @param array<mixed>|null $includes
-     */
-    public function __construct(?array $includes)
+    public function __construct(protected ?array $includes = null)
     {
-        $this->includes = $includes;
     }
 
     public function isAllowed(string $type, string $property): bool
@@ -46,7 +40,7 @@ class ResponseFields
 
         $prefix .= '.';
         foreach ($fields as $property) {
-            if (mb_strpos((string) $property, $prefix) === 0) {
+            if (str_starts_with((string) $property, $prefix)) {
                 return true;
             }
         }

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-class ManyToMany extends Field
+final class ManyToMany extends Field
 {
     public const TYPE = 'many-to-many';
 

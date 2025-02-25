@@ -7,8 +7,8 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-promotion-v2-detail-base', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': {
-                    template: '<div class="sw-card"><slot></slot></div>',
+                'mt-card': {
+                    template: '<div class="mt-card"><slot></slot></div>',
                 },
                 'sw-container': {
                     template: '<div class="sw-container"><slot></slot></div>',
@@ -19,10 +19,6 @@ async function createWrapper() {
                 },
                 'sw-number-field': {
                     template: '<div class="sw-field sw-number-field"></div>',
-                    props: ['disabled'],
-                },
-                'sw-switch-field': {
-                    template: '<div class="sw-field sw-switch-field"></div>',
                     props: ['disabled'],
                 },
                 'sw-select-field': {

@@ -32,7 +32,7 @@ $sw-context-menu-color-warning: $color-pumpkin-spice-500;
         background: $sw-context-menu-color-background-hover;
         color: $sw-context-menu-color-active;
 
-        .sw-icon {
+        .mt-icon {
             color: $sw-context-menu-color-active;
         }
     }
@@ -40,7 +40,7 @@ $sw-context-menu-color-warning: $color-pumpkin-spice-500;
     &.sw-context-menu-item--danger {
         color: $sw-context-menu-color-danger;
 
-        .sw-icon {
+        .mt-icon {
             color: $sw-context-menu-color-danger;
         }
 
@@ -56,7 +56,7 @@ $sw-context-menu-color-warning: $color-pumpkin-spice-500;
     &.sw-context-menu-item--success {
         color: $sw-context-menu-color-success;
 
-        .sw-icon {
+        .mt-icon {
             color: $sw-context-menu-color-success;
         }
 
@@ -72,7 +72,7 @@ $sw-context-menu-color-warning: $color-pumpkin-spice-500;
     &.sw-context-menu-item--warning {
         color: $sw-context-menu-color-warning;
 
-        .sw-icon {
+        .mt-icon {
             color: $sw-context-menu-color-warning;
         }
 
@@ -105,12 +105,12 @@ $sw-context-menu-color-warning: $color-pumpkin-spice-500;
             background: 0 none;
         }
 
-        .sw-icon {
+        .mt-icon {
             color: $sw-context-menu-color-text;
         }
     }
 
-    & > .sw-icon {
+    & > .mt-icon {
         color: $sw-context-menu-color-text;
     }
 }

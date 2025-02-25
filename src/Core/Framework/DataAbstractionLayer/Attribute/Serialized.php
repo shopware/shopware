@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-class Serialized extends Field
+final class Serialized extends Field
 {
     public const TYPE = 'serialized';
 

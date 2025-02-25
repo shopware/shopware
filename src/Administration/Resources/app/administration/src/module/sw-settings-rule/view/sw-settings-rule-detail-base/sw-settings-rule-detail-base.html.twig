@@ -1,7 +1,7 @@
 {% block sw_settings_rule_detail_base %}
 <div class="sw-settings-rule-detail-base">
     {% block sw_settings_rule_detail_base_content_card %}
-    <sw-card
+    <mt-card
         position-identifier="sw-settings-rule-detail-base-content"
         :large="true"
         :is-loading="isLoading"
@@ -10,8 +10,9 @@
         <template v-if="rule">
             <div style="display: grid; grid-template-columns: 2fr 1fr; grid-column-gap: 32px">
                 {% block sw_settings_rule_detail_base_content_card_field_name %}
-                <sw-text-field
-                    v-model:value="rule.name"
+
+                <mt-text-field
+                    v-model="rule.name"
                     name="sw-field--rule-name"
                     :label="$tc('sw-settings-rule.detail.labelName')"
                     :placeholder="$tc('sw-settings-rule.detail.placeholderName')"
@@ -35,8 +36,8 @@
             </div>
 
             {% block sw_settings_rule_detail_base_content_card_field_description %}
-            <sw-textarea-field
-                v-model:value="rule.description"
+            <mt-textarea
+                v-model="rule.description"
                 name="sw-field--rule-description"
                 :label="$tc('sw-settings-rule.detail.labelDescription')"
                 :placeholder="$tc('sw-settings-rule.detail.placeholderDescription')"
@@ -81,18 +82,18 @@
             </div>
         </template>
         <sw-loader v-else />
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_settings_rule_detail_base_conditions_card %}
-    <sw-card
+    <mt-card
         class="sw-settings-rule-detail__condition_container"
         position-identifier="sw-settings-rule-detail-base-conditions"
         :large="true"
         :is-loading="isLoading"
         :title="$tc('sw-settings-rule.detail.ruleCard')"
     >
-        <template #header-right>
+        <template #headerRight>
             <sw-extension-teaser-popover
                 position-identifier="sw-settings-rule-preview-mode-switch"
             />
@@ -110,11 +111,11 @@
             @conditions-changed="$emit('conditions-changed', $event)"
             @initial-loading-done="$emit('tree-finished-loading')"
         />
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_settings_rule_detail_custom_field_sets %}
-    <sw-card
+    <mt-card
         v-if="showCustomFields"
         position-identifier="sw-settings-rule-detail-base-custom-field-sets"
         :large="true"
@@ -126,7 +127,7 @@
             :disabled="!acl.can('rule.editor') || undefined"
             :sets="customFieldSets"
         />
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>
 {% endblock %}

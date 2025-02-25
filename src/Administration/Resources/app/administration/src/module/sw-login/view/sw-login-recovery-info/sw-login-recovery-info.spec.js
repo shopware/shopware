@@ -26,7 +26,6 @@ async function createWrapper(routeParams) {
             stubs: {
                 'router-view': true,
                 'router-link': true,
-                'sw-icon': true,
             },
         },
     });

@@ -48,6 +48,15 @@ export default {
                 return document.documentType.technicalName === 'invoice';
             });
         },
+
+        documentNumber: {
+            get() {
+                return String(this.documentConfig.documentNumber);
+            },
+            set(value) {
+                this.documentConfig.documentNumber = Number(value);
+            },
+        },
     },
 
     created() {

@@ -26,12 +26,3 @@ The top bar contains e.g. the language switcher, the currency switcher and the s
 .top-bar-list-item-currency-symbol {
     min-width: 1.7rem;
 }
-
-// @deprecated tag:v6.7.0 - Special label styling will be removed. Buttons will be used as documented by Bootstrap: https://getbootstrap.com/docs/5.3/components/dropdowns/#menu-items
-@if not feature('ACCESSIBILITY_TWEAKS') {
-    .top-bar-list-item {
-        &:hover .top-bar-list-label {
-            cursor: pointer;
-        }
-    }
-}

@@ -209,10 +209,6 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
                     }),
                     'router-view': true,
                     'sw-button-process': await wrapTestComponent('sw-button-process', { sync: true }),
-                    'sw-button': await wrapTestComponent('sw-button', {
-                        sync: true,
-                    }),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-skeleton': true,
                     'sw-flow-leave-page-modal': true,
                     'sw-tabs': {
@@ -229,7 +225,6 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
                         </div>
                     `,
                     },
-                    'sw-icon': true,
                     'router-link': true,
                     'sw-loader': true,
                 },
@@ -578,5 +573,21 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         expect(sequences).toHaveLength(4);
         expect(sequences[0]).toHaveProperty('rule');
         expect(sequences[0].rule).toEqual({ id: '1111', name: 'test rule' });
+    });
+
+    it('should display an error when trying to save an empty flow', async () => {
+        global.activeAclRoles = ['flow.editor'];
+
+        const wrapper = await createWrapper();
+        const notificationSpy = jest.spyOn(wrapper.vm, 'createNotificationWarning');
+        await flushPromises();
+
+        const saveButton = wrapper.find('.sw-flow-detail__save');
+        await saveButton.trigger('click');
+        await flushPromises();
+
+        expect(notificationSpy).toHaveBeenNthCalledWith(1, {
+            message: 'sw-flow.flowNotification.emptyFields.general',
+        });
     });
 });

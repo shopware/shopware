@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import 'src/app/component/base/sw-icon';
 
 /**
  * @sw-package discovery
@@ -15,15 +14,6 @@ async function createWrapper() {
                 text: 'Toggle Text Button',
                 isCollapsed: true,
             },
-            global: {
-                stubs: {
-                    'sw-icon': await Shopware.Component.build('sw-icon'),
-                    'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated', { sync: true }),
-                    'icons-regular-eye-slash': true,
-                    'icons-regular-chevron-down-xs': true,
-                    'icons-regular-chevron-up-xs': true,
-                },
-            },
         },
     );
 }
@@ -38,7 +28,7 @@ describe('module/sw-cms/component/sw-cms-visibility-toggle', () => {
     it('should be collapsed', async () => {
         const wrapper = await createWrapper();
         const toggleButton = wrapper.find('.sw-cms-visibility-toggle__button');
-        const collapsedIcon = toggleButton.find('.sw-icon');
+        const collapsedIcon = toggleButton.find('.mt-icon');
         expect(collapsedIcon.classes()).toContain('icon--regular-chevron-down-xs');
     });
 
@@ -49,7 +39,7 @@ describe('module/sw-cms/component/sw-cms-visibility-toggle', () => {
         });
 
         const toggleButton = wrapper.find('.sw-cms-visibility-toggle__button');
-        const collapsedIcon = toggleButton.find('.sw-icon');
+        const collapsedIcon = toggleButton.find('.mt-icon');
 
         expect(collapsedIcon.classes()).toContain('icon--regular-chevron-up-xs');
     });

@@ -83,7 +83,6 @@ async function createWrapper() {
                 'sw-label': await wrapTestComponent('sw-label', {
                     sync: true,
                 }),
-                'sw-icon': true,
                 'sw-checkbox-field': true,
                 'sw-highlight-text': true,
                 'sw-inheritance-switch': true,

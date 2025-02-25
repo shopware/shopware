@@ -60,14 +60,14 @@
                         :to="{ name: parentRoute }"
                         :style="{ 'color': pageColor }"
                     >
-                        <sw-icon
+                        <mt-icon
                             name="regular-chevron-left"
-                            small
+                            size="16px"
                         />
-                        <sw-icon
+                        <mt-icon
                             v-if="module && module.icon"
                             :name="module.icon"
-                            small
+                            size="16px"
                         />
                     </router-link>
                     {% endblock %}

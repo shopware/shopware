@@ -157,7 +157,7 @@ $sw-media-upload-v2-caption-icon-color: $color-gray-300;
     }
 
     &__button-context-menu {
-        .sw-icon {
+        .mt-icon {
             width: 16px;
             height: 16px;
             padding-top: 6px;
@@ -202,7 +202,7 @@ $sw-media-upload-v2-caption-icon-color: $color-gray-300;
         color: $sw-media-upload-v2-color-highlighted;
 
         .sw-media-upload-v2__upload-caption {
-            .sw-icon {
+            .mt-icon {
                 color: $sw-media-upload-v2-color-highlighted;
             }
         }
@@ -217,7 +217,7 @@ $sw-media-upload-v2-caption-icon-color: $color-gray-300;
         font-size: $sw-media-upload-v2-caption-font-size;
         text-align: center;
 
-        .sw-icon {
+        .mt-icon {
             margin-right: 8px;
             color: $sw-media-upload-v2-caption-icon-color;
         }

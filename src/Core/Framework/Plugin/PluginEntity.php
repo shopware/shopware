@@ -18,159 +18,56 @@ class PluginEntity extends Entity
 
     /**
      * @var class-string<Plugin>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $baseClass;
+    protected string $baseClass;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $composerName;
+    protected ?string $composerName = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $active;
+    protected bool $active;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $managedByComposer;
+    protected bool $managedByComposer;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $path;
+    protected ?string $path = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $author;
+    protected ?string $author = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $copyright;
+    protected ?string $copyright = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $license;
+    protected ?string $license = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $version;
+    protected string $version;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $upgradeVersion;
+    protected ?string $upgradeVersion = null;
 
-    /**
-     * @var \DateTimeInterface|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $installedAt;
+    protected ?\DateTimeInterface $installedAt = null;
 
-    /**
-     * @var \DateTimeInterface|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $upgradedAt;
+    protected ?\DateTimeInterface $upgradedAt = null;
 
     /**
      * @internal
-     *
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $iconRaw;
+    protected ?string $iconRaw = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $icon;
+    protected ?string $icon = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $label;
+    protected string $label;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $manufacturerLink;
+    protected ?string $manufacturerLink = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $supportLink;
+    protected ?string $supportLink = null;
 
-    /**
-     * @var PluginTranslationCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translations;
+    protected ?PluginTranslationCollection $translations = null;
 
-    /**
-     * @var PaymentMethodCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $paymentMethods;
+    protected ?PaymentMethodCollection $paymentMethods = null;
 
     /**
      * @var array<string, array<string, list<string>|string>>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $autoload;
+    protected array $autoload = [];
 
     /**
      * @return class-string<Plugin>

@@ -23,24 +23,6 @@ Component.register('sw-button', {
         },
     },
 
-    computed: {
-        useMeteorComponent() {
-            // Use new meteor component in major
-            if (Shopware.Feature.isActive('ENABLE_METEOR_COMPONENTS')) {
-                return true;
-            }
-
-            // Throw warning when deprecated component is used
-            Shopware.Utils.debug.warn(
-                'sw-button',
-                // eslint-disable-next-line max-len
-                'The old usage of "sw-button" is deprecated and will be removed in v6.7.0.0. Please use "mt-button" instead.',
-            );
-
-            return false;
-        },
-    },
-
     methods: {
         onClick() {
             // Important: Do not emit the click event again, it is already emitted by the button

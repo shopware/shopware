@@ -12,10 +12,8 @@ const createWrapper = async () => {
             global: {
                 renderStubDefaultSlot: true,
                 stubs: {
-                    'sw-card': true,
                     'sw-container': true,
                     'sw-select-rule-create': true,
-                    'sw-button': true,
                     'sw-context-button': true,
                     'sw-data-grid': true,
                     'sw-context-menu-item': true,

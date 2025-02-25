@@ -85,22 +85,22 @@
     <template #modal-footer>
 
         {% block sw_maintain_currencies_modal_footer_button_cancel %}
-        <sw-button
+        <mt-button
             size="small"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_maintain_currencies_modal_footer_button_apply %}
-        <sw-button
+        <mt-button
             variant="primary"
             size="small"
             @click="onApply"
         >
             {{ $tc('global.default.apply') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

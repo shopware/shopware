@@ -2,7 +2,7 @@
 <div class="sw-promotion-v2-detail-base">
 
     {% block sw_promotion_v2_detail_base_general_card %}
-    <sw-card
+    <mt-card
         v-if="promotion"
         position-identifier="sw-promotion-detail-base-general"
         class="sw-promotion-v2-detail-base__card-general"
@@ -15,8 +15,9 @@
             columns="2fr 1fr"
             gap="0 32px"
         >
-            <sw-text-field
-                v-model:value="promotion.name"
+
+            <mt-text-field
+                v-model="promotion.name"
                 class="sw-promotion-v2-detail-base__field-name"
                 :label="$tc('sw-promotion-v2.detail.base.general.nameLabel')"
                 :disabled="!acl.can('promotion.editor')"
@@ -100,8 +101,9 @@
         {% endblock %}
 
         {% block sw_promotion_v2_detail_base_general_active %}
-        <sw-switch-field
-            v-model:value="promotion.active"
+
+        <mt-switch
+            v-model="promotion.active"
             class="sw-promotion-v2-detail-base__field-active"
             :label="$tc('sw-promotion-v2.detail.base.general.activeLabel')"
             :disabled="!acl.can('promotion.editor')"
@@ -109,11 +111,11 @@
         />
         {% endblock %}
 
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_promotion_v2_detail_base_codes_card %}
-    <sw-card
+    <mt-card
         v-if="promotion && !isCreateMode"
         class="sw-promotion-v2-detail-base__card-codes"
         position-identifier="sw-promotion-detail-base-codes"
@@ -148,8 +150,9 @@
         <template v-if="selectedCodeType === CODE_TYPES.FIXED">
 
             {% block sw_promotion_v2_detail_base_codes_type_fixed_code %}
-            <sw-text-field
-                v-model:value="promotion.code"
+
+            <mt-text-field
+                v-model="promotion.code"
                 class="sw-promotion-v2-detail-base__fixed-field-code"
                 :disabled="!acl.can('promotion.editor')"
                 :label="$tc('sw-promotion-v2.detail.base.codes.fixed.codeLabel')"
@@ -188,11 +191,11 @@
         </template>
         {% endblock %}
 
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_promotion_detail_custom_field_sets %}
-    <sw-card
+    <mt-card
         v-if="showCustomFields"
         position-identifier="sw-promotion-detail-base-custom-field-sets"
         :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
@@ -203,7 +206,7 @@
             :disabled="!acl.can('promotion.editor')"
             :sets="customFieldSets"
         />
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>
 {% endblock %}

@@ -48,13 +48,12 @@ async function createWrapper(privileges = []) {
                     'sw-card-view': {
                         template: '<div><slot/></div> ',
                     },
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot/><slot name="grid"/></div>',
                     },
                     'sw-grid': await wrapTestComponent('sw-grid'),
                     'sw-grid-row': true,
                     'sw-empty-state': true,
-                    'sw-button': true,
                     'sw-loader': true,
                     'sw-grid-column': true,
                     'sw-context-button': true,
@@ -65,7 +64,6 @@ async function createWrapper(privileges = []) {
                     'sw-label': true,
                     'sw-modal': true,
                     'sw-pagination': true,
-                    'sw-icon': true,
                     'sw-search-bar': true,
                     'router-link': true,
                     'sw-checkbox-field': true,
@@ -103,7 +101,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-list/', () =
     it('should have an disabled create button', async () => {
         const wrapper = await createWrapper();
         const addButton = wrapper.find('.sw-settings-document-list__add-document');
-        expect(addButton.attributes().disabled).toBe('true');
+        expect(addButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to edit', async () => {

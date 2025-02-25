@@ -8,7 +8,7 @@ const classes = {
     root: 'sw-page__main-content',
     cardView: 'sw-card-view',
     systemConfig: 'sw-system-config',
-    settingsCard: 'sw-card',
+    settingsCard: 'mt-card',
     newsletterSubscribeUrl: 'core.newsletter.subscribeUrl',
 };
 
@@ -51,9 +51,8 @@ async function createWrapper() {
                           <slot></slot>settingsCard
                      </div>`,
                     },
-                    'sw-icon': true,
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot></slot></div>',
+                    'mt-card': {
+                        template: '<div class="mt-card"><slot></slot></div>',
                     },
                     'sw-card-view': {
                         template: '<div class="sw-card-view"><slot></slot></div>',
@@ -64,8 +63,7 @@ async function createWrapper() {
                     'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),

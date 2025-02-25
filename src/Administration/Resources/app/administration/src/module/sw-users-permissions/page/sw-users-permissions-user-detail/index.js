@@ -46,10 +46,6 @@ export default {
             mediaItem: null,
             newPassword: '',
             newPasswordConfirm: '',
-            /**
-             * @deprecated tag:v6.7.0 - Will be removed. Use `isEmailAlreadyInUse` instead
-             */
-            isEmailUsed: false,
             isEmailAlreadyInUse: false,
             isUsernameUsed: false,
             isIntegrationsLoading: false,
@@ -308,10 +304,6 @@ export default {
                     id: this.user.id,
                 })
                 .then(({ emailIsUnique }) => {
-                    /**
-                     * @deprecated tag:v6.7.0 - remove this.isEmailUsed assignment
-                     */
-                    this.isEmailUsed = !emailIsUnique;
                     this.isEmailAlreadyInUse = !emailIsUnique;
                 });
         },

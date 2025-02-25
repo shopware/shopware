@@ -51,11 +51,9 @@ async function createWrapper() {
             global: {
                 stubs: {
                     'router-link': true,
-                    'sw-icon': true,
                     'sw-cms-stage-section-selection': await wrapTestComponent('sw-cms-stage-section-selection'),
                     'sw-single-select': true,
                     'sw-text-field': true,
-                    'sw-button': true,
                 },
                 provide: {
                     cmsPageTypeService: {

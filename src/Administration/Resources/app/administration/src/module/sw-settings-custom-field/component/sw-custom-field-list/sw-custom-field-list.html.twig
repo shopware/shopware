@@ -1,5 +1,5 @@
 {% block sw_custom_field_list %}
-<sw-card
+<mt-card
     class="sw-custom-field-list"
     position-identifier="sw-custom-field-list"
 >
@@ -20,7 +20,7 @@
             {% endblock %}
 
             {% block sw_custom_field_list_toolbar_delete %}
-            <sw-button
+            <mt-button
                 v-tooltip.bottom="{
                     message: $tc('sw-privileges.tooltip.warning'),
                     disabled: acl.can('custom_field.editor'),
@@ -32,15 +32,15 @@
                 class="sw-custom-field-list__delete-button"
                 @click="onDeleteCustomFields"
             >
-                <sw-icon
+                <mt-icon
                     name="regular-trash"
-                    small
+                    size="16px"
                 />
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_custom_field_list_toolbar_add %}
-            <sw-button
+            <mt-button
                 v-tooltip.bottom="{
                     message: $tc('sw-privileges.tooltip.warning'),
                     disabled: acl.can('custom_field.editor'),
@@ -52,7 +52,7 @@
                 @click="onAddCustomField(set)"
             >
                 {{ $tc('sw-settings-custom-field.set.detail.addCustomField') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </sw-container>
     </div>
@@ -94,8 +94,9 @@
                 </span>
 
                 <template #inline-edit>
-                    <sw-text-field
-                        :value="getInlineSnippet(item.config.label) || item.name"
+
+                    <mt-text-field
+                        :model-value="getInlineSnippet(item.config.label) || item.name"
                         disabled
                     />
                 </template>
@@ -112,8 +113,9 @@
                 {{ $tc(`sw-settings-custom-field.types.${item.config.customFieldType || item.type}`) }}
 
                 <template #inline-edit>
-                    <sw-text-field
-                        :value="$tc(`sw-settings-custom-field.types.${item.config.customFieldType || item.type}`)"
+
+                    <mt-text-field
+                        :model-value="$tc(`sw-settings-custom-field.types.${item.config.customFieldType || item.type}`)"
                         disabled
                     />
                 </template>
@@ -232,22 +234,22 @@
         {% block sw_custom_field_list_custom_field_delete_actions %}
         <template #modal-footer>
             {% block sw_custom_field_list_custom_field_delete_action_cancel %}
-            <sw-button
+            <mt-button
                 size="small"
                 @click="onCancelDeleteCustomField"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_custom_field_list_custom_field_delete_action_confirm %}
-            <sw-button
-                variant="danger"
+            <mt-button
+                variant="critical"
                 size="small"
                 @click="onDeleteCustomField"
             >
                 {{ $tc('global.default.delete') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
         {% endblock %}
@@ -257,5 +259,5 @@
     {% block sw_custom_field_list_loader %}
     <sw-loader v-if="isLoading" />
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

@@ -23,11 +23,10 @@
             <div class="card">
                 <div class="card-body">
                     {% block page_account_address_form_edit %}
-                        <form
-                              method="post"
+                        <form method="post"
                               action="{{ path('frontend.account.address.edit.save', { addressId: page.address.id }) }}"
-                              data-form-handler="true"
-                        >
+                              data-form-handler="true">
+
                             {% block page_account_address_form_edit_personal %}
                                 {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
                                     data: page.address,

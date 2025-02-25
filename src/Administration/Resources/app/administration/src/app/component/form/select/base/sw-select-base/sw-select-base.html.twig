@@ -37,18 +37,18 @@
                 @click.prevent.stop="emitClear"
                 @keydown.tab.stop="focusParentSelect"
             >
-                <sw-icon
+                <mt-icon
                     class="sw-select__select-indicator sw-select__select-indicator-clear"
                     name="regular-times-s"
-                    small
+                    size="16px"
                 />
             </button>
 
-            <sw-icon
+            <mt-icon
                 class="sw-select__select-indicator sw-select__select-indicator-expand"
                 :class="{ 'sw-select__select-indicator-expand--rotated': !expanded }"
                 name="regular-chevron-up-xs"
-                small
+                size="16px"
                 @click.stop="toggleExpand"
             />
         </div>

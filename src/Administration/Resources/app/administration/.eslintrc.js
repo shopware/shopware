@@ -223,6 +223,7 @@ module.exports = {
                         'sw-select-field',
                         'sw-checkbox-field',
                         'sw-number-field',
+                        'sw-password-field',
                     ],
                 }],
                 // @deprecated v.6.7.0.0 - will be error in v.6.7

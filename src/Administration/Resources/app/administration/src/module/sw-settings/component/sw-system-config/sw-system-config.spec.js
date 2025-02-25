@@ -29,6 +29,7 @@ async function createWrapper(defaultValues = {}) {
             renderStubDefaultSlot: true,
             stubs: {
                 'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
+                'sw-password-field-deprecated': await wrapTestComponent('sw-password-field-deprecated'),
                 'sw-ignore-class': true,
                 'sw-sales-channel-switch': await wrapTestComponent('sw-sales-channel-switch'),
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
@@ -37,8 +38,6 @@ async function createWrapper(defaultValues = {}) {
                 'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                'sw-password-field': await wrapTestComponent('sw-password-field'),
-                'sw-password-field-deprecated': await wrapTestComponent('sw-password-field-deprecated'),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),

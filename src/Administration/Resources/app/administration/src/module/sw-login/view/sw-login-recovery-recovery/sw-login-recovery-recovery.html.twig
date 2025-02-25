@@ -19,17 +19,17 @@
         {% block sw_login_recovery_recovery_form %}
         <form @submit.prevent="updatePassword">
             {% block sw_login_recovery_recovery_form_new_password_field %}
-            <sw-password-field
+            <mt-password-field
                 ref="swLoginRecoveryRecoveryNewPasswordField"
-                v-model:value="newPassword"
+                v-model="newPassword"
                 :label="$tc('sw-login.recovery.recovery.newPasswordField.label')"
                 :error="userPasswordError"
             />
             {% endblock %}
 
             {% block sw_login_recovery_recovery_form_password_confirm_field %}
-            <sw-password-field
-                v-model:value="newPasswordConfirm"
+            <mt-password-field
+                v-model="newPasswordConfirm"
                 :label="$tc('sw-login.recovery.recovery.passwordConfirmField.label')"
             />
             {% endblock %}

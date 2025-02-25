@@ -440,15 +440,8 @@ class CartException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
-    public static function unsupportedValue(string $type, string $class): self|UnsupportedValueException
+    public static function unsupportedValue(string $type, string $class): self
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new UnsupportedValueException($type, $class);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::VALUE_NOT_SUPPORTED,

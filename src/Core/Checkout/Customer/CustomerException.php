@@ -360,6 +360,9 @@ class CustomerException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0.0 - reason:return-type-change - Will return self
+     */
     public static function missingOption(string $option, string $constraint): self|MissingOptionsException
     {
         if (!Feature::isActive('v6.8.0.0')) {

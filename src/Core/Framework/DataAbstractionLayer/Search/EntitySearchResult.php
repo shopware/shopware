@@ -88,12 +88,6 @@ class EntitySearchResult
         unset($vars['context']);
         unset($vars['entities']);
 
-        foreach ($vars as &$value) {
-            if ($value instanceof \DateTimeInterface) {
-                $value = $value->format(\DateTime::RFC3339_EXTENDED);
-            }
-        }
-
         return $vars;
     }
 

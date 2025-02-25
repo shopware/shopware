@@ -17,6 +17,7 @@
             <argument type="service" id="Shopware\Core\System\Snippet\Files\SnippetFileCollection" />
             <argument type="service" id="Shopware\Core\System\Snippet\SnippetFileHandler" />
             <argument>%kernel.project_dir%/</argument>
+            <argument type="service" id="kernel"/>
         </service>
 
         <service id="Shopware\Core\System\Snippet\SnippetFixer">

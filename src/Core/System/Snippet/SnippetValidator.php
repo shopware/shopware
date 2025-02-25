@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Snippet;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Kernel;
 use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 
@@ -15,16 +16,14 @@ class SnippetValidator implements SnippetValidatorInterface
     public function __construct(
         private readonly SnippetFileCollection $deprecatedSnippetFiles,
         private readonly SnippetFileHandler $snippetFileHandler,
-        private readonly string $projectDir
+        private readonly string $projectDir,
+        private readonly Kernel $kernel
     ) {
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    public function validate(): array
+    public function validate(array $bundles): array
     {
-        $files = $this->getAllFiles();
+        $files = $this->getAllFiles($bundles);
 
         $snippetFileMappings = [];
         $availableISOs = [];
@@ -48,13 +47,23 @@ class SnippetValidator implements SnippetValidatorInterface
         return $this->findMissingSnippets($snippetFileMappings, $availableISOs);
     }
 
-    protected function getAllFiles(): SnippetFileCollection
+    /**
+     * @param array<string, class-string> $bundles
+     */
+    protected function getAllFiles(array $bundles): SnippetFileCollection
     {
-        $deprecatedFiles = $this->findDeprecatedSnippetFiles();
-        $administrationFiles = $this->snippetFileHandler->findAdministrationSnippetFiles();
-        $storefrontSnippetFiles = $this->snippetFileHandler->findStorefrontSnippetFiles();
+        if($bundles !== []) {
+            $bundles = array_map(fn (string $bundle) => $this->kernel->getBundle($bundle), $bundles);
+        }
 
-        return $this->hydrateFiles(array_merge($deprecatedFiles, $administrationFiles, $storefrontSnippetFiles));
+        $files = [];
+        foreach ($bundles as $bundle) {
+            $files[] = $this->snippetFileHandler->findBundleSnippetFiles($bundle);
+        }
+
+        $files = array_merge($this->findDeprecatedSnippetFiles(), ...$files);
+
+        return $this->hydrateFiles($files);
     }
 
     /**

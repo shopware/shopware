@@ -6,6 +6,7 @@ use Shopware\Administration\Administration;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Storefront;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
 #[Package('discovery')]
 class SnippetFileHandler
@@ -27,6 +28,21 @@ class SnippetFileHandler
         $json = json_encode($content, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
 
         file_put_contents($path, $json);
+    }
+
+    public function findBundleSnippetFiles(BundleInterface $bundle): array
+    {
+        $storefrontSnippets = [];
+        if(is_dir($bundle->getPath() . '/Resources/snippet/')) {
+            $storefrontSnippets =  $this->findSnippetFilesByPath($bundle->getPath() . '/Resources/snippet/');
+        }
+
+        $administrationSnippets = [];
+        if(is_dir($bundle->getPath() . '/Resources/app/*/src/')) {
+            $administrationSnippets = $this->findSnippetFilesByPath($bundle->getPath() . '/Resources/app/*/src/');
+        }
+
+        return array_merge($storefrontSnippets, $administrationSnippets);
     }
 
     public function findAdministrationSnippetFiles(): array

@@ -35,12 +35,17 @@ class ValidateSnippetsCommand extends Command
 
     protected function configure(): void
     {
-        $this->addOption('fix', 'f', InputOption::VALUE_NONE, 'Use this option to start a wizard to fix the snippets comfortably');
+        $this
+            ->addOption('fix', 'f', InputOption::VALUE_NONE, 'Use this option to start a wizard to fix the snippets comfortably')
+            ->addOption('bundle', 'b', InputOption::VALUE_OPTIONAL, 'The bundle name where to load the snippets. Multiple bundles can be passed separated by a comma', 'Storefront, Administration')
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $missingSnippetsArray = $this->snippetValidator->validate();
+        $bundles = array_map('trim', array_filter(explode(',', $input->getOption('bundle'))));
+
+        $missingSnippetsArray = $this->snippetValidator->validate($bundles);
         $missingSnippetsCollection = $this->hydrateMissingSnippets($missingSnippetsArray);
 
         $io = new ShopwareStyle($input, $output);

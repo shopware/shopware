@@ -7,5 +7,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('discovery')]
 interface SnippetValidatorInterface
 {
-    public function validate(): array;
+    /**
+     * @param array<string, class-string> $bundles
+     * @return array<string, mixed>
+     */
+    public function validate(array $bundles): array;
 }

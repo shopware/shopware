@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Elasticsearch;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -27,14 +27,20 @@ class ElasticsearchExceptionTest extends TestCase
     {
         $exception = ElasticsearchException::operatorNotAllowed('foo');
         static::assertSame('Operator foo not allowed', $exception->getMessage());
+        static::assertInstanceOf(ElasticsearchException::class, $exception);
+        static::assertSame('ELASTICSEARCH__OPERATOR_NOT_ALLOWED', $exception->getErrorCode());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+    }
 
-        if (!Feature::isActive('v6.8.0.0')) {
-            static::assertInstanceOf(\InvalidArgumentException::class, $exception);
-        } else {
-            static::assertInstanceOf(ElasticsearchException::class, $exception);
-            static::assertSame('ELASTICSEARCH__OPERATOR_NOT_ALLOWED', $exception->getErrorCode());
-            static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
-        }
+    /**
+     * @deprecated tag:v6.8.0 - reason: see ElasticsearchException::operatorNotAllowed - to be removed
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testOperatorNotAllowedDeprecated(): void
+    {
+        $exception = ElasticsearchException::operatorNotAllowed('foo');
+        static::assertInstanceOf(\InvalidArgumentException::class, $exception);
+        static::assertSame('Operator foo not allowed', $exception->getMessage());
     }
 
     public function testUnsupportedDefinition(): void

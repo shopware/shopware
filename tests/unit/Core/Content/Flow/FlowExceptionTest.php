@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(FlowException::class)]
 class FlowExceptionTest extends TestCase
 {
-    public function customTriggerByNameNotFound(): void
+    public function testCustomTriggerByNameNotFound(): void
     {
         $e = FlowException::customTriggerByNameNotFound('myEvent');
 

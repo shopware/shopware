@@ -271,9 +271,9 @@ class PromotionCalculator
             $item->setStackable(true);
             $this->splitted[$item->getId()] = $this->lineItemQuantitySplitter->split($item, 1, $context);
         }
-        echo 'mini';
+
         $packages = $this->enrichPackagesWithCartData($packages, $calculatedCart, $context);
-        echo 'sas';
+
         // every scope packager can have an additional
         // list of rules that can be used to filter out items.
         // thus we enrich our current package with items
@@ -292,7 +292,7 @@ class PromotionCalculator
         // that are eligible for our discount by executing our graduation resolver.
         $packages = $this->advancedFilter->filterPackages($discount, $packages, $originalPackageCount);
         $packages = $this->enrichPackagesWithCartData($packages, $calculatedCart, $context);
-        echo 'ohou';
+
         $calculator = match ($discount->getType()) {
             PromotionDiscountEntity::TYPE_ABSOLUTE => new DiscountAbsoluteCalculator($this->absolutePriceCalculator),
             PromotionDiscountEntity::TYPE_PERCENTAGE => new DiscountPercentageCalculator($this->absolutePriceCalculator, $this->percentagePriceCalculator),

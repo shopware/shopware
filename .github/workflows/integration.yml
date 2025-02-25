@@ -106,12 +106,10 @@ jobs:
       - name: Run your tests with reporting
         if: ${{ env.USE_CURRENTS == 'true' }}
         working-directory: tests/acceptance
-        run: |-
-          npx pwc \
-            --ci-build-id ${CURRENTS_BUILD_ID} \
-            --project-id ${{ secrets.CURRENTS_PROJECT_ID_6_6 }} \
-            --key ${{ secrets.CURRENTS_RECORD_KEY }} \
-            -- --project ${{ matrix.name }} --trace=on
+        env:
+          CURRENTS_RECORD_KEY: "${{ secrets.CURRENTS_RECORD_KEY }}"
+          CURRENTS_PROJECT_ID: "${{ secrets.CURRENTS_PROJECT_ID_6_6 }}"
+        run: npx pwc -- --project=${{ matrix.name }} --trace=on
 
       - name: Run your tests
         if: ${{ env.USE_CURRENTS != 'true' }}
@@ -359,7 +357,10 @@ jobs:
       - name: Run update tests with reporting
         if: ${{ contains(github.workflow_ref, 'nightly') }}
         working-directory: new-shopware/tests/acceptance
-        run: npx pwc --project-id ${{ secrets.CURRENTS_PROJECT_ID_6_6 }} --key ${{ secrets.CURRENTS_RECORD_KEY }} -- --project=Update --trace=on
+        env:
+          CURRENTS_RECORD_KEY: "${{ secrets.CURRENTS_RECORD_KEY }}"
+          CURRENTS_PROJECT_ID: "${{ secrets.CURRENTS_PROJECT_ID_6_6 }}"
+        run: npx pwc -- --project=Update --trace=on
       - name: Run update tests
         if: ${{ !contains(github.workflow_ref, 'nightly') }}
         working-directory: new-shopware/tests/acceptance

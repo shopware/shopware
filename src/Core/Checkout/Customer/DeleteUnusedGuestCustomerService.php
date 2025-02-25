@@ -38,9 +38,9 @@ class DeleteUnusedGuestCustomerService
 
         $criteria = $this->getUnusedCustomerCriteria($maxLifeTime);
 
-        $criteria->addAggregation(new CountAggregation('total', 'id'));
+        $criteria->addAggregation(new CountAggregation('customer-count', 'id'));
 
-        $aggregation = $this->customerRepository->aggregate($criteria, $context)->get('total');
+        $aggregation = $this->customerRepository->aggregate($criteria, $context)->get('customer-count');
 
         return $aggregation instanceof CountResult ? $aggregation->getCount() : 0;
     }

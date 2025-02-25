@@ -17,9 +17,10 @@
         {% block sw_settings_shipping_list_smart_bar_header_title %}
         <h2>
             {% block sw_settings_shipping_list_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }} <sw-icon
+            {{ $tc('sw-settings.index.title') }}
+            <mt-icon
                 name="regular-chevron-right-xs"
-                small
+                size="16px"
             /> {{ $tc('sw-settings-shipping.list.textHeadline') }}
             {% endblock %}
 
@@ -39,13 +40,13 @@
     {% block sw_settings_shipping_list_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_shipping_list_smart_bar_actions_add %}
-        <sw-button
-            :router-link="{ name: 'sw.settings.shipping.create' }"
+        <mt-button
             :disabled="!acl.can('shipping.creator') || undefined"
             variant="primary"
+            @click="$router.push({ name: 'sw.settings.shipping.create' })"
         >
             {{ $tc('sw-settings-shipping.list.buttonAddShippingMethod') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}
@@ -93,16 +94,16 @@
 
                     {% block sw_settings_shipping_list_grid_columns_active_content %}
                     <template v-else>
-                        <sw-icon
+                        <mt-icon
                             v-if="item.active"
                             name="regular-checkmark-xs"
-                            small
+                            size="16px"
                             class="is--active"
                         />
-                        <sw-icon
+                        <mt-icon
                             v-else
                             name="regular-times-s"
-                            small
+                            size="16px"
                             class="is--inactive"
                         />
                     </template>
@@ -175,22 +176,22 @@
                         {% block sw_settings_shipping_list_delete_modal_footer %}
                         <template #modal-footer>
                             {% block sw_settings_shipping_list_delete_modal_cancel %}
-                            <sw-button
+                            <mt-button
                                 size="small"
                                 @click="onCloseDeleteModal"
                             >
                                 {{ $tc('global.default.cancel') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
 
                             {% block sw_settings_shipping_list_delete_modal_confirm %}
-                            <sw-button
-                                variant="danger"
+                            <mt-button
+                                variant="critical"
                                 size="small"
                                 @click="onConfirmDelete(item.id)"
                             >
                                 {{ $tc('sw-settings-shipping.list.buttonDelete') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
                         </template>
                         {% endblock %}

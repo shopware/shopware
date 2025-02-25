@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -298,6 +299,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(CustomEntitySchemaUpdater::class),
             $this->container->get(PluginService::class),
             $this->container->get(VersionSanitizer::class),
+            $this->container->get(DefinitionInstanceRegistry::class),
         );
 
         $context = Context::createDefaultContext();
@@ -778,6 +780,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(CustomEntitySchemaUpdater::class),
             $pluginService,
             $this->container->get(VersionSanitizer::class),
+            $this->container->get(DefinitionInstanceRegistry::class),
         );
     }
 

@@ -11,7 +11,7 @@
         display: flex;
         align-items: center;
 
-        .sw-icon {
+        .mt-icon {
             margin-right: 10px;
         }
     }
@@ -21,7 +21,7 @@
     }
 
     &__grid {
-        .sw-data-grid__cell--actions .sw-country-currency-hamburger-menu__button.sw-button:not(:last-child) {
+        .sw-data-grid__cell--actions .sw-country-currency-hamburger-menu__button.mt-button:not(:last-child) {
             margin-right: 0;
         }
 

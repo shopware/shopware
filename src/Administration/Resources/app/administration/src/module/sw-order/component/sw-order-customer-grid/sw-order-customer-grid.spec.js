@@ -68,7 +68,7 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-order-customer-grid', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': {
+                'mt-card': {
                     template: `
                         <div class="sw-card__content">
                             <slot name="toolbar"></slot>
@@ -110,12 +110,8 @@ async function createWrapper() {
                     template:
                         '<input class="sw-card-filter" :value="term" @input="$emit(\'sw-card-filter-term-change\', $event.target.value)">',
                 },
-                'sw-icon': true,
                 'sw-field': true,
                 'router-link': true,
-                'sw-button': {
-                    template: '<button class="sw-button" @click="$emit(\'click\', $event)"><slot></slot></button>',
-                },
                 'sw-order-new-customer-modal': true,
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select', { sync: true }),
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
@@ -139,7 +135,7 @@ async function createWrapper() {
                     },
                 },
                 'sw-bulk-edit-modal': true,
-                'sw-alert': true,
+
                 'sw-data-grid-inline-edit': true,
                 'sw-data-grid-column-boolean': true,
                 'sw-select-field': true,
@@ -454,8 +450,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
 
         expect(wrapper.find('.sw-order-customer-grid__sales-channel-selection-modal').exists()).toBeTruthy();
 
-        const actions = wrapper.findAll('.sw-order-customer-grid__sales-channel-selection-modal .sw-button');
-        await actions.at(0).trigger('click');
+        await wrapper.findByText('button', 'global.default.cancel').trigger('click');
 
         expect(wrapper.vm.customer).toBeNull();
         expect(wrapper.find('.sw-order-customer-grid__sales-channel-selection-modal').exists()).toBeFalsy();
@@ -489,10 +484,10 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         await entityItem.at(0).trigger('click');
         await flushPromises();
 
-        const actions = wrapper.findAll('.sw-order-customer-grid__sales-channel-selection-modal .sw-button');
-        expect(actions.at(1).attributes().hasOwnProperty('disabled')).toBeFalsy();
+        const buttonSelect = wrapper.findByText('button', 'sw-order.initialModal.customerGrid.buttonSelectSalesChannel');
+        expect(buttonSelect.attributes('disabled')).toBeUndefined();
 
-        await actions.at(1).trigger('click');
+        await buttonSelect.trigger('click');
 
         expect(handleSelectCustomerSpy).toHaveBeenCalled();
     });
@@ -561,10 +556,9 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
 
         expect(wrapper.find('.sw-order-customer-grid__customer-changes-modal').exists()).toBeTruthy();
 
-        const actions = wrapper.findAll('.sw-order-customer-grid__customer-changes-modal .sw-button');
-        expect(actions.at(0).attributes().hasOwnProperty('disabled')).toBeFalsy();
-
-        await actions.at(0).trigger('click');
+        const cancelButton = wrapper.findByText('button', 'global.default.cancel');
+        expect(cancelButton.attributes('disabled')).toBeUndefined();
+        await cancelButton.trigger('click');
 
         expect(wrapper.vm.customer).toEqual(wrapper.vm.customerDraft);
     });
@@ -593,10 +587,10 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
 
         expect(wrapper.find('.sw-order-customer-grid__customer-changes-modal').exists()).toBeTruthy();
 
-        const actions = wrapper.findAll('.sw-order-customer-grid__customer-changes-modal .sw-button');
-        expect(actions.at(1).attributes().hasOwnProperty('disabled')).toBeFalsy();
+        const changeCustomerButton = wrapper.findByText('button', 'sw-order.initialModal.customerGrid.buttonChangeCustomer');
+        expect(changeCustomerButton.attributes('disabled')).toBeUndefined();
 
-        await actions.at(1).trigger('click');
+        await changeCustomerButton.trigger('click');
 
         expect(handleSelectCustomerSpy).toHaveBeenCalled();
     });

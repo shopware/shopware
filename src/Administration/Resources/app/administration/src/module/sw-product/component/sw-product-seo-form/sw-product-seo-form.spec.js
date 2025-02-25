@@ -44,14 +44,12 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
                 },
                 stubs: {
                     'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
                     'sw-single-select': await wrapTestComponent('sw-single-select'),
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
-                    'sw-icon': true,
                     'sw-product-variant-info': await wrapTestComponent('sw-product-variant-info'),
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                     'sw-select-result': await wrapTestComponent('sw-select-result'),
@@ -130,13 +128,11 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
         wrapper = await createWrapper(productEntity);
         await flushPromises();
 
-        const switchComponent = wrapper.getComponent({
-            name: 'sw-switch-field-deprecated__wrapped',
-        });
+        const switchComponent = wrapper.getComponent('.mt-switch');
         const singleSelectComponent = wrapper.find('.sw-single-select');
 
         // check if switch is off
-        expect(switchComponent.vm.value).toBe(false);
+        expect(switchComponent.vm.checked).toBe(false);
 
         // check if single select is disabled
         expect(singleSelectComponent.classes('is--disabled')).toBe(true);
@@ -153,13 +149,11 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
         wrapper = await createWrapper(productEntity);
         await flushPromises();
 
-        const switchComponent = wrapper.getComponent({
-            name: 'sw-switch-field-deprecated__wrapped',
-        });
+        const switchComponent = wrapper.getComponent('.mt-switch');
         const singleSelectComponent = wrapper.get('.sw-single-select');
 
         // check if switch is turned on
-        expect(switchComponent.vm.value).toBe(true);
+        expect(switchComponent.vm.modelValue).toBe(true);
 
         // check if single select is enabled
         expect(singleSelectComponent.attributes('disabled')).toBeUndefined();

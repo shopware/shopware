@@ -15,15 +15,13 @@ async function createWrapper(customProps = {}, domains = []) {
         {
             global: {
                 stubs: {
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot></slot><slot name="grid"></slot></div>',
                     },
-                    'sw-button': true,
                     'sw-data-grid': await wrapTestComponent('sw-data-grid', {
                         sync: true,
                     }),
                     'sw-context-menu-item': true,
-                    'sw-icon': true,
                     'sw-context-button': true,
                     'sw-modal': await wrapTestComponent('sw-modal', {
                         sync: true,
@@ -133,7 +131,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         });
 
         const button = wrapper.find('.sw-sales-channel-detail__button-domain-add');
-        expect(button.attributes().disabled).toBe('true');
+        expect(button.attributes('disabled')).toBeDefined();
 
         const contextMenuItems = wrapper.findAll('sw-context-menu-item-stub');
         contextMenuItems.forEach((item) => {

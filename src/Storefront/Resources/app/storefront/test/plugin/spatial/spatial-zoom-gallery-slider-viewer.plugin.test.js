@@ -1,7 +1,6 @@
-import SpatialZoomGallerySliderViewerPlugin from "src/plugin/spatial/spatial-zoom-gallery-slider-viewer.plugin";
-import SpatialObjectLoaderUtil from "src/plugin/spatial/utils/spatial-object-loader-util";
-import SpatialOrbitControlsUtil from "src/plugin/spatial/utils/spatial-orbit-controls-util";
-import { loadThreeJs } from 'src/plugin/spatial/utils/spatial-threejs-load-util';
+import SpatialZoomGallerySliderViewerPlugin from 'src/plugin/spatial/spatial-zoom-gallery-slider-viewer.plugin';
+import SpatialObjectLoaderUtil from 'src/plugin/spatial/utils/spatial-object-loader-util';
+import SpatialOrbitControlsUtil from 'src/plugin/spatial/utils/spatial-orbit-controls-util';
 
 jest.mock('src/plugin/spatial/utils/spatial-threejs-load-util');
 jest.mock('src/plugin/spatial/utils/spatial-orbit-controls-util');
@@ -15,40 +14,38 @@ jest.mock('src/plugin/spatial/utils/spatial-zoom-gallery-slider-render-util');
 describe('SpatialZoomGallerySliderViewerPlugin tests', function () {
     let spatialZoomGallerySliderViewerPlugin;
     let targetElement;
-    let parentElement;
 
     beforeEach(() => {
         SpatialObjectLoaderUtil.mockClear();
         SpatialOrbitControlsUtil.mockClear();
         targetElement = document.createElement('div');
-        parentElement = document.createElement('div');
         jest.useFakeTimers();
         window.threeJs = {};
         window.threeJs.PerspectiveCamera = function () {
             return {
                 position: {
-                    set: () => { }
+                    set: () => { },
                 },
-                lookAt: () => { }
-            }
+                lookAt: () => { },
+            };
         };
         window.threeJs.Scene = function () {
             return {
                 add: jest.fn(),
-            }
+            };
         };
         window.threeJs.Clock = function () {
             return {
-                getDelta: () => { }
-            }
+                getDelta: () => { },
+            };
         };
         window.threeJs.WebGLRenderer = function () {
             return {
                 setClearColor: () => { },
                 domElement: document.createElement('canvas'),
                 setAnimationLoop: () => { },
-                render: () => { }
-            }
+                render: () => { },
+            };
         };
 
         spatialZoomGallerySliderViewerPlugin = new SpatialZoomGallerySliderViewerPlugin(targetElement, {
@@ -130,9 +127,9 @@ describe('SpatialZoomGallerySliderViewerPlugin tests', function () {
 
         spatialZoomGallerySliderViewerPlugin.initViewer(false);
 
-        await new Promise(process.nextTick);
-
-        expect(spatialZoomGallerySliderViewerPlugin.scene.add).toHaveBeenCalledTimes(1);
+        process.nextTick(() =>
+            expect(spatialZoomGallerySliderViewerPlugin.scene.add).toHaveBeenCalledTimes(1)
+        );
     });
 
     test('initViewer with defined spatial model url will load model', async () => {
@@ -140,9 +137,9 @@ describe('SpatialZoomGallerySliderViewerPlugin tests', function () {
 
         spatialZoomGallerySliderViewerPlugin.initViewer(false);
 
-        await new Promise(process.nextTick);
-
-        expect(spatialZoomGallerySliderViewerPlugin.scene.add).toHaveBeenCalledTimes(1);
+        process.nextTick(() =>
+            expect(spatialZoomGallerySliderViewerPlugin.scene.add).toHaveBeenCalledTimes(1)
+        );
     });
 
     test('initViewer without spatial model url will not load model', async () => {
@@ -169,8 +166,8 @@ describe('SpatialZoomGallerySliderViewerPlugin tests', function () {
 
         spatialZoomGallerySliderViewerPlugin.initViewer(true);
 
-        await new Promise(process.nextTick);
-
-        expect(spatialZoomGallerySliderViewerPlugin.el.parentElement.parentElement.classList.contains('gallery-slider-canvas-disabled')).toBe(true);
+        process.nextTick(() =>
+            expect(spatialZoomGallerySliderViewerPlugin.el.parentElement.parentElement.classList.contains('gallery-slider-canvas-disabled')).toBe(true)
+        );
     });
 });

@@ -25,7 +25,6 @@ describe('src/app/component/structure/sw-language-switch', () => {
                         </div>
                     `,
                     },
-                    'sw-button': true,
                 },
             },
         });
@@ -131,6 +130,6 @@ describe('src/app/component/structure/sw-language-switch', () => {
         await wrapper.vm.onInput('456');
 
         const saveButton = wrapper.find('#sw-language-switch-save-changes-button');
-        expect(saveButton.attributes().disabled).toBe('true');
+        expect(saveButton.attributes('disabled')).toBeDefined();
     });
 });

@@ -20,15 +20,11 @@ async function createWrapper(
                 'sw-modal': {
                     template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
                 },
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
                 'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
                 'sw-customer-address-form': true,
                 'sw-customer-base-form': true,
-                'sw-icon': true,
-                'sw-switch-field': true,
                 'sw-extension-component-section': true,
                 'router-link': true,
                 'sw-loader': true,
@@ -222,8 +218,8 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
         let swDetailsTab = wrapper.findAll('.sw-tabs-item').at(0);
         let swBillingAddressTab = wrapper.findAll('.sw-tabs-item').at(1);
 
-        expect(swDetailsTab.find('sw-icon-stub').exists()).toBe(false);
-        expect(swBillingAddressTab.find('sw-icon-stub').exists()).toBe(false);
+        expect(swDetailsTab.find('.mt-icon').exists()).toBe(false);
+        expect(swBillingAddressTab.find('.mt-icon').exists()).toBe(false);
 
         Shopware.Store.get('error').addApiError({
             expression: 'customer.1.email',
@@ -237,15 +233,15 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
 
         wrapper.vm.customerRepository.save = jest.fn(() => Promise.resolve());
 
-        const saveButton = wrapper.find('.sw-button--primary');
+        const saveButton = wrapper.findByText('button', 'global.default.save');
 
         await saveButton.trigger('click');
 
         swDetailsTab = wrapper.findAll('.sw-tabs-item').at(0);
         swBillingAddressTab = wrapper.findAll('.sw-tabs-item').at(1);
 
-        expect(swDetailsTab.find('sw-icon-stub[name=solid-exclamation-circle]').exists()).toBe(true);
-        expect(swBillingAddressTab.find('sw-icon-stub').exists()).toBe(false);
+        expect(swDetailsTab.find('.mt-icon.icon--solid-exclamation-circle').exists()).toBe(true);
+        expect(swBillingAddressTab.find('.mt-icon').exists()).toBe(false);
     });
 
     it('should get default salutation is value not specified', async () => {

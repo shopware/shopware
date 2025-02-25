@@ -162,8 +162,6 @@ async function createWrapper() {
                 },
                 stubs: {
                     'sw-container': await wrapTestComponent('sw-container'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-button-group': {
                         template: '<div class="sw-button-group"><slot></slot></div>',
                     },
@@ -206,7 +204,6 @@ async function createWrapper() {
                         props: ['to'],
                     },
                     'sw-empty-state': true,
-                    'sw-icon': true,
                     'sw-loader': true,
                     'sw-data-grid-settings': true,
                     'sw-data-grid-inline-edit': true,

@@ -6,15 +6,13 @@ use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\XmlReader;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
+use Shopware\Core\System\SystemConfig\SystemConfigException;
 
 #[Package('framework')]
 class ConfigReader extends XmlReader
 {
     private const FALLBACK_LOCALE = 'en-GB';
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     protected string $xsdFile = __DIR__ . '/../Schema/config.xsd';
 
     /**
@@ -32,7 +30,7 @@ class ConfigReader extends XmlReader
         $configPath = $bundle->getPath() . '/' . ltrim($bundleConfigName, '/');
 
         if (!is_file($configPath)) {
-            throw new BundleConfigNotFoundException($bundleConfigName, $bundle->getName());
+            throw SystemConfigException::bundleConfigNotFound($bundleConfigName, $bundle->getName());
         }
 
         return $this->read($configPath);

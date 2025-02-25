@@ -17,8 +17,9 @@
         </p>
 
         <p>
-            <sw-switch-field
-                v-model:value="removePluginData"
+
+            <mt-switch
+                v-model="removePluginData"
                 :label="$tc('sw-extension-store.component.sw-extension-uninstall-modal.labelRemovePluginData')"
                 :help-text="$tc('sw-extension-store.component.sw-extension-uninstall-modal.helpTextRemovePluginData')"
             />
@@ -30,24 +31,24 @@
     <template #modal-footer>
         {% block sw_extension_uninstall_modal_footer %}
         {% block sw_extension_uninstall_modal_footer_cancel %}
-        <sw-button
+        <mt-button
             size="small"
             :disabled="isLoading"
             @click="emitClose"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_extension_uninstall_modal_footer_uninstall %}
-        <sw-button
-            variant="danger"
+        <mt-button
+            variant="critical"
             size="small"
             :is-loading="isLoading"
             @click="emitUninstall"
         >
             {{ $tc('sw-extension-store.component.sw-extension-uninstall-modal.buttonLabel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
         {% endblock %}
     </template>

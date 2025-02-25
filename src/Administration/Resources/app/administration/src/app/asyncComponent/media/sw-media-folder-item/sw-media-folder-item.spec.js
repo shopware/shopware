@@ -145,7 +145,6 @@ async function createWrapper(defaultFolderId, privileges = []) {
                 'sw-context-menu': {
                     template: '<div><slot></slot></div>',
                 },
-                'sw-icon': true,
                 'sw-text-field': true,
                 'sw-media-modal-folder-settings': true,
                 'sw-media-modal-folder-dissolve': true,

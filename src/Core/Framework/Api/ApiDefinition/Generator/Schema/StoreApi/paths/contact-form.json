@@ -28,7 +28,6 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "salutationId",
                                     "email",
                                     "subject",
                                     "comment"

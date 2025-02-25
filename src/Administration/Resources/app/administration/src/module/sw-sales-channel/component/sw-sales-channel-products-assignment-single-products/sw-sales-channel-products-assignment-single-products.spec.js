@@ -34,7 +34,7 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-container': true,
-                'sw-card': {
+                'mt-card': {
                     template: '<div><slot></slot><slot name="grid"></slot></div>',
                 },
                 'sw-card-section': {
@@ -50,10 +50,6 @@ async function createWrapper() {
                 'sw-data-grid': await wrapTestComponent('sw-data-grid', {
                     sync: true,
                 }),
-                'sw-button': await wrapTestComponent('sw-button', {
-                    sync: true,
-                }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field', { sync: true }),
                 'sw-text-field': await wrapTestComponent('sw-text-field', {
                     sync: true,
@@ -66,7 +62,6 @@ async function createWrapper() {
                 'sw-modal': true,
                 'sw-tabs': true,
                 'sw-tab-items': true,
-                'sw-icon': true,
                 'sw-pagination': true,
                 'sw-data-grid-skeleton': true,
                 'sw-data-grid-settings': true,

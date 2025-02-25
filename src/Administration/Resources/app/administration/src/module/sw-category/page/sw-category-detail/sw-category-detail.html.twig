@@ -40,13 +40,13 @@
     <template #smart-bar-actions>
         <template v-if="category || landingPage">
             {% block sw_category_smart_bar_abort %}
-            <sw-button
+            <mt-button
                 v-tooltip.bottom="tooltipCancel"
                 :disabled="isLoading"
                 @click="cancelEdit"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_category_smart_bar_save %}
@@ -117,14 +117,14 @@
 
                 {% block sw_category_collapse_actions %}
                 <div v-if="categoryCheckedItem > 0">
-                    <sw-button
+                    <mt-button
                         class="sw-tree-actions__delete_categories"
-                        variant="danger"
+                        variant="critical"
                         size="small"
                         @click="onCategoryDelete"
                     >
                         {{ $tc('global.default.delete') }}
-                    </sw-button>
+                    </mt-button>
                 </div>
                 {% endblock %}
 
@@ -177,14 +177,14 @@
 
                 {% block sw_landing_page_collapse_actions %}
                 <div v-if="landingPageCheckedItem > 0">
-                    <sw-button
+                    <mt-button
                         class="sw-tree-actions__delete_categories"
-                        variant="danger"
+                        variant="critical"
                         size="small"
                         @click="onLandingPageDelete"
                     >
                         {{ $tc('global.default.delete') }}
-                    </sw-button>
+                    </mt-button>
                 </div>
                 {% endblock %}
 

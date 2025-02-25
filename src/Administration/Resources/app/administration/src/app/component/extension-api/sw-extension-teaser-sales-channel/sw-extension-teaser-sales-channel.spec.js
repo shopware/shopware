@@ -12,7 +12,6 @@ async function createWrapper() {
         {
             global: {
                 stubs: {
-                    'mt-icon': true,
                     'sw-extension-teaser-popover': true,
                 },
             },
@@ -40,7 +39,7 @@ describe('src/app/component/extension-api/sw-extension-teaser-sales-channel', ()
             salesChannel: {
                 title: 'Facebook',
                 description: 'Sell products on Facebook',
-                iconName: 'facebook',
+                iconName: 'regular-facebook',
             },
             popoverComponent: {
                 src: 'http://localhost:8080',
@@ -58,7 +57,7 @@ describe('src/app/component/extension-api/sw-extension-teaser-sales-channel', ()
         expect(salesChannels).toHaveLength(1);
 
         const salesChannel = salesChannels[0];
-        expect(salesChannel.find('mt-icon-stub').attributes('name')).toBe('facebook');
+        expect(salesChannel.findComponent('.mt-icon').vm.name).toBe('regular-facebook');
         expect(salesChannel.find('.sw-extension-teaser-sales-channel__item-name').text()).toBe('Facebook');
         expect(salesChannel.find('.sw-extension-teaser-sales-channel__item-description').text()).toBe(
             'Sell products on Facebook',

@@ -86,14 +86,6 @@ async function createEntitySingleSelect(
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-icon': {
-                    template: '<div @click="$emit(\'click\', $event)"></div>',
-                    props: [
-                        'size',
-                        'color',
-                        'name',
-                    ],
-                },
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list', {
                     sync: true,
@@ -295,13 +287,15 @@ describe('components/sw-entity-single-select', () => {
 
         const activeIconProps = {
             color: '#37d046',
-            name: 'default-basic-shape-circle-filled',
+            decorative: false,
+            name: 'solid-circle',
             size: '6',
         };
 
         const inActiveIconProps = {
             color: '#d1d9e0',
-            name: 'default-basic-shape-circle-filled',
+            decorative: false,
+            name: 'solid-circle',
             size: '6',
         };
 
@@ -766,7 +760,6 @@ describe('components/sw-entity-single-select', () => {
                     }),
                     'sw-field-error': true,
                     'sw-loader': true,
-                    'sw-icon': true,
                     'sw-product-variant-info': true,
                     'sw-select-result': {
                         template: '<div><slot></slot></div>',

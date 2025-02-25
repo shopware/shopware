@@ -6,6 +6,9 @@ use Shopware\Core\Content\Sitemap\ConfigHandler\ConfigHandlerInterface;
 use Shopware\Core\Content\Sitemap\Exception\InvalidSitemapKey;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @phpstan-type UrlsConfig array<array<string, mixed>>
+ */
 #[Package('discovery')]
 class ConfigHandler
 {
@@ -21,6 +24,9 @@ class ConfigHandler
     {
     }
 
+    /**
+     * @return UrlsConfig
+     */
     public function get(string $key): array
     {
         $filteredUrls = [];
@@ -43,6 +49,12 @@ class ConfigHandler
         throw new InvalidSitemapKey($key);
     }
 
+    /**
+     * @param UrlsConfig $urls
+     * @param UrlsConfig $config
+     *
+     * @return UrlsConfig
+     */
     private function addUrls(array $urls, array $config): array
     {
         foreach ($config as $configUrl) {

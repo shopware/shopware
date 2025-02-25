@@ -56,8 +56,9 @@
         <div v-if="activeTab == 'options'">
             <p>{{ $tc('sw-product.variations.configuratorModal.selectOptionsExplanation') }}</p>
             {% block sw_product_modal_variant_generation_sidebar_add_only_selected %}
-            <sw-switch-field
-                v-model:value="isAddOnly"
+
+            <mt-switch
+                v-model="isAddOnly"
                 :label="$tc('sw-product.variations.configuratorModal.addVariantsOnly')"
             />
             {% endblock %}
@@ -116,22 +117,22 @@
     {% block sw_product_modal_variant_generation_footer %}
     <template #modal-footer>
         {% block sw_product_modal_variant_generation_footer_cancel %}
-        <sw-button
+        <mt-button
             size="small"
             @click="onModalCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
         {% block sw_product_modal_variant_generation_footer_generate %}
-        <sw-button
+        <mt-button
             class="sw-product-variant-generation__next-action"
             variant="primary"
             size="small"
             @click="showNextStep"
         >
             {{ $tc('sw-product.variations.nextModalButton') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}
@@ -166,9 +167,10 @@
             </div>
 
             <div class="sw-product-modal-variant-generation__upload-all-container">
-                <sw-switch-field
+
+                <mt-switch
                     :label="$tc('sw-product.variations.configuratorModal.digitalVariantSwitch')"
-                    @update:value="onChangeAllVariantValues"
+                    @change="onChangeAllVariantValues"
                 />
                 <div class="sw-product-modal-variant-generation__upload-all">
                     <sw-upload-listener
@@ -231,10 +233,11 @@
                         :key="item.id"
                         class="sw-data-grid__item"
                     >
-                        <sw-switch-field
+
+                        <mt-switch
                             label="Digital"
-                            :value="item.productStates.includes('is-download')"
-                            @update:value="(event) => onChangeVariantValue(event, item)"
+                            :checked="item.productStates.includes('is-download')"
+                            @change="(event) => onChangeVariantValue(event, item)"
                         />
                         <sw-upload-listener
                             :upload-tag="item.productNumber"
@@ -270,14 +273,14 @@
     </template>
 
     <template #modal-footer>
-        <sw-button
+        <mt-button
             size="small"
             @click="showUploadModal = false"
         >
             {{ $tc('sw-product.variations.backVariationsButton') }}
-        </sw-button>
+        </mt-button>
 
-        <sw-button
+        <mt-button
             :disabled="isGenerateButtonDisabled"
             class="sw-product-variant-generation__generate-action"
             :variant="buttonVariant"
@@ -285,7 +288,7 @@
             @click="generateVariants()"
         >
             {{ buttonLabel }}
-        </sw-button>
+        </mt-button>
     </template>
 
     <template #modal-loader>

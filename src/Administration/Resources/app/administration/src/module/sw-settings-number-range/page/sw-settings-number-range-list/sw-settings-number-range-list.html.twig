@@ -19,9 +19,9 @@
         <h2>
             {% block sw_settings_number_range_list_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
-            <sw-icon
+            <mt-icon
                 name="regular-chevron-right-xs"
-                small
+                size="16px"
             /> {{ $tc('sw-settings-number-range.list.textHeadline') }}
             {% endblock %}
 
@@ -47,7 +47,7 @@
     {% block sw_settings_number_range_list_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_number_range_list_smart_bar_actions_add %}
-        <sw-button
+        <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('number_ranges.creator'),
@@ -56,10 +56,10 @@
             class="sw-number-range-list__add-number-range"
             variant="primary"
             :disabled="!acl.can('number_ranges.creator') || undefined"
-            :router-link="{ name: 'sw.settings.number.range.create' }"
+            @click="$router.push({ name: 'sw.settings.number.range.create' })"
         >
             {{ $tc('sw-settings-number-range.list.buttonAddNumberRange') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}
@@ -68,7 +68,7 @@
     <template #content>
         <sw-card-view>
             {% block sw_settings_number_range_list_content_card %}
-            <sw-card
+            <mt-card
                 v-if="isLoading || numberRange"
                 position-identifier="sw-settings-number-range-list-content"
             >
@@ -161,22 +161,22 @@
                                 {% block sw_settings_number_range_list_delete_modal_footer %}
                                 <template #modal-footer>
                                     {% block sw_settings_number_range_list_delete_modal_cancel %}
-                                    <sw-button
+                                    <mt-button
                                         size="small"
                                         @click="onCloseDeleteModal"
                                     >
                                         {{ $tc('global.default.cancel') }}
-                                    </sw-button>
+                                    </mt-button>
                                     {% endblock %}
 
                                     {% block sw_settings_number_range_list_delete_modal_confirm %}
-                                    <sw-button
-                                        variant="danger"
+                                    <mt-button
+                                        variant="critical"
                                         size="small"
                                         @click="onConfirmDelete(item.id)"
                                     >
                                         {{ $tc('sw-settings-number-range.list.buttonDelete') }}
-                                    </sw-button>
+                                    </mt-button>
                                     {% endblock %}
                                 </template>
                                 {% endblock %}
@@ -194,7 +194,7 @@
                     {% endblock %}
                 </template>
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
         </sw-card-view>
     </template>

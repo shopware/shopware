@@ -31,9 +31,9 @@ async function createWrapper(privileges = []) {
                 },
             },
             stubs: {
-                'sw-card': {
+                'mt-card': {
                     template: `
-                    <div class="sw-card">
+                    <div class="mt-card">
                         <slot name="grid"></slot>
                         <slot></slot>
                     </div>
@@ -61,7 +61,6 @@ async function createWrapper(privileges = []) {
 `,
                 },
                 'sw-skeleton': true,
-                'sw-button': true,
                 'sw-rating-stars': true,
                 'sw-data-grid-column-boolean': true,
                 'sw-pagination': true,

@@ -56,11 +56,6 @@ const swShippingDetailStore = Shopware.Store.register({
             return state.currencies.find((currency) => currency.isSystemDefault);
         },
 
-        /** @deprecated tag:v6.7.0 - usedRules will be removed, use restrictedRuleIds instead */
-        usedRules(): string[] {
-            return Object.keys(this.shippingPriceGroups);
-        },
-
         unrestrictedPriceMatrixExists(state): boolean {
             return (
                 state.shippingMethod.prices?.some((shippingPrice) => {

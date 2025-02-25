@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
@@ -100,6 +101,7 @@ class DefinitionValidator
         'usage_data_entity_deletion',
         'one_time_tasks',
         'invalidation_tags',
+        'subscription_cart',
     ];
 
     private const IGNORED_ENTITY_PROPERTIES = [
@@ -276,9 +278,7 @@ class DefinitionValidator
 
             if ($property->getDocComment()
                 && (str_contains($property->getDocComment(), '@internal')
-                    || str_contains($property->getDocComment(), '@deprecated')
-                    /** @deprecated tag:v6.7.0 check can be removed if everything is natively typed, otherwise this would skip a lot of properties */
-                    && !str_contains($property->getDocComment(), 'natively typed'))
+                    || str_contains($property->getDocComment(), '@deprecated'))
             ) {
                 continue;
             }
@@ -366,7 +366,7 @@ class DefinitionValidator
                 $functionViolations[] = \sprintf('No getter function for property %s in %s', $propertyName, $struct);
             }
 
-            if (!$field->is(Runtime::class) && !$reflection->hasMethod($setter)) {
+            if (!$field->isAny([Runtime::class, Computed::class]) && !$reflection->hasMethod($setter)) {
                 $functionViolations[] = \sprintf('No setter function for property %s in %s', $propertyName, $struct);
             }
         }

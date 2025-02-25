@@ -119,11 +119,6 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser"/>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry" public="true">
-            <argument type="tagged_iterator" tag="shopware.entity.extension"/>
-            <argument type="tagged_iterator" tag="shopware.bulk.entity.extension"/>
-        </service>
-
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Facade\AppContextCreator"/>

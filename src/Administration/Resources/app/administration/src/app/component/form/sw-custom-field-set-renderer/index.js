@@ -141,6 +141,7 @@ Component.register('sw-custom-field-set-renderer', {
                 'sw-select-field',
                 'sw-checkbox-field',
                 'sw-switch-field',
+                'mt-switch',
                 'sw-number-field',
                 'sw-datepicker',
                 'sw-email-field',
@@ -294,12 +295,28 @@ Component.register('sw-custom-field-set-renderer', {
         getBind(customField, props) {
             const customFieldClone = Shopware.Utils.object.cloneDeep(customField);
 
+            const isMeteorComponent = [
+                // Disabled for now, enable once Inheritance is aligned on all meteor components
+                // 'bool',
+                // 'switch',
+                // 'text',
+            ].includes(customField.type);
+
             if (customFieldClone.type === 'bool') {
                 customFieldClone.config.bordered = true;
             }
 
             if (this.supportsMapInheritance(customFieldClone)) {
                 customFieldClone.mapInheritance = props;
+
+                // Special case for meteor components
+                if (isMeteorComponent) {
+                    customFieldClone.isInheritanceField = props.isInheritField;
+                    customFieldClone.isInherited = props.isInherited;
+                    customFieldClone.inheritanceRemove = props.removeInheritance;
+                    customFieldClone.inheritanceRestore = props.restoreInheritance;
+                    customFieldClone.inheritedValue = props.currentValue;
+                }
 
                 return customFieldClone;
             }

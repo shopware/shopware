@@ -36,7 +36,6 @@
       "labelPageSize": "Seitenformat",
       "labelItemsPerPage": "Positionen pro Seite",
       "labelDisplayCompanyAddress": "Geschäftsadresse anzeigen",
-      "labelCompanyAddress": "Geschäftsadresse",
       "labelCompanyCity": "Stadt",
       "labelCompanyCountry": "Land",
       "labelCompanyName": "Geschäftsname",
@@ -72,7 +71,6 @@
       "labelDisplayDivergentDeliveryAddress": "Abweichende Lieferadresse anzeigen",
       "helpTextDisplayDocumentInCustomerAccount": "Das Dokument wird dem Shopkunden unter Bestellungen im Kundenkonto angezeigt. Nur Dokumente die an den Kunden gesendet wurden, werden im Kundenkonto angezeigt.",
       "helpTextDisplayDeliveryCountries": "Alle ausgewählten Länder erhalten einen Hinweis zur \"innergemeinschaftlichen Lieferung\" auf den Rechnungsdokumenten.",
-      "helpTextCompanyAddress": "Obsolet ab Shopware 6.7 - Fülle die Adresse stattdessen in den einzelnen Feldern.\\n\\nVerwende Bindestriche (\"-\") um die einzelnen Elemente der Adresse voneinander abzugrenzen. Das hilft bei der gleichzeitigen Darstellung der Adresse an unterschiedlichen Stellen der Kopfzeile.",
       "helpTextPaymentDueDate": "Bsp.: +30 days, +4 weeks, +1 week 2 days",
       "labelFileTypes": "Dateiformate"
     }

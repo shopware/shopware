@@ -43,7 +43,7 @@ jobs:
             shard: 1
             shard-count: 1
     steps:
-      - uses: .github/actions/ats
+      - uses: ./.github/actions/ats
         with: 
           project: ${{ matrix.name }}
           php-version: ${{ matrix.php-version }}

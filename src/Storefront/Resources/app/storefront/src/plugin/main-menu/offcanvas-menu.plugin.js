@@ -2,7 +2,6 @@ import Plugin from 'src/plugin-system/plugin.class';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
 import LoadingIndicator from 'src/utility/loading-indicator/loading-indicator.util';
 import HttpClient from 'src/service/http-client.service';
-import DomAccess from 'src/helper/dom-access.helper';
 
 /**
  * @sw-package framework
@@ -87,13 +86,13 @@ export default class OffcanvasMenuPlugin extends Plugin {
      */
     _getLinkEventHandler(event, link) {
         if (!link) {
-            const initialContentElement = DomAccess.querySelector(document, this.options.initialContentSelector);
+            const initialContentElement = document.querySelector(this.options.initialContentSelector);
             this._content = initialContentElement.innerHTML;
 
             const url = `${this.options.navigationUrl}?navigationId=${window.activeNavigationId}`;
 
             return this._fetchMenu(url, (htmlResponse) => {
-                const navigationContainer = DomAccess.querySelector(initialContentElement, this.options.menuSelector);
+                const navigationContainer = initialContentElement.querySelector(this.options.menuSelector);
                 navigationContainer.innerHTML = htmlResponse;
 
                 this._content = initialContentElement.innerHTML;
@@ -109,7 +108,7 @@ export default class OffcanvasMenuPlugin extends Plugin {
 
         OffcanvasMenuPlugin._setLoader(link);
 
-        const url = DomAccess.getAttribute(link, 'data-href', false) || DomAccess.getAttribute(link, 'href', false);
+        const url = link.getAttribute('data-href') || link.getAttribute('href');
 
         if (!url) {
             return;

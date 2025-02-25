@@ -66,6 +66,12 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
 
     public function generate(ProductExportEntity $productExport, ExportBehavior $exportBehavior): ?ProductExportResult
     {
+        $domain = $productExport->getSalesChannelDomain();
+
+        if ($domain === null) {
+            throw ProductExportException::salesChannelDomainNotFound($productExport->getId());
+        }
+
         $contextToken = Uuid::randomHex();
         $this->contextPersister->save(
             $contextToken,
@@ -75,19 +81,21 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             $productExport->getSalesChannelId()
         );
 
+        $languageId = $domain->getLanguageId();
+
         $context = $this->salesChannelContextService->get(
             new SalesChannelContextServiceParameters(
                 $productExport->getStorefrontSalesChannelId(),
                 $contextToken,
-                $productExport->getSalesChannelDomain()->getLanguageId(),
+                $languageId,
                 $productExport->getCurrencyId()
             )
         );
 
         $this->translator->injectSettings(
             $productExport->getStorefrontSalesChannelId(),
-            $productExport->getSalesChannelDomain()->getLanguageId(),
-            $this->languageLocaleProvider->getLocaleForLanguageId($productExport->getSalesChannelDomain()->getLanguageId()),
+            $languageId,
+            $this->languageLocaleProvider->getLocaleForLanguageId($languageId),
             $context->getContext()
         );
 
@@ -172,7 +180,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             $content .= $this->productExportRender->renderFooter($productExport, $context);
         }
 
-        $content = $this->seoUrlPlaceholderHandler->replace($content, $productExport->getSalesChannelDomain()->getUrl(), $context);
+        $content = $this->seoUrlPlaceholderHandler->replace($content, $domain->getUrl(), $context);
 
         $encodingEvent = $this->eventDispatcher->dispatch(
             new ProductExportChangeEncodingEvent($productExport, $content, mb_convert_encoding($content, $productExport->getEncoding()))

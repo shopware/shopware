@@ -302,12 +302,6 @@ async function createWrapper() {
                     'sw-pagination': {
                         template: '<div></div>',
                     },
-                    'sw-icon': {
-                        template: '<div></div>',
-                    },
-                    'sw-button': {
-                        template: '<div></div>',
-                    },
                     'sw-sidebar': {
                         template: '<div></div>',
                     },

@@ -1,6 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import DeviceDetection from 'src/helper/device-detection.helper';
-import DomAccess from 'src/helper/dom-access.helper';
 import ImageZoomPlugin from 'src/plugin/image-zoom/image-zoom.plugin';
 
 /**
@@ -223,8 +222,8 @@ export default class ZoomModalPlugin extends Plugin {
         let errorCount = 0;
 
         imagesToLoad.forEach(img => {
-            const src = DomAccess.getDataAttribute(img, this.options.imgDataSrcAttr);
-            const srcSet = DomAccess.getDataAttribute(img, this.options.imgDataSrcSetAttr, false);
+            const src = img.getAttribute(this.options.imgDataSrcAttr);
+            const srcSet = img.getAttribute(this.options.imgDataSrcSetAttr);
 
             if (src) {
                 img.onload = () => {

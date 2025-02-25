@@ -10,15 +10,18 @@
         />
     </div>
     {% block sw_system_config_content_card %}
-    <sw-card
+    <mt-card
         v-for="card, index in config"
         :key="index"
         position-identifier="sw-system-config-content"
         :class="`sw-system-config__card--${index}`"
         :is-loading="isLoading"
         :title="getInlineSnippet(card.title)"
-        :ai-badge="card.aiBadge"
     >
+        <slot name="title">
+            <sw-ai-copilot-badge v-if="card.aiBadge" />
+        </slot>
+
         <slot
             name="beforeElements"
             v-bind="{ card, config: actualConfigData[currentSalesChannelId] }"
@@ -75,7 +78,7 @@
             v-bind="{ card, config: actualConfigData[currentSalesChannelId], index, isNotDefaultSalesChannel, inheritance: actualConfigData.null }"
         >
         </slot>
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>
 {% endblock %}

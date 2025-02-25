@@ -166,8 +166,9 @@
                 {{ customer.affiliateCode || '-' }}
             </dd>
             <dd v-else>
-                <sw-text-field
-                    v-model:value="customer.affiliateCode"
+
+                <mt-text-field
+                    v-model="customer.affiliateCode"
                     name="sw-field--customer-customerAffiliateCode"
                     :placeholder="$tc('sw-customer.baseInfo.placeholderCustomerAffiliateCode')"
                     size="small"
@@ -183,8 +184,9 @@
                 {{ customer.campaignCode || '-' }}
             </dd>
             <dd v-else>
-                <sw-text-field
-                    v-model:value="customer.campaignCode"
+
+                <mt-text-field
+                    v-model="customer.campaignCode"
                     name="sw-field--customer-customerCampaignCode"
                     :placeholder="$tc('sw-customer.baseInfo.placeholderCustomerCampaignCode')"
                     size="small"

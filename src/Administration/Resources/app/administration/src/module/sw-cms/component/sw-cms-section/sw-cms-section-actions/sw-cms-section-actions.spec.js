@@ -12,11 +12,6 @@ async function createWrapper() {
             props: {
                 section: {},
             },
-            global: {
-                stubs: {
-                    'sw-icon': true,
-                },
-            },
         },
     );
 }

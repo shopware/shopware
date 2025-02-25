@@ -41,7 +41,6 @@ async function createWrapper() {
                         '<input type="text" :value="modelValue" @blur="$emit(\'blur\', $event.target.value)" @input="$emit(\'update:model-value\', $event.target.value)" @change="$emit(\'change\', $event.target.value)"></input>',
                 },
                 'sw-select-field': true,
-                'sw-icon': true,
                 'sw-extension-component-section': true,
                 'router-link': true,
                 'sw-context-menu-item': true,

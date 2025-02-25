@@ -13,10 +13,8 @@ class IdsCollection
 {
     /**
      * @var array<string, string>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $ids = [];
+    protected array $ids = [];
 
     /**
      * @param array<string, string> $ids

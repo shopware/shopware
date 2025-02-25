@@ -10,19 +10,21 @@ const seoDomainPrefix = '124c71d524604ccbad6042edce3ac799';
 const linkDataProvider = [
     {
         URL: 'http://www.domain.de/test',
-        value: 'http://www.domain.de/test',
+        modelValue: 'http://www.domain.de/test',
         type: 'link',
         prefix: '',
-        selector: '.sw-text-field',
+        selector: '.mt-text-field',
+        inputSelector: '.mt-text-field input',
         label: 'sw-text-editor-toolbar.link.linkTo',
         placeholder: 'sw-text-editor-toolbar.link.placeholder',
     },
     {
         URL: 'tel:01234567890123',
-        value: '01234567890123',
+        modelValue: '01234567890123',
         type: 'phone',
         prefix: 'tel:',
-        selector: '.sw-text-field',
+        selector: '.mt-text-field',
+        inputSelector: '.mt-text-field input',
         label: 'sw-text-editor-toolbar.link.linkTo',
         placeholder: 'sw-text-editor-toolbar.link.placeholderPhoneNumber',
     },
@@ -62,15 +64,6 @@ async function createWrapper(startingValue) {
                     template:
                         '<select class="sw-select-field" :value="value" @change="$emit(\'update:value\', $event.target.value)"><slot></slot></select>',
                     props: ['value'],
-                },
-                'sw-switch-field': {
-                    props: [
-                        'value',
-                        'label',
-                        'placeholder',
-                    ],
-                    template:
-                        '<input class="sw-switch-field" type="checkbox" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
                 },
                 'sw-email-field': {
                     props: [
@@ -116,7 +109,6 @@ async function createWrapper(startingValue) {
                     template:
                         '<input class="sw-media-field" :value="value" @input="$emit(\'update:value\', $event.target.value)">',
                 },
-                'sw-button': true,
             },
         },
         props: {
@@ -158,7 +150,7 @@ describe('components/form/sw-text-editor/sw-dynamic-url-field', () => {
             const inputField = wrapper.findComponent(link.selector);
             expect(inputField.props()).toStrictEqual(
                 expect.objectContaining({
-                    value: link.value,
+                    [link.modelValue ? 'modelValue' : 'value']: link.modelValue ? link.modelValue : link.value,
                     label: link.label,
                     ...(link.type !== 'media'
                         ? {
@@ -169,7 +161,8 @@ describe('components/form/sw-text-editor/sw-dynamic-url-field', () => {
             );
 
             let placeholderId = 'some-id';
-            await wrapper.find(link.selector).setValue(placeholderId);
+            const inputSelector = link.inputSelector ? link.inputSelector : link.selector;
+            await wrapper.find(inputSelector).setValue(placeholderId);
 
             if (
                 [

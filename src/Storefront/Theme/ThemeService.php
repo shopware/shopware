@@ -41,7 +41,7 @@ class ThemeService implements ResetInterface
      * @param EntityRepository<EntityCollection<Entity>> $themeSalesChannelRepository
      */
     public function __construct(
-        private readonly StorefrontPluginRegistryInterface $extensionRegistry,
+        private readonly StorefrontPluginRegistry $extensionRegistry,
         private readonly EntityRepository $themeRepository,
         private readonly EntityRepository $themeSalesChannelRepository,
         private readonly ThemeCompilerInterface $themeCompiler,

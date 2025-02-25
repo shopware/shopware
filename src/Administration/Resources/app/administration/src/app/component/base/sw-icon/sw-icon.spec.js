@@ -9,16 +9,10 @@ async function createWrapper() {
         props: {
             name: 'regular-circle-download',
         },
-        global: {
-            stubs: {
-                'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated'),
-                'mt-icon': true,
-            },
-        },
     });
 }
 
-describe('src/app/component/base/sw-icon/index.js', () => {
+describe('src/app/component/base/mt-icon/index.js', () => {
     let wrapper;
 
     beforeEach(async () => {
@@ -32,7 +26,7 @@ describe('src/app/component/base/sw-icon/index.js', () => {
     });
 
     it('should render the correct icon (circle-download)', async () => {
-        expect(wrapper.find('.sw-icon').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-icon').exists()).toBeTruthy();
         expect(wrapper.find('svg#meteor-icon-kit__regular-circle-download').exists()).toBeTruthy();
     });
 
@@ -42,7 +36,7 @@ describe('src/app/component/base/sw-icon/index.js', () => {
         });
         await flushPromises();
 
-        expect(wrapper.find('.sw-icon').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-icon').exists()).toBeTruthy();
         expect(wrapper.find('svg#meteor-icon-kit__regular-fingerprint').exists()).toBeTruthy();
     });
 
@@ -51,52 +45,22 @@ describe('src/app/component/base/sw-icon/index.js', () => {
             color: 'rgb(123, 0, 123)',
         });
 
-        expect(wrapper.find('.sw-icon').attributes('style')).toContain('color: rgb(123, 0, 123);');
+        expect(wrapper.find('.mt-icon').attributes('style')).toContain('color: rgb(123, 0, 123);');
 
         await wrapper.setProps({
             color: 'rgb(255, 0, 42)',
         });
 
-        expect(wrapper.find('.sw-icon').attributes('style')).toContain('color: rgb(255, 0, 42);');
-    });
-
-    it('should render the small icon', async () => {
-        expect(wrapper.find('.sw-icon--small').exists()).toBe(false);
-
-        await wrapper.setProps({
-            small: true,
-        });
-
-        expect(wrapper.find('.sw-icon--small').exists()).toBe(true);
-    });
-
-    it('should render the large icon', async () => {
-        expect(wrapper.find('.sw-icon--large').exists()).toBe(false);
-
-        await wrapper.setProps({
-            large: true,
-        });
-
-        expect(wrapper.find('.sw-icon--large').exists()).toBe(true);
-    });
-
-    it('should render the icon in the correct size', async () => {
-        expect(wrapper.find('.sw-icon').attributes('style')).toBeUndefined();
-
-        await wrapper.setProps({
-            size: '36px',
-        });
-
-        expect(wrapper.find('.sw-icon').attributes('style')).toContain('width: 36px; height: 36px;');
+        expect(wrapper.find('.mt-icon').attributes('style')).toContain('color: rgb(255, 0, 42);');
     });
 
     it('should have aria hidden attribute when prop is set to decorative', async () => {
-        expect(wrapper.find('.sw-icon').attributes('aria-hidden')).toBeUndefined();
+        expect(wrapper.find('.mt-icon').attributes('aria-hidden')).toBe('false');
 
         await wrapper.setProps({
             decorative: true,
         });
 
-        expect(wrapper.find('.sw-icon').attributes('aria-hidden')).toBe('true');
+        expect(wrapper.find('.mt-icon').attributes('aria-hidden')).toBe('true');
     });
 });

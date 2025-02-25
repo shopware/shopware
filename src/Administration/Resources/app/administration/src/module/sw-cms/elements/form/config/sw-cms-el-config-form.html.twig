@@ -60,16 +60,17 @@
             {% endblock %}
 
             {% block sw_cms_el_form_config_content_form_title %}
-            <sw-text-field
-                v-model:value="element.config.title.value"
+
+            <mt-text-field
+                v-model="element.config.title.value"
                 :label="$tc('sw-cms.elements.form.config.label.title')"
             />
             {% endblock %}
 
             {% block sw_cms_el_form_config_content_form_confirmation_text %}
-            <sw-textarea-field
+            <mt-textarea
                 v-if="element.config.type.value === 'contact'"
-                v-model:value="element.config.confirmationText.value"
+                v-model="element.config.confirmationText.value"
                 :label="$tc('sw-cms.elements.form.config.label.confirmationText')"
             />
             {% endblock %}

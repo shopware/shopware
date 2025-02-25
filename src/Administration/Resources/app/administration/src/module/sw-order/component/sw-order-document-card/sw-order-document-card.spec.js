@@ -89,13 +89,9 @@ const documentTypeFixture = [
 ];
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-order-document-card', { sync: true }), {
+    const wrapper = mount(await wrapTestComponent('sw-order-document-card', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': await wrapTestComponent('sw-card', {
-                    sync: true,
-                }),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-empty-state': {
                     template: '<div class="sw-empty-state"><slot name="icon"></slot><slot name="actions"></slot></div>',
                 },
@@ -112,11 +108,9 @@ async function createWrapper() {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
                 'sw-text-field': true,
-                'sw-context-button': await wrapTestComponent('sw-button', {
-                    sync: true,
-                }),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                'sw-context-button': {
+                    template: '<div class="sw-context-button"><slot></slot></div>',
+                },
                 'sw-order-select-document-type-modal': await wrapTestComponent('sw-order-select-document-type-modal', {
                     sync: true,
                 }),
@@ -148,9 +142,8 @@ async function createWrapper() {
                 },
                 'sw-radio-field': true,
                 'sw-datepicker': true,
-                'sw-icon': true,
                 'sw-textarea-field': true,
-                'sw-switch-field': true,
+
                 'sw-button-group': await wrapTestComponent('sw-button-group', { sync: true }),
                 'sw-loader': true,
                 'sw-extension-component-section': true,
@@ -233,6 +226,8 @@ async function createWrapper() {
             isLoading: false,
         },
     });
+    await flushPromises();
+    return wrapper;
 }
 
 describe('src/module/sw-order/component/sw-order-document-card', () => {

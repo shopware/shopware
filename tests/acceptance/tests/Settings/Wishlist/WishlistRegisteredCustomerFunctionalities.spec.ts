@@ -57,14 +57,14 @@ test('Customers can add or remove products from their wishlist.',{ tag: '@Wishli
 
     // TO-DO: This step is skipped, please check the details from ticket : https://shopware.atlassian.net/browse/NEXT-40639
     // eslint-disable-next-line playwright/no-conditional-in-test
-    if (satisfies(InstanceMeta.version, '<6.7')) {
+    if (!InstanceMeta.features['ACCESSIBILITY_TWEAKS'] && satisfies(InstanceMeta.version, '<6.7')) {
         await test.step('Add product to cart from wishlist and verify it is added and wishlist icon is visible on offcanvas', async () => {       
             await ShopCustomer.attemptsTo(AddProductToCartFromWishlist(product1));
-            const offCanvasSubtotal = await StorefrontOffCanvasCart.subTotalPrice.innerText();
-            const expectedPrice = await product1Locators.productPrice.innerText();
-            ShopCustomer.expects(offCanvasSubtotal).toBe(expectedPrice);
             const offcanvasItem = await StorefrontOffCanvasCart.getLineItemByProductNumber(product1.productNumber);
-            await ShopCustomer.expects(offcanvasItem.wishlistAddedButton).toBeVisible();      
+            const expectedPrice = await product1Locators.productPrice.innerText();
+            const itemPrice = await offcanvasItem.productTotalPriceValue.innerText();
+            await ShopCustomer.expects(offcanvasItem.wishlistAddedButton).toBeVisible(); 
+            await ShopCustomer.expects(itemPrice).toBe(expectedPrice);       
     });
     }
 });

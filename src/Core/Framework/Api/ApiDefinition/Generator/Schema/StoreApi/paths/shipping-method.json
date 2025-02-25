@@ -21,14 +21,6 @@
                             "type": "string",
                             "pattern": "^[0-9a-f]{32}$"
                         }
-                    },
-                    {
-                        "name": "onlyAvailable",
-                        "in": "query",
-                        "description": "List only available shipping methods. This filters shipping methods methods which can not be used in the actual context because of their availability rule.",
-                        "schema": {
-                            "type": "boolean"
-                        }
                     }
                 ],
                 "requestBody": {

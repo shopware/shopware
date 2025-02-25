@@ -7,7 +7,6 @@ use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\Country\CountryCollection;
@@ -15,7 +14,6 @@ use Shopware\Core\System\Country\SalesChannel\AbstractCountryRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
-use Shopware\Storefront\Page\MetaInformation;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -27,8 +25,6 @@ class CheckoutCartPageLoader
 {
     /**
      * @internal
-     *
-     * @deprecated tag:v6.7.0 - translator will be mandatory from 6.7
      */
     public function __construct(
         private readonly GenericPageLoaderInterface $genericLoader,
@@ -36,7 +32,7 @@ class CheckoutCartPageLoader
         private readonly StorefrontCartFacade $cartService,
         private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute,
         private readonly AbstractCountryRoute $countryRoute,
-        private readonly ?AbstractTranslator $translator = null
+        private readonly AbstractTranslator $translator
     ) {
     }
 
@@ -78,27 +74,15 @@ class CheckoutCartPageLoader
 
     protected function setMetaInformation(CheckoutCartPage $page): void
     {
-        if ($page->getMetaInformation()) {
-            $page->getMetaInformation()->setRobots('noindex,follow');
-        }
-
-        if ($this->translator !== null && $page->getMetaInformation() === null) {
-            $page->setMetaInformation(new MetaInformation());
-        }
-
-        if ($this->translator !== null) {
-            $page->getMetaInformation()?->setMetaTitle(
-                $this->translator->trans('checkout.cartMetaTitle') . ' | ' . $page->getMetaInformation()->getMetaTitle()
-            );
-        }
+        $page->getMetaInformation()?->setRobots('noindex,follow');
+        $page->getMetaInformation()?->setMetaTitle(
+            $this->translator->trans('checkout.cartMetaTitle') . ' | ' . $page->getMetaInformation()->getMetaTitle()
+        );
     }
 
     private function getCountries(SalesChannelContext $context): CountryCollection
     {
-        /**
-         * @deprecated tag:v6.7.0 - remove Feature:isActive on release
-         */
-        if (Feature::isActive('v6.7.0.0') && $context->getCustomer()) {
+        if ($context->getCustomer()) {
             return new CountryCollection();
         }
 

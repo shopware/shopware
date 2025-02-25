@@ -39,7 +39,6 @@ async function createWrapper(propsData = {}) {
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
-                    'sw-icon': true,
                 },
             },
         },

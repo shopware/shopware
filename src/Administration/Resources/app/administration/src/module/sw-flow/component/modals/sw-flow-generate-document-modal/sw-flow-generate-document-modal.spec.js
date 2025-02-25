@@ -61,9 +61,6 @@ async function createWrapper() {
                     </div>
                 `,
                     },
-                    'sw-button': {
-                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                    },
                     'sw-multi-select': await wrapTestComponent('sw-multi-select'),
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                     'sw-select-result': await wrapTestComponent('sw-select-result'),
@@ -74,7 +71,6 @@ async function createWrapper() {
                     'sw-popover': await wrapTestComponent('sw-popover'),
                     'sw-highlight-text': true,
                     'sw-label': true,
-                    'sw-icon': true,
                     'sw-field-error': true,
                     'sw-loader': true,
                     'sw-inheritance-switch': true,

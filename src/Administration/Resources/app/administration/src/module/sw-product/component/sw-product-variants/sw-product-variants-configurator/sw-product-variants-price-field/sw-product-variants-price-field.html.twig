@@ -23,12 +23,12 @@
         :class="{'is--locked': price.linked}"
         @click="onLockSwitch"
     >
-        <sw-icon
+        <mt-icon
             v-if="price.linked"
             name="regular-lock"
             size="16"
         />
-        <sw-icon
+        <mt-icon
             v-else
             name="regular-lock-open"
             size="16"

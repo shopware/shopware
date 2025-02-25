@@ -64,21 +64,18 @@ async function createWrapper() {
                         <slot></slot>
                     </div>`,
                 },
-                'sw-button': true,
                 'sw-button-process': true,
-                'sw-icon': true,
                 'sw-search-bar': true,
                 'sw-description-list': true,
                 'sw-card-view': await wrapTestComponent('sw-card-view'),
-                'sw-card': {
+                'mt-card': {
                     template: '<div><slot></slot></div>',
                 },
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-loader': true,
                 'sw-card-section': true,
                 'sw-entity-single-select': true,
-                'sw-switch-field': true,
-                'sw-textarea-field': true,
+                'mt-textarea': true,
                 'sw-language-switch': true,
                 'sw-skeleton': true,
                 'sw-rating-stars': true,
@@ -129,11 +126,11 @@ describe('module/sw-review/page/sw-review-detail', () => {
         await wrapper.setData({ isLoading: false });
 
         const languageField = wrapper.find('.sw-review__language-select');
-        const activeField = wrapper.find('.status-switch');
+        const activeField = wrapper.findComponent('.status-switch');
         const commentField = wrapper.find('.sw-review__comment-field');
 
         expect(languageField.attributes().disabled).toBeTruthy();
-        expect(activeField.attributes().disabled).toBeTruthy();
+        expect(activeField.props().disabled).toBe(true);
         expect(commentField.attributes().disabled).toBeTruthy();
     });
 

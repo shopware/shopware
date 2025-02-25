@@ -92,12 +92,6 @@ Component.register('sw-multi-tag-select', {
     },
 
     computed: {
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
-        // eslint-disable-next-line vue/return-in-computed-property
-        objectValues() {},
-
         errorObject() {
             return null;
         },

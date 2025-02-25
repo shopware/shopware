@@ -23,8 +23,16 @@ jobs:
     runs-on: ubuntu-24.04
     if: ${{ startsWith(github.repository, 'shopware/') && !github.event.pull_request && github.event_name != 'merge_group'}}
     steps:
+      - name: Check user permission
+        id: check
+        uses: scherermichael-oss/action-has-permission@master
+        with:
+          required-permission: write
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Rufus
         uses: shopware/github-actions/downstream@main
+        if: steps.check.outputs.has-permission
         with:
           repo: shopware/rufus
           workflow: Downstream
@@ -40,8 +48,16 @@ jobs:
     runs-on: ubuntu-24.04
     if: startsWith(github.repository, 'shopware/')
     steps:
+      - name: Check user permission
+        id: check
+        uses: scherermichael-oss/action-has-permission@master
+        with:
+          required-permission: write
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Commercial
         uses: shopware/github-actions/downstream@main
+        if: steps.check.outputs.has-permission
         with:
           repo: shopware/SwagCommercial
           workflow: Downstream
@@ -64,6 +80,5 @@ jobs:
     - name: Decide whether the needed jobs succeeded or failed
       uses: re-actors/alls-green@release/v1
       with:
-        # allowed-failures: docs, linters
         allowed-skips: rufus, commercial
         jobs: ${{ toJSON(needs) }}

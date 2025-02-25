@@ -2,7 +2,6 @@
  * @sw-package inventory
  */
 
-// import DomAccess from 'src/helper/dom-access.helper';
 import FilterBasePlugin from 'src/plugin/listing/filter-base.plugin';
 import deepmerge from 'deepmerge';
 

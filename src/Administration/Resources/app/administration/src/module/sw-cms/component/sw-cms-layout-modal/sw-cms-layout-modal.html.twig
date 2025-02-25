@@ -40,7 +40,7 @@
             >
 
                 {% block sw_cms_layout_modal_header_view_toogle_grid %}
-                <sw-icon
+                <mt-icon
                     v-if="listMode === 'grid'"
                     name="regular-view-normal"
                     size="16"
@@ -48,7 +48,7 @@
                 {% endblock %}
 
                 {% block sw_cms_layout_modal_header_view_toogle_list %}
-                <sw-icon
+                <mt-icon
                     v-if="listMode === 'list'"
                     name="regular-view-grid"
                     size="16"
@@ -192,16 +192,16 @@
 
     {% block sw_cms_layout_modal_footer %}
     <template #modal-footer>
-        <sw-button @click="closeModal">
+        <mt-button @click="closeModal">
             {{ $tc('global.default.cancel') }}
-        </sw-button>
-        <sw-button
+        </mt-button>
+        <mt-button
             variant="primary"
             class="sw-cms-layout-modal__button-select-layout"
             @click="selectLayout"
         >
             {{ $tc('sw-cms.components.cmsLayoutModal.actionConfirm') }}
-        </sw-button>
+        </mt-button>
     </template>
     {% endblock %}
 

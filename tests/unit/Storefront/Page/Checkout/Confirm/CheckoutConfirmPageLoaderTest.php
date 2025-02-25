@@ -12,13 +12,13 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEnt
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
-use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute;
 use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -33,6 +33,7 @@ use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Page\MetaInformation;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -53,16 +54,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
             ->method('load')
             ->willReturn($page);
 
-        $checkoutConfirmPageLoader = new CheckoutConfirmPageLoader(
-            $this->createMock(EventDispatcher::class),
-            $this->createMock(StorefrontCartFacade::class),
-            $this->createMock(AbstractCheckoutGatewayRoute::class),
-            $pageLoader,
-            $this->createMock(AddressValidationFactory::class),
-            $this->createMock(DataValidator::class)
-        );
-
-        $page = $checkoutConfirmPageLoader->load(
+        $page = $this->createLoader(pageLoader: $pageLoader)->load(
             new Request(),
             $this->getContextWithDummyCustomer()
         );
@@ -80,16 +72,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
             ->method('load')
             ->willReturn($page);
 
-        $checkoutConfirmPageLoader = new CheckoutConfirmPageLoader(
-            $this->createMock(EventDispatcher::class),
-            $this->createMock(StorefrontCartFacade::class),
-            $this->createMock(AbstractCheckoutGatewayRoute::class),
-            $pageLoader,
-            $this->createMock(AddressValidationFactory::class),
-            $this->createMock(DataValidator::class)
-        );
-
-        $page = $checkoutConfirmPageLoader->load(
+        $page = $this->createLoader(pageLoader: $pageLoader)->load(
             new Request(),
             $this->getContextWithDummyCustomer()
         );
@@ -121,16 +104,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
             ->withAnyParameters()
             ->willReturn($response);
 
-        $checkoutConfirmPageLoader = new CheckoutConfirmPageLoader(
-            $this->createMock(EventDispatcher::class),
-            $this->createMock(StorefrontCartFacade::class),
-            $checkoutGatewayRoute,
-            $this->createMock(GenericPageLoader::class),
-            $this->createMock(AddressValidationFactory::class),
-            $this->createMock(DataValidator::class)
-        );
-
-        $page = $checkoutConfirmPageLoader->load(
+        $page = $this->createLoader(checkoutGatewayRoute: $checkoutGatewayRoute)->load(
             new Request(),
             $this->getContextWithDummyCustomer()
         );
@@ -141,15 +115,6 @@ class CheckoutConfirmPageLoaderTest extends TestCase
 
     public function testCustomerNotLoggedInException(): void
     {
-        $checkoutConfirmPageLoader = new CheckoutConfirmPageLoader(
-            $this->createMock(EventDispatcher::class),
-            $this->createMock(StorefrontCartFacade::class),
-            $this->createMock(CheckoutGatewayRoute::class),
-            $this->createMock(GenericPageLoader::class),
-            $this->createMock(AddressValidationFactory::class),
-            $this->createMock(DataValidator::class)
-        );
-
         $context = $this->createMock(SalesChannelContext::class);
         $context
             ->method('getCustomer')
@@ -157,10 +122,10 @@ class CheckoutConfirmPageLoaderTest extends TestCase
 
         $expected = CartException::customerNotLoggedIn()::class;
 
-        static::expectException($expected);
-        static::expectExceptionMessage('Customer is not logged in');
+        $this->expectException($expected);
+        $this->expectExceptionMessage('Customer is not logged in');
 
-        $checkoutConfirmPageLoader->load(new Request(), $context);
+        $this->createLoader()->load(new Request(), $context);
     }
 
     public function testViolationsAreAddedAsCartErrorsWithSameAddress(): void
@@ -188,16 +153,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
             ->method('get')
             ->willReturn($cart);
 
-        $checkoutConfirmPageLoader = new CheckoutConfirmPageLoader(
-            $this->createMock(EventDispatcher::class),
-            $cartService,
-            $this->createMock(CheckoutGatewayRoute::class),
-            $this->createMock(GenericPageLoader::class),
-            $this->createMock(AddressValidationFactory::class),
-            $validator
-        );
-
-        $page = $checkoutConfirmPageLoader->load(new Request(), $this->getContextWithDummyCustomer());
+        $page = $this->createLoader(cartService: $cartService, validator: $validator)->load(new Request(), $this->getContextWithDummyCustomer());
 
         static::assertCount(1, $page->getCart()->getErrors());
         static::assertArrayHasKey('billing-address-invalid', $page->getCart()->getErrors()->getElements());
@@ -243,15 +199,6 @@ class CheckoutConfirmPageLoaderTest extends TestCase
             ->method('get')
             ->willReturn($cart);
 
-        $checkoutConfirmPageLoader = new CheckoutConfirmPageLoader(
-            $this->createMock(EventDispatcher::class),
-            $cartService,
-            $this->createMock(CheckoutGatewayRoute::class),
-            $this->createMock(GenericPageLoader::class),
-            $this->createMock(AddressValidationFactory::class),
-            $validator
-        );
-
         $context = $this->getContextWithDummyCustomer();
 
         static::assertNotNull($context->getCustomer());
@@ -261,7 +208,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
             'activeShippingAddress' => (new CustomerAddressEntity())->assign(['id' => Uuid::randomHex(), 'countryId' => Uuid::randomHex()]),
         ]);
 
-        $page = $checkoutConfirmPageLoader->load(new Request(), $context);
+        $page = $this->createLoader(cartService: $cartService, validator: $validator)->load(new Request(), $context);
 
         static::assertCount(2, $page->getCart()->getErrors());
         static::assertArrayHasKey('billing-address-invalid', $page->getCart()->getErrors()->getElements());
@@ -305,14 +252,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
             ->expects(static::never())
             ->method('getViolations');
 
-        $checkoutConfirmPageLoader = new CheckoutConfirmPageLoader(
-            $this->createMock(EventDispatcher::class),
-            $this->createMock(StorefrontCartFacade::class),
-            $this->createMock(CheckoutGatewayRoute::class),
-            $this->createMock(GenericPageLoader::class),
-            $this->createMock(AddressValidationFactory::class),
-            $validator
-        );
+        $checkoutConfirmPageLoader = $this->createLoader(validator: $validator);
 
         $context = $this->getContextWithDummyCustomer();
 
@@ -332,13 +272,9 @@ class CheckoutConfirmPageLoaderTest extends TestCase
 
         $addressValidationMock = $this->createMock(AddressValidationFactory::class);
 
-        $checkoutConfirmPageLoader = new CheckoutConfirmPageLoader(
-            $eventDispatcher,
-            $this->createMock(StorefrontCartFacade::class),
-            $this->createMock(CheckoutGatewayRoute::class),
-            $this->createMock(GenericPageLoader::class),
-            $addressValidationMock,
-            $this->createMock(DataValidator::class)
+        $checkoutConfirmPageLoader = $this->createLoader(
+            eventDispatcher: $eventDispatcher,
+            addressValidationFactory: $addressValidationMock,
         );
 
         $addressValidationMock->expects(static::exactly(2))->method('create')->willReturnOnConsecutiveCalls(
@@ -358,19 +294,14 @@ class CheckoutConfirmPageLoaderTest extends TestCase
 
     public function testCartServiceIsCalledTaxedAndWithNoCaching(): void
     {
-        $cartService = static::createMock(StorefrontCartFacade::class);
+        $cartService = $this->createMock(StorefrontCartFacade::class);
         $cartService
             ->expects(static::once())
             ->method('get')
             ->with(null, static::isInstanceOf(SalesChannelContext::class), false, true);
 
-        $checkoutConfirmPageLoader = new CheckoutConfirmPageLoader(
-            $this->createMock(EventDispatcher::class),
-            $cartService,
-            $this->createMock(CheckoutGatewayRoute::class),
-            $this->createMock(GenericPageLoader::class),
-            $this->createMock(AddressValidationFactory::class),
-            $this->createMock(DataValidator::class)
+        $checkoutConfirmPageLoader = $this->createLoader(
+            cartService: $cartService,
         );
 
         $checkoutConfirmPageLoader->load(new Request(), $this->getContextWithDummyCustomer());
@@ -396,26 +327,23 @@ class CheckoutConfirmPageLoaderTest extends TestCase
                 return $validationEvent;
             }
 
-            $definition = $validationEvent->getDefinition();
+            $properties = $validationEvent->getDefinition()->getProperties();
+            static::assertArrayHasKey('zipcode', $properties);
+            $zipcode = $properties['zipcode'][0];
+            static::assertNotNull($zipcode);
+            static::assertInstanceOf(CustomerZipCode::class, $zipcode);
 
-            static::assertArrayHasKey('zipcode', $definition->getProperties());
-            static::assertNotNull($definition->getProperties()['zipcode'][0]);
-            static::assertInstanceOf(CustomerZipCode::class, $definition->getProperties()['zipcode'][0]);
-
-            $message = $definition->getProperties()['zipcode'][0]->getMessage();
+            $message = $zipcode->getMessage();
 
             static::assertSame($message, (new CustomerZipCode(['countryId' => $countryId]))->getMessage());
 
             return $validationEvent;
         });
 
-        $checkoutConfirmPageLoader = new CheckoutConfirmPageLoader(
-            $dispatcher,
-            $cartService,
-            $this->createMock(CheckoutGatewayRoute::class),
-            $this->createMock(GenericPageLoader::class),
-            $addressValidation,
-            $this->createMock(DataValidator::class),
+        $checkoutConfirmPageLoader = $this->createLoader(
+            eventDispatcher: $dispatcher,
+            cartService: $cartService,
+            addressValidationFactory: $addressValidation,
         );
 
         $context = $this->getContextWithDummyCustomer();
@@ -423,9 +351,28 @@ class CheckoutConfirmPageLoaderTest extends TestCase
         $checkoutConfirmPageLoader->load(new Request(), $context);
     }
 
-    private function getContextWithDummyCustomer(?string $countryId = null): SalesChannelContext
+    private function createLoader(
+        ?EventDispatcherInterface $eventDispatcher = null,
+        ?StorefrontCartFacade $cartService = null,
+        ?CheckoutGatewayRoute $checkoutGatewayRoute = null,
+        ?GenericPageLoader $pageLoader = null,
+        ?DataValidationFactoryInterface $addressValidationFactory = null,
+        ?DataValidator $validator = null,
+    ): CheckoutConfirmPageLoader {
+        return new CheckoutConfirmPageLoader(
+            $eventDispatcher ?? $this->createMock(EventDispatcherInterface::class),
+            $cartService ?? $this->createMock(StorefrontCartFacade::class),
+            $checkoutGatewayRoute ?? $this->createMock(CheckoutGatewayRoute::class),
+            $pageLoader ?? $this->createMock(GenericPageLoader::class),
+            $addressValidationFactory ?? $this->createMock(DataValidationFactoryInterface::class),
+            $validator ?? $this->createMock(DataValidator::class),
+            $this->createMock(AbstractTranslator::class),
+        );
+    }
+
+    private function getContextWithDummyCustomer(): SalesChannelContext
     {
-        $address = (new CustomerAddressEntity())->assign(['id' => Uuid::randomHex(), 'countryId' => $countryId ?? Uuid::randomHex()]);
+        $address = (new CustomerAddressEntity())->assign(['id' => Uuid::randomHex(), 'countryId' => Uuid::randomHex()]);
 
         $customer = new CustomerEntity();
         $customer->assign([

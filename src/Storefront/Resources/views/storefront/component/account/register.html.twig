@@ -13,10 +13,8 @@
                 <form action="{{ path('frontend.account.register.save') }}"
                       class="register-form"
                       method="post"
-                      {# @deprecated tag:v6.7.0 - Form validation plugin is replaced by form handler plugin. #}
-                      {% if feature('ACCESSIBILITY_TWEAKS') %}data-form-handler="true"{% endif %}
-                      {% if not feature('ACCESSIBILITY_TWEAKS') %}data-form-submit-loader="true"{% endif %}
-                      {% if not feature('ACCESSIBILITY_TWEAKS') %}data-form-validation="true"{% endif %}>
+                      data-form-handler="true">
+
                     {% block component_account_register_redirect %}
                         <input type="hidden"
                                name="redirectTo"
@@ -68,300 +66,91 @@
 
                                 {% set formGroupMail %}
                                     {% block component_account_register_personal_mail %}
-                                        {% if feature('ACCESSIBILITY_TWEAKS') %}
-                                            {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
-                                                type: 'email',
-                                                label: 'account.personalMailLabel'|trans|sw_sanitize,
-                                                id: 'personalMail',
-                                                name: 'email',
-                                                value: data.get('email'),
-                                                autocomplete: 'section-personal email',
-                                                violationPath: '/email',
-                                                validationRules: 'required,email',
-                                                additionalClass: 'col-sm-6',
-                                            } %}
-                                        {% else %}
-
-                                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-                                        {% block component_account_register_personal_mail_label %}
-                                            <label class="form-label"
-                                                   for="personalMail">
-                                                {{ 'account.personalMailLabel'|trans|sw_sanitize }}{{ 'general.required'|trans|sw_sanitize }}
-                                            </label>
-                                        {% endblock %}
-
-                                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-                                        {% block component_account_register_personal_mail_input %}
-                                            <input type="email"
-                                                   class="form-control{% if formViolations.getViolations('/email') is not empty %} is-invalid{% endif %}"
-                                                   autocomplete="section-personal email"
-                                                   id="personalMail"
-                                                   placeholder="{{ 'account.personalMailPlaceholder'|trans|striptags }}"
-                                                   name="email"
-                                                   value="{{ data.get('email') }}"
-                                                   {% if config('core.loginRegistration.requireEmailConfirmation') %}
-                                                   data-form-validation-equal="personalMail"
-                                                   {% endif %}
-                                                   required="required">
-                                        {% endblock %}
-
-                                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-                                        {% block component_account_register_personal_mail_input_error %}
-                                            {% if formViolations.getViolations('/email') is not empty %}
-                                                {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
-                                                    violationPath: '/email'
-                                                } %}
-                                            {% endif %}
-                                        {% endblock %}
-
-                                        {% endif %}
+                                        {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                            type: 'email',
+                                            label: 'account.personalMailLabel'|trans|sw_sanitize,
+                                            id: 'personalMail',
+                                            name: 'email',
+                                            value: data.get('email'),
+                                            autocomplete: 'section-personal email',
+                                            violationPath: '/email',
+                                            validationRules: 'required,email',
+                                            additionalClass: 'col-sm-6',
+                                        } %}
                                     {% endblock %}
                                 {% endset %}
 
                                 {% set formGroupMailConfirmation %}
                                     {% block component_account_register_personal_mail_confirmation %}
-                                        {% if feature('ACCESSIBILITY_TWEAKS') %}
-                                            {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
-                                                type: 'email',
-                                                label: 'account.personalMailConfirmationLabel'|trans|sw_sanitize,
-                                                id: 'personalMailConfirmation',
-                                                name: 'emailConfirmation',
-                                                value: data.get('emailConfirmation'),
-                                                autocomplete: 'section-personal email',
-                                                violationPath: '/email',
-                                                validationRules: 'confirmation,required,email',
-                                                additionalClass: 'col-sm-6',
-                                            } %}
-                                        {% else %}
-
-                                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-                                        {% block component_account_register_personal_mail_confirmation_label %}
-                                            <label class="form-label"
-                                                   for="personalMailConfirmation">
-                                                {{ 'account.personalMailConfirmationLabel'|trans|sw_sanitize }}{{ 'general.required'|trans|sw_sanitize }}
-                                            </label>
-                                        {% endblock %}
-
-                                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-                                        {% block component_account_register_personal_mail_confirmation_input %}
-                                            <input type="email"
-                                                   class="form-control{% if formViolations.getViolations('/email') is not empty or formViolations.getViolations('/emailConfirmation') is not empty %} is-invalid{% endif %}"
-                                                   autocomplete="section-personal email"
-                                                   id="personalMailConfirmation"
-                                                   placeholder="{{ 'account.personalMailConfirmationPlaceholder'|trans|striptags }}"
-                                                   name="emailConfirmation"
-                                                   value="{{ data.get('emailConfirmation') }}"
-                                                   data-form-validation-equal="personalMail"
-                                                   data-form-validation-equal-message="{{ 'account.personalMailConfirmationInvalidMessage'|trans|striptags }}"
-                                                   required="required">
-                                        {% endblock %}
-
-                                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-                                        {% block component_account_register_personal_mail_confirmation_input_error %}
-                                            {% if formViolations.getViolations('/email') is not empty %}
-                                                {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
-                                                    violationPath: '/email'
-                                                } %}
-                                            {% endif %}
-
-                                            {% if formViolations.getViolations('/emailConfirmation') is not empty %}
-                                                {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
-                                                    violationPath: '/emailConfirmation'
-                                                } %}
-                                            {% endif %}
-                                        {% endblock %}
-
-                                        {% endif %}
+                                        {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                            type: 'email',
+                                            label: 'account.personalMailConfirmationLabel'|trans|sw_sanitize,
+                                            id: 'personalMailConfirmation',
+                                            name: 'emailConfirmation',
+                                            value: data.get('emailConfirmation'),
+                                            autocomplete: 'section-personal email',
+                                            violationPath: '/email',
+                                            validationRules: 'confirmation,required,email',
+                                            additionalClass: 'col-sm-6',
+                                        } %}
                                     {% endblock %}
                                 {% endset %}
 
-
                                 {% set formGroupPassword %}
                                     {% block component_account_register_personal_password %}
-                                        {% if feature('ACCESSIBILITY_TWEAKS') %}
-                                            {% set passwordFieldDescription = '' %}
+                                        {% set passwordFieldDescription = '' %}
 
-                                            {% if config('core.loginRegistration.passwordMinLength') != 0 %}
-                                                {% set passwordFieldDescription = 'account.personalPasswordDescription'|trans({
-                                                    '%minLength%': config('core.loginRegistration.passwordMinLength')
-                                                })|sw_sanitize %}
-                                            {% endif %}
-
-                                            {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
-                                                type: 'password',
-                                                label: 'account.personalPasswordLabel'|trans|sw_sanitize,
-                                                id: 'personalPassword',
-                                                name: 'password',
-                                                autocomplete: 'new-password',
-                                                description: passwordFieldDescription,
-                                                violationPath: '/password',
-                                                validationRules: 'required,minLength',
-                                                minlength: config('core.loginRegistration.passwordMinLength'),
-                                                additionalClass: 'col-sm-6 js-form-field-toggle-guest-mode',
-                                            } %}
-
-                                        {% else %}
-                                        <span class="js-form-field-toggle-guest-mode">
-
-                                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-                                            {% block component_account_register_personal_password_label %}
-                                                <label class="form-label"
-                                                       for="personalPassword">
-                                                    {{ 'account.personalPasswordLabel'|trans|sw_sanitize }}{{ 'general.required'|trans|sw_sanitize }}
-                                                </label>
-                                            {% endblock %}
-
-                                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-                                            {% block component_account_register_personal_password_input %}
-                                                <input type="password"
-                                                       class="form-control{% if formViolations.getViolations('/password') is not empty %} is-invalid{% endif %}"
-                                                       autocomplete="new-password"
-                                                       id="personalPassword"
-                                                       placeholder="{{ 'account.personalPasswordPlaceholder'|trans|striptags }}"
-                                                       name="password"
-                                                       minlength="{{ config('core.loginRegistration.passwordMinLength') }}"
-                                                       {% if config('core.loginRegistration.requirePasswordConfirmation') %}
-                                                       data-form-validation-equal="newPassword"
-                                                       {% endif %}
-                                                       {% if config('core.loginRegistration.passwordMinLength') != 0 %}
-                                                       data-form-validation-length="{{ config('core.loginRegistration.passwordMinLength') }}"
-                                                       data-form-validation-length-message=" {{ 'account.personalPasswordDescription'|trans({
-                                                           '%minLength%': config('core.loginRegistration.passwordMinLength')
-                                                       })|sw_sanitize }}"
-                                                       {% endif %}
-                                                       required="required">
-                                            {% endblock %}
-
-                                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-                                            {% block component_account_register_personal_password_description %}
-                                                {% if config('core.loginRegistration.passwordMinLength') != 0 %}
-                                                    <small class="form-text js-validation-message"
-                                                           data-form-validation-length-text="true">
-                                                        {{ 'account.personalPasswordDescription'|trans({
-                                                            '%minLength%': config('core.loginRegistration.passwordMinLength')
-                                                        })|sw_sanitize }}
-                                                    </small>
-                                                {% endif %}
-                                            {% endblock %}
-
-                                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-                                            {% block component_account_register_personal_password_input_error %}
-                                                {% if formViolations.getViolations('/password') is not empty %}
-                                                    {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
-                                                        violationPath: '/password'
-                                                    } %}
-                                                {% endif %}
-                                            {% endblock %}
-                                        </span>
+                                        {% if config('core.loginRegistration.passwordMinLength') != 0 %}
+                                            {% set passwordFieldDescription = 'account.personalPasswordDescription'|trans({
+                                                '%minLength%': config('core.loginRegistration.passwordMinLength')
+                                            })|sw_sanitize %}
                                         {% endif %}
+
+                                        {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                            type: 'password',
+                                            label: 'account.personalPasswordLabel'|trans|sw_sanitize,
+                                            id: 'personalPassword',
+                                            name: 'password',
+                                            autocomplete: 'new-password',
+                                            description: passwordFieldDescription,
+                                            violationPath: '/password',
+                                            validationRules: 'required,minLength',
+                                            minlength: config('core.loginRegistration.passwordMinLength'),
+                                            additionalClass: 'col-sm-6 js-form-field-toggle-guest-mode',
+                                        } %}
                                     {% endblock %}
                                 {% endset %}
 
                                 {% set formGroupPasswordConfirmation %}
                                     {% block component_account_register_personal_password_confirmation %}
-                                        {% if feature('ACCESSIBILITY_TWEAKS') %}
-                                            {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
-                                                type: 'password',
-                                                label: 'account.personalPasswordConfirmationLabel'|trans|sw_sanitize,
-                                                id: 'personalPasswordConfirmation',
-                                                name: 'passwordConfirmation',
-                                                autocomplete: 'new-password',
-                                                violationPath: '/passwordConfirmation',
-                                                validationRules: 'required,confirmation',
-                                                additionalClass: 'col-sm-6 js-form-field-toggle-guest-mode',
-                                            } %}
-                                        {% else %}
-                                        <span class="js-form-field-toggle-guest-mode">
-
-                                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-                                            {% block component_account_register_personal_password_confirmation_label %}
-                                                <label class="form-label"
-                                                       for="personalPasswordConfirmation">
-                                                    {{ 'account.personalPasswordConfirmationLabel'|trans|sw_sanitize }}{{ 'general.required'|trans|sw_sanitize }}
-                                                </label>
-                                            {% endblock %}
-
-                                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-                                            {% block component_account_register_personal_password_confirmation_input %}
-                                                <input type="password"
-                                                       class="form-control{% if formViolations.getViolations('/password') is not empty or formViolations.getViolations('/passwordConfirmation') is not empty %} is-invalid{% endif %}"
-                                                       autocomplete="new-password"
-                                                       id="personalPasswordConfirmation"
-                                                       placeholder="{{ 'account.personalPasswordConfirmationPlaceholder'|trans|striptags }}"
-                                                       name="passwordConfirmation"
-                                                       minlength="{{ config('core.loginRegistration.passwordMinLength') }}"
-                                                       data-form-validation-equal="newPassword"
-                                                       data-form-validation-equal-message="{{ 'account.personalPasswordConfirmationInvalidMessage'|trans|striptags }}"
-                                                       required="required">
-                                            {% endblock %}
-
-                                            {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-                                            {% block component_account_register_personal_password_confirmation_input_error %}
-                                                {% if formViolations.getViolations('/password') is not empty %}
-                                                    {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
-                                                        violationPath: '/password'
-                                                    } %}
-                                                {% endif %}
-
-                                                {% if formViolations.getViolations('/passwordConfirmation') is not empty %}
-                                                    {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
-                                                        violationPath: '/passwordConfirmation'
-                                                    } %}
-                                                {% endif %}
-                                            {% endblock %}
-                                        </span>
-                                        {% endif %}
+                                        {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                            type: 'password',
+                                            label: 'account.personalPasswordConfirmationLabel'|trans|sw_sanitize,
+                                            id: 'personalPasswordConfirmation',
+                                            name: 'passwordConfirmation',
+                                            autocomplete: 'new-password',
+                                            violationPath: '/passwordConfirmation',
+                                            validationRules: 'required,confirmation',
+                                            additionalClass: 'col-sm-6 js-form-field-toggle-guest-mode',
+                                        } %}
                                     {% endblock %}
                                 {% endset %}
 
                                 {% block component_account_register_personal_account_fields %}
                                     <div class="row g-2">
-                                        {% if feature('ACCESSIBILITY_TWEAKS') %}
-                                            {{ formGroupMail }}
-                                        {% else %}
-                                            {# @deprecated tag:v6.7.0 - Field component already contains form-group wrapper. #}
-                                            <div class="form-group col-sm-6">
-                                                {{ formGroupMail }}
-                                            </div>
+                                        {{ formGroupMail }}
+
+                                        {% if config('core.loginRegistration.requireEmailConfirmation') %}
+                                            {{ formGroupMailConfirmation }}
+                                        {% elseif config('core.loginRegistration.requirePasswordConfirmation') %}
+                                            {# If password has a confirmation field, render them in a speparate line next to each other. #}
+                                            <div class="form-group col-sm-6"></div>
                                         {% endif %}
-                                        {% if feature('ACCESSIBILITY_TWEAKS') %}
-                                            {% if config('core.loginRegistration.requireEmailConfirmation') %}
-                                                {{ formGroupMailConfirmation }}
-                                            {% elseif config('core.loginRegistration.requirePasswordConfirmation') %}
-                                                {# If password has a confirmation field, render them in a speparate line next to each other. #}
-                                                <div class="form-group col-sm-6"></div>
-                                            {% endif %}
-                                        {% else %}
-                                            {# @deprecated tag:v6.7.0 - Field component already contains form-group wrapper. #}
-                                            <div class="form-group col-sm-6">
-                                                {% if config('core.loginRegistration.requireEmailConfirmation') %}
-                                                    {{ formGroupMailConfirmation }}
-                                                {% elseif not config('core.loginRegistration.requirePasswordConfirmation') %}
-                                                    {{ formGroupPassword }}
-                                                {% endif %}
-                                            </div>
-                                        {% endif %}
-                                        {% if feature('ACCESSIBILITY_TWEAKS') %}
-                                            {{ formGroupPassword }}
-                                        {% else %}
-                                            {# @deprecated tag:v6.7.0 - Field component already contains form-group wrapper. #}
-                                            <div class="form-group col-sm-6">
-                                                {% if config('core.loginRegistration.requireEmailConfirmation') or config('core.loginRegistration.requirePasswordConfirmation') %}
-                                                    {{ formGroupPassword }}
-                                                {% endif %}
-                                            </div>
-                                        {% endif %}
-                                        {% if feature('ACCESSIBILITY_TWEAKS') %}
-                                            {% if config('core.loginRegistration.requirePasswordConfirmation') %}
-                                                {{ formGroupPasswordConfirmation }}
-                                            {% endif %}
-                                        {% else %}
-                                            {# @deprecated tag:v6.7.0 - Field component already contains form-group wrapper. #}
-                                            <div class="form-group col-sm-6">
-                                                {% if config('core.loginRegistration.requirePasswordConfirmation') %}
-                                                    {{ formGroupPasswordConfirmation }}
-                                                {% endif %}
-                                            </div>
+
+                                        {{ formGroupPassword }}
+
+                                        {% if config('core.loginRegistration.requirePasswordConfirmation') %}
+                                            {{ formGroupPasswordConfirmation }}
                                         {% endif %}
                                     </div>
                                 {% endblock %}
@@ -463,12 +252,7 @@
                     {% endblock %}
 
                     {% block component_account_register_captcha %}
-                        {% if feature('ACCESSIBILITY_TWEAKS') %}
-                            {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' %}
-                        {% else %}
-                            {# @deprecated tag:v6.7.0 - The option "preCheck" becomes obsolete. #}
-                            {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { preCheck: true } %}
-                        {% endif %}
+                        {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' %}
                     {% endblock %}
 
                     {% block component_account_register_privacy %}

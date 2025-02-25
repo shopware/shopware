@@ -99,29 +99,29 @@
                     class="sw-product-variants-media-upload__regular-button"
                 >
                     {% block sw_product_variants_media_upload_actions_regular_upload_button %}
-                    <sw-button
+                    <mt-button
                         class="sw-media-upload-v2__button upload"
                         :disabled="disabled"
-                        variant="ghost"
+                        ghost
                         size="small"
                         @click="onClickUpload"
                     >
                         {{ $tc('global.sw-media-upload-v2.buttonFilesUpload') }}
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
 
                     {% block sw_product_variants_media_upload_actions_regular_open_button %}
-                    <sw-button
+                    <mt-button
                         variant="primary"
                         :disabled="disabled"
                         class="sw-product-variants-media-upload__browse-button"
                         @click="showMediaModal = true"
                     >
-                        <sw-icon
+                        <mt-icon
                             class="sw-product-variants-media-upload__browse-icon"
                             name="regular-image"
                         />
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
                 </div>
                 {% endblock %}
@@ -131,16 +131,16 @@
                     v-else
                     class="sw-product-variants-media-upload__compact-button"
                 >
-                    <sw-button
+                    <mt-button
                         variant="primary"
                         :disabled="disabled"
                         class="sw-product-variants-media-upload__browse-button"
                     >
-                        <sw-icon
+                        <mt-icon
                             class="sw-product-variants-media-upload__browse-icon"
                             name="regular-plus"
                         />
-                    </sw-button>
+                    </mt-button>
                     <sw-context-button
                         class="sw-product-variants-media-upload__context-button"
                         :disabled="disabled"

@@ -43,8 +43,6 @@ async function createWrapper(profiles = null) {
         {
             global: {
                 stubs: {
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-button': await wrapTestComponent('sw-button'),
                     'sw-simple-search-field': true,
                     'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
                     'sw-import-export-edit-profile-modal': {
@@ -68,7 +66,6 @@ async function createWrapper(profiles = null) {
                     'router-link': true,
                     'sw-bulk-edit-modal': true,
                     'sw-checkbox-field': true,
-                    'sw-icon': true,
                     'sw-data-grid-settings': true,
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-inline-edit': true,
@@ -121,7 +118,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         });
     });
 
-    it.skip('should open the new profile wizard when creating a new profile', async () => {
+    it('should open the new profile wizard when creating a new profile', async () => {
         wrapper = await createWrapper(importExportProfiles());
 
         expect(wrapper.find('.sw-import-export-new-profile-wizard').exists()).toBe(false);
@@ -132,7 +129,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         expect(wrapper.find('.sw-import-export-new-profile-wizard').exists()).toBe(true);
     });
 
-    it.skip('should open the edit modal when editing a profile', async () => {
+    it('should open the edit modal when editing a profile', async () => {
         wrapper = await createWrapper(importExportProfiles());
         await flushPromises();
 
@@ -151,7 +148,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         expect(editProfileModal.attributes('show')).toBe('true');
     });
 
-    it.skip('should delete a profile', async () => {
+    it('should delete a profile', async () => {
         wrapper = await createWrapper(importExportProfiles());
         await flushPromises();
 
@@ -163,7 +160,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         await createProfileButton.trigger('click');
         await flushPromises();
 
-        document.body.querySelector('.sw-button--danger').click();
+        document.body.querySelector('.mt-button--critical').click();
         await flushPromises();
 
         expect(wrapper.vm.profiles).toHaveLength(1);

@@ -22,7 +22,6 @@ async function createWrapper() {
                 'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
                 'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
                 'sw-base-filter': await wrapTestComponent('sw-base-filter', { sync: true }),
-                'sw-icon': true,
                 'sw-field-error': {
                     template: '<div></div>',
                 },

@@ -93,8 +93,7 @@ async function createWrapper(privileges = []) {
                     },
                 },
                 stubs: {
-                    'sw-button': true,
-                    'sw-card': true,
+                    'mt-card': true,
                     'sw-empty-state': {
                         template: '<div></div>',
                     },
@@ -122,7 +121,6 @@ async function createWrapper(privileges = []) {
                         template: '<div></div>',
                     },
                     'sw-pagination': await wrapTestComponent('sw-pagination'),
-                    'sw-icon': true,
                     'sw-loader': true,
                     'sw-modal': true,
                     'sw-text-field': true,

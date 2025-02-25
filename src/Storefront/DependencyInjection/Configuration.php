@@ -26,7 +26,6 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('theme_path_builder_id')->defaultValue(SeedingThemePathBuilder::class)->end()
                         ->scalarNode('available_theme_provider')->defaultValue(DatabaseAvailableThemeProvider::class)->end()
                         ->integerNode('file_delete_delay')->defaultValue(900)->end()
-                        ->booleanNode('auto_prefix_css')->defaultFalse()->end()
                         ->arrayNode('allowed_scss_values')->performNoDeepMerging()
                             ->scalarPrototype()->end()
                         ->end()

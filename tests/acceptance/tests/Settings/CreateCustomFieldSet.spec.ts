@@ -1,4 +1,4 @@
-import { test, expect, getCustomFieldCardContent } from '@fixtures/AcceptanceTest';
+import { test, expect } from '@fixtures/AcceptanceTest';
 
 test('As a merchant, I want to be able to create and assign custom fields to different entities and be able to use them there exclusively.', { tag: '@Settings' }, async ({
     ShopAdmin,
@@ -70,18 +70,18 @@ test('As a merchant, I want to be able to create and assign custom fields to dif
     await test.step('Validate the availability of the custom fields on an order detail page.', async () => {
 
         await ShopAdmin.goesTo(AdminOrderDetail.url(order.id, 'details'));
-        customFields = await getCustomFieldCardContent(AdminOrderDetail.page, customFieldSetName, customFieldTextName);
+        customFields = await AdminOrderDetail.customFields(customFieldSetName, customFieldTextName);
         await ShopAdmin.expects(customFields.customFieldCard).toBeVisible();
         await customFields.customFieldSetsTab.click();
         await ShopAdmin.expects(customFields.customFieldLabel).toBeVisible();
-        customFields = await getCustomFieldCardContent(AdminOrderDetail.page, customFieldSetName, customFieldNumberName);
+        customFields = await AdminOrderDetail.customFields(customFieldSetName, customFieldNumberName);
         await ShopAdmin.expects(customFields.customFieldLabel).toBeVisible();
     });
 
     await test.step('Validate the availability of custom fields on a category detail page.', async () => {
 
         await ShopAdmin.goesTo(AdminCategoryDetail.url(DefaultSalesChannel.salesChannel.navigationCategoryId));
-        customFields = await getCustomFieldCardContent(AdminManufacturerDetail.page, customFieldSetName, customFieldTextName);
+        customFields = await AdminCategoryDetail.customFields(customFieldSetName, customFieldTextName);
         await ShopAdmin.expects(customFields.customFieldCard).toBeVisible();
         await ShopAdmin.expects(customFields.customFieldSetsTab).toBeVisible();
         await ShopAdmin.expects(customFields.customFieldSetsTab).toHaveText(customFieldSetName);
@@ -95,7 +95,7 @@ test('As a merchant, I want to be able to create and assign custom fields to dif
 
         await ShopAdmin.goesTo(AdminProductDetail.url(product.id));
         await AdminProductDetail.specificationsTabLink.click();
-        customFields = await getCustomFieldCardContent(AdminManufacturerDetail.page, customFieldSetName, customFieldTextName);
+        customFields = await AdminProductDetail.customFields(customFieldSetName, customFieldTextName);
         await ShopAdmin.expects(customFields.customFieldCard).toBeVisible();
         await ShopAdmin.expects(customFields.customFieldSetsTab).toBeVisible();
         await ShopAdmin.expects(customFields.customFieldSetsTab).toHaveText(customFieldSetName);

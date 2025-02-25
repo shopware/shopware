@@ -566,7 +566,7 @@ class RegisterRoute extends AbstractRegisterRoute
         if (!Feature::isActive('v6.8.0.0')) {
             $country = $this->countryRepository->search(new Criteria([$countryId]), $context)->get($countryId);
 
-            if (!$country instanceof CountryEntity) {
+            if (!$country) {
                 throw CustomerException::countryNotFound($countryId);
             }
 

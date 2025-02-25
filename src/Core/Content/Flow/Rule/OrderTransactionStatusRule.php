@@ -28,8 +28,6 @@ class OrderTransactionStatusRule extends FlowRule
 
     /**
      * @param list<string> $stateIds
-     *
-     * @internal
      */
     public function __construct(
         public string $operator = Rule::OPERATOR_EQ,

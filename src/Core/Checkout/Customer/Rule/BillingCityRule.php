@@ -21,9 +21,6 @@ class BillingCityRule extends Rule
 {
     final public const RULE_NAME = 'customerBillingCity';
 
-    /**
-     * @internal
-     */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
         protected ?string $cityName = null

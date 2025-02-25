@@ -17,9 +17,6 @@ class IsActiveRule extends Rule
 {
     final public const RULE_NAME = 'customerIsActive';
 
-    /**
-     * @internal
-     */
     public function __construct(protected bool $isActive = false)
     {
         parent::__construct();

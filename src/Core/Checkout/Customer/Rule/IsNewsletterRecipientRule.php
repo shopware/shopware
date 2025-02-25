@@ -19,9 +19,6 @@ class IsNewsletterRecipientRule extends Rule
 {
     final public const RULE_NAME = 'customerIsNewsletterRecipient';
 
-    /**
-     * @internal
-     */
     public function __construct(protected bool $isNewsletterRecipient = true)
     {
         parent::__construct();

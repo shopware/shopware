@@ -21,9 +21,6 @@ class GoodsPriceRule extends FilterRule
 
     protected float $amount;
 
-    /**
-     * @internal
-     */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
         ?float $amount = null

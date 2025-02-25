@@ -17,9 +17,6 @@ class IsCompanyRule extends Rule
 {
     final public const RULE_NAME = 'customerIsCompany';
 
-    /**
-     * @internal
-     */
     public function __construct(
         protected bool $isCompany = true
     ) {

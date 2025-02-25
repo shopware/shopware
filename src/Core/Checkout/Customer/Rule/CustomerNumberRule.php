@@ -21,8 +21,6 @@ class CustomerNumberRule extends Rule
 
     /**
      * @param list<string>|null $numbers
-     *
-     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

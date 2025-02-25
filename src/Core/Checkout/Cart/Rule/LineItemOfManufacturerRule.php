@@ -23,8 +23,6 @@ class LineItemOfManufacturerRule extends Rule
 
     /**
      * @param list<string> $manufacturerIds
-     *
-     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

@@ -18,9 +18,6 @@ class DifferentAddressesRule extends Rule
 {
     final public const RULE_NAME = 'customerDifferentAddresses';
 
-    /**
-     * @internal
-     */
     public function __construct(
         protected bool $isDifferent = true
     ) {

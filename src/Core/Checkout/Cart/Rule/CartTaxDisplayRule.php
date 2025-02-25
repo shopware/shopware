@@ -17,9 +17,6 @@ class CartTaxDisplayRule extends Rule
 {
     final public const RULE_NAME = 'cartTaxDisplay';
 
-    /**
-     * @internal
-     */
     public function __construct(protected string $taxDisplay = CartPrice::TAX_STATE_GROSS)
     {
         parent::__construct();

@@ -18,9 +18,6 @@ class LineItemClearanceSaleRule extends Rule
 {
     final public const RULE_NAME = 'cartLineItemClearanceSale';
 
-    /**
-     * @internal
-     */
     public function __construct(protected bool $clearanceSale = false)
     {
         parent::__construct();

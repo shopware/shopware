@@ -17,9 +17,6 @@ class LineItemPromotedRule extends Rule
 {
     final public const RULE_NAME = 'cartLineItemPromoted';
 
-    /**
-     * @internal
-     */
     public function __construct(protected bool $isPromoted = false)
     {
         parent::__construct();

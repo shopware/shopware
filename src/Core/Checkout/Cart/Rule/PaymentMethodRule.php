@@ -20,8 +20,6 @@ class PaymentMethodRule extends Rule
 
     /**
      * @param list<string> $paymentMethodIds
-     *
-     * @internal
      */
     public function __construct(
         protected string $operator = Rule::OPERATOR_EQ,

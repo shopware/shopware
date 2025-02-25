@@ -20,6 +20,7 @@ use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\App\Event\Hooks\AppDeletedHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppInstalledHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppUpdatedHook;
+use Shopware\Core\Framework\App\Event\PostAppDeletedEvent;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Flow\Action\Action;
 use Shopware\Core\Framework\App\Flow\Event\Event;
@@ -170,6 +171,9 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->removeAppAndRole($appEntity, $context, $keepUserData, true);
         $this->assetService->removeAssets($appEntity->getName());
         $this->customEntitySchemaUpdater->update();
+
+        $event = new PostAppDeletedEvent($appEntity->getName(), $appEntity->getSourceType(), $context, $keepUserData);
+        $this->eventDispatcher->dispatch($event);
     }
 
     public function ensureIsCompatible(Manifest $manifest): void

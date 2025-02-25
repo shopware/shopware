@@ -11,8 +11,11 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+/**
+ * @internal
+ */
 #[Package('fundamentals@after-sales')]
-final class CustomerGroupRule extends Rule
+class CustomerGroupRule extends Rule
 {
     final public const RULE_NAME = 'customerCustomerGroup';
 

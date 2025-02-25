@@ -11,8 +11,11 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 #[Package('fundamentals@after-sales')]
-final class IsNewsletterRecipientRule extends Rule
+class IsNewsletterRecipientRule extends Rule
 {
     final public const RULE_NAME = 'customerIsNewsletterRecipient';
 

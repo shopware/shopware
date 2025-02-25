@@ -10,10 +10,12 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
+ * @internal
+ *
  * MatchAllLineItemsRule returns true, if all rules are true for all line items
  */
 #[Package('fundamentals@after-sales')]
-final class MatchAllLineItemsRule extends Container
+class MatchAllLineItemsRule extends Container
 {
     final public const RULE_NAME = 'allLineItemsContainer';
 

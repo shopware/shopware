@@ -9,8 +9,11 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+/**
+ * @internal
+ */
 #[Package('fundamentals@after-sales')]
-final class IsCompanyRule extends Rule
+class IsCompanyRule extends Rule
 {
     final public const RULE_NAME = 'customerIsCompany';
 

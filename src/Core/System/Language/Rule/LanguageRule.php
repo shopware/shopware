@@ -12,8 +12,11 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Language\LanguageDefinition;
 
+/**
+ * @internal
+ */
 #[Package('fundamentals@discovery')]
-final class LanguageRule extends Rule
+class LanguageRule extends Rule
 {
     final public const RULE_NAME = 'language';
 

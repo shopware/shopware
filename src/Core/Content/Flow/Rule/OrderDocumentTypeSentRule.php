@@ -11,8 +11,11 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+/**
+ * @internal
+ */
 #[Package('fundamentals@after-sales')]
-final class OrderDocumentTypeSentRule extends FlowRule
+class OrderDocumentTypeSentRule extends FlowRule
 {
     public const RULE_NAME = 'orderDocumentTypeSent';
 

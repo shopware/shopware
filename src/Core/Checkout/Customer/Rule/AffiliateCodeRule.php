@@ -11,8 +11,11 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+/**
+ * @internal
+ */
 #[Package('fundamentals@after-sales')]
-final class AffiliateCodeRule extends Rule
+class AffiliateCodeRule extends Rule
 {
     final public const RULE_NAME = 'customerAffiliateCode';
 

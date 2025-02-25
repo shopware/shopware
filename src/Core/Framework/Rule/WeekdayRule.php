@@ -6,8 +6,11 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Range;
 
+/**
+ * @internal
+ */
 #[Package('fundamentals@after-sales')]
-final class WeekdayRule extends Rule
+class WeekdayRule extends Rule
 {
     final public const RULE_NAME = 'dayOfWeek';
 

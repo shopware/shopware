@@ -9,8 +9,11 @@ use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+/**
+ * @internal
+ */
 #[Package('fundamentals@after-sales')]
-final class CustomerCustomFieldRule extends Rule
+class CustomerCustomFieldRule extends Rule
 {
     final public const RULE_NAME = 'customerCustomField';
 

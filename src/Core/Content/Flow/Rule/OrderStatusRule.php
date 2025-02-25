@@ -11,8 +11,11 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 
+/**
+ * @internal
+ */
 #[Package('fundamentals@after-sales')]
-final class OrderStatusRule extends FlowRule
+class OrderStatusRule extends FlowRule
 {
     public const RULE_NAME = 'orderStatus';
 

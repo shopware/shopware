@@ -13,8 +13,11 @@ use Shopware\Core\Framework\Util\ArrayComparator;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Symfony\Component\Validator\Constraint;
 
+/**
+ * @internal
+ */
 #[Package('fundamentals@after-sales')]
-final class LineItemCustomFieldRule extends Rule
+class LineItemCustomFieldRule extends Rule
 {
     final public const RULE_NAME = 'cartLineItemCustomField';
 

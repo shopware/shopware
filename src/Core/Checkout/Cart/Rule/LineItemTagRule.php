@@ -12,8 +12,11 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Tag\TagDefinition;
 use Symfony\Component\Validator\Constraint;
 
+/**
+ * @internal
+ */
 #[Package('fundamentals@after-sales')]
-final class LineItemTagRule extends Rule
+class LineItemTagRule extends Rule
 {
     final public const RULE_NAME = 'cartLineItemTag';
 

@@ -7,8 +7,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\DaysSinceRule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+/**
+ * @internal
+ */
 #[Package('fundamentals@after-sales')]
-final class DaysSinceLastOrderRule extends DaysSinceRule
+class DaysSinceLastOrderRule extends DaysSinceRule
 {
     final public const RULE_NAME = 'customerDaysSinceLastOrder';
 

@@ -13,8 +13,11 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+/**
+ * @internal
+ */
 #[Package('fundamentals@after-sales')]
-final class LineItemDimensionLengthRule extends Rule
+class LineItemDimensionLengthRule extends Rule
 {
     final public const RULE_NAME = 'cartLineItemDimensionLength';
 

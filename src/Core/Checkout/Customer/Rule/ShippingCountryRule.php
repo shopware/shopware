@@ -12,8 +12,11 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Country\CountryDefinition;
 
+/**
+ * @internal
+ */
 #[Package('fundamentals@after-sales')]
-final class ShippingCountryRule extends Rule
+class ShippingCountryRule extends Rule
 {
     final public const RULE_NAME = 'customerShippingCountry';
 

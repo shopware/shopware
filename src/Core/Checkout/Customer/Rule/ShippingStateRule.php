@@ -14,8 +14,11 @@ use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+/**
+ * @internal
+ */
 #[Package('fundamentals@after-sales')]
-final class ShippingStateRule extends Rule
+class ShippingStateRule extends Rule
 {
     final public const RULE_NAME = 'customerShippingState';
 

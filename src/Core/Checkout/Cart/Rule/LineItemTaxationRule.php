@@ -13,8 +13,11 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Tax\TaxDefinition;
 
+/**
+ * @internal
+ */
 #[Package('fundamentals@after-sales')]
-final class LineItemTaxationRule extends Rule
+class LineItemTaxationRule extends Rule
 {
     final public const RULE_NAME = 'cartLineItemTaxation';
 

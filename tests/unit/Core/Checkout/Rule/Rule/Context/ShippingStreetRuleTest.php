@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Rule\Rule\Context;
 
-use Doctrine\ORM\Cache\Exception\FeatureNotImplemented;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;

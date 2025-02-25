@@ -6,13 +6,11 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistC
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\WishlistProductAddedEvent;
-use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -97,11 +95,6 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
         $productsIds = $this->productRepository->searchIds(new Criteria([$productId]), $context);
 
         if ($productsIds->firstId() === null) {
-            // @deprecated tag:v6.8.0 - remove this if block
-            if (!Feature::isActive('v6.8.0.0')) {
-                // @phpstan-ignore-next-line
-                throw new ProductNotFoundException($productId);
-            }
             throw CustomerException::productNotFound($productId);
         }
     }

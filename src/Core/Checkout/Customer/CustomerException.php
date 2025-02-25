@@ -20,6 +20,7 @@ use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Exception\MissingOptionsException;
@@ -315,8 +316,15 @@ class CustomerException extends HttpException
         );
     }
 
-    public static function unsupportedValue(string $type, string $class): self
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function unsupportedValue(string $type, string $class): self|UnsupportedValueException
     {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new UnsupportedValueException($type, $class);
+        }
+
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::VALUE_NOT_SUPPORTED,
@@ -335,9 +343,21 @@ class CustomerException extends HttpException
         );
     }
 
-    public static function productNotFound(string $productId): ShopwareHttpException
+    /**
+     * @deprecated tag:v6.8.0.0 - reason:return-type-change - Will return self
+     */
+    public static function productNotFound(string $productId): self|ProductNotFoundException
     {
-        return new ProductNotFoundException($productId);
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new ProductNotFoundException($productId);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_REQUEST_PARAMETER_CODE,
+            'Product for id {{ productId }} not found.',
+            ['productId' => $productId]
+        );
     }
 
     public static function missingOption(string $option, string $constraint): self|MissingOptionsException

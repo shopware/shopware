@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPriceFieldType
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
@@ -439,8 +440,15 @@ class CartException extends HttpException
         );
     }
 
-    public static function unsupportedValue(string $type, string $class): self
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function unsupportedValue(string $type, string $class): self|UnsupportedValueException
     {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new UnsupportedValueException($type, $class);
+        }
+
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::VALUE_NOT_SUPPORTED,
@@ -577,7 +585,10 @@ class CartException extends HttpException
         );
     }
 
-    public static function invalidPriceFieldTypeException(string $type): self
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function invalidPriceFieldTypeException(string $type): self|InvalidPriceFieldTypeException
     {
         if (!Feature::isActive('v6.8.0.0')) {
             return new InvalidPriceFieldTypeException($type);

@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
@@ -59,16 +58,11 @@ class LineItemStockRule extends Rule
     }
 
     /**
-     * @throws UnsupportedOperatorException|UnsupportedValueException
+     * @throws UnsupportedOperatorException|UnsupportedValueException|CartException
      */
     private function matchStock(LineItem $lineItem): bool
     {
         if ($this->stock === null) {
-            // @deprecated tag:v6.8.0 - remove this if block
-            if (!Feature::isActive('v6.8.0.0')) {
-                // @phpstan-ignore-next-line
-                throw new UnsupportedValueException(\gettype($this->stock), self::class);
-            }
             throw CartException::unsupportedValue(\gettype($this->stock), self::class);
         }
 

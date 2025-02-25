@@ -20,7 +20,7 @@ class Validator
     }
 
     /**
-     * @return array<Error>
+     * @return list<Error>
      */
     public function validate(Cart $cart, SalesChannelContext $context): array
     {

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 class PriceDefinitionFactory
 {
     /**
-     * @param array<mixed> $priceDefinition
+     * @param array<string, mixed> $priceDefinition
      */
     public function factory(Context $context, array $priceDefinition, string $lineItemType): PriceDefinitionInterface
     {

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @phpstan-type TransformedAddressArray array{id: non-falsy-string, company?: non-falsy-string, department?: non-falsy-string, salutationId?: non-falsy-string, title?: non-falsy-string, firstName?: non-falsy-string, lastName?: non-falsy-string, street?: non-falsy-string, zipcode?: non-falsy-string, city?: non-falsy-string, phoneNumber?: non-falsy-string, additionalAddressLine1?: non-falsy-string, additionalAddressLine2?: non-falsy-string, countryId?: non-falsy-string, countryStateId?: non-falsy-string, customFields?: array<mixed>}
+ * @phpstan-type TransformedAddressArray array{id: non-falsy-string, company?: non-falsy-string, department?: non-falsy-string, salutationId?: non-falsy-string, title?: non-falsy-string, firstName?: non-falsy-string, lastName?: non-falsy-string, street?: non-falsy-string, zipcode?: non-falsy-string, city?: non-falsy-string, phoneNumber?: non-falsy-string, additionalAddressLine1?: non-falsy-string, additionalAddressLine2?: non-falsy-string, countryId?: non-falsy-string, countryStateId?: non-falsy-string, customFields?: array<string, mixed>}
  */
 #[Package('checkout')]
 class AddressTransformer

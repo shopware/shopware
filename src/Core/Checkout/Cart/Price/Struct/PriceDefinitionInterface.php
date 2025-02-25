@@ -40,7 +40,7 @@ interface PriceDefinitionInterface
      * @see PercentagePriceDefinition
      * @see Rule
      *
-     * @return array<string, Constraint[]>
+     * @return array<string, list<Constraint>>
      */
     public static function getConstraints(): array;
 }

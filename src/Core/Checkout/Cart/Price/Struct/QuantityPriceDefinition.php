@@ -64,7 +64,7 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
     }
 
     /**
-     * @param array<mixed> $data
+     * @param array<string, mixed> $data
      */
     public static function fromArray(array $data): self
     {

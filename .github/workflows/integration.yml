@@ -256,6 +256,7 @@ jobs:
         run: ./local-php-security-checker
   code-ql:
     name: Analyze
+    if: ${{ github.repository == 'shopware/shopware' }}
     runs-on: ubuntu-24.04
 
     strategy:

@@ -15,9 +15,9 @@
         <h2>
             {% block sw_mail_template_list_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
-            <sw-icon
+            <mt-icon
                 name="regular-chevron-right-xs"
-                small
+                size="16px"
             />
             {{ $tc('sw-mail-template.list.textMailTemplateOverview') }}
             {% endblock %}
@@ -43,7 +43,7 @@
                     :disabled="!acl.can('mail_templates.creator') || undefined"
                 >
                     {{ $tc('global.default.add') }}
-                    <sw-icon
+                    <mt-icon
                         name="regular-chevron-down-xs"
                         size="16"
                     />

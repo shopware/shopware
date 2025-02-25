@@ -50,7 +50,6 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
                     'sw-single-select': await wrapTestComponent('sw-single-select'),
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
-                    'sw-icon': true,
                     'sw-product-variant-info': await wrapTestComponent('sw-product-variant-info'),
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                     'sw-select-result': await wrapTestComponent('sw-select-result'),

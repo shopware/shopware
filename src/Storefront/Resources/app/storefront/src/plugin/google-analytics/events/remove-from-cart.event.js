@@ -1,5 +1,4 @@
 import AnalyticsEvent from 'src/plugin/google-analytics/analytics-event';
-import DomAccessHelper from 'src/helper/dom-access.helper';
 
 export default class RemoveFromCart extends AnalyticsEvent
 {
@@ -23,7 +22,7 @@ export default class RemoveFromCart extends AnalyticsEvent
 
         gtag('event', 'remove_from_cart', {
             'items': [{
-                'id': DomAccessHelper.getDataAttribute(closest, 'product-id'),
+                'id': closest.getAttribute('data-product-id'),
             }],
         });
     }

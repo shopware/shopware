@@ -50,7 +50,6 @@ async function createWrapper(privileges = [], hasSnippetFromApp = false, customF
                     </div>
                 `,
                 },
-                'sw-icon': true,
                 'sw-entity-listing': {
                     props: ['items'],
                     template: `

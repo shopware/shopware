@@ -143,7 +143,6 @@ async function createWrapper(
 
                     'sw-entity-multi-select': true,
                     'sw-single-select': true,
-                    'sw-icon': true,
                     'sw-data-grid': {
                         props: ['dataSource'],
                         template: `

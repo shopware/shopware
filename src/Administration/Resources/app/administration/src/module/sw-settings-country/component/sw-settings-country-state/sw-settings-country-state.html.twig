@@ -31,9 +31,9 @@
                 :disabled="deleteButtonDisabled || !acl.can('country.editor')"
                 @click="onDeleteCountryStates"
             >
-                <sw-icon
+                <mt-icon
                     name="regular-trash"
-                    small
+                    size="16px"
                 />
             </mt-button>
             {% endblock %}

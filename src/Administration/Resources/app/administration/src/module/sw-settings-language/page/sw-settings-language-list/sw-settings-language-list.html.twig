@@ -21,9 +21,9 @@
 
             {% block sw_settings_language_list_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
-            <sw-icon
+            <mt-icon
                 name="regular-chevron-right-xs"
-                small
+                size="16px"
             /> {{ $tc('sw-settings-language.list.textHeadline') }}
             {% endblock %}
 
@@ -113,10 +113,10 @@
 
             {% block sw_settings_language_list_content_list_column_id %}
             <template #column-id="{ item, column, compact, isInlineEdit }">
-                <sw-icon
+                <mt-icon
                     v-if="isDefault(item.id)"
                     name="regular-checkmark-xs"
-                    small
+                    size="16px"
                     class="is--default"
                 />
                 <div v-else></div>
@@ -180,7 +180,7 @@
 
                             {% block sw_settings_language_list_grid_sidebar_filter_header_icon %}
                             {% block sw_settings_language_list_grid_sidebar_filter_header_icon_expanded %}
-                            <sw-icon
+                            <mt-icon
                                 v-if="expanded"
                                 class="sw-media-collapse__button"
                                 name="regular-chevron-down-xxs"
@@ -189,7 +189,7 @@
                             {% endblock %}
 
                             {% block sw_settings_language_list_grid_sidebar_filter_header_icon_not_expanded %}
-                            <sw-icon
+                            <mt-icon
                                 v-else
                                 class="sw-media-collapse__button"
                                 name="regular-chevron-right-xxs"

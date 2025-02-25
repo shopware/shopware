@@ -51,7 +51,7 @@
                                 v-if="column.iconLabel"
                                 class="sw-grid__cell-label"
                             >
-                                <sw-icon
+                                <mt-icon
                                     :name="column.iconLabel"
                                     :title="column.label"
                                 />
@@ -70,12 +70,12 @@
                                 v-if="column.sortable && sort === column.dataIndex"
                                 class="sw-grid_cell-sortable"
                             >
-                                <sw-icon
+                                <mt-icon
                                     v-if="sortDir === 'ASC'"
                                     name="regular-chevron-down-xxs"
                                     size="16px"
                                 />
-                                <sw-icon
+                                <mt-icon
                                     v-else
                                     name="regular-chevron-up-xxs"
                                     size="16px"

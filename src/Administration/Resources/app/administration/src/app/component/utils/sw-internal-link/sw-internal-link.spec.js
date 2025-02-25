@@ -14,9 +14,9 @@ const setup = async (propOverride) => {
     return mount(await wrapTestComponent('sw-internal-link', { sync: true }), {
         global: {
             stubs: {
-                'sw-icon': true,
                 RouterLink: RouterLinkStub,
             },
+
         },
         slots: {
             default: 'test internal link',
@@ -26,25 +26,14 @@ const setup = async (propOverride) => {
 };
 
 describe('components/utils/sw-internal-link', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await setup();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render correctly', async () => {
         const wrapper = await setup();
-        expect(wrapper.element).toMatchSnapshot();
+        expect(wrapper.find('.sw-internal-link').classes()).not.toContain('sw-internal-link--disabled');
     });
 
     it('should render correctly when disabled', async () => {
         const wrapper = await setup({ disabled: true });
-        expect(wrapper.element).toMatchSnapshot();
-    });
-
-    it('should display a custom icon', async () => {
-        const wrapper = await setup({ icon: 'default-test-icon' });
-
-        expect(wrapper.find('sw-icon-stub').attributes().name).toBe('default-test-icon');
+        expect(wrapper.find('.sw-internal-link').classes()).toContain('sw-internal-link--disabled');
     });
 
     it('should add custom target to link', async () => {

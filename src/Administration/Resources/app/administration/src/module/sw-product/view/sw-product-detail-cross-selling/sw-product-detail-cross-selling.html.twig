@@ -17,7 +17,7 @@
             :disabled="!acl.can('product.editor')"
             @click="onShowRestoreInheritanceModal"
         >
-            <sw-icon
+            <mt-icon
                 key="inherit-icon"
                 name="regular-link-horizontal"
                 size="16px"
@@ -91,9 +91,9 @@
                             class="sw-product-detail-cross-selling__parent-cross-sellings-link"
                         >
                             {{ $tc('sw-product.crossselling.linkCrossSellingsOfParent') }}
-                            <sw-icon
+                            <mt-icon
                                 name="regular-long-arrow-right"
-                                small
+                                size="16px"
                             />
                         </router-link>
                         {% endblock %}

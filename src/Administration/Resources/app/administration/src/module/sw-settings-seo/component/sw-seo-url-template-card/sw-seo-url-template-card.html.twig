@@ -59,26 +59,26 @@
                                     v-if="previewLoadingStates[seoUrlTemplate.id]"
                                     size="16px"
                                 />
-                                <sw-icon
+                                <mt-icon
                                     v-else-if="errorMessages[seoUrlTemplate.id]"
                                     v-tooltip="$tc('sw-seo-url-template-card.general.tooltipInvalidTemplate')"
                                     name="regular-times"
                                 />
-                                <sw-icon
+                                <mt-icon
                                     v-else-if="noEntityError.includes(seoUrlTemplate.id)"
                                     v-tooltip="$tc('sw-seo-url-template-card.general.textUrlNoEntitiesForPreview', {
                                         entity: $tc(`global.entities.${seoUrlTemplate.entityName}`, 0)
                                     }, 0)"
                                     name="regular-exclamation-triangle"
                                 />
-                                <sw-icon
+                                <mt-icon
                                     v-else-if="!props.currentValue"
                                     v-tooltip="$tc('sw-seo-url-template-card.general.textUrlPreviewEmptyTemplate', {
                                         entity: $tc(`global.entities.${seoUrlTemplate.entityName}`, 0)
                                     }, 1)"
                                     name="regular-exclamation-triangle"
                                 />
-                                <sw-icon
+                                <mt-icon
                                     v-else
                                     v-tooltip="$tc('sw-seo-url-template-card.general.tooltipValidTemplate')"
                                     name="regular-checkmark"

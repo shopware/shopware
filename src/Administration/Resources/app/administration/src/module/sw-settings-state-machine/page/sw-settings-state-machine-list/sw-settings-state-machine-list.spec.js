@@ -70,7 +70,6 @@ async function createWrapper(privileges = []) {
                             </div>
                         `,
                     },
-                    'sw-icon': true,
                     'sw-language-switch': true,
                     'sw-card-view': {
                         template: `

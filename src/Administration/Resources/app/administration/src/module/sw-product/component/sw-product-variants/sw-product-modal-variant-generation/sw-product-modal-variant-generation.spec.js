@@ -186,9 +186,7 @@ async function createWrapper() {
                         sync: true,
                     }),
                     'sw-product-variants-configurator-selection': true,
-                    'sw-icon': true,
                     'sw-progress-bar': true,
-
                     'sw-upload-listener': true,
                     'sw-media-compact-upload-v2': true,
 

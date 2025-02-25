@@ -9,7 +9,6 @@ async function createWrapper(userConfig = {}) {
     const wrapper = mount(await wrapTestComponent('sw-extension-file-upload', { sync: true }), {
         global: {
             stubs: {
-                'sw-icon': true,
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field', {

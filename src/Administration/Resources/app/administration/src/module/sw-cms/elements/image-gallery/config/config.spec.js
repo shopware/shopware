@@ -73,7 +73,6 @@ async function createWrapper(activeTab = 'content') {
                     'sw-loader': true,
                     'sw-context-button': true,
                     'sw-context-menu-item': true,
-                    'sw-icon': true,
                 },
             },
             props: {

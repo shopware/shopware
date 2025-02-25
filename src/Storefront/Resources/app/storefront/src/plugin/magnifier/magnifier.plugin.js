@@ -1,5 +1,4 @@
 import Plugin from 'src/plugin-system/plugin.class';
-import DomAccess from 'src/helper/dom-access.helper';
 import { Vector2 } from 'src/helper/vector.helper';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 
@@ -95,12 +94,12 @@ export default class MagnifierPlugin extends Plugin {
     };
 
     init() {
-        this._imageContainers = DomAccess.querySelectorAll(this.el, this.options.imageContainerSelector);
+        this._imageContainers = this.el.querySelectorAll(this.options.imageContainerSelector);
 
         if (this.options.magnifierOverGallery) {
-            this._zoomImageContainer = DomAccess.querySelector(this.el, this.options.zoomImageContainerSelector);
+            this._zoomImageContainer = this.el.querySelector(this.options.zoomImageContainerSelector);
         } else {
-            this._zoomImageContainer = DomAccess.querySelector(document, this.options.zoomImageContainerSelector);
+            this._zoomImageContainer = document.querySelector(this.options.zoomImageContainerSelector);
         }
 
         this._registerEvents();
@@ -111,7 +110,7 @@ export default class MagnifierPlugin extends Plugin {
      */
     _registerEvents() {
         this._imageContainers.forEach(imageContainer => {
-            const image = DomAccess.querySelector(imageContainer, this.options.imageSelector, false);
+            const image = imageContainer.querySelector(this.options.imageSelector);
             if (image) {
                 image.addEventListener('mousemove', (event) => this._onMouseMove(event, imageContainer, image), false);
                 imageContainer.addEventListener('mouseout', (event) => this._stopMagnify(event), false);
@@ -498,7 +497,7 @@ export default class MagnifierPlugin extends Plugin {
      * @private
      */
     _getImageUrl(image) {
-        this._imageUrl = DomAccess.getDataAttribute(image, this.options.fullImageDataAttribute);
+        this._imageUrl = image.getAttribute(this.options.fullImageDataAttribute);
 
         this.$emitter.publish('getImageUrl');
     }
@@ -512,7 +511,7 @@ export default class MagnifierPlugin extends Plugin {
         this._removeZoomImage();
         this._removeOverlay();
 
-        const images = DomAccess.querySelectorAll(document, this.options.imageSelector);
+        const images = document.querySelectorAll(this.options.imageSelector);
         images.forEach(image => this._setCursor(image, 'default'));
 
         this.$emitter.publish('stopMagnify');

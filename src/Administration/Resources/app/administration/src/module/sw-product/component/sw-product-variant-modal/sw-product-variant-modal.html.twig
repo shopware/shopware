@@ -36,7 +36,7 @@
                     @click="toggleFilterMenu"
                 >
                     {{ $tc('sw-product.variations.generatedFilterList') }}
-                    <sw-icon name="regular-filter" />
+                    <mt-icon name="regular-filter" />
                 </mt-button>
                 {% endblock %}
 
@@ -216,19 +216,19 @@
 
                 {% block sw_product_variant_modal_bulk_edit_modal_column_active %}
                 <template #column-active="{ item }">
-                    <sw-icon
+                    <mt-icon
                         v-if="item.active === true"
-                        class="sw-icon--product-status is--active"
+                        class="mt-icon--product-status is--active"
                         name="regular-checkmark-xs"
-                        small
+                        size="16px"
                     />
-                    <sw-icon
+                    <mt-icon
                         v-else-if="item.active === false"
-                        class="sw-icon--product-status is--inactive"
+                        class="mt-icon--product-status is--inactive"
                         name="regular-times-s"
-                        small
+                        size="16px"
                     />
-                    <sw-icon
+                    <mt-icon
                         v-else
                         key="inherit-icon"
                         name="regular-link-horizontal"
@@ -398,24 +398,24 @@
             <template v-else>
 
                 {% block sw_product_variant_modal_body_grid_column_active_content_icon_active %}
-                <sw-icon
+                <mt-icon
                     v-if="item.active === true"
                     name="regular-checkmark-xs"
-                    small
-                    class="sw-icon--product-status is--active"
+                    size="16px"
+                    class="mt-icon--product-status is--active"
                 />
                 {% endblock %}
 
                 {% block sw_product_variant_modal_body_grid_column_active_content_icon_not_active %}
-                <sw-icon
+                <mt-icon
                     v-else-if="item.active === false"
                     name="regular-times-s"
-                    small
-                    class="sw-icon--product-status is--inactive"
+                    size="16px"
+                    class="mt-icon--product-status is--inactive"
                 />
                 {% endblock %}
 
-                <sw-icon
+                <mt-icon
                     v-else
                     key="inherit-icon"
                     name="regular-link-horizontal"

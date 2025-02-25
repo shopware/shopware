@@ -25,8 +25,6 @@ async function createWrapper(
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
                 'sw-customer-address-form': true,
                 'sw-customer-base-form': true,
-                'sw-icon': true,
-
                 'sw-extension-component-section': true,
                 'router-link': true,
                 'sw-loader': true,
@@ -220,8 +218,8 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
         let swDetailsTab = wrapper.findAll('.sw-tabs-item').at(0);
         let swBillingAddressTab = wrapper.findAll('.sw-tabs-item').at(1);
 
-        expect(swDetailsTab.find('sw-icon-stub').exists()).toBe(false);
-        expect(swBillingAddressTab.find('sw-icon-stub').exists()).toBe(false);
+        expect(swDetailsTab.find('.mt-icon').exists()).toBe(false);
+        expect(swBillingAddressTab.find('.mt-icon').exists()).toBe(false);
 
         Shopware.Store.get('error').addApiError({
             expression: 'customer.1.email',
@@ -242,8 +240,8 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
         swDetailsTab = wrapper.findAll('.sw-tabs-item').at(0);
         swBillingAddressTab = wrapper.findAll('.sw-tabs-item').at(1);
 
-        expect(swDetailsTab.find('sw-icon-stub[name=solid-exclamation-circle]').exists()).toBe(true);
-        expect(swBillingAddressTab.find('sw-icon-stub').exists()).toBe(false);
+        expect(swDetailsTab.find('.mt-icon.icon--solid-exclamation-circle').exists()).toBe(true);
+        expect(swBillingAddressTab.find('.mt-icon').exists()).toBe(false);
     });
 
     it('should get default salutation is value not specified', async () => {

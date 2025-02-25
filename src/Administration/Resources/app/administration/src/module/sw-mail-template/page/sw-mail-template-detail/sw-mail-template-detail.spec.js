@@ -174,11 +174,6 @@ async function createWrapper(privileges = []) {
                 },
                 'sw-upload-listener': true,
                 'sw-media-upload-v2': true,
-                'sw-icon': await wrapTestComponent('sw-icon'),
-                'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated'),
-                'icons-regular-products-s': {
-                    template: '<div class="sw-mail-template-detail__copy_icon" @click="$emit(\'click\')"></div>',
-                },
                 'sw-tree': await wrapTestComponent('sw-tree'),
                 'sw-tree-item': await wrapTestComponent('sw-tree-item'),
                 'sw-tree-input-field': await wrapTestComponent('sw-tree-input-field'),

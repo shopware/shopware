@@ -93,7 +93,6 @@ async function createWrapper() {
                 'sw-button-group': true,
                 'sw-button-process': true,
                 'sw-context-button': true,
-                'sw-icon': true,
                 'sw-context-menu-item': true,
                 'sw-card-view': true,
                 'sw-skeleton': true,

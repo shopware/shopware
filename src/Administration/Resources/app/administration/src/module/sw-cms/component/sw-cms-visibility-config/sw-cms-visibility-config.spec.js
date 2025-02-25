@@ -17,12 +17,6 @@ async function createWrapper() {
                     desktop: true,
                 },
             },
-            global: {
-                stubs: {
-                    'sw-icon': await wrapTestComponent('sw-icon'),
-                    'sw-icon-deprecated': true,
-                },
-            },
         },
     );
 }
@@ -38,14 +32,11 @@ describe('module/sw-cms/component/sw-cms-visibility-config', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const mobileIcon = wrapper.findAll('sw-icon-deprecated-stub')[0];
-        expect(mobileIcon.attributes('name')).toContain('regular-mobile');
+        const icons = wrapper.findAll('.mt-icon');
 
-        const tabletIcon = wrapper.findAll('sw-icon-deprecated-stub')[1];
-        expect(tabletIcon.attributes('name')).toContain('regular-tablet');
-
-        const desktopIcon = wrapper.findAll('sw-icon-deprecated-stub')[2];
-        expect(desktopIcon.attributes('name')).toContain('regular-desktop');
+        expect(icons[0].classes()).toContain('icon--regular-mobile');
+        expect(icons[1].classes()).toContain('icon--regular-tablet');
+        expect(icons[2].classes()).toContain('icon--regular-desktop');
     });
 
     it('should be invisible in all devices', async () => {
@@ -59,14 +50,11 @@ describe('module/sw-cms/component/sw-cms-visibility-config', () => {
         });
         await flushPromises();
 
-        const mobileIcon = wrapper.findAll('sw-icon-deprecated-stub')[0];
-        expect(mobileIcon.attributes('name')).toContain('regular-mobile-slash');
+        const icons = wrapper.findAll('.mt-icon');
 
-        const tabletIcon = wrapper.findAll('sw-icon-deprecated-stub')[1];
-        expect(tabletIcon.attributes('name')).toContain('regular-tablet-slash');
-
-        const desktopIcon = wrapper.findAll('sw-icon-deprecated-stub')[2];
-        expect(desktopIcon.attributes('name')).toContain('regular-desktop-slash');
+        expect(icons[0].classes()).toContain('icon--regular-mobile-slash');
+        expect(icons[1].classes()).toContain('icon--regular-tablet-slash');
+        expect(icons[2].classes()).toContain('icon--regular-desktop-slash');
     });
 
     it('should emit an event when the visibility changes', async () => {

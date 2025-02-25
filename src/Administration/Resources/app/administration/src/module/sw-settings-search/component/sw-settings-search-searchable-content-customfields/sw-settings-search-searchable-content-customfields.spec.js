@@ -71,7 +71,6 @@ async function createWrapper() {
                     'sw-entity-single-select': true,
                     'sw-number-field': true,
                     'sw-checkbox-field': true,
-                    'sw-icon': true,
                     'sw-bulk-edit-modal': true,
                     'sw-data-grid-settings': true,
                     'sw-data-grid-column-boolean': true,

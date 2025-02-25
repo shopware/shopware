@@ -54,9 +54,6 @@ async function createWrapper() {
                 provide: {
                     cmsService: Shopware.Service('cmsService'),
                 },
-                stubs: {
-                    'sw-icon': true,
-                },
             },
             props: {
                 element: {

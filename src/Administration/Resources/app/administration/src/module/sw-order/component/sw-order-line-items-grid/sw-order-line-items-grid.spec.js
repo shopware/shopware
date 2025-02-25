@@ -249,9 +249,6 @@ async function createWrapper() {
                     sync: true,
                 }),
                 'sw-data-grid-settings': true,
-                'sw-icon': await await wrapTestComponent('sw-icon', {
-                    sync: true,
-                }),
                 'sw-product-variant-info': await wrapTestComponent('sw-product-variant-info', { sync: true }),
 
                 'router-link': {
@@ -285,7 +282,6 @@ async function createWrapper() {
                 'sw-data-grid-skeleton': true,
                 'sw-base-field': true,
                 'sw-field-error': true,
-                'sw-icon-deprecated': true,
                 'sw-highlight-text': true,
                 'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },

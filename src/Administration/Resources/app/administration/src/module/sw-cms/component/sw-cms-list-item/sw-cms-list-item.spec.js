@@ -30,11 +30,6 @@ async function createWrapper() {
                     ],
                 },
             },
-            global: {
-                stubs: {
-                    'sw-icon': true,
-                },
-            },
         },
     );
 }

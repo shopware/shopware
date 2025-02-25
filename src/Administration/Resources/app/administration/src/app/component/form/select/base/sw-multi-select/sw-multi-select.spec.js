@@ -11,9 +11,6 @@ const createMultiSelect = async (customOptions) => {
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-icon': {
-                    template: '<div></div>',
-                },
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),

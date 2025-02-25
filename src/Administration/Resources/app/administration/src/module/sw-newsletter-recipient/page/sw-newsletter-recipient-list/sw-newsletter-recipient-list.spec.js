@@ -144,7 +144,6 @@ async function createWrapper() {
                 'sw-container': true,
                 'sw-loader': true,
                 'sw-search-bar': true,
-                'sw-icon': true,
                 'sw-text-field': true,
                 'sw-label': true,
                 'router-link': true,

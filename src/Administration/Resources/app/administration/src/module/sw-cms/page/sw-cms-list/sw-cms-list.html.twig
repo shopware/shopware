@@ -95,12 +95,12 @@
                             @click="onListModeChange"
                             @keydown.enter="onListModeChange"
                         >
-                            <sw-icon
+                            <mt-icon
                                 v-if="listMode === 'grid'"
                                 name="regular-view-normal"
                                 size="16"
                             />
-                            <sw-icon
+                            <mt-icon
                                 v-if="listMode === 'list'"
                                 name="regular-view-grid"
                                 size="16"
@@ -250,7 +250,7 @@
 
                                     {% block sw_cms_list_listing_list_data_grid_column_name %}
                                     <template #column-name="{ item }">
-                                        <sw-icon
+                                        <mt-icon
                                             v-if="item.locked"
                                             name="regular-lock"
                                             class="sw-cms-list__icon-lock"
@@ -270,8 +270,8 @@
 
                                     {% block sw_cms_list_listing_list_data_grid_column_assignments %}
                                     <template #column-assignments="{ item }">
-                                        <sw-icon
-                                            small
+                                        <mt-icon
+
                                             size="10px"
                                             :name="layoutIsLinked(item.id) ? 'regular-checkmark-xs' : 'regular-times-xs'"
                                             :class="layoutIsLinked(item.id) ? 'is--active' : 'is--inactive'"

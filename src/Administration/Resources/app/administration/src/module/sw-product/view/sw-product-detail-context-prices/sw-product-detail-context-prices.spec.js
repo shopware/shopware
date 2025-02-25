@@ -15,9 +15,7 @@ const createWrapper = async () => {
             global: {
                 stubs: {
                     'sw-container': await wrapTestComponent('sw-container'),
-                    'sw-icon': true,
                     'sw-loader': true,
-
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-inheritance-switch': true,

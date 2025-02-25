@@ -19,7 +19,6 @@ async function createWrapper(propsData = {}, provide = {}) {
                     name: 'sw-context-menu-item',
                     template: '<div class="sw-context-menu-item"><slot></slot></div>',
                 },
-                'sw-icon': true,
                 'sw-context-button': {
                     template: '<div class="sw-context-button"><slot></slot></div>',
                 },

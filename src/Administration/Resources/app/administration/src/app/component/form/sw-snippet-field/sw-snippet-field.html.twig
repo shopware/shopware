@@ -21,14 +21,14 @@
         v-if="isLoading"
         size="16px"
     />
-    <sw-icon
+    <mt-icon
         v-else
         v-tooltip="{
             message: $tc('global.sw-snippet-field.tooltip'),
         }"
         class="sw-snippet-field__icon"
         name="regular-globe-stand"
-        small
+        size="16px"
         @click="openEditModal()"
     />
 

@@ -363,7 +363,6 @@ describe('app/plugins/shortcut.plugin', () => {
                     'sw-text-editor': await Shopware.Component.build('sw-text-editor'),
                     'sw-text-editor-toolbar': await Shopware.Component.build('sw-text-editor-toolbar'),
                     'sw-text-editor-toolbar-button': await Shopware.Component.build('sw-text-editor-toolbar-button'),
-                    'sw-icon': { template: '<div class="sw-icon"></div>' },
                     'sw-text-field': await Shopware.Component.build('sw-text-field'),
                     'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
                     'sw-block-field': await Shopware.Component.build('sw-block-field'),

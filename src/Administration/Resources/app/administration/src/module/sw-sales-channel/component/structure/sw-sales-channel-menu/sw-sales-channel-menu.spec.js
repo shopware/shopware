@@ -26,7 +26,7 @@ const headlessSalesChannel = {
     domains: [],
     type: {
         id: Shopware.Defaults.apiSalesChannelTypeId,
-        iconName: 'default-shopping-basket',
+        iconName: 'regular-shopping-basket',
     },
     translated: {
         name: 'Headless',
@@ -163,11 +163,6 @@ async function createWrapper(salesChannels = []) {
     return mount(await wrapTestComponent('sw-sales-channel-menu', { sync: true }), {
         global: {
             stubs: {
-                'sw-icon': {
-                    // eslint-disable-next-line no-template-curly-in-string
-                    template: '<div :class="`sw-icon sw-icon--${name}`"></div>',
-                    props: ['name'],
-                },
                 'sw-admin-menu-item': {
                     template:
                         '<div class="sw-admin-menu-item" :class="$attrs.class"><div>{{ entry.label }}</div><slot name="additional-text"></slot></div>',
@@ -365,7 +360,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
                 translated: { name: `${i}a` },
                 type: {
                     id: Shopware.Defaults.apiSalesChannelTypeId,
-                    iconName: 'default-shopping-basket',
+                    iconName: 'regular-shopping-basket',
                 },
             });
         }
@@ -395,7 +390,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
                 translated: { name: `${i}a` },
                 type: {
                     id: Shopware.Defaults.apiSalesChannelTypeId,
-                    iconName: 'default-shopping-basket',
+                    iconName: 'regular-shopping-basket',
                 },
             });
         }
@@ -424,7 +419,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
                 translated: { name: '1a' },
                 type: {
                     id: Shopware.Defaults.apiSalesChannelTypeId,
-                    iconName: 'default-shopping-basket',
+                    iconName: 'regular-shopping-basket',
                 },
             },
             {
@@ -432,7 +427,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
                 translated: { name: '2b' },
                 type: {
                     id: Shopware.Defaults.apiSalesChannelTypeId,
-                    iconName: 'default-shopping-basket',
+                    iconName: 'regular-shopping-basket',
                 },
             },
         ]);

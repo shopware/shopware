@@ -57,7 +57,6 @@ async function createWrapper(privileges = []) {
         <slot></slot>
     </div>`,
                     },
-                    'sw-icon': true,
                     'sw-search-bar': true,
                     'sw-entity-listing': {
                         props: ['items'],

@@ -53,7 +53,6 @@ async function createWrapper(props = defaultProps, privileges = ['rule.editor'])
                 'sw-ai-copilot-badge': true,
                 'sw-context-button': true,
                 'sw-highlight-text': true,
-                'sw-icon': true,
                 'sw-inheritance-switch': true,
                 'sw-help-text': true,
                 'sw-field-error': true,

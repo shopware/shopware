@@ -30,7 +30,7 @@ class SalesChannelLanguageLoader implements ResetInterface
      */
     public function loadLanguages(): array
     {
-        if ($this->languages) {
+        if ($this->languages !== null) {
             return $this->languages;
         }
 

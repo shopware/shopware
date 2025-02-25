@@ -64,7 +64,6 @@ async function createWrapper() {
                 },
                 'sw-contextual-field': true,
                 'router-link': true,
-                'sw-icon': true,
             },
         },
     });

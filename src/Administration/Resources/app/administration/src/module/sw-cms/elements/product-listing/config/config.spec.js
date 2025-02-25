@@ -84,7 +84,6 @@ async function createWrapper(activeTab = 'sorting') {
                     'sw-highlight-text': true,
                     'sw-select-result': true,
                     'sw-checkbox-field': true,
-                    'sw-icon': true,
                     'sw-context-menu-item': true,
                     'sw-context-button': true,
                     'sw-data-grid-settings': true,

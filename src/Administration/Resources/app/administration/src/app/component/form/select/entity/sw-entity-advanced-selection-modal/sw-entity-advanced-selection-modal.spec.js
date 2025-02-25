@@ -79,7 +79,6 @@ const createAdvancedSelectionModal = async (customOptions) => {
         },
         global: {
             stubs: {
-                'sw-icon': true,
                 'sw-modal': true,
                 'sw-card-filter': true,
                 'sw-ignore-class': true,

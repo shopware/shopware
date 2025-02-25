@@ -65,7 +65,6 @@ async function createWrapper() {
                     </div>`,
                 },
                 'sw-button-process': true,
-                'sw-icon': true,
                 'sw-search-bar': true,
                 'sw-description-list': true,
                 'sw-card-view': await wrapTestComponent('sw-card-view'),

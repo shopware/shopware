@@ -22,7 +22,6 @@ async function createWrapper(customProps = {}, domains = []) {
                         sync: true,
                     }),
                     'sw-context-menu-item': true,
-                    'sw-icon': true,
                     'sw-context-button': true,
                     'sw-modal': await wrapTestComponent('sw-modal', {
                         sync: true,

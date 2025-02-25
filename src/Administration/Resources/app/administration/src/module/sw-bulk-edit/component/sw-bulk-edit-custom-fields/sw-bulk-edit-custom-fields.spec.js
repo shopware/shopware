@@ -31,7 +31,6 @@ async function createWrapper(customProps = {}) {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
-                'sw-icon': true,
                 'sw-single-select': await wrapTestComponent('sw-single-select'),
                 'sw-multi-select': await wrapTestComponent('sw-multi-select'),
                 'sw-select-base': await wrapTestComponent('sw-select-base'),

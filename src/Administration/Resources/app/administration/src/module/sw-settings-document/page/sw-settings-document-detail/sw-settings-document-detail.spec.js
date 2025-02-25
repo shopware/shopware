@@ -132,7 +132,6 @@ const createWrapper = async (customOptions, privileges = []) => {
                     },
                     'sw-button-process': true,
                     'sw-card-view': true,
-                    'sw-icon': true,
                     'sw-container': true,
                     'sw-form-field-renderer': true,
                     'sw-checkbox-field': {

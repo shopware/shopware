@@ -54,7 +54,6 @@ async function createWrapper() {
                     'sw-upload-listener': true,
                     'sw-textarea-field': true,
                     'sw-field-error': true,
-                    'sw-icon': true,
                     'sw-media-modal-v2': true,
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,

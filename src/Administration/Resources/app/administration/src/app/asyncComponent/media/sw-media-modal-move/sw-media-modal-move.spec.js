@@ -36,7 +36,6 @@ async function createWrapper() {
         },
         global: {
             stubs: {
-                'sw-icon': true,
                 'sw-media-folder-content': true,
             },
             provide: {

@@ -114,7 +114,6 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () =
                         'sw-text-field': await wrapTestComponent('sw-text-field'),
                         'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                         'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                        'sw-icon': true,
                         'sw-loader': true,
                         'sw-extension-icon': await wrapTestComponent('sw-extension-icon'),
                         'router-link': true,

@@ -42,11 +42,6 @@ async function createWrapper(additionalProps = {}) {
             },
             ...additionalProps,
         },
-        global: {
-            stubs: {
-                'sw-icon': true,
-            },
-        },
     });
 }
 

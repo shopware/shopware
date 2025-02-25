@@ -8,14 +8,14 @@
             :to="backPath"
             :style="{ 'color': moduleData.color }"
         >
-            <sw-icon
+            <mt-icon
                 name="regular-chevron-left"
-                small
+                size="16px"
             />
-            <sw-icon
+            <mt-icon
                 v-if="moduleData && moduleData.icon"
                 :name="moduleData.icon"
-                small
+                size="16px"
             />
         </router-link>
     </template>

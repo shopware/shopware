@@ -46,7 +46,6 @@ async function createWrapper(indexMock = jest.fn(() => Promise.resolve()), delay
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
-                'sw-icon': await wrapTestComponent('sw-icon'),
                 'sw-extension-component-section': await wrapTestComponent('sw-extension-component-section'),
                 'sw-skeleton': true,
                 'sw-ai-copilot-badge': true,
@@ -56,8 +55,6 @@ async function createWrapper(indexMock = jest.fn(() => Promise.resolve()), delay
                 'sw-tabs': true,
                 'sw-iframe-renderer': true,
                 'router-link': true,
-                'sw-icon-deprecated': true,
-
                 'sw-inheritance-switch': true,
                 'sw-help-text': true,
                 'sw-color-badge': true,

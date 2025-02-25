@@ -321,9 +321,8 @@ class RecalculationService
      */
     private function validateProduct(string $productId, Context $context): void
     {
-        $product = $this->productRepository->search(new Criteria([$productId]), $context)->get($productId);
-
-        if (!$product) {
+        $total = $this->productRepository->searchIds(new Criteria([$productId]), $context)->getTotal();
+        if ($total === 0) {
             throw CartException::productNotFound($productId);
         }
     }

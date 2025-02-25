@@ -446,24 +446,9 @@ parameters:
 			path: src/Core/Content/Flow/DataAbstractionLayer/FieldSerializer/FlowTemplateConfigFieldSerializer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\AbstractFlowLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Flow/Dispatching/AbstractFlowLoader.php
-
-		-
 			message: "#^Expected domain exception class Shopware\\\\Core\\\\Content\\\\Flow\\\\FlowException, got Shopware\\\\Core\\\\System\\\\StateMachine\\\\StateMachineException$#"
 			count: 2
 			path: src/Core/Content/Flow/Dispatching/Action/SetOrderStateAction.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\CachedFlowLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Flow/Dispatching/CachedFlowLoader.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\CachedFlowLoader\\:\\:\\$flows type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Flow/Dispatching/CachedFlowLoader.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\FlowBuilder\\:\\:build\\(\\) has parameter \\$flowSequences with no value type specified in iterable type array\\.$#"

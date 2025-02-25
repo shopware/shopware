@@ -53,17 +53,16 @@ class DocumentGenerator
         string $deepLinkCode = '',
         string $fileType = PdfRenderer::FILE_EXTENSION
     ): ?RenderedDocument {
-        $criteria = new Criteria([$documentId]);
+        $criteria = (new Criteria([$documentId]))
+            ->addAssociations([
+                'documentMediaFile',
+                'documentType',
+                'documentA11yMediaFile',
+            ]);
 
         if ($deepLinkCode !== '') {
             $criteria->addFilter(new EqualsFilter('deepLinkCode', $deepLinkCode));
         }
-
-        $criteria->addAssociations([
-            'documentMediaFile',
-            'documentType',
-            'documentA11yMediaFile',
-        ]);
 
         $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
         if (!$document) {
@@ -304,11 +303,8 @@ class DocumentGenerator
         }
 
         // Fetch the document again because new mediaFile is generated
-        $criteria = new Criteria([$documentId]);
-
-        $criteria->addAssociation('documentMediaFile')
-            ->addAssociation('documentA11yMediaFile')
-            ->addAssociation('documentType');
+        $criteria = (new Criteria([$documentId]))
+            ->addAssociations(['documentMediaFile', 'documentA11yMediaFile', 'documentType']);
 
         $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
 

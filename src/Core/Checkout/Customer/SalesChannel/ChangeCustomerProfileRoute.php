@@ -155,12 +155,9 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         $birthdayMonth = $data->get('birthdayMonth');
         $birthdayYear = $data->get('birthdayYear');
 
-        if (!$birthdayDay || !$birthdayMonth || !$birthdayYear) {
+        if (!\is_numeric($birthdayDay) || !\is_numeric($birthdayMonth) || !\is_numeric($birthdayYear)) {
             return null;
         }
-        \assert(\is_numeric($birthdayDay));
-        \assert(\is_numeric($birthdayMonth));
-        \assert(\is_numeric($birthdayYear));
 
         return new \DateTime(\sprintf(
             '%s-%s-%s',
@@ -172,11 +169,9 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 
     private function getDefaultSalutationId(SalesChannelContext $context): ?string
     {
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $criteria->addFilter(
-            new EqualsFilter('salutationKey', SalutationDefinition::NOT_SPECIFIED)
-        );
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addFilter(new EqualsFilter('salutationKey', SalutationDefinition::NOT_SPECIFIED));
 
         /** @var array<string> $ids */
         $ids = $this->salutationRepository->searchIds($criteria, $context->getContext())->getIds();

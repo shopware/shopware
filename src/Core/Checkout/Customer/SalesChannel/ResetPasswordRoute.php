@@ -182,10 +182,8 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
 
     private function checkHash(string $hash, Context $context): bool
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new EqualsFilter('hash', $hash)
-        );
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('hash', $hash));
 
         $recovery = $this->customerRecoveryRepository->search($criteria, $context)->getEntities()->first();
 

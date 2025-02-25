@@ -62,8 +62,8 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
             throw OrderException::customerNotLoggedIn();
         }
 
-        $criteria = new Criteria([$orderId]);
-        $criteria->addFilter(new EqualsFilter('orderCustomer.customerId', $context->getCustomerId()));
+        $criteria = (new Criteria([$orderId]))
+            ->addFilter(new EqualsFilter('orderCustomer.customerId', $context->getCustomerId()));
 
         $total = $this->orderRepository->searchIds($criteria, $context->getContext())->getTotal();
         if ($total === 0) {

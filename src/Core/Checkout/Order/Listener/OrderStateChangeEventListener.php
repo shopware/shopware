@@ -62,9 +62,8 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
     {
         $orderDeliveryId = $event->getTransition()->getEntityId();
 
-        $criteria = new Criteria([$orderDeliveryId]);
-        $criteria->addAssociation('order.orderCustomer');
-        $criteria->addAssociation('order.transactions.stateMachineState');
+        $criteria = (new Criteria([$orderDeliveryId]))
+            ->addAssociations(['order.orderCustomer', 'order.transactions.stateMachineState']);
 
         $orderDelivery = $this->deliveryRepository->search($criteria, $event->getContext())->getEntities()->first();
         if (!$orderDelivery || !$orderDelivery->getOrder()) {
@@ -84,10 +83,12 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
     {
         $orderTransactionId = $event->getTransition()->getEntityId();
 
-        $criteria = new Criteria([$orderTransactionId]);
-        $criteria->addAssociation('paymentMethod');
-        $criteria->addAssociation('order.orderCustomer');
-        $criteria->addAssociation('order.transactions.stateMachineState');
+        $criteria = (new Criteria([$orderTransactionId]))
+            ->addAssociations([
+                'paymentMethod',
+                'order.orderCustomer',
+                'order.transactions.stateMachineState',
+            ]);
 
         $orderTransaction = $this->transactionRepository->search($criteria, $event->getContext())->getEntities()->first();
         if (!$orderTransaction || !$orderTransaction->getOrder() || !$orderTransaction->getPaymentMethod()) {
@@ -116,8 +117,8 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
 
         $collection = $event->getCollection();
 
-        $criteria = new Criteria();
-        $criteria->addAssociation('stateMachine');
+        $criteria = (new Criteria())
+            ->addAssociation('stateMachine');
 
         $states = $this->stateRepository->search($criteria, $context)->getEntities();
 
@@ -206,22 +207,24 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
 
     private function getOrderCriteria(string $orderId, Context $context): Criteria
     {
-        $criteria = new Criteria([$orderId]);
-        $criteria->addAssociation('orderCustomer.salutation');
-        $criteria->addAssociation('orderCustomer.customer');
-        $criteria->addAssociation('stateMachineState');
-        $criteria->addAssociation('deliveries.shippingMethod');
-        $criteria->addAssociation('deliveries.shippingOrderAddress.country');
-        $criteria->addAssociation('deliveries.shippingOrderAddress.countryState');
-        $criteria->addAssociation('salesChannel');
-        $criteria->addAssociation('language.locale');
-        $criteria->addAssociation('transactions.paymentMethod');
-        $criteria->addAssociation('lineItems');
-        $criteria->addAssociation('lineItems.downloads.media');
-        $criteria->addAssociation('currency');
-        $criteria->addAssociation('addresses.country');
-        $criteria->addAssociation('addresses.countryState');
-        $criteria->addAssociation('tags');
+        $criteria = (new Criteria([$orderId]))
+            ->addAssociations([
+                'orderCustomer.salutation',
+                'orderCustomer.customer',
+                'stateMachineState',
+                'deliveries.shippingMethod',
+                'deliveries.shippingOrderAddress.country',
+                'deliveries.shippingOrderAddress.countryState',
+                'salesChannel',
+                'language.locale',
+                'transactions.paymentMethod',
+                'lineItems',
+                'lineItems.downloads.media',
+                'currency',
+                'addresses.country',
+                'addresses.countryState',
+                'tags',
+            ]);
 
         $this->eventDispatcher->dispatch(new OrderStateChangeCriteriaEvent($orderId, $criteria, $context));
 

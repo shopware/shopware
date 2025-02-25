@@ -67,12 +67,12 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
 
     private function getWishlistId(SalesChannelContext $context, string $customerId): string
     {
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
-            new EqualsFilter('customerId', $customerId),
-            new EqualsFilter('salesChannelId', $context->getSalesChannelId()),
-        ]));
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
+                new EqualsFilter('customerId', $customerId),
+                new EqualsFilter('salesChannelId', $context->getSalesChannelId()),
+            ]));
 
         $wishlistId = $this->wishlistRepository->searchIds($criteria, $context->getContext())->firstId();
         if (!$wishlistId) {
@@ -84,13 +84,14 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
 
     private function getWishlistProductId(string $wishlistId, string $productId, SalesChannelContext $context): string
     {
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
-            new EqualsFilter('wishlistId', $wishlistId),
-            new EqualsFilter('productId', $productId),
-            new EqualsFilter('productVersionId', Defaults::LIVE_VERSION),
-        ]));
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
+                new EqualsFilter('wishlistId', $wishlistId),
+                new EqualsFilter('productId', $productId),
+                new EqualsFilter('productVersionId', Defaults::LIVE_VERSION),
+            ]));
+
         $wishlistProductId = $this->productRepository->searchIds($criteria, $context->getContext())->firstId();
         if (!$wishlistProductId) {
             throw CustomerException::wishlistProductNotFound($productId);

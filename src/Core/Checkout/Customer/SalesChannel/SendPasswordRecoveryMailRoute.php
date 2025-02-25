@@ -199,15 +199,14 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
 
     private function getCustomerByEmail(string $email, SalesChannelContext $context): CustomerEntity
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('customer.active', 1));
-        $criteria->addFilter(new EqualsFilter('customer.email', $email));
-        $criteria->addFilter(new EqualsFilter('customer.guest', 0));
-
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-            new EqualsFilter('customer.boundSalesChannelId', null),
-            new EqualsFilter('customer.boundSalesChannelId', $context->getSalesChannelId()),
-        ]));
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('customer.active', 1))
+            ->addFilter(new EqualsFilter('customer.email', $email))
+            ->addFilter(new EqualsFilter('customer.guest', 0))
+            ->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+                new EqualsFilter('customer.boundSalesChannelId', null),
+                new EqualsFilter('customer.boundSalesChannelId', $context->getSalesChannelId()),
+            ]));
 
         $customer = $this->customerRepository->search($criteria, $context->getContext())->getEntities()->first();
         if (!$customer) {

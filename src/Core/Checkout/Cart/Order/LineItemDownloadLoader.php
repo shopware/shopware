@@ -63,8 +63,8 @@ class LineItemDownloadLoader
     {
         $productIds = array_keys($lineItemKeys);
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('productId', $productIds));
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsAnyFilter('productId', $productIds));
 
         $context = clone $context;
         $context->assign(['versionId' => Defaults::LIVE_VERSION]);

@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
@@ -122,7 +121,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         $this->addressRepository->upsert([$addressData], $context->getContext());
 
         $address = $this->addressRepository->search(new Criteria([$addressId]), $context->getContext())->getEntities()->first();
-        \assert($address instanceof CustomerAddressEntity);
+        \assert($address !== null);
 
         return new UpsertAddressRouteResponse($address);
     }
@@ -149,11 +148,9 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
 
     private function getDefaultSalutationId(SalesChannelContext $context): ?string
     {
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $criteria->addFilter(
-            new EqualsFilter('salutationKey', SalutationDefinition::NOT_SPECIFIED)
-        );
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addFilter(new EqualsFilter('salutationKey', SalutationDefinition::NOT_SPECIFIED));
 
         /** @var array<string> $ids */
         $ids = $this->salutationRepository->searchIds($criteria, $context->getContext())->getIds();

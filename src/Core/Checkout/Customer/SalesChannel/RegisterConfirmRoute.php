@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerCollection;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
@@ -118,13 +117,12 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
             $this->eventDispatcher->dispatch(new CustomerRegisterEvent($new, $customer));
         }
 
-        $criteria = new Criteria([$customer->getId()]);
-        $criteria->addAssociation('addresses');
-        $criteria->addAssociation('salutation');
-        $criteria->setLimit(1);
+        $criteria = (new Criteria([$customer->getId()]))
+            ->addAssociations(['addresses', 'salutation'])
+            ->setLimit(1);
 
         $customer = $this->customerRepository->search($criteria, $new->getContext())->getEntities()->first();
-        \assert($customer instanceof CustomerEntity);
+        \assert($customer !== null);
 
         $response = new CustomerResponse($customer);
 

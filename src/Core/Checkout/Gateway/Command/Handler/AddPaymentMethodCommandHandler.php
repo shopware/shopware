@@ -43,9 +43,9 @@ class AddPaymentMethodCommandHandler extends AbstractCheckoutGatewayCommandHandl
         $technicalName = $command->paymentMethodTechnicalName;
         $methods = $response->getAvailablePaymentMethods();
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('technicalName', $technicalName));
-        $criteria->addAssociation('appPaymentMethod.app');
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('technicalName', $technicalName))
+            ->addAssociation('appPaymentMethod.app');
 
         $paymentMethod = $this->paymentMethodRepository->search($criteria, $context->getContext())->getEntities()->first();
         if (!$paymentMethod) {

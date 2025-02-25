@@ -52,11 +52,12 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
             return $this->configs[$documentType][$salesChannelId];
         }
 
-        $criteria = new Criteria();
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('documentType.technicalName', $documentType))
+            ->addAssociation('logo');
 
-        $criteria->addFilter(new EqualsFilter('documentType.technicalName', $documentType));
-        $criteria->addAssociation('logo');
-        $criteria->getAssociation('salesChannels')->addFilter(new EqualsFilter('salesChannelId', $salesChannelId));
+        $criteria->getAssociation('salesChannels')
+            ->addFilter(new EqualsFilter('salesChannelId', $salesChannelId));
 
         $documentConfigs = $this->documentConfigRepository->search($criteria, $context)->getEntities();
 

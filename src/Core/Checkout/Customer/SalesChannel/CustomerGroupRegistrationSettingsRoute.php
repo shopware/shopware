@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -34,9 +33,9 @@ class CustomerGroupRegistrationSettingsRoute extends AbstractCustomerGroupRegist
     #[Route(path: '/store-api/customer-group-registration/config/{customerGroupId}', name: 'store-api.customer-group-registration.config', methods: ['GET'])]
     public function load(string $customerGroupId, SalesChannelContext $context): CustomerGroupRegistrationSettingsRouteResponse
     {
-        $criteria = new Criteria([$customerGroupId]);
-        $criteria->addFilter(new EqualsFilter('registrationActive', 1));
-        $criteria->addFilter(new EqualsFilter('registrationSalesChannels.id', $context->getSalesChannelId()));
+        $criteria = (new Criteria([$customerGroupId]))
+            ->addFilter(new EqualsFilter('registrationActive', 1))
+            ->addFilter(new EqualsFilter('registrationSalesChannels.id', $context->getSalesChannelId()));
 
         $result = $this->customerGroupRepository->search($criteria, $context->getContext());
         if ($result->getTotal() === 0) {
@@ -44,7 +43,7 @@ class CustomerGroupRegistrationSettingsRoute extends AbstractCustomerGroupRegist
         }
 
         $customerGroup = $result->first();
-        \assert($customerGroup instanceof CustomerGroupEntity);
+        \assert($customerGroup !== null);
 
         return new CustomerGroupRegistrationSettingsRouteResponse($customerGroup);
     }

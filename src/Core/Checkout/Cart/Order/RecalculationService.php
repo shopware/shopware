@@ -6,12 +6,10 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\Transformer\AddressTransformer;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
@@ -271,14 +269,13 @@ class RecalculationService
             return;
         }
 
-        /** @var Delivery $delivery */
         $delivery = $cart->getDeliveries()->first();
         if (!$delivery) {
             return;
         }
 
         $calculatedPrice = $item->getPrice();
-        \assert($calculatedPrice instanceof CalculatedPrice);
+        \assert($calculatedPrice !== null);
 
         $position = new DeliveryPosition($item->getId(), clone $item, $item->getQuantity(), $calculatedPrice, $delivery->getDeliveryDate());
 
@@ -288,25 +285,27 @@ class RecalculationService
     private function fetchOrder(string $orderId, Context $context): OrderEntity
     {
         $criteria = (new Criteria([$orderId]))
-            ->addAssociation('lineItems.downloads')
-            ->addAssociation('transactions.stateMachineState')
-            ->addAssociation('deliveries.shippingMethod.tax')
-            ->addAssociation('deliveries.shippingMethod.deliveryTime')
-            ->addAssociation('deliveries.positions.orderLineItem')
-            ->addAssociation('deliveries.shippingOrderAddress.country')
-            ->addAssociation('deliveries.shippingOrderAddress.countryState');
+            ->addAssociations([
+                'lineItems.downloads',
+                'transactions.stateMachineState',
+                'deliveries.shippingMethod.tax',
+                'deliveries.shippingMethod.deliveryTime',
+                'deliveries.positions.orderLineItem',
+                'deliveries.shippingOrderAddress.country',
+                'deliveries.shippingOrderAddress.countryState',
+            ]);
 
         $order = $this->orderRepository->search($criteria, $context)->getEntities()->first();
 
         $this->validateOrder($order, $orderId);
-
-        \assert($order instanceof OrderEntity);
 
         return $order;
     }
 
     /**
      * @throws OrderException
+     *
+     * @phpstan-assert OrderEntity $order
      */
     private function validateOrder(?OrderEntity $order, string $orderId): void
     {

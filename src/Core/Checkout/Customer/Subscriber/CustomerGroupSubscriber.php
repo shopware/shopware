@@ -104,9 +104,9 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('foreignKey', $ids));
-        $criteria->addFilter(new EqualsFilter('routeName', self::ROUTE_NAME));
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsAnyFilter('foreignKey', $ids))
+            ->addFilter(new EqualsFilter('routeName', self::ROUTE_NAME));
 
         /** @var array<string> $ids */
         $ids = array_values($this->seoUrlRepository->searchIds($criteria, $event->getContext())->getIds());
@@ -123,15 +123,12 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
      */
     private function createUrls(array $ids, Context $context): void
     {
-        $criteria = new Criteria($ids);
-        $criteria->addFilter(new EqualsFilter('registrationActive', true));
+        $criteria = (new Criteria($ids))
+            ->addFilter(new EqualsFilter('registrationActive', true))
+            ->addAssociations(['registrationSalesChannels.languages', 'translations']);
 
-        $criteria->addAssociation('registrationSalesChannels.languages');
-        $criteria->addAssociation('translations');
-
-        $criteria->getAssociation('registrationSalesChannels')->addFilter(
-            new NandFilter([new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_API)])
-        );
+        $criteria->getAssociation('registrationSalesChannels')
+            ->addFilter(new NandFilter([new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_API)]));
 
         $groups = $this->customerGroupRepository->search($criteria, $context)->getEntities();
         $buildUrls = [];

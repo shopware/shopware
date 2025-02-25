@@ -109,10 +109,8 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
      */
     private function getPromotions(array $codes, Context $context): PromotionIndividualCodeCollection
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new EqualsAnyFilter('code', $codes)
-        );
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsAnyFilter('code', $codes));
 
         $promotions = $this->codesRepository->search($criteria, $context)->getEntities();
         if ($promotions->count() === 0) {
@@ -139,13 +137,13 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
     private function getOrderCustomer(OrderLineItemCollection $orderLineItems, EntityWrittenEvent $event): OrderCustomerEntity
     {
         $lineItem = $orderLineItems->first();
-        \assert($lineItem instanceof OrderLineItemEntity);
+        \assert($lineItem !== null);
 
-        $orderCustomer = $this->orderCustomerRepository->search(
-            (new Criteria())->addFilter(new EqualsFilter('orderId', $lineItem->getOrderId())),
-            $event->getContext()
-        )->getEntities()->first();
-        \assert($orderCustomer instanceof OrderCustomerEntity);
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('orderId', $lineItem->getOrderId()));
+
+        $orderCustomer = $this->orderCustomerRepository->search($criteria, $event->getContext())->getEntities()->first();
+        \assert($orderCustomer !== null);
 
         return $orderCustomer;
     }

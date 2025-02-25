@@ -100,7 +100,6 @@ class PriceActionController extends AbstractController
             $taxRate = $tax?->getTaxRate();
         }
 
-        $tax = $this->taxRepository->search(new Criteria([$taxId]), $context)->getEntities()->first();
         if (!$tax) {
             throw CartException::taxRuleNotFound($taxId);
         }

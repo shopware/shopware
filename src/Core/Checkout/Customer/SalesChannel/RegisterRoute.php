@@ -581,7 +581,7 @@ class RegisterRoute extends AbstractRegisterRoute
             throw CustomerException::countryNotFound($countryId);
         }
 
-        return $country->getVatIdRequired();
+        return $country->get('vatIdRequired');
     }
 
     private function getConfirmUrl(SalesChannelContext $context, CustomerEntity $customer): string

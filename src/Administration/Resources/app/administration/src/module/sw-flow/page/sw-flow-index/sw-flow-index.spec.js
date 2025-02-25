@@ -34,7 +34,6 @@ async function createWrapper(privileges = []) {
                 </div>
             `,
                     },
-                    'sw-icon': true,
                     'sw-search-bar': true,
                     'sw-card-view': true,
                     'sw-tabs': true,

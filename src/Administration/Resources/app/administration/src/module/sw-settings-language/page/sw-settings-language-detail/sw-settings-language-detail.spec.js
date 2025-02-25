@@ -110,7 +110,6 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
                 `,
                 },
                 'sw-card-view': true,
-                'sw-card': true,
                 'sw-container': true,
                 'sw-language-switch': true,
                 'sw-language-info': true,
@@ -125,7 +124,6 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
 
                 'sw-custom-field-set-renderer': true,
                 'sw-product-variant-info': true,
-                'sw-icon': true,
                 'sw-loader': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,

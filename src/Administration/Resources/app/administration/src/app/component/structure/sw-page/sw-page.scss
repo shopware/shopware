@@ -76,7 +76,7 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
         align-items: center;
         margin-left: 20px;
 
-        .sw-icon.icons--regular-chevron-left-s {
+        .mt-icon.icon--regular-chevron-left-s {
             line-height: $line-height-md;
             margin: auto;
         }
@@ -110,7 +110,7 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
         text-overflow: ellipsis;
         margin-bottom: 0;
 
-        .sw-icon {
+        .mt-icon {
             position: relative;
             top: -1px;
 

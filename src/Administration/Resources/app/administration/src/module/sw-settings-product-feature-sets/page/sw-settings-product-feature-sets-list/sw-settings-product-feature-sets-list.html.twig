@@ -18,9 +18,10 @@
         {% block sw_settings_product_feature_set_list_smart_bar_header_title %}
         <h2>
             {% block sw_settings_product_feature_set_list_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }} <sw-icon
+            {{ $tc('sw-settings.index.title') }}
+            <mt-icon
                 name="regular-chevron-right-xs"
-                small
+                size="16px"
             /> {{ $tc('sw-settings-product-feature-sets.list.textHeadline') }}
             {% endblock %}
         </h2>
@@ -31,7 +32,6 @@
     {% block sw_settings_product_feature_set_list_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_product_feature_set_list_smart_bar_actions_add %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             :disabled="!acl.can('product_feature_sets.creator') || undefined"
             class="sw-settings-product-feature-sets-list-grid__create-button"
@@ -129,7 +129,6 @@
                         <template #modal-footer>
 
                             {% block sw_settings_product_feature_set_list_delete_modal_cancel %}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 size="small"
                                 @click="onCloseDeleteModal"
@@ -139,7 +138,6 @@
                             {% endblock %}
 
                             {% block sw_settings_product_feature_set_list_delete_modal_confirm %}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 variant="critical"
                                 size="small"

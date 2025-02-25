@@ -26,7 +26,6 @@
 
     {% block sw_condition_or_container_actions %}
     <div class="sw-condition-or-container__actions">
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.top="getNoPermissionsTooltip('product_stream.editor')"
             ghost
@@ -37,8 +36,6 @@
         >
             {{ $tc('global.sw-condition.condition.AddOrCondition') }}
         </mt-button>
-
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-if="level !== 0"
             v-tooltip.top="getNoPermissionsTooltip('product_stream.editor')"
@@ -51,7 +48,6 @@
             {{ $tc('global.sw-condition.condition.AddSubCondition') }}
         </mt-button>
 
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.top="getNoPermissionsTooltip('product_stream.editor')"
             size="small"

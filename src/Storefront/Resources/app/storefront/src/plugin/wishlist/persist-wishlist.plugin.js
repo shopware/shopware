@@ -1,6 +1,5 @@
 import BaseWishlistStoragePlugin from 'src/plugin/wishlist/base-wishlist-storage.plugin';
 import Storage from 'src/helper/storage/storage.helper';
-import DomAccessHelper from 'src/helper/dom-access.helper';
 import HttpClient from 'src/service/http-client.service';
 
 /**
@@ -77,7 +76,7 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
                 });
 
                 this.storage.removeItem(key);
-                this._block = DomAccessHelper.querySelector(document, '.flashbags');
+                this._block = document.querySelector('.flashbags');
                 this._block.innerHTML = response;
                 this._pagelet();
                 callback();
@@ -95,7 +94,7 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
                 return;
             }
 
-            this._block = DomAccessHelper.querySelector(document, '.cms-listing-row');
+            this._block = document.querySelector('.cms-listing-row');
             this._block.innerHTML = response;
         });
     }

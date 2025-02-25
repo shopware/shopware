@@ -10,7 +10,7 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-card-view': true,
-                'sw-card': {
+                'mt-card': {
                     template: `
                         <div class="sw-card__content">
                             <slot name="grid"></slot>
@@ -34,7 +34,6 @@ async function createWrapper() {
                 'sw-order-line-items-grid-sales-channel': true,
                 'sw-extension-component-section': true,
                 'sw-order-create-general-info': true,
-                'sw-icon': true,
             },
         },
     });

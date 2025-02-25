@@ -1,7 +1,7 @@
 {% block sw_product_cross_selling_form %}
 <div class="product-detail-cross-selling-form">
     {% block sw_prduct_cross_selling_form_card %}
-    <sw-card
+    <mt-card
         :title="crossSelling.name"
         position-identifier="sw-product-cross-selling-form"
     >
@@ -44,8 +44,9 @@
                 />
                 {% endblock %}
                 {% block sw_prduct_cross_selling_form_active_field %}
-                <sw-switch-field
-                    v-model:value="crossSelling.active"
+
+                <mt-switch
+                    v-model="crossSelling.active"
                     class="sw-product-detail-cross-selling__active-switch"
                     :label="$tc('sw-product.crossselling.inputCrossSellingActive')"
                     :disabled="!allowEdit"
@@ -148,9 +149,9 @@
                         @keydown.enter="openModalPreview"
                     >
                         {{ $tc('sw-product.crossselling.linkOpenStreamPreview') }}
-                        <sw-icon
+                        <mt-icon
                             name="regular-long-arrow-right"
-                            small
+                            size="16px"
                         />
                     </a>
                 </sw-container>
@@ -176,7 +177,7 @@
             />
             {% endblock %}
         </div>
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_product_detail_cross_selling_form_modal_delete %}
@@ -196,7 +197,6 @@
         {% block sw_product_detail_cross_selling_form_modal_delete_footer %}
         <template #modal-footer>
             {% block sw_product_detail_cross_selling_modal_delete_action_cancel %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
                 @click="onCloseDeleteModal"
@@ -206,7 +206,6 @@
             {% endblock %}
 
             {% block sw_product_detail_cross_selling_form_modal_delete_action_delete %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 class="sw-product-detail-cross-selling__delete-button"
                 size="small"

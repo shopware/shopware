@@ -14,7 +14,6 @@
         {% endblock %}
 
         {% block sw_import_export_edit_profile_modal_mapping_toolbar_add_mapping %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip="{
                 message: $tc('sw-import-export.profile.addMappingTooltipText'),
@@ -71,15 +70,17 @@
 
         {% block sw_import_export_edit_profile_modal_mapping_grid_required_column %}
         <template #column-required="{ item }">
-            <sw-switch-field
+
+            <mt-switch
                 v-show="isRequiredBySystem(item)"
                 class="sw-import-export-edit-profile-modal-mapping__required-by-user-switch"
-                :value="true"
+                :checked="true"
                 :disabled="true"
             />
-            <sw-switch-field
+
+            <mt-switch
                 v-show="!isRequiredBySystem(item)"
-                v-model:value="item.requiredByUser"
+                v-model="item.requiredByUser"
                 class="sw-import-export-edit-profile-modal-mapping__required-by-user-switch"
                 :disabled="profile.systemDefault"
             />
@@ -88,8 +89,9 @@
 
         {% block sw_import_export_edit_profile_modal_mapping_grid_default_value_column %}
         <template #column-defaultValue="{ item, itemIndex }">
-            <sw-switch-field
-                v-model:value="item.useDefaultValue"
+
+            <mt-switch
+                v-model="item.useDefaultValue"
                 :name="`useDefaultValue-${itemIndex}`"
                 :disabled="isDefaultValueCheckboxDisabled()"
                 class="sw-import-export-edit-profile-modal-mapping__default-value-switch"
@@ -109,7 +111,6 @@
             {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group %}
             <sw-button-group>
                 {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_up %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="x-small"
                     square
@@ -117,7 +118,7 @@
                     @click="updateSorting(itemIndex, 'up')"
                 >
                     {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_up_icon %}
-                    <sw-icon
+                    <mt-icon
                         name="regular-chevron-up-xxs"
                         size="14px"
                     />
@@ -126,7 +127,6 @@
                 {% endblock %}
 
                 {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_down %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="x-small"
                     square
@@ -134,7 +134,7 @@
                     @click="updateSorting(itemIndex, 'down')"
                 >
                     {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_down_icon %}
-                    <sw-icon
+                    <mt-icon
                         name="regular-chevron-down-xxs"
                         size="14px"
                     />

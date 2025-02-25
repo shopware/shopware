@@ -10,7 +10,6 @@ async function createWrapper(privileges = []) {
                 'sw-page': await wrapTestComponent('sw-page'),
                 'sw-card-view': await wrapTestComponent('sw-card-view'),
                 'sw-external-link': true,
-                'sw-icon': true,
                 'sw-dashboard-statistics': true,
                 'sw-usage-data-consent-banner': true,
                 'sw-help-text': true,

@@ -23,7 +23,7 @@ async function createWrapper(customPropsData = {}) {
             },
             global: {
                 stubs: {
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot></slot><slot name="grid"></slot></div>',
                     },
                     'sw-select-base': {
@@ -34,7 +34,6 @@ async function createWrapper(customPropsData = {}) {
                     },
                     'sw-context-menu': true,
                     'sw-context-menu-item': true,
-                    'sw-icon': true,
                     'sw-highlight-text': true,
                     'sw-select-result': true,
                     'sw-select-result-list': true,

@@ -31,8 +31,6 @@ async function createWrapper(props = defaultProps, privileges = ['rule.editor'])
         props,
         global: {
             stubs: {
-                'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-multi-select': await wrapTestComponent('sw-multi-select'),
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
@@ -47,7 +45,7 @@ async function createWrapper(props = defaultProps, privileges = ['rule.editor'])
                 },
                 'sw-text-field': true,
                 'sw-number-field': true,
-                'sw-textarea-field': true,
+                'mt-textarea': true,
                 'sw-entity-tag-select': true,
                 'sw-loader': true,
                 'sw-custom-field-set-renderer': true,
@@ -55,7 +53,6 @@ async function createWrapper(props = defaultProps, privileges = ['rule.editor'])
                 'sw-ai-copilot-badge': true,
                 'sw-context-button': true,
                 'sw-highlight-text': true,
-                'sw-icon': true,
                 'sw-inheritance-switch': true,
                 'sw-help-text': true,
                 'sw-field-error': true,
@@ -100,7 +97,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
 
             const ruleNameField = wrapper.find('input[name=sw-field--rule-name]');
             const rulePriorityField = wrapper.find('sw-number-field-stub[name=sw-field--rule-priority]');
-            const ruleDescriptionField = wrapper.find('sw-textarea-field-stub[name=sw-field--rule-description]');
+            const ruleDescriptionField = wrapper.find('mt-textarea-stub[name=sw-field--rule-description]');
 
             expect(ruleNameField.attributes().disabled).toBeDefined();
             expect(rulePriorityField.attributes().disabled).toBe('true');
@@ -115,7 +112,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
 
             const ruleNameField = wrapper.find('input[name=sw-field--rule-name]');
             const rulePriorityField = wrapper.find('sw-number-field-stub[name=sw-field--rule-priority]');
-            const ruleDescriptionField = wrapper.find('sw-textarea-field-stub[name=sw-field--rule-description]');
+            const ruleDescriptionField = wrapper.find('mt-textarea-stub[name=sw-field--rule-description]');
 
             expect(ruleNameField.attributes().disabled).toBeUndefined();
             expect(rulePriorityField.attributes().disabled).toBeUndefined();

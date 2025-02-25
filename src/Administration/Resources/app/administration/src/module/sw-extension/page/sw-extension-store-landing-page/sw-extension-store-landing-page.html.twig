@@ -23,7 +23,7 @@
                     appearance="pill"
                     variant="danger"
                 >
-                    <sw-icon
+                    <mt-icon
                         name="regular-times-circle"
                         size="30px"
                     />
@@ -36,7 +36,6 @@
                     {{ error && error.detail || $tc('sw-extension-store.landing-page.activationErrorDescription') }}
                 </p>
 
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     variant="primary"
                     @click="activateStore"
@@ -50,7 +49,7 @@
                     appearance="pill"
                     variant="success"
                 >
-                    <sw-icon
+                    <mt-icon
                         name="regular-check-circle"
                         size="30px"
                     />
@@ -91,7 +90,6 @@
                 {{ $tc('sw-extension-store.landing-page.activationDescriptionTitleDescription') }}
             </p>
 
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 class="sw-extension-store-landing-page__activate_button"
                 variant="primary"

@@ -11,7 +11,6 @@
     {% block sw_data_grid_column_position_button_group %}
     <sw-button-group class="sw-data-grid-column-position__group">
         {% block sw_data_grid_column_position_button_up %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             class="sw-data-grid-column-position__arrow arrow_up"
             size="x-small"
@@ -20,7 +19,7 @@
             @click="onLowerPositionValue(item)"
         >
             {% block sw_data_grid_column_position_button_up_content %}
-            <sw-icon
+            <mt-icon
                 name="regular-chevron-up-xs"
                 size="12"
             />
@@ -29,7 +28,6 @@
         {% endblock %}
 
         {% block sw_data_grid_column_position_button_down %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             class="sw-data-grid-column-position__arrow arrow_down"
             size="x-small"
@@ -38,7 +36,7 @@
             @click="onRaisePositionValue(item)"
         >
             {% block sw_data_grid_column_position_button_down_content %}
-            <sw-icon
+            <mt-icon
                 name="regular-chevron-down-xs"
                 size="12"
             />

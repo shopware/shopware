@@ -29,7 +29,6 @@
     {% block sw_settings_salutation_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_salutation_detail_actions_cancel %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="tooltipCancel"
             class="sw-settings-salutation-detail__cancel"
@@ -67,7 +66,7 @@
                 {% endblock %}
 
                 {% block sw_settings_salutation_detail_content_card %}
-                <sw-card
+                <mt-card
                     position-identifier="sw-settings-salutation-detail-content"
                     :is-loading="isLoading"
                     :title="$tc('sw-settings-salutation.detail.cardTitle')"
@@ -119,11 +118,11 @@
                         />
                         {% endblock %}
                     </template>
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_settings_salutation_detail_custom_field_sets %}
-                <sw-card
+                <mt-card
                     v-if="showCustomFields"
                     position-identifier="sw-settings-salutation-detail-custom-fields"
                     :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
@@ -134,7 +133,7 @@
                         :disabled="!acl.can('salutation.editor') || undefined"
                         :sets="customFieldSets"
                     />
-                </sw-card>
+                </mt-card>
                 {% endblock %}
             </template>
         </sw-card-view>

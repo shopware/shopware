@@ -13,10 +13,10 @@
     {% block sw_context_menu_item_icon %}
     <slot name="icon">
         {% block sw_context_menu_item_slot_icon %}
-        <sw-icon
+        <mt-icon
             v-if="icon"
             :name="icon"
-            small
+            size="16px"
         />
         {% endblock %}
     </slot>
@@ -45,10 +45,10 @@
     {% block sw_context_menu_item_entry_icon %}
     <slot name="icon">
         {% block sw_context_menu_item_entry_slot_icon %}
-        <sw-icon
+        <mt-icon
             v-if="icon"
             :name="icon"
-            small
+            size="16px"
         />
         {% endblock %}
     </slot>

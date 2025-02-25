@@ -17,7 +17,6 @@
             :key="updatePossible"
             v-tooltip="updateButtonTooltip"
         >
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-if="updateInfo.version"
                 :disabled="!updatePossible"
@@ -117,7 +116,6 @@
                 />
 
                 <div class="sw-settings-shopware-updates-check__start-update-actions">
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         size="small"
                         @click="updateModalShown = false"
@@ -125,7 +123,6 @@
                         {{ $tc('global.default.cancel') }}
                     </mt-button>
 
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         :disabled="!checkedBackupCheckbox"
                         variant="primary"

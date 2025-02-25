@@ -74,9 +74,6 @@ async function createWrapperForComponent(componentName, props = {}) {
                 'sw-datepicker': {
                     template: '<div class="sw-datepicker"></div>',
                 },
-                'sw-icon': {
-                    template: '<div class="sw-icon"></div>',
-                },
                 'sw-textarea-field': {
                     template: '<div class="sw-textarea-field"></div>',
                 },

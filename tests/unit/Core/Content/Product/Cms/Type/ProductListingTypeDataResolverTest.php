@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Content\Product\Cms\Type;
+namespace Shopware\Tests\Unit\Core\Content\Product\Cms\Type;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
@@ -23,6 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[CoversClass(ProductListingCmsElementResolver::class)]
 class ProductListingTypeDataResolverTest extends TestCase
 {
     private ProductListingCmsElementResolver $listingResolver;
@@ -43,7 +45,7 @@ class ProductListingTypeDataResolverTest extends TestCase
 
     public function testGetType(): void
     {
-        static::assertEquals('product-listing', $this->listingResolver->getType());
+        static::assertSame('product-listing', $this->listingResolver->getType());
     }
 
     public function testCollect(): void
@@ -70,7 +72,6 @@ class ProductListingTypeDataResolverTest extends TestCase
 
         $this->listingResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var ProductListingStruct|null $productListingStruct */
         $productListingStruct = $slot->getData();
         static::assertInstanceOf(ProductListingStruct::class, $productListingStruct);
         static::assertInstanceOf(EntitySearchResult::class, $productListingStruct->getListing());

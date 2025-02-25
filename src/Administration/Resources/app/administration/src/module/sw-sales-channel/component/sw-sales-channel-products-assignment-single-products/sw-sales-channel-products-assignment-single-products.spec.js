@@ -34,7 +34,7 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-container': true,
-                'sw-card': {
+                'mt-card': {
                     template: '<div><slot></slot><slot name="grid"></slot></div>',
                 },
                 'sw-card-section': {
@@ -62,7 +62,6 @@ async function createWrapper() {
                 'sw-modal': true,
                 'sw-tabs': true,
                 'sw-tab-items': true,
-                'sw-icon': true,
                 'sw-pagination': true,
                 'sw-data-grid-skeleton': true,
                 'sw-data-grid-settings': true,

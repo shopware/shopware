@@ -42,9 +42,6 @@ async function createWrapper(propsData) {
                 'sw-popover': await wrapTestComponent('sw-popover'),
                 'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
-                'sw-icon': await wrapTestComponent('sw-icon', {
-                    sync: true,
-                }),
                 'sw-customer-address-form': await wrapTestComponent('sw-customer-address-form'),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field', {
@@ -60,7 +57,6 @@ async function createWrapper(propsData) {
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
                 'sw-field-error': true,
-                'sw-icon-deprecated': true,
                 'router-link': true,
                 'sw-product-variant-info': true,
                 'sw-field-copyable': true,

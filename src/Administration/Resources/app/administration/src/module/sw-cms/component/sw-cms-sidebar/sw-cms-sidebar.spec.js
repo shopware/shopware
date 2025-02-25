@@ -169,7 +169,6 @@ async function createWrapper(
                     'sw-entity-single-select': true,
                     'sw-modal': true,
                     'sw-checkbox-field': true,
-                    'sw-icon': true,
                     'sw-cms-visibility-config': {
                         template: '<div class="sw-cms-visibility-config"></div>',
                         props: ['visibility'],

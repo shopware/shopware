@@ -18,9 +18,10 @@
         {% block sw_settings_country_list_smart_bar_header_title %}
         <h2>
             {% block sw_settings_country_list_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }} <sw-icon
+            {{ $tc('sw-settings.index.title') }}
+            <mt-icon
                 name="regular-chevron-right-xs"
-                small
+                size="16px"
             /> {{ $tc('sw-settings-country.list.textHeadline') }}
             {% endblock %}
 
@@ -40,7 +41,6 @@
     {% block sw_settings_country_list_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_country_list_smart_bar_actions_add %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
@@ -68,7 +68,7 @@
     <template #content>
         <sw-card-view>
             {% block sw_settings_country_list_content_card %}
-            <sw-card
+            <mt-card
                 v-if="isLoading || country"
                 position-identifier="sw-settings-country-list"
             >
@@ -102,16 +102,16 @@
                             </template>
                             <template v-else>
                                 {% block sw_settings_country_list_columns_active_label %}
-                                <sw-icon
+                                <mt-icon
                                     v-if="item.active"
                                     name="regular-checkmark-xs"
-                                    small
+                                    size="16px"
                                     class="is--active"
                                 />
-                                <sw-icon
+                                <mt-icon
                                     v-else
                                     name="regular-times-s"
-                                    small
+                                    size="16px"
                                     class="is--inactive"
                                 />
                                 {% endblock %}
@@ -161,7 +161,6 @@
                                 {% block sw_settings_country_list_delete_modal_footer %}
                                 <template #modal-footer>
                                     {% block sw_settings_country_list_delete_modal_cancel %}
-                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                                     <mt-button
                                         size="small"
                                         @click="onCloseDeleteModal"
@@ -171,7 +170,6 @@
                                     {% endblock %}
 
                                     {% block sw_settings_country_list_delete_modal_confirm %}
-                                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                                     <mt-button
                                         variant="critical"
                                         size="small"
@@ -190,7 +188,7 @@
                     {% endblock %}
                 </template>
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
         </sw-card-view>
     </template>

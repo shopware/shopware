@@ -89,7 +89,6 @@ async function createWrapper(customPropsData = {}) {
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-label': await wrapTestComponent('sw-label'),
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
-                    'sw-icon': true,
                     'sw-tree': await wrapTestComponent('sw-tree'),
                     'sw-tree-item': await wrapTestComponent('sw-tree-item'),
                     'sw-tree-input-field': await wrapTestComponent('sw-tree-input-field'),

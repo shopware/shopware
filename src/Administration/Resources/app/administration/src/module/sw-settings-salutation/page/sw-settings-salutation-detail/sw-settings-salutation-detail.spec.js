@@ -106,15 +106,14 @@ async function createWrapper(privileges = []) {
                     </div>
                 `,
                     },
-                    'sw-card': {
+                    'mt-card': {
                         template: `
-                    <div class="sw-card">
+                    <div class="mt-card">
                         <slot></slot>
                     </div>
                 `,
                     },
                     'sw-search-bar': true,
-                    'sw-icon': true,
                     'sw-language-switch': true,
                     'sw-button-process': true,
                     'sw-context-menu-item': true,

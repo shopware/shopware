@@ -1,7 +1,7 @@
 {% block sw_category_detail_custom_entity %}
 <div class="sw-category-detail-custom-entity">
     <template v-if="category">
-        <sw-card
+        <mt-card
             v-if="!Array.isArray(customEntityAssignments)"
             :title="$tc('sw-category.base.customEntity.cardTitle')"
             position-identifier="category-detail-custom-entity"
@@ -18,7 +18,7 @@
                 required
                 @update:value="onEntityChange"
             />
-        </sw-card>
+        </mt-card>
 
         <sw-many-to-many-assignment-card
             v-else

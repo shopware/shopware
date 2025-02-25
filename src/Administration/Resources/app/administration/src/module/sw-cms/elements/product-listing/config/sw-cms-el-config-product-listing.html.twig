@@ -64,15 +64,17 @@
 
             <template v-if="active === 'sorting'">
                 {% block sw_cms_element_product_listing_config_show_sorting %}
-                <sw-switch-field
-                    v-model:value="element.config.showSorting.value"
+
+                <mt-switch
+                    v-model="element.config.showSorting.value"
                     :label="$tc('sw-cms.elements.productListing.config.sorting.labelShowSorting')"
                 />
                 {% endblock %}
 
                 {% block sw_cms_element_product_listing_config_use_default_sorting %}
-                <sw-switch-field
-                    v-model:value="element.config.useCustomSorting.value"
+
+                <mt-switch
+                    v-model="element.config.useCustomSorting.value"
                     :label="$tc('sw-cms.elements.productListing.config.sorting.labelUseCustomSortings')"
                     :help-text="$tc('sw-cms.elements.productListing.config.sorting.helpTextUseCustomSortings')"
                     class="sw-cms-el-config-product-listing-custom-sortings"
@@ -165,29 +167,33 @@
                     gap="0px 30px"
                 >
                     {% block sw_cms_element_product_listing_config_filter_by_manufacturer %}
-                    <sw-switch-field
-                        v-model:value="filterByManufacturer"
+
+                    <mt-switch
+                        v-model="filterByManufacturer"
                         :label="$tc('sw-cms.elements.productListing.config.filter.labelFilterByManufacturer')"
                     />
                     {% endblock %}
 
                     {% block sw_cms_element_product_listing_config_filter_by_rating %}
-                    <sw-switch-field
-                        v-model:value="filterByRating"
+
+                    <mt-switch
+                        v-model="filterByRating"
                         :label="$tc('sw-cms.elements.productListing.config.filter.labelFilterByRating')"
                     />
                     {% endblock %}
 
                     {% block sw_cms_element_product_listing_config_filter_by_price %}
-                    <sw-switch-field
-                        v-model:value="filterByPrice"
+
+                    <mt-switch
+                        v-model="filterByPrice"
                         :label="$tc('sw-cms.elements.productListing.config.filter.labelFilterByPrice')"
                     />
                     {% endblock %}
 
                     {% block sw_cms_element_product_listing_config_filter_for_free_shipping %}
-                    <sw-switch-field
-                        v-model:value="filterByFreeShipping"
+
+                    <mt-switch
+                        v-model="filterByFreeShipping"
                         :label="$tc('sw-cms.elements.productListing.config.filter.labelFilterForFreeShipping')"
                     />
                     {% endblock %}
@@ -203,8 +209,9 @@
 
                     {% block sw_cms_element_product_listing_config_filter_properties_as_filter %}
                     {% block sw_cms_element_product_listing_config_filter_properties_as_filter_switch %}
-                    <sw-switch-field
-                        v-model:value="filterByProperties"
+
+                    <mt-switch
+                        v-model="filterByProperties"
                         :label="$tc('sw-cms.elements.productListing.config.filter.labelUseFilterByProperties')"
                         :help-text="$tc('sw-cms.elements.productListing.config.filter.helpTextUseFilterByProperties')"
                     />
@@ -246,10 +253,11 @@
 
                             <template #column-status="{ item, column }">
                                 {% block sw_cms_element_product_listing_config_filter_property_grid_column_status %}
-                                <sw-switch-field
+
+                                <mt-switch
                                     :disabled="column.disabled"
-                                    :value="item.active"
-                                    @update:value="propertyStatusChanged($event, item.id)"
+                                    :checked="item.active"
+                                    @change="propertyStatusChanged($event, item.id)"
                                 />
                             {% endblock %}
                             </template>

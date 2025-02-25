@@ -260,7 +260,10 @@ async function lintFiles(filePaths, fix, shopwareVersion) {
                                     fix: true,
                                     activatedComponents: [
                                         'sw-alert',
-                                        'sw-text-field'
+                                        'sw-text-field',
+                                        'sw-switch-field',
+                                        'sw-textarea-field',
+                                        'sw-icon',
                                     ],
                                 }],
                                 'sw-deprecation-rules/no-deprecated-component-usage': ['error'],
@@ -466,6 +469,11 @@ function removePluginsTsConfigFile() {
 }
 
 function isVersionNewerOrSame(version, compareVersion) {
+    if (!version) {
+        console.error(colors.redBright('Invalid version number. Please specify a version number using "-v". See help for more details.'));
+        process.exit();
+    }
+
     const versionParts = version.split('.');
     const compareVersionParts = compareVersion.split('.');
 

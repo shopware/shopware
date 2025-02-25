@@ -10,7 +10,6 @@ async function createWrapper() {
             stubs: {
                 'sw-loader': true,
                 'sw-data-grid': true,
-                'sw-icon': true,
                 'router-link': true,
                 'sw-checkbox-field': true,
             },

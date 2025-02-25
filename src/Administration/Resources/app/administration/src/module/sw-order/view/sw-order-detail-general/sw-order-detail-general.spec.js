@@ -79,9 +79,9 @@ async function createWrapper() {
                 }),
                 'sw-card-section': await wrapTestComponent('sw-card-section', { sync: true }),
                 'sw-description-list': await wrapTestComponent('sw-description-list', { sync: true }),
-                'sw-card': {
+                'mt-card': {
                     template: `
-                        <div class="sw-card">
+                        <div class="mt-card">
                             <slot></slot>
                             <slot name="grid"></slot>
                         </div>
@@ -101,7 +101,6 @@ async function createWrapper() {
                 'sw-help-text': true,
                 'sw-field-error': true,
                 'sw-extension-component-section': true,
-                'sw-icon': true,
                 'router-link': true,
                 'sw-loader': true,
             },

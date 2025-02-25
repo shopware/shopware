@@ -1,7 +1,7 @@
 {% block sw_order_detail_general %}
 <div class="sw-order-detail-general">
     {% block sw_order_detail_general_info_card %}
-    <sw-card
+    <mt-card
         class="sw-order-detail-base__general-info"
         position-identifier="sw-order-detail-general-info"
         :title="$tc('sw-order.detailBase.cardTitleGeneralInfo')"
@@ -13,7 +13,7 @@
             @save-edits="onSaveEdits"
         />
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_order_detail_general_line_items_card %}
@@ -21,7 +21,7 @@
         position-identifier="sw-order-detail-base-line-items__before"
     />
 
-    <sw-card
+    <mt-card
         class="sw-order-detail-general__line-item-grid-card"
         position-identifier="sw-order-detail-general-line-items"
         :title="$tc('sw-order.detailBase.cardTitleLineItems')"
@@ -140,7 +140,7 @@
             </sw-container>
         </template>
         {% endblock %}
-    </sw-card>
+    </mt-card>
 
     <sw-extension-component-section
         position-identifier="sw-order-detail-base-line-items__after"

@@ -89,10 +89,6 @@ async function createWrapper() {
                 searchRankingService: {},
             },
             stubs: {
-                'sw-card': await wrapTestComponent('sw-card', {
-                    sync: true,
-                }),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-ignore-class': true,
                 'sw-container': await wrapTestComponent('sw-container', {
                     sync: true,
@@ -108,9 +104,6 @@ async function createWrapper() {
                     template: '<div></div>',
                 },
                 'sw-context-button': {
-                    template: '<div></div>',
-                },
-                'sw-icon': {
                     template: '<div></div>',
                 },
                 'sw-property-option-detail': await wrapTestComponent('sw-property-option-detail', { sync: true }),

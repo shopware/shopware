@@ -48,14 +48,13 @@ async function createWrapper(privileges = []) {
                     },
                 },
                 stubs: {
-                    'sw-card': true,
                     'sw-container': true,
                     'sw-custom-field-type-checkbox': true,
                     'sw-number-field': true,
                     'sw-text-field': true,
                     'sw-multi-select': true,
                     'sw-loader': true,
-                    'sw-switch-field': true,
+
                     'sw-custom-field-translated-labels': true,
                 },
             },

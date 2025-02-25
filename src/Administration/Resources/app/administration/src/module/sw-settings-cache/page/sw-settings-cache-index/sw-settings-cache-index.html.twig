@@ -7,9 +7,9 @@
         <h2>
             {% block sw_settings_cache_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
-            <sw-icon
+            <mt-icon
                 name="regular-chevron-right-xs"
-                small
+                size="16px"
             />
             {{ $tc('sw-settings-cache.general.mainMenuItemGeneral') }}
             {% endblock %}
@@ -26,7 +26,7 @@
                 <sw-skeleton />
             </template>
 
-            <sw-card
+            <mt-card
                 v-else
                 position-identifier="sw-settings-cache-content"
                 :title="$tc('sw-settings-cache.general.mainMenuItemGeneral')"
@@ -275,7 +275,7 @@
                     </sw-container>
                 </sw-card-section>
         {% endblock %}
-            </sw-card>
+            </mt-card>
         </sw-card-view>
     </template>
     {% endblock %}

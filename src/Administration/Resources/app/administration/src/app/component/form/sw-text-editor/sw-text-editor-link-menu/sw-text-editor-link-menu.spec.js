@@ -74,8 +74,7 @@ async function createWrapper(buttonConfig) {
             stubs: {
                 'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
                 'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
-                'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                 'sw-email-field': await wrapTestComponent('sw-email-field'),
                 'sw-email-field-deprecated': await wrapTestComponent('sw-email-field-deprecated'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
@@ -110,7 +109,6 @@ async function createWrapper(buttonConfig) {
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-loader': true,
                 'router-link': true,
-                'sw-icon': true,
                 'mt-select': true,
                 'sw-help-text': true,
                 'sw-ai-copilot-badge': true,

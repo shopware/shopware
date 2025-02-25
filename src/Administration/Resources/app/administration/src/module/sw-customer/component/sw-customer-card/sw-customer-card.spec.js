@@ -24,8 +24,6 @@ async function createWrapper() {
                 contextStoreService: {},
             },
             stubs: {
-                'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-avatar': true,
                 'sw-entity-single-select': true,
                 'sw-text-field': true,
@@ -42,7 +40,6 @@ async function createWrapper() {
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-single-select': true,
                 'sw-customer-imitate-customer-modal': true,
-                'sw-icon': true,
                 'sw-label': true,
                 'sw-extension-component-section': true,
                 'sw-ai-copilot-badge': true,

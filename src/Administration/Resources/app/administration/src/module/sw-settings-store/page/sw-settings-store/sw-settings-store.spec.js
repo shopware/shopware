@@ -31,7 +31,6 @@ async function createWrapper(customString = '') {
                     },
                     'sw-skeleton': true,
                     'sw-search-bar': true,
-                    'sw-icon': true,
                     'sw-button-process': true,
                 },
             },

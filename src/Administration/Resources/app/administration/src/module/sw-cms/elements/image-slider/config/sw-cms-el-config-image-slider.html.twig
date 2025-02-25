@@ -174,8 +174,9 @@
 
                     <div class="sw-cms-el-config-image-slider__setting-slide">
                         {# @todo NEXT-40267 - Re-implement after tiny-slider has been replaced, due to accessibility issues #}
-                        <sw-switch-field
-                            :value="false"
+
+                        <mt-switch
+                            :checked="false"
                             class="sw-cms-el-config-image-slider__setting-auto-slide"
                             :label="$tc('sw-cms.elements.general.config.label.autoSlide')"
                             :help-text="$tc('sw-cms.elements.general.config.helpText.autoSlide')"
@@ -244,8 +245,9 @@
                             {% endblock %}
 
                             {% block sw_cms_element_image_slider_config_settings_link_target %}
-                            <sw-switch-field
-                                v-model:value="sliderItem.newTab"
+
+                            <mt-switch
+                                v-model="sliderItem.newTab"
                                 class="sw-cms-el-config-image-slider__settings-link-tab"
                                 :name="sliderItem.mediaId"
                                 :label="$tc('sw-cms.elements.image.config.label.linkNewTab')"

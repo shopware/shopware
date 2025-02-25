@@ -11,7 +11,6 @@ async function createWrapper() {
         {
             global: {
                 stubs: {
-                    'sw-card': true,
                     'sw-promotion-discount-component': true,
                 },
                 provide: {

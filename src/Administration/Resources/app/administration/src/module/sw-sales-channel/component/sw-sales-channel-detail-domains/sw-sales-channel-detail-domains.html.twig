@@ -115,14 +115,14 @@
             gap="0px 30px"
         >
             {% block sw_sales_channel_detail_domains_input_url %}
-            <sw-url-field
-                v-model:value="currentDomain.url"
+            <mt-url-field
+                v-model="currentDomain.url"
                 type="text"
                 omit-url-hash
                 omit-url-search
                 :label="$tc('sw-sales-channel.detail.labelInputUrl')"
                 :error="error"
-                @update:value="onInput"
+                @update:model-value="onInput"
             />
             {% endblock %}
 

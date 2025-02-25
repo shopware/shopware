@@ -215,6 +215,7 @@ module.exports = {
                         'sw-switch-field',
                         'sw-textarea-field',
                         'sw-icon',
+                        'sw-url-field',
                     ],
                 }],
                 // @deprecated v.6.7.0.0 - will be error in v.6.7

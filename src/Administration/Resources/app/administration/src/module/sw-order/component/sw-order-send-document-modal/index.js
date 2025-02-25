@@ -128,7 +128,9 @@ export default {
             }
 
             this.subject = mailTemplate.subject;
-            this.mailService.buildRenderPreview(mailTemplate.mailTemplateType, mailTemplate).then((result) => {
+            const mailTemplateType = mailTemplate.mailTemplateType;
+            mailTemplateType.templateData.order = this.order ?? mailTemplateType.templateData.order;
+            this.mailService.buildRenderPreview(mailTemplateType, mailTemplate).then((result) => {
                 this.content = result;
             });
         },

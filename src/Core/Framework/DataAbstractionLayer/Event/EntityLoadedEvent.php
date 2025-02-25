@@ -11,7 +11,9 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @implements \IteratorAggregate<array-key, Entity>
+ * @template TEntity of Entity
+ *
+ * @implements \IteratorAggregate<array-key, TEntity>
  */
 #[Package('framework')]
 class EntityLoadedEvent extends NestedEvent implements GenericEvent, \IteratorAggregate
@@ -19,7 +21,7 @@ class EntityLoadedEvent extends NestedEvent implements GenericEvent, \IteratorAg
     protected string $name;
 
     /**
-     * @param Entity[] $entities
+     * @param TEntity[] $entities
      */
     public function __construct(
         protected EntityDefinition $definition,
@@ -35,7 +37,7 @@ class EntityLoadedEvent extends NestedEvent implements GenericEvent, \IteratorAg
     }
 
     /**
-     * @return Entity[]
+     * @return TEntity[]
      */
     public function getEntities(): array
     {

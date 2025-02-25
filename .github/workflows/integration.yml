@@ -23,12 +23,12 @@ jobs:
           - "Platform"
         php-version:
           - "8.4"
-        shard-count:
-          - 3
         shard:
           - '1'
           - '2'
           - '3'
+        shard-count:
+          - 3
         include:
           # TODO: enable them in nightly/queue again with help of shopware/github-actions#67
           # - name: "Platform"

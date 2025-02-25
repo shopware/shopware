@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Framework\Context;
@@ -26,6 +27,8 @@ class SalesChannelContextRestorer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<OrderCollection> $orderRepository
      */
     public function __construct(
         private readonly AbstractSalesChannelContextFactory $factory,
@@ -38,9 +41,7 @@ class SalesChannelContextRestorer
     }
 
     /**
-     * @param array<string> $overrideOptions
-     *
-     * @throws InconsistentCriteriaIdsException
+     * @param array<string, mixed> $overrideOptions
      */
     public function restoreByOrder(string $orderId, Context $context, array $overrideOptions = []): SalesChannelContext
     {

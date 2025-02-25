@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Category\SalesChannel;
 
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationEntity;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryException;
@@ -60,20 +61,19 @@ class CategoryRoute extends AbstractCategoryRoute
 
         $category = $this->loadCategory($navigationId, $context);
 
-        if (($category->getType() === CategoryDefinition::TYPE_FOLDER
-                || $category->getType() === CategoryDefinition::TYPE_LINK)
-            && $context->getSalesChannel()->getNavigationCategoryId() !== $navigationId
-        ) {
+        $categoryHasContentlessPageType = \in_array($category->getType(), [CategoryDefinition::TYPE_FOLDER, CategoryDefinition::TYPE_LINK], true);
+        if ($categoryHasContentlessPageType && $context->getSalesChannel()->getNavigationCategoryId() !== $navigationId) {
             throw CategoryException::categoryNotFound($navigationId);
         }
 
         $pageId = $category->getCmsPageId();
-        $slotConfig = $category->getTranslation('slotConfig');
-
         $salesChannel = $context->getSalesChannel();
+
         if ($category->getId() === $salesChannel->getNavigationCategoryId() && $salesChannel->getHomeCmsPageId()) {
             $pageId = $salesChannel->getHomeCmsPageId();
             $slotConfig = $salesChannel->getTranslation('homeSlotConfig');
+        } else {
+            $slotConfig = $this->buildMergedCmsSlotConfig($category, $context);
         }
 
         if (!$pageId) {
@@ -87,7 +87,7 @@ class CategoryRoute extends AbstractCategoryRoute
             $this->createCriteria($pageId, $request),
             $context,
             $slotConfig,
-            $resolverContext
+            $resolverContext,
         );
 
         $cmsPage = $pages->first();
@@ -107,6 +107,7 @@ class CategoryRoute extends AbstractCategoryRoute
         $criteria->setTitle('category::data');
 
         $criteria->addAssociation('media');
+        $criteria->addAssociation('translations');
 
         $category = $this->categoryRepository
             ->search($criteria, $context)
@@ -137,5 +138,43 @@ class CategoryRoute extends AbstractCategoryRoute
         }
 
         return $criteria;
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>|null
+     */
+    private function buildMergedCmsSlotConfig(CategoryEntity $category, SalesChannelContext $context): ?array
+    {
+        $inheritanceChain = $context->getLanguageIdChain();
+        if (\count($inheritanceChain) <= 1) {
+            return $category->getTranslation('slotConfig');
+        }
+
+        /** @var non-empty-list<string> $languageMergeOrder */
+        $languageMergeOrder = \array_reverse(\array_unique($inheritanceChain));
+        $translatedSlotConfigs = $this->getTranslatedSlotConfigs($category, $languageMergeOrder);
+
+        return \array_merge(...$translatedSlotConfigs);
+    }
+
+    /**
+     * @param non-empty-list<string> $languageMergeOrder
+     *
+     * @return non-empty-list<array<string, array<string, mixed>>>
+     */
+    private function getTranslatedSlotConfigs(CategoryEntity $category, array $languageMergeOrder): array
+    {
+        $getCategoryTranslationByLanguageId = static function (CategoryEntity $category, string $languageId): ?CategoryTranslationEntity {
+            return \array_find(
+                $category->getTranslations()?->getElements() ?? [],
+                static fn (CategoryTranslationEntity $translation) => $translation->getLanguageId() === $languageId,
+            );
+        };
+
+        return \array_map(static function (string $languageId) use ($category, $getCategoryTranslationByLanguageId) {
+            $currentTranslation = $getCategoryTranslationByLanguageId($category, $languageId);
+
+            return $currentTranslation?->getSlotConfig() ?? [];
+        }, $languageMergeOrder);
     }
 }

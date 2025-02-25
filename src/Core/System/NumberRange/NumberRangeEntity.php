@@ -17,75 +17,25 @@ class NumberRangeEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $typeId;
+    protected ?string $typeId = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $global;
+    protected bool $global;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $pattern;
+    protected ?string $pattern = null;
 
-    /**
-     * @var int|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $start;
+    protected ?int $start = null;
 
-    /**
-     * @var NumberRangeTypeEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $type;
+    protected ?NumberRangeTypeEntity $type = null;
 
-    /**
-     * @var NumberRangeSalesChannelCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $numberRangeSalesChannels;
+    protected ?NumberRangeSalesChannelCollection $numberRangeSalesChannels = null;
 
-    /**
-     * @var NumberRangeStateEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $state;
+    protected ?NumberRangeStateEntity $state = null;
 
-    /**
-     * @var NumberRangeTranslationCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translations;
+    protected ?NumberRangeTranslationCollection $translations = null;
 
     public function getName(): ?string
     {

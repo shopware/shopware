@@ -7,6 +7,4 @@ import './sw-cms-preview-text-two-column.scss';
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 };

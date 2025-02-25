@@ -28,8 +28,6 @@ interface TeaserPopoverConfig {
 Shopware.Component.register('sw-extension-teaser-popover', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     components: {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         'mt-popover': MtPopover,

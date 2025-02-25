@@ -26,7 +26,6 @@ async function createWrapper(blockConfig = {}) {
                     cmsService: Shopware.Service().get('cmsService'),
                 },
                 stubs: {
-                    'sw-icon': true,
                     'sw-cms-visibility-toggle': {
                         template: '<div class="sw-cms-visibility-toggle-wrapper"></div>',
                     },

@@ -1,5 +1,5 @@
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
-{# New mt-textarea component #}
+{# New mt-datepicker component #}
 {% block sw_datepicker %}
 <mt-datepicker
     v-if="useMeteorComponent"
@@ -28,7 +28,6 @@
     v-bind="$attrs"
     v-model:value="realValue"
     :placeholder="placeholder"
-    v-on="listeners"
 >
     <template
         v-for="(index, name) in getSlots()"

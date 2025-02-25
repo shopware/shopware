@@ -1,11 +1,9 @@
 import Plugin from 'src/plugin-system/plugin.class';
-import DomAccess from 'src/helper/dom-access.helper';
 import Debouncer from 'src/helper/debouncer.helper';
 import HttpClient from 'src/service/http-client.service';
 import ButtonLoadingIndicator from 'src/utility/loading-indicator/button-loading-indicator.util';
 import DeviceDetection from 'src/helper/device-detection.helper';
 import ArrowNavigationHelper from 'src/helper/arrow-navigation.helper';
-import Iterator from 'src/helper/iterator.helper';
 
 export default class SearchWidgetPlugin extends Plugin {
 
@@ -26,10 +24,10 @@ export default class SearchWidgetPlugin extends Plugin {
 
     init() {
         try {
-            this._inputField = DomAccess.querySelector(this.el, this.options.searchWidgetInputFieldSelector);
-            this._submitButton = DomAccess.querySelector(this.el, this.options.searchWidgetButtonFieldSelector);
-            this._closeButton = DomAccess.querySelector(this.el, this.options.searchWidgetCloseButtonSelector);
-            this._url = DomAccess.getAttribute(this.el, this.options.searchWidgetUrlDataAttribute);
+            this._inputField = this.el.querySelector(this.options.searchWidgetInputFieldSelector);
+            this._submitButton = this.el.querySelector(this.options.searchWidgetButtonFieldSelector);
+            this._closeButton = this.el.querySelector(this.options.searchWidgetCloseButtonSelector);
+            this._url = this.el.getAttribute(this.options.searchWidgetUrlDataAttribute);
         } catch (e) {
             return;
         }
@@ -144,7 +142,7 @@ export default class SearchWidgetPlugin extends Plugin {
 
         // remove all result popovers
         const results = document.querySelectorAll(this.options.searchWidgetResultSelector);
-        Iterator.iterate(results, result => result.remove());
+        results.forEach(result => result.remove());
 
         this.$emitter.publish('clearSuggestResults');
     }
@@ -186,7 +184,7 @@ export default class SearchWidgetPlugin extends Plugin {
      * @private
      */
     _registerInputFocus() {
-        this._toggleButton = DomAccess.querySelector(document, this.options.searchWidgetCollapseButtonSelector, false);
+        this._toggleButton = document.querySelector(this.options.searchWidgetCollapseButtonSelector);
 
         if (!this._toggleButton) {
             console.warn(`Called selector '${this.options.searchWidgetCollapseButtonSelector}' for the search toggle button not found. Autofocus has been disabled on mobile.`);

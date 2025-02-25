@@ -17,19 +17,9 @@ use SwagTestWithBundle\SwagTestWithBundle;
 
 trait PluginIntegrationTestBehaviour
 {
-    /**
-     * @var ClassLoader
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $classLoader;
+    protected ClassLoader $classLoader;
 
-    /**
-     * @var Connection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $connection;
+    protected Connection $connection;
 
     #[Before]
     public function pluginIntegrationSetUp(): void
@@ -55,8 +45,8 @@ trait PluginIntegrationTestBehaviour
     protected function insertPlugin(PluginEntity $plugin): void
     {
         $installedAt = $plugin->getInstalledAt();
-        /** @var \DateTimeInterface $createdAt */
         $createdAt = $plugin->getCreatedAt();
+        static::assertNotNull($createdAt);
 
         $data = [
             'id' => Uuid::fromHexToBytes($plugin->getId()),

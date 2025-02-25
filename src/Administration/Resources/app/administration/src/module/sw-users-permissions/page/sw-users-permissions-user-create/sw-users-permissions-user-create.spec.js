@@ -83,7 +83,6 @@ async function createWrapper(privileges = []) {
                         template: '<div><slot name="content"></slot></div>',
                     },
                     'sw-card-view': true,
-                    'sw-card': true,
                     'sw-text-field': true,
                     'sw-upload-listener': true,
                     'sw-media-upload-v2': true,
@@ -94,18 +93,16 @@ async function createWrapper(privileges = []) {
                         props: ['value'],
                     },
                     'sw-select-field': true,
-                    'sw-switch-field': true,
+
                     'sw-entity-multi-select': true,
                     'sw-single-select': true,
                     'sw-skeleton': true,
                     'sw-empty-state': true,
                     'sw-data-grid': true,
-                    'sw-button': true,
                     'sw-context-menu-item': true,
                     'sw-button-process': true,
                     'sw-verify-user-modal': true,
                     'sw-media-modal-v2': true,
-                    'sw-alert': true,
                 },
             },
         },
@@ -121,13 +118,13 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
     });
 
     beforeEach(async () => {
-        Shopware.State.get('session').languageId = '123456789';
+        Shopware.Store.get('session').languageId = '123456789';
         wrapper = await createWrapper();
         await flushPromises();
     });
 
     afterEach(() => {
-        Shopware.State.get('session').languageId = '';
+        Shopware.Store.get('session').languageId = '';
     });
 
     it('should be a Vue.js component', async () => {

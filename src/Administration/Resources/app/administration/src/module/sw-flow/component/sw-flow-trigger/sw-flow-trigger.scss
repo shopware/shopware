@@ -12,6 +12,10 @@ $sw-flow-trigger-transition-results: all ease-in-out 0.2s;
     .sw-tree {
         border: unset;
         max-width: 150%;
+
+        &:focus-within {
+            box-shadow: none;
+        }
     }
 
     .sw-tree-item {

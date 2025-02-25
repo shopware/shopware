@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 #[Package('fundamentals@after-sales')]
 class CustomerSalutationRule extends Rule
@@ -20,8 +20,6 @@ class CustomerSalutationRule extends Rule
     final public const RULE_NAME = 'customerSalutation';
 
     /**
-     * @internal
-     *
      * @param list<string>|null $salutationIds
      */
     public function __construct(

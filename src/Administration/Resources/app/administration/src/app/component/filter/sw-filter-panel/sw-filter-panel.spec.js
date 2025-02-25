@@ -97,7 +97,6 @@ async function createWrapper() {
                 'sw-field-error': {
                     template: '<div></div>',
                 },
-                'sw-icon': true,
                 'sw-existence-filter': await Shopware.Component.build('sw-existence-filter'),
                 'sw-multi-select-filter': true,
                 'sw-string-filter': true,

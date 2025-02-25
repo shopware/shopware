@@ -19,8 +19,6 @@ const documentTypesForDisplayNoteDelivery = [
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
@@ -190,12 +188,36 @@ export default {
                     },
                 },
                 {
-                    name: 'companyAddress',
+                    name: 'companyStreet',
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: this.$tc('sw-settings-document.detail.labelCompanyAddress'),
-                        helpText: this.$tc('sw-settings-document.detail.helpTextCompanyAddress'),
+                        label: this.$tc('sw-settings-document.detail.labelCompanyStreet'),
+                    },
+                },
+                {
+                    name: 'companyZipcode',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: this.$tc('sw-settings-document.detail.labelCompanyZipcode'),
+                    },
+                },
+                {
+                    name: 'companyCity',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: this.$tc('sw-settings-document.detail.labelCompanyCity'),
+                    },
+                },
+                {
+                    name: 'companyCountryId',
+                    type: 'sw-entity-single-select',
+                    config: {
+                        entity: 'country',
+                        componentName: 'sw-entity-single-select',
+                        label: this.$tc('sw-settings-document.detail.labelCompanyCountry'),
                     },
                 },
                 {
@@ -302,6 +324,15 @@ export default {
                         label: this.$tc('sw-settings-document.detail.labelExecutiveDirector'),
                     },
                 },
+                {
+                    name: 'paymentDueDate',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: this.$tc('sw-settings-document.detail.labelPaymentDueDate'),
+                        helpText: this.$tc('sw-settings-document.detail.helpTextPaymentDueDate'),
+                    },
+                },
             ],
             alreadyAssignedSalesChannelIdsToType: [],
             typeIsLoading: false,
@@ -369,17 +400,6 @@ export default {
             };
         },
 
-        /* @deprecated: tag:v6.7.0 - Will be removed without replacement */
-        showCountriesSelect() {
-            if (!this.isShowDisplayNoteDelivery) {
-                return false;
-            }
-
-            const documentConfig = cloneDeep(this.documentConfig);
-
-            return documentConfig.config?.displayAdditionalNoteDelivery;
-        },
-
         documentBaseConfig() {
             return this.documentConfig;
         },
@@ -398,6 +418,15 @@ export default {
             }
 
             return this.documentConfig.config.fileTypes;
+        },
+
+        // We don't want to select ZUGFeRD as a type. "invoice" configuration is used instead (NEXT-40492)
+        documentCriteria() {
+            const criteria = new Criteria(1, 25);
+
+            criteria.addFilter(Criteria.not('AND', [Criteria.prefix('technicalName', 'zugferd_')]));
+
+            return criteria;
         },
     },
 
@@ -436,21 +465,13 @@ export default {
                 this.documentConfig = {};
             }
             if (!this.documentConfig.config) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.documentConfig, 'config', {});
-                } else {
-                    this.documentConfig.config = {};
-                }
+                this.documentConfig.config = {};
             }
 
             await this.onChangeType(this.documentConfig.documentType);
 
             if (this.documentConfig.salesChannels === undefined) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.documentConfig, 'salesChannels', []);
-                } else {
-                    this.documentConfig.salesChannels = [];
-                }
+                this.documentConfig.salesChannels = [];
             }
 
             this.documentConfig.salesChannels.forEach((salesChannelAssoc) => {
@@ -533,20 +554,6 @@ export default {
                     this.documentConfig.salesChannels.remove(salesChannelAssoc.id);
                 }
             });
-        },
-
-        abortOnLanguageChange() {
-            return this.documentBaseConfigRepository.hasChanges(this.documentConfig);
-        },
-
-        saveOnLanguageChange() {
-            return this.onSave();
-        },
-
-        onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
-
-            return this.loadEntityData();
         },
 
         async saveFinish() {

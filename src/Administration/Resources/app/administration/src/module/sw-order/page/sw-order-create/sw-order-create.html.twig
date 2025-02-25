@@ -17,9 +17,9 @@
         {% block sw_order_create_smart_bar_actions_slot %}
         <template v-if="!showInitialModal">
             {% block sw_order_create_smart_bar_actions_cancel %}
-            <sw-button @click="onCancelOrder">
+            <mt-button @click="onCancelOrder">
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
             {% block sw_order_create_smart_bar_actions_add %}
             <sw-button-process
@@ -108,27 +108,27 @@
             @modal-close="onRemindPaymentModalClose"
         >
             {% block sw_order_create_remind_payment_modal_content %}
-            <p>{{ $tc('sw-order.create.remindPaymentModal.text', 0, {paymentMethodName: paymentMethodName }) }}</p>
+            <p>{{ $tc('sw-order.create.remindPaymentModal.text', {paymentMethodName: paymentMethodName }, 0) }}</p>
             {% endblock %}
 
             <template #modal-footer>
                 {% block sw_order_create_remind_payment_modal_footer %}
-                <sw-button
+                <mt-button
                     class="sw-order-create__remind-payment-modal-decline"
                     size="small"
                     @click="onRemindPaymentModalClose"
                 >
                     {{ $tc('global.default.no') }}
-                </sw-button>
+                </mt-button>
 
-                <sw-button
+                <mt-button
                     class="sw-order-create__remind-payment-modal-remind"
                     variant="primary"
                     size="small"
                     @click="onRemindCustomer"
                 >
                     {{ $tc('sw-order.create.remindPaymentModal.primaryAction') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
             </template>

@@ -4,7 +4,6 @@
     v-bind="$attrs"
     :truncate-right="true"
     :allow-multi-select="!isParent"
-    v-on="listeners"
 >
 
     {% block sw_media_folder_item_preview %}
@@ -27,7 +26,7 @@
                 class="sw-media-folder-item__folder-thumbnails"
                 :alt="iconName"
             >
-            <sw-icon
+            <mt-icon
                 v-if="iconConfig.name"
                 class="sw-media-folder-item__folder-thumbnails is--inner"
                 v-bind="iconConfig"
@@ -49,11 +48,12 @@
     {% block sw_media_folder_name %}
     <template #name="{ item, isInlineEdit, startInlineEdit, endInlineEdit }">
         {% block sw_media_base_item_name %}
-        <sw-text-field
+
+        <mt-text-field
             v-if="!isParent && (isInlineEdit || item.isNew())"
             v-autofocus
             class="sw-media-base-item__name-field"
-            :value="item.name"
+            :model-value="item.name"
             name="media-item-name"
             @blur="onBlur($event, item, endInlineEdit)"
             @click.stop

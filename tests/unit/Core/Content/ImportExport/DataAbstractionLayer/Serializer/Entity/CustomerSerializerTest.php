@@ -35,9 +35,7 @@ class CustomerSerializerTest extends TestCase
         $serializer = new CustomerSerializer(
             $repositoryMock,
             $repositoryMock,
-            $repositoryMock,
             $cacheEntities['cacheCustomerGroups'],
-            $cacheEntities['cachePaymentMethods'],
             $cacheEntities['cacheSalesChannels'],
         );
 
@@ -62,7 +60,6 @@ class CustomerSerializerTest extends TestCase
             'expected' => [],
             'cacheEntities' => [
                 'cacheCustomerGroups' => [],
-                'cachePaymentMethods' => [],
                 'cacheSalesChannels' => [],
             ],
         ];
@@ -145,9 +142,6 @@ class CustomerSerializerTest extends TestCase
         return array_merge_recursive([
             'cacheCustomerGroups' => [
                 'group_name' => 'groupId',
-            ],
-            'cachePaymentMethods' => [
-                'payment_name' => 'paymentId',
             ],
             'cacheSalesChannels' => [
                 'sales_channel_name' => 'salesChannelId',

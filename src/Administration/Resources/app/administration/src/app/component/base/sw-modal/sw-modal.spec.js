@@ -12,14 +12,10 @@ async function createWrapper(additionalSlots = null) {
                 shortcutService: {
                     startEventListener: () => {},
                     stopEventListener: () => {},
-                    stubs: {
-                        'sw-icon': true,
-                    },
                 },
             },
             stubs: {
                 'sw-loader': true,
-                'sw-icon': true,
             },
         },
         slots: {
@@ -164,7 +160,7 @@ describe('src/app/component/base/sw-modal/index.js', () => {
     it('should be able to update the modal classes', async () => {
         expect(wrapper.get('.sw-modal').classes('sw-modal--has-sidebar')).toBe(false);
 
-        Shopware.State.commit('adminHelpCenter/setShowHelpSidebar', true);
+        Shopware.Store.get('adminHelpCenter').showHelpSidebar = true;
         await wrapper.vm.$nextTick();
 
         expect(wrapper.get('.sw-modal').classes('sw-modal--has-sidebar')).toBe(true);

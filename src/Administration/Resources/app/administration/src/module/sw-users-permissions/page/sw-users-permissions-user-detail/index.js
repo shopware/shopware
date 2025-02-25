@@ -14,8 +14,6 @@ const { ShopwareError } = Shopware.Classes;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'userService',
         'loginService',
@@ -48,10 +46,6 @@ export default {
             mediaItem: null,
             newPassword: '',
             newPasswordConfirm: '',
-            /**
-             * @deprecated tag:v6.7.0 - Will be removed. Use `isEmailAlreadyInUse` instead
-             */
-            isEmailUsed: false,
             isEmailAlreadyInUse: false,
             isUsernameUsed: false,
             isIntegrationsLoading: false,
@@ -171,7 +165,7 @@ export default {
         },
 
         languageId() {
-            return Shopware.State.get('session').languageId;
+            return Shopware.Store.get('session').languageId;
         },
 
         tooltipSave() {
@@ -232,7 +226,7 @@ export default {
 
             this.timezoneOptions = Shopware.Service('timezoneService').getTimezoneOptions();
             const languagePromise = new Promise((resolve) => {
-                Shopware.State.commit('context/setApiLanguageId', this.languageId);
+                Shopware.Store.get('context').api.languageId = this.languageId;
                 resolve(this.languageId);
             });
 
@@ -310,10 +304,6 @@ export default {
                     id: this.user.id,
                 })
                 .then(({ emailIsUnique }) => {
-                    /**
-                     * @deprecated tag:v6.7.0 - remove this.isEmailUsed assignment
-                     */
-                    this.isEmailUsed = !emailIsUnique;
                     this.isEmailAlreadyInUse = !emailIsUnique;
                 });
         },
@@ -399,7 +389,7 @@ export default {
                                 detail: this.$tc('sw-users-permissions.users.user-detail.errorEmailUsed'),
                             });
 
-                            Shopware.State.commit('error/addApiError', {
+                            Shopware.Store.get('error').addApiError({
                                 expression,
                                 error,
                             });
@@ -411,8 +401,8 @@ export default {
                         const titleSaveError = this.$tc('global.default.error');
                         const messageSaveError = this.$tc(
                             'sw-users-permissions.users.user-detail.notification.saveError.message',
-                            0,
                             { name: this.fullName },
+                            0,
                         );
 
                         return this.userRepository
@@ -451,7 +441,7 @@ export default {
                 const data = response.data;
                 delete data.password;
 
-                return Shopware.State.commit('setCurrentUser', data);
+                return Shopware.Store.get('session').setCurrentUser(data);
             });
         },
 
@@ -461,19 +451,11 @@ export default {
 
         setPassword(password) {
             if (typeof password === 'string' && password.length <= 0) {
-                if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                    this.$delete(this.user, 'password');
-                } else {
-                    delete this.user.password;
-                }
+                delete this.user.password;
                 return;
             }
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.user, 'password', password);
-            } else {
-                this.user.password = password;
-            }
+            this.user.password = password;
         },
 
         onShowDetailModal(id) {

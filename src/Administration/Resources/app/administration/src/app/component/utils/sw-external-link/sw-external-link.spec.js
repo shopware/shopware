@@ -3,39 +3,43 @@
  */
 
 import { mount } from '@vue/test-utils';
+import 'src/app/component/utils/sw-external-link';
 
-async function createWrapper() {
+const createWrapper = async (props = {}) => {
     return mount(await wrapTestComponent('sw-external-link', { sync: true }), {
+        props,
         global: {
-            stubs: {
-                'sw-external-link-deprecated': true,
-                'mt-external-link': true,
+            slots: {
+                default: 'test external link',
             },
         },
-        props: {},
     });
-}
+};
 
-describe('src/app/component/base/sw-external-link', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
+describe('components/utils/sw-external-link', () => {
+    it('should display the correct link', async () => {
+        const wrapper = await createWrapper({ href: 'https://google.com' });
+        const anchor = wrapper.find('a');
 
-    it('should render the deprecated external-link when major feature flag is disabled', async () => {
-        global.activeFeatureFlags = [''];
-
-        const wrapper = await createWrapper();
-
-        expect(wrapper.html()).toContain('sw-external-link-deprecated');
-        expect(wrapper.html()).not.toContain('mt-external-link');
+        expect(anchor.attributes('href')).toBe('https://google.com');
     });
 
-    it('should render the mt-external-link when major feature flag is enabled', async () => {
-        global.activeFeatureFlags = ['v6.7.0.0'];
-
+    it('should emit click event if no href is provided', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.html()).toContain('mt-external-link');
+        await wrapper.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.emitted().click).toBeTruthy();
+    });
+
+    it('should render small', async () => {
+        const wrapper = await createWrapper({
+            href: 'https://google.com',
+            small: true,
+        });
+
+        expect(wrapper.findComponent('.mt-icon').vm.size).toBe('8px');
+        expect(wrapper.classes()).toContain('sw-external-link--small');
     });
 });

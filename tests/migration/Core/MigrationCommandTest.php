@@ -6,10 +6,8 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\Command\MigrationCommand;
 use Shopware\Core\Framework\Migration\Command\MigrationDestructiveCommand;
-use Shopware\Core\Framework\Migration\Exception\MigrateException;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationException;
@@ -57,11 +55,7 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getCommand();
 
-        if (Feature::isActive('v6.7.0.0')) {
-            $this->expectException(MigrationException::class);
-        } else {
-            $this->expectException(\InvalidArgumentException::class);
-        }
+        $this->expectException(MigrationException::class);
         $this->expectExceptionMessage('missing timestamp cap or --all option');
         $command->run(new ArrayInput([]), new BufferedOutput());
     }
@@ -103,11 +97,7 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getCommand();
 
-        if (Feature::isActive('v6.7.0.0')) {
-            $this->expectException(MigrationException::class);
-        } else {
-            $this->expectException(\InvalidArgumentException::class);
-        }
+        $this->expectException(MigrationException::class);
         $this->expectExceptionMessage('Running migrations for multiple identifiers without --all option or with --limit option is not supported.');
         $command->run(new ArrayInput(['identifier' => [self::INTEGRATION_IDENTIFIER(), '_test_migrations_valid_run_time'], '--until' => \PHP_INT_MAX]), new BufferedOutput());
     }
@@ -118,11 +108,7 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getCommand();
 
-        if (Feature::isActive('v6.7.0.0')) {
-            $this->expectException(MigrationException::class);
-        } else {
-            $this->expectException(\InvalidArgumentException::class);
-        }
+        $this->expectException(MigrationException::class);
         $this->expectExceptionMessage('Running migrations for multiple identifiers without --all option or with --limit option is not supported.');
         $command->run(new ArrayInput(['identifier' => [self::INTEGRATION_IDENTIFIER(), '_test_migrations_valid_run_time'], '--all' => true, '--limit' => 10]), new BufferedOutput());
     }
@@ -148,7 +134,7 @@ class MigrationCommandTest extends TestCase
 
         try {
             $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
-        } catch (MigrationException|MigrateException) {
+        } catch (MigrationException) {
             // nth
         }
 
@@ -161,11 +147,7 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getDestructiveCommand();
 
-        if (Feature::isActive('v6.7.0.0')) {
-            $this->expectException(MigrationException::class);
-        } else {
-            $this->expectException(\InvalidArgumentException::class);
-        }
+        $this->expectException(MigrationException::class);
         $this->expectExceptionMessage('missing timestamp cap or --all option');
         $command->run(new ArrayInput([]), new BufferedOutput());
     }
@@ -202,7 +184,7 @@ class MigrationCommandTest extends TestCase
 
         try {
             $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
-        } catch (MigrationException|MigrateException) {
+        } catch (MigrationException) {
             // nth
         }
 
@@ -210,7 +192,7 @@ class MigrationCommandTest extends TestCase
 
         try {
             $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
-        } catch (MigrationException|MigrateException) {
+        } catch (MigrationException) {
             // nth
         }
 

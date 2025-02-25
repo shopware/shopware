@@ -44,9 +44,6 @@ async function createWrapper(options = {}) {
     return mount(await wrapTestComponent('sw-admin-menu', { sync: true }), {
         global: {
             stubs: {
-                'sw-icon': {
-                    template: '<div class="sw-icon"></div>',
-                },
                 'sw-version': true,
                 'sw-admin-menu-item': await wrapTestComponent('sw-admin-menu-item'),
                 'sw-loader': true,
@@ -55,6 +52,7 @@ async function createWrapper(options = {}) {
                 'router-link': {
                     template: '<div class="router-link"><slot /></div>',
                 },
+                'mt-icon': true,
             },
             provide: {
                 menuService,
@@ -104,22 +102,8 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     let wrapper;
 
     beforeAll(() => {
-        Shopware.State.get('session').currentLocale = 'en-GB';
+        Shopware.Store.get('session').currentLocale = 'en-GB';
         Shopware.Context.app.fallbackLocale = 'en-GB';
-
-        if (Shopware.State.get('settingsItems')) {
-            Shopware.State.unregisterModule('settingsItems');
-        }
-
-        Shopware.State.registerModule('settingsItems', {
-            namespaced: true,
-            state: {
-                settingsGroups: {
-                    shop: [],
-                    system: [],
-                },
-            },
-        });
 
         Shopware.Module.getModuleRegistry().clear();
         adminModules.forEach((adminModule) => {
@@ -135,11 +119,11 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
         jest.spyOn(Shopware.Utils.debug, 'error').mockImplementation(() => true);
 
-        Shopware.State.commit('setCurrentUser', null);
-        Shopware.State.get('settingsItems').settingsGroups.shop = [];
-        Shopware.State.get('settingsItems').settingsGroups.system = [];
+        Shopware.Store.get('session').setCurrentUser(null);
+        Shopware.Store.get('settingsItems').settingsGroups.shop = [];
+        Shopware.Store.get('settingsItems').settingsGroups.system = [];
 
-        Shopware.State.commit('shopwareApps/setApps', []);
+        Shopware.Store.get('shopwareApps').apps = [];
 
         wrapper = await createWrapper();
         await flushPromises();
@@ -150,7 +134,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     });
 
     it('should show the snippet for the admin title', async () => {
-        Shopware.State.commit('setCurrentUser', {
+        Shopware.Store.get('session').setCurrentUser({
             admin: true,
             title: 'Master of something',
             aclRoles: [],
@@ -164,7 +148,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     });
 
     it('should show the user title for the non admin user', async () => {
-        Shopware.State.commit('setCurrentUser', {
+        Shopware.Store.get('session').setCurrentUser({
             admin: false,
             title: 'Master of something',
             aclRoles: [],
@@ -177,7 +161,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     });
 
     it('should show no title when user has no title and no aclRoles defined', async () => {
-        Shopware.State.commit('setCurrentUser', {
+        Shopware.Store.get('session').setCurrentUser({
             admin: false,
             title: null,
             aclRoles: [],
@@ -190,7 +174,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     });
 
     it('should use the name of the first acl role as a title when user has no title defined', async () => {
-        Shopware.State.commit('setCurrentUser', {
+        Shopware.Store.get('session').setCurrentUser({
             admin: false,
             title: null,
             aclRoles: [
@@ -360,7 +344,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
     describe('app menu entries', () => {
         it('renders apps under there parent navigation entry', async () => {
-            Shopware.State.commit('shopwareApps/setApps', testApps);
+            Shopware.Store.get('shopwareApps').apps = testApps;
             await flushPromises();
 
             const topLevelEntries = wrapper.findAll('.navigation-list-item__level-1');
@@ -380,7 +364,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         });
 
         it('renders app structure elements and their children', async () => {
-            Shopware.State.commit('shopwareApps/setApps', testApps);
+            Shopware.Store.get('shopwareApps').apps = testApps;
             await flushPromises();
 
             const topLevelEntries = wrapper.findAll('.navigation-list-item__level-1');
@@ -470,6 +454,6 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         const flyoutItem = wrapper.findComponent(
             '.sw-admin-menu_flyout-holder .navigation-list-item__sw-second-level-first',
         );
-        expect(flyoutItem.findAll('.sw-icon')).toHaveLength(0);
+        expect(flyoutItem.findAll('.mt-icon')).toHaveLength(0);
     });
 });

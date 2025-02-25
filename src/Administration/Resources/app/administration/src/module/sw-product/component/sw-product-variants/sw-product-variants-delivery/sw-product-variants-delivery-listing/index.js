@@ -11,8 +11,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         product: {
             type: Object,

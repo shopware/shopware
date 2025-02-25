@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
+use Shopware\Core\Checkout\Document\Renderer\RendererResult;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
@@ -21,7 +22,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -47,17 +47,12 @@ class DocumentGenerator
     ) {
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - Parameter $fileType will be added - reason:new-optional-parameter
-     */
     public function readDocument(
         string $documentId,
         Context $context,
         string $deepLinkCode = '',
-        /* , string $fileType = PdfRenderer::FILE_EXTENSION */
+        string $fileType = PdfRenderer::FILE_EXTENSION
     ): ?RenderedDocument {
-        $fileType = \func_get_args()[3] ?? PdfRenderer::FILE_EXTENSION;
-
         $criteria = new Criteria([$documentId]);
 
         if ($deepLinkCode !== '') {
@@ -110,15 +105,11 @@ class DocumentGenerator
             throw DocumentException::generationError($rendered->getOrderError($operation->getOrderId())?->getMessage());
         }
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $document->setContent($this->fileRendererRegistry->render($document));
-        }
-
         return $document;
     }
 
     /**
-     * @param DocumentGenerateOperation[] $operations
+     * @param array<string, DocumentGenerateOperation> $operations
      */
     public function generate(string $documentType, array $operations, Context $context): DocumentGenerationResult
     {
@@ -153,14 +144,14 @@ class DocumentGenerator
                 $deepLinkCode = Random::getAlphanumericString(32);
                 $id = $operation->getDocumentId() ?? Uuid::randomHex();
 
-                $mediaId = $this->resolveMediaId($operation, $context, $document);
+                $mediaId = $this->resolveMediaId($operation, $context, $document, $documentType, $rendered);
                 $mediaIdForHtmlA11y = $this->resolveMediaIdForA11y($operation, $context, $document);
 
                 $records[] = [
                     'id' => $id,
                     'documentTypeId' => $documentTypeId,
                     'fileType' => $operation->getFileType(),
-                    'orderId' => $orderId,
+                    'orderId' => $operation->getOrderId(),
                     'orderVersionId' => $operation->getOrderVersionId(),
                     'static' => $operation->isStatic(),
                     'documentMediaFileId' => $mediaId,
@@ -325,24 +316,18 @@ class DocumentGenerator
         return $document;
     }
 
-    private function resolveMediaId(DocumentGenerateOperation $operation, Context $context, RenderedDocument $document): ?string
+    private function resolveMediaId(DocumentGenerateOperation $operation, Context $context, RenderedDocument $document, ?string $documentType = null, ?RendererResult $result = null): ?string
     {
         if ($operation->isStatic()) {
             return null;
         }
 
-        try {
-            $blob = $this->fileRendererRegistry->render($document);
-        } catch (\Throwable) {
-            return null;
-        }
-
-        if ($blob === '') {
+        if ($document->getContent() === '') {
             return null;
         }
 
         return $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->saveFile(
-            $blob,
+            $document->getContent(),
             $document->getFileExtension(),
             $document->getContentType(),
             $document->getName(),
@@ -372,6 +357,14 @@ class DocumentGenerator
         $document = clone $document;
         $document->setContentType(HtmlRenderer::FILE_CONTENT_TYPE);
         $document->setFileExtension(HtmlRenderer::FILE_EXTENSION);
+
+        try {
+            $content = $this->fileRendererRegistry->render($document);
+        } catch (\Throwable) {
+            return null;
+        }
+
+        $document->setContent($content);
 
         return $this->resolveMediaId($operation, $context, $document);
     }

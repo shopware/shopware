@@ -82,12 +82,12 @@
     {% block sw_order_state_history_modal_actions %}
     <template #modal-footer>
         {% block sw_order_state_history_modal_action_close %}
-        <sw-button
+        <mt-button
             size="small"
             @click="onClose"
         >
             {{ $tc('global.default.close') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

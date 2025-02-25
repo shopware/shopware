@@ -20,7 +20,7 @@
             appearance="circle"
             :class="getBackgroundColorFromState(entry.state.technicalName)"
         >
-            <sw-icon
+            <mt-icon
                 :name="getIconFromState(entry.state.technicalName)"
                 :class="getIconColorFromState(entry.state.technicalName)"
                 size="16"
@@ -51,7 +51,7 @@
     <sw-order-state-select
         :transition-options="transitionOptions"
         :disabled="disabled"
-        v-on="listeners"
+        v-bind="$attrs"
     />
     {% endblock %}
 

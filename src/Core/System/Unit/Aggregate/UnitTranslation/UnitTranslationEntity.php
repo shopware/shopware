@@ -12,33 +12,13 @@ class UnitTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $unitId;
+    protected string $unitId;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shortCode;
+    protected ?string $shortCode = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var UnitEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $unit;
+    protected ?UnitEntity $unit = null;
 
     public function getUnitId(): string
     {

@@ -12,8 +12,6 @@ const { dom, types } = Shopware.Utils;
 Component.register('sw-admin-menu', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'menuService',
         'loginService',
@@ -65,7 +63,7 @@ Component.register('sw-admin-menu', {
 
     computed: {
         currentUser() {
-            return Shopware.State.get('session').currentUser;
+            return Shopware.Store.get('session').currentUser;
         },
 
         isExpanded() {
@@ -93,7 +91,7 @@ Component.register('sw-admin-menu', {
         },
 
         currentLocale() {
-            return Shopware.State.get('session').currentLocale;
+            return Shopware.Store.get('session').currentLocale;
         },
 
         currentExpandedMenuEntries() {
@@ -199,7 +197,7 @@ The admin menu only supports up to three levels of nesting.`,
         },
 
         extensionMenuItems() {
-            return Shopware.State.get('menuItem').menuItems;
+            return Shopware.Store.get('menuItem').menuItems;
         },
 
         extensionModuleNavigation() {
@@ -250,15 +248,9 @@ The admin menu only supports up to three levels of nesting.`,
             this.collapseMenuOnSmallViewports();
             this.getUser();
 
-            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                this.$root.$on('toggle-offcanvas', (state) => {
-                    this.isOffCanvasShown = state;
-                });
-            } else {
-                Shopware.Utils.EventBus.on('sw-admin-menu/toggle-offcanvas', (state) => {
-                    this.isOffCanvasShown = state;
-                });
-            }
+            Shopware.Utils.EventBus.on('sw-admin-menu/toggle-offcanvas', (state) => {
+                this.isOffCanvasShown = state;
+            });
 
             this.initNavigation();
         },
@@ -271,7 +263,7 @@ The admin menu only supports up to three levels of nesting.`,
 
         refreshApps() {
             return this.appModulesService.fetchAppModules().then((modules) => {
-                return Shopware.State.commit('shopwareApps/setApps', modules);
+                Shopware.Store.get('shopwareApps').apps = modules;
             });
         },
 
@@ -305,7 +297,7 @@ The admin menu only supports up to three levels of nesting.`,
                 const userData = response.data;
                 delete userData.password;
 
-                Shopware.State.commit('setCurrentUser', userData);
+                Shopware.Store.get('session').setCurrentUser(userData);
 
                 this.isUserLoading = false;
             });
@@ -398,19 +390,13 @@ The admin menu only supports up to three levels of nesting.`,
         onLogoutUser() {
             this.loginService.logout();
             this.adminMenuStore.clearExpandedMenuEntries();
-            Shopware.State.commit('removeCurrentUser');
-            Shopware.State.commit('notification/setNotifications', {});
-            Shopware.State.commit('notification/clearGrowlNotificationsForCurrentUser');
-            Shopware.State.commit('notification/clearNotificationsForCurrentUser');
+            Shopware.Store.get('session').removeCurrentUser();
+            Shopware.Store.get('notification').clearGrowlNotificationsForCurrentUser();
+            Shopware.Store.get('notification').clearNotificationsForCurrentUser();
             this.$router.push({
                 name: 'sw.login.index',
             });
         },
-
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
-        openKeyboardShortcutOverview() {},
 
         addScrollbarOffset() {
             const offset = dom.getScrollbarWidth(this.$refs.swAdminMenuBody);

@@ -14,13 +14,13 @@
     {% block sw_settings_tax_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_tax_detail_actions_abort %}
-        <sw-button
+        <mt-button
             v-tooltip.bottom="{ message: 'ESC', appearance: 'light' }"
             :disabled="isLoading"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_settings_tax_detail_actions_save %}
@@ -57,7 +57,7 @@
 
             <template v-else>
                 {% block sw_settings_tax_detail_content_card %}
-                <sw-card
+                <mt-card
                     :title="$tc('sw-settings-tax.detail.titleCard')"
                     position-identifier="sw-settings-tax-detail-content"
                 >
@@ -67,16 +67,17 @@
                     >
 
                         {% block sw_settings_tax_detail_content_field_name %}
-                        <sw-text-field
+
+                        <mt-text-field
                             id="sw-field--tax-name"
-                            :value="label"
+                            :model-value="label"
                             required
                             name="sw-field--tax-name"
                             :disabled="!acl.can('tax.editor') || isShopwareDefaultTax || undefined"
                             :label="$tc('sw-settings-tax.detail.labelName')"
                             :placeholder="$tc('sw-settings-tax.detail.placeholderName')"
                             :error="taxNameError"
-                            @update:value="changeName"
+                            @update:model-value="changeName"
                         />
                         {% endblock %}
 
@@ -101,19 +102,20 @@
 
                         <div class="sw-settings-tax-detail__switches">
                             {% block sw_settings_tax_detail_content_field_default_tax_rate %}
-                            <sw-switch-field
+
+                            <mt-switch
                                 :key="isDefault"
                                 class="sw-settings-tax-detail__default-tax-rate"
                                 :label="$tc('sw-settings-tax.detail.defaultTaxLabel')"
                                 :help-text="$tc('sw-settings-tax.detail.defaultTaxHelpText')"
-                                :value="isDefault"
+                                :checked="isDefault"
                                 name="sw-field--isDefault"
-                                @update:value="onChangeDefaultTaxRate"
+                                @change="onChangeDefaultTaxRate"
                             />
                         {% endblock %}
                         </div>
                     </sw-container>
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_settings_tax_detail_rule_card %}
@@ -127,7 +129,7 @@
                 {% endblock %}
 
                 {% block sw_settings_tax_detail_custom_field_sets %}
-                <sw-card
+                <mt-card
                     v-if="showCustomFields"
                     position-identifier="sw-settings-tax-detail-custom-field-sets"
                     :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
@@ -138,7 +140,7 @@
                         :disabled="!acl.can('tax.editor')"
                         :sets="customFieldSets"
                     />
-                </sw-card>
+                </mt-card>
                 {% endblock %}
             </template>
         </sw-card-view>

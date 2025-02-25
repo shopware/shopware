@@ -12,19 +12,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[Package('framework')]
 trait ConsoleProgressTrait
 {
-    /**
-     * @var SymfonyStyle|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $io;
+    protected ?SymfonyStyle $io = null;
 
-    /**
-     * @var ProgressBar|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $progress;
+    protected ?ProgressBar $progress = null;
 
     /**
      * @return array<string, string>
@@ -40,7 +30,7 @@ trait ConsoleProgressTrait
 
     public function startProgress(ProgressStartedEvent $event): void
     {
-        if (!$this->io) {
+        if ($this->io === null) {
             return;
         }
 
@@ -51,7 +41,7 @@ trait ConsoleProgressTrait
 
     public function advanceProgress(ProgressAdvancedEvent $event): void
     {
-        if (!$this->progress) {
+        if ($this->progress === null) {
             return;
         }
 
@@ -60,11 +50,11 @@ trait ConsoleProgressTrait
 
     public function finishProgress(ProgressFinishedEvent $event): void
     {
-        if (!$this->io) {
+        if ($this->io === null) {
             return;
         }
 
-        if (!$this->progress) {
+        if ($this->progress === null) {
             return;
         }
 

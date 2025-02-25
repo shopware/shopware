@@ -22,8 +22,6 @@ Component.register('sw-custom-field-set-renderer', {
         'repositoryFactory',
     ],
 
-    compatConfig: Shopware.compatConfig,
-
     // Grant access to some variables to the child form render components
     provide() {
         return {
@@ -143,6 +141,7 @@ Component.register('sw-custom-field-set-renderer', {
                 'sw-select-field',
                 'sw-checkbox-field',
                 'sw-switch-field',
+                'mt-switch',
                 'sw-number-field',
                 'sw-datepicker',
                 'sw-email-field',
@@ -296,12 +295,28 @@ Component.register('sw-custom-field-set-renderer', {
         getBind(customField, props) {
             const customFieldClone = Shopware.Utils.object.cloneDeep(customField);
 
+            const isMeteorComponent = [
+                // Disabled for now, enable once Inheritance is aligned on all meteor components
+                // 'bool',
+                // 'switch',
+                // 'text',
+            ].includes(customField.type);
+
             if (customFieldClone.type === 'bool') {
                 customFieldClone.config.bordered = true;
             }
 
             if (this.supportsMapInheritance(customFieldClone)) {
                 customFieldClone.mapInheritance = props;
+
+                // Special case for meteor components
+                if (isMeteorComponent) {
+                    customFieldClone.isInheritanceField = props.isInheritField;
+                    customFieldClone.isInherited = props.isInherited;
+                    customFieldClone.inheritanceRemove = props.removeInheritance;
+                    customFieldClone.inheritanceRestore = props.restoreInheritance;
+                    customFieldClone.inheritedValue = props.currentValue;
+                }
 
                 return customFieldClone;
             }
@@ -363,12 +378,8 @@ Component.register('sw-custom-field-set-renderer', {
                     // replace the fully fetched set
                     this.sets.forEach((originalSet, index) => {
                         if (originalSet.id === newSet.id) {
-                            if (this.isCompatEnabled('INSTANCE_SET')) {
-                                this.$set(this.sets, index, newSet);
-                            } else {
-                                // eslint-disable-next-line vue/no-mutating-props
-                                this.sets[index] = newSet;
-                            }
+                            // eslint-disable-next-line vue/no-mutating-props
+                            this.sets[index] = newSet;
                         }
                     });
 

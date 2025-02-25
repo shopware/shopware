@@ -7,7 +7,6 @@ const {
     Data: { Criteria },
 } = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
-const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 /**
  * @sw-package checkout
@@ -16,11 +15,8 @@ const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
-        'feature',
     ],
 
     emits: [
@@ -74,19 +70,29 @@ export default {
     },
 
     computed: {
-        ...mapState('swShippingDetail', [
-            'shippingMethod',
-            'currencies',
-            'restrictedRuleIds',
-        ]),
+        shippingMethod() {
+            return Shopware.Store.get('swShippingDetail').shippingMethod;
+        },
 
-        ...mapGetters('swShippingDetail', [
-            'defaultCurrency',
-            /** @deprecated tag:v6.7.0 - usedRules will be removed, use restrictedRuleIds instead */
-            'usedRules',
-            'unrestrictedPriceMatrixExists',
-            'newPriceMatrixExists',
-        ]),
+        currencies() {
+            return Shopware.Store.get('swShippingDetail').currencies;
+        },
+
+        restrictedRuleIds() {
+            return Shopware.Store.get('swShippingDetail').restrictedRuleIds;
+        },
+
+        unrestrictedPriceMatrixExists() {
+            return Shopware.Store.get('swShippingDetail').unrestrictedPriceMatrixExists;
+        },
+
+        newPriceMatrixExists() {
+            return Shopware.Store.get('swShippingDetail').newPriceMatrixExists;
+        },
+
+        defaultCurrency() {
+            return Shopware.Store.get('swShippingDetail').defaultCurrency;
+        },
 
         ruleRepository() {
             return this.repositoryFactory.create('rule');
@@ -172,10 +178,6 @@ export default {
                 ]),
             );
 
-            if (!Shopware.Feature.isActive('v6.7.0.0')) {
-                criteria.addAssociation('conditions');
-            }
-
             return criteria;
         },
 
@@ -187,10 +189,6 @@ export default {
                     Criteria.equals('rule.moduleTypes', null),
                 ]),
             );
-
-            if (!Shopware.Feature.isActive('v6.7.0.0')) {
-                criteria.addAssociation('conditions');
-            }
 
             return criteria;
         },

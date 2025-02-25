@@ -35,7 +35,7 @@
     {% block sw_sales_channel_list_actions %}
     <template #smart-bar-actions>
         {% block sw_sales_channel_list_smart_bar_actions %}
-        <sw-button
+        <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('sales_channel.creator'),
@@ -46,7 +46,7 @@
             @click="onAddSalesChannel"
         >
             {{ $tc('sw-sales-channel.list.buttonAddSalesChannel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}
@@ -55,7 +55,7 @@
     <template #content>
         <sw-card-view>
             {% block sw_sales_channel_list_content_card %}
-            <sw-card
+            <mt-card
                 v-if="entitySearchable && total > 0"
                 position-identifier="sw-sales-channel-list"
                 :title="$tc('sw-sales-channel.list.title')"
@@ -79,7 +79,7 @@
                     >
                         {% block sw_sales_channel_list_grid_column_name %}
                         <template #column-name="{ item }">
-                            <sw-icon
+                            <mt-icon
                                 :name="item.type.iconName"
                                 size="18px"
                             />
@@ -89,14 +89,6 @@
                                     params: { id: item.id }
                                 }"
                             >{{ item.translated.name || item.name }}</router-link>
-                        </template>
-                        {% endblock %}
-
-                        {# @deprecated tag:v6.7.0 - Remove block #}
-                        {% block sw_sales_channel_list_grid_column_product_visibilites %}
-                        <template #column-product_visibilities="{ item }">
-                            {{ getCountForSalesChannel(item.id) }}
-                            {{ $tc('sw-sales-channel.list.productsCount', getCountForSalesChannel(item.id)) }}
                         </template>
                         {% endblock %}
 
@@ -130,12 +122,13 @@
 
                         {% block sw_sales_channel_list_grid_column_favorite %}
                         <template #column-id="{ item }">
-                            <sw-switch-field
+
+                            <mt-switch
                                 v-tooltip.right="{ message: $tc('sw-sales-channel.detail.favouriteLabel') }"
                                 class="favorite-switch"
                                 :disabled="!acl.can('user_config:create') || !acl.can('user_config:update')"
-                                :value="isFavorite(item.id)"
-                                @update:value="(isFavorite) => { salesChannelFavoritesService?.update(isFavorite, item.id) }"
+                                :checked="isFavorite(item.id)"
+                                @change="(isFavorite) => { salesChannelFavoritesService?.update(isFavorite, item.id) }"
                             />
                         </template>
                         {% endblock %}
@@ -167,7 +160,7 @@
                     </sw-entity-listing>
                 </template>
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
             {% block sw_sales_channel_list_empty_state %}

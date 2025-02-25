@@ -13,7 +13,6 @@
     @inheritance-restore="$emit('inheritance-restore', $event)"
     @inheritance-remove="$emit('inheritance-remove', $event)"
     @base-field-mounted="createFlatpickrInstance"
-    v-on="additionalEventListeners"
 >
 
     <template #sw-field-input="{ identification, disabled }">
@@ -26,7 +25,7 @@
             :disabled="disabled"
             :placeholder="placeholderText"
         >
-        <sw-icon
+        <mt-icon
             v-if="!required && timezoneFormattedValue && !disabled"
             class="sw-field--datepicker__button-reset-value"
             name="regular-times-xs"
@@ -38,7 +37,7 @@
         v-if="showTimeZoneHint"
         #hint
     >
-        <sw-icon
+        <mt-icon
             name="solid-clock"
             size="12px"
         />
@@ -46,8 +45,9 @@
     </template>
 
     <template #sw-contextual-field-suffix>
-        <sw-icon
+        <mt-icon
             :name="suffixName"
+            size="16px"
             @click.stop="openDatepicker"
         />
     </template>

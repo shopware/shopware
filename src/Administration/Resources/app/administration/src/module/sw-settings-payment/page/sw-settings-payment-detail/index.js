@@ -13,13 +13,10 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
         'customFieldDataProviderService',
-        'feature',
     ],
 
     mixins: [
@@ -253,7 +250,7 @@ export default {
             this.createNotificationError({
                 title: this.$tc('global.default.error'),
                 // eslint-disable-next-line max-len
-                message: `${this.$tc('sw-settings-payment.detail.messageSaveError', 0, { name: this.paymentMethod.name })} ${errorDetails}`,
+                message: `${this.$tc('sw-settings-payment.detail.messageSaveError', { name: this.paymentMethod.name }, 0)} ${errorDetails}`,
             });
         },
 

@@ -1,18 +1,21 @@
-import SharedAdminWorker from 'src/core/worker/admin-worker.shared-worker';
-import AdminWorker from 'src/core/worker/admin-worker.worker';
+// The eslint import resolver vite does not support shared worker imports
+/* eslint-disable import/no-unresolved */
+import SharedAdminWorker from 'src/core/worker/admin-worker.shared-worker?sharedworker';
+import AdminWorker from 'src/core/worker/admin-worker.worker?worker';
+/* eslint-enable import/no-unresolved */
+
 import WorkerNotificationListener from 'src/core/worker/worker-notification-listener';
 import AdminNotificationWorker from 'src/core/worker/admin-notification-worker';
 import getRefreshTokenHelper from 'src/core/helper/refresh-token.helper';
 import type { ApiContext } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import type { App } from 'vue';
 import type { LoginService } from '../../core/service/login.service';
-import type { ContextState } from '../state/context.store';
-import type {
-    NotificationConfig,
-    NotificationService,
-    NotificationWorkerOptions,
-} from '../../core/factory/worker-notification.factory';
+import type { ContextStore } from '../store/context.store';
+import type { NotificationService, NotificationWorkerOptions } from '../../core/factory/worker-notification.factory';
 import type WorkerNotificationFactory from '../../core/factory/worker-notification.factory';
+import type { NotificationType } from '../store/notification.store';
+
+type ContextAppConfig = ContextStore['app']['config'];
 
 let enabled = false;
 let enabledNotification = false;
@@ -33,13 +36,13 @@ export default function initializeWorker() {
 
     function getConfig() {
         return configService.getConfig().then((response) => {
-            Object.entries(response as { [key: string]: unknown }).forEach(
+            Object.entries(response as ContextAppConfig).forEach(
                 ([
                     key,
                     value,
                 ]) => {
-                    Shopware.State.commit('context/addAppConfigValue', {
-                        key,
+                    Shopware.Store.get('context').addAppConfigValue({
+                        key: key as keyof ContextAppConfig,
                         value,
                     });
                 },
@@ -69,7 +72,7 @@ export default function initializeWorker() {
 function enableAdminWorker(
     loginService: LoginService,
     context: ApiContext,
-    config: ContextState['app']['config']['adminWorker'],
+    config: ContextStore['app']['config']['adminWorker'],
 ) {
     // eslint-disable-next-line max-len,@typescript-eslint/no-unsafe-member-access
     const transports = (JSON.parse(JSON.stringify(config))?.transports || []) as string[];
@@ -126,15 +129,14 @@ function getWorker(): SharedWorker {
     // SharedWorker is not supported in all browsers, especially on mobile devices
     if (typeof SharedWorker === 'undefined') {
         // @ts-expect-error
-        worker = new AdminWorker() as Worker;
+        worker = new AdminWorker();
 
         // hack to make the worker api like a shared worker
         // @ts-expect-error
         worker.port = worker;
         worker.port.start = () => {};
     } else {
-        // @ts-expect-error
-        worker = new SharedAdminWorker() as SharedWorker;
+        worker = new SharedAdminWorker();
     }
 
     worker.port.start();
@@ -160,7 +162,7 @@ function getWorker(): SharedWorker {
     return worker;
 }
 
-function enableWorkerNotificationListener(loginService: LoginService, context: ContextState['api']) {
+function enableWorkerNotificationListener(loginService: LoginService, context: ContextStore['api']) {
     let workerNotificationListener = new WorkerNotificationListener(context);
 
     if (loginService.isLoggedIn()) {
@@ -464,7 +466,7 @@ function messageQueueNotification(
         entry.size *= multiplier;
     }
 
-    const config: NotificationConfig = {
+    const config: NotificationType = {
         title: $root.$tc(messages.title),
         message: $root.$tc(messages.message, entry.size),
         variant: 'info',
@@ -503,7 +505,7 @@ function messageQueueNotification(
                 delete foreground.uuid;
                 delete foreground.isLoading;
                 foreground.growl = true;
-                foreground.variant = 'success';
+                foreground.variant = 'positive';
                 void notification.create(foreground);
 
                 ids[key] = {

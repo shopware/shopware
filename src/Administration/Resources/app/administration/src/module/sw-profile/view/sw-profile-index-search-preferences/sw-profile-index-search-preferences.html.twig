@@ -1,21 +1,21 @@
 {% block sw_profile_index_search_preferences %}
 <div class="sw-profile-index-search-preferences">
-    <sw-card
+    <mt-card
         v-if="adminEsEnable"
         class="sw-card-elasticsearch-enabled"
         position-identifier="sw-card-elasticsearch-enabled"
     >
-        <sw-alert
+        <mt-banner
             class="sw-card-elasticsearch-enabled__alert"
             variant="info"
             :title="$tc('sw-profile.tabSearchPreferences.alert_elasticsearch.title')"
         >
             {{ $tc('sw-profile.tabSearchPreferences.alert_elasticsearch.text') }}
-        </sw-alert>
-    </sw-card>
+        </mt-banner>
+    </mt-card>
 
     {% block sw_profile_index_search_preferences_searchable_elements %}
-    <sw-card
+    <mt-card
         class="sw-profile-index-search-preferences-searchable-elements"
         position-identifier="sw-profile-index-search-preferences"
         :title="$tc('sw-profile.tabSearchPreferences.cardSearchableElements.title')"
@@ -35,30 +35,30 @@
                 gap="8px"
             >
                 {% block sw_profile_index_search_preferences_searchable_elements_button_select %}
-                <sw-button
+                <mt-button
                     class="sw-profile-index-search-preferences-searchable-elements__button-select-all"
                     @click="onSelect(true)"
                 >
                     {{ $tc('sw-profile.tabSearchPreferences.cardSearchableElements.buttonSelect') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_profile_index_search_preferences_searchable_elements_button_deselect %}
-                <sw-button
+                <mt-button
                     class="sw-profile-index-search-preferences-searchable-elements__button-deselect-all"
                     @click="onSelect(false)"
                 >
                     {{ $tc('sw-profile.tabSearchPreferences.cardSearchableElements.buttonDeselect') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_profile_index_search_preferences_searchable_elements_button_reset %}
-                <sw-button
+                <mt-button
                     class="sw-profile-index-search-preferences-searchable-elements__button-reset-to-default"
                     @click="onReset"
                 >
                     {{ $tc('sw-profile.tabSearchPreferences.cardSearchableElements.buttonReset') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </sw-container>
             {% endblock %}
@@ -98,7 +98,7 @@
             {% endblock %}
         </sw-container>
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>
 {% endblock %}

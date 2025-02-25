@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import useSystem from '../../../../app/composables/use-system';
 
 async function createWrapper(loginSuccessfull) {
     const wrapper = mount(await wrapTestComponent('sw-login-login', { sync: true }), {
@@ -64,17 +65,10 @@ async function createWrapper(loginSuccessfull) {
                 'sw-password-field': await wrapTestComponent('sw-password-field'),
                 'sw-password-field-deprecated': await wrapTestComponent('sw-password-field-deprecated'),
                 'router-link': true,
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                'sw-alert': await wrapTestComponent('sw-alert', {
-                    sync: true,
-                }),
-                'sw-alert-deprecated': await wrapTestComponent('sw-alert-deprecated', { sync: true }),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
-                'sw-icon': true,
                 'sw-field-copyable': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
@@ -90,6 +84,10 @@ async function createWrapper(loginSuccessfull) {
 
 describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
     let wrapper;
+
+    beforeAll(() => {
+        useSystem().locales.value.push(navigator.language);
+    });
 
     it('should be a Vue.js component', async () => {
         wrapper = await createWrapper(false);
@@ -116,7 +114,7 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
         expect(setTimeout).toHaveBeenCalledTimes(2);
         expect(setTimeout).toHaveBeenLastCalledWith(expect.any(Function), 1000);
 
-        expect(wrapper.get('.sw-alert__message').text()).toBe('["sw-login.index.messageAuthThrottled",0,{"seconds":1}]');
+        expect(wrapper.get('[role="banner"]').text()).toBe('["sw-login.index.messageAuthThrottled",{"seconds":1},0]');
 
         // advance the timer to make the warning disappear
         jest.advanceTimersByTime(1001);

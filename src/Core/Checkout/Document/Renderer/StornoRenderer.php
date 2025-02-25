@@ -10,17 +10,14 @@ use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
-use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Language\LanguageEntity;
-use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -31,15 +28,15 @@ final class StornoRenderer extends AbstractDocumentRenderer
 
     /**
      * @internal
+     *
+     * @param EntityRepository<OrderCollection> $orderRepository
      */
     public function __construct(
         private readonly EntityRepository $orderRepository,
         private readonly DocumentConfigLoader $documentConfigLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly DocumentTemplateRenderer $documentTemplateRenderer,
         private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         private readonly ReferenceInvoiceLoader $referenceInvoiceLoader,
-        private readonly string $rootDir,
         private readonly Connection $connection,
         private readonly DocumentFileRendererRegistry $fileRendererRegistry,
     ) {
@@ -136,7 +133,7 @@ final class StornoRenderer extends AbstractDocumentRenderer
                 ]);
 
                 if ($operation->isStatic()) {
-                    $doc = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
+                    $doc = new RenderedDocument($number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
                     $result->addSuccess($orderId, $doc);
 
                     continue;
@@ -148,28 +145,7 @@ final class StornoRenderer extends AbstractDocumentRenderer
                     throw DocumentException::generationError('Can not generate credit note document because no language exists. OrderId: ' . $operation->getOrderId());
                 }
 
-                /** @var LocaleEntity $locale */
-                $locale = $language->getLocale();
-
-                $html = '';
-                if (!Feature::isActive('v6.7.0.0')) {
-                    $html = $this->documentTemplateRenderer->render(
-                        $template,
-                        [
-                            'order' => $order,
-                            'config' => $config,
-                            'rootDir' => $this->rootDir,
-                            'context' => $context,
-                        ],
-                        $context,
-                        $order->getSalesChannelId(),
-                        $order->getLanguageId(),
-                        $locale->getCode(),
-                    );
-                }
-
                 $doc = new RenderedDocument(
-                    $html,
                     $number,
                     $config->buildName(),
                     $operation->getFileType(),
@@ -180,9 +156,7 @@ final class StornoRenderer extends AbstractDocumentRenderer
                 $doc->setOrder($order);
                 $doc->setContext($context);
 
-                if (Feature::isActive('v6.7.0.0')) {
-                    $doc->setContent($this->fileRendererRegistry->render($doc));
-                }
+                $doc->setContent($this->fileRendererRegistry->render($doc));
 
                 $result->addSuccess($orderId, $doc);
             } catch (\Throwable $exception) {

@@ -10,7 +10,6 @@ async function createWrapper(privileges = []) {
                 'sw-page': await wrapTestComponent('sw-page'),
                 'sw-card-view': await wrapTestComponent('sw-card-view'),
                 'sw-external-link': true,
-                'sw-icon': true,
                 'sw-dashboard-statistics': true,
                 'sw-usage-data-consent-banner': true,
                 'sw-help-text': true,
@@ -61,20 +60,6 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
     let wrapper;
 
     beforeAll(async () => {
-        if (Shopware.State.get('session')) {
-            Shopware.State.unregisterModule('session');
-        }
-
-        Shopware.State.registerModule('session', {
-            state: {
-                currentUser: null,
-            },
-            mutations: {
-                setCurrentUser(state, user) {
-                    state.currentUser = user;
-                },
-            },
-        });
         jest.useFakeTimers('modern');
     });
 
@@ -94,7 +79,7 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        Shopware.State.commit('setCurrentUser', {
+        Shopware.Store.get('session').setCurrentUser({
             firstName: firstName,
         });
         await flushPromises();
@@ -106,7 +91,7 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        Shopware.State.commit('setCurrentUser', {
+        Shopware.Store.get('session').setCurrentUser({
             username: 'username',
         });
         await flushPromises();

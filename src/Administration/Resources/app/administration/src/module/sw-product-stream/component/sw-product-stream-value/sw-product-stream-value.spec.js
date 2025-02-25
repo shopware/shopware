@@ -39,9 +39,6 @@ async function createWrapper(privileges = [], fieldType = null, conditionType = 
             'sw-popover-deprecated': true,
             'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
             'sw-field-error': await wrapTestComponent('sw-field-error'),
-            'sw-icon': {
-                template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
-            },
         };
     }
 

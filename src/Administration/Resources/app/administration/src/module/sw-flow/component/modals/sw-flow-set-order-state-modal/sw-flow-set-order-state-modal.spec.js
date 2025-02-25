@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import flowState from 'src/module/sw-flow/state/flow.state';
 
 /**
  * @sw-package after-sales
@@ -55,10 +54,6 @@ async function createWrapper() {
                     </div>
                 `,
                     },
-                    'sw-button': {
-                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                    },
-                    'sw-icon': true,
                     'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
                     'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
@@ -87,10 +82,6 @@ async function createWrapper() {
 }
 
 describe('module/sw-flow/component/sw-flow-set-order-state-modal', () => {
-    beforeAll(() => {
-        Shopware.State.registerModule('swFlowState', flowState);
-    });
-
     it('should show error notification if no field is selected', async () => {
         const wrapper = await createWrapper();
         wrapper.vm.createNotificationError = jest.fn();

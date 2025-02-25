@@ -4,14 +4,12 @@
 import template from './sw-users-permissions-user-listing.html.twig';
 import './sw-users-permissions-user-listing.scss';
 
-const { Data, Mixin, State } = Shopware;
+const { Data, Mixin } = Shopware;
 const { Criteria } = Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'userService',
@@ -53,7 +51,7 @@ export default {
 
         currentUser: {
             get() {
-                return State.get('session').currentUser;
+                return Shopware.Store.get('session').currentUser;
             },
         },
 
@@ -141,13 +139,17 @@ export default {
             const titleDeleteSuccess = this.$tc('global.default.success');
             const messageDeleteSuccess = this.$tc(
                 'sw-users-permissions.users.user-grid.notification.deleteSuccess.message',
-                0,
                 { name: username },
+                0,
             );
             const titleDeleteError = this.$tc('global.default.error');
-            const messageDeleteError = this.$tc('sw-users-permissions.users.user-grid.notification.deleteError.message', 0, {
-                name: username,
-            });
+            const messageDeleteError = this.$tc(
+                'sw-users-permissions.users.user-grid.notification.deleteError.message',
+                {
+                    name: username,
+                },
+                0,
+            );
             if (user.id === this.currentUser.id) {
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),

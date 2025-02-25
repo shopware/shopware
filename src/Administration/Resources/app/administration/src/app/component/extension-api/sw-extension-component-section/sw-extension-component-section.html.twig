@@ -5,12 +5,11 @@
         :key="componentSection.props.locationId"
     >
         {# These components should not contain a position identifier because it is generally rendered #}
-        <sw-card
+        <mt-card
             v-if="componentSection.component === 'card'"
             position-identifier=""
             :title="$tc(componentSection?.props?.title ?? '')"
             :subtitle="$tc(componentSection?.props?.subtitle ?? '')"
-            :content-padding="componentSection.props?.contentPadding ?? true"
         >
 
             <template
@@ -44,7 +43,7 @@
                 :src="componentSection.src"
                 :location-id="componentSection.props.locationId"
             />
-        </sw-card>
+        </mt-card>
     </template>
 </div>
 {% endblock %}

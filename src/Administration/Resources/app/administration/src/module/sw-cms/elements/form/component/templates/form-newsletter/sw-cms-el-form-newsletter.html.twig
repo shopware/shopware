@@ -16,9 +16,9 @@
         </option>
     </sw-select-field>
 
-    <sw-text-field
+    <mt-text-field
         :label="$tc('sw-cms.elements.form.element.label.email')"
-        :value="$tc('sw-cms.elements.form.element.placeholder.email')"
+        :model-value="$tc('sw-cms.elements.form.element.placeholder.email')"
     />
 
     <div class="sw-cms-el-form-contact-form-group three-items">
@@ -31,14 +31,14 @@
             </option>
         </sw-select-field>
 
-        <sw-text-field
+        <mt-text-field
             :label="$tc('sw-cms.elements.form.element.newsletter.label.firstName')"
-            :value="$tc('sw-cms.elements.form.element.placeholder.firstName')"
+            :model-value="$tc('sw-cms.elements.form.element.placeholder.firstName')"
         />
 
-        <sw-text-field
+        <mt-text-field
             :label="$tc('sw-cms.elements.form.element.newsletter.label.lastName')"
-            :value="$tc('sw-cms.elements.form.element.placeholder.lastName')"
+            :model-value="$tc('sw-cms.elements.form.element.placeholder.lastName')"
         />
     </div>
 

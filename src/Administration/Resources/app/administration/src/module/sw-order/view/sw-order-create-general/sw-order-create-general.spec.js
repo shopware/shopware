@@ -1,6 +1,5 @@
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-order/mixin/cart-notification.mixin';
-import orderStore from 'src/module/sw-order/state/order.store';
 
 /**
  * @sw-package checkout
@@ -11,7 +10,7 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-card-view': true,
-                'sw-card': {
+                'mt-card': {
                     template: `
                         <div class="sw-card__content">
                             <slot name="grid"></slot>
@@ -35,15 +34,6 @@ async function createWrapper() {
                 'sw-order-line-items-grid-sales-channel': true,
                 'sw-extension-component-section': true,
                 'sw-order-create-general-info': true,
-                'sw-icon': true,
-                'sw-button': {
-                    emits: ['click'],
-                    template: `
-                        <button class="sw-button" @click="$emit('click')">
-                            <slot />
-                        </button>
-                    `,
-                },
             },
         },
     });
@@ -51,11 +41,7 @@ async function createWrapper() {
 
 describe('src/module/sw-order/view/sw-order-create-general', () => {
     beforeEach(() => {
-        if (Shopware.State.get('swOrder')) {
-            Shopware.State.unregisterModule('swOrder');
-        }
-
-        Shopware.State.registerModule('swOrder', orderStore);
+        Shopware.Store.get('swOrder').$reset();
     });
 
     it('should be show successful notification', async () => {
@@ -63,7 +49,7 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
 
         wrapper.vm.createNotificationSuccess = jest.fn();
 
-        Shopware.State.commit('swOrder/setCart', {
+        Shopware.Store.get('swOrder').setCart({
             token: null,
             lineItems: [],
             errors: {
@@ -89,7 +75,7 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
 
         wrapper.vm.createNotificationError = jest.fn();
 
-        Shopware.State.commit('swOrder/setCart', {
+        Shopware.Store.get('swOrder').setCart({
             token: null,
             lineItems: [],
             errors: {
@@ -115,7 +101,7 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
 
         wrapper.vm.createNotificationWarning = jest.fn();
 
-        Shopware.State.commit('swOrder/setCart', {
+        Shopware.Store.get('swOrder').setCart({
             token: null,
             lineItems: [],
             errors: {
@@ -139,7 +125,7 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
     it('should only display Total row when status is tax free', async () => {
         const wrapper = await createWrapper();
 
-        Shopware.State.commit('swOrder/setCart', {
+        Shopware.Store.get('swOrder').setCart({
             token: null,
             lineItems: [],
             price: {
@@ -158,7 +144,7 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
     it('should display Total excluding VAT and Total including VAT row when tax status is not tax free', async () => {
         const wrapper = await createWrapper();
 
-        Shopware.State.commit('swOrder/setCart', {
+        Shopware.Store.get('swOrder').setCart({
             token: null,
             lineItems: [],
         });
@@ -174,7 +160,7 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
     it('should able to edit shipping cost', async () => {
         const wrapper = await createWrapper();
 
-        Shopware.State.commit('swOrder/setCart', {
+        Shopware.Store.get('swOrder').setCart({
             token: null,
             lineItems: [],
             price: {
@@ -202,7 +188,7 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
         await saveableField.trigger('input');
         await flushPromises();
 
-        button = wrapper.find('.sw-order-saveable-field .sw-button[variant="primary"]');
+        button = wrapper.findByAriaLabel('button', 'global.default.save');
         await button.trigger('click');
         await flushPromises();
 

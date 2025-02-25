@@ -1,0 +1,36 @@
+{% block sw_order_save_changes_beforehand_modal %}
+<sw-modal
+    :title="$tc('sw-order.saveChangesBeforehandModal.headline')"
+    variant="small"
+    @modal-close="onCancel"
+>
+
+    {% block sw_order_save_changes_beforehand_modal_content %}
+    <slot>
+    </slot>
+    {% endblock %}
+
+    <template #modal-footer>
+        {% block sw_order_save_changes_beforehand_modal_actions %}
+        {% block sw_order_save_changes_beforehand_modal_action_cancel %}
+        <mt-button
+            size="small"
+            @click="onCancel"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_order_save_changes_beforehand_modal_action_confirm %}
+        <mt-button
+            variant="primary"
+            size="small"
+            @click="onConfirm"
+        >
+            {{ $tc('sw-order.saveChangesBeforehandModal.confirmButton') }}
+        </mt-button>
+        {% endblock %}
+        {% endblock %}
+    </template>
+</sw-modal>
+{% endblock %}

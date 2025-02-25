@@ -51,7 +51,7 @@ async function createWrapper(activeTab = 'content') {
                     'sw-media-modal-v2': true,
                     'sw-media-list-selection-v2': await wrapTestComponent('sw-media-list-selection-v2'),
                     'sw-field': true,
-                    'sw-switch-field': true,
+
                     'sw-select-field': {
                         // eslint-disable-next-line max-len
                         template:
@@ -62,7 +62,7 @@ async function createWrapper(activeTab = 'content') {
                         ],
                     },
                     'sw-text-field': true,
-                    'sw-alert': true,
+
                     'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field'),
                     'sw-upload-listener': true,
                     'sw-media-upload-v2': true,
@@ -73,7 +73,6 @@ async function createWrapper(activeTab = 'content') {
                     'sw-loader': true,
                     'sw-context-button': true,
                     'sw-context-menu-item': true,
-                    'sw-icon': true,
                 },
             },
             props: {

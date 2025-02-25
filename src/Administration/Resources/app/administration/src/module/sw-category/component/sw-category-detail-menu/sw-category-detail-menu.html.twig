@@ -1,5 +1,5 @@
 {% block sw_category_detail_menu %}
-<sw-card
+<mt-card
     class="sw-category-detail-base__menu"
     position-identifier="sw-category-detail-menu"
     :title="$tc('sw-category.base.menu.title')"
@@ -7,8 +7,9 @@
 >
 
     {% block sw_category_detail_information_visible %}
-    <sw-switch-field
-        v-model:value="reversedVisibility"
+
+    <mt-switch
+        v-model="reversedVisibility"
         borderd
         :disabled="!acl.can('category.editor')"
         :label="$tc('sw-category.base.menu.visible')"
@@ -48,9 +49,9 @@
     {% endblock %}
 
     {% block sw_category_detail_menu_description %}
-    <sw-text-editor
+    <mt-text-editor
         :key="category.id + 'description'"
-        v-model:value="category.description"
+        v-model="category.description"
         class="sw-category-detail-base__description"
         type="textarea"
         :disabled="!acl.can('category.editor')"
@@ -60,5 +61,5 @@
         :placeholder="$tc('sw-category.base.menu.descriptionPlaceholder')"
     />
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

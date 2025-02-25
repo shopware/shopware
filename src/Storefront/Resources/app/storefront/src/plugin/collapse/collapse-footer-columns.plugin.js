@@ -1,7 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
-import DomAccess from 'src/helper/dom-access.helper';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
-import Iterator from 'src/helper/iterator.helper';
 
 /**
  * @sw-package framework
@@ -40,8 +38,8 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
     _onViewportHasChanged() {
         const event = 'click';
 
-        Iterator.iterate(this._columns, column => {
-            const trigger = DomAccess.querySelector(column, this.options.collapseColumnTriggerSelector);
+        this._columns.forEach(column => {
+            const trigger = column.querySelector(this.options.collapseColumnTriggerSelector);
 
             // remove possibly existing event listeners
             trigger.removeEventListener(event, this._onClickCollapseTrigger);

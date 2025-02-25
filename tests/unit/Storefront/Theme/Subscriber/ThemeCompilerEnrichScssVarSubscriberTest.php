@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Exception\InvalidArgumentException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\Test\Stub\Doctrine\TestExceptionFactory;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -76,7 +77,7 @@ class ThemeCompilerEnrichScssVarSubscriberTest extends TestCase
 
     public function testDBException(): void
     {
-        $this->configService->method('getResolvedConfiguration')->willThrowException(new DBALException('test'));
+        $this->configService->method('getResolvedConfiguration')->willThrowException(TestExceptionFactory::createException('test'));
         $this->storefrontPluginRegistry->method('getConfigurations')->willReturn(
             new StorefrontPluginConfigurationCollection([
                 new StorefrontPluginConfiguration('test'),

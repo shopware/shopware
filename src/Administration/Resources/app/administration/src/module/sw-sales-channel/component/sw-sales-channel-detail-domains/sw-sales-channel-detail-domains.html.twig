@@ -1,5 +1,5 @@
 {% block sw_sales_channel_detail_domains %}
-<sw-card
+<mt-card
     :title="$tc('sw-sales-channel.detail.titleDomains')"
     class="sw-sales-channel-detail-domains"
     position-identifier="sw-sales-channel-detail-domains"
@@ -16,14 +16,14 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_domains_add_button %}
-        <sw-button
+        <mt-button
             size="small"
             :disabled="disableEdit || undefined"
             class="sw-sales-channel-detail__button-domain-add"
             @click="onClickOpenCreateDomainModal"
         >
             {{ $tc('sw-sales-channel.detail.buttonAddDomain') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </div>
     {% endblock %}
@@ -184,23 +184,23 @@
 
         <template #modal-footer>
             {% block sw_sales_channel_detail_domains_create_action_cancel %}
-            <sw-button
+            <mt-button
                 size="small"
                 @click="onCloseCreateDomainModal"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_sales_channel_detail_domains_create_action_create %}
-            <sw-button
+            <mt-button
                 size="small"
                 variant="primary"
                 :disabled="disabled"
                 @click="onClickAddNewDomain"
             >
                 {{ currentDomainModalButtonText }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
     </sw-modal>
@@ -215,32 +215,32 @@
     >
 
         {% block sw_sales_channel_detail_domains_delete_modal_confirm_text %}
-        {{ $tc('sw-sales-channel.detail.textConfirmDeleteDomain', 0, { url: unicodeUriFilter(deleteDomain.url) }) }}
+        {{ $tc('sw-sales-channel.detail.textConfirmDeleteDomain', { url: unicodeUriFilter(deleteDomain.url) }, 0) }}
         {% endblock %}
 
         {% block sw_sales_channel_detail_domains_delete_modal_footer %}
         <template #modal-footer>
             {% block sw_sales_channel_detail_domains_delete_modal_abort %}
-            <sw-button
+            <mt-button
                 size="small"
                 @click="onCloseDeleteDomainModal"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_sales_channel_detail_domains_delete_modal_confirm %}
-            <sw-button
+            <mt-button
                 size="small"
-                variant="danger"
+                variant="critical"
                 @click="onConfirmDeleteDomain(deleteDomain)"
             >
                 {{ $tc('sw-sales-channel.detail.buttonConfirmDeleteDomain') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
         {% endblock %}
     </sw-modal>
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

@@ -12,6 +12,7 @@ async function createWrapper(activeTab = 'content', sliderItems = []) {
             sync: true,
         }),
         {
+            attachTo: document.body,
             global: {
                 renderStubDefaultSlot: true,
                 provide: {
@@ -59,8 +60,7 @@ async function createWrapper(activeTab = 'content', sliderItems = []) {
                     'sw-number-field': true,
                     'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field'),
                     'sw-media-list-selection-v2': await wrapTestComponent('sw-media-list-selection-v2'),
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
@@ -201,12 +201,22 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         expect(wrapper.vm.element.config.isDecorative.value).toBe(false);
     });
 
+    /**
+     * Re-implement after properly implementing/fixing auto slide.
+     * This feature is currently unusable, since it's unstyled and re-enables itself, while creating broken states.
+     */
+    // eslint-disable-next-line jest/no-disabled-tests
     it.skip('should be able to show auto slide switch', async () => {
         const wrapper = await createWrapper('settings');
         const autoSlideOption = wrapper.find('.sw-cms-el-config-image-slider__setting-auto-slide');
         expect(autoSlideOption.exists()).toBeTruthy();
     });
 
+    /**
+     * Re-implement after properly implementing/fixing auto slide.
+     * This feature is currently unusable, since it's unstyled and re-enables itself, while creating broken states.
+     */
+    // eslint-disable-next-line jest/no-disabled-tests
     it.skip('should disable delay element and speed element when auto slide switch is falsy', async () => {
         const wrapper = await createWrapper('settings');
         const delaySlide = wrapper.find('.sw-cms-el-config-image-slider__setting-delay-slide');
@@ -215,6 +225,11 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         expect(speedSlide.attributes().disabled).toBe('true');
     });
 
+    /**
+     * Re-implement after properly implementing/fixing auto slide.
+     * This feature is currently unusable, since it's unstyled and re-enables itself, while creating broken states.
+     */
+    // eslint-disable-next-line jest/no-disabled-tests
     it.skip('should not disable delay element and speed element when auto slide switch is truthy', async () => {
         const wrapper = await createWrapper('settings');
         await flushPromises();

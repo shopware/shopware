@@ -12,8 +12,9 @@
         gap="0 32px"
     >
         {% block sw_import_export_edit_profile_general_container_name %}
-        <sw-text-field
-            v-model:value="profile.label"
+
+        <mt-text-field
+            v-model="profile.label"
             :label="$tc('sw-import-export.profile.profileNameFieldLabel')"
             required
             :disabled="profile.systemDefault"
@@ -23,8 +24,9 @@
         {% endblock %}
 
         {% block sw_import_export_edit_profile_general_container_technical_name %}
-        <sw-text-field
-            v-model:value="profile.technicalName"
+
+        <mt-text-field
+            v-model="profile.technicalName"
             :label="$tc('sw-import-export.profile.technicalNameFieldLabel')"
             required
             :disabled="profile.systemDefault"

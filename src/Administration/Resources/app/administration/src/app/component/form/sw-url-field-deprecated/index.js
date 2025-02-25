@@ -27,8 +27,6 @@ Component.extend('sw-url-field-deprecated', 'sw-text-field-deprecated', {
 
     inheritAttrs: false,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['feature'],
 
     emits: [

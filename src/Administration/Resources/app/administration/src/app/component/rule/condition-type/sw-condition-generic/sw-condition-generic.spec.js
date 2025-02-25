@@ -76,7 +76,6 @@ async function createWrapper(condition = {}) {
                 'sw-context-menu-item': true,
                 'sw-field-error': true,
                 'sw-condition-type-select': true,
-                'sw-icon': true,
                 'sw-loader': true,
                 'sw-label': true,
                 'sw-highlight-text': true,
@@ -91,7 +90,6 @@ async function createWrapper(condition = {}) {
                 'sw-help-text': true,
                 'sw-product-variant-info': true,
                 'sw-inheritance-switch': true,
-                'sw-button': true,
                 'sw-field-copyable': true,
             },
             provide: {
@@ -115,7 +113,7 @@ async function createWrapper(condition = {}) {
 
 describe('components/rule/condition-type/sw-condition-generic', () => {
     beforeEach(() => {
-        Shopware.State.commit('ruleConditionsConfig/setConfig', ruleConditionsConfig);
+        Shopware.Store.get('ruleConditionsConfig').config = ruleConditionsConfig;
     });
 
     it('should render fields and set condition values on change', async () => {

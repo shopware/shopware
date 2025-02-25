@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-extension/mixin/sw-extension-error.mixin';
+import findByText from '../../../../../test/_helper_/find-by-text';
 
 const setLocaleWithIdMock = jest.fn(() => Promise.resolve({}));
 
@@ -102,8 +103,6 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () =
                         'sw-container': await wrapTestComponent('sw-container'),
                         'sw-plugin-card': await wrapTestComponent('sw-plugin-card'),
                         'sw-button-process': await wrapTestComponent('sw-button-process'),
-                        'sw-button': await wrapTestComponent('sw-button'),
-                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                         'sw-modal': await wrapTestComponent('sw-modal'),
                         'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
                         'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
@@ -115,7 +114,6 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () =
                         'sw-text-field': await wrapTestComponent('sw-text-field'),
                         'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                         'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                        'sw-icon': true,
                         'sw-loader': true,
                         'sw-extension-icon': await wrapTestComponent('sw-extension-icon'),
                         'router-link': true,
@@ -178,13 +176,13 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () =
     }
 
     beforeAll(() => {
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
         }
 
-        Shopware.State.registerModule('context', {
-            namespaced: true,
-            state: {
+        Shopware.Store.register({
+            id: 'context',
+            state: () => ({
                 app: {
                     config: {
                         settings: {
@@ -198,7 +196,7 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () =
                         token: 'testToken',
                     },
                 },
-            },
+            }),
         });
     });
 
@@ -221,7 +219,7 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () =
 
         const selectedLanguage = languageSelect.find('option:checked').element.value;
         await modal.find('input[type="password"]').setValue('p4ssw0rd');
-        await modal.find('.sw-button--primary').trigger('click');
+        await findByText(modal, 'button', 'sw-first-run-wizard.welcome.confirmLanguageSwitch').trigger('click');
 
         expect(setLocaleWithIdMock).toHaveBeenCalledWith(selectedLanguage);
     });

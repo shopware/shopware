@@ -31,8 +31,6 @@ const { Filter } = Shopware;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['image-change'],
 
     props: {
@@ -330,10 +328,14 @@ export default {
         },
 
         imageAlt(index) {
-            return this.$tc('sw-image-slider.imageAlt', 0, {
-                index: index + 1,
-                total: this.images.length,
-            });
+            return this.$tc(
+                'sw-image-slider.imageAlt',
+                {
+                    index: index + 1,
+                    total: this.images.length,
+                },
+                0,
+            );
         },
 
         goToPreviousImage() {

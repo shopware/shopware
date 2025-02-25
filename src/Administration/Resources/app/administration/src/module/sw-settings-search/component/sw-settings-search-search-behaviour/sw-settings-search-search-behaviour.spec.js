@@ -41,7 +41,6 @@ async function createWrapper(privileges = []) {
                 },
 
                 stubs: {
-                    'sw-card': true,
                     'sw-radio-field': await wrapTestComponent('sw-radio-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-field-error': true,

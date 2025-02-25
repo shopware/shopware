@@ -56,17 +56,11 @@ describe('components/data-grid/sw-data-grid', () => {
         }
 
         stubs = {
-            'sw-switch-field': await wrapTestComponent('sw-switch-field', {
-                sync: true,
-            }),
-            'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
             'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', {
                 sync: true,
             }),
             'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
             'sw-data-grid-settings': await wrapTestComponent('sw-data-grid-settings', { sync: true }),
-            'sw-icon': await wrapTestComponent('sw-icon', { sync: true }),
-            'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated', { sync: true }),
             'sw-context-button': await wrapTestComponent('sw-context-button', {
                 sync: true,
             }),
@@ -74,8 +68,6 @@ describe('components/data-grid/sw-data-grid', () => {
                 sync: true,
             }),
             'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item', { sync: true }),
-            'sw-button': await wrapTestComponent('sw-button', { sync: true }),
-            'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
             'sw-popover': await wrapTestComponent('sw-popover'),
             'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
             'sw-base-field': await wrapTestComponent('sw-base-field', {
@@ -89,11 +81,9 @@ describe('components/data-grid/sw-data-grid', () => {
             'router-link': true,
             'sw-data-grid-skeleton': true,
             'mt-checkbox': true,
-            'mt-icon': true,
             'sw-inheritance-switch': true,
             'sw-ai-copilot-badge': true,
             'sw-help-text': true,
-            'mt-button': true,
             'sw-loader': true,
             'mt-floating-ui': true,
             'mt-switch': true,
@@ -134,16 +124,11 @@ describe('components/data-grid/sw-data-grid', () => {
 
     beforeAll(async () => {
         stubs = {
-            'sw-switch-field': await wrapTestComponent('sw-switch-field', {
-                sync: true,
-            }),
-            'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
             'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', {
                 sync: true,
             }),
             'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
             'sw-data-grid-settings': await wrapTestComponent('sw-data-grid-settings', { sync: true }),
-            'sw-icon': true,
             'sw-context-button': await wrapTestComponent('sw-context-button', {
                 sync: true,
             }),
@@ -151,8 +136,6 @@ describe('components/data-grid/sw-data-grid', () => {
                 sync: true,
             }),
             'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item', { sync: true }),
-            'sw-button': await wrapTestComponent('sw-button', { sync: true }),
-            'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
             'sw-popover': await wrapTestComponent('sw-popover'),
             'sw-base-field': await wrapTestComponent('sw-base-field', {
                 sync: true,
@@ -165,11 +148,9 @@ describe('components/data-grid/sw-data-grid', () => {
             'router-link': true,
             'sw-data-grid-skeleton': true,
             'mt-checkbox': true,
-            'mt-icon': true,
             'sw-inheritance-switch': true,
             'sw-ai-copilot-badge': true,
             'sw-help-text': true,
-            'mt-button': true,
             'sw-loader': true,
             'mt-floating-ui': true,
             'mt-switch': true,
@@ -1006,8 +987,8 @@ describe('components/data-grid/sw-data-grid', () => {
             ],
         });
         expect(wrapper.find('.sw-data-grid__cell--icon-label').exists()).toBe(true);
-        expect(wrapper.find('.sw-data-grid__cell--icon-label .sw-icon').classes()).toContain('icon--regular-file-text');
-        expect(wrapper.find('.sw-data-grid__cell--icon-label .sw-icon').attributes()).not.toContain('data-tooltip-message');
+        expect(wrapper.find('.sw-data-grid__cell--icon-label .mt-icon').classes()).toContain('icon--regular-file-text');
+        expect(wrapper.find('.sw-data-grid__cell--icon-label .mt-icon').attributes()).not.toContain('data-tooltip-message');
     });
 
     it('should render icon column header with tooltip', async () => {
@@ -1027,8 +1008,8 @@ describe('components/data-grid/sw-data-grid', () => {
         });
 
         expect(wrapper.find('.sw-data-grid__cell--icon-label').exists()).toBe(true);
-        expect(wrapper.find('.sw-data-grid__cell--icon-label .sw-icon').classes()).toContain('icon--regular-file-text');
-        expect(wrapper.find('.sw-data-grid__cell--icon-label .sw-icon').attributes('data-tooltip-message')).toBe(
+        expect(wrapper.find('.sw-data-grid__cell--icon-label .mt-icon').classes()).toContain('icon--regular-file-text');
+        expect(wrapper.find('.sw-data-grid__cell--icon-label .mt-icon').attributes('data-tooltip-message')).toBe(
             'tooltip message',
         );
     });

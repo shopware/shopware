@@ -44,7 +44,6 @@ class HtmlRendererTest extends TestCase
         );
 
         $rendered = new RenderedDocument(
-            'html',
             '1001',
             InvoiceRenderer::TYPE,
             HtmlRenderer::FILE_EXTENSION,
@@ -84,7 +83,6 @@ class HtmlRendererTest extends TestCase
         ';
 
         $rendered = new RenderedDocument(
-            $html,
             '1001',
             InvoiceRenderer::TYPE,
             HtmlRenderer::FILE_EXTENSION,
@@ -95,12 +93,9 @@ class HtmlRendererTest extends TestCase
         $rendered->setContext(Context::createDefaultContext());
         $rendered->setOrder($this->getOrder());
 
-        static::assertStringContainsString('<html lang="en-GB">', $rendered->getHtml());
-        static::assertStringContainsString('</html>', $rendered->getHtml());
-        static::assertStringContainsString('DOMPDF_PAGE_COUNT_PLACEHOLDER', $rendered->getHtml());
-
         $documentTemplateRenderer = $this->createMock(DocumentTemplateRenderer::class);
-        $documentTemplateRenderer->expects(static::once())
+        $documentTemplateRenderer
+            ->expects(static::once())
             ->method('render')
             ->willReturn($html);
 
@@ -122,7 +117,6 @@ class HtmlRendererTest extends TestCase
     public function testRenderWithoutHtmlFormat(): void
     {
         $rendered = new RenderedDocument(
-            'html',
             '1001',
             InvoiceRenderer::TYPE,
             HtmlRenderer::FILE_EXTENSION,
@@ -147,10 +141,9 @@ class HtmlRendererTest extends TestCase
 
     public function testRenderThrowException(): void
     {
-        static::expectException(DocumentException::class);
+        $this->expectException(DocumentException::class);
 
         $rendered = new RenderedDocument(
-            '',
             '1001',
             InvoiceRenderer::TYPE,
         );

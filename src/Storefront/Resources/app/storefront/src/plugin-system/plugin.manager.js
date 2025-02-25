@@ -1,9 +1,7 @@
 import deepmerge from 'deepmerge';
 import PluginRegistry from 'src/plugin-system/plugin.registry';
 import PluginBaseClass from 'src/plugin-system/plugin.class';
-import DomAccess from 'src/helper/dom-access.helper';
 import 'src/plugin-system/plugin.config.manager';
-import Iterator from 'src/helper/iterator.helper';
 
 /**
  * this file handles the plugin functionality of shopware
@@ -192,7 +190,7 @@ class PluginManagerSingleton {
      * @returns {Map|null}
      */
     static getPluginInstancesFromElement(el) {
-        if (!DomAccess.isNode(el)) {
+        if (!(el instanceof HTMLElement)) {
             throw new Error('Passed element is not an Html element!');
         }
 
@@ -281,7 +279,7 @@ class PluginManagerSingleton {
 
                 let selector = entry.selector;
 
-                if (DomAccess.isNode(selector)) {
+                if (selector instanceof HTMLElement) {
                     queue.push({ pluginName: pluginName, pluginClassPromise: plugin.get('class') });
                     continue;
                 }
@@ -332,7 +330,7 @@ class PluginManagerSingleton {
         }
 
         let needsFetch = false;
-        if (DomAccess.isNode(selector)) {
+        if (selector instanceof HTMLElement) {
             needsFetch = true;
         }
 
@@ -396,7 +394,7 @@ class PluginManagerSingleton {
      * @param {string} pluginName
      */
     _initializePlugin(pluginClass, selector, options, pluginName = false) {
-        if (DomAccess.isNode(selector)) {
+        if (selector instanceof HTMLElement) {
             return PluginManagerSingleton._initializePluginOnElement(selector, pluginClass, options, pluginName);
         }
 
@@ -404,7 +402,7 @@ class PluginManagerSingleton {
             selector = PluginManagerSingleton._queryElements(selector);
         }
 
-        return Iterator.iterate(selector, el => {
+        return Array.from(selector).forEach(el => {
             PluginManagerSingleton._initializePluginOnElement(el, pluginClass, options, pluginName);
         });
     }

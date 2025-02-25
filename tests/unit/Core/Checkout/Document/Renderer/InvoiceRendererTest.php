@@ -21,7 +21,6 @@ use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
-use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
@@ -35,7 +34,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
@@ -79,7 +77,7 @@ class InvoiceRendererTest extends TestCase
         $documentConfigRepository = $this->createMock(EntityRepository::class);
         $documentConfigRepository->method('search')->willReturn($documentConfigSearchResult);
 
-        $documentConfigLoaderMock = new DocumentConfigLoader($documentConfigRepository);
+        $documentConfigLoaderMock = new DocumentConfigLoader($documentConfigRepository, $this->createMock(EntityRepository::class));
 
         $ordersLanguageId = [
             [
@@ -93,16 +91,11 @@ class InvoiceRendererTest extends TestCase
         $orderRepositoryMock = $this->createMock(EntityRepository::class);
         $orderRepositoryMock->method('search')->willReturn($orderSearchResult);
 
-        $documentTemplateRenderer = $this->createMock(DocumentTemplateRenderer::class);
-        $documentTemplateRenderer->method('render')->willReturn('HTML');
-
         $invoiceRenderer = new InvoiceRenderer(
             $orderRepositoryMock,
             $documentConfigLoaderMock,
             $this->createMock(EventDispatcherInterface::class),
-            $documentTemplateRenderer,
             $this->createMock(NumberRangeValueGeneratorInterface::class),
-            '',
             $connectionMock,
             $this->createMock(DocumentFileRendererRegistry::class),
         );
@@ -183,16 +176,11 @@ class InvoiceRendererTest extends TestCase
             return $orderSearchResult;
         });
 
-        $documentTemplateRenderer = $this->createMock(DocumentTemplateRenderer::class);
-        $documentTemplateRenderer->method('render')->willReturn('HTML');
-
         $invoiceRenderer = new InvoiceRenderer(
             $orderRepositoryMock,
-            new DocumentConfigLoader($this->createMock(EntityRepository::class)),
+            new DocumentConfigLoader($this->createMock(EntityRepository::class), $this->createMock(EntityRepository::class)),
             $this->createMock(EventDispatcherInterface::class),
-            $documentTemplateRenderer,
             $this->createMock(NumberRangeValueGeneratorInterface::class),
-            '',
             $connectionMock,
             $this->createMock(DocumentFileRendererRegistry::class),
         );
@@ -208,8 +196,6 @@ class InvoiceRendererTest extends TestCase
 
     public function testDoNotForceDocumentCreation(): void
     {
-        Feature::skipTestIfInActive('v6.7.0.0', $this);
-
         $context = Context::createDefaultContext();
 
         $document = new DocumentEntity();
@@ -240,18 +226,13 @@ class InvoiceRendererTest extends TestCase
         $orderRepositoryMock = $this->createMock(EntityRepository::class);
         $orderRepositoryMock->method('search')->willReturn($orderSearchResult);
 
-        $documentTemplateRenderer = $this->createMock(DocumentTemplateRenderer::class);
-        $documentTemplateRenderer->expects(static::never())->method('render');
-
-        $documentConfigLoaderMock = new DocumentConfigLoader($this->createMock(EntityRepository::class));
+        $documentConfigLoaderMock = new DocumentConfigLoader($this->createMock(EntityRepository::class), $this->createMock(EntityRepository::class));
 
         $invoiceRenderer = new InvoiceRenderer(
             $orderRepositoryMock,
             $documentConfigLoaderMock,
             $this->createMock(EventDispatcherInterface::class),
-            $documentTemplateRenderer,
             $this->createMock(NumberRangeValueGeneratorInterface::class),
-            '',
             $connectionMock,
             $this->createMock(DocumentFileRendererRegistry::class),
         );

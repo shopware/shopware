@@ -1,6 +1,5 @@
 import AjaxModalPlugin from 'src/plugin/ajax-modal/ajax-modal.plugin';
 import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
-import DomAccess from 'src/helper/dom-access.helper';
 import LoadingIndicatorUtil from 'src/utility/loading-indicator/loading-indicator.util';
 
 /**
@@ -18,7 +17,9 @@ describe('AjaxModalPlugin tests', () => {
 
         const mockElement = document.createElement('div');
 
-        document.body.insertAdjacentElement = jest.fn();
+        document.body.insertAdjacentElement = jest.fn((position, el) => {
+            document.body.appendChild(el);
+        });
 
         // init ajax modal plugins
         ajaxModalPlugin = new AjaxModalPlugin(mockElement);
@@ -82,34 +83,55 @@ describe('AjaxModalPlugin tests', () => {
     });
 
     test('_onClickHandleAjaxModal will create a modal window and load its content', () => {
+        document.body.innerHTML = `
+            <!-- This is the modal trigger -->
+            <a
+                data-ajax-modal="true"
+                data-url="/widgets/cms/contact-form-id"
+                data-prev-url="/widgets/cms/prev-id"
+                href="/widgets/cms/contact-form-id"
+            >
+                Open ajax modal
+            </a>
+
+            <div class="js-pseudo-modal-template">
+                <div class="modal modal-lg fade" tabindex="-1" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header only-close">
+                                <div class="modal-title js-pseudo-modal-template-title-element h5">Modal Title</div>
+                                <button type="button" class="btn-close close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body js-pseudo-modal-template-content-element">Modal Content</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
         const event = new Event('foo', { cancelable: true });
 
         event.preventDefault = jest.fn();
         event.stopPropagation = jest.fn();
 
-        const element = document.createElement('div');
+        ajaxModalPlugin = new AjaxModalPlugin(document.querySelector('[data-ajax-modal]'));
 
         ajaxModalPlugin._openModal = jest.fn();
         ajaxModalPlugin._loadModalContent = jest.fn();
 
         ajaxModalPlugin.options.centerLoadingIndicatorClass = 'foo';
 
-        // Mock the DomAccess.querySelector method only in this test case
-        const mockDomAccess = jest.spyOn(DomAccess, 'querySelector');
-        mockDomAccess.mockImplementation(() => {
-            return element;
-        });
-
         ajaxModalPlugin._onClickHandleAjaxModal(event);
 
-        expect(element.classList).toContain('foo');
+        const pseudoModal = document.querySelector('.js-pseudo-modal');
+        const modalBody = pseudoModal.querySelector('.modal-body');
+
+        expect(modalBody.classList).toContain('foo');
 
         expect(event.preventDefault).toBeCalled();
         expect(event.stopPropagation).toBeCalled();
         expect(ajaxModalPlugin._openModal).toBeCalled();
         expect(ajaxModalPlugin._loadModalContent).toBeCalled();
-
-        mockDomAccess.mockRestore();
     });
 
     test('_loadModalContent will create a loading indicator and load the actual request', () => {

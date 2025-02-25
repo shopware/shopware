@@ -18,14 +18,4 @@ class PluginNotFoundException extends PluginException
             ['name' => $pluginName]
         );
     }
-
-    public function getErrorCode(): string
-    {
-        return 'FRAMEWORK__PLUGIN_NOT_FOUND';
-    }
-
-    public function getStatusCode(): int
-    {
-        return Response::HTTP_NOT_FOUND;
-    }
 }

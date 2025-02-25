@@ -11,8 +11,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'exportTemplateService',
@@ -76,11 +74,6 @@ export default {
             this.productComparison.newProductExport.generateByCronjob = false;
 
             return this.productComparison.newProductExport;
-        },
-
-        /** @deprecated tag:v6.7.0 - Use `isStorefront` instead */
-        isStoreFront() {
-            return this.isStorefront;
         },
 
         isStorefront() {
@@ -321,19 +314,19 @@ export default {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
 
-                if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                    this.$root.$emit('sales-channel-change');
-                } else {
-                    Shopware.Utils.EventBus.emit('sw-sales-channel-detail-sales-channel-change');
-                }
+                Shopware.Utils.EventBus.emit('sw-sales-channel-detail-sales-channel-change');
                 this.loadEntityData();
             } catch (error) {
                 this.isLoading = false;
 
                 this.createNotificationError({
-                    message: this.$tc('sw-sales-channel.detail.messageSaveError', 0, {
-                        name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name'),
-                    }),
+                    message: this.$tc(
+                        'sw-sales-channel.detail.messageSaveError',
+                        {
+                            name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name'),
+                        },
+                        0,
+                    ),
                 });
             }
         },

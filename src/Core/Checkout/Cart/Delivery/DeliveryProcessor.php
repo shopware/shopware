@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -25,37 +26,15 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
     final public const SKIP_DELIVERY_TAX_RECALCULATION = 'skipDeliveryTaxRecalculation';
 
     /**
-     * @var DeliveryBuilder
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $builder;
-
-    /**
-     * @var DeliveryCalculator
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $deliveryCalculator;
-
-    /**
-     * @var EntityRepository
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingMethodRepository;
-
-    /**
      * @internal
+     *
+     * @param EntityRepository<ShippingMethodCollection> $shippingMethodRepository
      */
     public function __construct(
-        DeliveryBuilder $builder,
-        DeliveryCalculator $deliveryCalculator,
-        EntityRepository $shippingMethodRepository
+        protected DeliveryBuilder $builder,
+        protected DeliveryCalculator $deliveryCalculator,
+        protected EntityRepository $shippingMethodRepository
     ) {
-        $this->builder = $builder;
-        $this->deliveryCalculator = $deliveryCalculator;
-        $this->shippingMethodRepository = $shippingMethodRepository;
     }
 
     public static function buildKey(string $shippingMethodId): string

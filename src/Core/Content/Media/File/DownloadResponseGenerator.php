@@ -22,15 +22,6 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 #[Package('discovery')]
 class DownloadResponseGenerator
 {
-    /**
-     * @deprecated tag:v6.7.0 - Constant will be removed, use DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY instead
-     */
-    final public const X_SENDFILE_DOWNLOAD_STRATEGRY = self::X_SENDFILE_DOWNLOAD_STRATEGY;
-    /**
-     * @deprecated tag:v6.7.0 - Constant will be removed, use DownloadResponseGenerator::X_ACCEL_DOWNLOAD_STRATEGY instead
-     */
-    final public const X_ACCEL_DOWNLOAD_STRATEGRY = self::X_ACCEL_DOWNLOAD_STRATEGY;
-
     final public const X_SENDFILE_DOWNLOAD_STRATEGY = 'x-sendfile';
     final public const X_ACCEL_DOWNLOAD_STRATEGY = 'x-accel';
     final public const X_ACCEL_REDIRECT = 'X-Accel-Redirect';

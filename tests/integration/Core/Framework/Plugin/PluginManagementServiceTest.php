@@ -201,7 +201,7 @@ class PluginManagementServiceTest extends TestCase
             $this->cacheDir,
             'test',
             false,
-            static::getContainer()->get('messenger.bus.shopware'),
+            static::getContainer()->get('messenger.default_bus'),
             static::getContainer()->get('logger')
         );
     }

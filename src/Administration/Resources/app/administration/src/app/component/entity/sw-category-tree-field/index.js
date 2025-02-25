@@ -15,8 +15,6 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-category-tree-field', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     emits: [
@@ -124,14 +122,6 @@ Component.register('sw-category-tree-field', {
                     ...pathIds,
                 ];
             }, []);
-        },
-
-        listeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
 
         pageCategoryCriteria() {

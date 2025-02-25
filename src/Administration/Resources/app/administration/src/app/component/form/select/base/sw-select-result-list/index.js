@@ -14,8 +14,6 @@ const { Component } = Shopware;
 Component.register('sw-select-result-list', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     provide() {
         return {
             setActiveItemIndex: this.setActiveItemIndex,
@@ -111,9 +109,6 @@ Component.register('sw-select-result-list', {
         createdComponent() {
             this.addEventListeners();
         },
-
-        // @deprecated tag:v6.7.0 - Will be removed without replacement
-        mountedComponent() {},
 
         beforeDestroyedComponent() {
             this.removeEventListeners();

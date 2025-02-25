@@ -4,18 +4,13 @@ import template from './sw-order-create-base.html.twig';
  * @sw-package checkout
  */
 
-const { Component, State, Utils, Data, Service, Mixin } = Shopware;
+const { Store, Utils, Data, Service, Mixin } = Shopware;
 const { Criteria } = Data;
 const { get, format, array } = Utils;
-const { mapGetters } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['feature'],
 
     emits: ['error'],
 
@@ -40,9 +35,9 @@ export default {
     },
 
     computed: {
-        ...mapGetters('swOrder', [
-            'cartErrors',
-        ]),
+        cartErrors() {
+            return Store.get('swOrder').cartErrors;
+        },
 
         customerRepository() {
             return Service('repositoryFactory').create('customer');
@@ -82,10 +77,6 @@ export default {
                 .addAssociation('defaultShippingAddress.salutation')
                 .addAssociation('tags');
 
-            if (!this.feature.isActive('v6.7.0.0')) {
-                criteria.addAssociation('defaultPaymentMethod');
-            }
-
             return criteria;
         },
 
@@ -95,7 +86,7 @@ export default {
         },
 
         customer() {
-            return State.get('swOrder').customer;
+            return Store.get('swOrder').customer;
         },
 
         salesChannelId() {
@@ -103,11 +94,11 @@ export default {
         },
 
         isCustomerActive() {
-            return State.getters['swOrder/isCustomerActive'];
+            return Store.get('swOrder').isCustomerActive;
         },
 
         cart() {
-            return State.get('swOrder').cart;
+            return Store.get('swOrder').cart;
         },
 
         cartLineItems() {
@@ -123,7 +114,7 @@ export default {
         },
 
         currency() {
-            return State.get('swOrder').context.currency;
+            return Store.get('swOrder').context.currency;
         },
 
         cartDelivery() {
@@ -132,11 +123,11 @@ export default {
 
         promotionCodeTags: {
             get() {
-                return State.get('swOrder').promotionCodes;
+                return Store.get('swOrder').promotionCodes;
             },
 
             set(promotionCodeTags) {
-                State.commit('swOrder/setPromotionCodes', promotionCodeTags);
+                Store.get('swOrder').setPromotionCodes(promotionCodeTags);
             },
         },
 
@@ -167,10 +158,14 @@ export default {
 
             const calcTaxes = this.sortByTaxRate(this.cartDelivery.shippingCosts.calculatedTaxes);
             const decorateCalcTaxes = calcTaxes.map((item) => {
-                return this.$tc('sw-order.createBase.shippingCostsTax', 0, {
-                    taxRate: item.taxRate,
-                    tax: format.currency(item.tax, this.currency.isoCode),
-                });
+                return this.$tc(
+                    'sw-order.createBase.shippingCostsTax',
+                    {
+                        taxRate: item.taxRate,
+                        tax: format.currency(item.tax, this.currency.isoCode),
+                    },
+                    0,
+                );
             });
 
             return `${this.$tc('sw-order.createBase.tax')}<br>${decorateCalcTaxes.join('<br>')}`;
@@ -269,22 +264,24 @@ export default {
                 return;
             }
 
-            State.commit('swOrder/setCustomer', customer);
+            Store.get('swOrder').setCustomer(customer);
             this.onSelectExistingCustomer(customer.id);
         },
 
         async createCart(salesChannelId) {
-            await State.dispatch('swOrder/createCart', { salesChannelId });
+            await Store.get('swOrder').createCart({ salesChannelId });
         },
 
         async loadCart() {
             if (!this.cart.token || this.cart.lineItems.length === 0) return;
             this.updateLoading(true);
 
-            State.dispatch('swOrder/getCart', {
-                salesChannelId: this.customer.salesChannelId,
-                contextToken: this.cart.token,
-            }).finally(() => this.updateLoading(false));
+            Store.get('swOrder')
+                .getCart({
+                    salesChannelId: this.customer.salesChannelId,
+                    contextToken: this.cart.token,
+                })
+                .finally(() => this.updateLoading(false));
         },
 
         async onSelectExistingCustomer(customerId) {
@@ -311,7 +308,7 @@ export default {
         },
 
         async updateCustomerContext() {
-            await State.dispatch('swOrder/updateCustomerContext', {
+            await Store.get('swOrder').updateCustomerContext({
                 customerId: this.customer.id,
                 salesChannelId: this.customer.salesChannelId,
                 contextToken: this.cart.token,
@@ -319,12 +316,12 @@ export default {
         },
 
         setCustomer(customer) {
-            State.dispatch('swOrder/selectExistingCustomer', { customer });
+            Store.get('swOrder').selectExistingCustomer({ customer });
         },
 
         setCurrency(customer) {
             this.currencyRepository.get(customer.salesChannel.currencyId).then((currency) => {
-                State.commit('swOrder/setCurrency', currency);
+                Store.get('swOrder').setCurrency(currency);
             });
         },
 
@@ -410,21 +407,24 @@ export default {
         onSaveItem(item) {
             this.updateLoading(true);
 
-            State.dispatch('swOrder/saveLineItem', {
-                salesChannelId: this.customer.salesChannelId,
-                contextToken: this.cart.token,
-                item,
-            }).finally(() => this.updateLoading(false));
+            Store.get('swOrder')
+                .saveLineItem({
+                    salesChannelId: this.customer.salesChannelId,
+                    contextToken: this.cart.token,
+                    item,
+                })
+                .finally(() => this.updateLoading(false));
         },
 
         onRemoveItems(lineItemKeys) {
             this.updateLoading(true);
 
-            State.dispatch('swOrder/removeLineItems', {
-                salesChannelId: this.customer.salesChannelId,
-                contextToken: this.cart.token,
-                lineItemKeys: lineItemKeys,
-            })
+            Store.get('swOrder')
+                .removeLineItems({
+                    salesChannelId: this.customer.salesChannelId,
+                    contextToken: this.cart.token,
+                    lineItemKeys: lineItemKeys,
+                })
                 .then(() => {
                     // Remove promotion code tag if corresponding line item removed
                     lineItemKeys.forEach((key) => {
@@ -452,11 +452,13 @@ export default {
         onSubmitCode(code) {
             this.updateLoading(true);
 
-            State.dispatch('swOrder/addPromotionCode', {
-                salesChannelId: this.customer.salesChannelId,
-                contextToken: this.cart.token,
-                code,
-            }).finally(() => this.updateLoading(false));
+            Store.get('swOrder')
+                .addPromotionCode({
+                    salesChannelId: this.customer.salesChannelId,
+                    contextToken: this.cart.token,
+                    code,
+                })
+                .finally(() => this.updateLoading(false));
         },
 
         onRemoveExistingCode(item) {
@@ -516,11 +518,12 @@ export default {
         onShippingChargeEdited() {
             this.updateLoading(true);
 
-            State.dispatch('swOrder/modifyShippingCosts', {
-                salesChannelId: this.customer.salesChannelId,
-                contextToken: this.cart.token,
-                shippingCosts: this.cartDelivery.shippingCosts,
-            })
+            Store.get('swOrder')
+                .modifyShippingCosts({
+                    salesChannelId: this.customer.salesChannelId,
+                    contextToken: this.cart.token,
+                    shippingCosts: this.cartDelivery.shippingCosts,
+                })
                 .catch((error) => {
                     this.$emit('error', error);
                 })

@@ -1,8 +1,8 @@
 import template from './sw-flow-sequence-action-error.html.twig';
 import './sw-flow-sequence-action-error.scss';
 
-const { Component, State } = Shopware;
-const { mapGetters } = Component.getComponentHelper();
+const { Component, Store } = Shopware;
+const { mapState } = Component.getComponentHelper();
 
 /**
  * @private
@@ -10,8 +10,6 @@ const { mapGetters } = Component.getComponentHelper();
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         sequence: {
@@ -21,7 +19,7 @@ export default {
     },
 
     computed: {
-        ...mapGetters('swFlowState', ['sequences']),
+        ...mapState(() => Store.get('swFlow'), ['sequences']),
     },
 
     methods: {
@@ -33,14 +31,14 @@ export default {
                 );
 
                 sequencesInGroup.forEach((item, index) => {
-                    State.commit('swFlowState/updateSequence', {
+                    Store.get('swFlow').updateSequence({
                         id: item.id,
                         position: index + 1,
                     });
                 });
             }
 
-            State.commit('swFlowState/removeSequences', [id]);
+            Store.get('swFlow').removeSequences([id]);
         },
     },
 };

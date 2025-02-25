@@ -59,7 +59,6 @@
                             "schema": {
                                 "type": "object",
                                 "required": [
-                                    "salutationId",
                                     "firstName",
                                     "lastName"
                                 ],
@@ -99,9 +98,7 @@
                                             "accountType": {
                                                 "description": "Type of the customer account. Default value is 'private'.",
                                                 "type": "string",
-                                                "enum": [
-                                                    "private"
-                                                ],
+                                                "enum": ["private"],
                                                 "default": "private"
                                             },
                                             "company": {
@@ -122,9 +119,7 @@
                                             "accountType": {
                                                 "description": "Type of the customer account. Can be `private` or `business`.",
                                                 "type": "string",
-                                                "enum": [
-                                                    "business"
-                                                ]
+                                                "enum": ["business"]
                                             },
                                             "company": {
                                                 "description": "Company of the customer. Only required when `accountType` is `business`.",
@@ -318,43 +313,6 @@
                 ]
             }
         },
-        "/account/change-payment-method/{paymentMethodId}": {
-            "post": {
-                "tags": ["Profile"],
-                "summary": "Change the customer's default payment method",
-                "description": "Changes a customer's default (preselected) payment method.",
-                "operationId": "changePaymentMethod",
-                "parameters": [
-                    {
-                        "name": "paymentMethodId",
-                        "in": "path",
-                        "description": "Identifier of the desired default payment method",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Returns a success response indicating a successful update.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/SuccessResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "ApiKey": [],
-                        "ContextToken": []
-                    }
-                ]
-            }
-        },
         "/account/customer-recovery-is-expired": {
             "post": {
                 "tags": ["Profile"],
@@ -399,9 +357,7 @@
                                             }
                                         },
                                         "apiAlias": {
-                                            "enum": [
-                                                "array_struct"
-                                            ],
+                                            "enum": ["array_struct"],
                                             "type": "string"
                                         }
                                     }
@@ -849,7 +805,6 @@
                                 "required": [
                                     "email",
                                     "password",
-                                    "salutationId",
                                     "firstName",
                                     "lastName",
                                     "acceptedDataProtection",
@@ -862,9 +817,7 @@
                                             "accountType": {
                                                 "description": "Type of the customer account. Default value is 'private'.",
                                                 "type": "string",
-                                                "enum": [
-                                                    "private"
-                                                ],
+                                                "enum": ["private"],
                                                 "default": "private"
                                             },
                                             "company": {
@@ -885,9 +838,7 @@
                                             "accountType": {
                                                 "description": "Type of the customer account. Can be `private` or `business`.",
                                                 "type": "string",
-                                                "enum": [
-                                                    "business"
-                                                ]
+                                                "enum": ["business"]
                                             },
                                             "company": {
                                                 "description": "Company of the customer. Only required when `accountType` is `business`.",

@@ -5,14 +5,12 @@ import './sw-order-create-address-modal.scss';
  * @sw-package checkout
  */
 
-const { Mixin, State, Service } = Shopware;
+const { Mixin, Store, Service } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'set-customer-address',
@@ -112,7 +110,7 @@ export default {
                 this.selectedAddressId =
                     this.activeCustomer[this.address.contextId] || this.activeCustomer[this.address.contextDataDefaultId];
 
-                await Shopware.State.dispatch('error/resetApiErrors');
+                await Shopware.Store.get('error').resetApiErrors();
             } catch {
                 this.createNotificationError({
                     message: this.$tc('sw-order.create.messageFetchCustomerAddressesError'),
@@ -153,7 +151,7 @@ export default {
                 [this.address.contextDataDefaultId]: address[this.address.contextDataDefaultId],
             };
 
-            await State.dispatch('swOrder/updateOrderContext', {
+            await Store.get('swOrder').updateOrderContext({
                 context,
                 salesChannelId: this.activeCustomer.salesChannelId,
                 contextToken: this.cart.token,
@@ -190,7 +188,7 @@ export default {
                     code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
                 });
 
-                await Shopware.State.dispatch('error/addApiError', {
+                await Shopware.Store.get('error').addApiError({
                     expression: `customer_address.${this.currentAddress.id}.company`,
                     error: companyError,
                 });

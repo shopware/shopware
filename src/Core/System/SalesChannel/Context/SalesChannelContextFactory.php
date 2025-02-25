@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingCollection;
@@ -69,7 +68,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
         // customer
         $customer = null;
-        if (\array_key_exists(SalesChannelContextService::CUSTOMER_ID, $options) && $options[SalesChannelContextService::CUSTOMER_ID] !== null) {
+        if (\is_string($options[SalesChannelContextService::CUSTOMER_ID] ?? null)) {
             // load logged in customer and set active addresses
             $customer = $this->loadCustomer($options, $base->getContext());
         }
@@ -112,7 +111,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $salesChannelContext = new SalesChannelContext(
             $context,
             $token,
-            $options[SalesChannelContextService::DOMAIN_ID] ?? null,
+            \is_string($options[SalesChannelContextService::DOMAIN_ID] ?? null) ? $options[SalesChannelContextService::DOMAIN_ID] : null,
             $base->getSalesChannel(),
             $base->getCurrency(),
             $customerGroup,
@@ -123,11 +122,10 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $customer,
             $itemRounding,
             $totalRounding,
-            [],
             $base->getLanguageInfo(),
         );
 
-        if (\array_key_exists(SalesChannelContextService::PERMISSIONS, $options)) {
+        if (\is_array($options[SalesChannelContextService::PERMISSIONS] ?? null)) {
             $salesChannelContext->setPermissions($options[SalesChannelContextService::PERMISSIONS]);
 
             $event = new SalesChannelContextPermissionsChangedEvent($salesChannelContext, $options[SalesChannelContextService::PERMISSIONS]);
@@ -136,7 +134,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $salesChannelContext->lockPermissions();
         }
 
-        if (\array_key_exists(SalesChannelContextService::IMITATING_USER_ID, $options)) {
+        if (\is_string($options[SalesChannelContextService::IMITATING_USER_ID] ?? null)) {
             $salesChannelContext->setImitatingUserId($options[SalesChannelContextService::IMITATING_USER_ID]);
         }
 
@@ -199,12 +197,6 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
         $id = $customer->getLastPaymentMethodId();
 
-        if ($id === null) {
-            Feature::callSilentIfInactive('v6.7.0.0', static function () use ($customer, &$id): void {
-                $id = $customer->getDefaultPaymentMethodId();
-            });
-        }
-
         if ($id === null || $id === $context->getPaymentMethod()->getId()) {
             return $context->getPaymentMethod();
         }
@@ -235,10 +227,6 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $criteria = new Criteria([$customerId]);
         $criteria->setTitle('context-factory::customer');
         $criteria->addAssociation('salutation');
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $criteria->addAssociation('defaultPaymentMethod');
-        }
 
         $source = $context->getSource();
         \assert($source instanceof SalesChannelApiSource);

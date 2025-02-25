@@ -13,7 +13,7 @@
     <slot></slot>
     {% endblock %}
 
-    <sw-icon
+    <mt-icon
         v-if="hasError"
         v-tooltip="{ message: errorTooltip }"
         class="sw-tabs-item__error-badge"
@@ -21,7 +21,7 @@
         size="12px"
     />
 
-    <sw-icon
+    <mt-icon
         v-if="!hasError && hasWarning"
         v-tooltip="{ message: warningTooltip }"
         class="sw-tabs-item__warning-badge"
@@ -43,14 +43,14 @@
 >
     {% block sw_tabs_item_slot_native %}
     <slot></slot>
-    <sw-icon
+    <mt-icon
         v-if="hasError"
         v-tooltip="{ message: errorTooltip }"
         class="sw-tabs-item__error-badge"
         name="solid-exclamation-circle"
         size="12px"
     />
-    <sw-icon
+    <mt-icon
         v-if="!hasError && hasWarning"
         v-tooltip="{ message: warningTooltip }"
         class="sw-tabs-item__warning-badge"

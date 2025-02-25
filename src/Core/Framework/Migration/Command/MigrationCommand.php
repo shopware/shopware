@@ -24,39 +24,17 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[Package('framework')]
 class MigrationCommand extends Command
 {
-    /**
-     * @var MigrationCollectionLoader
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $loader;
-
-    /**
-     * @var SymfonyStyle
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $io;
-
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shopwareVersion;
+    protected SymfonyStyle $io;
 
     /**
      * @internal
      */
     public function __construct(
-        MigrationCollectionLoader $loader,
+        protected readonly MigrationCollectionLoader $loader,
         private readonly TagAwareAdapterInterface $cache,
-        string $shopwareVersion
+        protected readonly string $shopwareVersion
     ) {
         parent::__construct();
-
-        $this->loader = $loader;
-        $this->shopwareVersion = $shopwareVersion;
     }
 
     protected function getMigrationGenerator(MigrationCollection $collection, ?int $until, ?int $limit): \Generator

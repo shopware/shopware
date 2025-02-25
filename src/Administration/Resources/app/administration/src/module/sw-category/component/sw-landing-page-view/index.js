@@ -9,8 +9,6 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['acl'],
 
     mixins: [
@@ -27,7 +25,7 @@ export default {
 
     computed: {
         landingPage() {
-            return Shopware.State.get('swCategoryDetail').landingPage;
+            return Shopware.Store.get('swCategoryDetail').landingPage;
         },
 
         cmsPage() {

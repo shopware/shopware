@@ -19,6 +19,9 @@ class BillingStreetRule extends Rule
 {
     final public const RULE_NAME = 'customerBillingStreet';
 
+    /**
+     * @internal
+     */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
         protected ?string $streetName = null

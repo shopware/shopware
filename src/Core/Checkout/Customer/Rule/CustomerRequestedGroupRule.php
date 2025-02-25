@@ -21,6 +21,8 @@ class CustomerRequestedGroupRule extends Rule
 
     /**
      * @param list<string>|null $customerGroupIds
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

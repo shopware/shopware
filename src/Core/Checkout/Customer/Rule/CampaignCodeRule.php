@@ -19,6 +19,9 @@ class CampaignCodeRule extends Rule
 {
     final public const RULE_NAME = 'customerCampaignCode';
 
+    /**
+     * @internal
+     */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
         protected ?string $campaignCode = null

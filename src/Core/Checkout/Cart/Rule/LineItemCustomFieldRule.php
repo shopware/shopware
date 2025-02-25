@@ -32,6 +32,8 @@ class LineItemCustomFieldRule extends Rule
 
     /**
      * @param array<string, mixed> $renderedField
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

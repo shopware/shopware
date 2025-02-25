@@ -23,6 +23,8 @@ class LineItemTaxationRule extends Rule
 
     /**
      * @param list<string> $taxIds
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

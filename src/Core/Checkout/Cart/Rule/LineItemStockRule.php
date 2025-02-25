@@ -21,6 +21,9 @@ class LineItemStockRule extends Rule
 {
     final public const RULE_NAME = 'cartLineItemStock';
 
+    /**
+     * @internal
+     */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
         protected ?int $stock = null

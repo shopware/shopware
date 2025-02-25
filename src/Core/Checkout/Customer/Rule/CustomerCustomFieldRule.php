@@ -28,6 +28,8 @@ class CustomerCustomFieldRule extends Rule
 
     /**
      * @param array<string, string|array<string, string>> $renderedField
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

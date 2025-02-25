@@ -18,6 +18,9 @@ class CartHasDeliveryFreeItemRule extends Rule
 {
     final public const RULE_NAME = 'cartHasDeliveryFreeItem';
 
+    /**
+     * @internal
+     */
     public function __construct(protected bool $allowed = true)
     {
         parent::__construct();

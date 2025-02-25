@@ -23,6 +23,8 @@ class PromotionLineItemRule extends Rule
 
     /**
      * @param list<string>|null $identifiers
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

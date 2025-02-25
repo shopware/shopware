@@ -21,6 +21,8 @@ class CustomerSalutationRule extends Rule
 
     /**
      * @param list<string>|null $salutationIds
+     *
+     * @internal
      */
     public function __construct(
         public string $operator = self::OPERATOR_EQ,

@@ -18,6 +18,9 @@ class AdminSalesChannelSourceRule extends Rule
 {
     final public const RULE_NAME = 'adminSalesChannelSource';
 
+    /**
+     * @internal
+     */
     public function __construct(protected bool $hasAdminSalesChannelSource = false)
     {
         parent::__construct();

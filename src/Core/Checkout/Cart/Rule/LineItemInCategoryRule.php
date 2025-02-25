@@ -21,6 +21,8 @@ class LineItemInCategoryRule extends Rule
 
     /**
      * @param list<string> $categoryIds
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

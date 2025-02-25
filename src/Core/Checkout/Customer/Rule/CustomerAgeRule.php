@@ -19,6 +19,9 @@ class CustomerAgeRule extends Rule
 {
     final public const RULE_NAME = 'customerAge';
 
+    /**
+     * @internal
+     */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
         protected ?float $age = null

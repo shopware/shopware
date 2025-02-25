@@ -21,6 +21,9 @@ class PromotionsInCartCountRule extends Rule
 
     protected int $count;
 
+    /**
+     * @internal
+     */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
         ?int $count = null

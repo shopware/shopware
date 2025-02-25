@@ -12,6 +12,9 @@ class SimpleRule extends Rule
 {
     final public const RULE_NAME = 'simple';
 
+    /**
+     * @internal
+     */
     public function __construct(protected bool $match = true)
     {
         parent::__construct();

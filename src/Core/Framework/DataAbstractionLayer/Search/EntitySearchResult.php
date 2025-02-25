@@ -15,8 +15,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class EntitySearchResult
 {
-    protected AggregationResultCollection $aggregations;
-
     protected int $page;
 
     protected ?int $limit = null;
@@ -25,21 +23,14 @@ class EntitySearchResult
      * @param TEntityCollection $entities
      */
     final public function __construct(
-        protected string $entity,
         protected int $total,
         protected EntityCollection $entities,
-        ?AggregationResultCollection $aggregations,
         protected Criteria $criteria,
-        protected Context $context
+        protected Context $context,
+        protected AggregationResultCollection $aggregations = new AggregationResultCollection(),
     ) {
-        $this->aggregations = $aggregations ?? new AggregationResultCollection();
         $this->limit = $criteria->getLimit();
         $this->page = !$criteria->getLimit() ? 1 : (int) ceil((($criteria->getOffset() ?? 0) + 1) / $criteria->getLimit());
-    }
-
-    public function getEntity(): string
-    {
-        return $this->entity;
     }
 
     public function getTotal(): int

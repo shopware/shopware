@@ -209,7 +209,7 @@ module.exports = {
                     activatedComponents: [
                         'sw-button',
                         'sw-alert',
-                        'sw-progress-bar'
+                        'sw-progress-bar',
                         'sw-button',
                         'sw-text-field',
                         'sw-card',

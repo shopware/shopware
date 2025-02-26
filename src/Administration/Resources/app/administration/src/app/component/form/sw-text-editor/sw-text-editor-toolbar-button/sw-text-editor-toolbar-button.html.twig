@@ -52,12 +52,12 @@
         tabindex="0"
         @click="buttonHandler($event, buttonConfig)"
     >
-        <sw-compact-colorpicker
-            v-model:value="buttonConfig.value"
+        <mt-colorpicker
+            v-model="buttonConfig.value"
             :disabled="disabled"
             compact
             :alpha="false"
-            @update:value="handleButtonClick(buttonConfig)"
+            @update:model-value="handleButtonClick(buttonConfig)"
         />
     </div>
     {% endblock %}

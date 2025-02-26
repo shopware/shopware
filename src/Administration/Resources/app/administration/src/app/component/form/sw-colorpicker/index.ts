@@ -33,22 +33,6 @@ Component.register('sw-colorpicker', {
     },
 
     computed: {
-        useMeteorComponent() {
-            // Use new meteor component in major
-            if (Shopware.Feature.isActive('ENABLE_METEOR_COMPONENTS')) {
-                return true;
-            }
-
-            // Throw warning when deprecated component is used
-            Shopware.Utils.debug.warn(
-                'sw-colorpicker',
-                // eslint-disable-next-line max-len
-                'The old usage of "sw-colorpicker" is deprecated and will be removed in v6.7.0.0. Please use "mt-colorpicker" instead.',
-            );
-
-            return false;
-        },
-
         currentValue: {
             get() {
                 if (this.value !== null) {

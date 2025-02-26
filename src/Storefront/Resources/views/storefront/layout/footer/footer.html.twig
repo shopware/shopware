@@ -190,22 +190,20 @@
             {% block layout_footer_service_menu %}
                 <div class="container">
                     {% block layout_footer_service_menu_content %}
-                        {% apply spaceless %}
-                            <ul class="footer-service-menu-list list-unstyled">
-                                {% for serviceMenuItem in footer.serviceMenu %}
-                                    {% block layout_footer_service_menu_item %}
-                                        <li class="footer-service-menu-item">
-                                            <a class="footer-service-menu-link"
-                                               href="{{ category_url(serviceMenuItem) }}"
-                                               {% if category_linknewtab(serviceMenuItem) %}target="_blank"{% endif %}
-                                               title="{{ serviceMenuItem.translated.name }}">
-                                                {{ serviceMenuItem.translated.name }}
-                                            </a>
-                                        </li>
-                                    {% endblock %}
-                                {% endfor %}
-                            </ul>
-                        {% endapply %}
+                        <ul class="footer-service-menu-list list-unstyled d-flex justify-content-center">
+                            {% for serviceMenuItem in footer.serviceMenu %}
+                                {% block layout_footer_service_menu_item %}
+                                    <li class="footer-service-menu-item">
+                                        <a class="footer-service-menu-link"
+                                           href="{{ category_url(serviceMenuItem) }}"
+                                           {% if category_linknewtab(serviceMenuItem) %}target="_blank"{% endif %}
+                                           title="{{ serviceMenuItem.translated.name }}">
+                                            {{ serviceMenuItem.translated.name }}
+                                        </a>
+                                    </li>
+                                {% endblock %}
+                            {% endfor %}
+                        </ul>
                     {% endblock %}
                 </div>
             {% endblock %}

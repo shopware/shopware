@@ -208,6 +208,7 @@ module.exports = {
                     fix: true,
                     activatedComponents: [
                         'sw-button',
+                        'sw-colorpicker',
                         'sw-alert',
                         'sw-button',
                         'sw-text-field',

@@ -482,7 +482,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         expect(sidebarItems).toHaveLength(5);
 
         sidebarItems.forEach((sidebarItem) => {
-            expect(sidebarItem.props('disabled')).toBe(false);
+            expect(sidebarItem.props('disabled')).toBeFalsy();
         });
     });
 

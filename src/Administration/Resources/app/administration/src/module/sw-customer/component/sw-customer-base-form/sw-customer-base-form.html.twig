@@ -106,8 +106,8 @@
         {% endblock %}
 
         {% block sw_customer_base_form_birthday_field %}
-        <sw-datepicker
-            v-model:value="customer.birthday"
+        <mt-datepicker
+            v-model="customer.birthday"
             type="date"
             name="birthday"
             hide-hint

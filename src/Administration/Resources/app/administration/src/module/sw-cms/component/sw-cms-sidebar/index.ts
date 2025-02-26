@@ -310,6 +310,10 @@ export default Shopware.Component.wrapComponentConfig({
             return result.filter((block) => block && block.category === this.currentBlockCategory);
         },
 
+        isLayoutAssignmentDisabled() {
+            return this.disabled || this.page.locked;
+        },
+
         ...mapPropertyErrors('page', ['name']),
     },
 

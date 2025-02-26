@@ -210,6 +210,7 @@ module.exports = {
                         'sw-button',
                         'sw-colorpicker',
                         'sw-alert',
+                        'sw-progress-bar',
                         'sw-button',
                         'sw-text-field',
                         'sw-card',
@@ -217,6 +218,7 @@ module.exports = {
                         'sw-textarea-field',
                         'sw-icon',
                         'sw-url-field',
+                        'sw-datepicker',
                     ],
                 }],
                 // @deprecated v.6.7.0.0 - will be error in v.6.7

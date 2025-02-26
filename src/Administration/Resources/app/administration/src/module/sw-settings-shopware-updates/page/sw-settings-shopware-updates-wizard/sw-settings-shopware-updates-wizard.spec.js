@@ -158,7 +158,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                         'sw-modal': {
                             template: '<div><slot name="modal-footer"></slot></div>',
                         },
-                        'sw-progress-bar': true,
+                        'mt-progress-bar': true,
                         'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                         'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', {
                             sync: true,

@@ -55,7 +55,7 @@ async function createWrapper(privileges = []) {
                     'sw-button-process': true,
 
                     'sw-time-ago': true,
-                    'sw-progress-bar': true,
+                    'mt-progress-bar': true,
                 },
             },
         },

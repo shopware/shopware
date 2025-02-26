@@ -12,5 +12,5 @@ interface SnippetValidatorInterface
      *
      * @return array<string, mixed>
      */
-    public function validate(array $bundles): array;
+    public function validate(array $bundles = []): array;
 }

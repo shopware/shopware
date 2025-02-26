@@ -21,7 +21,7 @@ class SnippetValidator implements SnippetValidatorInterface
     ) {
     }
 
-    public function validate(array $bundles): array
+    public function validate(array $bundles = []): array
     {
         $files = $this->getAllFiles($bundles);
 
@@ -50,7 +50,7 @@ class SnippetValidator implements SnippetValidatorInterface
     /**
      * @param array<int, string> $bundles
      */
-    protected function getAllFiles(array $bundles): SnippetFileCollection
+    protected function getAllFiles(array $bundles = []): SnippetFileCollection
     {
         if ($bundles !== []) {
             $bundles = array_map(fn (string $bundle) => $this->kernel->getBundle($bundle), $bundles);

@@ -149,8 +149,9 @@ export default {
             }
 
             const localMailTemplate = { ...mailTemplate };
-            localMailTemplate.mailTemplateType.templateData.order = this.order
-            ?? localMailTemplate.mailTemplateType.templateData.order;
+            if (localMailTemplate?.mailTemplateType?.templateData?.order && this?.order) {
+                localMailTemplate.mailTemplateType.templateData.order = this.order;
+            }
 
             this.subject = localMailTemplate.subject;
 

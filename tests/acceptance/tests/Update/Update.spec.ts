@@ -30,7 +30,7 @@ test(`Update an existing Shopware ${process.env.SHOPWARE_UPDATE_FROM} instance.`
 
     await page.getByRole('button', { name: 'Update Shopware' }).click();
 
-    const response = await page.waitForResponse((response) => response.url().includes('/update/_finish'), { timeout: 180000 });
+    const response = await page.waitForResponse((response) => response.url().includes('/update/_finish'), { timeout: 120000 });
     expect(response.status()).toBe(200);
 
     await page.screenshot();

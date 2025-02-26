@@ -228,17 +228,10 @@
 
                                 {% block sw_settings_snippet_set_list_card_list_grid_column_base_file_editor %}
                                 <template #inline-edit>
-                                    <sw-select-field
-                                        v-model:value="item.baseFile"
-                                    >
-                                        <option
-                                            v-for="file in baseFiles"
-                                            :key="file.name"
-                                            :value="file.name"
-                                        >
-                                            {{ file.name }}
-                                        </option>
-                                    </sw-select-field>
+                                    <mt-select
+                                        v-model="item.baseFile"
+                                        :options="baseFileOptions"
+                                    />
                                 </template>
                                 {% endblock %}
                             </sw-grid-column>

@@ -71,21 +71,6 @@ parameters:
 			path: src/Core/Checkout/Order/Event/OrderPaymentMethodChangedEvent.php
 
 		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getOrder\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/Listener/OrderStateChangeEventListener.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getOrderId\\(\\)\\.$#"
-			count: 2
-			path: src/Core/Checkout/Order/Listener/OrderStateChangeEventListener.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getPaymentMethod\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/Listener/OrderStateChangeEventListener.php
-
-		-
 			message: "#^Expected domain exception class Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderException, got Shopware\\\\Core\\\\Framework\\\\Routing\\\\RoutingException$#"
 			count: 1
 			path: src/Core/Checkout/Order/SalesChannel/CancelOrderRoute.php

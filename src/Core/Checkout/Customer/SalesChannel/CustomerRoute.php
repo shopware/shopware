@@ -17,9 +17,9 @@ use Symfony\Component\Routing\Attribute\Route;
 class CustomerRoute extends AbstractCustomerRoute
 {
     /**
-     * @param EntityRepository<CustomerCollection> $customerRepository
-     *
      * @internal
+     *
+     * @param EntityRepository<CustomerCollection> $customerRepository
      */
     public function __construct(private readonly EntityRepository $customerRepository)
     {
@@ -36,7 +36,7 @@ class CustomerRoute extends AbstractCustomerRoute
         $criteria->setIds([$customer->getId()]);
 
         $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->first();
-        \assert($customerEntity instanceof CustomerEntity);
+        \assert($customerEntity !== null);
 
         return new CustomerResponse($customerEntity);
     }

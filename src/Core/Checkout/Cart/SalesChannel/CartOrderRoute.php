@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor;
 use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
@@ -34,6 +35,8 @@ class CartOrderRoute extends AbstractCartOrderRoute
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<OrderCollection> $orderRepository
      */
     public function __construct(
         private readonly CartCalculator $cartCalculator,
@@ -100,8 +103,9 @@ class CartOrderRoute extends AbstractCartOrderRoute
 
         $this->eventDispatcher->dispatch(new CheckoutOrderPlacedCriteriaEvent($criteria, $context));
 
-        /** @var OrderEntity|null $orderEntity */
-        $orderEntity = Profiler::trace('checkout-order::order-loading', fn () => $this->orderRepository->search($criteria, $context->getContext())->first());
+        $orderEntity = Profiler::trace('checkout-order::order-loading', function () use ($criteria, $context): ?OrderEntity {
+            return $this->orderRepository->search($criteria, $context->getContext())->getEntities()->first();
+        });
 
         if (!$orderEntity) {
             throw CartException::invalidPaymentOrderNotStored($orderId);

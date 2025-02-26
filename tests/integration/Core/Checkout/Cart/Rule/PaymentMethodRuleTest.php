@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\PaymentMethodRule;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -33,8 +35,14 @@ class PaymentMethodRuleTest extends TestCase
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
+    /**
+     * @var EntityRepository<RuleCollection>
+     */
     private EntityRepository $ruleRepository;
 
+    /**
+     * @var EntityRepository<RuleConditionCollection>
+     */
     private EntityRepository $conditionRepository;
 
     private Context $context;

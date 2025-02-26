@@ -17,8 +17,8 @@
         />
         {% endblock %}
         {% block sw_order_document_settings_modal_form_document_date %}
-        <sw-datepicker
-            v-model:value="documentConfig.documentDate"
+        <mt-datepicker
+            v-model="documentConfig.documentDate"
             date-type="date"
             required
             hide-hint

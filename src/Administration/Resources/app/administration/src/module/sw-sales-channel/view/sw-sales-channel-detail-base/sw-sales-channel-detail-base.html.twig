@@ -9,23 +9,15 @@
         :title="$tc('sw-sales-channel.detail.titleGeneralSettings')"
     >
         {% block sw_sales_channel_detail_base_general_input_product_comparison_template %}
-        <sw-select-field
+        <mt-select
             v-if="isProductComparison"
-            v-model:value="templateName"
+            v-model="templateName"
             :disabled="!acl.can('sales_channel.editor') || undefined"
             :label="$tc('sw-sales-channel.detail.productComparison.templates.label')"
             :placeholder="$tc('sw-sales-channel.detail.productComparison.templates.placeholderSelectTemplate')"
-            :options="templateOptions"
-            @update:value="(templateName) => $emit('template-selected', templateName)"
-        >
-            <option
-                v-for="option in templateOptions"
-                :key="option.name"
-                :value="option.name"
-            >
-                {{ $tc(option.translationKey) }}
-            </option>
-        </sw-select-field>
+            :options="templateSelectOptions"
+            @update:model-value="(templateName) => $emit('template-selected', templateName)"
+        />
         {% endblock %}
 
         {% block sw_sales_channel_detail_product_comparison_template_modal %}
@@ -437,8 +429,8 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_general_input_product_comparison_encoding %}
-        <sw-select-field
-            v-model:value="productExport.encoding"
+        <mt-select
+            v-model="productExport.encoding"
             :label="$tc('sw-sales-channel.detail.productComparison.encoding')"
             :placeholder="$tc('sw-sales-channel.detail.productComparison.placeholderSelectEncoding')"
             :options="getEncodingOptions"
@@ -449,8 +441,8 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_general_input_product_comparison_file_format %}
-        <sw-select-field
-            v-model:value="productExport.fileFormat"
+        <mt-select
+            v-model="productExport.fileFormat"
             :label="$tc('sw-sales-channel.detail.productComparison.fileFormat')"
             :placeholder="$tc('sw-sales-channel.detail.productComparison.placeholderSelectFileFormat')"
             :options="getFileFormatOptions"

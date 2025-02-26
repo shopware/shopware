@@ -77,8 +77,8 @@
         <template #column-searchable="{ item, isInlineEdit }">
             <template v-if="isInlineEdit">
                 {% block sw_settings_search_searchable_content_general_searchable_editor %}
-                <sw-checkbox-field
-                    v-model:value="item.searchable"
+                <mt-checkbox
+                    v-model:checked="item.searchable"
                 />
                 {% endblock %}
             </template>
@@ -95,8 +95,8 @@
         <template #column-tokenize="{ item, isInlineEdit }">
             <template v-if="isInlineEdit">
                 {% block sw_settings_search_searchable_content_general_tokenize_editor %}
-                <sw-checkbox-field
-                    v-model:value="item.tokenize"
+                <mt-checkbox
+                    v-model:checked="item.tokenize"
                 />
                 {% endblock %}
             </template>

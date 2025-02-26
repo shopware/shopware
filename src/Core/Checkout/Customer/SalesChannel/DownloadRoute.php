@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadEntity;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -24,9 +23,9 @@ use Symfony\Component\Routing\Attribute\Route;
 class DownloadRoute extends AbstractDownloadRoute
 {
     /**
-     * @param EntityRepository<OrderLineItemDownloadCollection> $downloadRepository
-     *
      * @internal
+     *
+     * @param EntityRepository<OrderLineItemDownloadCollection> $downloadRepository
      */
     public function __construct(
         private readonly EntityRepository $downloadRepository,
@@ -59,20 +58,16 @@ class DownloadRoute extends AbstractDownloadRoute
             throw CustomerException::missingRequestParameter(!$downloadId ? 'downloadId' : 'orderId');
         }
 
-        $criteria = new Criteria([$downloadId]);
-        $criteria->addAssociation('media');
-        $criteria->addFilter(new MultiFilter(
-            MultiFilter::CONNECTION_AND,
-            [
+        $criteria = (new Criteria([$downloadId]))
+            ->addAssociation('media')
+            ->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
                 new EqualsFilter('orderLineItem.order.id', $orderId),
                 new EqualsFilter('orderLineItem.order.orderCustomer.customerId', $customer->getId()),
                 new EqualsFilter('accessGranted', true),
-            ]
-        ));
+            ]));
 
-        $download = $this->downloadRepository->search($criteria, $context->getContext())->first();
-
-        if (!$download instanceof OrderLineItemDownloadEntity || !$download->getMedia()) {
+        $download = $this->downloadRepository->search($criteria, $context->getContext())->getEntities()->first();
+        if (!$download || !$download->getMedia()) {
             throw CustomerException::downloadFileNotFound($downloadId);
         }
 

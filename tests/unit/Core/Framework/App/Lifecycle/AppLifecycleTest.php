@@ -12,6 +12,8 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
@@ -77,7 +79,7 @@ class AppLifecycleTest extends TestCase
 
         $this->expectException(AppException::class);
         $this->expectExceptionMessage('App test is not compatible with this Shopware version');
-        $appLifecycle->install($manifest, false, Context::createDefaultContext());
+        $appLifecycle->install($manifest, new AppInstallParameters(), Context::createDefaultContext());
     }
 
     public function testUpdateNotCompatibleApp(): void
@@ -92,7 +94,7 @@ class AppLifecycleTest extends TestCase
 
         $this->expectException(AppException::class);
         $this->expectExceptionMessage('App test is not compatible with this Shopware version');
-        $appLifecycle->update($manifest, ['id' => 'test', 'roleId' => 'test'], Context::createDefaultContext());
+        $appLifecycle->update($manifest, new AppUpdateParameters(), ['id' => 'test', 'roleId' => 'test'], Context::createDefaultContext());
     }
 
     public function testInstallSavesSnippetsGiven(): void
@@ -144,7 +146,7 @@ class AppLifecycleTest extends TestCase
             $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml')
         );
 
-        $appLifecycle->install($manifest, false, Context::createDefaultContext());
+        $appLifecycle->install($manifest, new AppInstallParameters(activate: false), Context::createDefaultContext());
 
         static::assertCount(1, $appRepository->upserts[0]);
         static::assertSame('test', $appRepository->upserts[0][0]['name']);
@@ -190,7 +192,7 @@ class AppLifecycleTest extends TestCase
             $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml')
         );
 
-        $appLifecycle->install($manifest, false, Context::createDefaultContext());
+        $appLifecycle->install($manifest, new AppInstallParameters(false), Context::createDefaultContext());
 
         static::assertCount(1, $appRepository->upserts[0]);
         static::assertSame('test', $appRepository->upserts[0][0]['name']);
@@ -234,7 +236,7 @@ class AppLifecycleTest extends TestCase
             $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml')
         );
 
-        $appLifecycle->update($manifest, ['id' => 'appId', 'roleId' => 'roleId'], Context::createDefaultContext());
+        $appLifecycle->update($manifest, new AppUpdateParameters(), ['id' => 'appId', 'roleId' => 'roleId'], Context::createDefaultContext());
 
         static::assertCount(1, $appRepository->upserts[0]);
         static::assertSame('test', $appRepository->upserts[0][0]['name']);
@@ -288,7 +290,7 @@ class AppLifecycleTest extends TestCase
             $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml')
         );
 
-        $appLifecycle->update($manifest, ['id' => 'appId', 'roleId' => 'roleId'], Context::createDefaultContext());
+        $appLifecycle->update($manifest, new AppUpdateParameters(), ['id' => 'appId', 'roleId' => 'roleId'], Context::createDefaultContext());
 
         static::assertCount(1, $appRepository->upserts[0]);
         static::assertSame('test', $appRepository->upserts[0][0]['name']);
@@ -333,7 +335,7 @@ class AppLifecycleTest extends TestCase
             $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml')
         );
 
-        $appLifecycle->update($manifest, ['id' => $appId, 'roleId' => 'roleId'], Context::createDefaultContext());
+        $appLifecycle->update($manifest, new AppUpdateParameters(), ['id' => $appId, 'roleId' => 'roleId'], Context::createDefaultContext());
 
         static::assertCount(1, $appRepository->upserts[0]);
 

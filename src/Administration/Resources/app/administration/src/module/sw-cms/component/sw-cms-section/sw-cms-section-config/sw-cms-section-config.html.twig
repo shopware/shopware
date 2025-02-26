@@ -62,32 +62,20 @@
         {% endblock %}
 
         {% block sw_cms_sidebar_section_config_sizing_field %}
-        <sw-select-field
-            v-model:value="section.sizingMode"
+        <mt-select
+            v-model="section.sizingMode"
             :label="$tc('sw-cms.detail.label.sizingField')"
-        >
-            <option value="boxed">
-                {{ $tc('sw-cms.detail.label.sizingOptionBoxed') }}
-            </option>
-            <option value="full_width">
-                {{ $tc('sw-cms.detail.label.sizingOptionFull') }}
-            </option>
-        </sw-select-field>
+            :options="sizingModeOptions"
+        />
         {% endblock %}
 
         {% block sw_cms_sidebar_section_config_sidebar_mobile %}
-        <sw-select-field
+        <mt-select
             v-if="section.type === 'sidebar'"
-            v-model:value="section.mobileBehavior"
+            v-model="section.mobileBehavior"
             :label="$tc('sw-cms.detail.sidebar.mobile')"
-        >
-            <option value="hidden">
-                {{ $tc('sw-cms.detail.sidebar.mobileOptionHidden') }}
-            </option>
-            <option value="wrap">
-                {{ $tc('sw-cms.detail.sidebar.mobileOptionWrap') }}
-            </option>
-        </sw-select-field>
+            :options="mobileBehaviorOptions"
+        />
         {% endblock %}
 
         {% block sw_cms_section_config_background_color_field %}
@@ -115,21 +103,12 @@
         />
 
         {% block sw_cms_section_config_background_image_position_field %}
-        <sw-select-field
-            v-model:value="section.backgroundMediaMode"
+        <mt-select
+            v-model="section.backgroundMediaMode"
             :label="$tc('sw-cms.detail.label.backgroundMediaMode')"
             :disabled="!section.backgroundMediaId"
-        >
-            <option value="auto">
-                {{ $tc('sw-cms.detail.label.backgroundMediaModeAuto') }}
-            </option>
-            <option value="contain">
-                {{ $tc('sw-cms.detail.label.backgroundMediaModeContain') }}
-            </option>
-            <option value="cover">
-                {{ $tc('sw-cms.detail.label.backgroundMediaModeCover') }}
-            </option>
-        </sw-select-field>
+            :options="backgroundMediaModeOptions"
+        />
         {% endblock %}
         {% endblock %}
     </div>

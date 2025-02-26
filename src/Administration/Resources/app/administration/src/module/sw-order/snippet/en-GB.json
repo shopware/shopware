@@ -276,8 +276,7 @@
       "labelDeliveryDate": "Delivery date",
       "labelShippingCosts": "Shipping costs",
       "labelDeliveryState": "Delivery state",
-      "buttonMerge": "Merge order",
-      "buttonDelete": "Delete"
+      "buttonMerge": "Merge order"
     },
     "detailCustomerComment": {
       "title": "Additional information"
@@ -305,8 +304,7 @@
     "saveChangesBeforehandModal": {
       "headline": "Warning",
       "statusDescription": "Before changing the status, your changes need to be saved. Do you want to save the changes now?",
-      "confirmButton": "Save changes",
-      "cancelButton": "Cancel"
+      "confirmButton": "Save changes"
     },
     "stateCard": {
       "cardTitle": "Status",

@@ -149,6 +149,7 @@ Component.register('sw-custom-field-set-renderer', {
                 'sw-password-field',
                 'sw-radio-field',
                 'sw-colorpicker',
+                'mt-colorpicker',
                 'sw-compact-colorpicker',
                 'sw-price-field',
                 'sw-tagged-field',

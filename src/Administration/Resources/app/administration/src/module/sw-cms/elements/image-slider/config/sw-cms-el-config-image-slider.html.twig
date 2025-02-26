@@ -74,23 +74,14 @@
                     <div class="sw-cms-el-config-image-slider__setting-option">
 
                         {% block sw_cms_element_image_gallery_config_settings_display_mode_select %}
-                        <sw-select-field
-                            v-model:value="element.config.displayMode.value"
+                        <mt-select
+                            v-model="element.config.displayMode.value"
                             class="sw-cms-el-config-image-slider__setting-display-mode"
                             :label="$tc('sw-cms.elements.general.config.label.displayMode')"
                             :help-text="$tc('sw-cms.elements.imageSlider.config.helpText.displayMode')"
-                            @update:value="onChangeDisplayMode"
-                        >
-                            <option value="standard">
-                                {{ $tc('sw-cms.elements.general.config.label.displayModeStandard') }}
-                            </option>
-                            <option value="contain">
-                                {{ $tc('sw-cms.elements.general.config.label.displayModeContain') }}
-                            </option>
-                            <option value="cover">
-                                {{ $tc('sw-cms.elements.general.config.label.displayModeCover') }}
-                            </option>
-                        </sw-select-field>
+                            :options="displayModeValueOptions"
+                            @update:model-value="onChangeDisplayMode"
+                        />
                         {% endblock %}
 
                         {% block sw_cms_element_image_gallery_config_settings_min_height %}
@@ -106,22 +97,13 @@
                         {% endblock %}
 
                         {% block sw_cms_element_image_gallery_config_settings_vertical_align %}
-                        <sw-select-field
-                            v-model:value="element.config.verticalAlign.value"
+                        <mt-select
+                            v-model="element.config.verticalAlign.value"
                             :label="$tc('sw-cms.elements.general.config.label.verticalAlign')"
                             :placeholder="$tc('sw-cms.elements.general.config.label.verticalAlign')"
                             :disabled="element.config.displayMode.value === 'cover'"
-                        >
-                            <option value="flex-start">
-                                {{ $tc('sw-cms.elements.general.config.label.verticalAlignTop') }}
-                            </option>
-                            <option value="center">
-                                {{ $tc('sw-cms.elements.general.config.label.verticalAlignCenter') }}
-                            </option>
-                            <option value="flex-end">
-                                {{ $tc('sw-cms.elements.general.config.label.verticalAlignBottom') }}
-                            </option>
-                        </sw-select-field>
+                            :options="verticalAlignValueOptions"
+                        />
                         {% endblock %}
                     </div>
                     {% endblock %}
@@ -131,42 +113,24 @@
                         <div class="sw-cms-el-config-image-slider__settings-navigation">
 
                             {% block sw_cms_element_image_slider_config_settings_navigation_arrow_position %}
-                            <sw-select-field
-                                v-model:value="element.config.navigationArrows.value"
+                            <mt-select
+                                v-model="element.config.navigationArrows.value"
                                 :label="$tc('sw-cms.elements.imageSlider.config.label.navigationArrows')"
-                                @update:value="emitUpdateEl"
-                            >
-                                <option value="none">
-                                    {{ $tc('sw-cms.elements.imageSlider.config.label.navigationPositionNone') }}
-                                </option>
-                                <option value="inside">
-                                    {{ $tc('sw-cms.elements.imageSlider.config.label.navigationPositionInside') }}
-                                </option>
-                                <option value="outside">
-                                    {{ $tc('sw-cms.elements.imageSlider.config.label.navigationPositionOutside') }}
-                                </option>
-                            </sw-select-field>
+                                :options="navigationArrowsValueOptions"
+                                @update:model-value="emitUpdateEl"
+                            />
                             {% endblock %}
                         </div>
 
                         <div class="sw-cms-el-config-image-slider__settings-navigation">
 
                             {% block sw_cms_element_image_slider_config_settings_navigation_dots_position %}
-                            <sw-select-field
-                                v-model:value="element.config.navigationDots.value"
+                            <mt-select
+                                v-model="element.config.navigationDots.value"
                                 :label="$tc('sw-cms.elements.imageSlider.config.label.navigationDots')"
-                                @update:value="emitUpdateEl"
-                            >
-                                <option value="none">
-                                    {{ $tc('sw-cms.elements.imageSlider.config.label.navigationPositionNone') }}
-                                </option>
-                                <option value="inside">
-                                    {{ $tc('sw-cms.elements.imageSlider.config.label.navigationPositionInside') }}
-                                </option>
-                                <option value="outside">
-                                    {{ $tc('sw-cms.elements.imageSlider.config.label.navigationPositionOutside') }}
-                                </option>
-                            </sw-select-field>
+                                :options="navigationDotsValueOptions"
+                                @update:model-value="emitUpdateEl"
+                            />
                             {% endblock %}
                         </div>
                     </div>

@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import selectMtSelectOptionByText from 'test/_helper_/select-mt-select-by-text';
 
 /**
  * @sw-package after-sales
@@ -8,6 +9,13 @@ const stateMachineStateMock = [
     {
         technicalName: 'paid',
         translated: { name: 'Paid' },
+        stateMachine: {
+            technicalName: 'order_transaction.state',
+        },
+    },
+    {
+        technicalName: 'open',
+        translated: { name: 'Open' },
         stateMachine: {
             technicalName: 'order_transaction.state',
         },
@@ -54,12 +62,13 @@ async function createWrapper() {
                     </div>
                 `,
                     },
-                    'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
-                    'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    transition: {
+                        template: `<div class="transition"><slot/></div>`,
+                    },
                     'sw-help-text': true,
                     'sw-field-error': true,
                     'sw-loader': true,
@@ -96,14 +105,9 @@ describe('module/sw-flow/component/sw-flow-set-order-state-modal', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const paymentSelect = wrapper.find('.sw-flow-set-order-state-modal__payment-status select');
-        await paymentSelect.setValue('paid');
-
-        const deliverySelect = wrapper.find('.sw-flow-set-order-state-modal__delivery-status select');
-        await deliverySelect.setValue('shipped');
-
-        const orderSelect = wrapper.find('.sw-flow-set-order-state-modal__order-status select');
-        await orderSelect.setValue('in_progress');
+        await selectMtSelectOptionByText(wrapper, 'Paid', '.sw-flow-set-order-state-modal__payment-status input');
+        await selectMtSelectOptionByText(wrapper, 'Shipped', '.sw-flow-set-order-state-modal__delivery-status input');
+        await selectMtSelectOptionByText(wrapper, 'In progress', '.sw-flow-set-order-state-modal__order-status input');
 
         const forceTransitionCheckBox = wrapper.find('.sw-flow-set-order-state-modal__force-transition input');
         await forceTransitionCheckBox.setChecked(true);

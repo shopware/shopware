@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\DownloadRoute;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadEntity;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -94,8 +95,9 @@ class DownloadRouteTest extends TestCase
 
         $searchResult = $this->createMock(EntitySearchResult::class);
         $download = new OrderLineItemDownloadEntity();
+        $download->setId('foo');
         $download->setMedia(new MediaEntity());
-        $searchResult->method('first')->willReturn($download);
+        $searchResult->method('getEntities')->willReturn(new OrderLineItemDownloadCollection([$download]));
         $this->downloadRepository->method('search')->willReturn($searchResult);
 
         $this->downloadResponseGenerator->method('getResponse')->willReturn(new Response());

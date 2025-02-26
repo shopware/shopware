@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use setasign\Fpdi\Tfpdf\Fpdi;
+use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentGenerationResult;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
@@ -45,6 +46,9 @@ class DocumentMergerTest extends TestCase
 
     private DocumentGenerator $documentGenerator;
 
+    /**
+     * @var EntityRepository<DocumentCollection>
+     */
     private EntityRepository $documentRepository;
 
     private DocumentMerger $documentMerger;

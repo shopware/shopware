@@ -63,12 +63,12 @@
         {% endblock %}
 
         {% block sw_settings_search_search_index_rebuild_progress_bar %}
-        <sw-progress-bar
-            :value="progressBarValue"
+        <mt-progress-bar
+            :model-value="progressBarValue"
             :max-value="100"
         >
             {{ $tc('sw-settings-search.generalTab.textRebuildingSearchIndex') }}
-        </sw-progress-bar>
+        </mt-progress-bar>
         {% endblock %}
     </div>
     {% endblock %}

@@ -62,7 +62,6 @@ async function createWrapper() {
                 'sw-modal': true,
                 'sw-tabs': true,
                 'sw-tab-items': true,
-                'sw-icon': true,
                 'sw-pagination': true,
                 'sw-data-grid-skeleton': true,
                 'sw-data-grid-settings': true,

@@ -99,7 +99,6 @@ async function createWrapper(props = defaultProps) {
                     'sw-loader': true,
                     'sw-card-filter': true,
                     'sw-product-variant-info': true,
-                    'sw-icon': true,
                     'sw-pagination': true,
                     'sw-extension-component-section': true,
                     'sw-ai-copilot-badge': true,

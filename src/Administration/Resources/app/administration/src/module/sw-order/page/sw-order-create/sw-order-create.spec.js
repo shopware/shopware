@@ -69,7 +69,6 @@ describe('src/module/sw-order/page/sw-order-create', () => {
     beforeAll(async () => {
         stubs = {
             'router-view': true,
-            'sw-icon': true,
             'sw-loader': true,
             'sw-app-actions': true,
             'sw-notification-center': true,

@@ -1,5 +1,4 @@
 import Plugin from 'src/plugin-system/plugin.class';
-import DomAccess from 'src/helper/dom-access.helper';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 
 /**
@@ -40,7 +39,7 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
         const event = 'click';
 
         this._columns.forEach(column => {
-            const trigger = DomAccess.querySelector(column, this.options.collapseColumnTriggerSelector);
+            const trigger = column.querySelector(this.options.collapseColumnTriggerSelector);
 
             // remove possibly existing event listeners
             trigger.removeEventListener(event, this._onClickCollapseTrigger);

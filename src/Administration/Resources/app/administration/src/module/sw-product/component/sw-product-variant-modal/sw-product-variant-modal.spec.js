@@ -335,7 +335,6 @@ async function createWrapper() {
                         },
                     },
                 },
-                'sw-icon': true,
                 'sw-data-grid': {
                     template: `
                         <div class="sw-data-grid">

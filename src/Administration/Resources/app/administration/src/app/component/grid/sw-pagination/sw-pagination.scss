@@ -27,7 +27,7 @@ $sw-pagination-border-radius: $border-radius-default;
 
     .sw-pagination__page-button {
         &-prev {
-            .sw-icon {
+            .mt-icon {
                 width: 16px;
                 height: 16px;
                 padding-top: 3px;
@@ -38,7 +38,7 @@ $sw-pagination-border-radius: $border-radius-default;
         }
 
         &-next {
-            .sw-icon {
+            .mt-icon {
                 width: 16px;
                 height: 16px;
                 padding-top: 3px;

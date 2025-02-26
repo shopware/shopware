@@ -9,7 +9,6 @@ async function createWrapper() {
             stubs: {
                 'sw-circle-icon': await wrapTestComponent('sw-circle-icon', { sync: true }),
                 'i18n-t': true,
-                'sw-icon': true,
                 'sw-label': true,
                 'router-link': true,
                 'sw-loader': true,

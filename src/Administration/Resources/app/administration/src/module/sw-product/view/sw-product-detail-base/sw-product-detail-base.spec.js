@@ -50,9 +50,6 @@ async function createWrapper() {
                 'sw-product-media-form': true,
                 'sw-entity-single-select': true,
                 'sw-help-text': true,
-                'sw-icon': {
-                    template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
-                },
                 'sw-text-field': true,
                 'sw-select-field': true,
                 'router-link': true,
@@ -563,7 +560,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         expect(wrapper.vm.product.media).toHaveLength(0);
 
-        const inheritanceSwitch = wrapper.find('.sw-inheritance-switch--is-inherited .sw-icon');
+        const inheritanceSwitch = wrapper.find('.sw-inheritance-switch--is-inherited .mt-icon');
         expect(inheritanceSwitch.exists()).toBe(true);
 
         await inheritanceSwitch.trigger('click');
@@ -613,7 +610,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         expect(wrapper.vm.product.media.first()).toEqual(media1);
 
-        const notInheritanceSwitch = wrapper.find('.sw-inheritance-switch--is-not-inherited .sw-icon');
+        const notInheritanceSwitch = wrapper.find('.sw-inheritance-switch--is-not-inherited .mt-icon');
         expect(notInheritanceSwitch.exists()).toBe(true);
 
         await notInheritanceSwitch.trigger('click');

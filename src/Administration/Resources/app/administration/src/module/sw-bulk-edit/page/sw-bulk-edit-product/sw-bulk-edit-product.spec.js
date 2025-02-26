@@ -122,7 +122,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'sw-language-switch': true,
                     'sw-notification-center': true,
                     'sw-help-center': true,
-                    'sw-icon': true,
                     'sw-multi-tag-select': true,
                     'sw-entity-tag-select': true,
                     'sw-product-properties': true,
@@ -132,7 +131,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                     'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
-
                     'sw-label': true,
                     'sw-extension-component-section': true,
                     'sw-inheritance-switch': true,

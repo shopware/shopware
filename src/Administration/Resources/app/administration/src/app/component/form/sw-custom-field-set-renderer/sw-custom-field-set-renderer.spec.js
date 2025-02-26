@@ -44,10 +44,6 @@ async function createWrapper(props) {
                         sync: true,
                     }),
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
-                    'sw-icon': {
-                        template: '<div class="sw-icon" @click="$emit(\'click\', $event)"></div>',
-                        inheritAttrs: false,
-                    },
                     'sw-single-select': await wrapTestComponent('sw-single-select'),
                     'sw-multi-select': await wrapTestComponent('sw-multi-select'),
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
@@ -1590,7 +1586,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 if (isMeteorComponent) {
                     await inheritanceSwitch.trigger('click');
                 } else {
-                    await inheritanceSwitch.find('.sw-icon').trigger('click');
+                    await inheritanceSwitch.find('.mt-icon').trigger('click');
                 }
                 await flushPromises();
 
@@ -1678,7 +1674,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 if (isMeteorComponent) {
                     await inheritanceSwitch.trigger('click');
                 } else {
-                    await inheritanceSwitch.find('.sw-icon').trigger('click');
+                    await inheritanceSwitch.find('.mt-icon').trigger('click');
                 }
 
                 // check if entity value contains fallback value and not undefined
@@ -1770,7 +1766,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 if (isMeteorComponent) {
                     await inheritanceSwitch.trigger('click');
                 } else {
-                    await inheritanceSwitch.find('.sw-icon').trigger('click');
+                    await inheritanceSwitch.find('.mt-icon').trigger('click');
                 }
                 await flushPromises();
 
@@ -1860,7 +1856,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 if (isMeteorComponent) {
                     await inheritanceSwitch.trigger('click');
                 } else {
-                    await inheritanceSwitch.find('.sw-icon').trigger('click');
+                    await inheritanceSwitch.find('.mt-icon').trigger('click');
                 }
                 await flushPromises();
 

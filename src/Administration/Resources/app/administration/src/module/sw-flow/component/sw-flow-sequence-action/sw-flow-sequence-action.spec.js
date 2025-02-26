@@ -74,9 +74,6 @@ async function createWrapper(propsData = {}, appFlowResponseData = [], flag = ''
             global: {
                 plugins: [pinia],
                 stubs: {
-                    'sw-icon': {
-                        template: '<div class="sw-icon"></div>',
-                    },
                     'sw-context-button': await wrapTestComponent('sw-context-button'),
                     'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                     'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
@@ -664,7 +661,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
             {
                 label: 'Telegram send message',
                 name: 'telegram.send.message',
-                swIcon: 'default-communication-speech-bubbles',
+                swIcon: 'regular-envelope',
                 requirements: [
                     'customerAware',
                     'orderAware',
@@ -676,7 +673,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
             {
                 label: 'Telegram send message',
                 name: 'telegram.send.message',
-                swIcon: 'default-communication-speech-bubbles',
+                swIcon: 'regular-envelope',
                 requirements: [
                     'customerAware',
                     'orderAware',

@@ -72,11 +72,6 @@ describe('src/app/component/form/select/base/sw-select-result', () => {
         };
 
         return mount(grandGrandParent, {
-            global: {
-                stubs: {
-                    'sw-icon': true,
-                },
-            },
             provide: {
                 repositoryFactory: {
                     create: () => ({ search: () => Promise.resolve('bar') }),

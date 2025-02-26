@@ -41,8 +41,6 @@ async function createWrapper() {
                     'sw-container': await wrapTestComponent('sw-container'),
                     'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                     'i18n-t': true,
-
-                    'sw-icon': true,
                     'sw-loader': true,
                     'router-link': true,
                 },

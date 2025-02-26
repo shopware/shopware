@@ -119,7 +119,6 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                     'sw-language-switch': true,
                     'sw-context-menu-item': true,
                     'sw-search-bar': true,
-                    'sw-icon': true,
                     'sw-modal': true,
                     'router-link': true,
 

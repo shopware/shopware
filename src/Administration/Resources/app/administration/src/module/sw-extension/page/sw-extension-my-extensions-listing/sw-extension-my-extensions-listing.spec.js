@@ -49,7 +49,6 @@ async function createWrapper() {
                     'sw-pagination': await wrapTestComponent('sw-pagination', {
                         sync: true,
                     }),
-                    'sw-icon': true,
                     'sw-field': true,
                     // eslint-disable-next-line max-len
                     'sw-extension-my-extensions-listing-controls': await wrapTestComponent(

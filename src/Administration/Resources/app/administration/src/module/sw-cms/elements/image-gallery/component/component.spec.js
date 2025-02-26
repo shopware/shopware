@@ -44,7 +44,6 @@ async function createWrapper(propsOverride) {
                 stubs: {
                     'sw-cms-el-image-slider': true,
                     'sw-media-list-selection-item-v2': true,
-                    'sw-icon': true,
                 },
             },
             props: {

@@ -87,7 +87,6 @@ async function createWrapper(privileges = []) {
                         <slot></slot>
                     </div>`,
                     },
-                    'sw-icon': true,
                     'sw-search-bar': true,
                     'sw-grid': await wrapTestComponent('sw-grid'),
                     'sw-context-button': {

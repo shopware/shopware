@@ -5,7 +5,6 @@
 import Plugin from 'src/plugin-system/plugin.class';
 /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
-import DomAccess from 'src/helper/dom-access.helper';
 import ElementReplaceHelper from 'src/helper/element-replace.helper';
 import Debouncer from 'src/helper/debouncer.helper';
 
@@ -49,20 +48,18 @@ export default class ListingPlugin extends Plugin {
 
         this._urlFilterParams = Object.fromEntries(new URLSearchParams(window.location.search).entries());
 
-        this._filterPanel = DomAccess.querySelector(document, this.options.filterPanelSelector, false);
+        this._filterPanel = document.querySelector(this.options.filterPanelSelector);
         this._filterPanelActive = !!this._filterPanel;
 
         // Init functionality for the filter panel
         if (this._filterPanelActive) {
             this._showResetAll = false;
-            this.activeFilterContainer = DomAccess.querySelector(
-                document,
-                this.options.activeFilterContainerSelector
+            this.activeFilterContainer = document.querySelector(this.options.activeFilterContainerSelector
             );
-            this.ariaLiveContainer = DomAccess.querySelector(document, this.options.ariaLiveSelector, false);
+            this.ariaLiveContainer = document.querySelector(this.options.ariaLiveSelector);
         }
 
-        this._cmsProductListingWrapper = DomAccess.querySelector(document, this.options.cmsProductListingWrapperSelector, false);
+        this._cmsProductListingWrapper = document.querySelector(this.options.cmsProductListingWrapperSelector);
         this._cmsProductListingWrapperActive = !!this._cmsProductListingWrapper;
 
         this._allFiltersInitializedDebounce = Debouncer.debounce(this.sendDisabledFiltersRequest.bind(this), 100);
@@ -268,7 +265,7 @@ export default class ListingPlugin extends Plugin {
 
         this.activeFilterContainer.innerHTML = labelHtml;
 
-        const resetButtons = DomAccess.querySelectorAll(this.activeFilterContainer, this.options.activeFilterLabelSelector, false);
+        const resetButtons = this.activeFilterContainer.querySelectorAll(this.options.activeFilterLabelSelector);
 
         if (labelHtml.length) {
             this._registerLabelEvents(resetButtons);
@@ -289,9 +286,7 @@ export default class ListingPlugin extends Plugin {
     createResetAllButton() {
         this.activeFilterContainer.insertAdjacentHTML('beforeend', this.getResetAllButtonTemplate());
 
-        const resetAllButtonEl = DomAccess.querySelector(
-            this.activeFilterContainer,
-            this.options.resetAllFilterButtonSelector
+        const resetAllButtonEl = this.activeFilterContainer.querySelector(this.options.resetAllFilterButtonSelector
         );
 
         resetAllButtonEl.removeEventListener('click', this.resetAllFilter.bind(this));
@@ -471,7 +466,7 @@ export default class ListingPlugin extends Plugin {
      * @param {String} response - HTML of filtered product data.
      */
     renderResponse(response) {
-        ElementReplaceHelper.replaceFromMarkup(response, this.options.cmsProductListingSelector, false);
+        ElementReplaceHelper.replaceFromMarkup(response, this.options.cmsProductListingSelector);
 
         this._registry.forEach((item) => {
             if (typeof item.afterContentChange === 'function') {

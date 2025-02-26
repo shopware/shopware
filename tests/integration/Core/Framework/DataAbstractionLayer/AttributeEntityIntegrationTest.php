@@ -83,6 +83,8 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertTrue(static::getContainer()->has('attribute_entity_translation.repository'));
         static::assertTrue(static::getContainer()->has('attribute_entity_translation.definition'));
 
+        static::assertTrue(static::getContainer()->has('my_own_mapping_table_name.definition'));
+
         static::assertInstanceOf(AttributeEntityDefinition::class, static::getContainer()->get('attribute_entity.definition'));
         static::assertSame(AttributeEntityCollection::class, static::getContainer()->get('attribute_entity.definition')->getCollectionClass());
 
@@ -337,6 +339,7 @@ class AttributeEntityIntegrationTest extends TestCase
             'customFields' => null,
             'emptyString' => '',
             'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
+            'ownMapping' => [],
         ], $json);
     }
 

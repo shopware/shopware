@@ -197,6 +197,17 @@ export default {
         handleClickEvent(event) {
             const target = event.target;
 
+            if (target.closest('.sw-tree-item .sw-tree-item__toggle')) {
+                const selectedElement = target.closest('.sw-tree-item');
+
+                selectedElement?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                });
+
+                return;
+            }
+
             if (target.closest('.sw-tree-item .is--no-children.is--disabled')) {
                 return;
             }

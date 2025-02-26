@@ -46,9 +46,6 @@ async function createWrapper(
                         template: '<div><slot name="content"></slot></div>',
                     },
                     'sw-select-field': true,
-                    'sw-icon': {
-                        template: '<div></div>',
-                    },
                     'sw-pagination': {
                         template: '<div></div>',
                     },

@@ -68,7 +68,6 @@ async function createWrapper(privileges = []) {
                     'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-label': true,
-                    'sw-icon': true,
                     'sw-loader': true,
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                     'sw-highlight-text': true,

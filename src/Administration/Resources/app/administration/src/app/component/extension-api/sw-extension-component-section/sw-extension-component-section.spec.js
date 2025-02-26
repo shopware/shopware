@@ -38,7 +38,6 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
             'sw-ai-copilot-badge': await wrapTestComponent('sw-ai-copilot-badge'),
             'sw-context-button': await wrapTestComponent('sw-context-button'),
             'sw-loader': await wrapTestComponent('sw-loader'),
-            'sw-icon': await wrapTestComponent('sw-icon'),
             'router-link': true,
         };
     });

@@ -36,16 +36,16 @@
     {% block sw_advanced_selection_product_list_grid_columns_active %}
     <template #column-active="{ item }">
         {% block sw_advanced_selection_product_list_grid_columns_active_content %}
-        <sw-icon
+        <mt-icon
             v-if="item.active"
             name="regular-checkmark-xs"
-            small
+            size="16px"
             class="is--active"
         />
-        <sw-icon
+        <mt-icon
             v-else
             name="regular-times-s"
-            small
+            size="16px"
             class="is--inactive"
         />
         {% endblock %}

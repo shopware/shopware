@@ -64,7 +64,6 @@ async function createWrapper(privileges = []) {
                     'sw-language-switch': true,
                     'sw-search-bar': true,
                     'sw-context-menu-item': true,
-                    'sw-icon': true,
                     'sw-loader': true,
                     'sw-empty-state': true,
                     'sw-extension-component-section': true,

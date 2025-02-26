@@ -3,7 +3,6 @@ import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading
 import FormSerializeUtil from 'src/utility/form/form-serialize.util';
 /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
-import DomAccess from 'src/helper/dom-access.helper';
 import Debouncer from 'src/helper/debouncer.helper';
 
 /**
@@ -176,7 +175,7 @@ export default class FormAutoSubmitPlugin extends Plugin {
 
     sendAjaxFormSubmit() {
         const data = FormSerializeUtil.serialize(this._form);
-        const action = DomAccess.getAttribute(this._form, 'action');
+        const action = this._form.getAttribute('action');
 
         fetch(action, {
             method: 'POST',
@@ -197,7 +196,7 @@ export default class FormAutoSubmitPlugin extends Plugin {
      */
     _onAfterAjaxSubmit(response) {
         PageLoadingIndicatorUtil.remove();
-        const replaceContainer = DomAccess.querySelector(document, this.options.ajaxContainerSelector);
+        const replaceContainer = document.querySelector(this.options.ajaxContainerSelector);
         replaceContainer.innerHTML = response;
         window.PluginManager.initializePlugins();
 

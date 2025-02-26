@@ -41,7 +41,6 @@ async function createWrapper() {
 
                     'sw-number-field': true,
                     'sw-media-add-thumbnail-form': true,
-                    'sw-icon': true,
                     'sw-loader': true,
                     'mt-tabs': true,
                     'sw-tabs-deprecated': true,

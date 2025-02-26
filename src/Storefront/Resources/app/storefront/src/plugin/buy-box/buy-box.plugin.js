@@ -5,7 +5,6 @@ import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-l
 import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading-indicator.util';
 import ElementReplaceHelper from 'src/helper/element-replace.helper';
 import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
-import DomAccess from 'src/helper/dom-access.helper';
 
 /**
  * @deprecated tag:v6.8.0 - The BuyBoxPlugin is not used.
@@ -54,7 +53,7 @@ export default class BuyBoxPlugin extends Plugin {
         ElementLoadingIndicatorUtil.create(this.el);
 
         this._httpClient.get(`${event.detail.url}`, (response) => {
-            ElementReplaceHelper.replaceFromMarkup(response, `${this.options.buyWidgetSelector}-${this.options.elementId}`, false);
+            ElementReplaceHelper.replaceFromMarkup(response, `${this.options.buyWidgetSelector}-${this.options.elementId}`);
             ElementLoadingIndicatorUtil.remove(this.el);
 
             this._initModalTriggerEvent();
@@ -69,7 +68,7 @@ export default class BuyBoxPlugin extends Plugin {
      * @private
      */
     _initModalTriggerEvent() {
-        this._modalTrigger = DomAccess.querySelector(this.el, this.options.modalTriggerSelector, false);
+        this._modalTrigger = this.el.querySelector(this.options.modalTriggerSelector);
         this._modalTrigger.addEventListener('click', this._onClickHandleAjaxModal.bind(this));
     }
 
@@ -82,7 +81,7 @@ export default class BuyBoxPlugin extends Plugin {
      */
     _onClickHandleAjaxModal(event) {
         const trigger = event.currentTarget;
-        const url = DomAccess.getAttribute(trigger, this.options.urlAttribute);
+        const url = trigger.getAttribute(this.options.urlAttribute);
 
         PageLoadingIndicatorUtil.create();
         this._httpClient.get(url, response => {

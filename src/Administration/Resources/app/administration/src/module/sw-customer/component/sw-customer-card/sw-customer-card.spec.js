@@ -40,7 +40,6 @@ async function createWrapper() {
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-single-select': true,
                 'sw-customer-imitate-customer-modal': true,
-                'sw-icon': true,
                 'sw-label': true,
                 'sw-extension-component-section': true,
                 'sw-ai-copilot-badge': true,

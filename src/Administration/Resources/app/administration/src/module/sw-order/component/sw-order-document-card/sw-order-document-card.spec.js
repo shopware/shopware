@@ -142,7 +142,6 @@ async function createWrapper() {
                 },
                 'sw-radio-field': true,
                 'sw-datepicker': true,
-                'sw-icon': true,
                 'sw-textarea-field': true,
 
                 'sw-button-group': await wrapTestComponent('sw-button-group', { sync: true }),

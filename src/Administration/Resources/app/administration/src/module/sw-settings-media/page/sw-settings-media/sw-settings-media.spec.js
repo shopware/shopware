@@ -26,7 +26,6 @@ async function createWrapper() {
                 },
                 stubs: {
                     'sw-page': await wrapTestComponent('sw-page'),
-                    'sw-icon': true,
                     'sw-card-view': await wrapTestComponent('sw-card-view'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-skeleton': true,

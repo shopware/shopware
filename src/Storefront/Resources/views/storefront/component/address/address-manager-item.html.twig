@@ -24,16 +24,18 @@
                     <div class="dropdown">
                         {% block address_manager_modal_item_dropdown_button %}
                         <button
-                            type="button" id="dropdownMenuButton"
+                            type="button"
+                            id="address-manager-item-dropdown-btn-{{ address.id }}"
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
+                            aria-label="{{ 'account.addressOptionsBtn'|trans|sw_sanitize }}"
                             class="bg-transparent border-0"
                         >
                             {% sw_icon 'more-vertical' style {size: 's'} %}
                         </button>
                         {% endblock %}
 
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <ul class="dropdown-menu" aria-labelledby="address-manager-item-dropdown-btn-{{ address.id }}">
                             {% block address_manager_modal_item_dropdown_items %}
                                 <li>
                                     <a

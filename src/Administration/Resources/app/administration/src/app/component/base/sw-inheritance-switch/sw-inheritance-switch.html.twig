@@ -8,7 +8,7 @@
     }"
 >
     {% block sw_inheritance_switch_inherit_icon %}
-    <sw-icon
+    <mt-icon
         v-if="isInherited"
         key="inherit-icon"
         v-tooltip="{ message: $tc('global.sw-field.tooltipRemoveInheritance'), disabled: disabled }"
@@ -18,7 +18,7 @@
     />
     {% endblock %}
     {% block sw_inheritance_switch_uninherit_icon %}
-    <sw-icon
+    <mt-icon
         v-else
         key="uninherit-icon"
         v-tooltip="{ message: $tc('global.sw-field.tooltipRestoreInheritance'), disabled: disabled }"

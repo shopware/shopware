@@ -6,9 +6,9 @@
         <h2>
             {% block sw_integration_list_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
-            <sw-icon
+            <mt-icon
                 name="regular-chevron-right-xs"
-                small
+                size="16px"
             />
             {{ $tc('sw-integration.general.headlineIntegrations') }}
             {% endblock %}
@@ -226,7 +226,7 @@
                     {% block sw_integration_list_grid_inner_slot_columns_label %}
                     <template #column-label="{ item }">
                         <span class="sw-integration-list__app-icon">
-                            <sw-icon name="regular-share" />
+                            <mt-icon name="regular-share" />
                         </span>
                         <a
                             href="#"

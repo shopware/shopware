@@ -78,7 +78,6 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                             template: '<div class="sw-button-group"><slot></slot></div>',
                         },
                         'sw-field-error': true,
-                        'sw-icon': true,
                         'sw-empty-state': true,
                         'router-link': true,
                         'sw-loader': true,

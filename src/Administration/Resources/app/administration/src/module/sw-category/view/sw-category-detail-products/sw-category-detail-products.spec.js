@@ -26,11 +26,9 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-category-detail-products', { sync: true }), {
         global: {
             stubs: {
-                'sw-icon': true,
                 'router-link': true,
                 'sw-container': true,
                 'sw-text-field': true,
-
                 'sw-single-select': true,
                 'sw-many-to-many-assignment-card': {
                     template: `

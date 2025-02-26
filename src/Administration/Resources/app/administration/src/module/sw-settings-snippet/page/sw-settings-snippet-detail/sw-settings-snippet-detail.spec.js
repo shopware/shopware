@@ -163,7 +163,6 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                         'sw-button-process': await wrapTestComponent('sw-button-process'),
                         'sw-skeleton': true,
                         'sw-search-bar': true,
-                        'sw-icon': true,
                         'router-link': true,
                         'sw-app-actions': true,
                         'sw-loader': true,

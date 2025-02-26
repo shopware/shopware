@@ -28,7 +28,6 @@ async function createWrapper() {
                     'sw-card-filter': await wrapTestComponent('sw-card-filter'),
                     'sw-empty-state': true,
                     'sw-address': await wrapTestComponent('sw-address'),
-                    'sw-icon': true,
                     'sw-loader': true,
                     'sw-ai-copilot-badge': true,
                     'sw-context-button': true,

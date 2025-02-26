@@ -124,7 +124,6 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
 
                 'sw-custom-field-set-renderer': true,
                 'sw-product-variant-info': true,
-                'sw-icon': true,
                 'sw-loader': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,

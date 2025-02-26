@@ -15,11 +15,11 @@
     {% block sw_simple_search_field_search_icon %}
     <slot name="sw-simple-search-field-icon">
         {% block sw_simple_search_field_slot_search_icon %}
-        <sw-icon
+        <mt-icon
             v-if="icon"
             class="sw-simple-search-field__search-icon"
             :name="icon"
-            small
+            size="16px"
         />
         {% endblock %}
     </slot>

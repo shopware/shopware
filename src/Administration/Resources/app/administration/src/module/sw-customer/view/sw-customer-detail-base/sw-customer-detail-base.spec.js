@@ -82,7 +82,6 @@ async function createWrapper() {
                 'sw-skeleton': true,
                 'sw-button-process': true,
                 'sw-media-collapse': true,
-                'sw-icon': true,
                 'sw-extension-component-section': true,
                 'router-link': true,
                 'sw-inheritance-switch': true,

@@ -35,9 +35,6 @@ async function createWrapper(additionalProps = {}) {
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
-                    'sw-icon': {
-                        template: '<div></div>',
-                    },
                     'sw-grid': await wrapTestComponent('sw-grid', {
                         sync: true,
                     }),

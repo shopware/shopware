@@ -79,7 +79,6 @@ async function createWrapper() {
                 renderStubDefaultSlot: true,
                 stubs: {
                     'sw-container': true,
-                    'sw-icon': true,
                     'sw-field-error': true,
                     'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),

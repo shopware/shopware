@@ -19,7 +19,6 @@ async function createWrapper() {
                 'mt-card': {
                     template: '<div class="mt-card"><slot></slot></div>',
                 },
-                'sw-icon': true,
                 'sw-cms-layout-modal': true,
             },
             mocks: {

@@ -106,9 +106,6 @@ async function createWrapper() {
                 'sw-context-button': {
                     template: '<div></div>',
                 },
-                'sw-icon': {
-                    template: '<div></div>',
-                },
                 'sw-property-option-detail': await wrapTestComponent('sw-property-option-detail', { sync: true }),
                 'sw-modal': {
                     template: `
@@ -120,15 +117,6 @@ async function createWrapper() {
                             </div>
                         </div>
                 `,
-                },
-                'sw-colorpicker': {
-                    template: `
-                    <input class="sw-colorpicker-stub"
-                        :value="value" type="color"
-                        @input="$emit(\'update:value\', $event.target.value)"/>
-                    `,
-                    props: ['value'],
-                    emits: ['update:value'],
                 },
                 'sw-upload-listener': {
                     template: '<div></div>',
@@ -183,7 +171,7 @@ describe('module/sw-property/component/sw-property-option-list', () => {
         // clear color value
         await modal.get('.mt-text-field input').setValue('new name');
         await modal.get('.sw-number-field-stub').setValue(0);
-        await modal.get('.sw-colorpicker-stub').setValue('#000000');
+        await modal.getComponent('.mt-colorpicker').setValue('#000000');
 
         await findByText(modal, 'button', 'global.default.apply').trigger('click');
 

@@ -225,7 +225,6 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
                         </div>
                     `,
                     },
-                    'sw-icon': true,
                     'router-link': true,
                     'sw-loader': true,
                 },

@@ -1,4 +1,4 @@
-import DomAccess from 'src/helper/dom-access.helper';
+
 
 /**
  * @sw-package framework
@@ -14,11 +14,10 @@ class ElementReplaceHelperSingleton {
      *
      * @param {string|HTMLElement} markup
      * @param {array|string} selectors
-     * @param {boolean} strict
      *
      * @private
      */
-    replaceFromMarkup(markup, selectors, strict = true) {
+    replaceFromMarkup(markup, selectors) {
         let src = markup;
         if (typeof src === 'string') {
             src = this._createMarkupFromString(src);
@@ -28,7 +27,7 @@ class ElementReplaceHelperSingleton {
             selectors = [selectors];
         }
 
-        this._replaceSelectors(src, selectors, strict);
+        this._replaceSelectors(src, selectors);
     }
 
     /**
@@ -36,17 +35,16 @@ class ElementReplaceHelperSingleton {
      *
      * @param {NodeList|HTMLElement|string} src
      * @param {NodeList|HTMLElement|string} target
-     * @param {boolean} strict
      *
      * @returns {boolean}
      */
-    replaceElement(src, target, strict = true) {
+    replaceElement(src, target) {
         if (typeof src === 'string') {
-            src = DomAccess.querySelectorAll(document, src, strict);
+            src = document.querySelectorAll(src);
         }
 
         if (typeof target === 'string') {
-            target = DomAccess.querySelectorAll(document, target, strict);
+            target = document.querySelectorAll(target);
         }
 
         if (src instanceof NodeList && target instanceof NodeList && target.length > src.length) {
@@ -61,7 +59,7 @@ class ElementReplaceHelperSingleton {
             return true;
         }
 
-        if (src instanceof NodeList) {
+        if (src instanceof NodeList && src.length) {
             src.forEach((srcEl, index) => {
                 if (srcEl.innerHTML) {
                     target[index].innerHTML = srcEl.innerHTML;
@@ -70,7 +68,7 @@ class ElementReplaceHelperSingleton {
             return true;
         }
 
-        if (target instanceof NodeList) {
+        if (target instanceof NodeList && target.length) {
             target.forEach((targetEl) => {
                 if (src.innerHTML) {
                     targetEl.innerHTML = src.innerHTML;
@@ -93,16 +91,15 @@ class ElementReplaceHelperSingleton {
      *
      * @param {HTMLElement} src
      * @param {Array} selectors
-     * @param {boolean} strict
      *
      * @private
      */
-    _replaceSelectors(src, selectors, strict) {
+    _replaceSelectors(src, selectors) {
         selectors.forEach((selector) => {
-            const srcElements = DomAccess.querySelectorAll(src, selector, strict);
-            const targetElements = DomAccess.querySelectorAll(document, selector, strict);
+            const srcElements = src.querySelectorAll(selector);
+            const targetElements = document.querySelectorAll(selector);
 
-            this.replaceElement(srcElements, targetElements, strict);
+            this.replaceElement(srcElements, targetElements);
         });
     }
 
@@ -133,11 +130,10 @@ export default class ElementReplaceHelper {
      *
      * @param {string|HTMLElement} markup
      * @param {array|string} selectors
-     * @param {boolean} strict
      *
      */
-    static replaceFromMarkup(markup, selectors, strict) {
-        ElementReplaceHelperInstance.replaceFromMarkup(markup, selectors, strict);
+    static replaceFromMarkup(markup, selectors) {
+        ElementReplaceHelperInstance.replaceFromMarkup(markup, selectors);
     }
 
     /**
@@ -145,11 +141,10 @@ export default class ElementReplaceHelper {
      *
      * @param {NodeList|HTMLElement|string} src
      * @param {NodeList|HTMLElement|string} target
-     * @param {boolean} strict
      *
      * @returns {boolean}
      */
-    static replaceElement(src, target, strict) {
-        return ElementReplaceHelperInstance.replaceElement(src, target, strict);
+    static replaceElement(src, target) {
+        return ElementReplaceHelperInstance.replaceElement(src, target);
     }
 }

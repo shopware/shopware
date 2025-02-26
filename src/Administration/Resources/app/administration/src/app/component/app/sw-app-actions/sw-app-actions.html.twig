@@ -7,7 +7,7 @@
         <sw-context-button class="sw-app-actions__action-button">
             <template #button>
                 <mt-button>
-                    <sw-icon
+                    <mt-icon
                         name="solid-ellipsis-h-s"
                         size="16"
                     />
@@ -56,9 +56,9 @@
                     @click.prevent="onCloseModal"
                 >
                     {% block sw_app_action_modal_close_icon %}
-                    <sw-icon
+                    <mt-icon
                         name="regular-times-s"
-                        small
+                        size="16px"
                     />
                     {% endblock %}
                 </button>

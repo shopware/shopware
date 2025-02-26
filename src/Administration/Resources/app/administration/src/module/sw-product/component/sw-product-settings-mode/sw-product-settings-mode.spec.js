@@ -45,8 +45,6 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
                     'sw-popover': await wrapTestComponent('sw-popover'),
                     'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                     'sw-context-menu': await wrapTestComponent('sw-context-menu'),
-                    'sw-icon': true,
-
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-context-menu-divider': await wrapTestComponent('sw-context-menu-divider'),

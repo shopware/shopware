@@ -32,7 +32,7 @@
                         variant="primary"
                         class="sw-media-upload-v2__button-context-menu"
                     >
-                        <sw-icon name="regular-chevron-down-xs" />
+                        <mt-icon name="regular-chevron-down-xs" />
                     </mt-button>
                 </template>
 
@@ -139,7 +139,7 @@
                     v-else
                     class="sw-media-upload-v2__preview is--fallback"
                 >
-                    <sw-icon
+                    <mt-icon
                         class="sw-media-upload-v2__fallback-icon"
                         name="regular-image"
                     />
@@ -150,7 +150,7 @@
             <template v-if="!showPreview && variant === 'regular'">
                 {% block sw_media_upload_v2_regular_caption %}
                 <div class="sw-media-upload-v2__upload-caption">
-                    <sw-icon name="regular-cloud-upload" />
+                    <mt-icon name="regular-cloud-upload" />
                     {{ $tc('global.sw-media-upload-v2.caption') }}
                 </div>
                 {% endblock %}
@@ -170,7 +170,7 @@
                     <div class="sw-media-upload-v2__file-headline">
                         {{ mediaNameFilter(source, source.name) }}
                     </div>
-                    <sw-icon
+                    <mt-icon
                         v-if="!disabled"
                         class="sw-media-upload-v2__remove-icon"
                         name="regular-times-xs"
@@ -201,7 +201,7 @@
                             :disabled="disabled"
                             @click="onClickOpenMediaSidebar"
                         >
-                            <sw-icon
+                            <mt-icon
                                 v-if="variant === 'small'"
                                 name="regular-plus"
                                 size="16px"

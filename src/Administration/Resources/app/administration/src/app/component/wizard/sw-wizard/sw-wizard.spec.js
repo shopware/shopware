@@ -23,7 +23,6 @@ async function createWrapper(options = {}) {
             stubs: {
                 'sw-modal': await wrapTestComponent('sw-modal'),
                 'sw-wizard-dot-navigation': await wrapTestComponent('sw-wizard-dot-navigation'),
-                'sw-icon': true,
                 'sw-loader': true,
                 'router-link': true,
             },

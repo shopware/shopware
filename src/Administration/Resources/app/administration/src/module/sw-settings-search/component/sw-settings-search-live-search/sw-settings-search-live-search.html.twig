@@ -27,9 +27,9 @@
                 @click="onShowExampleModal"
             >
                 {{ $tc('sw-settings-search.generalTab.linkExample') }}
-                <sw-icon
+                <mt-icon
                     name="regular-long-arrow-right"
-                    small
+                    size="16px"
                 />
             </a>
         </sw-container>
@@ -71,10 +71,10 @@
         {% block sw_settings_search_view_live_search_search_icon_wrapper %}
         <template #sw-simple-search-field-icon>
             {% block sw_settings_search_view_live_search_search_icon %}
-            <sw-icon
+            <mt-icon
                 class="sw-settings-search-live-search__search-icon"
                 name="regular-search-s"
-                small
+                size="16px"
                 @click="searchOnStorefront"
             />
             {% endblock %}

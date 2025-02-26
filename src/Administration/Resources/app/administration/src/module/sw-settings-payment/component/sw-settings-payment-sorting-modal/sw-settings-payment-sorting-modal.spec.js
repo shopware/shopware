@@ -52,7 +52,6 @@ async function createWrapper(privileges = []) {
                     'sw-modal': true,
                     'sw-sortable-list': true,
                     'sw-button-process': true,
-                    'sw-icon': true,
                     'sw-media-preview-v2': true,
                 },
             },

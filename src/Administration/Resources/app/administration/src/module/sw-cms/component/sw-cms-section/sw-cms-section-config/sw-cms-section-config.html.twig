@@ -14,7 +14,7 @@
             @click="onSectionDuplicate(section)"
             @keydown.enter="onSectionDuplicate(section)"
         >
-            <sw-icon
+            <mt-icon
                 name="regular-duplicate"
                 size="16"
             />
@@ -30,7 +30,7 @@
             @click="onSectionDelete(section.id)"
             @keydown.enter="onSectionDelete(section.id)"
         >
-            <sw-icon
+            <mt-icon
                 name="regular-trash"
                 size="16"
             />
@@ -91,8 +91,8 @@
         {% endblock %}
 
         {% block sw_cms_section_config_background_color_field %}
-        <sw-colorpicker
-            v-model:value="section.backgroundColor"
+        <mt-colorpicker
+            v-model="section.backgroundColor"
             :label="$tc('sw-cms.detail.label.backgroundColorLabel')"
             :placeholder="$tc('sw-cms.detail.label.backgroundColorField')"
         />

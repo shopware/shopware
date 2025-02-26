@@ -24,9 +24,6 @@ async function createWrapper(customOptions = {}) {
                 droppable: {},
             },
             stubs: {
-                'sw-icon': {
-                    template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
-                },
                 'sw-context-button': await wrapTestComponent('sw-context-button'),
                 'sw-button-group': await wrapTestComponent('sw-button-group'),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
@@ -242,9 +239,6 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
                     },
                     stubs: {
                         'sw-media-upload-v2': await wrapTestComponent('sw-media-upload-v2'),
-                        'sw-icon': {
-                            template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
-                        },
                         'sw-context-button': await wrapTestComponent('sw-context-button'),
                         'sw-button-group': await wrapTestComponent('sw-button-group'),
                         'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
@@ -312,9 +306,6 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
                     },
                     stubs: {
                         'sw-media-upload-v2': await wrapTestComponent('sw-media-upload-v2'),
-                        'sw-icon': {
-                            template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
-                        },
                         'sw-context-button': await wrapTestComponent('sw-context-button'),
                         'sw-button-group': await wrapTestComponent('sw-button-group'),
                         'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),

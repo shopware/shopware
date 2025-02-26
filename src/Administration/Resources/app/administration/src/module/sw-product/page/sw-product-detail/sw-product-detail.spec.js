@@ -130,7 +130,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     'sw-button-group': true,
                     'sw-button-process': true,
                     'sw-context-button': true,
-                    'sw-icon': true,
                     'sw-context-menu-item': true,
                     'sw-language-switch': true,
                     'sw-card-view': {

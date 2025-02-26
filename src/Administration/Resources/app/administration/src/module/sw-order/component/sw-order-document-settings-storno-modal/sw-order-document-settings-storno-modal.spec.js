@@ -94,7 +94,6 @@ async function createWrapper() {
                     'sw-context-menu-item': true,
                     'sw-upload-listener': true,
                     'sw-textarea-field': true,
-                    'sw-icon': true,
                     'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
                     'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
                     'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),

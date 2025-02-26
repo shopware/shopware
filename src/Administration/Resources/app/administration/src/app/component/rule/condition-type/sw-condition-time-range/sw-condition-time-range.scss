@@ -6,7 +6,7 @@
     grid-template-columns: 1fr 1fr;
 
     .sw-contextual-field {
-        .sw-field__addition .sw-icon {
+        .sw-field__addition .mt-icon {
             line-height: 0;
         }
 
@@ -14,7 +14,7 @@
             color: $color-darkgray-200;
             background-color: $color-gray-50;
 
-            .sw-icon {
+            .mt-icon {
                 display: none;
             }
         }

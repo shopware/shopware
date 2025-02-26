@@ -57,14 +57,14 @@
                         :key="operation.operation"
                         class="sw-extension-permissions-details-modal__operation"
                     >
-                        <sw-icon
+                        <mt-icon
                             v-if="permissions.includes(operation.operation)"
                             name="regular-checkmark-xs"
                             size="12px"
                             color="#37D046"
                         />
 
-                        <sw-icon
+                        <mt-icon
                             v-else-if="category !== 'additional_privileges'"
                             name="regular-times-s"
                             size="12px"

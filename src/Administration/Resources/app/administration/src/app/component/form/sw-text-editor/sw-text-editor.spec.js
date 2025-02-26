@@ -17,14 +17,12 @@ async function createWrapper(allowInlineDataMapping = true) {
             stubs: {
                 'sw-text-editor-toolbar-button': await wrapTestComponent('sw-text-editor-toolbar-button'),
                 'sw-text-editor-link-menu': await wrapTestComponent('sw-text-editor-link-menu'),
-                'sw-compact-colorpicker': await wrapTestComponent('sw-compact-colorpicker'),
                 'sw-text-editor-toolbar': await wrapTestComponent('sw-text-editor-toolbar'),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
 
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-colorpicker': await wrapTestComponent('sw-colorpicker'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-media-field': await wrapTestComponent('sw-media-field'),
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
@@ -33,7 +31,6 @@ async function createWrapper(allowInlineDataMapping = true) {
                 'sw-code-editor': {
                     template: '<div id="sw-code-editor"></div>',
                 },
-                'sw-icon': { template: '<div class="sw-icon"></div>' },
                 'sw-select-field': true,
                 'sw-field-error': true,
                 'sw-text-editor-table-toolbar': true,
@@ -193,7 +190,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(wrapper.vm.isCodeEdit).toBe(false);
 
         // switch to code editor mode
-        await wrapper.find('.sw-icon[name="regular-code-xs"]').trigger('click');
+        await wrapper.find('.mt-icon.icon--regular-code-xs').trigger('click');
 
         await wrapper.vm.$nextTick();
         expect(wrapper.vm.isCodeEdit).toBe(true);
@@ -208,7 +205,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(wrapper.vm.placeholderVisible).toBe(false);
 
         // switch to text editor mode and make sure that the placeholder is not displayed
-        await wrapper.find('.sw-icon[name="regular-code-xs"]').trigger('click');
+        await wrapper.find('.mt-icon.icon--regular-code-xs').trigger('click');
 
         await wrapper.vm.$nextTick();
         expect(wrapper.vm.isCodeEdit).toBe(false);

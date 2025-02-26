@@ -40,7 +40,6 @@ async function createWrapper(propsData = {}) {
             stubs: {
                 'sw-data-grid-settings': await wrapTestComponent('sw-data-grid-settings'),
                 'sw-context-button': true,
-                'sw-icon': true,
                 'sw-field': true,
 
                 'sw-context-menu-divider': true,

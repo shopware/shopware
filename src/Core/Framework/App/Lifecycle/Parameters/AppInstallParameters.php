@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-class AppInstallParameters
+final class AppInstallParameters
 {
     public function __construct(
         public readonly bool $activate = true,

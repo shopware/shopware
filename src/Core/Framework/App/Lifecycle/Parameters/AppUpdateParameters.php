@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-class AppUpdateParameters
+final class AppUpdateParameters
 {
     public function __construct(
         public readonly bool $acceptPermissions = true

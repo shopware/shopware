@@ -178,7 +178,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-add-assignment-modal
 
         expect(wrapper.find('.sw-settings-rule-add-assignment-listing__card').exists()).toBe(true);
 
-        const checkbox = wrapper.find('.sw-data-grid__row--0 .sw-field--checkbox input');
+        const checkbox = wrapper.find('.sw-data-grid__row--0 .mt-field--checkbox__container input');
 
         expect(checkbox.element.checked).toBe(false);
         await checkbox.setChecked(true);

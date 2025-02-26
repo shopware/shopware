@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\Order\Api;
 
-use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\RecalculationService;
@@ -22,9 +21,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-/**
- * @codeCoverageIgnore
- */
 #[Route(defaults: ['_routeScope' => ['api']])]
 #[Package('checkout')]
 class OrderRecalculationController extends AbstractController
@@ -137,8 +133,7 @@ class OrderRecalculationController extends AbstractController
         if ($label !== null && !\is_string($label)) {
             // @deprecated tag:v6.8.0 - remove this if block
             if (!Feature::isActive('v6.8.0.0')) {
-                // @phpstan-ignore-next-line
-                throw RoutingException::invalidRequestParameter('label');
+                throw RoutingException::invalidRequestParameter('label'); // @phpstan-ignore shopware.domainException
             }
             throw CartException::invalidRequestParameter('label');
         }
@@ -146,8 +141,7 @@ class OrderRecalculationController extends AbstractController
         if ($description !== null && !\is_string($description)) {
             // @deprecated tag:v6.8.0 - remove this if block
             if (!Feature::isActive('v6.8.0.0')) {
-                // @phpstan-ignore-next-line
-                throw RoutingException::invalidRequestParameter('description');
+                throw RoutingException::invalidRequestParameter('description'); // @phpstan-ignore shopware.domainException
             }
             throw CartException::invalidRequestParameter('description');
         }

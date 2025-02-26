@@ -4,9 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Content\Flow\Rule\FlowRuleScope;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
@@ -34,10 +32,6 @@ class CampaignCodeOfOrderRule extends Rule
             return false;
         }
         if (!$this->campaignCode && $this->operator !== self::OPERATOR_EMPTY) {
-            if (!Feature::isActive('v6.8.0.0')) {
-                // @phpstan-ignore-next-line
-                throw new UnsupportedValueException(\gettype($this->campaignCode), self::class);
-            }
             throw CartException::unsupportedValue(\gettype($this->campaignCode), self::class);
         }
 

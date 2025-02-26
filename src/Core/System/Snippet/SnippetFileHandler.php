@@ -48,6 +48,9 @@ class SnippetFileHandler
         return array_merge($storefrontSnippets, $administrationSnippets);
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function findAdministrationSnippetFiles(): array
     {
         if (!($bundleDir = $this->getBundleDir(Administration::class))) {
@@ -57,6 +60,9 @@ class SnippetFileHandler
         return $this->findSnippetFilesByPath($bundleDir . '/Resources/app/*/src/');
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function findStorefrontSnippetFiles(): array
     {
         if (!($bundleDir = $this->getBundleDir(Storefront::class))) {

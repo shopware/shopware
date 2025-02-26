@@ -261,6 +261,10 @@ class AttributeEntityCompiler
 
     private static function mappingName(string $entity, ManyToMany $field): string
     {
+        if ($field->mapping !== null) {
+            return $field->mapping;
+        }
+
         $items = [$entity, $field->entity];
         sort($items);
 

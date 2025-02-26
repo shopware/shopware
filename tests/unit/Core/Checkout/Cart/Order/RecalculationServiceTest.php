@@ -24,7 +24,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
-use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Defaults;
@@ -205,8 +204,9 @@ class RecalculationServiceTest extends TestCase
         $productEntity = new ProductEntity();
         $productEntity->setId(Uuid::randomHex());
 
+        // We check product existence by searchIds
         $productRepository = new StaticEntityRepository([
-            new ProductCollection([$productEntity]),
+            [$productEntity->getId()],
         ]);
 
         $recalculationService = new RecalculationService(
@@ -298,8 +298,9 @@ class RecalculationServiceTest extends TestCase
         $productEntity = new ProductEntity();
         $productEntity->setId(Uuid::randomHex());
 
+        // We check product existence by searchIds
         $productRepository = new StaticEntityRepository([
-            new ProductCollection([$productEntity]),
+            [$productEntity->getId()],
         ]);
 
         $processor = new LiveProcessorValidator();

@@ -366,8 +366,6 @@ class CustomerException extends HttpException
     public static function missingOption(string $option, string $constraint): self|MissingOptionsException
     {
         if (!Feature::isActive('v6.8.0.0')) {
-            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Exception will change to CustomerException');
-
             return new MissingOptionsException(\sprintf('Option "%s" must be given for constraint %s', $option, $constraint), ['context']);
         }
 

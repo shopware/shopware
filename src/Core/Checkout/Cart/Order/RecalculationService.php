@@ -6,16 +6,15 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\Transformer\AddressTransformer;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
@@ -25,13 +24,13 @@ use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -43,6 +42,10 @@ class RecalculationService
      * @internal
      *
      * @param EntityRepository<OrderCollection> $orderRepository
+     * @param EntityRepository<ProductCollection> $productRepository
+     * @param EntityRepository<OrderAddressCollection> $orderAddressRepository
+     * @param EntityRepository<CustomerAddressCollection> $customerAddressRepository
+     * @param EntityRepository<OrderLineItemCollection> $orderLineItemRepository
      */
     public function __construct(
         protected EntityRepository $orderRepository,
@@ -250,11 +253,8 @@ class RecalculationService
     {
         $this->validateOrderAddress($orderAddressId, $context);
 
-        $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('customer_address.id', $customerAddressId));
-
-        $customerAddress = $this->customerAddressRepository->search($criteria, $context)->get($customerAddressId);
-        if (!$customerAddress instanceof CustomerAddressEntity) {
+        $customerAddress = $this->customerAddressRepository->search(new Criteria([$customerAddressId]), $context)->getEntities()->first();
+        if (!$customerAddress) {
             throw CartException::addressNotFound($customerAddressId);
         }
 
@@ -269,14 +269,13 @@ class RecalculationService
             return;
         }
 
-        /** @var Delivery $delivery */
         $delivery = $cart->getDeliveries()->first();
         if (!$delivery) {
             return;
         }
 
         $calculatedPrice = $item->getPrice();
-        \assert($calculatedPrice instanceof CalculatedPrice);
+        \assert($calculatedPrice !== null);
 
         $position = new DeliveryPosition($item->getId(), clone $item, $item->getQuantity(), $calculatedPrice, $delivery->getDeliveryDate());
 
@@ -286,25 +285,27 @@ class RecalculationService
     private function fetchOrder(string $orderId, Context $context): OrderEntity
     {
         $criteria = (new Criteria([$orderId]))
-            ->addAssociation('lineItems.downloads')
-            ->addAssociation('transactions.stateMachineState')
-            ->addAssociation('deliveries.shippingMethod.tax')
-            ->addAssociation('deliveries.shippingMethod.deliveryTime')
-            ->addAssociation('deliveries.positions.orderLineItem')
-            ->addAssociation('deliveries.shippingOrderAddress.country')
-            ->addAssociation('deliveries.shippingOrderAddress.countryState');
+            ->addAssociations([
+                'lineItems.downloads',
+                'transactions.stateMachineState',
+                'deliveries.shippingMethod.tax',
+                'deliveries.shippingMethod.deliveryTime',
+                'deliveries.positions.orderLineItem',
+                'deliveries.shippingOrderAddress.country',
+                'deliveries.shippingOrderAddress.countryState',
+            ]);
 
-        $order = $this->orderRepository->search($criteria, $context)->getEntities()->get($orderId);
+        $order = $this->orderRepository->search($criteria, $context)->getEntities()->first();
 
         $this->validateOrder($order, $orderId);
-
-        \assert($order instanceof OrderEntity);
 
         return $order;
     }
 
     /**
      * @throws OrderException
+     *
+     * @phpstan-assert OrderEntity $order
      */
     private function validateOrder(?OrderEntity $order, string $orderId): void
     {
@@ -341,7 +342,7 @@ class RecalculationService
      */
     private function validateOrderAddress(string $orderAddressId, Context $context): void
     {
-        $address = $this->orderAddressRepository->search(new Criteria([$orderAddressId]), $context)->get($orderAddressId);
+        $address = $this->orderAddressRepository->search(new Criteria([$orderAddressId]), $context)->getEntities()->first();
         if (!$address) {
             throw CartException::addressNotFound($orderAddressId);
         }

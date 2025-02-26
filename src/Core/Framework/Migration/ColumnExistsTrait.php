@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 
 trait ColumnExistsTrait
 {
-    public function columnExists(Connection $connection, string $table, string $column): bool
+    protected function columnExists(Connection $connection, string $table, string $column): bool
     {
         $exists = $connection->fetchOne(
             'SHOW COLUMNS FROM `' . $table . '` WHERE `Field` LIKE :column',

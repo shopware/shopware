@@ -1,8 +1,5 @@
-{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
-{# New mt-colorpicker component #}
 {% block sw_colorpicker %}
 <mt-colorpicker
-    v-if="useMeteorComponent"
     v-bind="$attrs"
     :model-value="currentValue"
     @change="currentValue = $event"
@@ -21,24 +18,5 @@
 </mt-colorpicker>
 {% endblock %}
 
-{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
-{# Deprecated component #}
 {% block sw_colorpicker_deprecated %}
-<sw-colorpicker-deprecated
-    v-else
-    v-bind="$attrs"
-    :value="value"
->
-    <template
-        v-for="(index, name) in getSlots()"
-        #[name]="data"
-    >
-        <slot
-            :name="name"
-            v-bind="data"
-        >
-        </slot>
-    </template>
-    <slot></slot>
-</sw-colorpicker-deprecated>
 {% endblock %}

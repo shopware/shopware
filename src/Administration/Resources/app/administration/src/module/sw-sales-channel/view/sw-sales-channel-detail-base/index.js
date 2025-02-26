@@ -496,6 +496,16 @@ export default {
             // eslint-disable-next-line max-len
             return `php bin/console product-export:generate ${this.salesChannel.productExports[0].storefrontSalesChannelId} ${this.salesChannel.productExports[0].id}`;
         },
+
+        templateSelectOptions() {
+            return this.templateOptions.map((templateOption) => {
+                return {
+                    value: templateOption.name,
+                    id: templateOption.name,
+                    label: this.$tc(templateOption.translationKey),
+                };
+            });
+        },
     },
 
     watch: {

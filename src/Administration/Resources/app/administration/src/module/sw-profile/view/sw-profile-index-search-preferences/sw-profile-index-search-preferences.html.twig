@@ -72,10 +72,10 @@
                 >
                     <li class="sw-profile-index-search-preferences-searchable-elements__entity-field">
                         <!-- eslint-disable vue/attributes-order -->
-                        <sw-checkbox-field
-                            v-model:value="searchPreference._searchable"
+                        <mt-checkbox
+                            v-model:checked="searchPreference._searchable"
                             :label="getModuleTitle(searchPreference.entityName)"
-                            @update:value="onChangeSearchPreference(searchPreference)"
+                            @update:checked="onChangeSearchPreference(searchPreference)"
                             name="sw-field--searchPreference-_searchable"
                         />
                         <ul class="sw-profile-index-search-preferences-searchable-elements__entity">
@@ -84,8 +84,8 @@
                                 :key="field.fieldName"
                                 class="sw-profile-index-search-preferences-searchable-elements__entity-field"
                             >
-                                <sw-checkbox-field
-                                    v-model:value="field._searchable"
+                                <mt-checkbox
+                                    v-model:checked="field._searchable"
                                     name="sw-field--field-_searchable"
                                     :label="$tc(`sw-profile.tabSearchPreferences.modules.${searchPreference.entityName}.${field.fieldName}`)"
                                     :disabled="adminEsEnable || !searchPreference._searchable"

@@ -44,6 +44,16 @@ export default {
 
             return 'sw.first.run.wizard.index.store';
         },
+
+        domainOptions() {
+            return this.licenceDomains.map((domain) => {
+                return {
+                    id: domain.domain,
+                    value: domain.domain,
+                    label: domain.domain,
+                };
+            });
+        },
     },
 
     watch: {

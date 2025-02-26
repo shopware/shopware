@@ -19,13 +19,13 @@ const { Mixin } = Shopware;
  * @status ready
  * @example-type static
  * @component-example
- * <sw-datepicker
+ * <sw-datepicker-deprecated
  *      dateType="date"
  *      label="SW-Field Date"
  *      size="default"
  *      placeholder="Enter date..."
  *      value="12.10.2019">
- * </sw-datepicker>
+ * </sw-datepicker-deprecated>
  */
 const allEvents = [
     'onChange',

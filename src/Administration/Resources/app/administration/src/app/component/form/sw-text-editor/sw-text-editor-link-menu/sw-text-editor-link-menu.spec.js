@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import selectMtSelectOptionByText from 'test/_helper_/select-mt-select-by-text';
 
 const seoDomainPrefix = '124c71d524604ccbad6042edce3ac799';
 
@@ -72,9 +73,6 @@ async function createWrapper(buttonConfig) {
     return mount(await wrapTestComponent('sw-text-editor-link-menu', { sync: true }), {
         global: {
             stubs: {
-                'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
-                'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
-
                 'sw-email-field': await wrapTestComponent('sw-email-field'),
                 'sw-email-field-deprecated': await wrapTestComponent('sw-email-field-deprecated'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
@@ -109,7 +107,6 @@ async function createWrapper(buttonConfig) {
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-loader': true,
                 'router-link': true,
-                'mt-select': true,
                 'sw-help-text': true,
                 'sw-ai-copilot-badge': true,
                 'sw-inheritance-switch': true,
@@ -448,8 +445,7 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
 
         expect(wrapper.vm.linkCategory).toBe('link');
 
-        await wrapper.get('select').setValue('email');
-        await flushPromises();
+        await selectMtSelectOptionByText(wrapper, 'sw-text-editor-toolbar.link.labelEmail');
 
         expect(wrapper.vm.linkCategory).toBe('email');
 

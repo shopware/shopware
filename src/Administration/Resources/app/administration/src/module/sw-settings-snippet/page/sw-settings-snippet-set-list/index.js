@@ -70,6 +70,16 @@ export default {
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
+
+        baseFileOptions() {
+            return this.baseFiles.map((file, index) => {
+                return {
+                    id: index,
+                    value: file.name,
+                    label: file.name,
+                };
+            });
+        },
     },
 
     methods: {

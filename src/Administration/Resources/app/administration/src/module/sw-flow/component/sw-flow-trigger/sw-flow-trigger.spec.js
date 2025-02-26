@@ -340,10 +340,9 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
 
         expect(window.HTMLElement.prototype.scrollIntoView).toHaveBeenCalledWith({
             behavior: 'smooth',
-            block: 'center'
+            block: 'center',
         });
     });
-
 
     it('should not close event tree when clicking on a disabled element', async () => {
         const wrapper = await createWrapper();
@@ -408,7 +407,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
         expect(wrapper.find('.sw-tree').exists()).toBeTruthy();
 
         const svgElement = document.body.querySelector('svg');
-        svgElement.dispatchEvent(new Event('click', {bubbles: true}));
+        svgElement.dispatchEvent(new Event('click', { bubbles: true }));
         await flushPromises();
 
         expect(wrapper.find('.sw-tree').exists()).toBeTruthy();
@@ -427,7 +426,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
         expect(wrapper.find('.sw-tree').exists()).toBeTruthy();
 
         const someElement = document.body.querySelector('img');
-        someElement.dispatchEvent(new Event('click', {bubbles: true}));
+        someElement.dispatchEvent(new Event('click', { bubbles: true }));
         await flushPromises();
 
         expect(wrapper.find('.sw-tree').exists()).toBeFalsy();
@@ -452,7 +451,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
         expect(wrapper.find('.sw-flow-trigger__search-results').exists()).toBeTruthy();
 
         const someElement = document.body.querySelector('img');
-        someElement.dispatchEvent(new Event('click', {bubbles: true}));
+        someElement.dispatchEvent(new Event('click', { bubbles: true }));
         await flushPromises();
 
         expect(wrapper.find('.sw-tree').exists()).toBeFalsy();

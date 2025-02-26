@@ -77,13 +77,13 @@
                         {% block sw_data_grid_header_cell_selection_content %}
                         <div class="sw-data-grid__cell-content">
                             {% block sw_data_grid_select_all_checkbox %}
-                            <sw-checkbox-field
+                            <mt-checkbox
                                 v-if="records && records.length > 0"
                                 :aria-label="$tc(allSelectedChecked ? 'global.sw-data-grid.labelDeSelectAll' : 'global.sw-data-grid.labelSelectAll')"
                                 :disabled="isSelectAllDisabled"
                                 class="sw-data-grid__select-all"
-                                :value="allSelectedChecked"
-                                @update:value="selectAll"
+                                :checked="allSelectedChecked"
+                                @update:checked="selectAll"
                             />
                             {% endblock %}
                         </div>
@@ -279,11 +279,12 @@
                             {% block sw_data_grid_body_cell_selection_content %}
                             <div class="sw-data-grid__cell-content">
                                 {% block sw_data_grid_select_item_checkbox %}
-                                <sw-checkbox-field
+
+                                <mt-checkbox
                                     :aria-label="$tc('global.sw-data-grid.labelSelected')"
                                     :disabled="!isRecordSelectable(item)"
-                                    :value="isSelected(item[itemIdentifierProperty])"
-                                    @update:value="selectItem($event, item)"
+                                    :checked="isSelected(item[itemIdentifierProperty])"
+                                    @update:checked="selectItem($event, item)"
                                 />
                                 {% endblock %}
                             </div>

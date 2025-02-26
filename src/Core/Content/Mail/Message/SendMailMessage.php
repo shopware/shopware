@@ -3,13 +3,12 @@
 namespace Shopware\Core\Content\Mail\Message;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
 /**
  * @codeCoverageIgnore
  */
 #[Package('after-sales')]
-class SendMailMessage implements AsyncMessageInterface
+class SendMailMessage
 {
     /**
      * @internal

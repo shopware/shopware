@@ -208,13 +208,16 @@ module.exports = {
                     fix: true,
                     activatedComponents: [
                         'sw-button',
+                        'sw-colorpicker',
                         'sw-alert',
+                        'sw-progress-bar',
                         'sw-button',
                         'sw-text-field',
                         'sw-card',
                         'sw-switch-field',
                         'sw-textarea-field',
                         'sw-icon',
+                        'sw-datepicker',
                     ],
                 }],
                 // @deprecated v.6.7.0.0 - will be error in v.6.7

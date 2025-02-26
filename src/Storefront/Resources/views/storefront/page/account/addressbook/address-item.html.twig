@@ -33,7 +33,7 @@
                                         {{ 'global.default.edit'|trans|sw_sanitize }}
                                     </a>
                                 </li>
-                                {% if not (defaultShipping || defaultBilling) %}
+                                {% if not defaultShipping %}
                                     <li>
                                         <form
                                             action="{{ path('frontend.account.address.set-default-address', {'type': 'shipping', 'addressId': address.id}) }}"
@@ -48,6 +48,8 @@
                                             </button>
                                         </form>
                                     </li>
+                                {% endif %}
+                                {% if not defaultBilling %}
                                     <li>
                                         <form
                                             action="{{ path('frontend.account.address.set-default-address', {'type': 'billing', 'addressId': address.id}) }}"
@@ -62,6 +64,8 @@
                                             </button>
                                         </form>
                                     </li>
+                                {% endif %}
+                                {% if not (defaultShipping || defaultBilling) %}
                                     <li>
                                         <form
                                             action="{{ path('frontend.account.address.delete', {'addressId': address.id}) }}"

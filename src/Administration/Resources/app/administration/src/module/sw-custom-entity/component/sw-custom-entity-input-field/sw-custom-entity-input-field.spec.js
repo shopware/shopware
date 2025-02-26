@@ -32,10 +32,10 @@ async function createWrapper(props = { type: 'string' }) {
                         'numberType',
                     ],
                 },
-                'sw-datepicker': {
+                'mt-datepicker': {
                     template: '<input/>',
                     props: [
-                        'value',
+                        'modelValue',
                         'label',
                         'placeholder',
                         'helpText',
@@ -80,6 +80,7 @@ describe('module/sw-custom-entity/component/sw-custom-entity-input-field', () =>
             const modelValueTypes = [
                 'text',
                 'string',
+                'date',
             ];
             let propType = modelValueTypes.includes(type) ? 'modelValue' : 'value';
 

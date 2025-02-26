@@ -8,7 +8,6 @@ async function createWrapper(additionalOptions = {}) {
     return mount(await wrapTestComponent('sw-datepicker', { sync: true }), {
         global: {
             stubs: {
-                'sw-datepicker-deprecated': true,
                 'mt-datepicker': true,
             },
         },
@@ -23,18 +22,7 @@ describe('src/app/component/base/sw-datepicker', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should render the deprecated datepicker when major feature flag is disabled', async () => {
-        global.activeFeatureFlags = [''];
-
-        const wrapper = await createWrapper();
-
-        expect(wrapper.html()).toContain('sw-datepicker-deprecated');
-        expect(wrapper.html()).not.toContain('mt-datepicker');
-    });
-
-    it('should render the mt-datepicker when major feature flag is enabled', async () => {
-        global.activeFeatureFlags = ['ENABLE_METEOR_COMPONENTS'];
-
+    it('should render the mt-datepicker', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.html()).toContain('mt-datepicker');

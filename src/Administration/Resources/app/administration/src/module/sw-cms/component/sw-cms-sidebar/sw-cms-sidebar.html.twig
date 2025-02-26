@@ -44,24 +44,14 @@
                     {% endblock %}
 
                     {% block sw_cms_sidebar_page_settings_type_field %}
-                    <sw-select-field
+                    <mt-select
                         v-tooltip.bottom="tooltipDisabled"
-                        :value="page.type"
+                        :model-value="page.type"
                         :label="$tc('sw-cms.detail.label.pageTypeSelection')"
                         :disabled="!isSystemDefaultLanguage || page.type === 'product_detail' || undefined"
-                        @update:value="onPageTypeChange"
-                    >
-                        {% block sw_cms_sidebar_page_settings_type_field_options %}
-                        <option
-                            v-for="pageType in pageTypes"
-                            :key="pageType.name"
-                            :value="pageType.name"
-                            :disabled="isDisabledPageType(pageType) || undefined"
-                        >
-                            {{ $tc(pageType.title) }}
-                        </option>
-                        {% endblock %}
-                    </sw-select-field>
+                        :options="pageTypesOptions"
+                        @update:model-value="onPageTypeChange"
+                    />
                     {% endblock %}
 
                     {% block sw_cms_sidebar_page_settings_demo_field %}
@@ -129,20 +119,11 @@
 
             {% block sw_cms_sidebar_block_overview_category %}
             <div class="sw-cms-sidebar__block-category">
-                <sw-select-field
-                    v-model:value="currentBlockCategory"
+                <mt-select
+                    v-model="currentBlockCategory"
                     :label="$tc('sw-cms.detail.label.blockCategorySelection')"
-                >
-                    {% block sw_cms_sidebar_block_overview_category_options %}
-                    <option
-                        v-for="blockCategory in cmsBlockCategories"
-                        :key="blockCategory.value"
-                        :value="blockCategory.value"
-                    >
-                        {{ $tc(blockCategory.label) }}
-                    </option>
-                    {% endblock %}
-                </sw-select-field>
+                    :options="cmsBlockCategoriesOptions"
+                />
             </div>
             {% endblock %}
 

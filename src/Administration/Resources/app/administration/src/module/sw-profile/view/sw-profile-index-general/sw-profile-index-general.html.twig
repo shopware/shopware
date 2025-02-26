@@ -40,22 +40,14 @@
             {% endblock %}
 
             {% block sw_profile_index_general_information_language %}
-            <sw-select-field
-                v-model:value="user.localeId"
+            <mt-select
+                v-model="user.localeId"
                 name="sw-field--user-localeId"
                 :label="$tc('sw-users-permissions.users.user-detail.labelLanguage')"
                 :disabled="!acl.can('user.update_profile')"
                 :placeholder="$tc('sw-users-permissions.users.user-detail.labelLanguagePlaceholder')"
-            >
-                <option
-                    v-for="language in languages"
-                    :key="language.locale.id"
-                    :value="language.locale.id"
-                    :selected="user.localeId === language.locale.id"
-                >
-                    {{ language.customLabel }}
-                </option>
-            </sw-select-field>
+                :options="localeOptions"
+            />
             {% endblock %}
         </sw-container>
 

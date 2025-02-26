@@ -44,7 +44,6 @@ async function createWrapper() {
                 'sw-sales-channel-detail-domains': true,
                 'sw-category-tree-field': true,
                 'mt-select': true,
-
                 'sw-custom-field-set-renderer': true,
             },
             provide: {
@@ -94,7 +93,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const selectField = wrapper.get(
-            'sw-select-field-stub[placeholder="sw-sales-channel.detail.productComparison.templates.placeholderSelectTemplate"]',
+            'mt-select-stub[placeholder="sw-sales-channel.detail.productComparison.templates.placeholderSelectTemplate"]',
         );
 
         expect(selectField.attributes().disabled).toBe('true');
@@ -112,7 +111,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const selectField = wrapper.get(
-            'sw-select-field-stub[placeholder="sw-sales-channel.detail.productComparison.templates.placeholderSelectTemplate"]',
+            'mt-select-stub[placeholder="sw-sales-channel.detail.productComparison.templates.placeholderSelectTemplate"]',
         );
 
         expect(selectField.attributes().disabled).toBeUndefined();
@@ -607,7 +606,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.get(
-            'sw-select-field-stub[placeholder="sw-sales-channel.detail.productComparison.placeholderSelectEncoding"]',
+            'mt-select-stub[placeholder="sw-sales-channel.detail.productComparison.placeholderSelectEncoding"]',
         );
 
         expect(field.attributes().disabled).toBe('true');
@@ -624,7 +623,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.get(
-            'sw-select-field-stub[placeholder="sw-sales-channel.detail.productComparison.placeholderSelectEncoding"]',
+            'mt-select-stub[placeholder="sw-sales-channel.detail.productComparison.placeholderSelectEncoding"]',
         );
 
         expect(field.attributes().disabled).toBeUndefined();
@@ -640,7 +639,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.get(
-            'sw-select-field-stub[placeholder="sw-sales-channel.detail.productComparison.placeholderSelectFileFormat"]',
+            'mt-select-stub[placeholder="sw-sales-channel.detail.productComparison.placeholderSelectFileFormat"]',
         );
 
         expect(field.attributes().disabled).toBe('true');
@@ -658,7 +657,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.get(
-            'sw-select-field-stub[placeholder="sw-sales-channel.detail.productComparison.placeholderSelectFileFormat"]',
+            'mt-select-stub[placeholder="sw-sales-channel.detail.productComparison.placeholderSelectFileFormat"]',
         );
 
         expect(field.attributes().disabled).toBeUndefined();

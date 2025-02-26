@@ -8,15 +8,11 @@
     </h3>
 
     <div class="sw-cms-el-form-contact-form-group three-items">
-        <sw-select-field :label="$tc('sw-cms.elements.form.element.label.salutation')">
-            <option
-                value=""
-                disabled
-                selected
-            >
-                {{ $tc('sw-cms.elements.form.element.label.salutationUndisclosed') }}
-            </option>
-        </sw-select-field>
+        <mt-select
+            :model-value="'default'"
+            :label="$tc('sw-cms.elements.form.element.label.salutation')"
+            :options="salutationOptions"
+        />
 
         <mt-text-field
             :label="$tc('sw-cms.elements.form.element.label.firstName')"

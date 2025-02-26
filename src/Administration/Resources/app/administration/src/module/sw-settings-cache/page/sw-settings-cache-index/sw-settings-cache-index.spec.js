@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
+import selectMtSelectOptionByText from '../../../../../test/_helper_/select-mt-select-by-text';
 
 const cacheInfo = {
     data: {
@@ -35,8 +36,6 @@ async function createWrapper(indexMock = jest.fn(() => Promise.resolve()), delay
                 'sw-card-section': await wrapTestComponent('sw-card-section'),
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-button-process': await wrapTestComponent('sw-button-process'),
-                'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
-                'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-label': await wrapTestComponent('sw-label'),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
@@ -58,6 +57,9 @@ async function createWrapper(indexMock = jest.fn(() => Promise.resolve()), delay
                 'sw-inheritance-switch': true,
                 'sw-help-text': true,
                 'sw-color-badge': true,
+                'mt-popover-deprecated': {
+                    template: '<div class="mt-popover-deprecated"><slot></slot></div>',
+                },
             },
         },
     });
@@ -76,9 +78,7 @@ describe('module/sw-settings-cache/page/sw-settings-cache-index', () => {
         expect(indexesSelectLabel.text()).toBe('sw-settings-cache.section.indexesSkipSelectLabel');
         expect(indexSelectPlaceholder.text()).toBe('sw-settings-cache.section.indexesSkipSelectPlaceholder');
 
-        const methodSelect = wrapper.find('select[name="indexingMethod"]');
-        await methodSelect.setValue('only');
-        await flushPromises();
+        await selectMtSelectOptionByText(wrapper, 'sw-settings-cache.section.indexingModeOptionOnlyLabel');
 
         expect(indexesSelectLabel.text()).toBe('sw-settings-cache.section.indexesOnlySelectLabel');
         expect(indexSelectPlaceholder.text()).toBe('sw-settings-cache.section.indexesOnlySelectPlaceholder');
@@ -118,8 +118,7 @@ describe('module/sw-settings-cache/page/sw-settings-cache-index', () => {
         expect(indexMock).toHaveBeenCalledTimes(1);
         expect(indexMock).toHaveBeenCalledWith(['category.tree'], []);
 
-        const methodSelect = wrapper.find('select[name="indexingMethod"]');
-        await methodSelect.setValue('only');
+        await selectMtSelectOptionByText(wrapper, 'sw-settings-cache.section.indexingModeOptionOnlyLabel');
 
         await button.trigger('click');
         await flushPromises();

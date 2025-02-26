@@ -179,20 +179,14 @@
                         justify="end"
                         align="end"
                     >
-                        <sw-select-field
-                            v-model:value="indexingMethod"
+                        <mt-select
+                            v-model="indexingMethod"
                             name="indexingMethod"
                             class="sw-settings-cache__skip-indexers-select"
                             :label="$tc('sw-settings-cache.section.indexingModeLabel')"
                             :disabled="processes.updateIndexes"
-                        >
-                            <option value="skip">
-                                {{ $tc('sw-settings-cache.section.indexingModeOptionSkipLabel') }}
-                            </option>
-                            <option value="only">
-                                {{ $tc('sw-settings-cache.section.indexingModeOptionOnlyLabel') }}
-                            </option>
-                        </sw-select-field>
+                            :options="indexingMethodOptions"
+                        />
 
                         {% block sw_settings_cache_content_indexes_row_skip_select %}
                         <sw-select-base

@@ -155,6 +155,26 @@ export default {
         associationValue() {
             return this.crossSelling?.productStreamId || '';
         },
+
+        crossSellingTypeOptions() {
+            return this.crossSellingTypes.map((item) => {
+                return {
+                    id: item.value,
+                    value: item.value,
+                    label: item.label,
+                };
+            });
+        },
+
+        sortingTypeOptions() {
+            return this.sortingTypes.map((item) => {
+                return {
+                    id: item.value,
+                    value: item.value,
+                    label: item.label,
+                };
+            });
+        },
     },
 
     watch: {

@@ -55,8 +55,8 @@
         {% endblock %}
 
         {% block sw_cms_block_config_background_color_field %}
-        <sw-colorpicker
-            v-model:value="block.backgroundColor"
+        <mt-colorpicker
+            v-model="block.backgroundColor"
             :label="$tc('sw-cms.detail.label.backgroundColorLabel')"
             :placeholder="$tc('sw-cms.detail.label.backgroundColorField')"
         />

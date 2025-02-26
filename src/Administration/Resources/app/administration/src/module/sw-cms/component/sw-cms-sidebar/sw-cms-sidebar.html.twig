@@ -509,7 +509,7 @@
         class="sw-cms-sidebar__layout-assignment"
         icon="regular-share"
         :title="$tc('sw-cms.detail.sidebar.titleLayoutAssignment')"
-        :disabled="page.locked || disabled"
+        :disabled="isLayoutAssignmentDisabled"
     >
 
         {% block sw_cms_sidebar_layout_assignment_content %}

@@ -3,9 +3,9 @@
 namespace Shopware\Core\System\Snippet;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Kernel;
 use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 #[Package('discovery')]
 class SnippetValidator implements SnippetValidatorInterface
@@ -17,7 +17,7 @@ class SnippetValidator implements SnippetValidatorInterface
         private readonly SnippetFileCollection $deprecatedSnippetFiles,
         private readonly SnippetFileHandler $snippetFileHandler,
         private readonly string $projectDir,
-        private readonly Kernel $kernel
+        private readonly KernelInterface $kernel
     ) {
     }
 
@@ -48,11 +48,11 @@ class SnippetValidator implements SnippetValidatorInterface
     }
 
     /**
-     * @param array<string, class-string> $bundles
+     * @param array<int, string> $bundles
      */
     protected function getAllFiles(array $bundles): SnippetFileCollection
     {
-        if($bundles !== []) {
+        if ($bundles !== []) {
             $bundles = array_map(fn (string $bundle) => $this->kernel->getBundle($bundle), $bundles);
         }
 

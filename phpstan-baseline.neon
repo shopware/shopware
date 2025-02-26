@@ -2776,17 +2776,7 @@ parameters:
 			path: src/Core/System/Snippet/Command/ValidateSnippetsCommand.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\SnippetFileHandler\\:\\:findAdministrationSnippetFiles\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/SnippetFileHandler.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\SnippetFileHandler\\:\\:findSnippetFilesByPath\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/SnippetFileHandler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\SnippetFileHandler\\:\\:findStorefrontSnippetFiles\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Snippet/SnippetFileHandler.php
 
@@ -2824,11 +2814,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$translation of method Shopware\\\\Core\\\\System\\\\Snippet\\\\SnippetFixer\\:\\:addTranslationUsingSnippetKey\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/System/Snippet/SnippetFixer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\SnippetValidatorInterface\\:\\:validate\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/SnippetValidatorInterface.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\StateMachine\\\\Loader\\\\InitialStateIdLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"

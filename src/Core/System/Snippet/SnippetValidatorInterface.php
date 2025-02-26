@@ -8,7 +8,8 @@ use Shopware\Core\Framework\Log\Package;
 interface SnippetValidatorInterface
 {
     /**
-     * @param array<string, class-string> $bundles
+     * @param array<int, string> $bundles
+     *
      * @return array<string, mixed>
      */
     public function validate(array $bundles): array;

@@ -2,9 +2,7 @@
 
 namespace Shopware\Core\System\Snippet;
 
-use Shopware\Administration\Administration;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Storefront\Storefront;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
@@ -30,46 +28,22 @@ class SnippetFileHandler
         file_put_contents($path, $json);
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function findBundleSnippetFiles(BundleInterface $bundle): array
     {
         $storefrontSnippets = [];
-        if(is_dir($bundle->getPath() . '/Resources/snippet/')) {
-            $storefrontSnippets =  $this->findSnippetFilesByPath($bundle->getPath() . '/Resources/snippet/');
+        if (is_dir($bundle->getPath() . '/Resources/snippet/')) {
+            $storefrontSnippets = $this->findSnippetFilesByPath($bundle->getPath() . '/Resources/snippet/');
         }
 
         $administrationSnippets = [];
-        if(is_dir($bundle->getPath() . '/Resources/app/*/src/')) {
+        if (is_dir($bundle->getPath() . '/Resources/app/*/src/')) {
             $administrationSnippets = $this->findSnippetFilesByPath($bundle->getPath() . '/Resources/app/*/src/');
         }
 
-        return array_merge($storefrontSnippets, $administrationSnippets);
-    }
-
-    public function findAdministrationSnippetFiles(): array
-    {
-        if (!($bundleDir = $this->getBundleDir(Administration::class))) {
-            return [];
-        }
-
-        return $this->findSnippetFilesByPath($bundleDir . '/Resources/app/*/src/');
-    }
-
-    public function findStorefrontSnippetFiles(): array
-    {
-        if (!($bundleDir = $this->getBundleDir(Storefront::class))) {
-            return [];
-        }
-
-        return $this->findSnippetFilesByPath($bundleDir . '/Resources/snippet/');
-    }
-
-    private function getBundleDir(string $bundleClass): ?string
-    {
-        if (!class_exists($bundleClass)) {
-            return null;
-        }
-
-        return \dirname((string) (new \ReflectionClass($bundleClass))->getFileName());
+        return array_merge(...$storefrontSnippets, ...$administrationSnippets);
     }
 
     private function findSnippetFilesByPath(string $path): array

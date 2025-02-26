@@ -43,7 +43,7 @@ class ValidateSnippetsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $bundles = array_map('trim', array_filter(explode(',', $input->getOption('bundle'))));
+        $bundles = array_map('trim', array_filter(explode(',', (string) $input->getOption('bundle'))));
 
         $missingSnippetsArray = $this->snippetValidator->validate($bundles);
         $missingSnippetsCollection = $this->hydrateMissingSnippets($missingSnippetsArray);

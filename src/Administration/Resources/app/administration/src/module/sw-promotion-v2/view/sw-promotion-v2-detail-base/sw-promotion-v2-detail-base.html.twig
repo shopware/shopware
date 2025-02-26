@@ -42,8 +42,8 @@
         >
 
             {% block sw_promotion_v2_detail_base_general_valid_from %}
-            <sw-datepicker
-                v-model:value="promotion.validFrom"
+            <mt-datepicker
+                v-model="promotion.validFrom"
                 class="sw-promotion-v2-detail-base__field-valid-from"
                 date-type="datetime"
                 :label="$tc('sw-promotion-v2.detail.base.general.validFromLabel')"
@@ -53,8 +53,8 @@
             {% endblock %}
 
             {% block sw_promotion_v2_detail_base_general_valid_until %}
-            <sw-datepicker
-                v-model:value="promotion.validUntil"
+            <mt-datepicker
+                v-model="promotion.validUntil"
                 class="sw-promotion-v2-detail-base__field-valid-until"
                 date-type="datetime"
                 :label="$tc('sw-promotion-v2.detail.base.general.validUntilLabel')"

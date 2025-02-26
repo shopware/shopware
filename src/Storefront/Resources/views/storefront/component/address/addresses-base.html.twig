@@ -7,9 +7,9 @@
 {% block address_base_list %}
     <div class="address-manager-list-base mb-3" data-address-search="true">
         {% block address_base_list_title %}
-            <h5 class="mt-4">
+            <h2 class="mt-4">
                 {{ "account.addressListHeader"|trans|sw_sanitize }}
-            </h5>
+            </h2>
         {% endblock %}
 
         <div class="d-flex justify-content-between gap-3 mb-4">
@@ -17,7 +17,6 @@
                 <input
                     type="search"
                     class="form-control address-manager-list-search"
-                    autocomplete="address"
                     placeholder="{{ "account.addressSearchPlaceholder"|trans|sw_sanitize }}"
                     name="search"
                     value=""

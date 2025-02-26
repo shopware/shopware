@@ -270,6 +270,17 @@
       "headerTotalPrice": "Gesamt",
       "headerTax": "Steuersatz"
     },
+    "detailDeliveries": {
+      "cardTitleItems": "Lieferung {count}",
+      "labelShippingMethod": "Versandart",
+      "labelDeliveryDate": "Lieferdatum",
+      "labelShippingCosts": "Versandkosten",
+      "labelDeliveryState": "Lieferstatus",
+      "buttonMerge": "Lieferung zusammenfügen"
+    },
+    "detailCustomerComment": {
+      "title": "Zusätzliche Informationen"
+    },
     "addressSelection": {
       "modalTitleEditAddress": "Adressen",
       "modalTitleSelectAddress": "Adresse ändern",
@@ -292,21 +303,8 @@
     },
     "saveChangesBeforehandModal": {
       "headline": "Warnung",
-      "statusDescription": "Bevor der Status geändert werden kann, müssen die Änderungen der Bestellung gespeichert werden. Möchtest du jetzt deine Änderungen speichern?",
-      "confirmButton": "Änderungen speichern",
-      "cancelButton": "Abbrechen"
-    },
-    "detailDeliveries": {
-      "cardTitleItems": "Lieferung {count}",
-      "labelShippingMethod": "Versandart",
-      "labelDeliveryDate": "Lieferdatum",
-      "labelShippingCosts": "Versandkosten",
-      "labelDeliveryState": "Lieferstatus",
-      "buttonMerge": "Lieferung zusammenfügen",
-      "buttonDelete": "Löschen"
-    },
-    "detailCustomerComment": {
-      "title": "Zusätzliche Informationen"
+      "statusDescription": "Bevor der Status geändert werden kann, müssen die Änderungen der Bestellung gespeichert werden. Möchtest Du jetzt deine Änderungen speichern?",
+      "confirmButton": "Änderungen speichern"
     },
     "stateCard": {
       "cardTitle": "Statusverlauf",

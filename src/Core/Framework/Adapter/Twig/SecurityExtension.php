@@ -40,12 +40,8 @@ class SecurityExtension extends AbstractExtension
      */
     public function map(?iterable $array, string|callable|\Closure $function): ?array
     {
-        if ($array === null) {
+        if ($array === null || !\is_callable($function)) {
             return null;
-        }
-
-        if (\is_array($function)) {
-            $function = implode('::', $function);
         }
 
         if (\is_string($function) && !\in_array($function, $this->allowedPHPFunctions, true)) {
@@ -54,8 +50,14 @@ class SecurityExtension extends AbstractExtension
 
         $result = [];
         foreach ($array as $key => $value) {
-            // @phpstan-ignore-next-line
-            $result[$key] = $function($value);
+            if (\is_string($function)) {
+                // Custom functions
+                // @phpstan-ignore-next-line (Dynamic function name allowed)
+                $result[$key] = $function($value);
+            } else {
+                // @phpstan-ignore-next-line (Dynamic function name allowed)
+                $result[$key] = $function($value, $key);
+            }
         }
 
         return $result;

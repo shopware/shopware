@@ -43,7 +43,7 @@ class SnippetFileHandler
             $administrationSnippets = $this->findSnippetFilesByPath($bundle->getPath() . '/Resources/app/*/src/');
         }
 
-        return array_merge(...$storefrontSnippets, ...$administrationSnippets);
+        return array_merge($storefrontSnippets, $administrationSnippets);
     }
 
     private function findSnippetFilesByPath(string $path): array

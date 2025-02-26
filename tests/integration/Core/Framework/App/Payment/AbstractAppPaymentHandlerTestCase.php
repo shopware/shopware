@@ -114,7 +114,7 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/testPayments/manifest.xml');
 
         $appLifecycle = static::getContainer()->get(AppLifecycle::class);
-        $appLifecycle->install($manifest, new AppInstallParameters(activate: true), $this->context);
+        $appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'testPayments'));

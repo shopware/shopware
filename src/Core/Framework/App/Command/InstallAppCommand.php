@@ -89,10 +89,7 @@ class InstallAppCommand extends Command
                 // in the future: if it was forced then it counts as not accepted
                 $this->appLifecycle->install(
                     $manifest,
-                    new AppInstallParameters(
-                        activate: $input->getOption('activate'),
-                        acceptPermissions: true
-                    ),
+                    new AppInstallParameters(activate: $input->getOption('activate')),
                     $context
                 );
             } catch (AppAlreadyInstalledException) {

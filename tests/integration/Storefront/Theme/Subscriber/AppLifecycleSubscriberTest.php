@@ -50,7 +50,7 @@ class AppLifecycleSubscriberTest extends TestCase
     public function testThemeRemovalOnDelete(bool $keepUserData): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../fixtures/Apps/theme/manifest.xml');
-        $this->appLifecycle->install($manifest, new AppInstallParameters(true), $this->context);
+        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
 
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
         static::assertCount(1, $apps);

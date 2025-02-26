@@ -58,7 +58,7 @@ class AppLifecycleIterator
                 if (version_compare($manifest->getMetadata()->getVersion(), $app['version']) > 0) {
                     $appLifecycle->update(
                         $manifest,
-                        new AppUpdateParameters($parameters->activate),
+                        new AppUpdateParameters(acceptPermissions: $parameters->acceptPermissions),
                         $app,
                         $context
                     );

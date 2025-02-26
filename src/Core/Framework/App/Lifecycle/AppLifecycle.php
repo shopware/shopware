@@ -137,7 +137,7 @@ class AppLifecycle extends AbstractAppLifecycle
 
         $app = $this->updateApp(
             $manifest,
-            new AppUpdateParameters($parameters->acceptPermissions),
+            new AppUpdateParameters(acceptPermissions: $parameters->acceptPermissions),
             $metadata,
             $appId,
             $roleId,

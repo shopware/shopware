@@ -25,7 +25,7 @@ trait CustomFieldTypeTestBehaviour
 
         $context = Context::createDefaultContext();
         $appLifecycle = static::getContainer()->get(AppLifecycle::class);
-        $appLifecycle->install($manifest, new AppInstallParameters(activate: true), $context);
+        $appLifecycle->install($manifest, new AppInstallParameters(), $context);
 
         /** @var EntityRepository<AppCollection> $appRepository */
         $appRepository = static::getContainer()->get('app.repository');

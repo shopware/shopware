@@ -70,10 +70,7 @@ class ServiceLifecycle
         try {
             $this->appLifecycle->install(
                 $manifest,
-                new AppInstallParameters(
-                    activate: $serviceEntry->activateOnInstall,
-                    acceptPermissions: true,
-                ),
+                new AppInstallParameters(activate: $serviceEntry->activateOnInstall),
                 Context::createDefaultContext()
             );
 
@@ -123,7 +120,7 @@ class ServiceLifecycle
         try {
             $this->appLifecycle->update(
                 $manifest,
-                new AppUpdateParameters(acceptPermissions: true),
+                new AppUpdateParameters(),
                 [
                     'id' => $app->getId(),
                     'roleId' => $app->getAclRoleId(),

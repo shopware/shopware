@@ -88,7 +88,7 @@ class CreateAppCommand extends Command
         if ($doInstall) {
             $this->appLifecycle->install(
                 Manifest::createFromXmlFile($dir . '/manifest.xml'),
-                new AppInstallParameters(activate: true),
+                new AppInstallParameters(),
                 Context::createCLIContext()
             );
 

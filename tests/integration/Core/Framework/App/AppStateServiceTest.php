@@ -98,7 +98,7 @@ class AppStateServiceTest extends TestCase
     public function testDeactivate(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/Manifest/_fixtures/test/manifest.xml');
-        $this->appLifecycle->install($manifest, new AppInstallParameters(activate: true), $this->context);
+        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
         $appId = $this->appRepository->searchIds(new Criteria(), $this->context)->firstId();
         static::assertNotNull($appId);
         $this->assertAppState($appId, true);
@@ -124,7 +124,7 @@ class AppStateServiceTest extends TestCase
     public function testDeactivateThrowsIfDeactivationIsNotAllowed(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/Manifest/_fixtures/test/manifest.xml');
-        $this->appLifecycle->install($manifest, new AppInstallParameters(activate: true), $this->context);
+        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
         $appId = $this->appRepository->searchIds(new Criteria(), $this->context)->firstId();
         static::assertNotNull($appId);
         $this->assertAppState($appId, true);

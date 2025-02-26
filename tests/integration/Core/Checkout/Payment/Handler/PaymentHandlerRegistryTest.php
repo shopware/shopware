@@ -41,7 +41,7 @@ class PaymentHandlerRegistryTest extends TestCase
 
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/testPayments/manifest.xml');
         $appLifecycle = static::getContainer()->get(AppLifecycle::class);
-        $appLifecycle->install($manifest, new AppInstallParameters(activate: true), Context::createDefaultContext());
+        $appLifecycle->install($manifest, new AppInstallParameters(), Context::createDefaultContext());
     }
 
     public function testGetHandler(): void

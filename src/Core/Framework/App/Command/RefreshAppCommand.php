@@ -95,10 +95,7 @@ class RefreshAppCommand extends Command
 
         // in the future: if it was forced then it counts as not accepted, eg: $input->getOption('force') === false
         $fails = $this->appService->doRefreshApps(
-            new AppInstallParameters(
-                activate: $input->getOption('activate'),
-                acceptPermissions: true
-            ),
+            new AppInstallParameters(activate: $input->getOption('activate')),
             $context,
             $refreshableApps->getAppNames()
         );

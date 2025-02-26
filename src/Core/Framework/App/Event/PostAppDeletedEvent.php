@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @final
+ */
 #[Package('framework')]
 class PostAppDeletedEvent extends Event implements ShopwareEvent
 {

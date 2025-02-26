@@ -379,15 +379,14 @@ describe('sw-order-document-settings-credit-note-modal', () => {
     });
 
     it('should show only invoice numbers in invoice number select field', async () => {
-        const invoiceSelect = wrapper.find('.sw-order-document-settings-credit-note-modal__invoice-select');
+        const invoiceSelect = wrapper.find('.sw-order-document-settings-credit-note-modal__invoice-select input');
         await invoiceSelect.trigger('click');
 
-        const invoiceOptions = wrapper
-            .find('.sw-order-document-settings-credit-note-modal__invoice-select')
-            .findAll('option');
+        const invoiceOptions = wrapper.find('.mt-select-result-list-popover').findAll('.mt-select-result');
 
-        expect(invoiceOptions.at(1).text()).toBe('1000');
-        expect(invoiceOptions.at(2).text()).toBe('1001');
+        expect(invoiceOptions).toHaveLength(2);
+        expect(invoiceOptions.at(0).text()).toBe('1000');
+        expect(invoiceOptions.at(1).text()).toBe('1001');
     });
 
     it('should disable create button if there is no selected invoice', async () => {
@@ -399,14 +398,12 @@ describe('sw-order-document-settings-credit-note-modal', () => {
     });
 
     it('should enable create button if there is at least one selected invoice', async () => {
-        const invoiceSelect = wrapper.find('.sw-order-document-settings-credit-note-modal__invoice-select');
+        const invoiceSelect = wrapper.find('.sw-order-document-settings-credit-note-modal__invoice-select input');
         await invoiceSelect.trigger('click');
 
-        const invoiceOptions = wrapper
-            .find('.sw-order-document-settings-credit-note-modal__invoice-select')
-            .findAll('option');
+        const invoiceOptions = wrapper.find('.mt-select-result-list-popover').findAll('.mt-select-result');
 
-        await invoiceOptions.at(1).setSelected();
+        await invoiceOptions.at(0).trigger('click');
         await wrapper.vm.$nextTick();
 
         const createButton = wrapper.find('.sw-order-document-settings-modal__create');

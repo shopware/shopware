@@ -147,25 +147,17 @@
                         {% endblock %}
 
                         {% block sw_settings_user_detail_grid_content_language %}
-                        <sw-select-field
-                            v-model:value="user.localeId"
+                        <mt-select
+                            v-model="user.localeId"
                             name="sw-field--user-localeId"
                             class="sw-settings-user-detail__grid-language"
                             :label="$tc('sw-users-permissions.users.user-detail.labelLanguage')"
                             :disabled="!acl.can('users_and_permissions.editor') || undefined"
                             :error="userLocaleIdError"
+                            :options="localeOptions"
                             required
                             :placeholder="$tc('sw-users-permissions.users.user-detail.labelLanguagePlaceholder')"
-                        >
-                            <option
-                                v-for="language in languages"
-                                :key="language.locale.id"
-                                :value="language.locale.id"
-                                :selected="language.locale.id === user.localeId"
-                            >
-                                {{ language.customLabel }}
-                            </option>
-                        </sw-select-field>
+                        />
                         {% endblock %}
 
                         {% block sw_settings_user_detail_grid_content_timezone %}

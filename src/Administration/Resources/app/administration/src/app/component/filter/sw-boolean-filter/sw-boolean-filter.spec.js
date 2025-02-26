@@ -3,23 +3,15 @@
  */
 
 import { mount } from '@vue/test-utils';
+import selectMtSelectOptionByText from 'test/_helper_/select-mt-select-by-text';
 
 const { Criteria } = Shopware.Data;
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-boolean-filter', { sync: true }), {
+        attachTo: document.body,
         global: {
             stubs: {
-                'sw-block-field': await wrapTestComponent('sw-block-field', {
-                    sync: true,
-                }),
-                'sw-base-field': await wrapTestComponent('sw-base-field', {
-                    sync: true,
-                }),
-                'sw-select-field': await wrapTestComponent('sw-select-field', {
-                    sync: true,
-                }),
-                'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
                 'sw-base-filter': await wrapTestComponent('sw-base-filter', {
                     sync: true,
                 }),
@@ -27,7 +19,6 @@ async function createWrapper() {
                 'sw-ai-copilot-badge': true,
                 'sw-inheritance-switch': true,
                 'sw-loader': true,
-                'mt-select': true,
                 'sw-field-error': {
                     template: '<div></div>',
                 },
@@ -50,9 +41,7 @@ describe('components/sw-boolean-filter', () => {
     it('should emit `filter-update` event when user changes from default option to `Active`', async () => {
         const wrapper = await createWrapper();
 
-        const options = wrapper.find('select').findAll('option');
-
-        await options.at(0).setSelected();
+        await selectMtSelectOptionByText(wrapper, 'sw-boolean-filter.active');
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'manufacturerId',
@@ -64,9 +53,7 @@ describe('components/sw-boolean-filter', () => {
     it('should emit `filter-update` event when user changes from default option to `Inactive`', async () => {
         const wrapper = await createWrapper();
 
-        const options = wrapper.find('select').findAll('option');
-
-        await options.at(1).setSelected();
+        await selectMtSelectOptionByText(wrapper, 'sw-boolean-filter.inactive');
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'manufacturerId',
@@ -100,46 +87,11 @@ describe('components/sw-boolean-filter', () => {
 
         expect(wrapper.emitted()['filter-reset']).toBeTruthy();
     });
-    //
-
-    it('should emit `filter-update` event when user changes from `Active` to `Inactive`', async () => {
-        const wrapper = await createWrapper();
-
-        await wrapper.get('.sw-block-field__block').trigger('click');
-
-        const options = wrapper.find('select').findAll('option');
-
-        await options.at(1).setSelected();
-
-        expect(wrapper.emitted()['filter-update'][0]).toEqual([
-            'manufacturerId',
-            [Criteria.equals('manufacturerId', false)],
-            'false',
-        ]);
-    });
-
-    it('should emit `filter-update` event when user changes from `Inactive` to `Active`', async () => {
-        const wrapper = await createWrapper();
-
-        await wrapper.get('.sw-block-field__block').trigger('click');
-
-        const options = wrapper.find('select').findAll('option');
-
-        await options.at(0).setSelected();
-
-        expect(wrapper.emitted()['filter-update'][0]).toEqual([
-            'manufacturerId',
-            [Criteria.equals('manufacturerId', true)],
-            'true',
-        ]);
-    });
 
     it('should reset the filter value when `active` is false', async () => {
         const wrapper = await createWrapper();
 
-        const options = wrapper.find('select').findAll('option');
-
-        await options.at(0).setSelected();
+        await selectMtSelectOptionByText(wrapper, 'sw-boolean-filter.active');
 
         await wrapper.setProps({ active: false });
 
@@ -151,9 +103,7 @@ describe('components/sw-boolean-filter', () => {
     it('should not reset the filter value when `active` is true', async () => {
         const wrapper = await createWrapper();
 
-        const options = wrapper.find('select').findAll('option');
-
-        await options.at(0).setSelected();
+        await selectMtSelectOptionByText(wrapper, 'sw-boolean-filter.active');
 
         await wrapper.setProps({ active: true });
 

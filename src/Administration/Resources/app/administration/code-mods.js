@@ -267,6 +267,7 @@ async function lintFiles(filePaths, fix, shopwareVersion) {
                                         'sw-datepicker',
                                         'sw-icon',
                                         'sw-url-field',
+                                        'sw-select-field',
                                     ],
                                 }],
                                 'sw-deprecation-rules/no-deprecated-component-usage': ['error'],

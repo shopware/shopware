@@ -211,6 +211,9 @@ config.global.stubs = {
         </div>
     `,
     },
+    'mt-popover-deprecated': {
+        template: `<div class="mt-popover-deprecated"><slot/></div>`
+    },
     'mt-banner': MtBanner,
     'mt-button': MtButton,
     'mt-card': MtCard,

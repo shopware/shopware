@@ -109,7 +109,6 @@ describe('core/helper/sanitizer.helper.js', () => {
     it('should sanitize untrusted HTML in a component', async () => {
         const $route = {
             meta: { $module: { icon: 'regular-storefront' } },
-
         };
 
         const unsanitized = '<x oncut=alert()>x';

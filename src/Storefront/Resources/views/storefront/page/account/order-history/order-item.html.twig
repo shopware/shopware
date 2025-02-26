@@ -64,7 +64,7 @@
                             {% block page_account_order_item_context_menu_button %}
                                 <button class="btn order-table-header-context-menu btn-light float-end"
                                         type="button"
-                                        id="accountOrderDropdown"
+                                        id="accountOrderDropdown-{{ order.id }}"
                                         data-bs-toggle="dropdown"
                                         aria-haspopup="true"
                                         aria-expanded="false"
@@ -75,7 +75,7 @@
 
                             {% block page_account_order_item_context_menu_content %}
                                 <div class="dropdown-menu dropdown-menu-end order-table-header-context-menu-content"
-                                     aria-labelledby="accountOrderDropdown">
+                                     aria-labelledby="accountOrderDropdown-{{ order.id }}">
                                     {% if orderState != ORDER_STATE_CANCELLED and orderPaymentState in ALLOWED_TRANSACTION_STATES %}
                                         {% block page_account_order_item_context_menu_content_change_payment_button %}
                                             {% if isPaymentNeeded %}

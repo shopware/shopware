@@ -97,7 +97,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     'sw-inherit-wrapper': true,
                     'sw-media-collapse': true,
                     'mt-tabs': true,
-                    'mt-checkbox': true,
                     'sw-highlight-text': true,
                     'sw-select-result': true,
                     'sw-select-result-list': true,

@@ -59,7 +59,7 @@ class PercentagePriceDefinition extends Struct implements PriceDefinitionInterfa
     }
 
     /**
-     * @return array<string, Constraint[]>
+     * @return array<string, list<Constraint>>
      */
     public static function getConstraints(): array
     {

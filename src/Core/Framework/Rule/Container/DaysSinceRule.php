@@ -3,11 +3,11 @@
 namespace Shopware\Core\Framework\Rule\Container;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
+use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
@@ -29,7 +29,7 @@ abstract class DaysSinceRule extends Rule
         $currentDate = $scope->getCurrentTime()->setTime(0, 0, 0, 0);
 
         if ($this->daysPassed === null && $this->operator !== self::OPERATOR_EMPTY) {
-            throw new UnsupportedValueException(\gettype($this->daysPassed), self::class);
+            throw RuleException::unsupportedValue(\gettype($this->daysPassed), self::class);
         }
 
         if (!$date = $this->getDate($scope)) {

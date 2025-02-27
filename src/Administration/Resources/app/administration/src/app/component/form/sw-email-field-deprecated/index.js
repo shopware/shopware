@@ -4,7 +4,7 @@ const { Component } = Shopware;
 
 /**
  * @sw-package framework
- * @deprecated tag:v6.7.0  - Will be removed use mt-email-field instead.
+ * @deprecated tag:v6.8.0  - Will be removed use mt-email-field instead.
  *
  * @private
  * @description Simple email field.

@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Document\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Document\DocumentCollection;
-use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
@@ -93,22 +92,21 @@ final class DocumentRoute extends AbstractDocumentRoute
 
     private function checkGuestAuth(string $documentId, Request $request, Context $context): void
     {
-        $criteria = new Criteria([$documentId]);
-        $criteria->addAssociation('order.orderCustomer.customer');
-        $criteria->addAssociation('order.billingAddress');
+        $criteria = (new Criteria([$documentId]))
+            ->addAssociations(['order.orderCustomer.customer', 'order.billingAddress']);
 
-        $document = $this->documentRepository->search($criteria, $context)->first();
-        if (!$document instanceof DocumentEntity) {
+        $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
+        if (!$document) {
             throw DocumentException::documentNotFound($documentId);
         }
 
         $order = $document->getOrder();
-        if ($order === null) {
+        if (!$order) {
             throw DocumentException::guestNotAuthenticated();
         }
 
         $orderCustomer = $order->getOrderCustomer();
-        if ($orderCustomer === null) {
+        if (!$orderCustomer) {
             throw DocumentException::customerNotLoggedIn();
         }
 

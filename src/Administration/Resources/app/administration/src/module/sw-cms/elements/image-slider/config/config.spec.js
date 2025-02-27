@@ -4,7 +4,7 @@
 /* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
-import { MtSwitch } from '@shopware-ag/meteor-component-library';
+import { MtSwitch, MtUrlField } from '@shopware-ag/meteor-component-library';
 import selectMtSelectOptionByText from '../../../../../../test/_helper_/select-mt-select-by-text';
 
 async function createWrapper(activeTab = 'content', sliderItems = []) {
@@ -74,11 +74,11 @@ async function createWrapper(activeTab = 'content', sliderItems = []) {
                         props: ['item'],
                     },
                     'sw-media-modal-v2': true,
-                    'sw-url-field': true,
                     'sw-loader': true,
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,
                     'mt-switch': MtSwitch,
+                    'mt-url-field': MtUrlField,
                 },
             },
             props: {

@@ -33,22 +33,6 @@ Component.register('sw-url-field', {
     },
 
     computed: {
-        useMeteorComponent() {
-            // Use new meteor component in major
-            if (Shopware.Feature.isActive('ENABLE_METEOR_COMPONENTS')) {
-                return true;
-            }
-
-            // Throw warning when deprecated component is used
-            Shopware.Utils.debug.warn(
-                'sw-url-field',
-                // eslint-disable-next-line max-len
-                'The old usage of "sw-url-field" is deprecated and will be removed in v6.7.0.0. Please use "mt-url-field" instead.',
-            );
-
-            return false;
-        },
-
         realValue: {
             get() {
                 return this.modelValue || this.value;

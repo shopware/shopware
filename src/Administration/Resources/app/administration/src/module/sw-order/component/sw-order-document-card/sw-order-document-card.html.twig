@@ -117,7 +117,7 @@
                 <sw-context-menu-item
                     :disabled="!acl.can('document.viewer')"
                     class="sw-order-document-card__context-button-open-pdf"
-                    @click="onOpenDocument(item.id, item.deepLinkCode)"
+                    @click="onOpenDocument(item.id, item.deepLinkCode, item.documentMediaFile?.fileExtension)"
                 >
                     {% block sw_order_document_card_grid_action_open_label %}
                     {{ $tc('sw-order.documentCard.labelOpenDocument') }}
@@ -129,7 +129,7 @@
                 <sw-context-menu-item
                     :disabled="!acl.can('document.viewer')"
                     class="sw-order-document-card__context-button-download-pdf"
-                    @click="onDownload(item.id, item.deepLinkCode)"
+                    @click="onDownload(item.id, item.deepLinkCode, item.documentMediaFile?.fileExtension)"
                 >
                     {% block sw_order_document_card_grid_action_download_label %}
                     {{ $tc('sw-order.documentCard.labelDownloadPdf') }}

@@ -194,9 +194,9 @@
                         {% endblock %}
 
                         {% block sw_customer_card_metadata_customer_email_editor %}
-                        <sw-email-field
+                        <mt-email-field
                             v-else
-                            v-model:value="customer.email"
+                            v-model="customer.email"
                             name="sw-field--customer-email"
                             validation="required"
                             required

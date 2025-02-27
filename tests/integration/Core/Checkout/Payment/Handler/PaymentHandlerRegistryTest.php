@@ -5,8 +5,10 @@ namespace Shopware\Tests\Integration\Core\Checkout\Payment\Handler;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\InvoicePayment;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodCollection;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -29,8 +31,14 @@ class PaymentHandlerRegistryTest extends TestCase
 
     private PaymentHandlerRegistry $paymentHandlerRegistry;
 
+    /**
+     * @var EntityRepository<PaymentMethodCollection>
+     */
     private EntityRepository $paymentMethodRepository;
 
+    /**
+     * @var EntityRepository<AppPaymentMethodCollection>
+     */
     private EntityRepository $appPaymentMethodRepository;
 
     protected function setUp(): void

@@ -6,7 +6,7 @@ namespace Shopware\Core\Checkout\Cart\Order\Api;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
-use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -21,6 +21,8 @@ class OrderConverterController extends AbstractController
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<OrderCollection> $orderRepository
      */
     public function __construct(
         private readonly OrderConverter $orderConverter,
@@ -40,9 +42,7 @@ class OrderConverterController extends AbstractController
             ->addAssociation('deliveries.shippingOrderAddress.country')
             ->addAssociation('deliveries.shippingOrderAddress.countryState');
 
-        /** @var OrderEntity|null $order */
-        $order = $this->orderRepository->search($criteria, $context)->get($orderId);
-
+        $order = $this->orderRepository->search($criteria, $context)->getEntities()->first();
         if (!$order) {
             throw CartException::orderNotFound($orderId);
         }

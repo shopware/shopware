@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraint;
-use Symfony\Component\Validator\Exception\MissingOptionsException;
 
 #[Package('checkout')]
 class CustomerEmailUnique extends Constraint
@@ -31,11 +31,11 @@ class CustomerEmailUnique extends Constraint
     public function __construct(array $options)
     {
         if (!($options['context'] ?? null) instanceof Context) {
-            throw new MissingOptionsException(\sprintf('Option "context" must be given for constraint %s', self::class), ['context']);
+            throw CustomerException::missingOption('context', self::class);
         }
 
         if (!($options['salesChannelContext'] ?? null) instanceof SalesChannelContext) {
-            throw new MissingOptionsException(\sprintf('Option "salesChannelContext" must be given for constraint %s', self::class), ['salesChannelContext']);
+            throw CustomerException::missingOption('salesChannelContext', self::class);
         }
 
         parent::__construct($options);

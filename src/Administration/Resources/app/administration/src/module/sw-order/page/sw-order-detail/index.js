@@ -321,7 +321,7 @@ export default {
                         mapping.deliveryId = this.order.deliveries[0].id;
                     }
 
-                    mapping.deliveryId = this.order.primaryOrderDelivery.id;
+                    mapping.deliveryId = this.order.primaryOrderDelivery?.id;
                 }
 
                 mappings.push(mapping);

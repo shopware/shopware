@@ -151,10 +151,7 @@ class OrderConverter
                 usort(
                     $data['deliveries'],
                     function (array $deliveryA, array $deliveryB) {
-                        if ($deliveryA['positions'] === []) {
-                            return $deliveryB['shippingCosts']->getTotalPrice();
-                        }
-                        return $deliveryB['shippingCosts']->getTotalPrice() <=> $deliveryA['positions'][0]['price']->getTotalPrice();
+                        return $deliveryB['shippingCosts']->getTotalPrice() <=> (\count($deliveryA['positions']) > 0 ? $deliveryA['positions'][0]['price']->getTotalPrice() : 0);
                     }
                 );
                 $data['deliveries'][0]['id'] ??= Uuid::randomHex();

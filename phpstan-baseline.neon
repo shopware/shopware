@@ -226,11 +226,6 @@ parameters:
 			path: src/Core/Content/Flow/DataAbstractionLayer/FieldSerializer/FlowTemplateConfigFieldSerializer.php
 
 		-
-			message: "#^Expected domain exception class Shopware\\\\Core\\\\Content\\\\Flow\\\\FlowException, got Shopware\\\\Core\\\\System\\\\StateMachine\\\\StateMachineException$#"
-			count: 2
-			path: src/Core/Content/Flow/Dispatching/Action/SetOrderStateAction.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\FlowBuilder\\:\\:build\\(\\) has parameter \\$flowSequences with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Flow/Dispatching/FlowBuilder.php

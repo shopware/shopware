@@ -17,7 +17,6 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
-use Shopware\Core\System\StateMachine\StateMachineException;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
@@ -88,7 +87,7 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
             foreach ($transitions as $machine => $toPlace) {
                 $this->transitState((string) $machine, $orderId, (string) $toPlace, $context);
             }
-        } catch (StateMachineException $e) {
+        } catch (FlowException $e) {
             throw TransactionFailedException::because($e);
         } finally {
             $context->removeState(self::FORCE_TRANSITION);
@@ -97,7 +96,7 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
 
     /**
      * @throws IllegalTransitionException
-     * @throws StateMachineException
+     * @throws FlowException
      */
     private function transitState(string $machine, string $orderId, string $toPlace, Context $context): void
     {

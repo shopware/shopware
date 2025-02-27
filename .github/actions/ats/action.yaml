@@ -103,7 +103,7 @@ runs:
         (cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js)
 
     - name: Start Webserver
-      if: ${{ input.install == '' }}
+      if: ${{ inputs.install == '' }}
       shell: bash
       working-directory: ${{ inputs.path }}
       env:

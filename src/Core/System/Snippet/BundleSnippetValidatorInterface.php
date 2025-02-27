@@ -5,10 +5,12 @@ namespace Shopware\Core\System\Snippet;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('discovery')]
-interface SnippetValidatorInterface
+interface BundleSnippetValidatorInterface extends SnippetValidatorInterface
 {
     /**
+     * @param array<int, string> $bundles
+     *
      * @return array<string, mixed>
      */
-    public function validate(): array;
+    public function validate(array $bundles = []): array;
 }

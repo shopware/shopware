@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Snippet\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Snippet\BundleSnippetValidatorInterface;
 use Shopware\Core\System\Snippet\SnippetFixer;
 use Shopware\Core\System\Snippet\SnippetValidatorInterface;
 use Shopware\Core\System\Snippet\Struct\MissingSnippetCollection;
@@ -27,7 +28,7 @@ class ValidateSnippetsCommand extends Command
      * @internal
      */
     public function __construct(
-        private readonly SnippetValidatorInterface $snippetValidator,
+        private readonly BundleSnippetValidatorInterface $snippetValidator,
         private readonly SnippetFixer $snippetFixer
     ) {
         parent::__construct();

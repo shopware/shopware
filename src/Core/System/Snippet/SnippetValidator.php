@@ -8,7 +8,7 @@ use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 #[Package('discovery')]
-class SnippetValidator implements SnippetValidatorInterface
+class SnippetValidator implements BundleSnippetValidatorInterface
 {
     /**
      * @internal

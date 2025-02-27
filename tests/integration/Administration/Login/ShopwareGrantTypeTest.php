@@ -112,7 +112,7 @@ class ShopwareGrantTypeTest extends TestCase
                     'refresh_token' => 'refresh_token',
                     'expires_in' => 3600,
                     'token_type' => 'Bearer',
-                    'scope' => 'scope'
+                    'scope' => 'scope',
                 ]
             )
         );

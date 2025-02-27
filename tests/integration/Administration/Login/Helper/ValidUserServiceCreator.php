@@ -18,7 +18,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class ValidUserServiceCreator extends TestCase
 {
-    Use KernelTestBehaviour;
+    use KernelTestBehaviour;
 
     public function __construct()
     {

@@ -22,7 +22,7 @@ final class LoginConfigService
      * @param array{use_default: bool, client_id: non-empty-string, client_secret: non-empty-string, redirect_uri: non-empty-string, base_url: non-empty-string, authorize_path: non-empty-string, token_path: non-empty-string, jwks_path: non-empty-string, scope: non-empty-string} $rawConfig
      */
     public function __construct(
-        private array  $rawConfig,
+        private array $rawConfig,
         private string $appUrl,
         private string $adminPath,
     ) {

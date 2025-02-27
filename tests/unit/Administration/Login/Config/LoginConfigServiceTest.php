@@ -627,7 +627,6 @@ class LoginConfigServiceTest extends TestCase
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [scope] is invalid string',
             ],
-
         ];
     }
 

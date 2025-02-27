@@ -23,13 +23,12 @@ use Symfony\Component\Routing\Attribute\Route;
 class AdminAuthController extends AbstractController
 {
     public function __construct(
-        private readonly AuthorizationServer  $authorizationServer,
-        private readonly PsrHttpFactory       $psrHttpFactory,
-        private readonly LoginConfigService   $loginConfigService,
+        private readonly AuthorizationServer $authorizationServer,
+        private readonly PsrHttpFactory $psrHttpFactory,
+        private readonly LoginConfigService $loginConfigService,
         private readonly LoginResponseService $loginResponseService,
-        private readonly StateValidator       $stateValidator,
-    )
-    {
+        private readonly StateValidator $stateValidator,
+    ) {
     }
 
     #[Route(path: '/api/oauth/sso/config', name: 'api.oauth.sso.config', defaults: ['auth_required' => false], methods: ['GET'])]

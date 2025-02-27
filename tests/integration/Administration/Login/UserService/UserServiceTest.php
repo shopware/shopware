@@ -87,7 +87,7 @@ class UserServiceTest extends TestCase
 
     private function createUserService(): UserService
     {
-       return (new ValidUserServiceCreator())->create();
+        return (new ValidUserServiceCreator())->create();
     }
 
     /**
@@ -117,6 +117,4 @@ class UserServiceTest extends TestCase
 
         return $result;
     }
-
-
 }

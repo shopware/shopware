@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -49,7 +50,12 @@ class DownloadRoute extends AbstractDownloadRoute
         }
 
         if ($downloadId === false || $orderId === false) {
-            throw RoutingException::missingRequestParameter(!$downloadId ? 'downloadId' : 'orderId');
+            // @deprecated tag:v6.8.0 - remove this if block
+            if (!Feature::isActive('v6.8.0.0')) {
+                // @phpstan-ignore-next-line
+                throw RoutingException::missingRequestParameter(!$downloadId ? 'downloadId' : 'orderId');
+            }
+            throw CustomerException::missingRequestParameter(!$downloadId ? 'downloadId' : 'orderId');
         }
 
         $criteria = (new Criteria([$downloadId]))

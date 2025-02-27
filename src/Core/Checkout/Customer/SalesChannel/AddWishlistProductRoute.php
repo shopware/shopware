@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistC
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\WishlistProductAddedEvent;
-use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -91,7 +90,7 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
     {
         $total = $this->productRepository->searchIds(new Criteria([$productId]), $context)->getTotal();
         if ($total === 0) {
-            throw new ProductNotFoundException($productId);
+            throw CustomerException::productNotFound($productId);
         }
     }
 }

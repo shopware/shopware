@@ -14,6 +14,7 @@ use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -65,7 +66,11 @@ class DownloadRouteTest extends TestCase
     {
         $this->salesChannelContext->method('getCustomer')->willReturn(new CustomerEntity());
 
-        static::expectException(RoutingException::class);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(RoutingException::class);
+        } else {
+            $this->expectException(CustomerException::class);
+        }
         $this->downloadRoute->load(new Request(), $this->salesChannelContext);
     }
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
+use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -18,6 +19,9 @@ class Validator
     {
     }
 
+    /**
+     * @return list<Error>
+     */
     public function validate(Cart $cart, SalesChannelContext $context): array
     {
         $errors = new ErrorCollection();
@@ -25,6 +29,6 @@ class Validator
             $validator->validate($cart, $errors, $context);
         }
 
-        return array_values($errors->getElements());
+        return \array_values($errors->getElements());
     }
 }

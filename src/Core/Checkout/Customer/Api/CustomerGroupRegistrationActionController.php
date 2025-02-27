@@ -24,6 +24,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class CustomerGroupRegistrationActionController
 {
     /**
+     * @param EntityRepository<CustomerCollection> $customerRepository
+     * @param EntityRepository<CustomerGroupCollection> $customerGroupRepository
+     *
      * @internal
      *
      * @param EntityRepository<CustomerCollection> $customerRepository

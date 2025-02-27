@@ -30,8 +30,6 @@ async function createWrapper(
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
-                'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-confirm-field': await wrapTestComponent('sw-confirm-field'),
@@ -159,19 +157,19 @@ describe('src/app/component/tree/sw-tree', () => {
         expect(automotiveItem.text()).toContain('Automotive');
 
         // check checkbox of automotive
-        const automotiveCheckbox = automotiveItem.getComponent({
-            name: 'sw-checkbox-field-deprecated__wrapped',
-        });
-        expect(automotiveCheckbox.props('value')).toBe(false);
+        const automotiveCheckbox = automotiveItem.getComponent('.mt-field--checkbox__container');
+        expect(automotiveCheckbox.props('checked')).toBe(false);
         await automotiveCheckbox.get('input').setValue(true);
-        expect(automotiveCheckbox.props('value')).toBe(true);
+        expect(automotiveCheckbox.props('checked')).toBe(true);
 
-        // check if parents contains ghost checkbox
-        const healthGamesFolderCheckbox = healthGamesFolder.find('.sw-tree-item__selection .sw-field--checkbox');
-        expect(healthGamesFolderCheckbox.classes()).toContain('sw-field__checkbox--ghost');
+        // check if parents contains partial checkbox
+        const healthGamesFolderCheckbox = healthGamesFolder.findComponent(
+            '.sw-tree-item__selection .mt-field--checkbox__container',
+        );
+        expect(healthGamesFolderCheckbox.props().partial).toBe(true);
 
-        const openedParentCheckbox = openedParent.find('.sw-tree-item__selection .sw-field--checkbox');
-        expect(openedParentCheckbox.classes()).toContain('sw-field__checkbox--ghost');
+        const openedParentCheckbox = openedParent.findComponent('.sw-tree-item__selection .mt-field--checkbox__container');
+        expect(openedParentCheckbox.props().partial).toBe(true);
     });
 
     it('should show the delete button', async () => {
@@ -271,18 +269,12 @@ describe('src/app/component/tree/sw-tree', () => {
         });
         await flushPromises();
 
-        // Get currently focused element
-        let focusedElement = document.activeElement;
-
-        // Focused element should be on body
-        expect(focusedElement.tagName).toBe('BODY');
-
         // Trigger focusin event on the tree
         await wrapper.get('.sw-tree').trigger('focusin');
         await flushPromises();
 
         // Get currently focused element
-        focusedElement = document.activeElement;
+        const focusedElement = document.activeElement;
 
         // Get aria-label of the focused element
         const focusedElementAriaLabel = focusedElement.getAttribute('aria-label');

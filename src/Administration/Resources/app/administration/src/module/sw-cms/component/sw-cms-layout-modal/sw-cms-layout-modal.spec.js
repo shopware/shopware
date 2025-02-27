@@ -292,7 +292,7 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
             const expected = productMocks[productIndex];
 
             const checkbox = wrapper
-                .findAll('.sw-cms-layout-modal__content-item .sw-field__checkbox input')
+                .findAll('.sw-cms-layout-modal__content-item .mt-field--checkbox__container input')
                 .at(productIndex);
 
             await checkbox.setChecked(true);

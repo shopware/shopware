@@ -173,22 +173,13 @@
             >
                 <div class="sw-cms-el-config-product-slider__tab-settings-display">
                     {% block sw_cms_element_product_slider_config_settings_display_mode %}
-                    <sw-select-field
-                        v-model:value="element.config.displayMode.value"
+                    <mt-select
+                        v-model="element.config.displayMode.value"
                         class="sw-cms-el-config-product-slider__tab-settings-display-mode"
                         :label="$tc('sw-cms.elements.general.config.label.displayMode')"
                         :help-text="$tc('sw-cms.elements.productSlider.config.helpText.displayMode')"
-                    >
-                        <option value="standard">
-                            {{ $tc('sw-cms.elements.general.config.label.displayModeStandard') }}
-                        </option>
-                        <option value="contain">
-                            {{ $tc('sw-cms.elements.general.config.label.displayModeContain') }}
-                        </option>
-                        <option value="cover">
-                            {{ $tc('sw-cms.elements.general.config.label.displayModeCover') }}
-                        </option>
-                    </sw-select-field>
+                        :options="displayModeOptions"
+                    />
                     {% endblock %}
                 </div>
 
@@ -205,42 +196,24 @@
                     {% endblock %}
 
                     {% block sw_cms_element_product_slider_config_settings_vertical_align %}
-                    <sw-select-field
-                        v-model:value="element.config.verticalAlign.value"
+                    <mt-select
+                        v-model="element.config.verticalAlign.value"
                         class="sw-cms-el-config-product-slider__tab-settings-alignment-vertical"
                         :label="$tc('sw-cms.elements.general.config.label.verticalAlign')"
                         :placeholder="$tc('sw-cms.elements.general.config.label.verticalAlign')"
-                    >
-                        <option value="flex-start">
-                            {{ $tc('sw-cms.elements.general.config.label.verticalAlignTop') }}
-                        </option>
-                        <option value="center">
-                            {{ $tc('sw-cms.elements.general.config.label.verticalAlignCenter') }}
-                        </option>
-                        <option value="flex-end">
-                            {{ $tc('sw-cms.elements.general.config.label.verticalAlignBottom') }}
-                        </option>
-                    </sw-select-field>
+                        :options="alignmentOptions"
+                    />
                     {% endblock %}
                 </div>
 
                 <div class="sw-cms-el-config-product-slider__tab-settings-layout has--two-elements">
                     {% block sw_cms_element_product_slider_config_settings_box_layout %}
-                    <sw-select-field
-                        v-model:value="element.config.boxLayout.value"
+                    <mt-select
+                        v-model="element.config.boxLayout.value"
                         class="sw-cms-el-config-product-slider__tab-settings-layout-type"
                         :label="$tc('sw-cms.elements.productBox.config.label.layoutType')"
-                    >
-                        <option value="standard">
-                            {{ $tc('sw-cms.elements.productBox.config.label.layoutTypeStandard') }}
-                        </option>
-                        <option value="image">
-                            {{ $tc('sw-cms.elements.productBox.config.label.layoutTypeImage') }}
-                        </option>
-                        <option value="minimal">
-                            {{ $tc('sw-cms.elements.productBox.config.label.layoutTypeMinimal') }}
-                        </option>
-                    </sw-select-field>
+                        :options="boxLayoutOptions"
+                    />
                     {% endblock %}
 
                     {% block sw_cms_element_product_slider_config_settings_border %}
@@ -256,22 +229,13 @@
 
                 <div class="sw-cms-el-config-product-slider__tab-settings-navigation">
                     {% block sw_cms_element_product_slider_config_settings_navigation_arrows %}
-                    <sw-select-field
-                        v-model:value="element.config.navigationArrows.value"
+                    <mt-select
+                        v-model="element.config.navigationArrows.value"
                         class="sw-cms-el-config-product-slider__tab-settings-navigation-arrows"
                         :label="$tc('sw-cms.elements.productSlider.config.label.navigationArrows')"
-                        @update:value="emitUpdateEl"
-                    >
-                        <option value="none">
-                            {{ $tc('sw-cms.elements.productSlider.config.label.navigationPositionNone') }}
-                        </option>
-                        <option value="inside">
-                            {{ $tc('sw-cms.elements.productSlider.config.label.navigationPositionInside') }}
-                        </option>
-                        <option value="outside">
-                            {{ $tc('sw-cms.elements.productSlider.config.label.navigationPositionOutside') }}
-                        </option>
-                    </sw-select-field>
+                        :options="arrowOptions"
+                        @update:model-value="emitUpdateEl"
+                    />
                     {% endblock %}
                 </div>
 

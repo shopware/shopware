@@ -219,34 +219,31 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
 
     private function loadOrder(string $orderId, SalesChannelContext $context): OrderEntity
     {
-        $criteria = new Criteria([$orderId]);
-        $criteria->addAssociation('transactions');
-        $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
+        $criteria = (new Criteria([$orderId]))
+            ->addAssociation('transactions');
+
+        $criteria->getAssociation('transactions')
+            ->addSorting(new FieldSorting('createdAt'));
 
         $customer = $context->getCustomer();
         \assert($customer !== null);
 
-        $criteria->addFilter(
-            new EqualsFilter(
-                'order.orderCustomer.customerId',
-                $customer->getId()
-            )
-        );
-        $criteria->addAssociations([
-            'lineItems',
-            'deliveries.shippingOrderAddress',
-            'deliveries.stateMachineState',
-            'orderCustomer',
-            'tags',
-            'transactions.stateMachineState',
-            'stateMachineState',
-        ]);
+        $criteria
+            ->addFilter(new EqualsFilter('order.orderCustomer.customerId', $customer->getId()))
+            ->addAssociations([
+                'lineItems',
+                'deliveries.shippingOrderAddress',
+                'deliveries.stateMachineState',
+                'orderCustomer',
+                'tags',
+                'transactions.stateMachineState',
+                'stateMachineState',
+            ]);
 
         $this->eventDispatcher->dispatch(new OrderPaymentMethodChangedCriteriaEvent($orderId, $criteria, $context));
 
-        $order = $this->orderRepository->search($criteria, $context->getContext())->first();
-
-        if ($order === null) {
+        $order = $this->orderRepository->search($criteria, $context->getContext())->getEntities()->first();
+        if (!$order) {
             throw OrderException::orderNotFound($orderId);
         }
 

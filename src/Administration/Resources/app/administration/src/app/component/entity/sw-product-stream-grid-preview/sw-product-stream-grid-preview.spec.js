@@ -71,7 +71,6 @@ const createWrapper = async () => {
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,
                     'sw-help-text': true,
-                    'mt-checkbox': true,
                     'sw-provide': true,
                 },
                 mocks: {
@@ -259,7 +258,7 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
 
         await flushPromises();
 
-        const inputEl = wrapper.find('.sw-data-grid__row--0 .sw-field--checkbox input');
+        const inputEl = wrapper.find('.sw-data-grid__row--0 .mt-field--checkbox__container input');
         await inputEl.setChecked();
 
         expect(wrapper.emitted('selection-change')).toBeTruthy();

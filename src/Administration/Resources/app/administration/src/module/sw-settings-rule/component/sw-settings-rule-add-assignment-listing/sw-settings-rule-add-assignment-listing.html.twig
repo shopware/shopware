@@ -30,10 +30,10 @@
         >
             {% block sw_settings_rule_add_assignment_listing_checkbox %}
             <div class="sw-data-grid__cell-content">
-                <sw-checkbox-field
+                <mt-checkbox
                     :disabled="!isRecordSelectable(item)"
-                    :value="isSelected(item[itemIdentifierProperty]) || !isNotAssigned(item)"
-                    @update:value="selectItem($event, item)"
+                    :checked="isSelected(item[itemIdentifierProperty]) || !isNotAssigned(item)"
+                    @update:checked="selectItem($event, item)"
                 />
             </div>
             {% endblock %}

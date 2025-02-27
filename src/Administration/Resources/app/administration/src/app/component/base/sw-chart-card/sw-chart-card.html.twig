@@ -37,7 +37,7 @@
             {% endblock %}
 
             {% block sw_chart_card_header_range_select %}
-            <sw-select-field
+            <sw-select-field-deprecated
                 v-model:value="selectedRange"
                 name="sw-field--selectedRange"
                 size="small"
@@ -55,7 +55,7 @@
                     ></slot>
                 </option>
                 {% endblock %}
-            </sw-select-field>
+            </sw-select-field-deprecated>
             {% endblock %}
         </div>
     </template>

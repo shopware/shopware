@@ -69,6 +69,17 @@ Component.register('sw-dynamic-url-field', {
         categoryRepository(): RepositoryType<'category'> {
             return this.repositoryFactory.create('category');
         },
+
+        linkCategoryOptions() {
+            return [
+                { value: 'link', label: this.$tc('sw-text-editor-toolbar.link.labelUrl') },
+                { value: 'detail', label: this.$tc('sw-text-editor-toolbar.link.labelProduct') },
+                { value: 'navigation', label: this.$tc('sw-text-editor-toolbar.link.labelCategory') },
+                { value: 'media', label: this.$tc('sw-text-editor-toolbar.link.labelMedia') },
+                { value: 'email', label: this.$tc('sw-text-editor-toolbar.link.labelEmail') },
+                { value: 'phone', label: this.$tc('sw-text-editor-toolbar.link.labelPhoneNumber') },
+            ];
+        },
     },
 
     watch: {

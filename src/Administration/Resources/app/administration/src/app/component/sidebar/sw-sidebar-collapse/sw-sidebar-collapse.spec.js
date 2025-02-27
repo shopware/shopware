@@ -20,7 +20,6 @@ async function createWrapper() {
 }
 
 describe('src/app/component/sidebar/sw-sidebar-collapse', () => {
-
     describe('no props', () => {
         it('has a chevron pointing right', async () => {
             const wrapper = await createWrapper();

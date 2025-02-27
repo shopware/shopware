@@ -23,28 +23,28 @@
 
     {% block sw_date_filter_from_field %}
     <template #from-field>
-        <sw-datepicker
-            v-model:value="dateValue.from"
+        <mt-datepicker
+            v-model="dateValue.from"
             v-bind="$attrs"
             class="sw-date-filter__from"
             :date-type="dateType"
             :placeholder="filter.fromPlaceholder"
             :label="fromToFieldLabel('from')"
-            @update:value="resetTimeframe"
+            @update:model-value="resetTimeframe"
         />
     </template>
     {% endblock %}
 
     {% block sw_date_filter_to_field %}
     <template #to-field>
-        <sw-datepicker
-            v-model:value="dateValue.to"
+        <mt-datepicker
+            v-model="dateValue.to"
             v-bind="$attrs"
             class="sw-date-filter__to"
             :date-type="dateType"
             :placeholder="filter.toPlaceholder"
             :label="fromToFieldLabel('to')"
-            @update:value="resetTimeframe"
+            @update:model-value="resetTimeframe"
         />
     </template>
     {% endblock %}

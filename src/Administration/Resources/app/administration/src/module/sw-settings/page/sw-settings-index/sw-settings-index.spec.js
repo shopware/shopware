@@ -198,9 +198,9 @@ describe('module/sw-settings/page/sw-settings-index', () => {
 
         settingsGroups.forEach(
             ([
-                 settingsGroup,
-                 settingsItems,
-             ]) => {
+                settingsGroup,
+                settingsItems,
+            ]) => {
                 const settingsGroupWrapper = wrapper.find(`#sw-settings__content-group-${settingsGroup}`);
                 const settingsItemsWrappers = settingsGroupWrapper.findAll('.sw-settings-item');
 
@@ -233,9 +233,9 @@ describe('module/sw-settings/page/sw-settings-index', () => {
 
         settingsGroups.forEach(
             ([
-                 settingsGroup,
-                 settingsItems,
-             ]) => {
+                settingsGroup,
+                settingsItems,
+            ]) => {
                 const settingsGroupWrapper = wrapper.find(`#sw-settings__content-group-${settingsGroup}`);
                 const settingsItemsWrappers = settingsGroupWrapper.findAll('.sw-settings-item');
 

@@ -16,8 +16,8 @@
             @keydown.enter="loginUserWithPassword"
         />
 
-        <sw-checkbox-field
-            v-model:value="rememberMe"
+        <mt-checkbox
+            v-model:checked="rememberMe"
             :label="$tc('sw-login.index.labelKeepLoggedIn')"
         />
 

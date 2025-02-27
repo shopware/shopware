@@ -228,7 +228,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(fieldUsername.props('modelValue')).toBe('admin');
         expect(fieldProfilePicture.attributes('value')).toBeUndefined();
         expect(fieldPassword.attributes('value')).toBeUndefined();
-        expect(fieldLanguage.attributes('value')).toBe('7dc07b43229843d387bb5f59233c2d66');
+        expect(fieldLanguage.props('modelValue')).toBe('7dc07b43229843d387bb5f59233c2d66');
     });
 
     it('should contain all fields with a given user', async () => {
@@ -266,7 +266,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(fieldUsername.props('modelValue')).toBe('maxmuster');
         expect(fieldProfilePicture.attributes('value')).toBeUndefined();
         expect(fieldPassword.attributes('value')).toBeUndefined();
-        expect(fieldLanguage.attributes('value')).toBe('12345');
+        expect(fieldLanguage.props('modelValue')).toBe('12345');
     });
 
     it('should enable the tooltip warning when user is admin', async () => {
@@ -344,7 +344,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(fieldUsername.props('disabled')).toBe(true);
         expect(fieldProfilePicture.attributes().disabled).toBe('true');
         expect(fieldPassword.classes()).toContain('is--disabled');
-        expect(fieldLanguage.attributes().disabled).toBe('true');
+        expect(fieldLanguage.props().disabled).toBe(true);
         expect(contextMenuItemEdit.attributes().disabled).toBe('true');
         expect(contextMenuItemDelete.attributes().disabled).toBe('true');
     });

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App;
 
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -24,7 +25,7 @@ trait CustomFieldTypeTestBehaviour
 
         $context = Context::createDefaultContext();
         $appLifecycle = static::getContainer()->get(AppLifecycle::class);
-        $appLifecycle->install($manifest, true, $context);
+        $appLifecycle->install($manifest, new AppInstallParameters(), $context);
 
         /** @var EntityRepository<AppCollection> $appRepository */
         $appRepository = static::getContainer()->get('app.repository');

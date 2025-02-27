@@ -28,6 +28,7 @@ class PromotionCodeServiceTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
+        /** @var StaticEntityRepository<PromotionCollection> */
         $promotionRepository = new StaticEntityRepository([new PromotionCollection([])]);
 
         $codeService = new PromotionCodeService(
@@ -49,6 +50,7 @@ class PromotionCodeServiceTest extends TestCase
         $promotion->setId('promotionId');
         $promotion->setIndividualCodePattern('');
 
+        /** @var StaticEntityRepository<PromotionCollection> */
         $promotionRepository = new StaticEntityRepository([new PromotionCollection([$promotion])]);
 
         $codeService = new PromotionCodeService(
@@ -70,12 +72,14 @@ class PromotionCodeServiceTest extends TestCase
         $promotion->setId('promotionId');
         $promotion->setIndividualCodePattern('%s');
 
+        /** @var StaticEntityRepository<PromotionCollection> */
         $promotionRepository = new StaticEntityRepository([
             new PromotionCollection([$promotion]),
             [],
         ]);
 
         $promotionId = Uuid::randomHex();
+        /** @var StaticEntityRepository<PromotionIndividualCodeCollection> */
         $individualCodeRepository = new StaticEntityRepository([new PromotionIndividualCodeCollection([])]);
         $connection = $this->createMock(Connection::class);
         $connection->expects(static::once())->method('executeStatement')->with(
@@ -110,10 +114,12 @@ class PromotionCodeServiceTest extends TestCase
 
         $promotion->setIndividualCodes($codes);
 
+        /** @var StaticEntityRepository<PromotionCollection> */
         $promotionRepository = new StaticEntityRepository([
             new PromotionCollection([$promotion]),
             [],
         ]);
+        /** @var StaticEntityRepository<PromotionIndividualCodeCollection> */
         $individualCodeRepository = new StaticEntityRepository([new PromotionIndividualCodeCollection([])]);
         $connection = $this->createMock(Connection::class);
         $connection->expects(static::never())->method('executeStatement');

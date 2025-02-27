@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Store;
 
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -36,7 +37,9 @@ trait ServiceBehaviour
         $manifest->getMetadata()->setSelfManaged(true);
 
         if ($install) {
-            static::getContainer()->get(AppLifecycle::class)->install($manifest, true, Context::createDefaultContext());
+            static::getContainer()
+                ->get(AppLifecycle::class)
+                ->install($manifest, new AppInstallParameters(), Context::createDefaultContext());
         }
     }
 }

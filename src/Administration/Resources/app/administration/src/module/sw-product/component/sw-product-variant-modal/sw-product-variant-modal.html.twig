@@ -380,8 +380,8 @@
 
             {% block sw_product_variant_modal_body_grid_column_active_inline_edit %}
             <template v-if="isInlineEdit">
-                <sw-checkbox-field
-                    v-model:value="item.active"
+                <mt-checkbox
+                    v-model:checked="item.active"
                     :disabled="item.active === null"
                 />
 

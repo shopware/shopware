@@ -39,6 +39,7 @@ export default {
             userProfile: {},
             userPromise: null,
             isLoading: false,
+            localeOptions: [],
         };
     },
 
@@ -229,10 +230,16 @@ export default {
         loadLanguages() {
             return this.languageRepository.search(this.languageCriteria).then((result) => {
                 this.languages = [];
+                this.localeOptions = [];
 
                 result.forEach((lang) => {
                     lang.customLabel = `${lang.locale.translated.name} (${lang.locale.translated.territory})`;
                     this.languages.push(lang);
+                    this.localeOptions.push({
+                        id: lang.locale.id,
+                        value: lang.locale.id,
+                        label: lang.customLabel,
+                    });
                 });
 
                 return this.languages;

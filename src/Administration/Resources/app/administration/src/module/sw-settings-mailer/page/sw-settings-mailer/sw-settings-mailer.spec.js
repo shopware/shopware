@@ -211,20 +211,20 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
         expect(wrapper.vm.emailSendmailOptions).toEqual([
             {
                 value: '-bs',
-                name: 'sw-settings-mailer.sendmail.sync'
+                name: 'sw-settings-mailer.sendmail.sync',
             },
             {
                 value: '-t -i',
-                name: 'sw-settings-mailer.sendmail.async'
-            }
+                name: 'sw-settings-mailer.sendmail.async',
+            },
         ]);
 
         // Set the mailer settings directly
         await wrapper.setData({
             mailerSettings: {
                 'core.mailerSettings.emailAgent': 'local',
-                'core.mailerSettings.sendMailOptions': '-bs'
-            }
+                'core.mailerSettings.sendMailOptions': '-bs',
+            },
         });
 
         // Verify the value was set correctly

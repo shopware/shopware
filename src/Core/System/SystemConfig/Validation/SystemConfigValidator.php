@@ -40,6 +40,9 @@ class SystemConfigValidator
          * @var array<string, mixed> $inputValues
          */
         foreach ($inputData as $saleChannelId => $inputValues) {
+            // If sales channel is defined, nulls are valid values, as they are used to remove custom values in child configuration
+            $allowNulls = $saleChannelId !== 'null';
+
             /** @var string[] $allKeys */
             $allKeys = array_keys($inputValues);
 
@@ -50,7 +53,7 @@ class SystemConfigValidator
 
             foreach ($domains as $domain) {
                 $formConfig = $this->getSystemConfigByDomain($domain, $context);
-                $constraints = $this->prepareValidationConstraints($formConfig, $allKeys);
+                $constraints = $this->prepareValidationConstraints($formConfig, $allKeys, $allowNulls);
 
                 foreach ($constraints as $elementName => $elementConstraints) {
                     $subDefinition->add($elementName, ...$elementConstraints);
@@ -73,7 +76,7 @@ class SystemConfigValidator
      *
      * @return array<string, Constraint[]>
      */
-    private function prepareValidationConstraints(array $formConfig, array $inputConfigKeys): array
+    private function prepareValidationConstraints(array $formConfig, array $inputConfigKeys, bool $allowNulls): array
     {
         /** @var array<string, Constraint[]> $constraints */
         $constraints = [];
@@ -88,7 +91,7 @@ class SystemConfigValidator
 
                 $elementConfig = $element['config'];
 
-                $constraints[$element['name']] = $this->buildConstraintsWithConfigs($elementConfig);
+                $constraints[$element['name']] = $this->buildConstraintsWithConfigs($elementConfig, $allowNulls);
             }
         }
 
@@ -100,7 +103,7 @@ class SystemConfigValidator
      *
      * @return array<int, Constraint>
      */
-    private function buildConstraintsWithConfigs(array $elementConfig): array
+    private function buildConstraintsWithConfigs(array $elementConfig, bool $allowNulls): array
     {
         /** @var array<string, callable(mixed): Constraint> $constraints */
         $constraints = [
@@ -109,7 +112,7 @@ class SystemConfigValidator
             'min' => fn (mixed $ruleValue) => new Assert\Range(['min' => $ruleValue]),
             'max' => fn (mixed $ruleValue) => new Assert\Range(['max' => $ruleValue]),
             'dataType' => fn (mixed $ruleValue) => new Assert\Type($ruleValue),
-            'required' => fn (mixed $ruleValue) => new Assert\NotBlank(),
+            'required' => fn (mixed $ruleValue) => new Assert\NotBlank(null, null, $allowNulls),
         ];
 
         $constraintsResult = [];

@@ -305,13 +305,13 @@ export default {
             return State.commit('swFlowState/setFlow', flow);
         },
 
-        getDetailFlow() {
+        async getDetailFlow() {
             this.isLoading = true;
-            Shopware.State.dispatch('swFlowState/fetchTriggerActions');
 
-            return this.flowRepository
-                .get(this.flowId, Context.api, this.flowCriteria)
-                .then((data) => {
+            Promise.all([
+                Shopware.State.dispatch('swFlowState/fetchTriggerActions'),
+                this.flowRepository.get(this.flowId, Context.api, this.flowCriteria),
+            ]).then(([, data]) => {
                     State.commit('swFlowState/setFlow', data);
                     State.commit('swFlowState/setOriginFlow', cloneDeep(data));
                     this.getDataForActionDescription();

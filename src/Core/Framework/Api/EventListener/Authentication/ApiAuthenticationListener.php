@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\RouteScopeCheckTrait;
 use Shopware\Core\Framework\Routing\RouteScopeRegistry;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -38,12 +39,13 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         private readonly AuthorizationServer $authorizationServer,
         private readonly UserRepositoryInterface $userRepository,
         private readonly RefreshTokenRepositoryInterface $refreshTokenRepository,
-        private readonly RouteScopeRegistry $routeScopeRegistry,
-        private readonly UserService $userService,
-        private readonly ExternalTokenService $tokenService,
-        private readonly string $accessTokenTtl = 'PT10M',
-        private readonly string $refreshTokenTtl = 'P1W'
-    ) {
+        private readonly RouteScopeRegistry              $routeScopeRegistry,
+        private readonly UserService                     $userService,
+        private readonly ExternalTokenService            $tokenService,
+        private readonly string                          $accessTokenTtl = 'PT10M',
+        private readonly string                          $refreshTokenTtl = 'P1W'
+    )
+    {
     }
 
     public static function getSubscribedEvents(): array
@@ -73,7 +75,8 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         $refreshTokenGrant = new RefreshTokenGrant($this->refreshTokenRepository);
         $refreshTokenGrant->setRefreshTokenTTL($refreshTokenInterval);
 
-        $shopwareGrant = new ShopwareGrantType($this->refreshTokenRepository, $this->userService, $this->tokenService);
+        // At this point session is not set $event->getRequest()->getSession()
+        $shopwareGrant = new ShopwareGrantType($this->refreshTokenRepository, $this->userService, $this->tokenService, new Session());
         $shopwareGrant->setRefreshTokenTTL($refreshTokenInterval);
 
         $this->authorizationServer->enableGrantType($passwordGrant, $accessTokenInterval);

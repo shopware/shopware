@@ -35,7 +35,6 @@ final class TokenResult
 
         self::validateResponse($response);
 
-        // TODO: NEXT-40528 Validate id_token
         return new self(
             $response['id_token'],
             $response['access_token'],
@@ -71,6 +70,7 @@ final class TokenResult
             'refresh_token' => new NotBlank(),
             'expires_in' => new NotBlank(),
             'token_type' => new NotBlank(),
+            'scope' => new NotBlank(),
         ]);
     }
 }

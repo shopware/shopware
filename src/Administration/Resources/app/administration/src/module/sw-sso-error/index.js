@@ -7,9 +7,7 @@ import deDE from "./snippet/de-DE.json";
 import enGB from "./snippet/en-GB.json";
 
 const { Module } = Shopware;
-// TODO: REMOVE AFTER DEBUG
-console.log('logLogLog');
-// TODO: REMOVE AFTER DEBUG
+
 /**
  * @private
  */
@@ -29,10 +27,9 @@ Module.register('sw-sso-error', {
 
     routes: {
         index: {
-            components: {
-                default: 'sw-sso-error-index',
-            },
-            path: '',
+            coreRoute: true,
+            component: 'sw-sso-error-index',
+            path: '/sso/error',
         },
     },
 })

@@ -14,7 +14,7 @@ abstract class HttpException extends ShopwareHttpException
         protected string $errorCode,
         string $message,
         array $parameters = [],
-        ?\Throwable $previous = null
+        ?\Throwable $previous = null,
     ) {
         parent::__construct($message, $parameters, $previous);
     }

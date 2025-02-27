@@ -38,7 +38,9 @@ export interface LoginService {
     setBearerAuthentication: ({ access, refresh, expiry }: AuthObject) => AuthObject;
     restartAutoTokenRefresh: (expiryTimestamp: number) => void;
     logout: (isInactivityLogout?: boolean, shouldRedirect?: boolean) => boolean;
+
     forwardLogout(isInactivityLogout: boolean, shouldRedirect: boolean): void;
+
     isLoggedIn: () => boolean;
     addOnTokenChangedListener: (listener: (auth?: AuthObject) => void) => void;
     addOnLogoutListener: (listener: () => void) => void;

@@ -4,6 +4,7 @@ namespace Shopware\Administration\Controller;
 
 use League\OAuth2\Server\AuthorizationServer;
 use Shopware\Administration\Login\Config\LoginConfigService;
+use Shopware\Administration\Login\Exception\LoginException;
 use Shopware\Administration\Login\LoginResponseService;
 use Shopware\Administration\Login\StateValidator;
 use Shopware\Core\Framework\Log\Package;
@@ -22,12 +23,13 @@ use Symfony\Component\Routing\Attribute\Route;
 class AdminAuthController extends AbstractController
 {
     public function __construct(
-        private readonly AuthorizationServer $authorizationServer,
-        private readonly PsrHttpFactory $psrHttpFactory,
-        private readonly LoginConfigService $loginConfigService,
+        private readonly AuthorizationServer  $authorizationServer,
+        private readonly PsrHttpFactory       $psrHttpFactory,
+        private readonly LoginConfigService   $loginConfigService,
         private readonly LoginResponseService $loginResponseService,
-        private readonly StateValidator $stateValidator,
-    ) {
+        private readonly StateValidator       $stateValidator,
+    )
+    {
     }
 
     #[Route(path: '/api/oauth/sso/config', name: 'api.oauth.sso.config', defaults: ['auth_required' => false], methods: ['GET'])]
@@ -50,7 +52,15 @@ class AdminAuthController extends AbstractController
         $psr7Request = $this->psrHttpFactory->createRequest($request);
         $psr7Response = $this->psrHttpFactory->createResponse(new Response());
 
-        $response = $this->authorizationServer->respondToAccessTokenRequest($psr7Request, $psr7Response);
+        try {
+            $response = $this->authorizationServer->respondToAccessTokenRequest($psr7Request, $psr7Response);
+        } catch (LoginException $loginException) {
+            if ($loginException->getErrorCode() !== LoginException::LOGIN_USER_NOT_FOUND) {
+                throw $loginException;
+            }
+
+            return $this->loginResponseService->createErrorResponse($loginException->getEmail());
+        }
 
         return $this->loginResponseService->create($response);
     }

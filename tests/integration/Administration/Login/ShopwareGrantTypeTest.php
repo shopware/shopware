@@ -25,8 +25,11 @@ use Shopware\Core\Test\Stub\Checkout\Payment\Cart\Token\TestKey;
 use Shopware\Core\Test\Stub\Checkout\Payment\Cart\Token\TestSigner;
 use Shopware\Tests\Integration\Administration\Login\Helper\FakeTokenGenerator;
 use Shopware\Tests\Integration\Administration\Login\Helper\FakeUserInstaller;
+use Shopware\Tests\Integration\Administration\Login\Helper\ValidUserServiceCreator;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -43,15 +46,18 @@ class ShopwareGrantTypeTest extends TestCase
     public function testRespondToAccessTokenRequest(): void
     {
         $email = 'test@shopware.com';
-        $idToken = (new FakeTokenGenerator())->setEmail($email)->generate();
+        $idToken = (new FakeTokenGenerator())->setEmail($email)->generate('b16b070d-28e4-4759-9c51-d43730dda8fa');
 
         $fakeUserInstall = new FakeUserInstaller($this->getContainer()->get(Connection::class));
         $fakeUserInstall->installBaseUserData(Uuid::randomHex(), $email);
 
+        $session = new Session(new MockArraySessionStorage());
+        $session->set('sso_proof_key_verifier', 'proofKeyVerifier');
+
         $shopwareGrantType = new ShopwareGrantType(
             $this->createRefreshTokenRepository(),
             $this->createUserService(),
-            $this->createExternalTokenService($idToken)
+            $this->createExternalTokenService($idToken),
         );
 
         $shopwareGrantType->setClientRepository($this->getContainer()->get(ClientRepository::class));
@@ -106,6 +112,7 @@ class ShopwareGrantTypeTest extends TestCase
                     'refresh_token' => 'refresh_token',
                     'expires_in' => 3600,
                     'token_type' => 'Bearer',
+                    'scope' => 'scope'
                 ]
             )
         );
@@ -123,6 +130,8 @@ class ShopwareGrantTypeTest extends TestCase
                 'session_key' => 'session_key',
                 'authorize_path' => '/authorize',
                 'token_path' => '/token',
+                'jwks_path' => '/jwks.json',
+                'scope' => 'scope',
             ],
             '',
             ''
@@ -133,8 +142,6 @@ class ShopwareGrantTypeTest extends TestCase
 
     private function createUserService(): UserService
     {
-        return new UserService(
-            $this->getContainer()->get(Connection::class),
-        );
+        return (new ValidUserServiceCreator())->create();
     }
 }

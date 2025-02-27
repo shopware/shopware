@@ -3,6 +3,8 @@
 namespace Shopware\Administration\Login\UserService;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Administration\Login\Exception\LoginException;
+use Shopware\Administration\Login\TokenService\IdTokenParser;
 use Shopware\Administration\Login\TokenService\ParsedIdToken;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -15,19 +17,20 @@ final class UserService
 {
     public function __construct(
         private readonly Connection $connection,
+        private readonly IdTokenParser $idTokenParser,
     ) {
     }
 
     /**
      * @param non-empty-string $idToken
      */
-    public function getUser(string $idToken, string $refreshToken): ?ExternalAuthUser
+    public function getUser(string $idToken, ?string $refreshToken = ''): ExternalAuthUser
     {
-        $parsedIdToken = ParsedIdToken::createFromIdToken($idToken);
+        $parsedIdToken = $this->idTokenParser->parse($idToken);
 
         $userSearchResult = $this->searchUser($parsedIdToken, $refreshToken);
         if (!$userSearchResult instanceof ExternalAuthUser) {
-            return null;
+            throw LoginException::userNotFound($parsedIdToken->email);
         }
 
         if ($userSearchResult->email !== $parsedIdToken->email) {

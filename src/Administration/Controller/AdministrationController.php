@@ -120,6 +120,7 @@ class AdministrationController extends AbstractController
     #[Route(path: '/%shopware_administration.path_name%/sso/auth', name: 'administration.sso.auth', defaults: ['auth_required' => false], methods: ['GET'])]
     public function ssoAuth(Request $request): RedirectResponse
     {
+
         $random = $request->getSession()->get(StateValidator::SESSION_KEY);
 
         $loginConfig = $this->loginConfigService->getConfig();

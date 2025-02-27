@@ -41,6 +41,7 @@ class ExternalTokenServiceTest extends TestCase
                     'refresh_token' => 'refresh_token',
                     'expires_in' => 3600,
                     'token_type' => 'Bearer',
+                    'scope' => 'scope',
                 ]
             )
         );
@@ -58,6 +59,8 @@ class ExternalTokenServiceTest extends TestCase
                 'session_key' => 'session_key',
                 'authorize_path' => '/authorize',
                 'token_path' => '/token',
+                'jwks_path' => '/json.json',
+                'scope' => 'scope',
             ],
             '',
             ''

@@ -36,9 +36,18 @@ class FakeTokenGenerator
     /**
      * @return non-empty-string
      */
-    public function generate(): string
+    public function generate(?string $kid = null): string
     {
-        $header = self::base64UrlEncode('{"alg": "HS512","typ": "JWT"}');
+        $headerArray = [
+            'alg' => 'RS256',
+            'typ' => 'JWT',
+        ];
+
+        if ($kid !== null) {
+            $headerArray['kid'] = $kid;
+        }
+
+        $header = self::base64UrlEncode(\json_encode($headerArray));
         $content = self::base64UrlEncode((string) json_encode([
             'aud' => $this->audience,
             'iss' => $this->issuer,

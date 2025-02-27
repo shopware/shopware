@@ -110,7 +110,7 @@ application
         return WorkerNotificationFactory;
     });
 
-class ShopwareClass implements CustomShopwareProperties {
+class  ShopwareClass implements CustomShopwareProperties {
     /**
      * @private
      */

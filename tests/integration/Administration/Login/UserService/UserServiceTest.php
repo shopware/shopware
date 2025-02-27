@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Tests\Integration\Administration\Login\Helper\FakeTokenGenerator;
 use Shopware\Tests\Integration\Administration\Login\Helper\FakeUserInstaller;
+use Shopware\Tests\Integration\Administration\Login\Helper\ValidUserServiceCreator;
 
 /**
  * @internal
@@ -33,7 +34,7 @@ class UserServiceTest extends TestCase
         $fakeUserInstaller = new FakeUserInstaller($this->getContainer()->get(Connection::class));
         $fakeUserInstaller->installBaseUserData($userId, $email);
 
-        $idToken = (new FakeTokenGenerator())->setEmail($email)->setSubject($subject)->generate();
+        $idToken = (new FakeTokenGenerator())->setEmail($email)->setSubject($subject)->generate('b16b070d-28e4-4759-9c51-d43730dda8fa');
         $refreshToken = Uuid::randomHex();
 
         $externalAuthUser = $this->createUserService()->getUser($idToken, $refreshToken);
@@ -64,7 +65,7 @@ class UserServiceTest extends TestCase
         $fakeUserInstaller->installBaseUserData($userId, $email);
         $fakeUserInstaller->installTokenUser($userId, $subject);
 
-        $idToken = (new FakeTokenGenerator())->setEmail($email)->setSubject($subject)->generate();
+        $idToken = (new FakeTokenGenerator())->setEmail($email)->setSubject($subject)->generate('b16b070d-28e4-4759-9c51-d43730dda8fa');
         $refreshToken = Uuid::randomHex();
 
         $externalAuthUser = $this->createUserService()->getUser($idToken, $refreshToken);
@@ -86,9 +87,7 @@ class UserServiceTest extends TestCase
 
     private function createUserService(): UserService
     {
-        $connection = $this->getContainer()->get(Connection::class);
-
-        return new UserService($connection);
+       return (new ValidUserServiceCreator())->create();
     }
 
     /**
@@ -118,4 +117,6 @@ class UserServiceTest extends TestCase
 
         return $result;
     }
+
+
 }

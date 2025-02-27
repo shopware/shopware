@@ -70,9 +70,13 @@
             >
                 <div class="sw-cms-el-config-image-slider__settings-options">
 
+                    {% block sw_cms_element_image_slider_config_settings_display_mode %}
+                    {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_cms_element_image_slider_config_settings_display_mode` instead. #}
                     {% block sw_cms_element_image_gallery_config_settings_display_mode %}
                     <div class="sw-cms-el-config-image-slider__setting-option">
 
+                        {% block sw_cms_element_image_slider_config_settings_display_mode_select %}
+                        {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_cms_element_image_slider_config_settings_display_mode_select` instead. #}
                         {% block sw_cms_element_image_gallery_config_settings_display_mode_select %}
                         <mt-select
                             v-model="element.config.displayMode.value"
@@ -83,9 +87,11 @@
                             @update:model-value="onChangeDisplayMode"
                         />
                         {% endblock %}
+                        {% endblock %}
 
+                        {% block sw_cms_element_image_slider_config_settings_min_height %}
+                        {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_cms_element_image_slider_config_settings_min_height` instead. #}
                         {% block sw_cms_element_image_gallery_config_settings_min_height %}
-
                         <mt-text-field
                             v-model="element.config.minHeight.value"
                             :label="$tc('sw-cms.elements.image.config.label.minHeight')"
@@ -95,7 +101,10 @@
                             @update:model-value="onChangeMinHeight"
                         />
                         {% endblock %}
+                        {% endblock %}
 
+                        {% block sw_cms_element_image_slider_config_settings_vertical_align %}
+                        {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_cms_element_image_slider_config_settings_vertical_align` instead. #}
                         {% block sw_cms_element_image_gallery_config_settings_vertical_align %}
                         <mt-select
                             v-model="element.config.verticalAlign.value"
@@ -105,7 +114,9 @@
                             :options="verticalAlignValueOptions"
                         />
                         {% endblock %}
+                        {% endblock %}
                     </div>
+                    {% endblock %}
                     {% endblock %}
 
                     {% block sw_cms_element_image_slider_config_settings_navigation %}
@@ -136,21 +147,39 @@
                     </div>
                     {% endblock %}
 
-                    <div class="sw-cms-el-config-image-slider__setting-slide">
-                        {# @todo NEXT-40267 - Re-implement after tiny-slider has been replaced, due to accessibility issues #}
-
-                        <mt-switch
-                            :checked="false"
-                            class="sw-cms-el-config-image-slider__setting-auto-slide"
-                            :label="$tc('sw-cms.elements.general.config.label.autoSlide')"
-                            :help-text="$tc('sw-cms.elements.general.config.helpText.autoSlide')"
-                            bordered
-                            disabled
+                    <div class="sw-cms-el-config-image-slider__setting-speed">
+                        {% block sw_cms_element_image_slider_config_settings_speed %}
+                        <sw-number-field
+                            v-model:value="element.config.speed.value"
+                            class="sw-cms-el-config-image-slider__setting-speed-slide"
+                            number-type="int"
+                            :min="0"
+                            :max="3600000"
+                            :label="$tc('sw-cms.elements.general.config.label.speed')"
+                            :placeholder="$tc('sw-cms.elements.general.config.label.speed')"
+                            :help-text="$tc('sw-cms.elements.general.config.helpText.speed')"
                         />
+                        {% endblock %}
                     </div>
 
                     <div class="sw-cms-el-config-image-slider__setting-option">
+                        <div class="sw-cms-el-config-image-slider__setting-slide">
+                            {# @todo NEXT-40267 - Re-implement after tiny-slider has been replaced, due to accessibility issues #}
+
+                            {% block sw_cms_element_image_slider_config_settings_auto_slide %}
+                            <mt-switch
+                                :checked="false"
+                                class="sw-cms-el-config-image-slider__setting-auto-slide"
+                                :label="$tc('sw-cms.elements.general.config.label.autoSlide')"
+                                :help-text="$tc('sw-cms.elements.general.config.helpText.autoSlide')"
+                                bordered
+                                disabled
+                            />
+                            {% endblock %}
+                        </div>
+
                         <div class="sw-cms-el-config-image-slider__setting-delay">
+                            {% block sw_cms_element_image_slider_config_settings_autoplay_timeout %}
                             <sw-number-field
                                 v-model:value="element.config.autoplayTimeout.value"
                                 class="sw-cms-el-config-image-slider__setting-delay-slide"
@@ -162,19 +191,7 @@
                                 :placeholder="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
                                 :help-text="$tc('sw-cms.elements.general.config.helpText.autoplayTimeout')"
                             />
-                        </div>
-                        <div class="sw-cms-el-config-image-slider__setting-speed">
-                            <sw-number-field
-                                v-model:value="element.config.speed.value"
-                                class="sw-cms-el-config-image-slider__setting-speed-slide"
-                                number-type="int"
-                                :min="0"
-                                :max="3600000"
-                                :disabled="true"
-                                :label="$tc('sw-cms.elements.general.config.label.speed')"
-                                :placeholder="$tc('sw-cms.elements.general.config.label.speed')"
-                                :help-text="$tc('sw-cms.elements.general.config.helpText.speed')"
-                            />
+                            {% endblock %}
                         </div>
                     </div>
 

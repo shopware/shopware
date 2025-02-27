@@ -33,6 +33,7 @@
                     ghost
                     size="small"
                     :disabled="!editable || undefined"
+                    variant="secondary"
                     @click="onInsertExistingItem"
                 >
                     {{ $tc('sw-order.detailBase.buttonAddProduct') }}
@@ -46,6 +47,7 @@
                             ghost
                             size="small"
                             square
+                            variant="secondary"
                         >
                             <mt-icon
                                 name="regular-chevron-down-xs"
@@ -136,6 +138,7 @@
                     v-tooltip="{ message: $tc('sw-order.detailBase.tooltipNestedLineItemsButton') }"
                     class="sw-order-line-items-grid__item-nested-indicator"
                     size="x-small"
+                    variant="secondary"
                     @click="openNestedLineItemsModal(item)"
                 >
 
@@ -346,6 +349,7 @@
                     <mt-button
                         size="small"
                         class="sw_order_line_items_grid-actions_modal__close-action"
+                        variant="secondary"
                         @click="onCloseDeleteModal"
                     >
                         {{ $tc('global.default.cancel') }}

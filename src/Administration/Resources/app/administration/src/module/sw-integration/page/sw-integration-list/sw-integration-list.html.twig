@@ -185,6 +185,7 @@
                         <mt-button
                             size="small"
                             :disabled="isModalLoading"
+                            variant="secondary"
                             @click="onCloseDetailModal"
                         >
                             {{ $tc('global.default.cancel') }}
@@ -305,6 +306,7 @@
                             <template #modal-footer>
                                 <mt-button
                                     size="small"
+                                    variant="secondary"
                                     @click="onCloseDeleteModal"
                                 >
                                     {{ $tc('global.default.cancel') }}

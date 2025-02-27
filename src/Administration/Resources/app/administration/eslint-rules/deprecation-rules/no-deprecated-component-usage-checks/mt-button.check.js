@@ -16,6 +16,11 @@ const handleMtButton = (context, node) => {
     // Attribute checks
     const isBindAttribute = (attr) => attr.type === 'VAttribute' && attr.key.name.name === 'bind';
     const variantAttribute = attributes.find((attr) => attr.key.name === 'variant');
+    const variantBindAttribute = attributes.find((attr) => {
+        if (isBindAttribute(attr)) {
+            return attr?.key?.argument?.name === 'variant';
+        }
+    });
     const routerLinkAttribute = attributes.find((attr) => {
         // Check for bind attribute
         if (isBindAttribute(attr)) {
@@ -26,7 +31,7 @@ const handleMtButton = (context, node) => {
     });
 
     // Check if no variant is defined
-    if (!variantAttribute) {
+    if (!variantAttribute && !variantBindAttribute) {
         context.report({
             node,
             message: '[mt-button] No variant defined. Please use the "secondary" prop instead.',
@@ -179,7 +184,15 @@ const mtButtonValidChecks = [
             <template>
                 <sw-button variant="ghost">Hello</sw-button>
             </template>`,
-    }
+    },
+    {
+        name: '"mt-button" variant shouldn\'t be replaced with "secondary" when it is binded',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-button :variant="dynamicVariant">Hello</mt-button>
+            </template>`,
+    },
 ]
 const mtButtonInvalidChecks = [
     {

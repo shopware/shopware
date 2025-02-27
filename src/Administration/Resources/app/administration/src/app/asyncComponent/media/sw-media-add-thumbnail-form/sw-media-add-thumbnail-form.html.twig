@@ -47,6 +47,7 @@
         class="sw-media-folder-settings__add-thumbnail-size-action"
         ghost
         :disabled="disabled || width === null || height === null || width === 0 || height === 0"
+        variant="secondary"
         @click="onAdd"
     >
         {{ $tc('global.default.add') }}

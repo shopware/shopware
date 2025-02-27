@@ -13,6 +13,7 @@
         <mt-button
             v-tooltip.bottom="tooltipCancel"
             :disabled="isLoading || undefined"
+            variant="secondary"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
@@ -279,6 +280,7 @@
                         {% block sw_settings_payment_detail_reset_modal_cancel %}
                         <mt-button
                             size="small"
+                            variant="secondary"
                             @click="showDeleteModal = false"
                         >
                             {{ $tc('global.default.cancel') }}

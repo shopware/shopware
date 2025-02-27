@@ -30,6 +30,7 @@
                             class="sw-tax-rule-grid-button"
                             size="small"
                             :disabled="!acl.can('tax.editor') || undefined"
+                            variant="secondary"
                             @click="showModal = true"
                         >
 
@@ -152,6 +153,7 @@
                             {% block sw_settings_tax_list_delete_modal_cancel %}
                             <mt-button
                                 size="small"
+                                variant="secondary"
                                 @click="onCloseDeleteModal"
                             >
                                 {{ $tc('global.default.cancel') }}
@@ -230,6 +232,7 @@
                 ghost
                 size="small"
                 :disabled="disabled || !acl.can('tax.editor') || undefined"
+                variant="secondary"
                 @click="showModal = true"
             >
                 {{ $tc('sw-settings-tax.taxRuleCard.labelCreateNew') }}

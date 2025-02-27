@@ -87,6 +87,7 @@
         class="sw-import-export-activity-log-info-modal__download-button"
         size="small"
         :disabled="(logEntity.activity === 'export' && logEntity.state !== 'succeeded') || undefined"
+        variant="secondary"
         @click="openDownload(logEntity.fileId)"
     >
         {{ $tc('sw-import-export.activity.logInfo.labelDownloadFile') }}

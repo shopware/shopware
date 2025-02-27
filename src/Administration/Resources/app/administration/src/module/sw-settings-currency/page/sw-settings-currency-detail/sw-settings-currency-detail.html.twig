@@ -13,6 +13,7 @@
         <mt-button
             v-tooltip.bottom="tooltipCancel"
             :disabled="isLoading"
+            variant="secondary"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
@@ -194,6 +195,7 @@
                                 ghost
                                 class="sw-settings-currency-detail__currency-country-toolbar-button"
                                 size="small"
+                                variant="secondary"
                                 @click="onAddCountry"
                             >
                                 {{ $tc('sw-settings-currency.detail.buttonAddCountry') }}

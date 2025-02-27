@@ -22,6 +22,7 @@
         {% block sw_settings_delivery_time_detail_smart_bar_actions_cancel %}
         <mt-button
             v-tooltip.bottom="tooltipCancel"
+            variant="secondary"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}

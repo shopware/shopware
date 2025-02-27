@@ -83,6 +83,7 @@
             class="sw-settings-country-currency-dependent-modal__cancel-button"
             size="small"
             :disabled="!acl.can('country.editor') || undefined"
+            variant="secondary"
             @click="closeModal"
         >
             {{ $tc('global.default.cancel') }}

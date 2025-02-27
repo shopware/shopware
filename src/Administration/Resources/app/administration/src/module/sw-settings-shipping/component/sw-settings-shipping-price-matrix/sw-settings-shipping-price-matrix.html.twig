@@ -225,6 +225,7 @@
             ghost
             size="small"
             class="sw-settings-shipping-price-matrix__price-load-all-button"
+            variant="secondary"
             @click="updateShowAllPrices"
         >
             {{ $tc('sw-settings-shipping.priceMatrix.buttonLoadAllPrices') }}
@@ -305,6 +306,7 @@
             {% block sw_settings_shipping_price_matrix_delete_modal_cancel %}
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCloseDeleteModal"
             >
                 {{ $tc('global.default.cancel') }}

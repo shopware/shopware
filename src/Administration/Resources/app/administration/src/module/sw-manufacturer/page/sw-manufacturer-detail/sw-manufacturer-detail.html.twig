@@ -15,6 +15,7 @@
         <mt-button
             v-tooltip.bottom="tooltipCancel"
             :disabled="manufacturerIsLoading || undefined"
+            variant="secondary"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}

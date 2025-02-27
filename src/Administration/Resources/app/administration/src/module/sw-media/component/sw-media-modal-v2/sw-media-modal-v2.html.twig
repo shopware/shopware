@@ -161,7 +161,10 @@
     {% block sw_media_modal_v2_modal_footer %}
     <template #modal-footer>
         {% block sw_media_modal_v2_button_cancel %}
-        <mt-button @click="onEmitModalClosed">
+        <mt-button
+            variant="secondary"
+            @click="onEmitModalClosed"
+        >
             {{ $tc('global.default.cancel') }}
         </mt-button>
         {% endblock %}

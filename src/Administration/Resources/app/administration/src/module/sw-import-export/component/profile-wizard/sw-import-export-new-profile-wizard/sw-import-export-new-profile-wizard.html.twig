@@ -67,6 +67,7 @@
                 <mt-button
                     v-if="showCsvSkipButton"
                     size="small"
+                    variant="secondary"
                     @click="onNextPage"
                 >
                     {{ $tc('sw-import-export.profile.skipCsvUpload') }}
@@ -117,6 +118,7 @@
         <template #modal-footer>
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="resetViolations"
             >
                 {{ $tc('sw-import-export.profile.closeViolation') }}

@@ -43,6 +43,7 @@
             {% block sw_customer_detail_actions_cancel %}
             <mt-button
                 :disabled="isLoading"
+                variant="secondary"
                 @click="onAbortButtonClick"
             >
                 {{ $tc('global.default.cancel') }}

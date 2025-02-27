@@ -33,6 +33,7 @@
             <template #modal-footer>
                 <mt-button
                     size="small"
+                    variant="secondary"
                     @click="$emit('template-modal-close')"
                 >
                     {{ $tc('global.default.cancel') }}
@@ -560,6 +561,7 @@
                 size="small"
                 :disabled="!acl.can('sales_channel.editor') || undefined"
                 class="sw-sales-channel-detail-base__button-generate-keys"
+                variant="secondary"
                 @click="onGenerateKeys"
             >
                 {{ $tc('sw-sales-channel.detail.buttonCreateNewApiKeys') }}
@@ -568,6 +570,7 @@
             <mt-button
                 size="small"
                 class="sw-sales-channel-detail-base__button-copy-key"
+                variant="secondary"
                 @click="copyToClipboard"
             >
                 {{ $tc('sw-sales-channel.detail.buttonCopyApiKeyButton') }}
@@ -606,6 +609,7 @@
                 :disabled="!acl.can('sales_channel.editor')"
                 size="small"
                 class="sw-sales-channel-detail-base__button-generate-keys"
+                variant="secondary"
                 @click="onGenerateProductExportKey"
             >
                 {{ $tc('sw-sales-channel.detail.productComparison.buttonCreateNewAccessKey') }}
@@ -746,6 +750,7 @@
                 {% block sw_sales_channel_detail_options_delete_modal_abort %}
                 <mt-button
                     size="small"
+                    variant="secondary"
                     @click="onCloseDeleteModal"
                 >
                     {{ $tc('global.default.cancel') }}

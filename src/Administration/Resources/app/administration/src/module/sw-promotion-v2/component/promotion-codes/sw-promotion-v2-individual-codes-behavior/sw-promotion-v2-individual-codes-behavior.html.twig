@@ -23,6 +23,7 @@
                         ghost
                         size="small"
                         :disabled="!acl.can('promotion.editor')"
+                        variant="secondary"
                         @click="onOpenAddCodesModal"
                     >
                         {{ $tc('sw-promotion-v2.detail.base.codes.individual.addButton') }}
@@ -35,6 +36,7 @@
                         ghost
                         size="small"
                         :disabled="!acl.can('promotion.editor')"
+                        variant="secondary"
                         @click="onOpenGenerateCodesModal"
                     >
                         {{ $tc('sw-promotion-v2.detail.base.codes.individual.generateButton') }}
@@ -210,6 +212,7 @@
                     class="sw-promotion-v2-individual-codes-behavior__empty-state-generate-action"
                     ghost
                     :disabled="!acl.can('promotion.editor')"
+                    variant="secondary"
                     @click="onOpenGenerateCodesModal"
                 >
                     {{ $tc('sw-promotion-v2.detail.base.codes.individual.generateButton') }}
@@ -279,6 +282,7 @@
             <mt-button
                 class="sw-promotion-v2-individual-codes-behavior__add-codes-button-cancel"
                 size="small"
+                variant="secondary"
                 @click="onCloseAddCodesModal"
             >
                 {{ $tc('global.default.cancel') }}

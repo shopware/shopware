@@ -13,6 +13,7 @@
         <mt-button
             v-tooltip.bottom="{ message: 'ESC', appearance: 'light' }"
             :disabled="isLoading"
+            variant="secondary"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}

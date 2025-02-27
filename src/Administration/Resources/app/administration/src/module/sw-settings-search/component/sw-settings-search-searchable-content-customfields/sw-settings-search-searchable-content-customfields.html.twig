@@ -23,6 +23,7 @@
                 ghost
                 size="small"
                 :disabled="!acl.can('product_search_config.creator')"
+                variant="secondary"
                 @click="onAddField"
             >
                 {{ $tc('sw-settings-search.generalTab.buttonAddContent') }}

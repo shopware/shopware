@@ -33,6 +33,7 @@
                     ghost
                     size="small"
                     :disabled="isAddNewItemButtonDisabled || undefined"
+                    variant="secondary"
                     @click="onInsertExistingItem"
                 >
                     {{ $tc('sw-order.createBase.buttonAddProduct') }}
@@ -47,6 +48,7 @@
                             size="small"
                             square
                             :disabled="isAddNewItemButtonDisabled || undefined"
+                            variant="secondary"
                         >
                             <mt-icon
                                 name="regular-chevron-down-xxs"

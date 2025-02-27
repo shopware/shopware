@@ -145,6 +145,7 @@ Component.register('sw-custom-field-set-renderer', {
                 'sw-number-field',
                 'sw-datepicker',
                 'sw-email-field',
+                'mt-email-field',
                 'sw-url-field',
                 'sw-password-field',
                 'sw-radio-field',

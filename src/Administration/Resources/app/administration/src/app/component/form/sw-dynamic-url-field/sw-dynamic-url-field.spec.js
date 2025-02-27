@@ -31,10 +31,11 @@ const linkDataProvider = [
     },
     {
         URL: 'mailto:test@shopware.com',
-        value: 'test@shopware.com',
+        modelValue: 'test@shopware.com',
         type: 'email',
         prefix: 'mailto:',
-        selector: '.sw-email-field',
+        selector: '.mt-email-field',
+        inputSelector: '.mt-email-field input',
         label: 'sw-text-editor-toolbar.link.linkTo',
         placeholder: 'sw-text-editor-toolbar.link.placeholderEmail',
     },

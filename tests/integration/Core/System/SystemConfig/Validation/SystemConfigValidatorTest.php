@@ -2,8 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\System\SystemConfig\Validation;
 
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -14,10 +12,12 @@ use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator;
 
 /**
+ * @package system-settings
+ *
  * @internal
+ *
+ * @covers \Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator
  */
-#[Package('framework')]
-#[CoversClass(SystemConfigValidator::class)]
 class SystemConfigValidatorTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -25,8 +25,9 @@ class SystemConfigValidatorTest extends TestCase
     /**
      * @param array<string, array<string, string|int|null>> $inputValues
      * @param array{elements: array{config: array<string, int|string|bool>, name: string}[]} $formConfigs
+     *
+     * @dataProvider validateProvider
      */
-    #[DataProvider('validateProvider')]
     public function testValidate(array $inputValues, array $formConfigs, bool $expectErrors): void
     {
         $configurationServiceMock = $this->createMock(ConfigurationService::class);

@@ -134,7 +134,6 @@ class SystemConfigValidatorTest extends TestCase
      * @param array<string, mixed> $elementConfig
      * @param array<int, mixed> $expected
      */
-    #[DataProvider('dataProviderTestGetRuleByKey')]
     public function testBuildConstraintsWithConfigs(array $elementConfig, array $expected, bool $allowNulls): void
     {
         $configurationServiceMock = $this->createMock(ConfigurationService::class);

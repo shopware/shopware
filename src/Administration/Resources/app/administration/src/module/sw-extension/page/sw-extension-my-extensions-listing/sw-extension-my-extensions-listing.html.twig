@@ -43,6 +43,29 @@
             <!-- Slot "actions" was removed and has no replacement. -->
         </mt-banner>
 
+        <mt-banner
+            v-if="hasPermissionRequests"
+            class="sw-extension-my-extensions-listing__permission-request-warning"
+            variant="attention"
+            :title="$tc('sw-app.component.sw-app-permission-request-banner.title')"
+        >
+
+            <template #default>
+                <div>
+                    {{ $tc('sw-app.component.sw-app-permission-request-banner.explanation') }}
+                </div>
+                <mt-button
+                    variant="secondary"
+                    size="x-small"
+                    class="sw-extension-my-extensions-listing__permission-request-warning__review-button"
+                    ghost
+                    :link="$tc('sw-app.component.sw-app-permission-request-banner.linkToDocsArticle')"
+                >
+                    {{ $tc('sw-app.component.sw-app-permission-request-banner.reviewButton') }}
+                </mt-button>
+            </template>
+        </mt-banner>
+
         {% block sw_extension_my_extensions_list_empty_state %}
 
         <sw-meteor-card

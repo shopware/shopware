@@ -14,6 +14,7 @@ export default {
         return {
             filterByActiveState: false,
             sortingOption: 'updated-at',
+            hasPermissionRequests: true,
         };
     },
 

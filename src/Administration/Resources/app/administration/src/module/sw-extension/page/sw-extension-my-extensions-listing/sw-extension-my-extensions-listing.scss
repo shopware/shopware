@@ -34,6 +34,15 @@
             max-width: 960px;
             margin-bottom: 32px;
         }
+
+        .sw-extension-my-extensions-listing__permission-request-warning {
+            max-width: 960px;
+            margin-bottom: 32px;
+
+            .sw-extension-my-extensions-listing__permission-request-warning__review-button {
+                margin-top: var(--scale-size-8)
+            }
+        }
     }
 
     &-empty-state {

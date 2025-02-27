@@ -109,6 +109,14 @@ export default defineConfig({
             grep: /@Update/,
             retries: 0,
         },
+        {
+            name: 'Visual',
+            use: {
+                ...devices['Desktop Chrome'],
+            },
+            dependencies: [],
+            grep: /@Visual/,
+        },
     ],
 
     /* Run your local dev server before starting the tests */

@@ -31,9 +31,9 @@ class ContextProvider
     }
 
     /**
-     * @param array<string, mixed> $session
+     * @param array{originalContext?: Context, version-id?: string, languageId?: string} $options
      */
-    public function getContext(string $salesChannelId, array $session): Context
+    public function getContext(string $salesChannelId, array $options): Context
     {
         $sql = '
         # context-factory::base-context
@@ -59,8 +59,8 @@ class ContextProvider
             throw SalesChannelException::noContextData($salesChannelId);
         }
 
-        if (isset($session[SalesChannelContextService::ORIGINAL_CONTEXT])) {
-            $origin = new AdminSalesChannelApiSource($salesChannelId, $session[SalesChannelContextService::ORIGINAL_CONTEXT]);
+        if (isset($options[SalesChannelContextService::ORIGINAL_CONTEXT])) {
+            $origin = new AdminSalesChannelApiSource($salesChannelId, $options[SalesChannelContextService::ORIGINAL_CONTEXT]);
         } else {
             $origin = new SalesChannelApiSource($salesChannelId);
         }
@@ -72,9 +72,9 @@ class ContextProvider
         // check which language should be used in the current request (request header set, or context already contains a language - stored in `sales_channel_api_context`)
         $defaultLanguageId = Uuid::fromBytesToHex($data['sales_channel_default_language_id']);
 
-        $languageChain = $this->buildLanguageChain($session, $defaultLanguageId, $languageIds);
+        $languageChain = $this->buildLanguageChain($options, $defaultLanguageId, $languageIds);
 
-        $versionId = $session[SalesChannelContextService::VERSION_ID] ?? Defaults::LIVE_VERSION;
+        $versionId = $options[SalesChannelContextService::VERSION_ID] ?? Defaults::LIVE_VERSION;
 
         return $this->eventDispatcher->dispatch(new ContextCreatedEvent(
             new Context(
@@ -90,7 +90,7 @@ class ContextProvider
     }
 
     /**
-     * @param array<string, mixed> $sessionOptions
+     * @param array{originalContext?: Context, version-id?: string, languageId?: string} $sessionOptions
      * @param array<string> $availableLanguageIds
      *
      * @return non-empty-list<string>

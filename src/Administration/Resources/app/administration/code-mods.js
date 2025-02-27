@@ -264,6 +264,7 @@ async function lintFiles(filePaths, fix, shopwareVersion) {
                                         'sw-colorpicker',
                                         'sw-text-field',
                                         'sw-card',
+                                        'sw-email-field',
                                         'sw-switch-field',
                                         'sw-textarea-field',
                                         'sw-datepicker',

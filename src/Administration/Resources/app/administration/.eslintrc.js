@@ -213,6 +213,7 @@ module.exports = {
                         'sw-progress-bar',
                         'sw-button',
                         'sw-text-field',
+                        'sw-email-field',
                         'sw-card',
                         'sw-switch-field',
                         'sw-textarea-field',

@@ -1,4 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
+/** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
 import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
 import ButtonLoadingIndicatorUtil from 'src/utility/loading-indicator/button-loading-indicator.util';
@@ -44,6 +45,7 @@ export default class AddressManagerPlugin extends Plugin {
         this.el.removeEventListener('click', this._getModal.bind(this));
         this.el.addEventListener('click', this._getModal.bind(this));
 
+        /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._client = new HttpClient();
         this._registerEvents();
     }
@@ -96,13 +98,12 @@ export default class AddressManagerPlugin extends Plugin {
         this._btnLoader = new ButtonLoadingIndicatorUtil(event.currentTarget);
         this._btnLoader.create();
 
-        this._client.get(
-            this.options.addressManagerUrl,
-            (response) => {
+        fetch(this.options.addressManagerUrl)
+            .then(response => response.text())
+            .then(response => {
                 this._renderModal(response);
                 this._registerEvents();
-            }
-        );
+            });
     }
 
     /**
@@ -153,17 +154,19 @@ export default class AddressManagerPlugin extends Plugin {
     _onSaveChanges(event) {
         event.preventDefault();
 
-        this._client.post(
-            event.currentTarget.action,
-            new FormData(event.target),
-            (data, response)  => {
+        fetch(event.currentTarget.action, {
+            method: 'POST',
+            body: new FormData(event.target),
+        })
+            .then(response => {
                 if (response.status === 204) {
                     return location.reload();
                 }
-
+                return response.text();
+            })
+            .then(data => {
                 this._replaceModalContent(data);
-            }
-        );
+            });
     }
 
     /**
@@ -203,11 +206,13 @@ export default class AddressManagerPlugin extends Plugin {
             return;
         }
 
-        this._client.post(
-            this.options.addressSwitchUrl,
-            JSON.stringify({id, type}),
-            (data) => this._replaceModalContent(data, type)
-        );
+        fetch(this.options.addressSwitchUrl, {
+            method: 'POST',
+            body: JSON.stringify({ id, type }),
+            headers: { 'Content-Type': 'application/json' },
+        })
+            .then(response => response.text())
+            .then(data => this._replaceModalContent(data, type));
     }
 
     /**
@@ -222,11 +227,11 @@ export default class AddressManagerPlugin extends Plugin {
             return;
         }
 
-        this._client.post(
-            `${this.options.addressManagerUrl}${id ? `/${id}` : ''}?type=${type}`,
-            '',
-            (data) => this._replaceModalContent(data)
-        );
+        fetch(`${this.options.addressManagerUrl}${id ? `/${id}` : ''}?type=${type}`, {
+            method: 'POST',
+        })
+            .then(response => response.text())
+            .then(data => this._replaceModalContent(data));
     }
 
     /**
@@ -235,10 +240,9 @@ export default class AddressManagerPlugin extends Plugin {
     _onEditAddressCancel(event) {
         const type = event.currentTarget?.dataset?.addressType;
 
-        this._client.get(
-            this.options.addressManagerUrl,
-            (data) => this._replaceModalContent(data, type)
-        );
+        fetch(this.options.addressManagerUrl)
+            .then(response => response.text())
+            .then(data => this._replaceModalContent(data, type));
     }
 
     /**

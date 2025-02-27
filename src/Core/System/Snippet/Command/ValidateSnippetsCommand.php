@@ -6,7 +6,6 @@ use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\BundleSnippetValidatorInterface;
 use Shopware\Core\System\Snippet\SnippetFixer;
-use Shopware\Core\System\Snippet\SnippetValidatorInterface;
 use Shopware\Core\System\Snippet\Struct\MissingSnippetCollection;
 use Shopware\Core\System\Snippet\Struct\MissingSnippetStruct;
 use Symfony\Component\Console\Attribute\AsCommand;

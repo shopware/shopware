@@ -34,3 +34,4 @@ jobs:
           auth: ${{ steps.sts-shopware-backport.outputs.token }}
           target-branch-pattern: "^backport-(?<target>([^ ]+))$"
           pull-request: ${{ github.event.pull_request.url }}
+          title: ${{ github.event.pull_request.title }}

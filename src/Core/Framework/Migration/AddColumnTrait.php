@@ -6,6 +6,8 @@ use Doctrine\DBAL\Connection;
 
 trait AddColumnTrait
 {
+    use ColumnExistsTrait;
+
     /**
      * @return bool true if the column was created, false if it already exists
      */
@@ -27,15 +29,5 @@ trait AddColumnTrait
         );
 
         return true;
-    }
-
-    protected function columnExists(Connection $connection, string $table, string $column): bool
-    {
-        $exists = $connection->fetchOne(
-            'SHOW COLUMNS FROM `' . $table . '` WHERE `Field` LIKE :column',
-            ['column' => $column]
-        );
-
-        return !empty($exists);
     }
 }

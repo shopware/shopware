@@ -27,6 +27,7 @@ class Migration1728040169AddPrimaryOrderDeliveryAndTransaction extends Migration
             $connection->executeStatement(
                 'ALTER TABLE `order`
                 ADD COLUMN `primary_order_delivery_id` BINARY(16) NULL DEFAULT NULL,
+                ADD COLUMN `primary_order_delivery_version_id` BINARY(16) NULL DEFAULT NULL,
                 ADD UNIQUE INDEX `uidx.order.primary_order_delivery` (`id`, `version_id`, `primary_order_delivery_id`);'
             );
 
@@ -52,6 +53,7 @@ class Migration1728040169AddPrimaryOrderDeliveryAndTransaction extends Migration
             $connection->executeStatement(
                 'ALTER TABLE `order`
                 ADD COLUMN `primary_order_transaction_id` BINARY(16) NULL DEFAULT NULL,
+                ADD COLUMN `primary_order_transaction_version_id` BINARY(16) NULL DEFAULT NULL,
                 ADD UNIQUE INDEX `uidx.order.primary_order_transaction` (`id`, `version_id`, `primary_order_transaction_id`);'
             );
             $connection->executeStatement(

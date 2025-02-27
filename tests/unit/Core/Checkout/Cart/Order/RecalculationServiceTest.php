@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderConversionContext;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
@@ -36,6 +37,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -463,6 +465,17 @@ class RecalculationServiceTest extends TestCase
         $order->setSalesChannelId(Uuid::randomHex());
         $order->setTaxStatus(CartPrice::TAX_STATE_FREE);
         $order->setStateId(Uuid::randomHex());
+
+
+        if (Feature::isActive('v6.8.0.0')) {
+            $deliveryId = Uuid::randomHex();
+            $deliveryEntity = new OrderDeliveryEntity();
+            $deliveryEntity->setId($deliveryId);
+            $deliveryEntity->setStateId(Uuid::randomHex());
+
+            $order->setPrimaryOrderDeliveryId($deliveryId);
+            $order->setPrimaryOrderDelivery($deliveryEntity);
+        }
 
         return $order;
     }

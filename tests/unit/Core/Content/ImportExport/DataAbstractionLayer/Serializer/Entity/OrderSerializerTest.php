@@ -179,6 +179,7 @@ class OrderSerializerTest extends TestCase
                     'positions' => new OrderDeliveryPositionCollection(),
                     'id' => 'delivery-1',
                     'customFields' => null,
+                    'primaryOrder' => null,
                 ],
             ]),
         ];
@@ -227,6 +228,7 @@ class OrderSerializerTest extends TestCase
                     'customFields' => null,
                     'id' => 'transaction-1',
                     'validationData' => [],
+                    'primaryOrder' => null,
                 ],
             ]),
         ];
@@ -261,6 +263,7 @@ class OrderSerializerTest extends TestCase
                     'positions' => new OrderDeliveryPositionCollection(),
                     'id' => 'delivery-1',
                     'customFields' => null,
+                    'primaryOrder' => null,
                 ],
             ]),
         ];
@@ -296,6 +299,7 @@ class OrderSerializerTest extends TestCase
                     'positions' => new OrderDeliveryPositionCollection(),
                     'id' => 'delivery-1',
                     'customFields' => null,
+                    'primaryOrder' => null,
                 ],
                 'transactions' => [
                     'extensions' => [],
@@ -336,6 +340,7 @@ class OrderSerializerTest extends TestCase
                     'customFields' => null,
                     'id' => 'transaction-1',
                     'validationData' => [],
+                    'primaryOrder' => null,
                 ],
             ]),
         ];

@@ -87,14 +87,14 @@ class RecalculationService
         $orderData['stateId'] = $order->getStateId();
 
         /** @deprecated tag:v6.8.0 use primaryOrderDelivery */
-        if (!Feature::isActive('v6.8.0.0')) {
+//        if (!Feature::isActive('v6.8.0.0')) {
             if ($order->getDeliveries()?->first()?->getStateId() && $shouldIncludeDeliveries) {
                 $orderData['deliveries'][0]['stateId'] = $order->getDeliveries()->first()->getStateId();
-            }
-        } else {
-            if ($order->getPrimaryOrderDelivery()?->getStateId() && $shouldIncludeDeliveries) {
-                $orderData['deliveries'][0]['stateId'] = $order->getPrimaryOrderDelivery()->getStateId();
-            }
+//            }
+//        } else {
+//            if ($order->getPrimaryOrderDelivery()?->getStateId() && $shouldIncludeDeliveries) {
+//                $orderData['deliveries'][0]['stateId'] = $order->getPrimaryOrderDelivery()->getStateId();
+//            }
         }
 
         // change scope to be able to write protected state fields of transactions and deliveries

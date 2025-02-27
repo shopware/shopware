@@ -223,8 +223,8 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         );
         await flushPromises();
 
-        const rememberMeInput = wrapper.find('.sw-field--checkbox input');
-        await rememberMeInput.trigger('click');
+        const rememberMeInput = wrapper.find('.mt-field--checkbox__container input');
+        await rememberMeInput.setChecked(true);
 
         const loginButton = wrapper.findByText('button', 'sw-login.index.buttonLogin');
         await loginButton.trigger('click');

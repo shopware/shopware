@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\Event\PasswordRecoveryUrlEvent;
 use Shopware\Core\Defaults;
@@ -35,6 +36,9 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
 
     private IdsCollection $ids;
 
+    /**
+     * @var EntityRepository<CustomerCollection>
+     */
     private EntityRepository $customerRepository;
 
     protected function setUp(): void

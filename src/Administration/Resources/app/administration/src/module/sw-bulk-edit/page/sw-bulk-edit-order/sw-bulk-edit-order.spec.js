@@ -92,7 +92,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-error-summary': true,
                     'sw-app-topbar-button': true,
                     'sw-help-center-v2': true,
-                    'mt-checkbox': true,
                     'sw-context-button': true,
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,
@@ -353,10 +352,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         await flushPromises();
 
         expect(
-            wrapper.find('.sw-bulk-edit-change-field-statusMails .sw-field__checkbox input').attributes().disabled,
+            wrapper.find('.sw-bulk-edit-change-field-statusMails .mt-field--checkbox__container input').attributes()
+                .disabled,
         ).toBeDefined();
         expect(
-            wrapper.find('.sw-bulk-edit-change-field-documents .sw-field__checkbox input').attributes().disabled,
+            wrapper.find('.sw-bulk-edit-change-field-documents .mt-field--checkbox__container input').attributes().disabled,
         ).toBeDefined();
     });
 
@@ -378,7 +378,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         await wrapper.vm.$nextTick();
 
         expect(
-            wrapper.find('.sw-bulk-edit-change-field-statusMails .sw-field__checkbox input').attributes().disabled,
+            wrapper.find('.sw-bulk-edit-change-field-statusMails .mt-field--checkbox__container input').attributes()
+                .disabled,
         ).toBeUndefined();
     });
 
@@ -399,12 +400,14 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await wrapper.vm.$nextTick();
 
-        await wrapper.find('.sw-bulk-edit-change-field-statusMails .sw-field__checkbox input').setValue('checked');
+        await wrapper
+            .find('.sw-bulk-edit-change-field-statusMails .mt-field--checkbox__container input')
+            .setValue('checked');
 
         await wrapper.vm.$nextTick();
 
         expect(
-            wrapper.find('.sw-bulk-edit-change-field-documents .sw-field__checkbox input').attributes().disabled,
+            wrapper.find('.sw-bulk-edit-change-field-documents .mt-field--checkbox__container input').attributes().disabled,
         ).toBeUndefined();
     });
 
@@ -418,7 +421,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         await wrapper.vm.$nextTick();
 
         await wrapper
-            .find('.sw-bulk-edit__custom-fields .sw-bulk-edit-custom-fields__change .sw-field__checkbox input')
+            .find('.sw-bulk-edit__custom-fields .sw-bulk-edit-custom-fields__change.mt-field--checkbox__container input')
             .setValue('checked');
 
         await wrapper.vm.$nextTick();

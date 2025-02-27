@@ -558,8 +558,8 @@
             {{ $tc('sw-cms.detail.sidebar.confirmTextNavigator') }}
 
             {% block sw_cms_sidebar_navigator_confirm_modal_content_input_reminder %}
-            <sw-checkbox-field
-                v-model:value="navigatorDontRemind"
+            <mt-checkbox
+                v-model:checked="navigatorDontRemind"
                 class="sw-cms-sidebar__navigator-confirm-modal-reminder"
                 :label="$tc('sw-cms.detail.sidebar.confirmReminderNavigator')"
             />

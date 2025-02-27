@@ -220,28 +220,28 @@
                                                 v-for="(updaters, indexer) in item"
                                                 :key="indexer"
                                             >
-                                                <sw-checkbox-field
+                                                <mt-checkbox
                                                     class="sw-settings-cache__indexers-entry"
-                                                    :value="indexerSelection.includes(indexer)"
+                                                    :checked="indexerSelection.includes(indexer)"
                                                     :label="indexer"
                                                     :name="indexer"
                                                     size="small"
-                                                    @update:value="changeSelection($event, indexer)"
+                                                    @update:checked="changeSelection($event, indexer)"
                                                 />
                                                 <ul>
                                                     <li
                                                         v-for="(updater, index) in updaters"
                                                         :key="index"
                                                     >
-                                                        <sw-checkbox-field
+                                                        <mt-checkbox
                                                             class="sw-settings-cache__indexers-entry"
-                                                            :value="indexerSelection.includes(updater) || indexerSelection.includes(indexer)"
+                                                            :checked="indexerSelection.includes(updater) || indexerSelection.includes(indexer)"
                                                             :label="updater"
                                                             :name="updater"
                                                             size="small"
                                                             :disabled="indexerSelection.includes(indexer)"
                                                             @click.prevent
-                                                            @update:value="changeSelection($event, updater)"
+                                                            @update:checked="changeSelection($event, updater)"
                                                         />
                                                     </li>
                                                 </ul>

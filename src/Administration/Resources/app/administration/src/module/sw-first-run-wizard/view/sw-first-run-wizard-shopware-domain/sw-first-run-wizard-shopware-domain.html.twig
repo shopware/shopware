@@ -21,8 +21,8 @@
             validation="required"
             :label="'Shop domain'"
         />
-        <sw-checkbox-field
-            v-model:value="testEnvironment"
+        <mt-checkbox
+            v-model:checked="testEnvironment"
             :label="$tc('sw-first-run-wizard.shopwareDomain.testEnvironment')"
         />
     </div>

@@ -94,16 +94,11 @@
             {% block sw_app_action_modal_confirm_footer %}
             <template #modal-footer>
                 {% block sw_app_action_modal_confirm_checkbox %}
-                <sw-checkbox-field
-                    :value="!isShowModalConfirm"
-                    @update:value="onChangeCheckboxShow()"
-                >
-                    {% block sw_app_action_modal_confirm_checkbox_label %}
-                    <template #label>
-                        {{ $tc('sw-app.component.sw-app-actions.dontAskMeAgain') }}
-                    </template>
-                    {% endblock %}
-                </sw-checkbox-field>
+                <mt-checkbox
+                    :checked="!isShowModalConfirm"
+                    :label="$tc('sw-app.component.sw-app-actions.dontAskMeAgain')"
+                    @update:checked="onChangeCheckboxShow()"
+                />
                 {% endblock %}
 
                 {% block sw_app_action_modal_confirm_footer_buttons %}

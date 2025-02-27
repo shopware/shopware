@@ -14,8 +14,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
  */
 class BundleHierarchyBuilderTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use EnvTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private EntityRepository $appRepository;
 
@@ -66,7 +66,7 @@ class BundleHierarchyBuilderTest extends TestCase
     /**
      * @deprecated tag:v6.7.0 - remove whole test
      */
-    public function testItExcludesAppsOnDisableExtensions()
+    public function testItExcludesAppsOnDisableExtensions(): void
     {
         $this->setEnvVars(['DISABLE_EXTENSIONS' => 1]);
         $this->appRepository->create([
@@ -103,7 +103,6 @@ class BundleHierarchyBuilderTest extends TestCase
         static::assertSame([
             ...$coreHierarchy,
         ], array_keys($bundleHierarchyBuilder->buildNamespaceHierarchy([])));
-
     }
 
     public function testItExcludesInactiveApps(): void

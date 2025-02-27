@@ -54,7 +54,9 @@ test('New customers cannot register as commercial customers without a VAT Reg.No
         
         // eslint-disable-next-line playwright/no-conditional-in-test
         if (InstanceMeta.features['ACCESSIBILITY_TWEAKS']) {
-           await ShopCustomer.expects(StorefrontAccountLogin.vatRegNoInput).toHaveAttribute('aria-required');
+            await ShopCustomer.expects(StorefrontAccountLogin.vatRegNoInput).toHaveAttribute('aria-required');
+        } else {
+            await ShopCustomer.expects(StorefrontAccountLogin.vatRegNoInput).toHaveAttribute('required');
         }
         
         await ShopCustomer.expects(StorefrontAccountLogin.vatRegNoInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');

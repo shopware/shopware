@@ -51,7 +51,12 @@ test('New customers cannot register as commercial customers without a VAT Reg.No
 
     await test.step('Verify registration is blocked due to missing VAT Reg.No.', async () => {
         await ShopCustomer.expects(StorefrontAccountLogin.page.getByText('I\'m a new customer!')).toBeVisible();
-        await ShopCustomer.expects(StorefrontAccountLogin.vatRegNoInput).toHaveAttribute('aria-required');
+        
+        // eslint-disable-next-line playwright/no-conditional-in-test
+        if (InstanceMeta.features['ACCESSIBILITY_TWEAKS']) {
+           await ShopCustomer.expects(StorefrontAccountLogin.vatRegNoInput).toHaveAttribute('aria-required');
+        }
+        
         await ShopCustomer.expects(StorefrontAccountLogin.vatRegNoInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
     });
 

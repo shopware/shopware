@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Util\FloatComparator;
 #[Package('fundamentals@after-sales')]
 class RuleComparison
 {
+    public const FORMAT_DATE = 'Y-m-d';
+    public const FORMAT_DATETIME = 'Y-m-d H:i:s';
+
     public static function numeric(?float $itemValue, ?float $ruleValue, string $operator): bool
     {
         if ($itemValue === null) {
@@ -88,17 +91,14 @@ class RuleComparison
         };
     }
 
+    public static function date(\DateTime $itemValue, \DateTime $ruleValue, string $operator): bool
+    {
+        return self::compareDate(self::FORMAT_DATE, $itemValue, $ruleValue, $operator);
+    }
+
     public static function datetime(\DateTime $itemValue, \DateTime $ruleValue, string $operator): bool
     {
-        return match ($operator) {
-            Rule::OPERATOR_EQ => $itemValue->format('Y-m-d H:i:s') === $ruleValue->format('Y-m-d H:i:s'),
-            Rule::OPERATOR_NEQ => $itemValue->format('Y-m-d H:i:s') !== $ruleValue->format('Y-m-d H:i:s'),
-            Rule::OPERATOR_GT => $itemValue > $ruleValue,
-            Rule::OPERATOR_LT => $itemValue < $ruleValue,
-            Rule::OPERATOR_GTE => $itemValue >= $ruleValue,
-            Rule::OPERATOR_LTE => $itemValue <= $ruleValue,
-            default => throw new UnsupportedOperatorException($operator, self::class),
-        };
+        return self::compareDate(self::FORMAT_DATETIME, $itemValue, $ruleValue, $operator);
     }
 
     public static function isNegativeOperator(string $operator): bool
@@ -107,5 +107,18 @@ class RuleComparison
             Rule::OPERATOR_EMPTY,
             Rule::OPERATOR_NEQ,
         ], true);
+    }
+
+    private static function compareDate(string $format, \DateTime $itemValue, \DateTime $ruleValue, string $operator): bool
+    {
+        return match ($operator) {
+            Rule::OPERATOR_EQ => $itemValue->format($format) === $ruleValue->format($format),
+            Rule::OPERATOR_NEQ => $itemValue->format($format) !== $ruleValue->format($format),
+            Rule::OPERATOR_GT => $itemValue > $ruleValue,
+            Rule::OPERATOR_LT => $itemValue < $ruleValue,
+            Rule::OPERATOR_GTE => $itemValue >= $ruleValue,
+            Rule::OPERATOR_LTE => $itemValue <= $ruleValue,
+            default => throw new UnsupportedOperatorException($operator, self::class),
+        };
     }
 }

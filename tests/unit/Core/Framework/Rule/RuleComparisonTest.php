@@ -151,4 +151,202 @@ class RuleComparisonTest extends TestCase
 
         RuleComparison::numeric(1.0, 1.0, 'unsupported');
     }
+
+    #[DataProvider('valuesForDateTimeComparison')]
+    public function testDateTimeComparison(\DateTime $itemValue, \DateTime $ruleValue, bool $result, string $operator): void
+    {
+        static::assertEquals($result, RuleComparison::datetime($itemValue, $ruleValue, $operator));
+    }
+
+    public static function valuesForDateTimeComparison(): \Generator
+    {
+        yield 'datetime equal - true' => [
+            new \DateTime('2025-02-27 10:00:00'),
+            new \DateTime('2025-02-27 10:00:00'),
+            true,
+            Rule::OPERATOR_EQ,
+        ];
+        yield 'datetime equal - false' => [
+            new \DateTime('2025-02-27 10:00:00'),
+            new \DateTime('2025-02-27 12:00:00'),
+            false,
+            Rule::OPERATOR_EQ,
+        ];
+
+        yield 'datetime not equal - true' => [
+            new \DateTime('2025-02-27 10:00:00'),
+            new \DateTime('2025-02-27 11:00:00'),
+            true,
+            Rule::OPERATOR_NEQ,
+        ];
+        yield 'datetime not equal - false' => [
+            new \DateTime('2025-02-27 10:00:00'),
+            new \DateTime('2025-02-27 10:00:00'),
+            false,
+            Rule::OPERATOR_NEQ,
+        ];
+
+        yield 'datetime greater than - true' => [
+            new \DateTime('2025-02-28 18:00:00'),
+            new \DateTime('2025-02-28 10:00:00'),
+            true,
+            Rule::OPERATOR_GT,
+        ];
+        yield 'datetime greater than - false' => [
+            new \DateTime('2025-02-28 10:00:00'),
+            new \DateTime('2025-02-28 10:00:00'),
+            false,
+            Rule::OPERATOR_GT,
+        ];
+
+        yield 'datetime less then - true' => [
+            new \DateTime('2025-02-27 09:00:00'),
+            new \DateTime('2025-02-27 10:00:00'),
+            true,
+            Rule::OPERATOR_LT,
+        ];
+        yield 'datetime less then - false' => [
+            new \DateTime('2025-02-27 10:00:00'),
+            new \DateTime('2025-02-27 10:00:00'),
+            false,
+            Rule::OPERATOR_LT,
+        ];
+
+        yield 'datetime greater then equal - true' => [
+            new \DateTime('2025-02-27 10:00:00'),
+            new \DateTime('2025-02-27 09:00:00'),
+            true,
+            Rule::OPERATOR_GTE,
+        ];
+        yield 'datetime greater then equal - true (equal)' => [
+            new \DateTime('2025-02-27 10:00:00'),
+            new \DateTime('2025-02-27 10:00:00'),
+            true,
+            Rule::OPERATOR_GTE,
+        ];
+        yield 'datetime greater then equal - false' => [
+            new \DateTime('2025-02-27 09:00:00'),
+            new \DateTime('2025-02-27 10:00:00'),
+            false,
+            Rule::OPERATOR_GTE,
+        ];
+
+        yield 'datetime less then equal - true' => [
+            new \DateTime('2025-02-27 10:00:00'),
+            new \DateTime('2025-02-27 11:00:00'),
+            true,
+            Rule::OPERATOR_LTE,
+        ];
+        yield 'datetime less then equal - true (equal)' => [
+            new \DateTime('2025-02-27 10:00:00'),
+            new \DateTime('2025-02-27 10:00:00'),
+            true,
+            Rule::OPERATOR_LTE,
+        ];
+        yield 'datetime less then equal - false' => [
+            new \DateTime('2025-02-27 11:00:00'),
+            new \DateTime('2025-02-27 10:00:00'),
+            false,
+            Rule::OPERATOR_LTE,
+        ];
+    }
+
+    #[DataProvider('valuesForDateComparison')]
+    public function testDateComparison(\DateTime $itemValue, \DateTime $ruleValue, bool $result, string $operator): void
+    {
+        static::assertEquals($result, RuleComparison::date($itemValue, $ruleValue, $operator));
+    }
+
+    public static function valuesForDateComparison(): \Generator
+    {
+        yield 'date equal - true' => [
+            new \DateTime('2025-02-27'),
+            new \DateTime('2025-02-27'),
+            true,
+            Rule::OPERATOR_EQ,
+        ];
+        yield 'date equal - false' => [
+            new \DateTime('2025-02-27'),
+            new \DateTime('2025-02-28'),
+            false,
+            Rule::OPERATOR_EQ,
+        ];
+
+        yield 'date not equal - true' => [
+            new \DateTime('2025-02-27'),
+            new \DateTime('2025-02-28'),
+            true,
+            Rule::OPERATOR_NEQ,
+        ];
+        yield 'date not equal - false' => [
+            new \DateTime('2025-02-27'),
+            new \DateTime('2025-02-27'),
+            false,
+            Rule::OPERATOR_NEQ,
+        ];
+
+        yield 'date greater than - true' => [
+            new \DateTime('2025-02-29'),
+            new \DateTime('2025-02-28'),
+            true,
+            Rule::OPERATOR_GT,
+        ];
+        yield 'date greater than - false' => [
+            new \DateTime('2025-02-28'),
+            new \DateTime('2025-02-28'),
+            false,
+            Rule::OPERATOR_GT,
+        ];
+
+        yield 'date less then - true' => [
+            new \DateTime('2025-02-26'),
+            new \DateTime('2025-02-27'),
+            true,
+            Rule::OPERATOR_LT,
+        ];
+        yield 'date less then - false' => [
+            new \DateTime('2025-02-27'),
+            new \DateTime('2025-02-27'),
+            false,
+            Rule::OPERATOR_LT,
+        ];
+
+        yield 'date greater then equal - true' => [
+            new \DateTime('2025-02-28'),
+            new \DateTime('2025-02-27'),
+            true,
+            Rule::OPERATOR_GTE,
+        ];
+        yield 'date greater then equal - true (equal)' => [
+            new \DateTime('2025-02-27'),
+            new \DateTime('2025-02-27'),
+            true,
+            Rule::OPERATOR_GTE,
+        ];
+        yield 'date greater then equal - false' => [
+            new \DateTime('2025-02-26'),
+            new \DateTime('2025-02-27'),
+            false,
+            Rule::OPERATOR_GTE,
+        ];
+
+        yield 'date less then equal - true' => [
+            new \DateTime('2025-02-26'),
+            new \DateTime('2025-02-27'),
+            true,
+            Rule::OPERATOR_LTE,
+        ];
+        yield 'date less then equal - true (equal)' => [
+            new \DateTime('2025-02-27'),
+            new \DateTime('2025-02-27'),
+            true,
+            Rule::OPERATOR_LTE,
+        ];
+        yield 'date less then equal - false' => [
+            new \DateTime('2025-02-28'),
+            new \DateTime('2025-02-27'),
+            false,
+            Rule::OPERATOR_LTE,
+        ];
+    }
 }

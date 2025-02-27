@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Migration\V6_7\Migration1740321707SetAutoplayTimeoutAndSpeedSettingsForProductSlider;
+use Shopware\Core\Migration\V6_6\Migration1740321707SetAutoplayTimeoutAndSpeedSettingsForProductSlider;
 
 /**
  * @internal

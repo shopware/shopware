@@ -24,7 +24,7 @@ final class UserService
     /**
      * @param non-empty-string $idToken
      */
-    public function getUser(string $idToken, ?string $refreshToken = ''): ExternalAuthUser
+    public function getUser(string $idToken, string $refreshToken): ExternalAuthUser
     {
         $parsedIdToken = $this->idTokenParser->parse($idToken);
 

@@ -9,6 +9,7 @@ use Shopware\Administration\Login\Config\LoginConfigService;
 use Shopware\Administration\Login\TokenService\IdTokenParser;
 use Shopware\Administration\Login\TokenService\PublicKeyLoader;
 use Shopware\Administration\Login\UserService\UserService;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Cache\CacheItem;
@@ -16,6 +17,10 @@ use Symfony\Component\Clock\ClockInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
+/**
+ * @internal
+ */
+#[Package('after-sales')]
 class ValidUserServiceCreator extends TestCase
 {
     use KernelTestBehaviour;
@@ -25,7 +30,7 @@ class ValidUserServiceCreator extends TestCase
         parent::__construct('name');
     }
 
-    public function create()
+    public function create(): UserService
     {
         $connection = $this->getContainer()->get(Connection::class);
 

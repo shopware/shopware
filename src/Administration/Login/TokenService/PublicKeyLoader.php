@@ -4,6 +4,7 @@ namespace Shopware\Administration\Login\TokenService;
 
 use Lcobucci\JWT\Signer\Key\InMemory;
 use phpseclib3\Crypt\RSA\Formats\Keys\JWK;
+use Shopware\Administration\Login\Config\LoginConfig;
 use Shopware\Administration\Login\Config\LoginConfigService;
 use Shopware\Administration\Login\Exception\LoginException;
 use Shopware\Core\Framework\Log\Package;
@@ -60,7 +61,12 @@ final class PublicKeyLoader
             return null;
         }
 
-        return InMemory::plainText($publicKey->toString('pkcs8'));
+        $publicKeyString = $publicKey->toString('pkcs8');
+        if (!\is_string($publicKeyString) || empty($publicKeyString)) {
+            return null;
+        }
+
+        return InMemory::plainText($publicKeyString);
     }
 
     private function loadPublicKeys(): string
@@ -72,6 +78,10 @@ final class PublicKeyLoader
         }
 
         $loginConfig = $this->loginConfigService->getConfig();
+        if (!$loginConfig instanceof LoginConfig) {
+            throw LoginException::configurationNotFound();
+        }
+
         $publicKeysResponse = $this->client->request('GET', $loginConfig->baseUrl . $loginConfig->jwksPath);
 
         $publicKeyString = $publicKeysResponse->getContent();

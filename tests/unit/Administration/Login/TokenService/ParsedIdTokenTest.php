@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Administration\Login\TokenService;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Token\DataSet;
 use Lcobucci\JWT\Token\Parser;
+use Lcobucci\JWT\Token\Plain;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -25,6 +26,7 @@ class ParsedIdTokenTest extends TestCase
         $token = (new FakeTokenGenerator())->generate();
         $parser = new Parser(new JoseEncoder());
         $parsed = $parser->parse($token);
+        static::assertInstanceOf(Plain::class, $parsed);
 
         $result = ParsedIdToken::createFromDataSet($parsed->claims());
 
@@ -50,7 +52,7 @@ class ParsedIdTokenTest extends TestCase
     /**
      * @return array<string, array<int, Dataset|string>>
      */
-    public function invalidData(): array
+    public static function invalidData(): array
     {
         return [
             'All is not set' => [

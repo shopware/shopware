@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Administration\Login\UserService;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Login\UserService\ExternalAuthUser;
 use Shopware\Administration\Login\UserService\UserService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -38,7 +37,6 @@ class UserServiceTest extends TestCase
         $refreshToken = Uuid::randomHex();
 
         $externalAuthUser = $this->createUserService()->getUser($idToken, $refreshToken);
-        static::assertInstanceOf(ExternalAuthUser::class, $externalAuthUser);
         static::assertSame($userId, $externalAuthUser->userId);
         static::assertSame($refreshToken, $externalAuthUser->refreshToken);
         static::assertTrue($externalAuthUser->isNew);
@@ -69,7 +67,6 @@ class UserServiceTest extends TestCase
         $refreshToken = Uuid::randomHex();
 
         $externalAuthUser = $this->createUserService()->getUser($idToken, $refreshToken);
-        static::assertInstanceOf(ExternalAuthUser::class, $externalAuthUser);
         static::assertSame($userId, $externalAuthUser->userId);
         static::assertSame($refreshToken, $externalAuthUser->refreshToken);
         static::assertFalse($externalAuthUser->isNew);

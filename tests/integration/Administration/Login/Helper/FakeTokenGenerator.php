@@ -47,7 +47,7 @@ class FakeTokenGenerator
             $headerArray['kid'] = $kid;
         }
 
-        $header = self::base64UrlEncode(\json_encode($headerArray));
+        $header = self::base64UrlEncode(\json_encode($headerArray, \JSON_THROW_ON_ERROR));
         $content = self::base64UrlEncode((string) json_encode([
             'aud' => $this->audience,
             'iss' => $this->issuer,

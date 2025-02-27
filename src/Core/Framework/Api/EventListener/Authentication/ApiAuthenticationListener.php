@@ -75,7 +75,7 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         $refreshTokenGrant->setRefreshTokenTTL($refreshTokenInterval);
 
         // At this point session is not set $event->getRequest()->getSession()
-        $shopwareGrant = new ShopwareGrantType($this->refreshTokenRepository, $this->userService, $this->tokenService, new Session());
+        $shopwareGrant = new ShopwareGrantType($this->refreshTokenRepository, $this->userService, $this->tokenService);
         $shopwareGrant->setRefreshTokenTTL($refreshTokenInterval);
 
         $this->authorizationServer->enableGrantType($passwordGrant, $accessTokenInterval);

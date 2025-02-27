@@ -11,6 +11,7 @@ use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\Validator;
 use Lcobucci\JWT\Validator as ValidatorInterface;
+use Shopware\Administration\Login\Config\LoginConfig;
 use Shopware\Administration\Login\Config\LoginConfigService;
 use Shopware\Administration\Login\Exception\LoginException;
 use Shopware\Core\Framework\Log\Package;
@@ -38,9 +39,15 @@ final class IdTokenParser
         $this->algorithm = new Sha256();
     }
 
+    /**
+     * @param non-empty-string $idToken
+     */
     public function parse(string $idToken): ParsedIdToken
     {
         $loginConfig = $this->loginConfigService->getConfig();
+        if (!$loginConfig instanceof LoginConfig) {
+            throw LoginException::configurationNotFound();
+        }
 
         /** for php-stan */
         /** @var UnencryptedToken $token */

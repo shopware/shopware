@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Administration\Login\TokenService;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Login\Config\LoginConfigService;
 use Shopware\Administration\Login\Exception\LoginException;
@@ -18,6 +19,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  * @internal
  */
 #[Package('after-sales')]
+#[CoversClass(PublicKeyLoader::class)]
 class PublicKeyLoaderTest extends TestCase
 {
     private const PUBLIC_KEY_IDS = [
@@ -66,6 +68,7 @@ class PublicKeyLoaderTest extends TestCase
         $cachedKeys['keys'][1]['kid'] = Uuid::randomHex();
 
         $cachedKeys = \json_encode($cachedKeys);
+        static::assertIsString($cachedKeys);
 
         $publicKeyLoader = new PublicKeyLoader(
             $this->createClient(true, $this->getJwks()),
@@ -89,6 +92,7 @@ class PublicKeyLoaderTest extends TestCase
         $cachedKeys['keys'][1]['kid'] = Uuid::randomHex();
 
         $cachedKeys = \json_encode($cachedKeys);
+        static::assertIsString($cachedKeys);
 
         $publicKeyLoader = new PublicKeyLoader(
             $this->createClient(true, $cachedKeys),
@@ -137,6 +141,9 @@ class PublicKeyLoaderTest extends TestCase
         return new LoginConfigService($rawConfig, 'local.host', '/admin');
     }
 
+    /**
+     * @param mixed $data
+     */
     private function createCache(?string $cacheKey = 'cache_key', ?bool $isHit = false, $data = null, ?bool $shouldCallClearCache = false): AdapterInterface
     {
         $cache = $this->createMock(AdapterInterface::class);

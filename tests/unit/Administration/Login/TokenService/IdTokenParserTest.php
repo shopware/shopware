@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Administration\Login\TokenService;
 
 use Lcobucci\JWT\Validator as ValidatorInterface;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Login\Config\LoginConfigService;
 use Shopware\Administration\Login\Exception\LoginException;
@@ -22,6 +23,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  * @internal
  */
 #[Package('after-sales')]
+#[CoversClass(IdTokenParser::class)]
 class IdTokenParserTest extends TestCase
 {
     public function testParse(): void
@@ -111,7 +113,7 @@ class IdTokenParserTest extends TestCase
         );
 
         $cacheItem = $createCacheItem();
-        $emptyCacheItem = $createCacheItem('any', null, false);
+        $emptyCacheItem = $createCacheItem();
 
         $cache->method('getItem')->willReturnOnConsecutiveCalls($cacheItem, $emptyCacheItem);
 

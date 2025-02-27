@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-extension/mixin/sw-extension-error.mixin';
-import findByText from '../../../../../test/_helper_/find-by-text';
+import findByText from 'test/_helper_/find-by-text';
+import selectMtSelectOptionByText from 'test/_helper_/select-mt-select-by-text';
 
 const setLocaleWithIdMock = jest.fn(() => Promise.resolve({}));
 
@@ -214,13 +215,11 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () =
         const modal = await wrapper.getComponent('.sw-first-run-wizard-confirmLanguageSwitch-modal');
         expect(modal.isVisible()).toBe(true);
 
-        const languageSelect = await modal.find('.sw-profile__language');
-        await languageSelect.findAll('option').at(1).setSelected();
+        await selectMtSelectOptionByText(modal, 'German (Germany)');
 
-        const selectedLanguage = languageSelect.find('option:checked').element.value;
         await modal.find('input[type="password"]').setValue('p4ssw0rd');
         await findByText(modal, 'button', 'sw-first-run-wizard.welcome.confirmLanguageSwitch').trigger('click');
 
-        expect(setLocaleWithIdMock).toHaveBeenCalledWith(selectedLanguage);
+        expect(setLocaleWithIdMock).toHaveBeenCalledWith('4aed63b2afcd44049ba0cd898769cdbb');
     });
 });

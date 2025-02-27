@@ -217,6 +217,9 @@ module.exports = {
                         'sw-switch-field',
                         'sw-textarea-field',
                         'sw-icon',
+                        'sw-datepicker',
+                        'sw-select-field',
+                        'sw-checkbox-field',
                     ],
                 }],
                 // @deprecated v.6.7.0.0 - will be error in v.6.7

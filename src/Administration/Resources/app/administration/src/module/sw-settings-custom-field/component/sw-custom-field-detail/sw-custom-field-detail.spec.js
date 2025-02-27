@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
+import selectMtSelectOptionByText from 'test/_helper_/select-mt-select-by-text';
 
 function getFieldTypes() {
     return {
@@ -105,7 +106,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         ]);
         await flushPromises();
 
-        const modalTypeField = wrapper.find('.sw-custom-field-detail__modal-type select');
+        const modalTypeField = wrapper.find('.sw-custom-field-detail__modal-type input');
         const technicalNameField = wrapper.findComponent('.sw-custom-field-detail__technical-name');
         const modalPositionField = wrapper.find('.sw-custom-field-detail__modal-position');
         const modalSaveButton = wrapper.find('.sw-custom-field-detail__footer-save');
@@ -120,7 +121,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const modalTypeField = wrapper.find('.sw-custom-field-detail__modal-type select');
+        const modalTypeField = wrapper.find('.sw-custom-field-detail__modal-type input');
         const technicalNameField = wrapper.findComponent('.sw-custom-field-detail__technical-name');
         const modalPositionField = wrapper.find('.sw-custom-field-detail__modal-position');
         const modalSaveButton = wrapper.find('.sw-custom-field-detail__footer-save');
@@ -135,8 +136,8 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         const wrapper = await createWrapper(['custom_field.editor']);
         await flushPromises();
 
-        const modalTypeField = wrapper.find('.sw-custom-field-detail__modal-type select');
-        await modalTypeField.setValue('select');
+        await selectMtSelectOptionByText(wrapper, 'sw-settings-custom-field.types.select');
+
         await flushPromises();
 
         expect(wrapper.vm.currentCustomField.config).toEqual(
@@ -145,7 +146,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
             }),
         );
 
-        await modalTypeField.setValue('switch');
+        await selectMtSelectOptionByText(wrapper, 'sw-settings-custom-field.types.switch');
 
         expect(wrapper.vm.currentCustomField.config).toEqual(
             expect.objectContaining({

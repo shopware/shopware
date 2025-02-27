@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\Subscriber;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -33,6 +34,9 @@ class CustomerTokenSubscriberTest extends TestCase
 
     private Connection $connection;
 
+    /**
+     * @var EntityRepository<CustomerCollection>
+     */
     private EntityRepository $customerRepository;
 
     protected function setUp(): void

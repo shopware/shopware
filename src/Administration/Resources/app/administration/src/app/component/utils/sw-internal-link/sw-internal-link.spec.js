@@ -16,7 +16,6 @@ const setup = async (propOverride) => {
             stubs: {
                 RouterLink: RouterLinkStub,
             },
-
         },
         slots: {
             default: 'test internal link',

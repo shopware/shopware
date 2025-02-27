@@ -34,6 +34,7 @@ class CampaignCodeOfOrderRule extends Rule
         if (!$this->campaignCode && $this->operator !== self::OPERATOR_EMPTY) {
             throw CartException::unsupportedValue(\gettype($this->campaignCode), self::class);
         }
+
         if (!$campaignCode = $scope->getOrder()->getCampaignCode()) {
             return RuleComparison::isNegativeOperator($this->operator);
         }

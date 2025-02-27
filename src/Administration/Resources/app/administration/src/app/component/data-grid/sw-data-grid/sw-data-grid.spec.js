@@ -56,10 +56,6 @@ describe('components/data-grid/sw-data-grid', () => {
         }
 
         stubs = {
-            'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', {
-                sync: true,
-            }),
-            'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
             'sw-data-grid-settings': await wrapTestComponent('sw-data-grid-settings', { sync: true }),
             'sw-context-button': await wrapTestComponent('sw-context-button', {
                 sync: true,
@@ -80,7 +76,6 @@ describe('components/data-grid/sw-data-grid', () => {
             'sw-data-grid-inline-edit': true,
             'router-link': true,
             'sw-data-grid-skeleton': true,
-            'mt-checkbox': true,
             'sw-inheritance-switch': true,
             'sw-ai-copilot-badge': true,
             'sw-help-text': true,
@@ -124,10 +119,6 @@ describe('components/data-grid/sw-data-grid', () => {
 
     beforeAll(async () => {
         stubs = {
-            'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', {
-                sync: true,
-            }),
-            'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
             'sw-data-grid-settings': await wrapTestComponent('sw-data-grid-settings', { sync: true }),
             'sw-context-button': await wrapTestComponent('sw-context-button', {
                 sync: true,
@@ -694,7 +685,7 @@ describe('components/data-grid/sw-data-grid', () => {
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
 
-        const checkbox = rows.at(0).find('.sw-field__checkbox input');
+        const checkbox = rows.at(0).find('.mt-field--checkbox__container input');
 
         expect(checkbox.element.checked).toBe(true);
     });
@@ -713,7 +704,7 @@ describe('components/data-grid/sw-data-grid', () => {
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
 
-        const checkbox = rows.at(0).find('.sw-field__checkbox input');
+        const checkbox = rows.at(0).find('.mt-field--checkbox__container input');
 
         expect(checkbox.element.checked).toBe(true);
     });
@@ -723,7 +714,7 @@ describe('components/data-grid/sw-data-grid', () => {
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
 
-        const checkbox = rows.at(0).find('.sw-field__checkbox input');
+        const checkbox = rows.at(0).find('.mt-field--checkbox__container input');
 
         await checkbox.setChecked(true);
         await wrapper.vm.$nextTick();
@@ -747,7 +738,7 @@ describe('components/data-grid/sw-data-grid', () => {
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
 
-        const checkbox = rows.at(0).find('.sw-field__checkbox input');
+        const checkbox = rows.at(0).find('.mt-field--checkbox__container input');
 
         expect(checkbox.element.checked).toBe(true);
 
@@ -764,7 +755,9 @@ describe('components/data-grid/sw-data-grid', () => {
         });
 
         const header = wrapper.find('.sw-data-grid__header');
-        const selectionAll = header.find('.sw-data-grid__header .sw-field--checkbox.sw-data-grid__select-all input');
+        const selectionAll = header.find(
+            '.sw-data-grid__header .mt-field--checkbox__container.sw-data-grid__select-all input',
+        );
 
         expect(selectionAll.element.checked).toBe(false);
         await selectionAll.setChecked(true);
@@ -795,7 +788,9 @@ describe('components/data-grid/sw-data-grid', () => {
         });
 
         const header = wrapper.find('.sw-data-grid__header');
-        const selectionAll = header.find('.sw-data-grid__header .sw-field--checkbox.sw-data-grid__select-all input');
+        const selectionAll = header.find(
+            '.sw-data-grid__header .mt-field--checkbox__container.sw-data-grid__select-all input',
+        );
 
         await selectionAll.setChecked(false);
         await wrapper.vm.$nextTick();
@@ -832,7 +827,7 @@ describe('components/data-grid/sw-data-grid', () => {
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         expect(rows).toHaveLength(5);
 
-        const checkbox = rows.at(0).find('.sw-field__checkbox input');
+        const checkbox = rows.at(0).find('.mt-field--checkbox__container input');
 
         await checkbox.setChecked(true);
 
@@ -850,7 +845,7 @@ describe('components/data-grid/sw-data-grid', () => {
         const newRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         expect(newRows).toHaveLength(4);
 
-        const newCheckbox = newRows.at(0).find('.sw-field__checkbox input');
+        const newCheckbox = newRows.at(0).find('.mt-field--checkbox__container input');
 
         await newCheckbox.setChecked(true);
 
@@ -865,7 +860,7 @@ describe('components/data-grid/sw-data-grid', () => {
         const previousRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         expect(previousRows).toHaveLength(1);
 
-        const previousCheckbox = newRows.at(0).find('.sw-field__checkbox input');
+        const previousCheckbox = newRows.at(0).find('.mt-field--checkbox__container input');
         expect(previousCheckbox.element.checked).toBe(true);
     });
 
@@ -940,11 +935,11 @@ describe('components/data-grid/sw-data-grid', () => {
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
 
         // selected items are de-selectable
-        const checkedBox = rows.at(0).find('.sw-field__checkbox input');
+        const checkedBox = rows.at(0).find('.mt-field--checkbox__container input');
         expect(checkedBox.attributes().disabled).toBeUndefined();
 
         // unselected items are selectable
-        const uncheckedBox = rows.at(4).find('.sw-field__checkbox input');
+        const uncheckedBox = rows.at(4).find('.mt-field--checkbox__container input');
 
         expect(uncheckedBox.attributes().disabled).toBe('');
 
@@ -962,12 +957,14 @@ describe('components/data-grid/sw-data-grid', () => {
         const newRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
 
         newRows.forEach((row) => {
-            const checkbox = row.find('.sw-field__checkbox input');
+            const checkbox = row.find('.mt-field--checkbox__container input');
             expect(checkbox.attributes().disabled).toBe('');
         });
 
         const header = wrapper.find('.sw-data-grid__header');
-        const selectionAll = header.find('.sw-data-grid__header .sw-field--checkbox.sw-data-grid__select-all input');
+        const selectionAll = header.find(
+            '.sw-data-grid__header .mt-field--checkbox__container.sw-data-grid__select-all input',
+        );
 
         expect(selectionAll.attributes().disabled).toBe('');
     });

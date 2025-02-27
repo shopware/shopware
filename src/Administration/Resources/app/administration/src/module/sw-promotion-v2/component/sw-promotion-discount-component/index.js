@@ -322,6 +322,66 @@ export default {
                 2,
             );
         },
+
+        fieldScopeOptions() {
+            return this.scopes.map((scope, index) => {
+                return {
+                    id: index,
+                    value: scope.key,
+                    label: scope.name,
+                };
+            });
+        },
+
+        applyCountOptions() {
+            return this.graduationAppliers.map((applier, index) => {
+                return {
+                    id: index,
+                    value: applier.key,
+                    label: applier.name,
+                };
+            });
+        },
+
+        maxCountOptions() {
+            return this.graduationCounts.map((count, index) => {
+                return {
+                    id: index,
+                    value: count.key,
+                    label: count.name,
+                };
+            });
+        },
+
+        sorterOptions() {
+            return this.graduationSorters.map((sorter, index) => {
+                return {
+                    id: index,
+                    value: sorter.key,
+                    label: sorter.name,
+                };
+            });
+        },
+
+        pickerOptions() {
+            return this.graduationPickers.map((picker, index) => {
+                return {
+                    id: index,
+                    value: picker.key,
+                    label: picker.name,
+                };
+            });
+        },
+
+        discountTypeOptions() {
+            return this.types.map((type, index) => {
+                return {
+                    id: index,
+                    value: type.key,
+                    label: type.name,
+                };
+            });
+        },
     },
     created() {
         this.createdComponent();

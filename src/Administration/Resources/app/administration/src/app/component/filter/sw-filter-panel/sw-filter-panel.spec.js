@@ -9,6 +9,7 @@ import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/filter/sw-base-filter';
 import { mount } from '@vue/test-utils';
+import selectMtSelectOptionByText from '../../../../../test/_helper_/select-mt-select-by-text';
 
 const filters = [
     {
@@ -108,7 +109,6 @@ async function createWrapper() {
                 'sw-ai-copilot-badge': true,
                 'sw-inheritance-switch': true,
                 'sw-loader': true,
-                'mt-select': true,
             },
             provide: {
                 repositoryFactory: {
@@ -151,9 +151,8 @@ describe('components/sw-filter-panel', () => {
 
         await wrapper.vm.$nextTick();
 
-        const options = wrapper.find('.sw-boolean-filter').findAll('option');
-
-        await options.at(1).setSelected();
+        const booleanFilter = wrapper.find('.sw-boolean-filter');
+        await selectMtSelectOptionByText(booleanFilter, 'sw-boolean-filter.active');
 
         await wrapper.vm.$nextTick();
 
@@ -166,14 +165,10 @@ describe('components/sw-filter-panel', () => {
         };
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        const options = wrapper.find('.sw-boolean-filter').findAll('option');
-
-        await options.at(0).setSelected();
-
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        const booleanFilter = wrapper.find('.sw-boolean-filter');
+        await selectMtSelectOptionByText(booleanFilter, 'sw-boolean-filter.active');
 
         await wrapper.find('.sw-base-filter__reset').trigger('click');
 
@@ -200,12 +195,10 @@ describe('components/sw-filter-panel', () => {
 
     it('should reset all filters when `Reset All` button is clicked', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
-        await wrapper.vm.$nextTick();
-
-        await wrapper.find('.sw-boolean-filter').findAll('option').at(1).setSelected();
-
-        await wrapper.vm.$nextTick();
+        const booleanFilter = wrapper.find('.sw-boolean-filter');
+        await selectMtSelectOptionByText(booleanFilter, 'sw-boolean-filter.inactive');
 
         expect(Object.keys(wrapper.vm.activeFilters)).not.toHaveLength(0);
 

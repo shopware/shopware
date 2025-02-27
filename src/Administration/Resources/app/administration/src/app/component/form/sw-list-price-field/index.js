@@ -201,7 +201,7 @@ Component.register('sw-list-price-field', {
                 const price = this.priceForCurrency;
 
                 if (price) {
-                    this.$set(price, 'regulationPrice', newValue);
+                    price.regulationPrice = newValue;
                 }
             },
         },

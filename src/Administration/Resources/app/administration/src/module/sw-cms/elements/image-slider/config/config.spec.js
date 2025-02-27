@@ -4,7 +4,8 @@
 /* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
-import { MtSwitch } from '@shopware-ag/meteor-component-library';
+import { MtSwitch, MtUrlField } from '@shopware-ag/meteor-component-library';
+import selectMtSelectOptionByText from '../../../../../../test/_helper_/select-mt-select-by-text';
 
 async function createWrapper(activeTab = 'content', sliderItems = []) {
     return mount(
@@ -73,11 +74,11 @@ async function createWrapper(activeTab = 'content', sliderItems = []) {
                         props: ['item'],
                     },
                     'sw-media-modal-v2': true,
-                    'sw-url-field': true,
                     'sw-loader': true,
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,
                     'mt-switch': MtSwitch,
+                    'mt-url-field': MtUrlField,
                 },
             },
             props: {
@@ -176,13 +177,12 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
 
     it('should keep minHeight value when changing display mode', async () => {
         const wrapper = await createWrapper('settings');
-        const displayModeSelect = wrapper.find('.sw-cms-el-config-image-slider__setting-display-mode');
 
-        await displayModeSelect.setValue('cover');
+        await selectMtSelectOptionByText(wrapper, 'sw-cms.elements.general.config.label.displayModeCover');
 
         expect(wrapper.vm.element.config.minHeight.value).toBe('300px');
 
-        await displayModeSelect.setValue('standard');
+        await selectMtSelectOptionByText(wrapper, 'sw-cms.elements.general.config.label.displayModeStandard');
 
         // Should still have the previous value
         expect(wrapper.vm.element.config.minHeight.value).toBe('300px');

@@ -135,9 +135,9 @@
                         <template #column-default="{ item, isInlineEdit }">
                             <template v-if="isInlineEdit">
                                 {% block sw_settings_tax_list_grid_column_default_editor %}
-                                <sw-checkbox-field
-                                    :value="isSelectedDefaultRate(item)"
-                                    @update:value="value => setSelectedDefaultRate(value, item.id)"
+                                <mt-checkbox
+                                    :checked="isSelectedDefaultRate(item)"
+                                    @update:checked="value => setSelectedDefaultRate(value, item.id)"
                                 />
                                 {% endblock %}
                             </template>

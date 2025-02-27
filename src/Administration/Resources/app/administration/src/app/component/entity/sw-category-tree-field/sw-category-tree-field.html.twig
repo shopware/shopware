@@ -161,8 +161,8 @@
                     >
 
                         {% block sw_category_tree_field_input_results_search_results_item_checkbox %}
-                        <sw-checkbox-field
-                            :value="isSearchItemChecked(item.id)"
+                        <mt-checkbox
+                            :checked="isSearchItemChecked(item.id)"
                             class="sw-category-tree-field__search-results-checkbox"
                         />
                         {% endblock %}

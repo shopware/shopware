@@ -132,7 +132,7 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
         const password = wrapper.find('#sw-field--password');
         await password.setValue('admin');
 
-        const rememberMeCheckbox = wrapper.find('.sw-field--checkbox input');
+        const rememberMeCheckbox = wrapper.find('.mt-field--checkbox__container input');
         await rememberMeCheckbox.setChecked(true);
 
         const button = wrapper.find('button');

@@ -122,6 +122,16 @@ export default {
                 purchasePrices: this.product.purchasePrices || this.parentProduct.purchasePrices,
             };
         },
+
+        taxRateOptions() {
+            return this.taxes.map((tax) => {
+                return {
+                    id: tax.id,
+                    value: tax.id,
+                    label: this.getTaxLabel(tax),
+                };
+            });
+        },
     },
 
     methods: {

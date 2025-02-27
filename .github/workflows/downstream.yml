@@ -21,50 +21,45 @@ jobs:
   rufus:
     name: Rufus
     runs-on: ubuntu-24.04
-    if: ${{ startsWith(github.repository, 'shopware/') && !github.event.pull_request && github.event_name != 'merge_group'}}
+    if: ${{ !github.event.pull_request && github.event_name != 'merge_group'}}
     steps:
-      - name: Check user permission
-        id: check
-        uses: scherermichael-oss/action-has-permission@master
+      - id: sts
+        continue-on-error: true
+        uses: octo-sts/action@v1.0.0
         with:
-          required-permission: write
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          scope: shopware
+          identity: ShopwareDownstream
       - name: Rufus
         uses: shopware/github-actions/downstream@main
-        if: steps.check.outputs.has-permission
+        if: steps.sts.outputs.token
         with:
           repo: shopware/rufus
           workflow: Downstream
           ref: .auto
           timeout: 30m
-          token-scope: shopware
-          identity: ShopwareDownstream
+          token: ${{ steps.sts.outputs.token }}
           env:
             NIGHTLY=${{ inputs.nightly }}
   
   commercial:
     name: Commercial
     runs-on: ubuntu-24.04
-    if: startsWith(github.repository, 'shopware/')
     steps:
-      - name: Check user permission
-        id: check
-        uses: scherermichael-oss/action-has-permission@master
+      - id: sts
+        continue-on-error: true
+        uses: octo-sts/action@v1.0.0
         with:
-          required-permission: write
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          scope: shopware
+          identity: ShopwareDownstream
       - name: Commercial
         uses: shopware/github-actions/downstream@main
-        if: steps.check.outputs.has-permission
+        if: steps.sts.outputs.token
         with:
           repo: shopware/SwagCommercial
           workflow: Downstream
           ref: .auto
           timeout: 60m
-          token-scope: shopware
-          identity: ShopwareDownstream
+          token: ${{ steps.sts.outputs.token }}
           env:
             NIGHTLY=${{ inputs.nightly }}
 

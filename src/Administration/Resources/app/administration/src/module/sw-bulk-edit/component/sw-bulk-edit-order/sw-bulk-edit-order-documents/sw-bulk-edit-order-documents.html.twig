@@ -6,10 +6,10 @@
         rows="50px"
     >
         {% block sw_bulk_edit_order_documents_type %}
-        <sw-checkbox-field
+        <mt-checkbox
             v-for="document in documentTypes"
             :key="document.id"
-            v-model:value="value.documentType[document.technicalName]"
+            v-model:checked="value.documentType[document.technicalName]"
             :label="document.name"
             :disabled="documents?.disabled || undefined"
         />

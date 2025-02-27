@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionColl
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedCriteriaEvent;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -406,7 +407,7 @@ class SetPaymentOrderRouteTest extends TestCase
 
     private function getAvailablePaymentMethodId(int $offset = 0): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<PaymentMethodCollection> $repository */
         $repository = static::getContainer()->get('payment_method.repository');
 
         $criteria = (new Criteria())

@@ -21,25 +21,17 @@
             validation="required"
             :label="'Shop domain'"
         />
-        <sw-checkbox-field
-            v-model:value="testEnvironment"
+        <mt-checkbox
+            v-model:checked="testEnvironment"
             :label="$tc('sw-first-run-wizard.shopwareDomain.testEnvironment')"
         />
     </div>
     <div v-else-if="licenceDomains.length > 0">
-        <sw-select-field
-            v-model:value="selectedShopDomain"
+        <mt-select
+            v-model="selectedShopDomain"
             label="Shop domain"
-            placeholder=""
-        >
-            <option
-                v-for="domain in licenceDomains"
-                :key="domain.domain"
-                :value="domain.domain"
-            >
-                {{ domain.domain }}
-            </option>
-        </sw-select-field>
+            :options="domainOptions"
+        />
     </div>
     <div
         v-if="domainError"

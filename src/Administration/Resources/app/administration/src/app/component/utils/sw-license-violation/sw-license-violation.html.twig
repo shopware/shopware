@@ -76,8 +76,8 @@
     </table>
 
     <template #modal-footer>
-        <sw-checkbox-field
-            v-model:value="readNotice"
+        <mt-checkbox
+            v-model:checked="readNotice"
             :label="$tc('sw-license-violation.checkboxMessage')"
         />
 

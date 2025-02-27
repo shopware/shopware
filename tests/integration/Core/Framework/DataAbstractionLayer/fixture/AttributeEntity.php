@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture
 
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AllowEmptyString;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AutoIncrement;
@@ -170,6 +171,12 @@ class AttributeEntity extends EntityStruct
      */
     #[Translations]
     public ?array $translations = null;
+
+    /**
+     * @var array<ProductEntity>
+     */
+    #[ManyToMany(entity: 'product', mapping: 'my_own_mapping_table_name')]
+    public array $ownMapping = [];
 
     #[Field(type: FieldType::STRING)]
     #[AllowHtml]

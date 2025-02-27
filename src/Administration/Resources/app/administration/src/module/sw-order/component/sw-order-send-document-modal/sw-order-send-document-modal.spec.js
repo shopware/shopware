@@ -119,6 +119,27 @@ const mockMailTemplates = [
         contentHtml: '<div>Delivery email template content.</div>\n',
         subject: 'And another template subject',
     },
+    {
+        id: uuid.get('personalized_order_mail'),
+        name: 'Test email 4',
+        description: 'Test email description 4',
+        mailTemplateType: {
+            name: 'Invoice note',
+            technicalName: 'invoice_mail',
+            templateData: {
+                order: {
+                    ...mockOrderWithoutMailHeaderFooter,
+                    orderCustomer: {
+                        email: 'personal@ema.il',
+                        firstName: 'Personal',
+                        lastName: 'Data',
+                    }
+                },
+            },
+        },
+        contentHtml: '<div>{{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}}</div>\n',
+        subject: 'Personal data from order',
+    },
 ];
 
 const mockMailHeaderFooter = {
@@ -151,6 +172,16 @@ const mockRepositoryFactory = (entity, mailTemplates) => {
 const defaultProps = {
     order: mockOrderWithMailHeaderFooter,
     document: mockDocuments[0],
+};
+
+const replaceTemplateVariables = (template = '', variables = {}) => {
+    if (Object.keys(variables).length === 0) {
+        return template;
+    }
+    return template.replace(/\{\{(.*?)}}/g, (match, p1) => {
+        const keys = p1.trim().split('.');
+        return keys.reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : ''), variables);
+    });
 };
 
 async function createWrapper(props = defaultProps, sendingSucceds = true, mailTemplates = mockMailTemplates) {
@@ -186,7 +217,10 @@ async function createWrapper(props = defaultProps, sendingSucceds = true, mailTe
                     },
                 },
                 mailService: {
-                    buildRenderPreview: (_, mailTemplate) => Promise.resolve(mailTemplate.contentHtml),
+                    buildRenderPreview: (_, mailTemplate) =>
+                        Promise.resolve(
+                            replaceTemplateVariables(mailTemplate.contentHtml, mailTemplate?.mailTemplateType?.templateData),
+                        ),
                     sendMailTemplate: jest.fn(sendingSucceds ? () => Promise.resolve() : () => Promise.reject()),
                 },
             },
@@ -263,6 +297,25 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
 
         const previewContent = wrapper.find('.sw-order-send-document-modal__email-content');
         expect(previewContent.element.innerHTML).toBe(mockMailTemplates[0].contentHtml);
+    });
+
+    it('should replace mail template data with order data', async () => {
+        const wrapper = await createWrapper(
+            {
+                ...defaultProps,
+                document: mockDocuments[2]
+            },
+            true,
+            [mockMailTemplates[3]],
+        );
+        await flushPromises();
+
+        const previewContent = wrapper.find('.sw-order-send-document-modal__email-content');
+        expect(previewContent.element.innerHTML).toBe(
+            mockMailHeaderFooter.headerHtml
+            + replaceTemplateVariables(mockMailTemplates[3].contentHtml,defaultProps)
+            + mockMailHeaderFooter.footerHtml,
+        );
     });
 
     it('should update the email template information when changing the email template', async () => {

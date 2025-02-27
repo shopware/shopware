@@ -20,7 +20,7 @@ class DeliveryTransformer
 {
     /**
      * @param array<string, array<string, mixed>> $lineItems
-     * @param array<string, mixed> $addresses
+     * @param array<int|string, array<string, string|array<mixed>>> $addresses
      *
      * @return array<int, DeliveryArray>
      */
@@ -41,7 +41,7 @@ class DeliveryTransformer
 
     /**
      * @param array<string, array<string, mixed>> $lineItems
-     * @param array<string, mixed> $addresses
+     * @param array<int|string, array<string, string|array<mixed>>> $addresses
      *
      * @return DeliveryArray
      */

@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor;
 use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -110,14 +111,16 @@ class CartOrderRouteTest extends TestCase
         $orderEntityMock = $this->createMock(EntitySearchResult::class);
 
         $orderEntity = new OrderEntity();
+        $orderEntity->setId($orderID);
+        $orderCollection = new OrderCollection([$orderEntity]);
 
         $this->orderRepository->expects(static::once())
             ->method('search')
             ->willReturn($orderEntityMock);
 
         $orderEntityMock->expects(static::once())
-            ->method('first')
-            ->willReturn($orderEntity);
+            ->method('getEntities')
+            ->willReturn($orderCollection);
 
         $response = $this->route->order($cart, $this->context, $data);
 
@@ -159,14 +162,16 @@ class CartOrderRouteTest extends TestCase
         $orderEntityMock = $this->createMock(EntitySearchResult::class);
 
         $orderEntity = new OrderEntity();
+        $orderEntity->setId($orderID);
+        $orderCollection = new OrderCollection([$orderEntity]);
 
         $this->orderRepository->expects(static::once())
             ->method('search')
             ->willReturn($orderEntityMock);
 
         $orderEntityMock->expects(static::once())
-            ->method('first')
-            ->willReturn($orderEntity);
+            ->method('getEntities')
+            ->willReturn($orderCollection);
 
         $this->eventDispatcher->expects(static::exactly(2))
             ->method('dispatch')
@@ -223,14 +228,16 @@ class CartOrderRouteTest extends TestCase
         $orderEntityMock = $this->createMock(EntitySearchResult::class);
 
         $orderEntity = new OrderEntity();
+        $orderEntity->setId($orderID);
+        $orderCollection = new OrderCollection([$orderEntity]);
 
         $this->orderRepository->expects(static::once())
             ->method('search')
             ->willReturn($orderEntityMock);
 
         $orderEntityMock->expects(static::once())
-            ->method('first')
-            ->willReturn($orderEntity);
+            ->method('getEntities')
+            ->willReturn($orderCollection);
 
         $response = $this->route->order($cart, $this->context, $data);
 

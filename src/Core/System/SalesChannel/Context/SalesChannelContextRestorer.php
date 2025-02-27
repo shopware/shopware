@@ -38,7 +38,7 @@ class SalesChannelContextRestorer
     }
 
     /**
-     * @param array<string> $overrideOptions
+     * @param array<string, string|array<string,bool>|null> $overrideOptions
      *
      * @throws InconsistentCriteriaIdsException
      */

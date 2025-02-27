@@ -86,8 +86,8 @@
                 >
                     {% block sw_settings_shipping_list_grid_columns_active_inline_edit %}
                     <template v-if="isInlineEdit">
-                        <sw-checkbox-field
-                            v-model:value="item.active"
+                        <mt-checkbox
+                            v-model:checked="item.active"
                         />
                     </template>
                     {% endblock %}

@@ -83,8 +83,8 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
 
     private function getCurrencyFromOrder(string $orderId, Context $context): string
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('orders.id', $orderId));
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('orders.id', $orderId));
 
         $id = $this->currencyRepository->searchIds($criteria, $context)->firstId();
         if (!$id) {

@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefi
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -248,7 +249,7 @@ class OrderStateChangeEventListenerTest extends TestCase
 
     private function getPrePaymentMethodId(): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<PaymentMethodCollection> $repository */
         $repository = static::getContainer()->get('payment_method.repository');
 
         $criteria = (new Criteria())

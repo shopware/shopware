@@ -7,8 +7,8 @@
     gap="0 20px"
 >
     {% block sw_custom_field_type_number_container_numbertype %}
-    <sw-select-field
-        v-model:value="currentCustomField.config.numberType"
+    <mt-select
+        v-model="currentCustomField.config.numberType"
         :label="$tc('sw-settings-custom-field.customField.detail.labelNumberType')"
         :options="numberTypes"
     />

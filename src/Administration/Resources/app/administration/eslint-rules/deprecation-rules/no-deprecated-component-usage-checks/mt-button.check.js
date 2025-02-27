@@ -25,6 +25,20 @@ const handleMtButton = (context, node) => {
         return attr.key.name === 'router-link';
     });
 
+    // Check if no variant is defined
+    if (!variantAttribute) {
+        context.report({
+            node,
+            message: '[mt-button] No variant defined. Please use the "secondary" prop instead.',
+            *fix(fixer) {
+                if (context.options.includes('disableFix')) return;
+
+                // Insert the "variant" prop with value "secondary" after the open <mt-button> tag
+                yield fixer.insertTextAfterRange([startTag.range[0], startTag.range[1] - 1], ' variant="secondary"');
+            }
+        });
+    }
+
     // Check if attribute "variant" contains value "ghost"
     if (variantAttribute && variantAttribute.value.value === 'ghost') {
         context.report({
@@ -139,7 +153,7 @@ const mtButtonValidChecks = [
         filename: 'test.html.twig',
         code: `
             <template>
-                <mt-button>Hello</mt-button>
+                <mt-button variant="primary">Hello</mt-button>
             </template>`
     },
     {
@@ -155,7 +169,7 @@ const mtButtonValidChecks = [
         filename: 'test.html.twig',
         code: `
             <template>
-                <mt-button ghost>Hello</mt-button>
+                <mt-button variant="primary" ghost>Hello</mt-button>
             </template>`
     },
     {
@@ -327,15 +341,57 @@ const mtButtonInvalidChecks = [
         }]
     },
     {
+        name: '"mt-button" no variant defined will be replaced with secondary',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-button>Hello</mt-button>
+            </template>`,
+        output: `
+            <template>
+                <mt-button variant="secondary">Hello</mt-button>
+            </template>`,
+        errors: [{
+            message: '[mt-button] No variant defined. Please use the "secondary" prop instead.',
+        }],
+    },
+    {
+        name: '"mt-button" no variant defined will be replaced with secondary [With more props]',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-button
+                    v-tooltip.bottom="tooltipCancel"
+                    :disabled="isLoading"
+                    @click="onCancel"
+                >
+                    {{ $tc('global.default.cancel') }}
+                </mt-button>
+            </template>`,
+        output: `
+            <template>
+                <mt-button
+                    v-tooltip.bottom="tooltipCancel"
+                    :disabled="isLoading"
+                    @click="onCancel"
+                 variant="secondary">
+                    {{ $tc('global.default.cancel') }}
+                </mt-button>
+            </template>`,
+        errors: [{
+            message: '[mt-button] No variant defined. Please use the "secondary" prop instead.',
+        }],
+    },
+    {
         name: '"mt-button" deprecated usage of "router-link" prop [string usage]',
         filename: 'test.html.twig',
         code: `
             <template>
-                <mt-button router-link="sw.example.link">Hello</mt-button>
+                <mt-button variant="secondary" router-link="sw.example.link">Hello</mt-button>
             </template>`,
         output: `
             <template>
-                <mt-button @click="$router.push('sw.example.link')">Hello</mt-button>
+                <mt-button variant="secondary" @click="$router.push('sw.example.link')">Hello</mt-button>
             </template>`,
         errors: [{
             message: '[mt-button] The "router-link" prop is deprecated without replacement.',
@@ -347,7 +403,7 @@ const mtButtonInvalidChecks = [
         options: ['disableFix'],
         code: `
             <template>
-                <mt-button router-link="sw.example.link">Hello</mt-button>
+                <mt-button variant="secondary" router-link="sw.example.link">Hello</mt-button>
             </template>`,
         errors: [{
             message: '[mt-button] The "router-link" prop is deprecated without replacement.',
@@ -360,6 +416,7 @@ const mtButtonInvalidChecks = [
             <template>
                 <mt-button
                     router-link="sw.example.link"
+                    variant="secondary"
                 >
                     Hello
                 </mt-button>
@@ -368,6 +425,7 @@ const mtButtonInvalidChecks = [
             <template>
                 <mt-button
                     @click="$router.push('sw.example.link')"
+                    variant="secondary"
                 >
                     Hello
                 </mt-button>
@@ -381,11 +439,11 @@ const mtButtonInvalidChecks = [
         filename: 'test.html.twig',
         code: `
             <template>
-                <mt-button :router-link="{ name: 'sw.example.link' }">Hello</mt-button>
+                <mt-button variant="secondary" :router-link="{ name: 'sw.example.link' }">Hello</mt-button>
             </template>`,
         output: `
             <template>
-                <mt-button @click="$router.push({ name: 'sw.example.link' })">Hello</mt-button>
+                <mt-button variant="secondary" @click="$router.push({ name: 'sw.example.link' })">Hello</mt-button>
             </template>`,
         errors: [{
             message: '[mt-button] The "router-link" prop is deprecated without replacement.',
@@ -397,7 +455,7 @@ const mtButtonInvalidChecks = [
         options: ['disableFix'],
         code: `
             <template>
-                <mt-button :router-link="{ name: 'sw.example.link' }">Hello</mt-button>
+                <mt-button variant="secondary" :router-link="{ name: 'sw.example.link' }">Hello</mt-button>
             </template>`,
         errors: [{
             message: '[mt-button] The "router-link" prop is deprecated without replacement.',
@@ -410,6 +468,7 @@ const mtButtonInvalidChecks = [
             <template>
                 <mt-button
                     :router-link="{ name: 'sw.example.link' }"
+                    variant="secondary"
                 >
                     Hello
                 </mt-button>
@@ -418,6 +477,7 @@ const mtButtonInvalidChecks = [
             <template>
                 <mt-button
                     @click="$router.push({ name: 'sw.example.link' })"
+                    variant="secondary"
                 >
                     Hello
                 </mt-button>

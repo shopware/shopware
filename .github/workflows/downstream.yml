@@ -18,10 +18,22 @@ permissions:
   id-token: write
 
 jobs:
+  token:
+    runs-on: ubuntu-24.04
+    outputs:
+      token: ${{ steps.sts.outputs.token }}
+    steps:
+      - id: sts
+        uses: octo-sts/action@v1.0.0
+        with:
+          scope: shopware
+          identity: ShopwareDownstream
+
   rufus:
     name: Rufus
     runs-on: ubuntu-24.04
-    if: ${{ startsWith(github.repository, 'shopware/') && !github.event.pull_request && github.event_name != 'merge_group'}}
+    needs: token
+    if: ${{ needs.token.outputs.token && !github.event.pull_request && github.event_name != 'merge_group'}}
     steps:
       - name: Check user permission
         id: check
@@ -38,15 +50,15 @@ jobs:
           workflow: Downstream
           ref: .auto
           timeout: 30m
-          token-scope: shopware
-          identity: ShopwareDownstream
+          token: ${{ needs.token.outputs.token }}
           env:
             NIGHTLY=${{ inputs.nightly }}
   
   commercial:
     name: Commercial
     runs-on: ubuntu-24.04
-    if: startsWith(github.repository, 'shopware/')
+    needs: token
+    if: needs.token.outputs.token
     steps:
       - name: Check user permission
         id: check
@@ -63,8 +75,7 @@ jobs:
           workflow: Downstream
           ref: .auto
           timeout: 60m
-          token-scope: shopware
-          identity: ShopwareDownstream
+          token: ${{ needs.token.outputs.token }}
           env:
             NIGHTLY=${{ inputs.nightly }}
 

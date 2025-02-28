@@ -2,11 +2,15 @@
 
 namespace Shopware\Core\System\Snippet;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 
-#[Package('framework')]
+/**
+ * @deprecated tag:v6.8.0 - Will be removed. Use `Shopware\Core\System\Snippet\BundleSnippetValidator` instead
+ */
+#[Package('discovery')]
 class SnippetValidator implements SnippetValidatorInterface
 {
     /**
@@ -24,6 +28,11 @@ class SnippetValidator implements SnippetValidatorInterface
      */
     public function validate(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'),
+        );
+
         $files = $this->getAllFiles();
 
         $snippetFileMappings = [];
@@ -50,6 +59,11 @@ class SnippetValidator implements SnippetValidatorInterface
 
     protected function getAllFiles(): SnippetFileCollection
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'),
+        );
+
         $deprecatedFiles = $this->findDeprecatedSnippetFiles();
         $administrationFiles = $this->snippetFileHandler->findAdministrationSnippetFiles();
         $storefrontSnippetFiles = $this->snippetFileHandler->findStorefrontSnippetFiles();

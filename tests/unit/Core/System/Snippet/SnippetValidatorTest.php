@@ -12,7 +12,7 @@ use Shopware\Core\System\Snippet\SnippetValidator;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(SnippetValidator::class)]
 class SnippetValidatorTest extends TestCase
 {

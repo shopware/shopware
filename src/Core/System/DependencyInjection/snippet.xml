@@ -14,7 +14,7 @@
         </service>
 
         <service id="Shopware\Core\System\Snippet\SnippetValidatorInterface" class="Shopware\Core\System\Snippet\SnippetValidator">
-            <deprecated package="core" version="6.7.0.0">The %service_id% service is deprecated. Use Shopware\Core\System\Snippet\BundleSnippetValidatorInterface instead</deprecated>
+            <deprecated package="core" version="6.8.0.0">The %service_id% service is deprecated. Use Shopware\Core\System\Snippet\BundleSnippetValidatorInterface instead</deprecated>
 
             <argument type="service" id="Shopware\Core\System\Snippet\Files\SnippetFileCollection" />
             <argument type="service" id="Shopware\Core\System\Snippet\SnippetFileHandler" />

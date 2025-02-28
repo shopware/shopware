@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 interface BundleSnippetValidatorInterface
 {
     /**
-     * @param array<int, string> $bundles
+     * @param list<string> $bundles
      *
      * @return array<string, mixed>
      */

@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Snippet;
 
 use Shopware\Administration\Administration;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Storefront;
 use Symfony\Component\Finder\Finder;
@@ -49,12 +50,17 @@ class SnippetFileHandler
     }
 
     /**
-     * @deprecated
+     * @deprecated tag:v6.8.0 - Will be removed. Use `SnippetFileHandler::findBundleSnippetFiles(['administration'])` instead
      *
      * @return array<int, string>
      */
     public function findAdministrationSnippetFiles(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', 'SnippetFileHandler::findBundleSnippetFiles([\'administration\'])'),
+        );
+
         if (!($bundleDir = $this->getBundleDir(Administration::class))) {
             return [];
         }
@@ -63,12 +69,17 @@ class SnippetFileHandler
     }
 
     /**
-     * @deprecated
+     * @deprecated tag:v6.8.0 - Will be removed. Use `SnippetFileHandler::findBundleSnippetFiles(['storefront'])` instead
      *
      * @return array<int, string>
      */
     public function findStorefrontSnippetFiles(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', 'SnippetFileHandler::findBundleSnippetFiles([\'storefront\'])'),
+        );
+
         if (!($bundleDir = $this->getBundleDir(Storefront::class))) {
             return [];
         }

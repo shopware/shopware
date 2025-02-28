@@ -48,9 +48,9 @@ class BundleSnippetValidator implements BundleSnippetValidatorInterface
     }
 
     /**
-     * @param array<int, string> $bundles
+     * @param list<string> $bundles
      */
-    protected function getFileFromBundles(array $bundles = []): SnippetFileCollection
+    private function getFileFromBundles(array $bundles = []): SnippetFileCollection
     {
         if ($bundles !== []) {
             $bundles = array_map(fn (string $bundle) => $this->kernel->getBundle($bundle), $bundles);

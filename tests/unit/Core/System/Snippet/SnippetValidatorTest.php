@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\SnippetFileHandler;
 use Shopware\Core\System\Snippet\SnippetValidator;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -16,6 +17,7 @@ use Shopware\Core\System\Snippet\SnippetValidator;
 #[CoversClass(SnippetValidator::class)]
 class SnippetValidatorTest extends TestCase
 {
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateShouldFindMissingSnippets(): void
     {
         $snippetFileHandler = $this->getMockBuilder(SnippetFileHandler::class)
@@ -51,6 +53,7 @@ class SnippetValidatorTest extends TestCase
         static::assertSame('exampleEnglish', $missingSnippets['de-DE']['english']['availableValue']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateShouldNotFindAnyMissingSnippets(): void
     {
         $snippetFileHandler = $this->getMockBuilder(SnippetFileHandler::class)

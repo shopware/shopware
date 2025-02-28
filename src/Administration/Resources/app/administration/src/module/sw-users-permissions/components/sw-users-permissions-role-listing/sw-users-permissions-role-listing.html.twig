@@ -26,6 +26,7 @@
                 size="small"
                 :disabled="!acl.can('users_and_permissions.creator') || undefined"
                 class="sw-users-permissions-role-listing__add-role-button"
+                variant="secondary"
                 @click="$router.push({ name: 'sw.users.permissions.role.detail' })"
             >
                 {{ $tc('sw-users-permissions.roles.general.labelCreateNewRole') }}
@@ -110,6 +111,7 @@
                     {% block sw_users_permissions_role_listing_grid_actions_modals_modal_close_delete %}
                     <mt-button
                         size="small"
+                        variant="secondary"
                         @click="onCloseDeleteModal"
                     >
                         {{ $tc('global.default.cancel') }}

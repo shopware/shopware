@@ -30,6 +30,7 @@
                     ghost
                     size="small"
                     :disabled="!acl.can('product_search_config.creator')"
+                    variant="secondary"
                     @click="addExcludedSearchTerms"
                 >
                     {{ $tc('sw-settings-search.generalTab.buttonAddExcludedSearch') }}
@@ -64,6 +65,7 @@
                         ghost
                         size="small"
                         :disabled="!acl.can('product_search_config.creator')"
+                        variant="secondary"
                         @click="onInsertTerm"
                     >
                         {{ $tc('sw-settings-search.generalTab.buttonAddExcludedSearchTerms') }}
@@ -76,6 +78,7 @@
                         size="small"
                         :disabled="!acl.can('product_search_config.creator')"
                         :is-loading="isLoading"
+                        variant="secondary"
                         @click="onResetExcludedSearchTermDefault"
                     >
                         {{ $tc('sw-settings-search.generalTab.buttonResetDefault') }}

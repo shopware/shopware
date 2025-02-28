@@ -272,6 +272,7 @@ async function lintFiles(filePaths, fix, shopwareVersion) {
                                         'sw-url-field',
                                         'sw-select-field',
                                         'sw-checkbox-field',
+                                        'sw-number-field',
                                     ],
                                 }],
                                 'sw-deprecation-rules/no-deprecated-component-usage': ['error'],

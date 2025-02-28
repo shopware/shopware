@@ -21,6 +21,7 @@
         <mt-button
             v-tooltip.bottom="tooltipCancel"
             :disabled="isLoading"
+            variant="secondary"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
@@ -118,8 +119,8 @@
                         {% endblock %}
 
                         {% block sw_settings_number_range_detail_content_field_start %}
-                        <sw-number-field
-                            v-model:value="numberRange.start"
+                        <mt-number-field
+                            v-model="numberRange.start"
                             name="sw-field--numberRange-start"
                             number-type="int"
                             :disabled="!acl.can('number_ranges.editor')"
@@ -127,7 +128,7 @@
                             :placeholder="$tc('sw-settings-number-range.detail.placeholderStart')"
                             required
                             validation="required"
-                            @update:value="onChangePattern()"
+                            @update:model-v-salue="onChangePattern()"
                         />
                         {% endblock %}
 

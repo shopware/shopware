@@ -88,8 +88,8 @@
                 {% endblock %}
 
                 {% block sw_promotion_v2_cart_condition_setgroup_value_field %}
-                <sw-number-field
-                    v-model:value="group.value"
+                <mt-number-field
+                    v-model="group.value"
                     class="sw-promotion-v2-cart-condition-form__setgroup-value"
                     :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelValue')"
                     :disabled="isEditingDisabled"
@@ -142,6 +142,7 @@
                 ghost
                 class="sw-promotion-v2-cart-condition-form__add-group-button"
                 :disabled="isEditingDisabled"
+                variant="secondary"
                 @click="addSetGroup"
             >
                 {{ $tc('sw-promotion-v2.detail.conditions.setgroups.buttonAddGroup') }}

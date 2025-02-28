@@ -79,6 +79,7 @@
                                 ghost
                                 size="small"
                                 :disabled="!acl.can('product.editor') || undefined"
+                                variant="secondary"
                                 @click="turnOnAddPropertiesModal"
                             >
                                 {{ $tc('sw-product.properties.buttonAddProperty') }}
@@ -205,6 +206,7 @@
                         }"
                         ghost
                         :disabled="!acl.can('product.editor') || undefined"
+                        variant="secondary"
                         @click="turnOnAddPropertiesModal"
                     >
                         {{ $tc('sw-product.properties.buttonAddProperties') }}

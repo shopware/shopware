@@ -101,8 +101,8 @@
                         {% endblock %}
 
                         {% block sw_cms_element_product_slider_config_content_product_stream_limit %}
-                        <sw-number-field
-                            v-model:value="element.config.productStreamLimit.value"
+                        <mt-number-field
+                            v-model="element.config.productStreamLimit.value"
                             class="sw-cms-el-config-product-slider__tab-content-product-stream-limit"
                             :label="$tc('sw-cms.elements.productSlider.config.label.productStreamLimit')"
                             :disabled="!productStream"
@@ -241,8 +241,8 @@
 
                 <div class="sw-cms-el-config-product-slider__tab-settings-speed">
                     {% block sw_cms_element_product_slider_config_settings_speed %}
-                    <sw-number-field
-                        v-model:value="element.config.speed.value"
+                    <mt-number-field
+                        v-model="element.config.speed.value"
                         class="sw-cms-el-config-product-slider__tab-settings-speed"
                         number-type="int"
                         :min="0"
@@ -269,8 +269,8 @@
                     {% endblock %}
 
                     {% block sw_cms_element_product_slider_config_settings_autoplay_timeout %}
-                    <sw-number-field
-                        v-model:value="element.config.autoplayTimeout.value"
+                    <mt-number-field
+                        v-model="element.config.autoplayTimeout.value"
                         class="sw-cms-el-config-product-slider__tab-settings-rotate-autoplay"
                         number-type="int"
                         :min="0"

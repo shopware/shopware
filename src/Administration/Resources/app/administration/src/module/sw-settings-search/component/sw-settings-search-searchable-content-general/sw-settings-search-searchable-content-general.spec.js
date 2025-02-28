@@ -46,7 +46,7 @@ async function createWrapper() {
                     'sw-context-button': true,
                     'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                     'sw-single-select': true,
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-checkbox-field': true,
                     'sw-data-grid-column-boolean': true,
                     'sw-bulk-edit-modal': true,

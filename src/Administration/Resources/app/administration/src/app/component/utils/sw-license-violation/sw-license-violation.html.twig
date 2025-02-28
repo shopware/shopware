@@ -67,6 +67,7 @@
                         :link="action.externalLink"
                         ghost
                         size="small"
+                        variant="secondary"
                     >{{ action.label }}
                     </mt-button>
                 </div>
@@ -106,6 +107,7 @@
         <template #modal-footer>
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCloseDeleteModal"
             >
                 {{ $tc('global.default.cancel') }}

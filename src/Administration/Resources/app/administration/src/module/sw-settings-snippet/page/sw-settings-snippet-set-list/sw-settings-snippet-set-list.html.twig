@@ -55,6 +55,7 @@
                                 size="small"
                                 ghost
                                 disabled
+                                variant="secondary"
                             >
                                 {{ $tc('sw-settings-snippet.setList.buttonExport') }}
                             </mt-button>
@@ -85,6 +86,7 @@
                                     size="small"
                                     ghost
                                     :disabled="!acl.can('snippet.creator') || undefined"
+                                    variant="secondary"
                                     @click="onAddSnippetSet"
                                 >
                                     {{ $tc('sw-settings-snippet.setList.buttonAddSet') }}
@@ -105,6 +107,7 @@
                                             ghost
                                             :disabled="!acl.can('snippet.creator') || undefined"
                                             square
+                                            variant="secondary"
                                         >
                                             {% block sw_settings_snippet_set_list_card_btn_copy_icon %}
                                             <mt-icon
@@ -296,6 +299,7 @@
                                     {% block sw_settings_snippet_set_list_delete_modal_cancel %}
                                     <mt-button
                                         size="small"
+                                        variant="secondary"
                                         @click="onCloseDeleteModal"
                                     >
                                         {{ $tc('global.default.cancel') }}
@@ -334,6 +338,7 @@
                                     {% block sw_settings_snippet_set_list_clone_modal_cancel %}
                                     <mt-button
                                         size="small"
+                                        variant="secondary"
                                         @click="closeCloneModal"
                                     >
                                         {{ $tc('global.default.cancel') }}

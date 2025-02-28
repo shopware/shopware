@@ -86,9 +86,8 @@ async function createWrapper(privileges = [], paymentMethod = {}) {
                     'sw-language-switch': true,
                     'sw-card-view': true,
                     'sw-container': true,
-
                     'mt-switch': true,
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-text-field': true,
                     'sw-language-info': true,
                     'sw-upload-listener': true,
@@ -149,13 +148,13 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
         const ruleField = wrapper.find('.sw-settings-payment-detail__field-availability-rule');
 
         expect(nameField.props().disabled).toBe(true);
-        expect(positionField.attributes().disabled).toBeTruthy();
-        expect(commentField.attributes().disabled).toBeTruthy();
-        expect(uploadField.attributes().disabled).toBeTruthy();
-        expect(description.attributes().disabled).toBeTruthy();
-        expect(activeField.attributes().disabled).toBeTruthy();
-        expect(afterOrderField.attributes().disabled).toBeTruthy();
-        expect(ruleField.attributes().disabled).toBeTruthy();
+        expect(positionField.attributes('disabled')).toBeDefined();
+        expect(commentField.attributes('disabled')).toBeDefined();
+        expect(uploadField.attributes('disabled')).toBeDefined();
+        expect(description.attributes('disabled')).toBeDefined();
+        expect(activeField.attributes('disabled')).toBeDefined();
+        expect(afterOrderField.attributes('disabled')).toBeDefined();
+        expect(ruleField.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to edit payment fields', async () => {
@@ -174,15 +173,15 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
         const afterOrderField = wrapper.find('.sw-settings-payment-detail__field-after-order');
         const ruleField = wrapper.find('.sw-settings-payment-detail__field-availability-rule');
 
-        expect(nameField.attributes().disabled).toBeFalsy();
+        expect(nameField.attributes('disabled')).toBeUndefined();
 
-        expect(positionField.attributes().disabled).toBeFalsy();
-        expect(commentField.attributes().disabled).toBeFalsy();
-        expect(uploadField.attributes().disabled).toBeFalsy();
-        expect(description.attributes().disabled).toBeFalsy();
-        expect(activeField.attributes().disabled).toBeFalsy();
-        expect(afterOrderField.attributes().disabled).toBeFalsy();
-        expect(ruleField.attributes().disabled).toBeFalsy();
+        expect(positionField.attributes('disabled')).toBeUndefined();
+        expect(commentField.attributes('disabled')).toBeUndefined();
+        expect(uploadField.attributes('disabled')).toBeUndefined();
+        expect(description.attributes('disabled')).toBeUndefined();
+        expect(activeField.attributes('disabled')).toBeUndefined();
+        expect(afterOrderField.attributes('disabled')).toBeUndefined();
+        expect(ruleField.attributes('disabled')).toBeUndefined();
     });
 
     it('should add conditions association', async () => {
@@ -230,6 +229,6 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
 
         const technicalInput = wrapper.find('.sw-settings-payment-detail__field-technical-name');
 
-        expect(technicalInput.attributes().disabled).toBeFalsy();
+        expect(technicalInput.attributes('disabled')).toBeUndefined();
     });
 });

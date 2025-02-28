@@ -58,7 +58,7 @@ async function createWrapperForComponent(componentName) {
                 'sw-condition-base-line-item': true,
                 'sw-tagged-field': true,
                 'sw-context-menu-item': true,
-                'sw-number-field': true,
+                'mt-number-field': true,
                 'sw-field-error': true,
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),

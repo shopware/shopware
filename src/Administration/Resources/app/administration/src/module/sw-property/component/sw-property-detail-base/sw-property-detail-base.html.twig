@@ -88,8 +88,8 @@
         {% endblock %}
 
         {% block sw_property_detail_position %}
-        <sw-number-field
-            v-model:value="propertyGroup.position"
+        <mt-number-field
+            v-model="propertyGroup.position"
             name="sw-field--propertyGroup-position"
             pattern="[0-9]"
             :step="1"

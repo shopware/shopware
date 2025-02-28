@@ -55,6 +55,7 @@
                     :key="address.id"
                     block
                     :class="addressButtonClasses(address.id)"
+                    variant="secondary"
                     @click="onExistingAddressSelected(address)"
                 >
                     {{ address.company }} <br>
@@ -75,6 +76,7 @@
         {% block sw_order_address_modal_action_close %}
         <mt-button
             size="small"
+            variant="secondary"
             @click="onClose"
         >
             {{ $tc('global.default.cancel') }}

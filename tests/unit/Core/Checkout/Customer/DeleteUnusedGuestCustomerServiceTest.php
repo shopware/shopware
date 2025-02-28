@@ -4,16 +4,16 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\DeleteUnusedGuestCustomerService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
@@ -42,16 +42,19 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
 
     public function testCountConfig(): void
     {
+        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository
+            ->expects(static::once())
+            ->method('aggregate')
+            ->willReturn(new AggregationResultCollection([new CountResult('customer-count', 2)]));
+
         $configService = $this->createMock(SystemConfigService::class);
         $configService
             ->expects(static::once())
             ->method('getInt')
             ->willReturn(1);
 
-        $service = new DeleteUnusedGuestCustomerService(
-            new StaticEntityRepository([[$this->createCustomer(), $this->createCustomer()]]),
-            $configService
-        );
+        $service = new DeleteUnusedGuestCustomerService($customerRepository, $configService);
 
         $result = $service->countUnusedCustomers(Context::createDefaultContext());
 
@@ -88,13 +91,5 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
         $result = $service->deleteUnusedCustomers(Context::createDefaultContext());
 
         static::assertSame($deleteIds, $result);
-    }
-
-    protected function createCustomer(): CustomerEntity
-    {
-        $customer = new CustomerEntity();
-        $customer->setId(Uuid::randomHex());
-
-        return $customer;
     }
 }

@@ -16,6 +16,7 @@
             :aria-label="$tc('global.sw-data-grid.tooltipListSettings')"
             size="x-small"
             square
+            variant="secondary"
         >
             {% block sw_data_grid_settings_trigger_icon %}
             <mt-icon
@@ -79,11 +80,11 @@
         >
 
             {% block sw_data_grid_settings_column_visibility_checkbox %}
-            <sw-checkbox-field
+            <mt-checkbox
                 :disabled="column.primary"
                 :label="$te(column.label) ? $tc(column.label) : column.label"
-                :value="currentColumns[index].visible"
-                @update:value="onChangeColumnVisibility($event, index)"
+                :checked="currentColumns[index].visible"
+                @update:checked="onChangeColumnVisibility($event, index)"
             />
             {% endblock %}
 
@@ -98,6 +99,7 @@
                     size="x-small"
                     square
                     :disabled="index === 0"
+                    variant="secondary"
                     @click="onClickChangeColumnOrderUp(column)"
                 >
                     {% block sw_data_grid_settings_column_control_up_icon %}
@@ -115,6 +117,7 @@
                     square
                     :disabled="index === (currentColumns.length - 1)"
                     class="down"
+                    variant="secondary"
                     @click="onClickChangeColumnOrderDown(column)"
                 >
                     {% block sw_data_grid_settings_column_control_down_icon %}

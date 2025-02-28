@@ -205,8 +205,10 @@ class RecalculationServiceTest extends TestCase
         $productEntity = new ProductEntity();
         $productEntity->setId(Uuid::randomHex());
 
+        // We check product existence by searchIds
+        /** @var StaticEntityRepository<ProductCollection> */
         $productRepository = new StaticEntityRepository([
-            new ProductCollection([$productEntity]),
+            [$productEntity->getId()],
         ]);
 
         $recalculationService = new RecalculationService(
@@ -298,8 +300,10 @@ class RecalculationServiceTest extends TestCase
         $productEntity = new ProductEntity();
         $productEntity->setId(Uuid::randomHex());
 
+        // We check product existence by searchIds
+        /** @var StaticEntityRepository<ProductCollection> */
         $productRepository = new StaticEntityRepository([
-            new ProductCollection([$productEntity]),
+            [$productEntity->getId()],
         ]);
 
         $processor = new LiveProcessorValidator();

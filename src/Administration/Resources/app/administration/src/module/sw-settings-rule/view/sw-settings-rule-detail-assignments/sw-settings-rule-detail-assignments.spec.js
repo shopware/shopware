@@ -636,8 +636,8 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         const wrapper = await createWrapper(defaultProps, ['product'], repositoryOverwriteMock);
         await flushPromises();
 
-        await wrapper.find('.sw-data-grid__row--0 .sw-field__checkbox input').setChecked(true);
-        await wrapper.find('.sw-data-grid__row--0 .sw-field__checkbox input').trigger('click');
+        await wrapper.find('.sw-data-grid__row--0 .mt-field--checkbox__container input').setChecked(true);
+        await wrapper.find('.sw-data-grid__row--0 .mt-field--checkbox__container input').trigger('click');
 
         await wrapper.find('.sw-settings-rule-detail-assignments__entity-listing .link-danger').trigger('click');
 

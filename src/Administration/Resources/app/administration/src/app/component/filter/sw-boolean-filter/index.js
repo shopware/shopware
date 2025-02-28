@@ -33,6 +33,21 @@ Component.register('sw-boolean-filter', {
         value() {
             return this.filter.value;
         },
+
+        options() {
+            return [
+                {
+                    id: 1,
+                    label: this.$tc('sw-boolean-filter.active'),
+                    value: 'true',
+                },
+                {
+                    id: 2,
+                    label: this.$tc('sw-boolean-filter.inactive'),
+                    value: 'false',
+                },
+            ];
+        },
     },
 
     methods: {

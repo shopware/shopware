@@ -36,9 +36,10 @@
         {% block sw_settings_state_machine_state_detail_footer_cancel %}
         <mt-button
             size="small"
+            variant="secondary"
             @click="onCancel"
         >
-            {{ $tc('sw-settings-state-machine.state.detail.buttonCancel') }}
+            {{ $tc('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -48,7 +49,7 @@
             size="small"
             @click="onSave"
         >
-            {{ $tc('sw-settings-state-machine.state.detail.buttonSave') }}
+            {{ $tc('global.default.save') }}
         </mt-button>
         {% endblock %}
     </template>

@@ -228,7 +228,10 @@
         <template #modal-footer>
 
             {% block sw_cms_slot_content_element_modal_action_abort %}
-            <mt-button @click="onCloseElementModal">
+            <mt-button
+                variant="secondary"
+                @click="onCloseElementModal"
+            >
                 {{ $tc('global.default.cancel') }}
             </mt-button>
             {% endblock %}

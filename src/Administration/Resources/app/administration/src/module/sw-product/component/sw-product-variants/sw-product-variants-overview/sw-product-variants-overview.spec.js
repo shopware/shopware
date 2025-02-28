@@ -78,7 +78,6 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
                 'sw-inheritance-switch': true,
                 'sw-price-field': true,
                 'sw-price-preview': true,
-                'sw-number-field': true,
                 'sw-text-field': true,
                 'sw-product-variants-media-upload': true,
                 'sw-upload-listener': true,

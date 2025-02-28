@@ -25,6 +25,7 @@
                 ghost
                 size="small"
                 :disabled="!acl.can('product_search_config.creator')"
+                variant="secondary"
                 @click="onAddNewConfig"
             >
                 {{ $tc('sw-settings-search.generalTab.buttonAddContent') }}
@@ -37,6 +38,7 @@
                 class="sw-settings-search__searchable-content-reset-button"
                 size="small"
                 :disabled="isEnabledReset || !acl.can('product_search_config.editor')"
+                variant="secondary"
                 @click="onResetToDefault"
             >
                 {{ $tc('sw-settings-search.generalTab.buttonResetDefault') }}

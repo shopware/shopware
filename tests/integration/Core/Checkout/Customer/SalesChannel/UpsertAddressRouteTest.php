@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -45,6 +46,9 @@ class UpsertAddressRouteTest extends TestCase
 
     private IdsCollection $ids;
 
+    /**
+     * @var EntityRepository<CustomerAddressCollection>
+     */
     private EntityRepository $addressRepository;
 
     protected function setUp(): void
@@ -235,9 +239,12 @@ class UpsertAddressRouteTest extends TestCase
             ->method('searchIds')
             ->willReturn(new IdSearchResult(1, [['data' => ['address-1'], 'primaryKey' => 'address-1']], new Criteria(), Context::createDefaultContext()));
 
+        $customerAddress = new CustomerAddressEntity();
+        $customerAddress->setId('test');
+
         $result = $this->createMock(EntitySearchResult::class);
-        $result->method('first')
-            ->willReturn(new CustomerAddressEntity());
+        $result->method('getEntities')
+            ->willReturn(new CustomerAddressCollection([$customerAddress]));
 
         $addressRepository
             ->method('search')

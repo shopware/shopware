@@ -53,20 +53,19 @@ class DocumentGenerator
         string $deepLinkCode = '',
         string $fileType = PdfRenderer::FILE_EXTENSION
     ): ?RenderedDocument {
-        $criteria = new Criteria([$documentId]);
+        $criteria = (new Criteria([$documentId]))
+            ->addAssociations([
+                'documentMediaFile',
+                'documentType',
+                'documentA11yMediaFile',
+            ]);
 
         if ($deepLinkCode !== '') {
             $criteria->addFilter(new EqualsFilter('deepLinkCode', $deepLinkCode));
         }
 
-        $criteria->addAssociations([
-            'documentMediaFile',
-            'documentType',
-            'documentA11yMediaFile',
-        ]);
-
-        $document = $this->documentRepository->search($criteria, $context)->get($documentId);
-        if (!$document instanceof DocumentEntity) {
+        $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
+        if (!$document) {
             throw DocumentException::documentNotFound($documentId);
         }
 
@@ -174,11 +173,11 @@ class DocumentGenerator
 
     public function upload(string $documentId, Context $context, Request $uploadedFileRequest): DocumentIdStruct
     {
-        $criteria = new Criteria([$documentId]);
-        $criteria->addAssociation('documentMediaFile');
+        $criteria = (new Criteria([$documentId]))
+            ->addAssociation('documentMediaFile');
 
-        $document = $this->documentRepository->search($criteria, $context)->first();
-        if (!($document instanceof DocumentEntity)) {
+        $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
+        if (!$document) {
             throw DocumentException::documentNotFound($documentId);
         }
 
@@ -304,14 +303,10 @@ class DocumentGenerator
         }
 
         // Fetch the document again because new mediaFile is generated
-        $criteria = new Criteria([$documentId]);
+        $criteria = (new Criteria([$documentId]))
+            ->addAssociations(['documentMediaFile', 'documentA11yMediaFile', 'documentType']);
 
-        $criteria->addAssociation('documentMediaFile')
-            ->addAssociation('documentA11yMediaFile')
-            ->addAssociation('documentType');
-
-        /** @var ?DocumentEntity $document */
-        $document = $this->documentRepository->search($criteria, $context)->get($documentId);
+        $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
 
         return $document;
     }

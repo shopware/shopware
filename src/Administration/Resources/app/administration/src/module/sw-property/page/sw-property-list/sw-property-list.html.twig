@@ -114,8 +114,8 @@
                 <template #column-filterable="{ item, isInlineEdit }">
                     {% block sw_property_list_grid_columns_filterable_inline_edit %}
                     <template v-if="isInlineEdit">
-                        <sw-checkbox-field
-                            v-model:value="item.filterable"
+                        <mt-checkbox
+                            v-model:checked="item.filterable"
                         />
                     </template>
                     {% endblock %}
@@ -181,6 +181,7 @@
                         <template #modal-footer>
                             <mt-button
                                 size="small"
+                                variant="secondary"
                                 @click="onCloseDeleteModal"
                             >
                                 {{ $tc('global.default.cancel') }}

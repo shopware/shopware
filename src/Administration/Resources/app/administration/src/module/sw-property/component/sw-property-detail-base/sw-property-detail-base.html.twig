@@ -64,46 +64,32 @@
         gap="0px 30px"
     >
         {% block sw_property_detail_display_type %}
-        <sw-select-field
-            v-model:value="propertyGroup.displayType"
+        <mt-select
+            v-model="propertyGroup.displayType"
             name="sw-field--propertyGroup-displayType"
             validation="required"
             required
             :label="$tc('sw-property.detail.labelDisplayType')"
             :disabled="!allowEdit"
-        >
-            <option
-                v-for="option in displayTypes"
-                :key="option.value"
-                :value="option.value"
-            >
-                {{ option.label }}
-            </option>
-        </sw-select-field>
+            :options="displayTypeOptions"
+        />
         {% endblock %}
 
         {% block sw_property_detail_sorting_type %}
-        <sw-select-field
-            v-model:value="propertyGroup.sortingType"
+        <mt-select
+            v-model="propertyGroup.sortingType"
             name="sw-field--propertyGroup-sortingType"
             validation="required"
             :disabled="!allowEdit"
             required
             :label="$tc('sw-property.detail.labelSortingType')"
-        >
-            <option
-                v-for="option in sortingTypes"
-                :key="option.value"
-                :value="option.value"
-            >
-                {{ option.label }}
-            </option>
-        </sw-select-field>
+            :options="sortingTypeOptions"
+        />
         {% endblock %}
 
         {% block sw_property_detail_position %}
-        <sw-number-field
-            v-model:value="propertyGroup.position"
+        <mt-number-field
+            v-model="propertyGroup.position"
             name="sw-field--propertyGroup-position"
             pattern="[0-9]"
             :step="1"

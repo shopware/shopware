@@ -20,6 +20,7 @@
         <mt-button
             v-tooltip.bottom="tooltipCancel"
             :disabled="isLoading"
+            variant="secondary"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
@@ -168,6 +169,7 @@
                     {% block sw_product_stream_detail_filter_preview_button %}
                     <mt-button
                         class="sw-product-stream-detail__open_modal_preview"
+                        variant="secondary"
                         @click.prevent="openModalPreview"
                     >
                         {{ $tc('sw-product-stream.detail.buttonOpenPreview') }}

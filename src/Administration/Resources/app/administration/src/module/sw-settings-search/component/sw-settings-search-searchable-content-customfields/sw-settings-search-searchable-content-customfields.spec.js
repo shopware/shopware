@@ -69,7 +69,7 @@ async function createWrapper() {
                     },
                     'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                     'sw-entity-single-select': true,
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-checkbox-field': true,
                     'sw-bulk-edit-modal': true,
                     'sw-data-grid-settings': true,

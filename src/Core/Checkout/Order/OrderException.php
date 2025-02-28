@@ -29,6 +29,7 @@ class OrderException extends HttpException
     final public const ORDER_DELIVERY_WITHOUT_ADDRESS = 'CHECKOUT__DELIVERY_WITHOUT_ADDRESS';
     final public const CHECKOUT_GUEST_NOT_AUTHENTICATED = 'CHECKOUT__GUEST_NOT_AUTHENTICATED';
     final public const CHECKOUT_GUEST_WRONG_CREDENTIALS = 'CHECKOUT__GUEST_WRONG_CREDENTIALS';
+    final public const CHECKOUT_INVALID_UUID = 'CHECKOUT__INVALID_UUID';
 
     public static function missingAssociation(string $association): self
     {
@@ -207,6 +208,16 @@ class OrderException extends HttpException
             Response::HTTP_FORBIDDEN,
             self::CHECKOUT_GUEST_WRONG_CREDENTIALS,
             'Wrong credentials for guest authentication.'
+        );
+    }
+
+    public static function invalidUuid(string $uuid): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CHECKOUT_INVALID_UUID,
+            'Invalid UUID provided: {{ uuid }}',
+            ['uuid' => $uuid]
         );
     }
 }

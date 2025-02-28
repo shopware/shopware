@@ -191,8 +191,8 @@
                 <template #column-active="{ item, isInlineEdit }">
                     {% block sw_customer_list_grid_columns_active_inline_edit %}
                     <template v-if="isInlineEdit">
-                        <sw-checkbox-field
-                            v-model:value="item.active"
+                        <mt-checkbox
+                            v-model:checked="item.active"
                             name="sw-field--item-active"
                         />
                     </template>
@@ -274,6 +274,7 @@
                             {% block sw_customer_list_delete_modal_cancel %}
                             <mt-button
                                 size="small"
+                                variant="secondary"
                                 @click="onCloseDeleteModal"
                             >
                                 {{ $tc('global.default.cancel') }}

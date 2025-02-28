@@ -37,6 +37,7 @@
                 {% block sw_profile_index_search_preferences_searchable_elements_button_select %}
                 <mt-button
                     class="sw-profile-index-search-preferences-searchable-elements__button-select-all"
+                    variant="secondary"
                     @click="onSelect(true)"
                 >
                     {{ $tc('sw-profile.tabSearchPreferences.cardSearchableElements.buttonSelect') }}
@@ -46,6 +47,7 @@
                 {% block sw_profile_index_search_preferences_searchable_elements_button_deselect %}
                 <mt-button
                     class="sw-profile-index-search-preferences-searchable-elements__button-deselect-all"
+                    variant="secondary"
                     @click="onSelect(false)"
                 >
                     {{ $tc('sw-profile.tabSearchPreferences.cardSearchableElements.buttonDeselect') }}
@@ -55,6 +57,7 @@
                 {% block sw_profile_index_search_preferences_searchable_elements_button_reset %}
                 <mt-button
                     class="sw-profile-index-search-preferences-searchable-elements__button-reset-to-default"
+                    variant="secondary"
                     @click="onReset"
                 >
                     {{ $tc('sw-profile.tabSearchPreferences.cardSearchableElements.buttonReset') }}
@@ -72,10 +75,10 @@
                 >
                     <li class="sw-profile-index-search-preferences-searchable-elements__entity-field">
                         <!-- eslint-disable vue/attributes-order -->
-                        <sw-checkbox-field
-                            v-model:value="searchPreference._searchable"
+                        <mt-checkbox
+                            v-model:checked="searchPreference._searchable"
                             :label="getModuleTitle(searchPreference.entityName)"
-                            @update:value="onChangeSearchPreference(searchPreference)"
+                            @update:checked="onChangeSearchPreference(searchPreference)"
                             name="sw-field--searchPreference-_searchable"
                         />
                         <ul class="sw-profile-index-search-preferences-searchable-elements__entity">
@@ -84,8 +87,8 @@
                                 :key="field.fieldName"
                                 class="sw-profile-index-search-preferences-searchable-elements__entity-field"
                             >
-                                <sw-checkbox-field
-                                    v-model:value="field._searchable"
+                                <mt-checkbox
+                                    v-model:checked="field._searchable"
                                     name="sw-field--field-_searchable"
                                     :label="$tc(`sw-profile.tabSearchPreferences.modules.${searchPreference.entityName}.${field.fieldName}`)"
                                     :disabled="adminEsEnable || !searchPreference._searchable"

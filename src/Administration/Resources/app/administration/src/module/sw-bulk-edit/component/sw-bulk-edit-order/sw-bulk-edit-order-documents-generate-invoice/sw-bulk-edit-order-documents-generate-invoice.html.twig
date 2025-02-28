@@ -1,8 +1,8 @@
 {% block sw_bulk_edit_order_documents_generate_invoice %}
 <div class="sw-bulk-edit-order-documents-generate-invoice">
     {% block sw_bulk_edit_order_documents_generate_invoice_datepicker %}
-    <sw-datepicker
-        v-model:value="generateData.documentDate"
+    <mt-datepicker
+        v-model="generateData.documentDate"
         class="sw-bulk-edit-order-documents-generate-invoice__item"
         hide-hint
         :label="$tc('sw-bulk-edit.order.documents.generateInvoice.labelDatePicker')"

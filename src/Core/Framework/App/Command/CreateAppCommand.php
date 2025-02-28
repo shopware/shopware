@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\Command;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -87,7 +88,7 @@ class CreateAppCommand extends Command
         if ($doInstall) {
             $this->appLifecycle->install(
                 Manifest::createFromXmlFile($dir . '/manifest.xml'),
-                true,
+                new AppInstallParameters(),
                 Context::createCLIContext()
             );
 

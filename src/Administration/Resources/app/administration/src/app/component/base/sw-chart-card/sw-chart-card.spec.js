@@ -46,7 +46,7 @@ async function createWrapper(additionalProps = {}) {
                     template: '<div class="mt-card"><slot /><slot name="title"></slot></div>',
                     props: ['helpText'],
                 },
-                'sw-select-field': true,
+                'sw-select-field-deprecated': true,
                 'sw-chart': true,
             },
         },

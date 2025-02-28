@@ -370,8 +370,6 @@ describe('app/plugins/shortcut.plugin', () => {
                     'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
 
                     'sw-field-error': true,
-                    'sw-compact-colorpicker': await Shopware.Component.build('sw-compact-colorpicker'),
-                    'sw-colorpicker': await Shopware.Component.build('sw-colorpicker'),
                     'sw-container': await Shopware.Component.build('sw-container'),
                     'sw-text-editor-table-toolbar': true,
                     'sw-code-editor': true,

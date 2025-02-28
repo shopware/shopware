@@ -121,7 +121,7 @@ export default {
         },
 
         loadEntityData() {
-            this.productFeatureSetsRepository.get(this.productFeatureSetId).then((productFeatureSet) => {
+            this.productFeatureSetsRepository.get(this.productFeatureSet.id).then((productFeatureSet) => {
                 if (productFeatureSet.features && !productFeatureSet.features.length) {
                     productFeatureSet.features = [];
                 }

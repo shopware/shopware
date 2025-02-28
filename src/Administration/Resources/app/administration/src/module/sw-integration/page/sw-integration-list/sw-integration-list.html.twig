@@ -137,9 +137,9 @@
                             :copyable-tooltip="true"
                         />
 
-                        <sw-password-field
+                        <mt-password-field
                             v-if="secretAccessKeyFieldTypeIsPassword"
-                            v-model:value="currentIntegration.secretAccessKey"
+                            v-model="currentIntegration.secretAccessKey"
                             name="sw-field--currentIntegration-secretAccessKey"
                             :label="$tc('sw-integration.detail.secretFieldLabel')"
                             :disabled="true"

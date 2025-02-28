@@ -15,7 +15,7 @@ class ElasticsearchMigrationCompilerPass implements CompilerPassInterface
         $migrationPath = \dirname(__DIR__) . '/Migration';
 
         // configure migration directories
-        $majors = ['V6_5', 'V6_6'];
+        $majors = ['V6_5', 'V6_6', 'V6_7'];
         foreach ($majors as $major) {
             $migrationPathV5 = $migrationPath . '/' . $major;
 

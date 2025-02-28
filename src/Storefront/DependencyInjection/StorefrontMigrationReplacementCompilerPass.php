@@ -14,13 +14,7 @@ class StorefrontMigrationReplacementCompilerPass implements CompilerPassInterfac
     {
         $migrationPath = \dirname(__DIR__) . '/Migration';
 
-        $migrationSourceV3 = $container->getDefinition(MigrationSource::class . '.core.V6_3');
-        $migrationSourceV3->addMethodCall('addDirectory', [$migrationPath . '/V6_3', 'Shopware\Storefront\Migration\V6_3']);
-
-        $migrationSourceV4 = $container->getDefinition(MigrationSource::class . '.core.V6_4');
-        $migrationSourceV4->addMethodCall('addDirectory', [$migrationPath . '/V6_4', 'Shopware\Storefront\Migration\V6_4']);
-
-        $majors = ['V6_5', 'V6_6'];
+        $majors = ['V6_3', 'V6_4', 'V6_5', 'V6_6', '6_7'];
         foreach ($majors as $major) {
             $migrationPathV5 = $migrationPath . '/' . $major;
 

@@ -133,7 +133,6 @@ class FindProductVariantRouteTest extends TestCase
 
         $this->productRepositoryMock->method('search')
             ->willReturnOnConsecutiveCalls(
-
                 new EntitySearchResult(
                     'product',
                     0,
@@ -150,7 +149,6 @@ class FindProductVariantRouteTest extends TestCase
                     $criteria2,
                     $context
                 )
-
             );
 
         $response = $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class), $criteria2);
@@ -231,6 +229,6 @@ class FindProductVariantRouteTest extends TestCase
         static::expectException(ProductException::class);
         static::expectExceptionMessage('The parameter options is invalid.');
 
-        $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class), $this->createMock(Criteria::class));
+        $this->route->load($this->ids->get('productId'), $request, SalesChannelContext::createFrom(Context::createDefaultContext()), new Criteria());
     }
 }

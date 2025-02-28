@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\FindVariant;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FoundCombination;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -16,11 +17,15 @@ class FindProductVariantRouteResponseTest extends TestCase
 {
     public function testInstantiate(): void
     {
-        $id = Uuid::randomHex();
-        $response = new FindProductVariantRouteResponse(new FoundCombination($id, []));
+        /**
+         * @var ProductEntity $variant
+         */
+        $variant = new ProductEntity();
+        $variant->setId(Uuid::randomHex());
+        $response = new FindProductVariantRouteResponse(new FoundCombination($variant, []));
         $foundCombination = $response->getFoundCombination();
 
-        static::assertSame($id, $foundCombination->getVariantId());
+        static::assertSame($variant->getId(), $foundCombination->getVariantId());
         static::assertSame([], $foundCombination->getOptions());
     }
 }

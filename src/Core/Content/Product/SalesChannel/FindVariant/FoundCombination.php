@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('inventory')]
 class FoundCombination extends Struct
 {
+    protected string $variantId;
+
     /**
      * @param string[] $options
      */
@@ -16,6 +18,7 @@ class FoundCombination extends Struct
         protected ProductEntity $variant,
         protected array $options
     ) {
+        $this->variantId = $variant->getId();
     }
 
     public function getVariant(): ProductEntity

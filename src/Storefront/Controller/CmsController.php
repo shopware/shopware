@@ -167,7 +167,7 @@ class CmsController extends StorefrontController
         $variantResponse = $this->findVariantRoute->load(
             $productId,
             $variantRequest,
-            $context
+            $context,
         );
 
         $newProductId = $variantResponse->getFoundCombination()->getVariantId();

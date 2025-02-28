@@ -15,5 +15,5 @@ abstract class AbstractFindProductVariantRoute
 {
     abstract public function getDecorated(): AbstractFindProductVariantRoute;
 
-    abstract public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): FindProductVariantRouteResponse;
+    abstract public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria = new Criteria()): FindProductVariantRouteResponse;
 }

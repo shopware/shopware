@@ -131,13 +131,16 @@ class ProductControllerTest extends TestCase
         ];
         $expectedClonedRequest = $request->duplicate($expectedDuplicatedRequestData);
 
+        $productEntity = new ProductEntity();
+        $productEntity->setId($ids->get('variantId'));
+
         $this->findVariantRouteMock->method('load')
             ->with(
                 $ids->get('product'),
                 static::equalTo($expectedClonedRequest)
             )
             ->willReturn(
-                new FindProductVariantRouteResponse(new FoundCombination($ids->get('variantId'), $options))
+                new FindProductVariantRouteResponse(new FoundCombination($productEntity, $options))
             );
 
         $this->seoUrlPlaceholderHandlerMock->method('generate')->with(

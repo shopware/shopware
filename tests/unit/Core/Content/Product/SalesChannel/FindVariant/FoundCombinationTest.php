@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\FindVariant;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FoundCombination;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
@@ -19,13 +20,15 @@ class FoundCombinationTest extends TestCase
 
         $options = [
             $ids->get('groupId1') => $ids->get('optionId1'),
-            $ids->get('groupId1') => $ids->get('optionId2'),
             $ids->get('groupId2') => $ids->get('optionId3'),
         ];
 
-        $foundCombo = new FoundCombination($ids->get('variantId'), $options);
+        $productEntity = new ProductEntity();
+        $productEntity->setId($ids->get('variantId'));
 
-        static::assertEquals($ids->get('variantId'), $foundCombo->getVariantId());
-        static::assertEquals($options, $foundCombo->getOptions());
+        $foundCombination = new FoundCombination($productEntity, $options);
+
+        static::assertEquals($ids->get('variantId'), $foundCombination->getVariantId());
+        static::assertEquals($options, $foundCombination->getOptions());
     }
 }

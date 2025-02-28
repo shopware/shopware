@@ -31,19 +31,22 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
     }
 
     #[Route(path: '/store-api/product/{productId}/find-variant', name: 'store-api.product.find-variant', methods: ['POST'], defaults: ['_entity' => 'product'])]
-    public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): FindProductVariantRouteResponse
+    public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria = new Criteria()): FindProductVariantRouteResponse
     {
         /** @var string|null $switchedGroup */
         $switchedGroup = $request->get('switchedGroup');
 
-        $options = $request->get('options') ? $request->get('options', []) : [];
+        /** @var array<string, string> $options */
+        $options = $request->get('options', []);
+        if (!\is_array($options)) {
+            $options = [];
+        }
 
         foreach ($options as $optionId) {
             if (!\is_string($optionId)) {
                 throw ProductException::invalidOptionsParameter();
             }
         }
-
         $variant = $this->searchForOptions($productId, $context, $options, $criteria);
 
         if ($variant !== null) {
@@ -69,12 +72,15 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
         throw new VariantNotFoundException($productId, $options);
     }
 
+    /**
+     * @param array<string, string> $options
+     */
     private function searchForOptions(
         string $productId,
         SalesChannelContext $salesChannelContext,
         array $options,
         Criteria $criteria
-    ): ProductEntity|null {
+    ): ?ProductEntity {
         $criteria
             ->addFilter(new EqualsFilter('product.parentId', $productId))
             ->setLimit(1);
@@ -83,6 +89,8 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
             $criteria->addFilter(new EqualsFilter('product.optionIds', $optionId));
         }
 
-        return $this->productRepository->search($criteria, $salesChannelContext)->first();
+        $result = $this->productRepository->search($criteria, $salesChannelContext)->first();
+
+        return $result instanceof ProductEntity ? $result : null;
     }
 }

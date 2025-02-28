@@ -79,7 +79,7 @@ class ProductController extends StorefrontController
             $variantResponse = $this->findVariantRoute->load(
                 $productId,
                 $variantRequest,
-                $salesChannelContext
+                $salesChannelContext,
             );
 
             $productId = $variantResponse->getFoundCombination()->getVariantId();

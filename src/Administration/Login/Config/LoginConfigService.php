@@ -116,13 +116,13 @@ final class LoginConfigService
                     new NotNull(null, $isNullMessage),
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
-                    new Url(null, $invalidUrlMessage, null, null, null, null, null, true),
+                    new Url(message: $invalidUrlMessage, requireTld: true),
                 ],
                 'base_url' => [
                     new NotNull(null, $isNullMessage),
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
-                    new Url(null, $invalidUrlMessage, null, null, null, null, null, true),
+                    new Url(message: $invalidUrlMessage, requireTld: true),
                     new Regex('/\w+(?!\/)$/', 'should not end with "/"'),
                 ],
                 'authorize_path' => [

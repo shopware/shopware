@@ -65,6 +65,7 @@ jobs:
           timeout: 60m
           token-scope: shopware
           identity: ShopwareDownstream
+          poll_interval: 1m
           env:
             NIGHTLY=${{ inputs.nightly }}
 

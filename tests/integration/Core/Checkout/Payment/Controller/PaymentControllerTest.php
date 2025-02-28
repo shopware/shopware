@@ -79,7 +79,7 @@ class PaymentControllerTest extends TestCase
         static::assertIsString($client->getResponse()->getContent());
         $response = json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('errors', $response);
-        static::assertSame('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code']);
+        static::assertSame('CHECKOUT__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code']);
     }
 
     public function testCallWithInvalidToken(): void

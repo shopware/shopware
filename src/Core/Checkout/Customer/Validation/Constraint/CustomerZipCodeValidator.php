@@ -12,7 +12,6 @@ use Shopware\Core\System\Country\CountryEntity;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintValidator;
-use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 #[Package('checkout')]
 class CustomerZipCodeValidator extends ConstraintValidator
@@ -32,7 +31,7 @@ class CustomerZipCodeValidator extends ConstraintValidator
     public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof CustomerZipCode) {
-            throw new UnexpectedTypeException($constraint, CustomerZipCodeValidator::class);
+            throw CustomerException::unexpectedType($constraint, CustomerZipCodeValidator::class);
         }
 
         if ($constraint->countryId === null) {

@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\DuplicateWishlistProductException;
 use Shopware\Core\Checkout\Customer\Exception\InvalidImitateCustomerTokenException;
 use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
+use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
@@ -24,7 +25,9 @@ use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Exception\MissingOptionsException;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 #[Package('checkout')]
 class CustomerException extends HttpException
@@ -64,6 +67,7 @@ class CustomerException extends HttpException
     public const VALUE_NOT_SUPPORTED = 'CONTENT__RULE_VALUE_NOT_SUPPORTED';
     public const MISSING_REQUEST_PARAMETER_CODE = 'CONTENT__MISSING_REQUEST_PARAMETER_CODE';
     public const MISSING_OPTIONS = 'CONTENT__MISSING_OPTIONS';
+    public const UNEXPECTED_TYPE = 'CHECKOUT__UNEXPECTED_TYPE';
 
     public static function customerGroupNotFound(string $id): self
     {
@@ -390,6 +394,23 @@ class CustomerException extends HttpException
             self::MISSING_OPTIONS,
             'Option "{{ option }}" must be given for constraint {{ constraint }}',
             ['option' => $option, 'constraint' => $constraint]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function unexpectedType(Constraint $constraint, string $class): self|UnexpectedTypeException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new UnexpectedTypeException($constraint, CustomerEmailUnique::class);
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::UNEXPECTED_TYPE,
+            'Expected argument of type "{{ expectedType }}", "{{ givenType }}" given',
+            ['expectedType' => $class, 'givenType' => get_debug_type($constraint)]
         );
     }
 }

@@ -49,6 +49,8 @@ class SnippetFileHandler
     }
 
     /**
+     * @deprecated
+     *
      * @return array<int, string>
      */
     public function findAdministrationSnippetFiles(): array
@@ -61,6 +63,8 @@ class SnippetFileHandler
     }
 
     /**
+     * @deprecated
+     *
      * @return array<int, string>
      */
     public function findStorefrontSnippetFiles(): array

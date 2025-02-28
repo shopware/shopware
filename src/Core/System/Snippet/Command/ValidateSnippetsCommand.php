@@ -45,7 +45,7 @@ class ValidateSnippetsCommand extends Command
     {
         $bundles = array_map('trim', array_filter(explode(',', (string) $input->getOption('bundle'))));
 
-        $missingSnippetsArray = $this->snippetValidator->validate($bundles);
+        $missingSnippetsArray = $this->snippetValidator->validateForBundles($bundles);
         $missingSnippetsCollection = $this->hydrateMissingSnippets($missingSnippetsArray);
 
         $io = new ShopwareStyle($input, $output);

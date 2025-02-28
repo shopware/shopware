@@ -25,6 +25,13 @@ abstract class Error extends \Exception implements \JsonSerializable
 
     final public const LEVEL_ERROR = 20;
 
+    /**
+     * @return array<string, mixed>
+     */
+    public function __serialize(): array {
+        return get_object_vars($this);
+    }
+
     abstract public function getId(): string;
 
     abstract public function getMessageKey(): string;

@@ -10,7 +10,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('checkout')]
 abstract class AbstractCartPersister
 {
-    public const DEFER_CART_ERRORS_PERMISSION = 'defer-cart-errors';
+    public const PERSIST_CART_ERROR_PERMISSION = 'persist-cart-errors';
 
     abstract public function getDecorated(): AbstractCartPersister;
 
@@ -33,7 +33,7 @@ abstract class AbstractCartPersister
     protected function shouldPersist(Cart $cart): bool
     {
         return $cart->getLineItems()->count() > 0
-            || ($cart->getErrors()->count() > 0 && $cart->getBehavior()?->hasPermission(static::DEFER_CART_ERRORS_PERMISSION))
+            || ($cart->getErrors()->count() > 0 && $cart->getBehavior()?->hasPermission(static::PERSIST_CART_ERROR_PERMISSION))
             || $cart->getAffiliateCode() !== null
             || $cart->getCampaignCode() !== null
             || $cart->getCustomerComment() !== null

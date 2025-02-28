@@ -99,7 +99,7 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
 
             if (Feature::isActive('DEFERRED_CART_ERRORS')) {
                 $result = $context->withPermissions(
-                    [AbstractCartPersister::DEFER_CART_ERRORS_PERMISSION => true],
+                    [AbstractCartPersister::PERSIST_CART_ERROR_PERMISSION => true],
                     function (SalesChannelContext $context) use ($token): RuleLoaderResult {
                         return $this->ruleLoader->loadByToken($context, $token);
                     },

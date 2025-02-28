@@ -10,11 +10,11 @@ class StorefrontMigrationReplacementCompilerPass extends AbstractMigrationReplac
 {
     protected function getMigrationPath(): string
     {
-        return \dirname(__DIR__) . '/Migration';
+        return \dirname(__DIR__);
     }
 
-    protected function getMigrationNamespace(): string
+    protected function getMigrationNamespacePart(): string
     {
-        return 'Shopware\Storefront\Migration';
+        return 'Storefront';
     }
 }

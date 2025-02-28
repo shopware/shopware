@@ -17,18 +17,18 @@ abstract class AbstractMigrationReplacementCompilerPass implements CompilerPassI
     public function process(ContainerBuilder $container): void
     {
         $migrationPath = $this->getMigrationPath();
-        // configure migration directories
+
         foreach (self::MAJOR_VERSIONS as $major) {
-            $versionedMigrationPath = $migrationPath . '/' . $major;
+            $versionedMigrationPath = $migrationPath . '/Migration/' . $major;
 
             if (\is_dir($versionedMigrationPath)) {
                 $migrationSource = $container->getDefinition(MigrationSource::class . '.core.' . $major);
-                $migrationSource->addMethodCall('addDirectory', [$versionedMigrationPath, $this->getMigrationNamespace() . '\\' . $major]);
+                $migrationSource->addMethodCall('addDirectory', [$versionedMigrationPath, 'Shopware\\' . $this->getMigrationNamespacePart() . '\Migration\\' . $major]);
             }
         }
     }
 
     abstract protected function getMigrationPath(): string;
 
-    abstract protected function getMigrationNamespace(): string;
+    abstract protected function getMigrationNamespacePart(): string;
 }

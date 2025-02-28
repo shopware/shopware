@@ -9,11 +9,11 @@ class FrameworkMigrationReplacementCompilerPass extends AbstractMigrationReplace
 {
     protected function getMigrationPath(): string
     {
-        return \dirname(__DIR__, 3) . '/Migration';
+        return \dirname(__DIR__, 3);
     }
 
-    protected function getMigrationNamespace(): string
+    protected function getMigrationNamespacePart(): string
     {
-        return 'Shopware\Core\Migration';
+        return 'Core';
     }
 }

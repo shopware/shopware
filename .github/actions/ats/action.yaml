@@ -98,14 +98,13 @@ runs:
         php-version: ${{ inputs.php-version }}
 
     - name: Build js
-      if: ${{ inputs.build && inputs.install == '' }}
+      if: ${{ inputs.build && (inputs.install == '' || inputs.install == 'false') }}
       shell: bash
       run: |
         mkdir -p config/jwt
         composer run build:js:admin
         composer npm:storefront run production # we cannot use build:js because it requires a db
         (cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js)
-        bin/ci assets:install
 
     - name: Start Webserver
       if: ${{ inputs.install == '' || inputs.install == 'false' }}

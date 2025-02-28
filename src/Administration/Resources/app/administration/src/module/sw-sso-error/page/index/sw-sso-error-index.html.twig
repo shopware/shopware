@@ -1,35 +1,39 @@
 {% block sw_sso_error %}
-    <div class="sw-sso-error">
-        <div class="sw-sso-error__container">
-            <div class="sw-sso-error__image-container">
-                <img
-                    width="200"
-                    :src="assetFilter('/administration/static/img/shopware_logo_blue.svg')"
-                    :alt="$tc('sw-sso-error.error-card.logoAltText')"
-                >
+<div class="sw-sso-error">
+    <div class="sw-sso-error__container">
+        <div class="sw-sso-error__image-container">
+            <img
+                width="200"
+                :src="assetFilter('/administration/static/img/shopware_logo_blue.svg')"
+                :alt="$tc('sw-sso-error.error-card.logoAltText')"
+            >
+        </div>
+
+        <mt-card class="sw-sso-error-card">
+            <div class="lock-icon">
+                <mt-icon class="block"
+                         name="solid-lock"
+                         size="24px"/>
             </div>
 
-            <mt-card class="sw-sso-error-card">
-                <div class="lock-icon">
-                    <mt-icon class="block" name="solid-lock" size="24px"/>
+            <h1 class="sw-sso-error__title">{{ $tc('sw-sso-error.error-card.title') }}</h1>
+            <p class="sw-sso-error__description">{{ $tc('sw-sso-error.error-card.text') }}</p>
+
+            <div class="sw-sso-error-card__button-container">
+                <div v-if="isLoading"
+                     class="sw-sso-error__loading-indicator">
+                    <mt-loader/>
                 </div>
 
-                <h1 class="sw-sso-error__title">{{ $tc('sw-sso-error.error-card.title') }}</h1>
-                <p class="sw-sso-error__description">{{ $tc('sw-sso-error.error-card.text') }}</p>
+                <a v-else :href="url"
+                   class="mt-button mt-button--primary">
+                        {{ $tc('sw-sso-error.error-card.button') }}
+                </a>
+            </div>
 
-                <div class="sw-sso-error-card__button-container">
-                    <div v-if="isLoading" class="sw-sso-error__loading-indicator">
-                        <mt-loader/>
-                    </div>
-
-                    <a v-else :href="url" class="mt-button mt-button--primary">
-                            {{ $tc('sw-sso-error.error-card.button') }}
-                    </a>
-                </div>
-
-                <span class="sw-sso-error-card__small-text">{{ $tc('sw-sso-error.error-card.loggedInAsPrefix') }}</span>
-                <span class="sw-sso-error-card__small-text-email">{{ email }}</span>
-            </mt-card>
-        </div>
+            <span class="sw-sso-error-card__small-text">{{ $tc('sw-sso-error.error-card.loggedInAsPrefix') }}</span>
+            <span class="sw-sso-error-card__small-text-email">{{ email }}</span>
+        </mt-card>
     </div>
+</div>
 {% endblock %}

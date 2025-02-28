@@ -29,7 +29,7 @@
         .sw-sso-error__title {
             color: var(--color-text-primary-default);
             font-weight: var(--font-weight-bold);
-            margin: var(--scale-size-24) var(--scale-size-0) var(--scale-size-8) var(--scale-size-0)
+            margin: var(--scale-size-24) var(--scale-size-0) var(--scale-size-8) var(--scale-size-0);
         }
 
         .sw-sso-error__description {
@@ -38,7 +38,7 @@
         }
 
         .sw-sso-error-card__button-container {
-            margin: var(--scale-size-24) var(--scale-size-0) var(--scale-size-20) var(--scale-size-0)
+            margin: var(--scale-size-24) var(--scale-size-0) var(--scale-size-20) var(--scale-size-0);
         }
 
         .sw-sso-error-card__small-text {
@@ -59,4 +59,3 @@
         }
     }
 }
-

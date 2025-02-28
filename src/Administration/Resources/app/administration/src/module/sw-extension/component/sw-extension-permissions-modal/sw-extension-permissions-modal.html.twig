@@ -48,6 +48,7 @@
             {% block sw_extension_permissions_modal_link %}
             <mt-button
                 class="sw-extension-permissions-modal__link"
+                variant="secondary"
                 @click="openDetailsModal(key)"
             >
                 {{ $tc('sw-extension-store.component.sw-extension-permissions-modal.textEntities') }}
@@ -72,6 +73,7 @@
 
             <mt-button
                 class="sw-extension-permissions-modal__link"
+                variant="secondary"
                 @click="toggleDomainsModal(true)"
             >
                 {{ $tc('sw-extension-store.component.sw-extension-permissions-modal.showDomains') }}

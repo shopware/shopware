@@ -20,8 +20,8 @@ async function createWrapper() {
                         'disabled',
                     ],
                 },
-                'sw-number-field': {
-                    template: '<input type="number" class="sw-field sw-number-field"></input>',
+                'mt-number-field': {
+                    template: '<input type="number" class="sw-field mt-number-field"></input>',
                     props: [
                         'value',
                         'disabled',

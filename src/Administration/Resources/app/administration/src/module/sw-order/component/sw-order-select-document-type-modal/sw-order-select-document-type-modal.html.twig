@@ -20,6 +20,7 @@
     <template #modal-footer>
         {% block sw_order_select_document_type_modal_footer_action_cancel %}
         <mt-button
+            variant="secondary"
             @click="$emit('modal-close', false)"
         >
             {{ $tc('global.default.cancel') }}

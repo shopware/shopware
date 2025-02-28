@@ -15,7 +15,7 @@ async function createWrapper() {
                     'sw-modal': await wrapTestComponent('sw-modal'),
                     'sw-container': true,
                     'sw-entity-single-select': true,
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-datepicker': true,
                     'sw-loader': true,
                     'router-link': true,
@@ -74,7 +74,7 @@ describe('sw-settings-tax-rule-modal', () => {
 
     it('should have a tax rate field with a correct "digits" property', async () => {
         await flushPromises();
-        const taxRateField = wrapper.find('sw-number-field-stub[label="sw-settings-tax.taxRuleCard.labelTaxRate"]');
+        const taxRateField = wrapper.find('mt-number-field-stub[label="sw-settings-tax.taxRuleCard.labelTaxRate"]');
 
         expect(taxRateField.attributes('digits')).toBe('3');
     });

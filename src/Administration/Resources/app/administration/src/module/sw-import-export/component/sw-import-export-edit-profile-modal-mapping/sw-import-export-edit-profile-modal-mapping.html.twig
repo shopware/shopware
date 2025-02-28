@@ -24,6 +24,7 @@
             ghost
             :disabled="profile.systemDefault || !addMappingEnabled"
             size="small"
+            variant="secondary"
             @click="onAddMapping"
         >
             {{ $tc('sw-import-export.profile.addMappingLabel') }}
@@ -115,6 +116,7 @@
                     size="x-small"
                     square
                     :disabled="isFirstMapping(item) || !!searchTerm"
+                    variant="secondary"
                     @click="updateSorting(itemIndex, 'up')"
                 >
                     {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_up_icon %}
@@ -131,6 +133,7 @@
                     size="x-small"
                     square
                     :disabled="isLastMapping(item) || !!searchTerm"
+                    variant="secondary"
                     @click="updateSorting(itemIndex, 'down')"
                 >
                     {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_down_icon %}

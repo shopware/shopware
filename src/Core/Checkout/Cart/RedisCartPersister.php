@@ -89,8 +89,6 @@ class RedisCartPersister extends AbstractCartPersister
     {
         $shouldPersist = $this->shouldPersist($cart);
 
-        $this->eventDispatcher->dispatch(new CartSavedEvent($context, $cart));
-
         $event = new CartVerifyPersistEvent($context, $cart, $shouldPersist);
 
         $this->eventDispatcher->dispatch($event);
@@ -103,6 +101,8 @@ class RedisCartPersister extends AbstractCartPersister
         $content = $this->serializeCart($cart, $context);
 
         $this->redis->set(self::PREFIX . $cart->getToken(), $content, ['EX' => $this->expireDays * 86400]);
+
+        $this->eventDispatcher->dispatch(new CartSavedEvent($context, $cart));
     }
 
     public function delete(string $token, SalesChannelContext $context): void

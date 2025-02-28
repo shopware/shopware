@@ -192,7 +192,10 @@
 
     {% block sw_cms_layout_modal_footer %}
     <template #modal-footer>
-        <mt-button @click="closeModal">
+        <mt-button
+            variant="secondary"
+            @click="closeModal"
+        >
             {{ $tc('global.default.cancel') }}
         </mt-button>
         <mt-button

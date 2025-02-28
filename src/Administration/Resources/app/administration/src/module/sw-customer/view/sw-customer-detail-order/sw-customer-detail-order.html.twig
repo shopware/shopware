@@ -21,6 +21,7 @@
                     class="sw-customer-detail-order__add-order-action"
                     size="small"
                     :disabled="!acl.can('order.creator')"
+                    variant="secondary"
                     @click="navigateToCreateOrder"
                 >
                     <mt-icon
@@ -113,6 +114,7 @@
                     ghost
                     class="sw-customer-detail-order__add-order-action"
                     :disabled="!acl.can('order.creator')"
+                    variant="secondary"
                     @click="navigateToCreateOrder"
                 >
                     {{ $tc('sw-customer.detailOrder.buttonCreateOrder') }}

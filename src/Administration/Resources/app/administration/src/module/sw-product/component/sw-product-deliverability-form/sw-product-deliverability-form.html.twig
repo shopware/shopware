@@ -5,8 +5,8 @@
         gap="0px 30px"
     >
         {% block sw_product_deliverability_form_stock_field %}
-        <sw-number-field
-            v-model:value="product.stock"
+        <mt-number-field
+            v-model="product.stock"
             name="sw-field--product-stock"
             number-type="int"
             :disabled="!allowEdit"
@@ -17,8 +17,8 @@
         {% endblock %}
 
         {% block sw_product_deliverability_form_available_stock_field %}
-        <sw-number-field
-            v-model:value="product.availableStock"
+        <mt-number-field
+            v-model="product.availableStock"
             name="sw-field--product-available-stock"
             number-type="int"
             :disabled="true"
@@ -90,7 +90,7 @@
         >
             <template #content="props">
 
-                <sw-number-field
+                <mt-number-field
                     name="sw-field--product-restock-time"
                     :map-inheritance="props"
                     number-type="int"
@@ -99,9 +99,9 @@
                     :disabled="props.isInherited || !allowEdit"
                     :label="$tc('sw-product.settingsForm.labelRestockTime')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderRestockTime')"
-                    :value="props.currentValue"
+                    :model-value="props.currentValue"
                     :error="productRestockTimeError"
-                    @update:value="props.updateCurrentValue"
+                    @update:model-value="props.updateCurrentValue"
                 />
 
             </template>
@@ -146,7 +146,7 @@
         >
             <template #content="props">
 
-                <sw-number-field
+                <mt-number-field
                     :map-inheritance="props"
                     number-type="int"
                     :min="1"
@@ -154,8 +154,8 @@
                     :label="$tc('sw-product.settingsForm.labelMinPurchase')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderMinPurchase')"
                     :disabled="props.isInherited || !allowEdit"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
                 />
 
             </template>
@@ -172,7 +172,7 @@
         >
             <template #content="props">
 
-                <sw-number-field
+                <mt-number-field
                     :map-inheritance="props"
                     number-type="int"
                     :min="1"
@@ -180,8 +180,8 @@
                     :label="$tc('sw-product.settingsForm.labelPurchaseSteps')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderPurchaseSteps')"
                     :disabled="props.isInherited || !allowEdit"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
                 />
             </template>
         </sw-inherit-wrapper>
@@ -197,7 +197,7 @@
         >
             <template #content="props">
 
-                <sw-number-field
+                <mt-number-field
                     :map-inheritance="props"
                     number-type="int"
                     :allow-empty="true"
@@ -206,8 +206,8 @@
                     :label="$tc('sw-product.settingsForm.labelMaxPurchase')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderMaxPurchase')"
                     :disabled="props.isInherited || !allowEdit"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
                 />
             </template>
         </sw-inherit-wrapper>

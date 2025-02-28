@@ -2,18 +2,16 @@
  * @sw-package framework
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 const { Criteria } = Shopware.Data;
 
 async function createWrapper() {
-    return shallowMount(await wrapTestComponent('sw-number-filter', { sync: true }), {
+    const wrapper = mount(await wrapTestComponent('sw-number-filter', { sync: true }), {
         global: {
             stubs: {
                 'sw-base-filter': await wrapTestComponent('sw-base-filter', { sync: true }),
                 'sw-range-filter': await wrapTestComponent('sw-range-filter', { sync: true }),
-                'sw-number-field': await wrapTestComponent('sw-number-field', { sync: true }),
-                'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
                 'sw-text-field': await wrapTestComponent('sw-text-field', {
                     sync: true,
                 }),
@@ -28,7 +26,6 @@ async function createWrapper() {
                 'sw-field-error': {
                     template: '<div></div>',
                 },
-                'mt-number-field': true,
                 'sw-field-copyable': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
@@ -50,16 +47,21 @@ async function createWrapper() {
             active: true,
         },
     });
+    await flushPromises();
+
+    const inputFrom = wrapper.findByLabel('global.default.from');
+    const inputTo = wrapper.findByLabel('global.default.to');
+
+    return { wrapper, inputFrom, inputTo };
 }
 
 describe('components/sw-number-filter', () => {
     it('should emit `filter-update` event when user input `From` field', async () => {
-        const wrapper = await createWrapper();
-        const input = wrapper.find('.sw-number-filter__from').find('input');
+        const { wrapper, inputFrom } = await createWrapper();
 
         // type "2"
-        await input.setValue('2');
-        await input.trigger('change');
+        await inputFrom.setValue('2');
+        await inputFrom.trigger('change');
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'stock',
@@ -69,14 +71,13 @@ describe('components/sw-number-filter', () => {
     });
 
     it('should emit `filter-update` event when user input `To` field', async () => {
-        const wrapper = await createWrapper();
-        const input = wrapper.find('.sw-number-filter__to').find('input');
+        const { wrapper, inputTo } = await createWrapper();
 
         // type "5"
-        await input.setValue('5');
-        await input.trigger('change');
+        await inputTo.setValue('5');
+        await inputTo.trigger('change');
 
-        expect(wrapper.emitted()['filter-update'][0]).toEqual([
+        expect(wrapper.emitted('filter-update')[0]).toEqual([
             'stock',
             [Criteria.range('stock', { lte: 5 })],
             { from: null, to: 5 },
@@ -84,21 +85,19 @@ describe('components/sw-number-filter', () => {
     });
 
     it('should emit `filter-update` event when user input `From` field and `To` field', async () => {
-        const wrapper = await createWrapper();
-        const fromInput = wrapper.find('.sw-number-filter__from').find('input');
-        const toInput = wrapper.find('.sw-number-filter__to').find('input');
+        const { wrapper, inputFrom, inputTo } = await createWrapper();
 
-        await fromInput.setValue('2');
-        await fromInput.trigger('change');
+        await inputFrom.setValue('2');
+        await inputFrom.trigger('change');
 
-        expect(wrapper.emitted()['filter-update'][0]).toEqual([
+        expect(wrapper.emitted('filter-update')[0]).toEqual([
             'stock',
             [Criteria.range('stock', { gte: 2 })],
             { from: 2, to: null },
         ]);
 
-        await toInput.setValue('5');
-        await toInput.trigger('change');
+        await inputTo.setValue('5');
+        await inputTo.trigger('change');
 
         expect(wrapper.emitted()['filter-update'][1]).toEqual([
             'stock',
@@ -108,12 +107,11 @@ describe('components/sw-number-filter', () => {
     });
 
     it('should emit `filter-reset` event when user clicks Reset button when from value exists', async () => {
-        const wrapper = await createWrapper();
-        const input = wrapper.find('.sw-number-filter__from').find('input');
+        const { wrapper, inputFrom } = await createWrapper();
 
         // type "2"
-        await input.setValue('2');
-        await input.trigger('change');
+        await inputFrom.setValue('2');
+        await inputFrom.trigger('change');
 
         // Trigger click Reset button
         await wrapper.find('.sw-base-filter__reset').trigger('click');
@@ -122,12 +120,11 @@ describe('components/sw-number-filter', () => {
     });
 
     it('should emit `filter-reset` event when user clicks Reset button when to value exists', async () => {
-        const wrapper = await createWrapper();
-        const input = wrapper.find('.sw-number-filter__to').find('input');
+        const { wrapper, inputTo } = await createWrapper();
 
         // type "5"
-        await input.setValue('5');
-        await input.trigger('change');
+        await inputTo.setValue('5');
+        await inputTo.trigger('change');
 
         // Trigger click Reset button
         await wrapper.find('.sw-base-filter__reset').trigger('click');

@@ -16,6 +16,7 @@
             :aria-label="$tc('global.sw-data-grid.tooltipListSettings')"
             size="x-small"
             square
+            variant="secondary"
         >
             {% block sw_data_grid_settings_trigger_icon %}
             <mt-icon
@@ -98,6 +99,7 @@
                     size="x-small"
                     square
                     :disabled="index === 0"
+                    variant="secondary"
                     @click="onClickChangeColumnOrderUp(column)"
                 >
                     {% block sw_data_grid_settings_column_control_up_icon %}
@@ -115,6 +117,7 @@
                     square
                     :disabled="index === (currentColumns.length - 1)"
                     class="down"
+                    variant="secondary"
                     @click="onClickChangeColumnOrderDown(column)"
                 >
                     {% block sw_data_grid_settings_column_control_down_icon %}

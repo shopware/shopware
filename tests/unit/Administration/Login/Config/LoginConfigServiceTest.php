@@ -83,7 +83,7 @@ class LoginConfigServiceTest extends TestCase
     {
         return [
             'use_default is not set' => [
-                'config' => [
+                'rawConfig' => [
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => 'http://redirect.url',
@@ -97,7 +97,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'use_default is null' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => null,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -112,7 +112,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'use_default is not a bool' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => 'asd',
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -127,7 +127,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'client_id is not set' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => 'http://redirect.url',
@@ -141,7 +141,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'client_id is null' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => null,
                     'client_secret' => 'clientSecret',
@@ -156,7 +156,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'client_id is blank' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => '',
                     'client_secret' => 'clientSecret',
@@ -171,7 +171,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'client_id is no a string' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 12,
                     'client_secret' => 'clientSecret',
@@ -186,7 +186,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'client_secret is not set' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'redirect_uri' => 'http://redirect.url',
@@ -200,7 +200,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'client_secret is null' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => null,
@@ -215,7 +215,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'client_secret is blank' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => '',
@@ -230,7 +230,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'client_secret is no a string' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 12,
@@ -245,7 +245,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'redirect_uri is not set' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -259,7 +259,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'redirect_uri is null' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -274,7 +274,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'redirect_uri is blank' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -289,7 +289,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'redirect_uri is no a string' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -304,7 +304,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'redirect_uri is no a url' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -319,7 +319,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'base_url is not set' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -333,7 +333,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'base_url is null' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -348,7 +348,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'base_url is blank' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -363,7 +363,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'base_url is not a string' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -378,7 +378,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'base_url is no a url' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -393,7 +393,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'base_url ends with slash' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -408,7 +408,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'authorize_path is null' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -422,7 +422,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'authorize_path is blank' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -437,7 +437,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'authorize_path is not a string' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -452,7 +452,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'authorize_path not start with slash' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -467,7 +467,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'token_path is null' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -481,7 +481,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'token_path is blank' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -496,7 +496,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'token_path is not a string' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -511,7 +511,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'token_path not start with slash' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -526,7 +526,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'jwks_path is null' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -540,7 +540,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'jwks_path is blank' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -555,7 +555,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'jwks_path is not a string' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -570,7 +570,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'jwks_path not start with slash' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -585,7 +585,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'scope is null' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -599,7 +599,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'scope is blank' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -614,7 +614,7 @@ class LoginConfigServiceTest extends TestCase
             ],
 
             'scope is not a string' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',

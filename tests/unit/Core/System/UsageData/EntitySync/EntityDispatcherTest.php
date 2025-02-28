@@ -52,6 +52,7 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'prod',
             true,
+            true,
         );
 
         $entityDispatcher->dispatch(
@@ -79,6 +80,7 @@ class EntityDispatcherTest extends TestCase
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
             true,
         );
 
@@ -111,6 +113,7 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'prod',
             true,
+            true,
         );
 
         $entityDispatcher->dispatch(
@@ -138,6 +141,7 @@ class EntityDispatcherTest extends TestCase
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
             true,
         );
 
@@ -182,6 +186,7 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'prod',
             true,
+            true,
         );
 
         $entityDispatcher->dispatch(
@@ -216,6 +221,7 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'prod',
             true,
+            true,
         );
 
         $entityDispatcher->dispatch(
@@ -247,6 +253,7 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'prod',
             true,
+            true,
         );
 
         $entityDispatcher->dispatch(
@@ -277,6 +284,7 @@ class EntityDispatcherTest extends TestCase
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
             true,
         );
 
@@ -311,6 +319,7 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'prod',
             true,
+            true,
         );
 
         $entityDispatcher->dispatch(
@@ -341,6 +350,7 @@ class EntityDispatcherTest extends TestCase
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
             true,
         );
 
@@ -375,6 +385,7 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'prod',
             true,
+            true,
         );
 
         $runDate = new \DateTimeImmutable();
@@ -408,6 +419,7 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'prod',
             true,
+            true,
         );
 
         $runDate = new \DateTimeImmutable();
@@ -433,6 +445,7 @@ class EntityDispatcherTest extends TestCase
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
             true,
         );
 
@@ -462,6 +475,7 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'prod',
             true,
+            true,
         );
 
         $runDate = new \DateTimeImmutable();
@@ -490,6 +504,7 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'prod',
             true,
+            true,
         );
 
         $runDate = new \DateTimeImmutable();
@@ -516,6 +531,33 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'dev',
             false,
+            false,
+        );
+
+        $runDate = new \DateTimeImmutable();
+
+        $entityDispatcher->dispatch(
+            'product',
+            [['field' => 'value']],
+            Operation::CREATE,
+            $runDate,
+            'shop-id',
+        );
+    }
+
+    public function testDispatchDoesNotSendRequestIfEntityDispatchIsDisabled(): void
+    {
+        $client = $this->createMock(HttpClientInterface::class);
+        $client->expects(static::never())->method('request');
+
+        $entityDispatcher = new EntityDispatcher(
+            $client,
+            $this->createMock(InstanceService::class),
+            new StaticSystemConfigService(),
+            $this->clock,
+            'dev',
+            true, // deprecated and will be replaced by entityDispatchEnabled
+            false,
         );
 
         $runDate = new \DateTimeImmutable();
@@ -540,6 +582,7 @@ class EntityDispatcherTest extends TestCase
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
             true,
         );
 

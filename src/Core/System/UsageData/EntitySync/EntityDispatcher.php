@@ -30,6 +30,7 @@ class EntityDispatcher
         private readonly ClockInterface $clock,
         private readonly string $environment,
         private readonly bool $dispatchEnabled,
+        private readonly bool $entityDispatchEnabled,
     ) {
     }
 
@@ -44,6 +45,10 @@ class EntityDispatcher
         string $shopId
     ): void {
         if (!$this->dispatchEnabled) {
+            return;
+        }
+
+        if (!$this->entityDispatchEnabled) {
             return;
         }
 

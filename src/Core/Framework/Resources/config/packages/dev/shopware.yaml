@@ -12,5 +12,8 @@ shopware:
 
     usage_data:
         gateway:
+            collection_enabled: true
             dispatch_enabled: false
+            entity_dispatch_enabled: false
+            consent_dispatch_enabled: false
             base_uri: 'http://localhost:8888'

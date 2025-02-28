@@ -539,7 +539,10 @@ shopware:
 
     usage_data:
         gateway:
+            collection_enabled: true
             dispatch_enabled: true
+            entity_dispatch_enabled: true
+            consent_dispatch_enabled: true
             base_uri: 'https://data.shopware.io'
             batch_size: 50
 

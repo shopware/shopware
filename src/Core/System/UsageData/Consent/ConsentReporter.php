@@ -24,6 +24,7 @@ class ConsentReporter implements EventSubscriberInterface
         private readonly InstanceService $instanceService,
         private readonly string $appUrl,
         private readonly bool $dispatchEnabled,
+        private readonly bool $consentDispatchEnabled,
     ) {
     }
 
@@ -37,6 +38,10 @@ class ConsentReporter implements EventSubscriberInterface
     public function reportConsent(ConsentStateChangedEvent $event): void
     {
         if (!$this->dispatchEnabled) {
+            return;
+        }
+
+        if (!$this->consentDispatchEnabled) {
             return;
         }
 

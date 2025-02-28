@@ -156,7 +156,17 @@
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
+                        "collection_enabled": {
+                            "type": "boolean"
+                        },
                         "dispatch_enabled": {
+                            "type": "boolean",
+                            "deprecationMessage": "The `dispatch_enabled` option is deprecated and will be removed in v6.8.0 Please use the `entity_dispatch_enabled` and `consent_dispatch_enabled` option instead."
+                        },
+                        "entity_dispatch_enabled": {
+                            "type": "boolean"
+                        },
+                        "consent_dispatch_enabled": {
                             "type": "boolean"
                         },
                         "base_uri": {

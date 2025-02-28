@@ -15,11 +15,8 @@ test('As a merchant, I want to be able to create and assign custom fields to dif
     DefaultSalesChannel,
     CreateCustomField,
     AdminManufacturerDetail,
-    InstanceMeta,
 
 }) => {
-
-    //test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0: ticket: NEXT-40150');
 
     const product = await TestDataService.createBasicProduct();
     const customer = await TestDataService.createCustomer();
@@ -45,7 +42,7 @@ test('As a merchant, I want to be able to create and assign custom fields to dif
     let customFieldSetResponse = await responsePromise;
     expect(customFieldSetResponse).toBeTruthy();
 
-    await ShopAdmin.attemptsTo(CreateCustomField(customFieldTextName, 'text'));
+    await ShopAdmin.attemptsTo(CreateCustomField(customFieldTextName, 'Text field'));
     await ShopAdmin.attemptsTo(CreateCustomField(customFieldNumberName, 'number'));
 
     let customFields = await AdminCustomFieldDetail.getLineItemByCustomFieldName(customFieldTextName);
@@ -72,7 +69,7 @@ test('As a merchant, I want to be able to create and assign custom fields to dif
         await ShopAdmin.goesTo(AdminOrderDetail.url(order.id, 'details'));
         customFields = await AdminOrderDetail.getCustomFieldCardLocators(customFieldSetName, customFieldTextName);
         await ShopAdmin.expects(customFields.customFieldCard).toBeVisible();
-        await customFields.customFieldSetsTab.click();
+        await customFields.customFieldSetTab.click();
         await ShopAdmin.expects(customFields.customFieldLabel).toBeVisible();
         customFields = await AdminOrderDetail.getCustomFieldCardLocators(customFieldSetName, customFieldNumberName);
         await ShopAdmin.expects(customFields.customFieldLabel).toBeVisible();
@@ -83,9 +80,9 @@ test('As a merchant, I want to be able to create and assign custom fields to dif
         await ShopAdmin.goesTo(AdminCategoryDetail.url(DefaultSalesChannel.salesChannel.navigationCategoryId));
         customFields = await AdminCategoryDetail.getCustomFieldCardLocators(customFieldSetName, customFieldTextName);
         await ShopAdmin.expects(customFields.customFieldCard).toBeVisible();
-        await ShopAdmin.expects(customFields.customFieldSetsTab).toBeVisible();
-        await ShopAdmin.expects(customFields.customFieldSetsTab).toHaveText(customFieldSetName);
-        await customFields.customFieldSetsTab.click();
+        await ShopAdmin.expects(customFields.customFieldSetTab).toBeVisible();
+        await ShopAdmin.expects(customFields.customFieldSetTab).toHaveText(customFieldSetName);
+        await customFields.customFieldSetTab.click();
         await ShopAdmin.expects(customFields.customFieldSelect).toBeVisible();
         await ShopAdmin.expects(customFields.customFieldSelect.getByLabel(customFieldTextName)).toBeVisible();
         await ShopAdmin.expects(customFields.customFieldSelect.getByLabel(customFieldNumberName)).toBeVisible();
@@ -97,9 +94,9 @@ test('As a merchant, I want to be able to create and assign custom fields to dif
         await AdminProductDetail.specificationsTabLink.click();
         customFields = await AdminProductDetail.getCustomFieldCardLocators(customFieldSetName, customFieldTextName);
         await ShopAdmin.expects(customFields.customFieldCard).toBeVisible();
-        await ShopAdmin.expects(customFields.customFieldSetsTab).toBeVisible();
-        await ShopAdmin.expects(customFields.customFieldSetsTab).toHaveText(customFieldSetName);
-        await customFields.customFieldSetsTab.click();
+        await ShopAdmin.expects(customFields.customFieldSetTab).toBeVisible();
+        await ShopAdmin.expects(customFields.customFieldSetTab).toHaveText(customFieldSetName);
+        await customFields.customFieldSetTab.click();
         await ShopAdmin.expects(customFields.customFieldSelect).toBeVisible();
         await ShopAdmin.expects(customFields.customFieldSelect.getByLabel(customFieldTextName)).toBeVisible();
         await ShopAdmin.expects(customFields.customFieldSelect.getByLabel(customFieldNumberName)).toBeVisible();

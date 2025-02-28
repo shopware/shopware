@@ -15,7 +15,7 @@ class AdministrationMigrationCompilerPass implements CompilerPassInterface
         $migrationPath = \dirname(__DIR__) . '/Migration';
 
         // configure migration directories
-        $majors = ['V6_4', 'V6_5', 'V6_6', 'v6_7'];
+        $majors = ['V6_4', 'V6_5', 'V6_6', 'v6_7', 'V6_8'];
         foreach ($majors as $major) {
             $migrationPathV5 = $migrationPath . '/' . $major;
 

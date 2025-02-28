@@ -29,6 +29,10 @@ inputs:
     default: "8.4"
     required: false
     description: php version
+  extra-options:
+    default: ""
+    required: false
+    description: Extra playwright cmd options
 
   use-currents:
     default: ""
@@ -136,7 +140,7 @@ runs:
         CURRENTS_RECORD_KEY: ${{ inputs.currents-record-key }}
         CURRENTS_BUILD_ID: "${{ format('{0}-{1}-{2}', github.repository, github.run_id, github.run_attempt) }}${{ matrix.major && 'major' }}"
         ATS_CMD: ${{ inputs.use-currents && 'pwc' || 'playwright'}}
-      run: npx $ATS_CMD test --project=${{ inputs.project }} --workers=${{ inputs.workers }} --shard=${{ inputs.shard }}/${{ inputs.shard-count }}
+      run: npx $ATS_CMD test --project=${{ inputs.project }} --workers=${{ inputs.workers }} --shard=${{ inputs.shard }}/${{ inputs.shard-count }} ${{ inputs.extra-options }}
 
     - uses: actions/upload-artifact@v4
       if: always()

@@ -58,6 +58,7 @@ export default class GoogleReCaptchaBasePlugin extends Plugin {
 
     _submitInvisibleForm() {
         if (!this._form.checkValidity()) {
+            this._formSubmitting = false;
             return;
         }
 

@@ -76,7 +76,7 @@ runs:
     - name: Define environment
       shell: bash
       run: |
-        echo "FEATURE_ALL=${{ inputs.major || 'major' }}" >> $GITHUB_ENV
+        echo "FEATURE_ALL=${{ inputs.major && 'major' }}" >> $GITHUB_ENV
         echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
         echo "MAILER_DSN=smtp://localhost:1025" >> $GITHUB_ENV
         echo "MAILPIT_BASE_URL=http://localhost:8025" >> $GITHUB_ENV

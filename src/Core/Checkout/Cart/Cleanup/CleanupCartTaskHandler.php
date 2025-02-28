@@ -15,7 +15,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  */
 #[AsMessageHandler(handles: CleanupCartTask::class)]
 #[Package('checkout')]
-final class CleanupCartTaskHandler extends ScheduledTaskHandler
+class CleanupCartTaskHandler extends ScheduledTaskHandler
 {
     /**
      * @internal

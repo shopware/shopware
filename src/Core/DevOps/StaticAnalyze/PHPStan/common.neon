@@ -8,7 +8,7 @@ parameters:
     level: 8
     treatPhpDocTypesAsCertain: false
     inferPrivatePropertyTypeFromConstructor: true
-    reportUnmatchedIgnoredErrors: true
+    reportUnmatchedIgnoredErrors: false
     checkFunctionNameCase: true
     checkInternalClassCaseSensitivity: true
 
@@ -17,9 +17,27 @@ parameters:
         no_mixed_caller: true
         null_over_false: true
 
+    phpat:
+        ignore_built_in_classes: true
+
 services:
     - # register the class, so we can decorate it, but don't tag it as a rule, so only our decorator is used by PHPStan
         class: Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule
+
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Architecture\CheckoutArchitectureDomainRule
+        tags:
+            - phpat.test
+
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Architecture\MessageHandlerFinalRule
+        tags:
+            - phpat.test
+
+    -
+        class: \Shopware\Core\DevOps\StaticAnalyze\PHPStan\Architecture\PackageAnnotationRule
+        tags:
+            - phpat.test
 
 rules:
     # rules from https://github.com/symplify/phpstan-rules

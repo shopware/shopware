@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('checkout')]
 class CheckoutRuleScope extends RuleScope
 {
     public function __construct(

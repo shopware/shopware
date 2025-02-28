@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\FindVariant;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,5 +15,5 @@ abstract class AbstractFindProductVariantRoute
 {
     abstract public function getDecorated(): AbstractFindProductVariantRoute;
 
-    abstract public function load(string $productId, Request $request, SalesChannelContext $context): FindProductVariantRouteResponse;
+    abstract public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): FindProductVariantRouteResponse;
 }

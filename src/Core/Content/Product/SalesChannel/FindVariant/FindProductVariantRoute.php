@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\SalesChannel\FindVariant;
 
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -30,7 +31,7 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
     }
 
     #[Route(path: '/store-api/product/{productId}/find-variant', name: 'store-api.product.find-variant', methods: ['POST'], defaults: ['_entity' => 'product'])]
-    public function load(string $productId, Request $request, SalesChannelContext $context): FindProductVariantRouteResponse
+    public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): FindProductVariantRouteResponse
     {
         /** @var string|null $switchedGroup */
         $switchedGroup = $request->get('switchedGroup');
@@ -43,10 +44,10 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
             }
         }
 
-        $variantId = $this->searchForOptions($productId, $context, $options);
+        $variant = $this->searchForOptions($productId, $context, $options, $criteria);
 
-        if ($variantId !== null) {
-            return new FindProductVariantRouteResponse(new FoundCombination($variantId, $options));
+        if ($variant !== null) {
+            return new FindProductVariantRouteResponse(new FoundCombination($variant, $options));
         }
 
         while (\count($options) > 1) {
@@ -58,25 +59,23 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
                 }
             }
 
-            $variantId = $this->searchForOptions($productId, $context, $options);
+            $variant = $this->searchForOptions($productId, $context, $options, $criteria);
 
-            if ($variantId) {
-                return new FindProductVariantRouteResponse(new FoundCombination($variantId, $options));
+            if ($variant) {
+                return new FindProductVariantRouteResponse(new FoundCombination($variant, $options));
             }
         }
 
         throw new VariantNotFoundException($productId, $options);
     }
 
-    /**
-     * @param array<string> $options
-     */
     private function searchForOptions(
         string $productId,
         SalesChannelContext $salesChannelContext,
-        array $options
-    ): ?string {
-        $criteria = (new Criteria())
+        array $options,
+        Criteria $criteria
+    ): ProductEntity|null {
+        $criteria
             ->addFilter(new EqualsFilter('product.parentId', $productId))
             ->setLimit(1);
 
@@ -84,6 +83,6 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
             $criteria->addFilter(new EqualsFilter('product.optionIds', $optionId));
         }
 
-        return $this->productRepository->searchIds($criteria, $salesChannelContext)->firstId();
+        return $this->productRepository->search($criteria, $salesChannelContext)->first();
     }
 }

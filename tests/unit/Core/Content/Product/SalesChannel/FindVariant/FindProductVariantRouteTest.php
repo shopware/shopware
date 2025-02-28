@@ -6,10 +6,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -70,31 +73,30 @@ class FindProductVariantRouteTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $this->productRepositoryMock->method('searchIds')->with(
+        $productEntity1 = new SalesChannelProductEntity();
+        $productEntity1->setId($this->ids->get('found1'));
+
+        $productEntity2 = new SalesChannelProductEntity();
+        $productEntity2->setId($this->ids->get('found2'));
+
+        $this->productRepositoryMock->method('search')->with(
             $criteria,
             $this->createMock(SalesChannelContext::class),
         )
             ->willReturn(
-                new IdSearchResult(
+                new EntitySearchResult(
+                    'product',
                     2,
-                    [
-                        [
-                            'primaryKey' => $this->ids->get('found1'),
-                            'data' => [],
-                        ],
-                        [
-                            'primaryKey' => $this->ids->get('found2'),
-                            'data' => [],
-                        ],
-                    ],
+                    new ProductCollection([$productEntity1, $productEntity2]),
+                    null,
                     $criteria,
                     $context
                 )
             );
 
-        $response = $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class));
+        $response = $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class), $criteria);
 
-        static::assertEquals($this->ids->get('found1'), $response->getFoundCombination()->getVariantId());
+        static::assertEquals($this->ids->get('found1'), $response->getFoundCombination()->getVariant()->getId());
         static::assertEquals($options, $response->getFoundCombination()->getOptions());
     }
 
@@ -125,31 +127,35 @@ class FindProductVariantRouteTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $this->productRepositoryMock->method('searchIds')
+        $productEntity = new SalesChannelProductEntity();
+        $productEntity->setId($this->ids->get('found1'));
+        $productEntity->setOptionIds(optionIds: ['option1']);
+
+        $this->productRepositoryMock->method('search')
             ->willReturnOnConsecutiveCalls(
-                new IdSearchResult(
+
+                new EntitySearchResult(
+                    'product',
                     0,
-                    [
-                    ],
+                    new ProductCollection([]),
+                    null,
                     $criteria,
                     $context
                 ),
-                new IdSearchResult(
+                new EntitySearchResult(
+                    'product',
                     1,
-                    [
-                        [
-                            'primaryKey' => $this->ids->get('found1'),
-                            'data' => [],
-                        ],
-                    ],
+                    new ProductCollection([$productEntity]),
+                    null,
                     $criteria2,
                     $context
-                ),
+                )
+
             );
 
-        $response = $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class));
+        $response = $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class), $criteria2);
 
-        static::assertEquals($this->ids->get('found1'), $response->getFoundCombination()->getVariantId());
+        static::assertEquals($this->ids->get('found1'), $response->getFoundCombination()->getVariant()->getId());
     }
 
     public function testLoadNoVariantFound(): void
@@ -204,7 +210,7 @@ class FindProductVariantRouteTest extends TestCase
         );
 
         try {
-            $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class));
+            $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class), $criteria);
         } catch (VariantNotFoundException $e) {
             static::assertEquals('CONTENT__PRODUCT_VARIANT_NOT_FOUND', $e->getErrorCode());
 
@@ -225,6 +231,6 @@ class FindProductVariantRouteTest extends TestCase
         static::expectException(ProductException::class);
         static::expectExceptionMessage('The parameter options is invalid.');
 
-        $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class));
+        $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class), $this->createMock(Criteria::class));
     }
 }

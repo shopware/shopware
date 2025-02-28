@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRou
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -31,6 +32,8 @@ class FindProductVariantRouteTest extends TestCase
     private FindProductVariantRoute $findProductVariantRoute;
 
     private IdsCollection $ids;
+
+    private static ?string $taxId = null;
 
     protected function setUp(): void
     {
@@ -57,6 +60,9 @@ class FindProductVariantRouteTest extends TestCase
 
         $switched = $this->ids->get('Color');
 
+        // Debug: Verify tax ID before loading variant
+        echo "Using tax ID in testFindVariant: " . self::$taxId . PHP_EOL;
+
         $result = $this->findProductVariantRoute->load(
             $this->ids->get('base'),
             new Request(
@@ -65,7 +71,8 @@ class FindProductVariantRouteTest extends TestCase
                     'options' => $options,
                 ]
             ),
-            $this->context
+            $this->context,
+            new Criteria()
         );
 
         static::assertEquals($this->ids->get('redXL'), $result->getFoundCombination()->getVariantId());
@@ -88,6 +95,9 @@ class FindProductVariantRouteTest extends TestCase
             $this->ids->get('Size') => $this->ids->get('XL'),
         ];
 
+        // Debug: Verify tax ID before loading variant
+        echo "Using tax ID in testFindToNotCombinable: " . self::$taxId . PHP_EOL;
+
         // wished to switch to red-xl but this variant is not available (active = false).
         // should switch to next matching size
         $result = $this->findProductVariantRoute->load(
@@ -98,10 +108,11 @@ class FindProductVariantRouteTest extends TestCase
                     'options' => $options,
                 ]
             ),
-            $this->context
+            $this->context,
+            new Criteria()
         );
 
-        static::assertEquals($this->ids->get('redL'), $result->getFoundCombination()->getVariantId());
+        static::assertEquals($this->ids->get('redL'), $result->getFoundCombination()->getVariant()->getId());
     }
 
     public function testFindNoCombinable(): void
@@ -119,6 +130,9 @@ class FindProductVariantRouteTest extends TestCase
             . '"} not found.'
         );
 
+        // Debug: Verify tax ID before loading variant
+        echo "Using tax ID in testFindNoCombinable: " . self::$taxId . PHP_EOL;
+
         $this->findProductVariantRoute->load(
             $this->ids->get('base'),
             new Request(
@@ -127,12 +141,40 @@ class FindProductVariantRouteTest extends TestCase
                     'options' => $options,
                 ]
             ),
-            $this->context
+            $this->context,
+            new Criteria()
         );
     }
 
     private function createProduct(): void
     {
+        $context = Context::createDefaultContext();
+
+        // Create tax
+        if (self::$taxId === null) {
+            self::$taxId = $this->ids->create('tax');
+            $this->getContainer()->get('tax.repository')->create([
+                [
+                    'id' => self::$taxId,
+                    'name' => 'Standard rate',
+                    'taxRate' => 19,
+                ],
+            ], $context);
+
+            // Debug: Verify tax ID
+            echo "Created tax ID: " . self::$taxId . PHP_EOL;
+        }
+
+        // Ensure the tax ID is available before creating products
+        $taxId = self::$taxId;
+        if (!$taxId) {
+            throw new \RuntimeException('Tax ID is not set.');
+        }
+
+        // Debug: Verify tax ID before creating products
+        echo "Using tax ID: " . $taxId . PHP_EOL;
+
+        // Create product
         (new ProductBuilder($this->ids, 'base', 10))->configuratorSetting(
             'Red',
             'Color'
@@ -145,23 +187,41 @@ class FindProductVariantRouteTest extends TestCase
         )->configuratorSetting(
             'L',
             'Size'
-        )->visibility()->price(10)->write(static::getContainer());
+            )->visibility()->price(10)->tax($taxId)->write(static::getContainer());
+
+        // Debug: Verify tax ID after creating base product
+        echo "Using tax ID after creating base product: " . $taxId . PHP_EOL;
 
         (new ProductBuilder($this->ids, 'redXL', 10))->visibility()->parent('base')->price(10)->option(
             'Red',
             'Color'
-        )->option('XL', 'Size')->stock(10)->write(static::getContainer());
+        )->option('XL', 'Size')->stock(10)->tax($taxId)->write(static::getContainer());
+
+        // Debug: Verify tax ID after creating redXL product
+        echo "Using tax ID after creating redXL product: " . $taxId . PHP_EOL;
+
         (new ProductBuilder($this->ids, 'greenXL', 10))->visibility()->parent('base')->price(10)->option(
             'Green',
             'Color'
-        )->option('XL', 'Size')->stock(10)->write(static::getContainer());
+        )->option('XL', 'Size')->stock(10)->tax($taxId)->write(static::getContainer());
+
+        // Debug: Verify tax ID after creating greenXL product
+        echo "Using tax ID after creating greenXL product: " . $taxId . PHP_EOL;
+
         (new ProductBuilder($this->ids, 'redL', 10))->visibility()->parent('base')->price(10)->option(
             'Red',
             'Color'
-        )->option('L', 'Size')->stock(10)->write(static::getContainer());
+        )->option('L', 'Size')->stock(10)->tax($taxId)->write(static::getContainer());
+
+        // Debug: Verify tax ID after creating redL product
+        echo "Using tax ID after creating redL product: " . $taxId . PHP_EOL;
+
         (new ProductBuilder($this->ids, 'greenL', 10))->visibility()->parent('base')->price(10)->option(
             'Green',
             'Color'
-        )->option('L', 'Size')->stock(10)->write(static::getContainer());
+        )->option('L', 'Size')->stock(10)->tax($taxId)->write(static::getContainer());
+
+        // Debug: Verify tax ID after creating greenL product
+        echo "Using tax ID after creating greenL product: " . $taxId . PHP_EOL;
     }
 }

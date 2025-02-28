@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\FindVariant;
 
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -12,14 +13,19 @@ class FoundCombination extends Struct
      * @param string[] $options
      */
     public function __construct(
-        protected string $variantId,
+        protected ProductEntity $variant,
         protected array $options
     ) {
     }
 
+    public function getVariant(): ProductEntity
+    {
+        return $this->variant;
+    }
+
     public function getVariantId(): string
     {
-        return $this->variantId;
+        return $this->variant->getId();
     }
 
     public function getOptions(): array

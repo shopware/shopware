@@ -2,7 +2,7 @@
  * @sw-package after-sales
  */
 
-import 'src/module/sw-sso-error';
+import './index';
 
 import { mount } from '@vue/test-utils';
 import { CookieStorage } from "cookie-storage";

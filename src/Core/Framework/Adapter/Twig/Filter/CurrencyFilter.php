@@ -9,6 +9,7 @@ use Shopware\Core\System\Currency\CurrencyFormatter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
+use Shopware\Core\Framework\Adapter\AdapterException;
 
 #[Package('framework')]
 class CurrencyFilter extends AbstractExtension
@@ -53,7 +54,7 @@ class CurrencyFilter extends AbstractExtension
                 return $price;
             }
 
-            throw new \InvalidArgumentException('Error while processing Twig currency filter. No context or locale given.');
+            throw AdapterException::currencyFilterMissingContext();
         }
 
         if (!$currencyIsoCode && $twigContext['context'] instanceof SalesChannelContext) {
@@ -65,7 +66,7 @@ class CurrencyFilter extends AbstractExtension
                 return $price;
             }
 
-            throw new \InvalidArgumentException('Error while processing Twig currency filter. Could not resolve currencyIsoCode.');
+            throw AdapterException::currencyFilterMissingIsoCode();
         }
 
         if ($twigContext['context'] instanceof Context) {

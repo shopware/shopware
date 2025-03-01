@@ -29,6 +29,8 @@ class AdapterException extends HttpException
     final public const CACHE_COMPRESSION_ERROR = 'FRAMEWORK__CACHE_COMPRESSION_ERROR';
     final public const PCRE_FUNCTION_ERROR = 'FRAMEWORK__PCRE_FUNCTION_ERROR';
     final public const CACHE_DIRECTORY_ERROR = 'FRAMEWORK__CACHE_DIRECTORY_ERROR';
+    final public const CURRENCY_FILTER_MISSING_CONTEXT = 'FRAMEWORK__CURRENCY_FILTER_MISSING_CONTEXT';
+    final public const CURRENCY_FILTER_MISSING_ISO_CODE = 'FRAMEWORK__CURRENCY_FILTER_MISSING_ISO_CODE';
 
     public static function unexpectedTwigExpression(AbstractExpression $expression): self
     {
@@ -199,6 +201,24 @@ class AdapterException extends HttpException
             self::CACHE_DIRECTORY_ERROR,
             'Unable to write in the "{{ directory }}" directory',
             ['directory' => $directory]
+        );
+    }
+
+    public static function currencyFilterMissingContext(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CURRENCY_FILTER_MISSING_CONTEXT,
+            'Error while processing Twig currency filter. No context or locale given.'
+        );
+    }
+
+    public static function currencyFilterMissingIsoCode(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CURRENCY_FILTER_MISSING_ISO_CODE,
+            'Error while processing Twig currency filter. Could not resolve currencyIsoCode.'
         );
     }
 

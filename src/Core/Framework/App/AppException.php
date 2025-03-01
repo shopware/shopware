@@ -336,8 +336,16 @@ class AppException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason: see StoreException::jwksNotFound - to be removed
+     */
     public static function jwksNotFound(?\Throwable $e = null): self
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'),
+        );
+
         return new self(
             statusCode: Response::HTTP_INTERNAL_SERVER_ERROR,
             errorCode: self::JWKS_KEY_NOT_FOUND,

@@ -46,7 +46,10 @@ class ComparisonExtension extends AbstractExtension
         return $this->compareMixed($operator, $value, $comparable);
     }
 
-    private function compareArray(string $operator, mixed $value, array $comparable): bool
+    /**
+     * @param array<mixed> $comparable
+     */
+    public function compareArray(string $operator, mixed $value, array $comparable): bool
     {
         if (!\is_array($value)) {
             $value = [$value];

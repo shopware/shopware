@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Adapter;
 
+use Shopware\Core\Framework\Adapter\Filesystem\Exception\AdapterFactoryNotFoundException;
+use Shopware\Core\Framework\Adapter\Filesystem\Exception\DuplicateFilesystemFactoryException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Asset\Exception\InvalidArgumentException;
@@ -22,6 +24,11 @@ class AdapterException extends HttpException
     public const INVALID_ASSET_URL = 'FRAMEWORK__INVALID_ASSET_URL';
     final public const INVALID_ARGUMENT = 'FRAMEWORK__INVALID_ARGUMENT_EXCEPTION';
     final public const STRING_TEMPLATE_RENDERING_FAILED = 'FRAMEWORK__STRING_TEMPLATE_RENDERING_FAILED';
+    final public const CURRENCY_FILTER_ERROR = 'FRAMEWORK__CURRENCY_FILTER_ERROR';
+    final public const SECURITY_FUNCTION_NOT_ALLOWED = 'FRAMEWORK__SECURITY_FUNCTION_NOT_ALLOWED';
+    final public const CACHE_COMPRESSION_ERROR = 'FRAMEWORK__CACHE_COMPRESSION_ERROR';
+    final public const PCRE_FUNCTION_ERROR = 'FRAMEWORK__PCRE_FUNCTION_ERROR';
+    final public const CACHE_DIRECTORY_ERROR = 'FRAMEWORK__CACHE_DIRECTORY_ERROR';
 
     public static function unexpectedTwigExpression(AbstractExpression $expression): self
     {
@@ -145,5 +152,63 @@ class AdapterException extends HttpException
             self::INVALID_ARGUMENT,
             $message
         );
+    }
+
+    public static function currencyFilterError(string $message): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CURRENCY_FILTER_ERROR,
+            $message
+        );
+    }
+
+    public static function securityFunctionNotAllowed(string $function): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::SECURITY_FUNCTION_NOT_ALLOWED,
+            'Function "{{ function }}" is not allowed',
+            ['function' => $function]
+        );
+    }
+
+    public static function cacheCompressionError(string $message, ?string $value = null): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CACHE_COMPRESSION_ERROR,
+            $value === null ? $message : sprintf('%s: "%s"', $message, $value)
+        );
+    }
+
+    public static function pcreFunctionError(string $function, string $error): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::PCRE_FUNCTION_ERROR,
+            'Error while processing Twig {{ function }} function. Error: {{ error }}',
+            ['function' => $function, 'error' => $error]
+        );
+    }
+
+    public static function cacheDirectoryError(string $directory): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CACHE_DIRECTORY_ERROR,
+            'Unable to write in the "{{ directory }}" directory',
+            ['directory' => $directory]
+        );
+    }
+
+    public static function filesystemFactoryNotFound(string $type): AdapterFactoryNotFoundException
+    {
+        return new AdapterFactoryNotFoundException($type);
+    }
+
+    public static function duplicateFilesystemFactory(string $type): DuplicateFilesystemFactoryException
+    {
+        return new DuplicateFilesystemFactoryException($type);
     }
 }

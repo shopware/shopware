@@ -7,6 +7,7 @@ use League\Flysystem\DirectoryListing;
 use League\Flysystem\FileAttributes;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\StorageAttributes;
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -22,7 +23,7 @@ class PrefixFilesystem implements FilesystemOperator
         string $prefix
     ) {
         if (empty($prefix)) {
-            throw new \InvalidArgumentException('The prefix must not be empty.');
+            throw AdapterException::invalidArgument('The prefix must not be empty.');
         }
         $this->prefix = trim($prefix, '/') . '/';
     }

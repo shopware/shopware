@@ -16,7 +16,10 @@ class InstanceOfExtension extends AbstractExtension
         ];
     }
 
-    public function isInstanceOf($var, $class): bool
+    /**
+     * @param class-string $class
+     */
+    public function isInstanceOf(object $var, string $class): bool
     {
         return (new \ReflectionClass($class))->isInstance($var);
     }

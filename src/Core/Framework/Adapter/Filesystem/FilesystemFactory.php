@@ -7,6 +7,7 @@ use League\Flysystem\Filesystem as LeagueFilesystem;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\Visibility;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AdapterFactoryInterface;
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\AdapterFactoryNotFoundException;
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\DuplicateFilesystemFactoryException;
@@ -24,8 +25,6 @@ class FilesystemFactory
 
     /**
      * @param AdapterFactoryInterface[]|iterable $adapterFactories
-     *
-     * @throws DuplicateFilesystemFactoryException
      *
      * @internal
      */
@@ -88,13 +87,11 @@ class FilesystemFactory
             }
         }
 
-        throw new AdapterFactoryNotFoundException($type);
+        throw AdapterException::filesystemFactoryNotFound($type);
     }
 
     /**
      * @param AdapterFactoryInterface[]|iterable $adapterFactories
-     *
-     * @throws DuplicateFilesystemFactoryException
      */
     private function checkDuplicates(iterable $adapterFactories): void
     {
@@ -102,7 +99,7 @@ class FilesystemFactory
         foreach ($adapterFactories as $adapter) {
             $type = mb_strtolower($adapter->getType());
             if (\array_key_exists($type, $dupes)) {
-                throw new DuplicateFilesystemFactoryException($type);
+                throw AdapterException::duplicateFilesystemFactory($type);
             }
 
             $dupes[$type] = 1;

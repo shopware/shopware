@@ -32,6 +32,14 @@ class CurrencyFilter extends AbstractExtension
 
     /**
      * @throws InconsistentCriteriaIdsException
+     *
+     * @param array<string, mixed> $twigContext
+     * @param float $price
+     * @param string|null $currencyIsoCode
+     * @param string|null $languageId
+     * @param int|null $decimals
+     *
+     * @return float|string
      */
     public function formatCurrency($twigContext, $price, $currencyIsoCode = null, $languageId = null, ?int $decimals = null)
     {

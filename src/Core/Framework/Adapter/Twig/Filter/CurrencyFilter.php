@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Filter;
 
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Log\Package;
@@ -9,7 +10,6 @@ use Shopware\Core\System\Currency\CurrencyFormatter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
-use Shopware\Core\Framework\Adapter\AdapterException;
 
 #[Package('framework')]
 class CurrencyFilter extends AbstractExtension
@@ -32,13 +32,12 @@ class CurrencyFilter extends AbstractExtension
     }
 
     /**
-     * @throws InconsistentCriteriaIdsException
-     *
      * @param array<string, mixed> $twigContext
      * @param float $price
      * @param string|null $currencyIsoCode
      * @param string|null $languageId
-     * @param int|null $decimals
+     *
+     * @throws InconsistentCriteriaIdsException
      *
      * @return float|string
      */

@@ -175,12 +175,13 @@ class AdapterException extends HttpException
         );
     }
 
-    public static function cacheCompressionError(string $message, ?string $value = null): self
+    public static function cacheCompressionError(string $message): self
     {
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::CACHE_COMPRESSION_ERROR,
-            $value === null ? $message : sprintf('%s: "%s"', $message, $value)
+            'Error while processing cache compression. {{ message }}',
+            ['message' => $message],
         );
     }
 

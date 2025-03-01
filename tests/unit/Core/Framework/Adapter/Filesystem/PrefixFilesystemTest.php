@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Filesystem;
 
-use _PHPStan_e52dec71a\Nette\DI\Config\Adapter;
 use League\Flysystem\Filesystem;
 use League\Flysystem\UrlGeneration\TemporaryUrlGenerator;
 use League\Flysystem\Visibility;

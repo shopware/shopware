@@ -64,7 +64,7 @@ class CacheValueCompressor
         }
 
         if ($uncompressed === false) {
-            throw AdapterException::cacheCompressionError('Could not uncompress value', $value);
+            throw AdapterException::cacheCompressionError('Could not uncompress value');
         }
 
         return unserialize($uncompressed);

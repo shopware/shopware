@@ -1111,11 +1111,6 @@ parameters:
 			path: src/Core/Framework/Adapter/Twig/Extension/CategoryUrlExtension.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\Extension\\\\ComparisonExtension\\:\\:compareArray\\(\\) has parameter \\$comparable with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Twig/Extension/ComparisonExtension.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\Extension\\\\InstanceOfExtension\\:\\:isInstanceOf\\(\\) has parameter \\$class with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Twig/Extension/InstanceOfExtension.php

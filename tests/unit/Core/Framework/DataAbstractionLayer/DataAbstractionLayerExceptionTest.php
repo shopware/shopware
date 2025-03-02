@@ -220,4 +220,13 @@ class DataAbstractionLayerExceptionTest extends TestCase
             $exception->getMessage()
         );
     }
+
+    public function testUnsupportedQueryFilter(): void
+    {
+        $exception = DataAbstractionLayerException::unsupportedQueryFilter('foo');
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::UNSUPPORTED_QUERY_FILTER, $exception->getErrorCode());
+        static::assertSame('Unsupported query foo', $exception->getMessage());
+    }
 }

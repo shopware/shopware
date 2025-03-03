@@ -69,7 +69,7 @@ export default {
             );
         },
 
-        onChangeValue(value, fieldName, valueChange = true) {
+        onChangeValue(value, fieldName, valueChange = true, changeType = 'value-change') {
             if (valueChange) {
                 this.entity[fieldName] = value;
             }
@@ -77,11 +77,12 @@ export default {
             if (!this.bulkEditData[fieldName].isInherited) {
                 this.bulkEditData[fieldName].value = value;
             }
-            this.$emit('change-value', fieldName, value);
+
+            this.$emit('change-value', fieldName, value, changeType);
         },
 
         onChangeToggle(value, fieldName) {
-            this.onChangeValue(value, fieldName, false);
+            this.onChangeValue(value, fieldName, false, 'toggle-change');
         },
 
         onInheritanceRestore(item) {

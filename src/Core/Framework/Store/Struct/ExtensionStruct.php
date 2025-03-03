@@ -141,6 +141,8 @@ class ExtensionStruct extends Struct
 
     protected bool $allowDisable = true;
 
+    protected bool $allowUpdate = true;
+
     /**
      * @var array<string>
      */
@@ -564,6 +566,17 @@ class ExtensionStruct extends Struct
     {
         $this->allowDisable = $allowDisable;
     }
+
+    public function isAllowUpdate(): bool
+    {
+        return $this->allowUpdate;
+    }
+
+    public function setAllowUpdate(bool $allowUpdate): void
+    {
+        $this->allowUpdate = $allowUpdate;
+    }
+
 
     /**
      * @return array<string>

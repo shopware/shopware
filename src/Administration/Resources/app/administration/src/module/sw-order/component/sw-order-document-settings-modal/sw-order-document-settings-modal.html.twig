@@ -96,6 +96,7 @@
                 size="small"
                 :disabled="isLoadingDocument"
                 :is-loading="isLoadingPreview"
+                variant="secondary"
                 @click="onPreview()"
             >
                 {{ $tc('sw-order.documentModal.labelPreview') }}
@@ -107,6 +108,7 @@
                     <mt-button
                         square
                         size="small"
+                        variant="secondary"
                     >
                         <mt-icon
                             name="regular-chevron-down-xs"
@@ -129,6 +131,7 @@
             {% block sw_order_document_settings_modal_form_document_footer_cancel %}
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCancel"
             >
                 {{ $tc('sw-order.documentModal.labelCancel') }}

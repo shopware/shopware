@@ -33,6 +33,7 @@
                     ghost
                     size="small"
                     :disabled="isAddNewItemButtonDisabled || undefined"
+                    variant="secondary"
                     @click="onInsertExistingItem"
                 >
                     {{ $tc('sw-order.createBase.buttonAddProduct') }}
@@ -47,6 +48,7 @@
                             size="small"
                             square
                             :disabled="isAddNewItemButtonDisabled || undefined"
+                            variant="secondary"
                         >
                             <mt-icon
                                 name="regular-chevron-down-xxs"
@@ -175,13 +177,13 @@
         <template #column-unitPrice="{ item, isInlineEdit}">
 
             {% block sw_order_line_items_grid_sales_channel_grid_columns_unit_price_inline_edit %}
-            <sw-number-field
+            <mt-number-field
                 v-if="isInlineEdit && !itemCreatedFromProduct(item)"
                 placeholder="0"
                 size="small"
                 :min="getMinItemPrice(item)"
-                :value="item.priceDefinition.price"
-                @update:value="checkItemPrice($event, item)"
+                :model-value="item.priceDefinition.price"
+                @update:model-value="checkItemPrice($event, item)"
             />
             {% endblock %}
 
@@ -206,14 +208,14 @@
         <template #column-quantity="{ item, isInlineEdit }">
 
             {% block sw_order_line_items_grid_sales_channel_grid_columns_quantity_inline_edit %}
-            <sw-number-field
+            <mt-number-field
                 v-if="isInlineEdit && !isCreditItem(item)"
                 number-type="int"
                 :min="1"
                 size="small"
                 placeholder="0"
-                :value="item.quantity"
-                @update:value="changeItemQuantity($event, item)"
+                :model-value="item.quantity"
+                @update:model-value="changeItemQuantity($event, item)"
             />
             {% endblock %}
 
@@ -231,14 +233,14 @@
         <template #column-tax="{ item, isInlineEdit }">
 
             {% block sw_order_line_items_grid_sales_channel_grid_columns_tax_inline_edit %}
-            <sw-number-field
+            <mt-number-field
                 v-if="isInlineEdit &&
                     !itemCreatedFromProduct(item.id) &&
                     item.priceDefinition &&
                     item.priceDefinition.taxRules &&
                     !isCreditItem(item)"
                 key="order-line-item-tax-edit-default"
-                v-model:value="item.priceDefinition.taxRules[0].taxRate"
+                v-model="item.priceDefinition.taxRules[0].taxRate"
                 size="small"
                 placeholder="0"
                 :min="0"

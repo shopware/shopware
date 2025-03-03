@@ -2,7 +2,6 @@
 {# New mt-number-field component #}
 {% block sw_number_field %}
 <mt-number-field
-    v-if="useMeteorComponent"
     v-bind="$attrs"
     v-model="currentValue"
 >
@@ -18,26 +17,4 @@
     </template>
     <slot></slot>
 </mt-number-field>
-{% endblock %}
-
-{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
-{# Deprecated component #}
-{% block sw_number_field_deprecated %}
-<sw-number-field-deprecated
-    v-else
-    v-bind="$attrs"
-    :value="value"
->
-    <template
-        v-for="(index, name) in getSlots()"
-        #[name]="data"
-    >
-        <slot
-            :name="name"
-            v-bind="data"
-        >
-        </slot>
-    </template>
-    <slot></slot>
-</sw-number-field-deprecated>
 {% endblock %}

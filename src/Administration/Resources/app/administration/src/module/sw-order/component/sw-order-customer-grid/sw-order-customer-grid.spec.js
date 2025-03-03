@@ -76,8 +76,8 @@ async function createWrapper() {
                         </div>
                     `,
                 },
-                'sw-number-field': {
-                    template: '<input class="sw-number-field" type="number" v-model="value" />',
+                'mt-number-field': {
+                    template: '<input class="mt-number-field" type="number" v-model="value" />',
                     props: {
                         value: 0,
                     },

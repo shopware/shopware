@@ -168,6 +168,7 @@
                             square
                             block
                             :disabled="block.appName === 'SwagCeToRiseUpsellingApp'"
+                            variant="secondary"
                             @click="onToggleBlockFavorite(block.name)"
                         >
                             <mt-icon
@@ -512,6 +513,7 @@
                 ghost
                 size="small"
                 class="sw-cms-sidebar__layout-assignment-open"
+                variant="secondary"
                 @click="onOpenLayoutAssignment"
             >
                 {{ $tc('sw-cms.sidebar.layoutAssignment.actionAssignLayout') }}
@@ -536,6 +538,7 @@
                 ghost
                 size="small"
                 class="sw-cms-sidebar__layout-set-as-default-open"
+                variant="secondary"
                 @click="onOpenLayoutSetAsDefault"
             >
                 {{ $tc('sw-cms.sidebar.layoutSetAsDefault.actionSetAsDefaultLayout') }}
@@ -573,6 +576,7 @@
             <mt-button
                 class="sw-cms-sidebar__navigator-confirm-modal-cancel"
                 size="small"
+                variant="secondary"
                 @click="onSidebarNavigationCancel"
             >
                 {{ $tc('global.default.cancel') }}

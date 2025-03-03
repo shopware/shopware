@@ -37,6 +37,7 @@
                 {% block sw_profile_index_search_preferences_searchable_elements_button_select %}
                 <mt-button
                     class="sw-profile-index-search-preferences-searchable-elements__button-select-all"
+                    variant="secondary"
                     @click="onSelect(true)"
                 >
                     {{ $tc('sw-profile.tabSearchPreferences.cardSearchableElements.buttonSelect') }}
@@ -46,6 +47,7 @@
                 {% block sw_profile_index_search_preferences_searchable_elements_button_deselect %}
                 <mt-button
                     class="sw-profile-index-search-preferences-searchable-elements__button-deselect-all"
+                    variant="secondary"
                     @click="onSelect(false)"
                 >
                     {{ $tc('sw-profile.tabSearchPreferences.cardSearchableElements.buttonDeselect') }}
@@ -55,6 +57,7 @@
                 {% block sw_profile_index_search_preferences_searchable_elements_button_reset %}
                 <mt-button
                     class="sw-profile-index-search-preferences-searchable-elements__button-reset-to-default"
+                    variant="secondary"
                     @click="onReset"
                 >
                     {{ $tc('sw-profile.tabSearchPreferences.cardSearchableElements.buttonReset') }}

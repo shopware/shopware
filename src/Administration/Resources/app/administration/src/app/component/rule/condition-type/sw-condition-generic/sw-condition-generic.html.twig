@@ -26,7 +26,7 @@
                     v-bind="getBind(field)"
                     :disabled="disabled || undefined"
                     :value="getVisibleValue(field.name)"
-                    size="medium"
+                    size="small"
                     show-clearable-button
                     :placeholder="getPlaceholder(field.type)"
                     @update:value="updateFieldValue(field.name, $event, baseUnit, selectedUnit)"

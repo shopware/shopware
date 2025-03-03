@@ -31,6 +31,7 @@
             {% block sw_order_create_address_form_modal_cancel_button %}
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCloseAddressModal"
             >
                 {{ $tc('global.default.cancel') }}
@@ -68,6 +69,7 @@
                     <mt-button
                         class="sw-order-create-address-modal__add-btn"
                         size="small"
+                        variant="secondary"
                         @click="onAddNewAddress"
                     >
                         <mt-icon
@@ -123,6 +125,7 @@
                 <div class="sw-order-create-address-modal__select-btn">
                     <mt-button
                         v-if="!isCurrentSelected(address.id)"
+                        variant="secondary"
                         @click="onSelectExistingAddress(address)"
                     >
                         {{ $tc('sw-customer.detailAddresses.buttonSelect') }}
@@ -139,6 +142,7 @@
         {% block sw_order_create_address_modal_cancel_button %}
         <mt-button
             size="small"
+            variant="secondary"
             @click="onCancel"
         >
             {{ $tc('sw-customer.detailAddresses.buttonClose') }}

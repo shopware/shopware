@@ -149,8 +149,8 @@
 
                     <div class="sw-cms-el-config-image-slider__setting-speed">
                         {% block sw_cms_element_image_slider_config_settings_speed %}
-                        <sw-number-field
-                            v-model:value="element.config.speed.value"
+                        <mt-number-field
+                            v-model="element.config.speed.value"
                             class="sw-cms-el-config-image-slider__setting-speed-slide"
                             number-type="int"
                             :min="0"
@@ -180,8 +180,8 @@
 
                         <div class="sw-cms-el-config-image-slider__setting-delay">
                             {% block sw_cms_element_image_slider_config_settings_autoplay_timeout %}
-                            <sw-number-field
-                                v-model:value="element.config.autoplayTimeout.value"
+                            <mt-number-field
+                                v-model="element.config.autoplayTimeout.value"
                                 class="sw-cms-el-config-image-slider__setting-delay-slide"
                                 number-type="int"
                                 :min="0"

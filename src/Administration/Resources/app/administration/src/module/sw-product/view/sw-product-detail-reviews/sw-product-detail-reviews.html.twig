@@ -110,6 +110,7 @@
                 {% block sw_product_detail_reviews_empty_state_button %}
                 <mt-button
                     ghost
+                    variant="secondary"
                     @click="$router.push({ name: 'sw.review.index' })"
                 >
                     {{ $tc('sw-product.reviewForm.emptyStateButton') }}
@@ -135,6 +136,7 @@
                 {% block sw_product_detail_reviews_modal_delete_button_cancel %}
                 <mt-button
                     size="small"
+                    variant="secondary"
                     @click="onCancelReviewDelete"
                 >
                     {{ $tc('global.default.cancel') }}

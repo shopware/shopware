@@ -1,3 +1,4 @@
+import { computed } from 'vue';
 import template from './sw-grid.html.twig';
 import './sw-grid.scss';
 
@@ -40,7 +41,7 @@ Component.register('sw-grid', {
             swRegisterGridDisableInlineEditListener: this.registerGridDisableInlineEditListener,
             swUnregisterGridDisableInlineEditListener: this.unregisterGridDisableInlineEditListener,
             swGridSetColumns: this.setColumns,
-            swGridColumns: this.columns,
+            swGridColumns: computed(() => this.columns),
         };
     },
 

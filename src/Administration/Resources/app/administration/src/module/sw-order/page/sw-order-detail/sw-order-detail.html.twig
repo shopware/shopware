@@ -53,6 +53,7 @@
             }"
             class="sw-order-detail__smart-bar-cancel-button"
             :disabled="isLoading || !acl.can('order.editor')"
+            variant="secondary"
             @click="onCancelEditing"
         >
             {{ $tc('global.default.cancel') }}

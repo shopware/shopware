@@ -58,10 +58,6 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
                             template: '<div><slot></slot></div>',
                         },
                         'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
-
-                        'sw-number-field': {
-                            template: '<input class="sw-field">',
-                        },
                         'sw-entity-single-select': true,
                         'sw-inheritance-switch': true,
                         'sw-help-text': true,
@@ -127,6 +123,6 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.find('.sw-field[name="sw-field--product-stock"]').element.value).toBe('0');
+        expect(wrapper.findByLabel('sw-product.settingsForm.labelStock').element.value).toBe('0');
     });
 });

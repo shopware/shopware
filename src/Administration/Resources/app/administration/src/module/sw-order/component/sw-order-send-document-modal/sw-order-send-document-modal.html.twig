@@ -87,6 +87,7 @@
     <template #modal-footer>
         {% block sw_order_send_document_modal_secondary_action %}
         <mt-button
+            variant="secondary"
             @click="$emit('modal-close')"
         >
             {{ $tc('sw-order.documentSendModal.labelClose') }}

@@ -88,25 +88,14 @@ class ProductController extends StorefrontController
             );
 
             $variant = $variantResponse->getFoundCombination()->getVariant();
-            if ($variant) {
-                $productId = $variant->getId();
-            }
+            $productId = $variant->getId();
 
             $host = $request->attributes->get(RequestTransformer::SALES_CHANNEL_ABSOLUTE_BASE_URL)
                 . $request->attributes->get(RequestTransformer::SALES_CHANNEL_BASE_URL);
 
             $url = $this->seoUrlPlaceholderHandler->replace(
                 (function () use ($variant, $productId) {
-                    // First check if variant exists
-                    if ($variant === null) {
-                        // No variant, generate default URL
-                        return $this->seoUrlPlaceholderHandler->generate(
-                            'frontend.detail.page',
-                            ['productId' => $productId]
-                        );
-                    }
-
-                    // Variant exists, check if it has SEO URLs
+                    // Check if variant has SEO URLs
                     $seoUrls = $variant->getSeoUrls();
                     if ($seoUrls === null || $seoUrls->count() === 0 || $seoUrls->first() === null) {
                         // No SEO URLs, generate default URL
@@ -116,7 +105,6 @@ class ProductController extends StorefrontController
                         );
                     }
 
-                    // SEO URL exists, return its path info
                     return $seoUrls->first()->getPathInfo();
                 })(),
                 $host,

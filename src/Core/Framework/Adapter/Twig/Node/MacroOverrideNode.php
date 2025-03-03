@@ -78,9 +78,9 @@ class MacroOverrideNode extends MacroNode
             ->subcompile($node)
             ->raw("\n")
             // customization to return actual class instead of markup
-            ->write("if (SwTwigFunction::\$macroResult !== null) {\n")
-            ->write('$result = SwTwigFunction::$macroResult;' . "\n")
-            ->write('SwTwigFunction::$macroResult = null;' . "\n")
+            ->write("if (\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::\$macroResult !== null) {\n")
+            ->write('$result = \Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::$macroResult;' . "\n")
+            ->write('\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::$macroResult = null;' . "\n")
             ->write("}\n")
             ->write("return \$result;\n")
             // end of customization

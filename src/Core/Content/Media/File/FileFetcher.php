@@ -46,6 +46,7 @@ class FileFetcher
             FileInfoHelper::getMimeType($fileName, $extension),
             $extension,
             $bytesWritten,
+            // Change length of db field `media`.`file_hash` if algorithm is changed
             Hasher::hashFile($fileName, 'md5')
         );
     }
@@ -85,6 +86,7 @@ class FileFetcher
             $mimeType,
             $extension,
             $writtenBytes,
+            // Change length of db field `media`.`file_hash` if algorithm is changed
             Hasher::hashFile($fileName, 'md5')
         );
     }

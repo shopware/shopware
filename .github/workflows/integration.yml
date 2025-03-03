@@ -42,6 +42,7 @@ jobs:
       MAILER_DSN: "smtp://localhost:1025"
       MAILPIT_BASE_URL: "http://localhost:8025"
       ACCESSIBILITY_TWEAKS: ${{ matrix.accessibility == 'accessibility' && 'true' }}
+      USE_CURRENTS: ${{ inputs.nightly == 'true' && matrix.php-version == '8.4' && matrix.accessibility && 'true' || 'false' }}
     services:
       database:
         image: mysql:8.0
@@ -103,19 +104,15 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run your tests with reporting
-        if: ${{ inputs.nightly == 'true' && matrix.php-version == '8.4' }}
+        if: ${{ env.USE_CURRENTS == 'true' }}
         working-directory: tests/acceptance
         env:
-          CURRENTS_BUILD_ID: "${{ format('{0}-{1}-{2}', github.repository, github.run_id, github.run_attempt) }}${{ matrix.accessibility }}"
-        run: |-
-          npx pwc \
-            --ci-build-id ${CURRENTS_BUILD_ID} \
-            --project-id ${{ secrets.CURRENTS_PROJECT_ID }} \
-            --key ${{ secrets.CURRENTS_RECORD_KEY }} \
-            -- --project ${{ matrix.name }} --trace=on
+          CURRENTS_RECORD_KEY: "${{ secrets.CURRENTS_RECORD_KEY }}"
+          CURRENTS_PROJECT_ID: "${{ secrets.CURRENTS_PROJECT_ID_6_6 }}"
+        run: npx pwc -- --project=${{ matrix.name }} --trace=on
 
       - name: Run your tests
-        if: ${{ inputs.nightly != 'true' || matrix.php-version != '8.4'  }}
+        if: ${{ env.USE_CURRENTS != 'true' }}
         working-directory: tests/acceptance
         run: npx playwright test --project=${{ matrix.name }} ${{ matrix.name == 'Install' && '--trace=on' || '' }}
 
@@ -360,7 +357,10 @@ jobs:
       - name: Run update tests with reporting
         if: ${{ contains(github.workflow_ref, 'nightly') }}
         working-directory: new-shopware/tests/acceptance
-        run: npx pwc --project-id ${{ secrets.CURRENTS_PROJECT_ID }} --key ${{ secrets.CURRENTS_RECORD_KEY }} -- --project=Update --trace=on
+        env:
+          CURRENTS_RECORD_KEY: "${{ secrets.CURRENTS_RECORD_KEY }}"
+          CURRENTS_PROJECT_ID: "${{ secrets.CURRENTS_PROJECT_ID_6_6 }}"
+        run: npx pwc -- --project=Update --trace=on
       - name: Run update tests
         if: ${{ !contains(github.workflow_ref, 'nightly') }}
         working-directory: new-shopware/tests/acceptance

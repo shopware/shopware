@@ -87,7 +87,7 @@ async function createWrapper(privileges = []) {
                     'sw-card-view': true,
                     'sw-container': true,
                     'sw-text-field': true,
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-language-info': true,
                     'sw-single-select': true,
                     'sw-skeleton': true,
@@ -106,8 +106,8 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
 
         const saveButton = wrapper.find('.sw-settings-delivery-time-detail__save');
         const nameField = wrapper.find('.mt-text-field input[aria-label="sw-settings-delivery-time.detail.labelName"]');
-        const maxNumberField = wrapper.find('sw-number-field-stub[label="sw-settings-delivery-time.detail.labelMax"]');
-        const minNumberField = wrapper.find('sw-number-field-stub[label="sw-settings-delivery-time.detail.labelMin"]');
+        const maxNumberField = wrapper.find('mt-number-field-stub[label="sw-settings-delivery-time.detail.labelMax"]');
+        const minNumberField = wrapper.find('mt-number-field-stub[label="sw-settings-delivery-time.detail.labelMin"]');
         const unitSingleSelect = wrapper.find('sw-single-select-stub[label="sw-settings-delivery-time.detail.labelUnit"]');
 
         expect(nameField.attributes().disabled).toBeDefined();
@@ -133,8 +133,8 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
 
         const saveButton = wrapper.find('.sw-settings-delivery-time-detail__save');
         const nameField = wrapper.find('.mt-text-field input[aria-label="sw-settings-delivery-time.detail.labelName"]');
-        const maxNumberField = wrapper.find('sw-number-field-stub[label="sw-settings-delivery-time.detail.labelMax"]');
-        const minNumberField = wrapper.find('sw-number-field-stub[label="sw-settings-delivery-time.detail.labelMin"]');
+        const maxNumberField = wrapper.find('mt-number-field-stub[label="sw-settings-delivery-time.detail.labelMax"]');
+        const minNumberField = wrapper.find('mt-number-field-stub[label="sw-settings-delivery-time.detail.labelMin"]');
         const unitSingleSelect = wrapper.find('sw-single-select-stub[label="sw-settings-delivery-time.detail.labelUnit"]');
 
         expect(nameField.attributes().disabled).toBeUndefined();
@@ -167,8 +167,8 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
 
         const saveButton = wrapper.find('.sw-settings-delivery-time-detail__save');
         const nameField = wrapper.find('.mt-text-field input[aria-label="sw-settings-delivery-time.detail.labelName"]');
-        const maxNumberField = wrapper.find('sw-number-field-stub[label="sw-settings-delivery-time.detail.labelMax"]');
-        const minNumberField = wrapper.find('sw-number-field-stub[label="sw-settings-delivery-time.detail.labelMin"]');
+        const maxNumberField = wrapper.find('mt-number-field-stub[label="sw-settings-delivery-time.detail.labelMax"]');
+        const minNumberField = wrapper.find('mt-number-field-stub[label="sw-settings-delivery-time.detail.labelMin"]');
         const unitSingleSelect = wrapper.find('sw-single-select-stub[label="sw-settings-delivery-time.detail.labelUnit"]');
 
         expect(nameField.attributes().disabled).toBeUndefined();

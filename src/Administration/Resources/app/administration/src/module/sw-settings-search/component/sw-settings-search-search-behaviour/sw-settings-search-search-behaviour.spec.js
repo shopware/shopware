@@ -44,14 +44,11 @@ async function createWrapper(privileges = []) {
                     'sw-radio-field': await wrapTestComponent('sw-radio-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-field-error': true,
-                    'sw-number-field': await wrapTestComponent('sw-number-field'),
-                    'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-help-text': true,
-                    'mt-number-field': true,
                     'sw-field-copyable': true,
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,
@@ -76,14 +73,13 @@ describe('module/sw-settings-search/component/sw-settings-search-search-behaviou
             'product_search_config.viewer',
         ]);
         await flushPromises();
-
         const andBehaviourElement = wrapper.find('.sw-settings-search__search-behaviour-condition').findAll('input').at(0);
         expect(andBehaviourElement.attributes().disabled).toBeDefined();
 
         const orBehaviourElement = wrapper.find('.sw-settings-search__search-behaviour-condition').findAll('input').at(1);
         expect(orBehaviourElement.attributes().disabled).toBeDefined();
 
-        const minSearchLengthElement = wrapper.find('.sw-settings-search__search-behaviour-term-length input');
+        const minSearchLengthElement = wrapper.findByLabel('sw-settings-search.generalTab.labelMinimalSearchTerm');
         expect(minSearchLengthElement.attributes().disabled).toBeDefined();
 
         await orBehaviourElement.trigger('click');
@@ -99,7 +95,7 @@ describe('module/sw-settings-search/component/sw-settings-search-search-behaviou
 
         expect(wrapper.vm.searchBehaviourConfigs.minSearchLength).toBe(2);
 
-        const minSearchLengthElement = wrapper.find('.sw-settings-search__search-behaviour-term-length input');
+        const minSearchLengthElement = wrapper.findByLabel('sw-settings-search.generalTab.labelMinimalSearchTerm');
         await minSearchLengthElement.setValue(3);
         await minSearchLengthElement.trigger('change');
         expect(wrapper.vm.searchBehaviourConfigs.minSearchLength).toBe(3);

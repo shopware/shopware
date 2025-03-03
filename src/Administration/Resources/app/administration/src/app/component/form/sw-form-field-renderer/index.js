@@ -243,8 +243,8 @@ Component.register('sw-form-field-renderer', {
         componentPropName() {
             switch (this.componentName) {
                 case 'mt-textarea':
-                    return 'modelValue';
                 case 'mt-switch':
+                case 'mt-number-field':
                     return 'modelValue';
                 default:
                     return 'value';

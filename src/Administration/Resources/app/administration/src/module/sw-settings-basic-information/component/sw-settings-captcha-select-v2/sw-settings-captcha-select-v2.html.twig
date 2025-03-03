@@ -87,8 +87,8 @@
         {% endblock %}
 
         {% block sw_settings_captcha_select_v2_google_recaptcha_v3_threshold_score %}
-        <sw-number-field
-            v-model:value="currentValue.googleReCaptchaV3.config.thresholdScore"
+        <mt-number-field
+            v-model="currentValue.googleReCaptchaV3.config.thresholdScore"
             name="googleReCaptchaV3ThresholdScore"
             number-type="float"
             :min="0"

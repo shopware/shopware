@@ -60,10 +60,6 @@ const setup = async (propOverride) => {
     return mount(await wrapTestComponent('sw-price-field', { sync: true }), {
         global: {
             stubs: {
-                'sw-number-field': await wrapTestComponent('sw-number-field', {
-                    sync: true,
-                }),
-                'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field', { sync: true }),
                 'sw-block-field': await wrapTestComponent('sw-block-field', {
                     sync: true,
@@ -224,8 +220,8 @@ describe('components/form/sw-price-field', () => {
             netHelpText: 'help for net price',
         });
 
-        expect(wrapper.find('.sw-price-field__gross sw-help-text-stub').attributes().text).toBe('help for gross price');
-        expect(wrapper.find('.sw-price-field__net sw-help-text-stub').attributes().text).toBe('help for net price');
+        expect(wrapper.findByText('div', 'help for gross price').exists()).toBe(true);
+        expect(wrapper.findByText('div', 'help for net price').exists()).toBe(true);
     });
 
     it('should set gross value when the net value is updated', async () => {
@@ -312,13 +308,13 @@ describe('components/form/sw-price-field', () => {
         const wrapper = await setup();
 
         // Type a normal number
-        await wrapper.find('.sw-price-field__gross input').setValue('123');
+        await wrapper.findByPlaceholder('sw-product.priceForm.placeholderPriceGross').setValue('123');
 
         // Wait for the debounce timer to start
         await wrapper.vm.$nextTick();
 
         // Type a number with a decimal separator at the end
-        await wrapper.find('.sw-price-field__gross input').setValue('123.');
+        await wrapper.findByPlaceholder('sw-product.priceForm.placeholderPriceGross').setValue('123.');
 
         // Wait until the debounce timer is finished
         jest.runAllTimers();
@@ -328,6 +324,6 @@ describe('components/form/sw-price-field', () => {
         expect(wrapper.vm.priceForCurrency.gross).toBe(123);
 
         // Check if the input field value still contains the decimal separator
-        expect(wrapper.find('.sw-price-field__gross input').element.value).toBe('123.');
+        expect(wrapper.findByPlaceholder('sw-product.priceForm.placeholderPriceGross').element.value).toBe('123.');
     });
 });

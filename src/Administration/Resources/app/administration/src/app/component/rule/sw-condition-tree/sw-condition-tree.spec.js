@@ -639,5 +639,45 @@ describe('src/app/component/rule/sw-condition-tree', () => {
                 }).toThrow();
             });
         });
+
+        describe('childAssociationField', () => {
+            it('returns the association field', async () => {
+                const wrapper = await createWrapper({
+                    initialConditions: createInitialOrContainer(),
+                });
+
+                const node = wrapper.getComponent(swConditionTreeNode);
+
+                expect(node.vm.childAssociationField).toBeDefined();
+                expect(node.vm.childAssociationField).toBe('children');
+            });
+        });
+
+        describe('conditionDataProviderService', () => {
+            it('provides the conditionDataProviderService', async () => {
+                const wrapper = await createWrapper({
+                    initialConditions: createInitialOrContainer(),
+                });
+
+                const node = wrapper.getComponent(swConditionTreeNode);
+
+                expect(node.vm.conditionDataProviderService).toBeDefined();
+                expect(node.vm.conditionDataProviderService).toBeInstanceOf(RuleConditionService);
+            });
+        });
+
+        describe('conditionScopes', () => {
+            it('provides the conditionScopes', async () => {
+                const wrapper = await createWrapper({
+                    initialConditions: createInitialOrContainer(),
+                    scopes: ['cart', 'checkout'],
+                });
+
+                const node = wrapper.getComponent(swConditionTreeNode);
+
+                expect(node.vm.conditionScopes).toBeDefined();
+                expect(node.vm.conditionScopes).toEqual(['cart', 'checkout']);
+            });
+        });
     });
 });

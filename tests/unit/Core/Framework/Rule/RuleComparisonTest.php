@@ -20,7 +20,7 @@ class RuleComparisonTest extends TestCase
     #[DataProvider('valuesForNumericEqualComparison')]
     public function testNumericComparisonWithEqualOperator(?float $itemValue, ?float $ruleValue, bool $result): void
     {
-        static::assertEquals($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_EQ));
+        static::assertSame($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_EQ));
     }
 
     public static function valuesForNumericEqualComparison(): \Generator
@@ -38,7 +38,7 @@ class RuleComparisonTest extends TestCase
     #[DataProvider('valuesForNumericNotEqualComparison')]
     public function testNumericComparisonWithNotEqualOperator(?float $itemValue, ?float $ruleValue, bool $result): void
     {
-        static::assertEquals($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_NEQ));
+        static::assertSame($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_NEQ));
     }
 
     public static function valuesForNumericNotEqualComparison(): \Generator
@@ -55,7 +55,7 @@ class RuleComparisonTest extends TestCase
     #[DataProvider('valuesForNumericGreaterThanComparison')]
     public function testNumericComparisonWithGreaterThanOperator(?float $itemValue, ?float $ruleValue, bool $result): void
     {
-        static::assertEquals($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_GT));
+        static::assertSame($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_GT));
     }
 
     public static function valuesForNumericGreaterThanComparison(): \Generator
@@ -75,7 +75,7 @@ class RuleComparisonTest extends TestCase
     #[DataProvider('valuesForLessThanOrEqualComparison')]
     public function testNumericComparisonWithLessThanOrEqualOperator(?float $itemValue, ?float $ruleValue, bool $result): void
     {
-        static::assertEquals($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_LTE));
+        static::assertSame($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_LTE));
     }
 
     public static function valuesForLessThanOrEqualComparison(): \Generator
@@ -95,7 +95,7 @@ class RuleComparisonTest extends TestCase
     #[DataProvider('valuesForGreaterThanOrEqualComparison')]
     public function testNumericComparisonWithGreaterThanOrEqualOperator(?float $itemValue, ?float $ruleValue, bool $result): void
     {
-        static::assertEquals($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_GTE));
+        static::assertSame($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_GTE));
     }
 
     public static function valuesForGreaterThanOrEqualComparison(): \Generator
@@ -115,7 +115,7 @@ class RuleComparisonTest extends TestCase
     #[DataProvider('valuesForLessThanComparison')]
     public function testNumericComparisonWithLessThanOperator(?float $itemValue, ?float $ruleValue, bool $result): void
     {
-        static::assertEquals($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_LT));
+        static::assertSame($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_LT));
     }
 
     public static function valuesForLessThanComparison(): \Generator
@@ -135,7 +135,7 @@ class RuleComparisonTest extends TestCase
     #[DataProvider('valuesForNumericEmptyComparison')]
     public function testNumericComparisonWithEmptyOperator(?float $itemValue, bool $result): void
     {
-        static::assertEquals($result, RuleComparison::numeric($itemValue, null, Rule::OPERATOR_EMPTY));
+        static::assertSame($result, RuleComparison::numeric($itemValue, null, Rule::OPERATOR_EMPTY));
     }
 
     public static function valuesForNumericEmptyComparison(): \Generator
@@ -155,7 +155,7 @@ class RuleComparisonTest extends TestCase
     #[DataProvider('valuesForDateTimeComparison')]
     public function testDateTimeComparison(\DateTime $itemValue, \DateTime $ruleValue, bool $result, string $operator): void
     {
-        static::assertEquals($result, RuleComparison::datetime($itemValue, $ruleValue, $operator));
+        static::assertSame($result, RuleComparison::datetime($itemValue, $ruleValue, $operator));
     }
 
     public static function valuesForDateTimeComparison(): \Generator
@@ -254,7 +254,7 @@ class RuleComparisonTest extends TestCase
     #[DataProvider('valuesForDateComparison')]
     public function testDateComparison(\DateTime $itemValue, \DateTime $ruleValue, bool $result, string $operator): void
     {
-        static::assertEquals($result, RuleComparison::date($itemValue, $ruleValue, $operator));
+        static::assertSame($result, RuleComparison::date($itemValue, $ruleValue, $operator));
     }
 
     public static function valuesForDateComparison(): \Generator

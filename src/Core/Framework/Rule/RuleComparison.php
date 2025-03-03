@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Rule;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Util\FloatComparator;
@@ -9,9 +10,6 @@ use Shopware\Core\Framework\Util\FloatComparator;
 #[Package('fundamentals@after-sales')]
 class RuleComparison
 {
-    public const FORMAT_DATE = 'Y-m-d';
-    public const FORMAT_DATETIME = 'Y-m-d H:i:s';
-
     public static function numeric(?float $itemValue, ?float $ruleValue, string $operator): bool
     {
         if ($itemValue === null) {
@@ -93,12 +91,12 @@ class RuleComparison
 
     public static function date(\DateTime $itemValue, \DateTime $ruleValue, string $operator): bool
     {
-        return self::compareDate(self::FORMAT_DATE, $itemValue, $ruleValue, $operator);
+        return self::compareDate(Defaults::STORAGE_DATE_FORMAT, $itemValue, $ruleValue, $operator);
     }
 
     public static function datetime(\DateTime $itemValue, \DateTime $ruleValue, string $operator): bool
     {
-        return self::compareDate(self::FORMAT_DATETIME, $itemValue, $ruleValue, $operator);
+        return self::compareDate(Defaults::STORAGE_DATE_TIME_FORMAT, $itemValue, $ruleValue, $operator);
     }
 
     public static function isNegativeOperator(string $operator): bool

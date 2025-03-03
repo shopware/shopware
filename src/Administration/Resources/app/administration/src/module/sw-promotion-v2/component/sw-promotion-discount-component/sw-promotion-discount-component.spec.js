@@ -30,14 +30,6 @@ async function createWrapper() {
                     'sw-loader': {
                         template: '<div class="sw-loader"></div>',
                     },
-                    'sw-number-field': {
-                        template:
-                            '<input class="sw-field sw-number-field" type="number" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
-                        props: [
-                            'value',
-                            'disabled',
-                        ],
-                    },
                     'mt-card': {
                         template: '<div class="mt-card"><slot></slot></div>',
                     },
@@ -169,7 +161,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-discount-component',
 
         expect(wrapper.vm.isEditingDisabled).toBe(true);
 
-        let elements = wrapper.findAllComponents('.sw-field');
+        let elements = wrapper.findAllComponents('.mt-field');
         expect(elements.length).toBeGreaterThan(0);
         elements.forEach((el) => expect(el.props('disabled')).toBe(true));
 
@@ -185,7 +177,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-discount-component',
 
         expect(wrapper.vm.isEditingDisabled).toBe(false);
 
-        let elements = wrapper.findAllComponents('.sw-field');
+        let elements = wrapper.findAllComponents('.mt-field');
         expect(elements.length).toBeGreaterThan(0);
         elements.forEach((el) => expect(el.props('disabled')).toBe(false));
 

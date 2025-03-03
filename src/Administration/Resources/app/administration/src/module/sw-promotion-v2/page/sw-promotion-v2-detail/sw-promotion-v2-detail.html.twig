@@ -15,6 +15,7 @@
             v-tooltip.bottom="tooltipCancel"
             class="sw-promotion-v2-detail__cancel-action"
             :disabled="promotion !== null && promotion.isLoading || undefined"
+            variant="secondary"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
@@ -141,6 +142,7 @@
                     <mt-button
                         class="sw-promotion-v2-detail__change-modal-cancel-action"
                         size="small"
+                        variant="secondary"
                         @click="onCloseCodeTypeChangeModal"
                     >
                         {{ $tc('global.default.cancel') }}

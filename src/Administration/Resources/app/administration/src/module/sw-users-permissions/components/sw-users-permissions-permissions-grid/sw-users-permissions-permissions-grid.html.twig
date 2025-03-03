@@ -63,12 +63,12 @@
                     class="sw-users-permissions-permissions-grid__checkbox-wrapper"
                 >
                     {% block sw_users_permissions_permissions_grid_parent_roles_field %}
-                    <sw-checkbox-field
+                    <mt-checkbox
                         v-if="parentRoleHasChildRoles(permission.value, role)"
-                        :value="areAllChildrenRolesSelected(permission.value, role)"
-                        :ghost-value="areSomeChildrenRolesSelected(permission.value, role)"
+                        :checked="areAllChildrenRolesSelected(permission.value, role)"
+                        :partial="areSomeChildrenRolesSelected(permission.value, role)"
                         :disabled="isParentRoleDisabled(permission.value, role) || disabled"
-                        @update:value="toggleAllChildrenWithRole(permission.value, role)"
+                        @update:checked="toggleAllChildrenWithRole(permission.value, role)"
                     />
                     {% endblock %}
                 </div>
@@ -77,11 +77,11 @@
                 {% block sw_users_permissions_permissions_grid_parent_all_roles %}
                 <div class="sw-users-permissions-permissions-grid__all sw-users-permissions-permissions-grid__role_all">
                     {% block sw_users_permissions_permissions_grid_parent_all_roles_field %}
-                    <sw-checkbox-field
-                        :value="areAllChildrenWithAllRolesSelected(permission.value)"
-                        :ghost-value="areSomeChildrenWithAllRolesSelected(permission.value)"
+                    <mt-checkbox
+                        :checked="areAllChildrenWithAllRolesSelected(permission.value)"
+                        :partial="areSomeChildrenWithAllRolesSelected(permission.value)"
                         :disabled="disabled"
-                        @update:value="toggleAllChildrenWithAllRoles(permission.value)"
+                        @update:checked="toggleAllChildrenWithAllRoles(permission.value)"
                     />
                     {% endblock %}
                 </div>
@@ -110,16 +110,16 @@
                     class="sw-users-permissions-permissions-grid__checkbox-wrapper"
                 >
                     {% block sw_users_permissions_permissions_grid_permissions_roles_field %}
-                    <sw-checkbox-field
+                    <mt-checkbox
                         v-if="permission.roles[role]"
                         v-tooltip="{
                             message: $tc('sw-users-permissions.roles.grid.disabledCheckboxMessage'),
                             disabled: !isPermissionDisabled(permission.key, role) || disabled,
                             showOnDisabledElements: false
                         }"
-                        :value="isPermissionSelected(permission.key, role)"
+                        :checked="isPermissionSelected(permission.key, role)"
                         :disabled="isPermissionDisabled(permission.key, role) || disabled"
-                        @update:value="changePermission(permission.key, role)"
+                        @update:checked="changePermission(permission.key, role)"
                     />
                     {% endblock %}
                 </div>
@@ -128,11 +128,11 @@
                 {% block sw_users_permissions_permissions_grid_permissions_all_roles %}
                 <div class="sw-users-permissions-permissions-grid__all sw-users-permissions-permissions-grid__role_all">
                     {% block sw_users_permissions_permissions_grid_permissions_all_roles_field %}
-                    <sw-checkbox-field
+                    <mt-checkbox
                         v-if="Object.keys(permission.roles).length > 0"
-                        :value="allPermissionsForKeySelected(permission.key)"
+                        :checked="allPermissionsForKeySelected(permission.key)"
                         :disabled="disabled"
-                        @update:value="changeAllPermissionsForKey(permission.key)"
+                        @update:checked="changeAllPermissionsForKey(permission.key)"
                     />
                     {% endblock %}
                 </div>

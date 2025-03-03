@@ -13,6 +13,7 @@
         {% block sw_settings_user_detail_actions_cancel %}
         <mt-button
             v-tooltip.bottom="tooltipCancel"
+            variant="secondary"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
@@ -134,38 +135,30 @@
                         {% endblock %}
 
                         {% block sw_settings_user_detail_content_password %}
-                        <sw-password-field
+                        <mt-password-field
                             class="sw-settings-user-detail__grid-password"
-                            :value="user.password"
+                            :model-value="user.password"
                             name="sw-field--user-password"
                             :disabled="!acl.can('users_and_permissions.editor') || undefined"
                             :label="$tc('sw-users-permissions.users.user-detail.labelPassword')"
                             :error="userPasswordError"
                             autocomplete="off"
-                            @update:value="setPassword"
+                            @update:model-value="setPassword"
                         />
                         {% endblock %}
 
                         {% block sw_settings_user_detail_grid_content_language %}
-                        <sw-select-field
-                            v-model:value="user.localeId"
+                        <mt-select
+                            v-model="user.localeId"
                             name="sw-field--user-localeId"
                             class="sw-settings-user-detail__grid-language"
                             :label="$tc('sw-users-permissions.users.user-detail.labelLanguage')"
                             :disabled="!acl.can('users_and_permissions.editor') || undefined"
                             :error="userLocaleIdError"
+                            :options="localeOptions"
                             required
                             :placeholder="$tc('sw-users-permissions.users.user-detail.labelLanguagePlaceholder')"
-                        >
-                            <option
-                                v-for="language in languages"
-                                :key="language.locale.id"
-                                :value="language.locale.id"
-                                :selected="language.locale.id === user.localeId"
-                            >
-                                {{ language.customLabel }}
-                            </option>
-                        </sw-select-field>
+                        />
                         {% endblock %}
 
                         {% block sw_settings_user_detail_grid_content_timezone %}
@@ -332,6 +325,7 @@
             <template #modal-footer>
                 <mt-button
                     size="small"
+                    variant="secondary"
                     @click="onCloseDeleteModal"
                 >
                     {{ $tc('global.default.cancel') }}
@@ -383,9 +377,9 @@
                 :copyable-tooltip="true"
             />
 
-            <sw-password-field
+            <mt-password-field
                 v-else
-                v-model:value="currentIntegration.secretAccessKey"
+                v-model="currentIntegration.secretAccessKey"
                 :label="$tc('sw-users-permissions.users.user-detail.modal.secretFieldLabel')"
                 :disabled="true"
                 :password-toggle-able="false"
@@ -434,6 +428,7 @@
                 <mt-button
                     size="small"
                     :disabled="isModalLoading || undefined"
+                    variant="secondary"
                     @click="onCloseDetailModal"
                 >
                     {{ $tc('global.default.cancel') }}

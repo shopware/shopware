@@ -76,7 +76,7 @@ async function createWrapper(privileges = [], isShopwareDefaultTax = true) {
                     'sw-button-process': true,
 
                     'sw-text-field': true,
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-skeleton': true,
                     'sw-tax-rule-card': true,
                     'sw-custom-field-set-renderer': true,
@@ -102,7 +102,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
 
         const saveButton = wrapper.find('.sw-settings-tax-detail__save-action');
         const taxNameField = wrapper.find('input[aria-label="sw-settings-tax.detail.labelName"]');
-        const taxRateField = wrapper.find('sw-number-field-stub[label="sw-settings-tax.detail.labelDefaultTaxRate"]');
+        const taxRateField = wrapper.find('mt-number-field-stub[label="sw-settings-tax.detail.labelDefaultTaxRate"]');
 
         expect(saveButton.attributes().disabled).toBeFalsy();
         expect(taxNameField.attributes().disabled).toBeDefined();
@@ -128,7 +128,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
 
         const saveButton = wrapper.find('.sw-settings-tax-detail__save-action');
         const taxNameField = wrapper.find('input[aria-label="sw-settings-tax.detail.labelName"]');
-        const taxRateField = wrapper.find('sw-number-field-stub[label="sw-settings-tax.detail.labelDefaultTaxRate"]');
+        const taxRateField = wrapper.find('mt-number-field-stub[label="sw-settings-tax.detail.labelDefaultTaxRate"]');
 
         expect(saveButton.attributes().disabled).toBeTruthy();
         expect(taxNameField.attributes().disabled).toBeDefined();
@@ -138,7 +138,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
     it('should have a tax rate field with a correct "digits" property', async () => {
         const wrapper = await createWrapper();
 
-        const taxRateField = wrapper.find('sw-number-field-stub[label="sw-settings-tax.detail.labelDefaultTaxRate"]');
+        const taxRateField = wrapper.find('mt-number-field-stub[label="sw-settings-tax.detail.labelDefaultTaxRate"]');
 
         expect(taxRateField.attributes('digits')).toBe('3');
     });

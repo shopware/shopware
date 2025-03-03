@@ -69,6 +69,7 @@
                     class="sw-category-detail-layout__change-layout-action"
                     size="small"
                     :disabled="!acl.can('category.editor')"
+                    variant="secondary"
                     @click="openLayoutModal"
                 >
                     {{ cmsPage ? $tc('sw-category.base.cms.changeLayout') : $tc('sw-category.base.cms.changeLayoutEmpty') }}
@@ -80,6 +81,7 @@
                     class="sw-category-detail-layout__open-in-pagebuilder"
                     size="small"
                     :disabled="!acl.can('category.editor')"
+                    variant="secondary"
                     @click="openInPagebuilder"
                 >
                     {{ cmsPage ? $tc('sw-category.base.cms.editInPagebuilder') : $tc('sw-category.base.cms.editInPagebuilderEmpty') }}
@@ -93,6 +95,7 @@
                     :disabled="!acl.can('category.editor')"
                     class="sw-category-detail-layout__layout-reset"
                     square
+                    variant="secondary"
                     @click="onLayoutReset"
                 >
                     <mt-icon

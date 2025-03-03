@@ -28,7 +28,6 @@ describe('components/data-grid/sw-data-grid-settings', () => {
                     'sw-context-button': true,
                     'sw-field-error': await wrapTestComponent('sw-field-error', { sync: true }),
                     'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
-
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-context-menu-divider': true,
@@ -64,7 +63,7 @@ describe('components/data-grid/sw-data-grid-settings', () => {
 
     it('should order columns correctly', async () => {
         const expectOrder = (expectedColumns) => {
-            const columns = wrapper.findAll('.sw-data-grid__settings-column-list .sw-field__label');
+            const columns = wrapper.findAll('.sw-data-grid__settings-column-list .mt-field__label');
 
             expectedColumns.forEach((column, index) => {
                 expect(columns.at(index).text()).toBe(column);

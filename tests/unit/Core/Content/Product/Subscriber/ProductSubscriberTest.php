@@ -47,6 +47,7 @@ class ProductSubscriberTest extends TestCase
             $config,
         );
 
+        /** @var EntityLoadedEvent<ProductEntity|PartialEntity> $event */
         $event = new EntityLoadedEvent(
             $this->createMock(ProductDefinition::class),
             [$entity],
@@ -70,6 +71,7 @@ class ProductSubscriberTest extends TestCase
             $config,
         );
 
+        /** @var SalesChannelEntityLoadedEvent<ProductEntity|PartialEntity> $event */
         $event = new SalesChannelEntityLoadedEvent(
             $this->createMock(SalesChannelProductDefinition::class),
             [$entity],
@@ -193,13 +195,14 @@ class ProductSubscriberTest extends TestCase
             'cheapestPrice' => $cheapestPrice,
         ]);
 
-        $subscriber->salesChannelLoaded(
-            new SalesChannelEntityLoadedEvent(
-                $this->createMock(ProductDefinition::class),
-                [$entity],
-                $this->createMock(SalesChannelContext::class)
-            )
+        /** @var SalesChannelEntityLoadedEvent<ProductEntity|PartialEntity> $event */
+        $event = new SalesChannelEntityLoadedEvent(
+            $this->createMock(ProductDefinition::class),
+            [$entity],
+            $this->createMock(SalesChannelContext::class)
         );
+
+        $subscriber->salesChannelLoaded($event);
     }
 
     public function testEnsurePartialsEventsConsidered(): void

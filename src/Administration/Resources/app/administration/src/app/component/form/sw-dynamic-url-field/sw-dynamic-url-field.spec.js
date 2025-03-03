@@ -4,6 +4,7 @@
 
 import { mount } from '@vue/test-utils';
 import 'src/app/component/form/sw-dynamic-url-field';
+import selectMtSelectOptionByText from '../../../../../test/_helper_/select-mt-select-by-text';
 
 const seoDomainPrefix = '124c71d524604ccbad6042edce3ac799';
 
@@ -30,10 +31,11 @@ const linkDataProvider = [
     },
     {
         URL: 'mailto:test@shopware.com',
-        value: 'test@shopware.com',
+        modelValue: 'test@shopware.com',
         type: 'email',
         prefix: 'mailto:',
-        selector: '.sw-email-field',
+        selector: '.mt-email-field',
+        inputSelector: '.mt-email-field input',
         label: 'sw-text-editor-toolbar.link.linkTo',
         placeholder: 'sw-text-editor-toolbar.link.placeholderEmail',
     },
@@ -252,8 +254,7 @@ describe('components/form/sw-text-editor/sw-dynamic-url-field', () => {
 
         expect(wrapper.vm.linkCategory).toBe('link');
 
-        const options = wrapper.findComponent('select').findAll('option');
-        await options.at(3).setSelected();
+        await selectMtSelectOptionByText(wrapper, 'sw-text-editor-toolbar.link.labelMedia');
 
         expect(wrapper.vm.linkCategory).toBe('media');
 

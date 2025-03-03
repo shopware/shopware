@@ -7,11 +7,11 @@
 
 {% block sw_tree_item_element_selection %}
 <div class="sw-tree-item__selection">
-    <sw-checkbox-field
+    <mt-checkbox
         :disabled="hasItemAssociation(item)"
-        :ghost-value="checkedGhost"
-        :value="checked || hasItemAssociation(item)"
-        @update:value="toggleItemCheck($event, item)"
+        :partial="checkedGhost"
+        :checked="checked || hasItemAssociation(item)"
+        @update:checked="toggleItemCheck($event, item)"
     />
 </div>
 {% endblock %}

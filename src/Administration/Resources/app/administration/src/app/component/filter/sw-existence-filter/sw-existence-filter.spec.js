@@ -8,6 +8,7 @@ import 'src/app/component/form/sw-select-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import { mount } from '@vue/test-utils';
+import selectMtSelectOptionByText from '../../../../../test/_helper_/select-mt-select-by-text';
 
 const { Criteria } = Shopware.Data;
 
@@ -19,8 +20,6 @@ async function createWrapper() {
                 'sw-base-field': await wrapTestComponent('sw-base-field', {
                     sync: true,
                 }),
-                'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
-                'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
                 'sw-base-filter': await wrapTestComponent('sw-base-filter', { sync: true }),
                 'sw-field-error': {
                     template: '<div></div>',
@@ -29,7 +28,6 @@ async function createWrapper() {
                 'sw-ai-copilot-badge': true,
                 'sw-inheritance-switch': true,
                 'sw-loader': true,
-                'mt-select': true,
             },
         },
         props: {
@@ -52,9 +50,7 @@ describe('components/sw-existence-filter', () => {
     it('should emit `filter-update` event when user changes from unset to `true`', async () => {
         const wrapper = await createWrapper();
 
-        const options = wrapper.find('select').findAll('option');
-
-        await options.at(0).setSelected();
+        await selectMtSelectOptionByText(wrapper, 'true');
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'media',
@@ -66,9 +62,7 @@ describe('components/sw-existence-filter', () => {
     it('should emit `filter-update` event when user changes from default option to `false`', async () => {
         const wrapper = await createWrapper();
 
-        const options = wrapper.find('select').findAll('option');
-
-        await options.at(1).setSelected();
+        await selectMtSelectOptionByText(wrapper, 'false');
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'media',
@@ -110,9 +104,7 @@ describe('components/sw-existence-filter', () => {
             filter: { ...wrapper.vm.filter, value: 'true' },
         });
 
-        const options = wrapper.find('select').findAll('option');
-
-        await options.at(1).setSelected();
+        await selectMtSelectOptionByText(wrapper, 'false');
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'media',
@@ -128,9 +120,7 @@ describe('components/sw-existence-filter', () => {
             filter: { ...wrapper.vm.filter, value: 'false' },
         });
 
-        const options = wrapper.find('select').findAll('option');
-
-        await options.at(0).setSelected();
+        await selectMtSelectOptionByText(wrapper, 'true');
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'media',
@@ -142,9 +132,7 @@ describe('components/sw-existence-filter', () => {
     it('should reset the filter value when `active` is false', async () => {
         const wrapper = await createWrapper();
 
-        const options = wrapper.find('select').findAll('option');
-
-        await options.at(0).setSelected();
+        await selectMtSelectOptionByText(wrapper, 'true');
 
         await wrapper.setProps({ active: false });
 
@@ -154,9 +142,7 @@ describe('components/sw-existence-filter', () => {
     it('should not reset the filter value when `active` is true', async () => {
         const wrapper = await createWrapper();
 
-        const options = wrapper.find('select').findAll('option');
-
-        await options.at(0).setSelected();
+        await selectMtSelectOptionByText(wrapper, 'true');
 
         await wrapper.setProps({ active: true });
 
@@ -176,9 +162,7 @@ describe('components/sw-existence-filter', () => {
             },
         });
 
-        const options = wrapper.find('select').findAll('option');
-
-        await options.at(0).setSelected();
+        await selectMtSelectOptionByText(wrapper, 'Has media');
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'media',

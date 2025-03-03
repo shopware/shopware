@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartResponse;
 use Shopware\Core\Checkout\Order\OrderAddressService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Rule\Rule;
@@ -58,33 +59,7 @@ class OrderRecalculationController extends AbstractController
         $quantity = $request->request->getInt('quantity', 1);
 
         $lineItem = new LineItem($identifier, $type, null, $quantity);
-        $label = $request->request->get('label');
-        $description = $request->request->get('description');
-        $removeable = (bool) $request->request->get('removeable', true);
-        $stackable = (bool) $request->request->get('stackable', true);
-        $payload = $request->request->all('payload');
-        $priceDefinition = $request->request->all('priceDefinition');
-
-        if ($label !== null && !\is_string($label)) {
-            throw RoutingException::invalidRequestParameter('label');
-        }
-
-        if ($description !== null && !\is_string($description)) {
-            throw RoutingException::invalidRequestParameter('description');
-        }
-
-        $lineItem->setLabel($label);
-        $lineItem->setDescription($description);
-        $lineItem->setRemovable($removeable);
-        $lineItem->setStackable($stackable);
-        $lineItem->setPayload($payload);
-
-        $lineItem->setPriceDefinition(
-            new AbsolutePriceDefinition(
-                (float) $priceDefinition['price'],
-                new LineItemOfTypeRule(Rule::OPERATOR_NEQ, $type)
-            )
-        );
+        $this->updateLineItemByRequest($request, $lineItem, true);
 
         $this->recalculationService->addCustomLineItem($orderId, $lineItem, $context);
 
@@ -146,32 +121,46 @@ class OrderRecalculationController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @throws CartException
-     */
-    private function updateLineItemByRequest(Request $request, LineItem $lineItem): void
+    private function updateLineItemByRequest(Request $request, LineItem $lineItem, bool $absolute = false): void
     {
         $label = $request->request->get('label');
         $description = $request->request->get('description');
-        $removeable = (bool) $request->request->get('removeable', true);
+        $removable = (bool) $request->request->get('removeable', true);
         $stackable = (bool) $request->request->get('stackable', true);
         $payload = $request->request->all('payload');
         $priceDefinition = $request->request->all('priceDefinition');
 
         if ($label !== null && !\is_string($label)) {
-            throw RoutingException::invalidRequestParameter('label');
+            // @deprecated tag:v6.8.0 - remove this if block
+            if (!Feature::isActive('v6.8.0.0')) {
+                throw RoutingException::invalidRequestParameter('label'); // @phpstan-ignore shopware.domainException
+            }
+            throw CartException::invalidRequestParameter('label');
         }
 
         if ($description !== null && !\is_string($description)) {
-            throw RoutingException::invalidRequestParameter('description');
+            // @deprecated tag:v6.8.0 - remove this if block
+            if (!Feature::isActive('v6.8.0.0')) {
+                throw RoutingException::invalidRequestParameter('description'); // @phpstan-ignore shopware.domainException
+            }
+            throw CartException::invalidRequestParameter('description');
         }
 
         $lineItem->setLabel($label);
         $lineItem->setDescription($description);
-        $lineItem->setRemovable($removeable);
+        $lineItem->setRemovable($removable);
         $lineItem->setStackable($stackable);
         $lineItem->setPayload($payload);
 
-        $lineItem->setPriceDefinition(QuantityPriceDefinition::fromArray($priceDefinition));
+        if (!$absolute) {
+            $lineItem->setPriceDefinition(QuantityPriceDefinition::fromArray($priceDefinition));
+        } else {
+            $lineItem->setPriceDefinition(
+                new AbsolutePriceDefinition(
+                    (float) $priceDefinition['price'],
+                    new LineItemOfTypeRule(Rule::OPERATOR_NEQ, LineItem::CREDIT_LINE_ITEM_TYPE)
+                )
+            );
+        }
     }
 }

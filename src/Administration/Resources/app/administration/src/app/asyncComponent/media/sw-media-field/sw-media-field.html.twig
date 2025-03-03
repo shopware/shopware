@@ -37,6 +37,7 @@
             class="sw-media-field__toggle-button"
             square
             :disabled="disabled"
+            variant="secondary"
             @click="onTogglePicker"
         >
             {% block sw_media_field_media_icon %}
@@ -56,6 +57,7 @@
                         {% block sw_media_field_action_bar_button_toggle %}
                         <mt-button
                             class="sw-media-field__action-button"
+                            variant="secondary"
                             @click="toggleUploadField"
                         >
                             <mt-icon
@@ -71,6 +73,7 @@
                         <mt-button
                             v-if="mediaId"
                             class="sw-media-field__action-button is--remove"
+                            variant="secondary"
                             @click="removeLink"
                         >
                             <mt-icon

@@ -26,6 +26,7 @@
                 size="small"
                 :disabled="!acl.can('users_and_permissions.creator') || undefined"
                 class="sw-users-permissions-user-listing__add-user-button"
+                variant="secondary"
                 @click="$router.push({ name: 'sw.users.permissions.user.create' })"
             >
                 {{ $tc('sw-users-permissions.users.general.labelCreateNewUser') }}
@@ -141,8 +142,8 @@
                 {% endblock %}
 
                 {% block sw_settings_user_list_delete_modal_input__confirm_password %}
-                <sw-password-field
-                    v-model:value="confirmPassword"
+                <mt-password-field
+                    v-model="confirmPassword"
                     class="sw-settings-user-detail__confirm-password"
                     required
                     name="sw-field--confirm-password"
@@ -159,6 +160,7 @@
                     {% block sw_settings_user_list_delete_modal_cancel %}
                     <mt-button
                         size="small"
+                        variant="secondary"
                         @click="onCloseDeleteModal"
                     >
                         {{ $tc('global.default.cancel') }}

@@ -123,6 +123,17 @@ export default Shopware.Component.wrapComponentConfig({
             return this.cmsPageTypeService.getTypes();
         },
 
+        pageTypesOptions() {
+            return this.pageTypes.map((pageType) => {
+                return {
+                    id: pageType.name,
+                    label: this.$tc(pageType.title),
+                    value: pageType.name,
+                    disabled: this.isDisabledPageType(pageType) || undefined,
+                };
+            });
+        },
+
         blockRepository() {
             return this.repositoryFactory.create('cms_block');
         },
@@ -219,6 +230,15 @@ export default Shopware.Component.wrapComponentConfig({
             });
 
             return defaultCategories;
+        },
+
+        cmsBlockCategoriesOptions() {
+            return this.cmsBlockCategories.map((category) => {
+                return {
+                    value: category.value,
+                    label: this.$tc(category.label),
+                };
+            });
         },
 
         mediaRepository() {

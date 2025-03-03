@@ -26,8 +26,8 @@
             {% endblock %}
 
             {% block sw_settings_country_general_content_field_position %}
-            <sw-number-field
-                v-model:value="country.position"
+            <mt-number-field
+                v-model="country.position"
                 name="sw-field--country-position"
                 number-type="int"
                 :disabled="!acl.can('country.editor') || undefined"
@@ -112,8 +112,8 @@
 
                 {% block sw_settings_country_general_content_field_tax_free_from_customer %}
                 {% block sw_settings_country_general_content_field_tax_free_from_customer_value %}
-                <sw-number-field
-                    v-model:value="country.customerTax.amount"
+                <mt-number-field
+                    v-model="country.customerTax.amount"
                     name="sw-field--country-customerTax-amount"
                     class="sw-settings-country-general__input-amount customer-tax-amount"
                     :min="0"
@@ -132,7 +132,7 @@
                             :disabled="!acl.can('country.editor') || undefined"
                         />
                     </template>
-                </sw-number-field>
+                </mt-number-field>
                 {% endblock %}
                 {% endblock %}
 
@@ -179,8 +179,8 @@
 
                 {% block sw_settings_country_general_content_field_tax_free_from_companies %}
                 {% block sw_settings_country_general_content_field_tax_free_from_companies_value %}
-                <sw-number-field
-                    v-model:value="country.companyTax.amount"
+                <mt-number-field
+                    v-model="country.companyTax.amount"
                     name="sw-field--country-companyTax-amount"
                     class="sw-settings-country-general__input-amount"
                     :min="0"
@@ -198,7 +198,7 @@
                             :disabled="!acl.can('country.editor') || undefined"
                         />
                     </template>
-                </sw-number-field>
+                </mt-number-field>
                 {% endblock %}
                 {% endblock %}
 

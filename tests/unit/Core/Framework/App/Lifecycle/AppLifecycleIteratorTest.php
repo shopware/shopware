@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -36,7 +37,7 @@ class AppLifecycleIteratorTest extends TestCase
 
         $lifecycle->iterateOverApps(
             $appLifecycle,
-            true,
+            new AppInstallParameters(),
             Context::createCLIContext()
         );
     }
@@ -66,7 +67,7 @@ class AppLifecycleIteratorTest extends TestCase
 
         $lifecycle->iterateOverApps(
             $appLifecycle,
-            true,
+            new AppInstallParameters(),
             Context::createCLIContext()
         );
     }
@@ -96,7 +97,7 @@ class AppLifecycleIteratorTest extends TestCase
 
         $lifecycle->iterateOverApps(
             $appLifecycle,
-            true,
+            new AppInstallParameters(),
             Context::createCLIContext()
         );
     }
@@ -124,7 +125,7 @@ class AppLifecycleIteratorTest extends TestCase
 
         $lifecycle->iterateOverApps(
             $appLifecycle,
-            true,
+            new AppInstallParameters(),
             Context::createCLIContext()
         );
     }
@@ -152,7 +153,7 @@ class AppLifecycleIteratorTest extends TestCase
 
         $lifecycle->iterateOverApps(
             $appLifecycle,
-            true,
+            new AppInstallParameters(),
             Context::createCLIContext(),
             ['Foo']
         );
@@ -175,7 +176,7 @@ class AppLifecycleIteratorTest extends TestCase
 
         $fails = $lifecycle->iterateOverApps(
             $appLifecycle,
-            true,
+            new AppInstallParameters(),
             Context::createCLIContext()
         );
 

@@ -87,10 +87,10 @@
                     {% block sw_cms_layout_modal_content_listing_item %}
 
                     {% block sw_cms_layout_modal_content_listing_item_checkbox %}
-                    <sw-checkbox-field
-                        :value="cmsPage.id === selectedPageObject?.id"
+                    <mt-checkbox
+                        :checked="cmsPage.id === selectedPageObject?.id"
                         class="sw-cms-layout-modal__content-checkbox"
-                        @update:value="selectItem(cmsPage)"
+                        @update:checked="selectItem(cmsPage)"
                     />
                     {% endblock %}
 
@@ -192,7 +192,10 @@
 
     {% block sw_cms_layout_modal_footer %}
     <template #modal-footer>
-        <mt-button @click="closeModal">
+        <mt-button
+            variant="secondary"
+            @click="closeModal"
+        >
             {{ $tc('global.default.cancel') }}
         </mt-button>
         <mt-button

@@ -326,7 +326,7 @@
                             },
                             {
                                 "type": "string",
-                                "enum": ["null"]
+                                "enum": [null]
                             }
                         ]
                     }

@@ -97,7 +97,7 @@
                                     },
                                     {
                                         "type": "string",
-                                        "enum": ["null"]
+                                        "enum": [null]
                                     }
                                 ]
                             },
@@ -111,7 +111,7 @@
                                     },
                                     {
                                         "type": "string",
-                                        "enum": ["null"]
+                                        "enum": [null]
                                     }
                                 ]
                             },

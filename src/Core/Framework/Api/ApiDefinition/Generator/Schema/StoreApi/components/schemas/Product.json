@@ -60,7 +60,8 @@
                                                 "$ref": "#/components/schemas/CartPriceReference"
                                             },
                                             {
-                                                "type": "null"
+                                                "type": "string",
+                                                "enum": ["null"]
                                             }
                                         ]
                                     },
@@ -70,7 +71,8 @@
                                                 "$ref": "#/components/schemas/CartListPrice"
                                             },
                                             {
-                                                "type": "null"
+                                                "type": "string",
+                                                "enum": ["null"]
                                             }
                                         ]
                                     },

@@ -29,7 +29,8 @@
                                 "$ref": "#/components/schemas/CartListPrice"
                             },
                             {
-                                "type": "null"
+                                "type": "string",
+                                "enum": ["null"]
                             }
                         ]
                     },

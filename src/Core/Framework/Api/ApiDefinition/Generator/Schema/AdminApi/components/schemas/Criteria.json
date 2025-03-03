@@ -169,7 +169,7 @@
                             { "type": "string" },
                             { "type": "number" },
                             { "type": "boolean" },
-                            { "type": "null" }
+                            { "type": "string", "enum": ["null"] }
                         ]
                     }
                 },

@@ -100,12 +100,6 @@
                                                 "type": "string",
                                                 "enum": ["private"],
                                                 "default": "private"
-                                            },
-                                            "company": {
-                                                "type": "null"
-                                            },
-                                            "vatIds": {
-                                                "type": "null"
                                             }
                                         }
                                     },
@@ -819,12 +813,6 @@
                                                 "type": "string",
                                                 "enum": ["private"],
                                                 "default": "private"
-                                            },
-                                            "company": {
-                                                "type": "null"
-                                            },
-                                            "vatIds": {
-                                                "type": "null"
                                             }
                                         }
                                     },

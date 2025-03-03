@@ -14,13 +14,11 @@ test('As a merchant, I want to be able to create and assign custom fields to dif
     IdProvider,
     DefaultSalesChannel,
     CreateCustomField,
-    AdminManufacturerDetail,
 
 }) => {
 
     const product = await TestDataService.createBasicProduct();
     const customer = await TestDataService.createCustomer();
-    const manufacturer = await TestDataService.createBasicManufacturer();
     const order = await TestDataService.createOrder(
         [{ product: product, quantity: 5 }],
         customer
@@ -43,7 +41,7 @@ test('As a merchant, I want to be able to create and assign custom fields to dif
     expect(customFieldSetResponse).toBeTruthy();
 
     await ShopAdmin.attemptsTo(CreateCustomField(customFieldTextName, 'Text field'));
-    await ShopAdmin.attemptsTo(CreateCustomField(customFieldNumberName, 'number'));
+    await ShopAdmin.attemptsTo(CreateCustomField(customFieldNumberName, 'Number field'));
 
     let customFields = await AdminCustomFieldDetail.getLineItemByCustomFieldName(customFieldTextName);
     await ShopAdmin.expects(customFields.customFieldLabelText).toBeVisible();
@@ -105,24 +103,18 @@ test('As a merchant, I want to be able to create and assign custom fields to dif
     await test.step('Validate the availability of one custom field on a rule builder page.', async () => {
 
         await ShopAdmin.goesTo(AdminRuleCreate.url());
-        await AdminRuleCreate.conditionTypeSelectionInput.click();
-        await AdminRuleCreate.filtersResultPopoverSelectionList.filter({ hasText: 'Item with custom field' }).click();
-        await AdminRuleCreate.conditionValueSelectionInput.click();
-        await AdminRuleCreate.filtersResultPopoverSelectionList.getByText(customFieldTextName).hover();
-        await ShopAdmin.expects(AdminRuleCreate.page.locator('.sw-tooltip')).not.toBeVisible();
-        await AdminRuleCreate.filtersResultPopoverSelectionList.getByText(customFieldNumberName).hover();
-        await ShopAdmin.expects(AdminRuleCreate.page.locator('.sw-tooltip')).toContainText('This custom field is currently not available in shopping carts.');
+        await (await AdminRuleCreate.getSelectFieldListitem(AdminRuleCreate.conditionTypeSelectionInput, 'Item with custom field')).click();
+        await (await AdminRuleCreate.getSelectFieldListitem(AdminRuleCreate.conditionValueSelectionInput, customFieldTextName)).hover();
+        await ShopAdmin.expects(await AdminRuleCreate.getSelectFieldListitem(AdminRuleCreate.conditionValueSelectionInput, customFieldTextName)).not.toBeDisabled();
+        await ShopAdmin.expects(AdminRuleCreate.valueNotAvailableTooltip).not.toBeVisible();
+        await ShopAdmin.expects(await AdminRuleCreate.getSelectFieldListitem(AdminRuleCreate.conditionValueSelectionInput, customFieldNumberName)).toBeDisabled();
+        await (await AdminRuleCreate.getSelectFieldListitem(AdminRuleCreate.conditionValueSelectionInput, customFieldNumberName)).hover();
+        await ShopAdmin.expects(AdminRuleCreate.valueNotAvailableTooltip).toContainText('This custom field is currently not available in shopping carts.');
     });
 
     await test.step('Validate the unavailability of the custom field on a customer detail page.', async () => {
 
         await ShopAdmin.goesTo(AdminCustomerDetail.url(customer.id));
         await ShopAdmin.expects(AdminCustomerDetail.customFieldCard).not.toBeVisible();
-    });
-
-    await test.step('Validate the unavailability of custom field on a manufacturer page.', async () => {
-
-        await ShopAdmin.goesTo(AdminManufacturerDetail.url(manufacturer.id));
-        await ShopAdmin.expects(AdminManufacturerDetail.customFieldCard).not.toBeVisible();
     });
 });

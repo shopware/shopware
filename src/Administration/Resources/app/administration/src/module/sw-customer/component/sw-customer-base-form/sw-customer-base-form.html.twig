@@ -69,8 +69,8 @@
         {% endblock %}
 
         {% block sw_customer_base_form_email_field %}
-        <sw-email-field
-            v-model:value="customer.email"
+        <mt-email-field
+            v-model="customer.email"
             name="sw-field--customer-email"
             required
             :label="$tc('sw-customer.baseForm.labelEmail')"
@@ -80,8 +80,8 @@
         {% endblock %}
 
         {% block sw_customer_base_form_password_field %}
-        <sw-password-field
-            v-model:value="customer.password"
+        <mt-password-field
+            v-model="customer.password"
             name="sw-field--customer-password"
             autocomplete="new-password"
             :required="!customer.guest"

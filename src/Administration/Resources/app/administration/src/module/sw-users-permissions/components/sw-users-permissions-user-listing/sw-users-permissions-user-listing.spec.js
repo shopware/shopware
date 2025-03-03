@@ -53,7 +53,6 @@ async function createWrapper(privileges = []) {
                     'sw-avatar': true,
                     'router-link': true,
                     'sw-pagination': true,
-                    'sw-password-field': true,
                 },
             },
         },

@@ -16,6 +16,7 @@
             size="x-small"
             :disabled="disabled || itemMin"
             square
+            variant="secondary"
             @click="onLowerPositionValue(item)"
         >
             {% block sw_data_grid_column_position_button_up_content %}
@@ -33,6 +34,7 @@
             size="x-small"
             :disabled="disabled || itemMax"
             square
+            variant="secondary"
             @click="onRaisePositionValue(item)"
         >
             {% block sw_data_grid_column_position_button_down_content %}

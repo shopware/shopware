@@ -13,7 +13,10 @@
     {% block sw_discard_changes_modal_footer %}
     <template #modal-footer>
         {% block sw_discard_changes_modal_discard_changes_modal_cancel %}
-        <mt-button @click="keepEditing">
+        <mt-button
+            variant="secondary"
+            @click="keepEditing"
+        >
             {{ $t('sw-discard-changes-modal.actions.keepEditing') }}
         </mt-button>
 

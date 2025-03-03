@@ -123,6 +123,7 @@
                                 v-if="isEditing"
                                 class="sw-order-user-card__address-edit-button"
                                 size="small"
+                                variant="secondary"
                                 @click="onEditBillingAddress"
                             >
                                 {{ $tc('sw-order.detailBase.buttonEditAddress') }}
@@ -184,6 +185,7 @@
                                 v-show="hasDifferentBillingAndShippingAddress && isEditing"
                                 class="sw-order-user-card__address-edit-button"
                                 size="small"
+                                variant="secondary"
                                 @click="onEditDeliveryAddress"
                             >
                                 {{ $tc('sw-order.detailBase.buttonEditAddress') }}
@@ -199,6 +201,7 @@
                                 class="sw-order-user-card__address-add-button"
                                 size="small"
                                 block
+                                variant="secondary"
                                 @click="onAddNewDeliveryAddress"
                             >
                                 {{ $tc('sw-order.detailBase.buttonAddDeliveryAddress') }}
@@ -348,6 +351,7 @@
                                     size="x-small"
                                     :link="renderTrackingUrl(trackingCode, delivery.shippingMethod)"
                                     :disabled="!renderTrackingUrl(trackingCode, delivery.shippingMethod)"
+                                    variant="secondary"
                                 >{{ trackingCode }}</mt-button>
                                 {% endblock %}
                             </dd>

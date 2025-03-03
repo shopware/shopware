@@ -128,8 +128,8 @@
         <template
             #column-quantityStart="{ item, itemIndex, compact }"
         >
-            <sw-number-field
-                v-model:value="item.quantityStart"
+            <mt-number-field
+                v-model="item.quantityStart"
                 :disabled="disabled"
                 :name="`sw-field--${item.id}-quantity-start`"
                 :number-type="numberFieldType"
@@ -144,8 +144,8 @@
         <template
             #column-quantityEnd="{ item, itemIndex, compact }"
         >
-            <sw-number-field
-                v-model:value="item.quantityEnd"
+            <mt-number-field
+                v-model="item.quantityEnd"
                 :disabled="disabled"
                 :name="`sw-field--${item.id}-quantity-end`"
                 :number-type="numberFieldType"
@@ -154,7 +154,7 @@
                 :validation="item.quantityEnd === null || item.quantityEnd > item.quantityStart"
                 :min="item.quantityStart"
                 :digits="3"
-                @update:value="onQuantityEndChange(item)"
+                @update:model-value="onQuantityEndChange(item)"
             />
         </template>
         {% endblock %}
@@ -182,16 +182,16 @@
                         @inheritance-remove="props.removeInheritance"
                     />
 
-                    <sw-number-field
-                        v-model:value="props.currentValue.gross"
+                    <mt-number-field
+                        v-model="props.currentValue.gross"
                         :name="`sw-field--${item.id}-${currency.id}-gross`"
                         :size="compact ? 'small' : 'default'"
                         class="sw-settings-shipping-price-matrix__price-input"
                         :digits="50"
                         :disabled="props.isInherited || disabled"
                     />
-                    <sw-number-field
-                        v-model:value="props.currentValue.net"
+                    <mt-number-field
+                        v-model="props.currentValue.net"
                         :name="`sw-field--${item.id}-${currency.id}-net`"
                         :size="compact ? 'small' : 'default'"
                         class="sw-settings-shipping-price-matrix__price-input"
@@ -225,6 +225,7 @@
             ghost
             size="small"
             class="sw-settings-shipping-price-matrix__price-load-all-button"
+            variant="secondary"
             @click="updateShowAllPrices"
         >
             {{ $tc('sw-settings-shipping.priceMatrix.buttonLoadAllPrices') }}
@@ -305,6 +306,7 @@
             {% block sw_settings_shipping_price_matrix_delete_modal_cancel %}
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCloseDeleteModal"
             >
                 {{ $tc('global.default.cancel') }}

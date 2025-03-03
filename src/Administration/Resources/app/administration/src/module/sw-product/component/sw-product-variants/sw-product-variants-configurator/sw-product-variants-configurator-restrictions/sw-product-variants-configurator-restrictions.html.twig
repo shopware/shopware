@@ -16,6 +16,7 @@
         <mt-button
             ghost
             size="small"
+            variant="secondary"
             @click="addEmptyRestrictionCombination"
         >
             {{ $tc('sw-product.variations.configuratorModal.addNewRestriction') }}
@@ -117,6 +118,7 @@
             {% block sw_product_variants_configurator_restrictions_modal_main_button_new_restriction %}
             <mt-button
                 class="sw-product-variants-configurator-restrictions__button-new-restriction"
+                variant="secondary"
                 @click="addEmptyRestriction"
             >
                 {{ $tc('sw-product.variations.configuratorModal.singleRestrictionSeperation') }}
@@ -130,6 +132,7 @@
             {% block sw_product_variants_configurator_restrictions_modal_footer_cancel %}
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="cancelAddRestriction"
             >
                 {{ $tc('global.default.cancel') }}

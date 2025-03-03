@@ -21,126 +21,42 @@ jobs:
       matrix:
         name:
           - "Platform"
-          - "Install"
-        major:
-          - ""
         php-version:
-          - "8.2"
           - "8.4"
+        shard:
+          - '1'
+          - '2'
+          - '3'
+        shard-count:
+          - 3
         include:
-          - name: "Platform"
-            major: "major"
+          # TODO: enable them in nightly/queue again with help of shopware/github-actions#67
+          # - name: "Platform"
+          #   major: "major"
+          #   php-version: 8.2
+          # - name: "Platform"
+          #   major: "major"
+          #   php-version: 8.4
+          - name: "Install"
+            major: ''
             php-version: 8.2
-          - name: "Platform"
-            major: "major"
-            php-version: 8.4
-    env:
-      SHOPWARE_HTTP_CACHE_ENABLED: 0
-      SHOPWARE_DISABLE_UPDATE_CHECK: "true"
-      BLUE_GREEN_DEPLOYMENT: 1
-      COMPOSER_ROOT_VERSION: 6.7.9999999-dev
-      MAILER_DSN: "smtp://localhost:1025"
-      MAILPIT_BASE_URL: "http://localhost:8025"
-      USE_CURRENTS: ${{ inputs.nightly == 'true' && matrix.php-version == '8.4' && !matrix.major && 'true' || 'false' }}
-    services:
-      database:
-        image: mysql:8.0
-        env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-          MYSQL_DATABASE: shopware
-        ports:
-          - "3306:3306"
-        options: --health-cmd="mysqladmin ping"
-      redis: # Redis is required since cache rework
-        image: ${{ matrix.major == 'major' && 'redis:alpine' || '' }}
-        ports:
-          - "6379:6379"
-      mailpit:
-        image: axllent/mailpit
-        ports:
-          - "1025:1025"
-          - "8025:8025"
-
+            shard: 1
+            shard-count: 1
     steps:
-      - name: Define environment for major testing
-        shell: bash
-        if: ${{ matrix.major == 'major' }}
-        run: |
-          echo "Workflow Ref: ${{ github.workflow_ref }}"
-          echo "V6_7_0_0=1" >> $GITHUB_ENV
-          echo "FEATURE_ALL=major" >> $GITHUB_ENV
-          echo "DISABLE_VUE_COMPAT=0" >> $GITHUB_ENV
-          echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
-          echo "ADMIN_VITE=1" >> $GITHUB_ENV
-
-      - name: Setup Shopware
-        uses: shopware/setup-shopware@main
+      - name: Checkout
+        uses: actions/checkout@v4
+      - uses: ./.github/actions/ats
         with:
-          mysql-version: "skip"
-          shopware-version: ${{ github.ref }}
-          shopware-repository: ${{ github.repository }}
-          install: ${{ matrix.name != 'Install' }} # When testing the installation routine of Shopware, don't execute the installation automatically
-          install-admin: ${{ matrix.name != 'Install' }}
-          install-storefront: ${{ matrix.name != 'Install' }}
-          env: prod
-          composer-root-version: ${{ matrix.major == 'major' && '6.7.9999999-dev' || '.auto' }}
+          project: ${{ matrix.name }}
           php-version: ${{ matrix.php-version }}
-
-      - name: Build js
-        if: ${{ matrix.name == 'Install' }}
-        run: |
-          mkdir -p config/jwt
-          composer run build:js:admin
-          composer npm:storefront run production # we cannot use build:js because it requires a db
-          (cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js)
-
-      - name: Start Webserver
-        if: ${{ matrix.name == 'Install' }}
-        shell: bash
-        working-directory: ${{ inputs.path }}
-        env:
-          SYMFONY_DAEMON: "1"
-          SYMFONY_NO_TLS: "1"
-          SYMFONY_ALLOW_HTTP: "1"
-          SYMFONY_PORT: "8000"
-          SYMFONY_ALLOW_ALL_IP: "1"
-        run: symfony server:start
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        working-directory: tests/acceptance
-        run: npm ci
-
-      - name: Install Playwright Browsers
-        working-directory: tests/acceptance
-        run: npx playwright install --with-deps chromium
-
-      - name: Run your tests with reporting
-        if: ${{ env.USE_CURRENTS == 'true' }}
-        working-directory: tests/acceptance
-        env:
-          CURRENTS_BUILD_ID: "${{ format('{0}-{1}-{2}', github.repository, github.run_id, github.run_attempt) }}${{ matrix.major }}"
-        run: |-
-          npx pwc \
-            --ci-build-id ${CURRENTS_BUILD_ID} \
-            --project-id ${{ secrets.CURRENTS_PROJECT_ID }} \
-            --key ${{ secrets.CURRENTS_RECORD_KEY }} \
-            -- --project ${{ matrix.name }} --trace=on
-
-      - name: Run your tests
-        if: ${{ env.USE_CURRENTS != 'true' }}
-        working-directory: tests/acceptance
-        run: npx playwright test --project=${{ matrix.name }} ${{ matrix.name == 'Install' && '--trace=on' || '' }}
-
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: playwright-report-${{ matrix.name }}-php${{ matrix.php-version }}-${{ matrix.major == 'major' && '-major' || '' }}
-          path: tests/acceptance/test-results/
-          retention-days: 3
+          shard: ${{ matrix.shard }}
+          shard-count: ${{ matrix.shard-count }}
+          workers: ${{ matrix.name != 'Install' && '2' || '1' }}
+          install: ${{ matrix.name != 'Install' && 'true' || 'false' }}
+          extra-options: ${{ matrix.name != 'Install' && '' || '--trace=on' }}
+          use-currents: ${{ inputs.nightly == 'true' && matrix.php-version == '8.4' && !matrix.major && 'true' || '' }}
+          currents-project-id: ${{ secrets.CURRENTS_PROJECT_ID }}
+          currents-record-key: ${{ secrets.CURRENTS_RECORD_KEY }}
 
   phpunit-matrix:
     runs-on: ubuntu-24.04

@@ -34,7 +34,6 @@ async function createWrapper() {
                 'sw-card-view': true,
                 'sw-button-process': true,
                 'sw-email-field': true,
-                'sw-password-field': true,
                 'sw-entity-tag-select': true,
                 'sw-card-section': await wrapTestComponent('sw-card-section'),
                 'sw-container': await wrapTestComponent('sw-container'),

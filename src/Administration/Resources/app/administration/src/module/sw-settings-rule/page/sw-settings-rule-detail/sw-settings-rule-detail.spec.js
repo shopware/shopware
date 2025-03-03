@@ -247,7 +247,6 @@ async function createWrapper(props = defaultProps, provide = {}) {
                 'sw-textarea-field': true,
                 'sw-extension-component-section': true,
                 'sw-text-field': true,
-                'sw-number-field': true,
                 'sw-card-filter': true,
                 'sw-settings-rule-assignment-listing': true,
                 'sw-empty-state': true,

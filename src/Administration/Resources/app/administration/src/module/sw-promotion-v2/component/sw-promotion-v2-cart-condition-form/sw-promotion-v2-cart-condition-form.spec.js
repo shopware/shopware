@@ -39,7 +39,6 @@ async function createWrapper() {
                     },
                     'sw-context-menu-item': true,
                     'sw-select-field': true,
-                    'sw-number-field': true,
                 },
                 provide: {
                     promotionSyncService: {

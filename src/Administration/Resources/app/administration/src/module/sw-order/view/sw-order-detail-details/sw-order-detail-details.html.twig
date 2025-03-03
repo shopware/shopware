@@ -4,6 +4,7 @@
     {% block sw_order_detail_details_payment %}
     <sw-order-details-state-card
         v-if="transaction"
+        position="transaction"
         :title="$tc('sw-order.detailsTab.labelTransactionCard')"
         :order="order"
         :entity="transaction"
@@ -44,6 +45,7 @@
     {% block sw_order_detail_details_shipping %}
     <sw-order-details-state-card
         v-if="delivery"
+        position="delivery"
         :title="$tc('sw-order.detailsTab.labelDeliveryCard')"
         :order="order"
         :entity="delivery"
@@ -78,8 +80,8 @@
         {% endblock %}
 
         {% block sw_order_detail_details_shipping_costs %}
-        <sw-number-field
-            v-model:value="shippingCosts"
+        <mt-number-field
+            v-model="shippingCosts"
             class="sw-order-detail-details__shipping-cost"
             :disabled="!acl.can('order.editor')"
             fill-digits
@@ -88,7 +90,7 @@
             <template #suffix>
                 {{ order.currency.symbol }}
             </template>
-        </sw-number-field>
+        </mt-number-field>
         {% endblock %}
 
         {% block sw_order_detail_details_shipping_date %}
@@ -124,6 +126,7 @@
 
     {% block sw_order_detail_details_order %}
     <sw-order-details-state-card
+        position="order"
         :title="$tc('sw-order.detailsTab.labelOrderCard')"
         :order="order"
         :entity="order"

@@ -27,7 +27,6 @@ describe('src/module/sw-settings-mailer/component/sw-settings-mailer-smtp', () =
                         'sw-field-error': true,
                         'sw-single-select': true,
 
-                        'sw-password-field': true,
                         'sw-help-text': true,
                         'sw-field-copyable': true,
                         'sw-inheritance-switch': true,

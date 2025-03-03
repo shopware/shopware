@@ -344,7 +344,7 @@ class CustomerException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.8.0.0 - reason:return-type-change - Will return self
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
      */
     public static function productNotFound(string $productId): self|ProductNotFoundException
     {
@@ -361,7 +361,7 @@ class CustomerException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.8.0.0 - reason:return-type-change - Will return self
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
      */
     public static function missingOption(string $option, string $constraint): self|MissingOptionsException
     {

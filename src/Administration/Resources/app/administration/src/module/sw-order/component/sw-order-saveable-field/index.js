@@ -61,7 +61,7 @@ export default {
                 case 'number':
                     return 'sw-number-field';
                 case 'password':
-                    return 'sw-password-field';
+                    return 'mt-password-field';
                 case 'radio':
                     return 'sw-radio-field';
                 case 'select':

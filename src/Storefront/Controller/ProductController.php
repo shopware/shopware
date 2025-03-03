@@ -88,7 +88,7 @@ class ProductController extends StorefrontController
             );
 
             $variant = $variantResponse->getFoundCombination()->getVariant();
-            if ($variant !== null) {
+            if ($variant) {
                 $productId = $variant->getId();
             }
 
@@ -96,10 +96,29 @@ class ProductController extends StorefrontController
                 . $request->attributes->get(RequestTransformer::SALES_CHANNEL_BASE_URL);
 
             $url = $this->seoUrlPlaceholderHandler->replace(
-                $variant?->getSeoUrls()?->first()->getPathInfo() ?? $this->seoUrlPlaceholderHandler->generate(
-                    'frontend.detail.page',
-                    ['productId' => $productId]
-                ),
+                (function () use ($variant, $productId) {
+                    // First check if variant exists
+                    if ($variant === null) {
+                        // No variant, generate default URL
+                        return $this->seoUrlPlaceholderHandler->generate(
+                            'frontend.detail.page',
+                            ['productId' => $productId]
+                        );
+                    }
+
+                    // Variant exists, check if it has SEO URLs
+                    $seoUrls = $variant->getSeoUrls();
+                    if ($seoUrls === null || $seoUrls->count() === 0 || $seoUrls->first() === null) {
+                        // No SEO URLs, generate default URL
+                        return $this->seoUrlPlaceholderHandler->generate(
+                            'frontend.detail.page',
+                            ['productId' => $productId]
+                        );
+                    }
+
+                    // SEO URL exists, return its path info
+                    return $seoUrls->first()->getPathInfo();
+                })(),
                 $host,
                 $salesChannelContext
             );

@@ -3,6 +3,9 @@ import flowState from 'src/module/sw-flow/state/flow.state';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import FlowBuilderService from 'src/module/sw-flow/service/flow-builder.service';
 
+/**
+ * @sw-package after-sales
+ */
 
 class MockFlowBuilderService extends FlowBuilderService {
     rearrangeArrayObjects = jest.fn((sequence) => {

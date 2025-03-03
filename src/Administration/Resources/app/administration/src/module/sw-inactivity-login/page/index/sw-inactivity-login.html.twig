@@ -7,8 +7,8 @@
         :title="$tc('sw-inactivity-login.modal.title')"
         :closable="false"
     >
-        <sw-password-field
-            v-model:value="password"
+        <mt-password-field
+            v-model="password"
             v-autofocus
             :label="$tc('sw-login.index.labelPassword')"
             :disabled="isLoading"

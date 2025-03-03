@@ -58,8 +58,8 @@
             :options="localeOptions"
         />
 
-        <sw-password-field
-            v-model:value="user.pw"
+        <mt-password-field
+            v-model="user.pw"
             type="password"
             :label="$tc('sw-first-run-wizard.shopwareAccount.passwordPlaceholder')"
             @keypress.enter="onConfirmLanguageSwitch"

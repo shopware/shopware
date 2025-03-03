@@ -86,12 +86,6 @@ async function createWrapper(privileges = []) {
                     'sw-text-field': true,
                     'sw-upload-listener': true,
                     'sw-media-upload-v2': true,
-                    'sw-password-field': {
-                        template: `
-                        <input type="password" :value="value" @input="$emit('update:value', $event.target.value)">
-                    `,
-                        props: ['value'],
-                    },
                     'sw-select-field': true,
 
                     'sw-entity-multi-select': true,
@@ -147,7 +141,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
         await wrapper.setData({ isLoading: false });
         expect(wrapper.vm.user.password).toBe('');
 
-        const fieldPassword = wrapper.find('.sw-settings-user-detail__grid-password');
+        const fieldPassword = wrapper.findByLabel('sw-users-permissions.users.user-detail.labelPassword');
         await fieldPassword.setValue('Passw0rd!');
         await flushPromises();
 

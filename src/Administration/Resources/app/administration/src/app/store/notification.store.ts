@@ -279,6 +279,7 @@ const notificationStore = Shopware.Store.register({
 
         createGrowlNotification(notification: NotificationType) {
             const mergedNotification = {
+                actions: [],
                 ...growlNotificationDefaults,
                 ...notification,
                 uuid: utils.createId(),

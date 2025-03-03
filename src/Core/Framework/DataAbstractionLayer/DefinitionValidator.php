@@ -231,7 +231,7 @@ class DefinitionValidator
             $violations = array_merge_recursive($violations, $this->findNotRegisteredTables($tableSchemas));
         } catch (Exception $e) {
             // DBAL 3.x does not support enum types, we need to skip validation for now
-            // will be fixed with DBAL 4 in shopware 6.7
+            // will be fixed with DBAL >= 4.2 in shopware 6.7
             if (!str_contains($e->getMessage(), 'Unknown database type enum requested')) {
                 throw $e;
             }
@@ -481,7 +481,7 @@ class DefinitionValidator
             $columns = $this->connection->createSchemaManager()->listTableColumns($translationDefinition->getEntityName());
         } catch (Exception $e) {
             // DBAL 3.x does not support enum types, we need to skip validation for now
-            // will be fixed with DBAL 4 in shopware 6.7
+            // will be fixed with DBAL >= 4.2 in shopware 6.7
             if (str_contains($e->getMessage(), 'Unknown database type enum requested')) {
                 return [];
             }
@@ -919,7 +919,7 @@ class DefinitionValidator
             $columns = $this->connection->createSchemaManager()->listTableColumns($definition->getEntityName());
         } catch (Exception $e) {
             // DBAL 3.x does not support enum types, we need to skip validation for now
-            // will be fixed with DBAL 4 in shopware 6.7
+            // will be fixed with DBAL >= 4.2 in shopware 6.7
             if (str_contains($e->getMessage(), 'Unknown database type enum requested')) {
                 return [];
             }
@@ -974,7 +974,7 @@ class DefinitionValidator
             $columns = $this->connection->createSchemaManager()->listTableColumns($definition->getEntityName());
         } catch (Exception $e) {
             // DBAL 3.x does not support enum types, we need to skip validation for now
-            // will be fixed with DBAL 4 in shopware 6.7
+            // will be fixed with DBAL >= 4.2 in shopware 6.7
             if (str_contains($e->getMessage(), 'Unknown database type enum requested')) {
                 return [];
             }

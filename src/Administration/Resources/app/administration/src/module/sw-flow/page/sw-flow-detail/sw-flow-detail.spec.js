@@ -583,4 +583,33 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         expect(sequences[0]).toHaveProperty('rule');
         expect(sequences[0].rule).toEqual({ id: '1111', name: 'test rule' });
     });
+
+    it('should wait for FlowData and TriggerEventsData requests before executing getDataForActionDescription', async () => {
+        global.activeAclRoles = ['flow.editor'];
+
+        let resolveTriggerEvents;
+        const eventsPromise = new Promise(resolve => {
+            resolveTriggerEvents = () => resolve(mockBusinessEvents);
+        });
+
+        Shopware.Service('businessEventService').getBusinessEvents =
+            jest.fn().mockReturnValue(eventsPromise);
+
+        const wrapper = await createWrapper({}, {}, ID_FLOW);
+
+        const actionDescriptionSpy = jest.spyOn(wrapper.vm, 'getDataForActionDescription');
+
+        wrapper.vm.getDetailFlow();
+
+        await flushPromises();
+
+        // Promise.all() is still waiting for the second request to finish
+        expect(actionDescriptionSpy).not.toHaveBeenCalled();
+
+        // running the second request
+        resolveTriggerEvents();
+        await flushPromises();
+
+        expect(actionDescriptionSpy).toHaveBeenCalled();
+    });
 });

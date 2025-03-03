@@ -29,6 +29,7 @@
                 size="small"
                 class="sw-settings-country-state-list__delete-button"
                 :disabled="deleteButtonDisabled || !acl.can('country.editor')"
+                variant="secondary"
                 @click="onDeleteCountryStates"
             >
                 <mt-icon

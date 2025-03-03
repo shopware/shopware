@@ -34,9 +34,9 @@
         {% endblock %}
 
         {% block sw_dynamic_url_field_content_type_inputs_email %}
-        <sw-email-field
+        <mt-email-field
             v-else-if="linkCategory === 'email'"
-            v-model:value="linkTarget"
+            v-model="linkTarget"
             :label="$tc('sw-text-editor-toolbar.link.linkTo')"
             :placeholder="$tc('sw-text-editor-toolbar.link.placeholderEmail')"
         />

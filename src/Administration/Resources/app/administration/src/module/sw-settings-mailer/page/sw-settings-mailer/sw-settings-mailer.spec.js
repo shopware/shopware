@@ -175,4 +175,59 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
             'core.mailerSettings.disableDelivery': false,
         });
     });
+
+    it('should be possible to set disableDelivery to true', async () => {
+        const wrapper = await new CreateSettingsMailer();
+
+        await wrapper.setData({
+            mailerSettings: {
+                'core.mailerSettings.emailAgent': 'local',
+                'core.mailerSettings.sendMailOptions': '-bs',
+                'core.mailerSettings.disableDelivery': true,
+            },
+        });
+
+        const spySaveValues = jest.spyOn(wrapper.vm.systemConfigApiService, 'saveValues');
+
+        wrapper.vm.saveMailerSettings();
+
+        expect(spySaveValues).toHaveBeenCalledWith({
+            'core.mailerSettings.emailAgent': 'local',
+            'core.mailerSettings.host': null,
+            'core.mailerSettings.port': null,
+            'core.mailerSettings.username': null,
+            'core.mailerSettings.password': null,
+            'core.mailerSettings.encryption': 'null',
+            'core.mailerSettings.senderAddress': null,
+            'core.mailerSettings.deliveryAddress': null,
+            'core.mailerSettings.disableDelivery': true,
+        });
+    });
+
+    it('should display and allow selection of email sendmail options', async () => {
+        const wrapper = await new CreateSettingsMailer();
+
+        // Verify options are correct
+        expect(wrapper.vm.emailSendmailOptions).toEqual([
+            {
+                value: '-bs',
+                name: 'sw-settings-mailer.sendmail.sync',
+            },
+            {
+                value: '-t -i',
+                name: 'sw-settings-mailer.sendmail.async',
+            },
+        ]);
+
+        // Set the mailer settings directly
+        await wrapper.setData({
+            mailerSettings: {
+                'core.mailerSettings.emailAgent': 'local',
+                'core.mailerSettings.sendMailOptions': '-bs',
+            },
+        });
+
+        // Verify the value was set correctly
+        expect(wrapper.vm.mailerSettings['core.mailerSettings.sendMailOptions']).toBe('-bs');
+    });
 });

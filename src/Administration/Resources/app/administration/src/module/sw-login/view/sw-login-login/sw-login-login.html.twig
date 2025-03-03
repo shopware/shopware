@@ -35,8 +35,8 @@
     {% endblock %}
 
     {% block sw_login_login_password_field %}
-    <sw-password-field
-        v-model:value="password"
+    <mt-password-field
+        v-model="password"
         name="sw-field--password"
         :label="$tc('sw-login.index.labelPassword')"
         :placeholder="$tc('sw-login.index.placeholderPassword')"

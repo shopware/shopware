@@ -37,6 +37,7 @@
                         ghost
                         size="small"
                         :disabled="!acl.can('sales_channel.editor')"
+                        variant="secondary"
                         @click="openAddProductsModal"
                     >
                         {{ $tc('sw-sales-channel.detail.products.buttonAddProducts', 0) }}
@@ -199,6 +200,7 @@
                 }"
                 ghost
                 :disabled="!acl.can('sales_channel.editor')"
+                variant="secondary"
                 @click="openAddProductsModal"
             >
                 {{ $tc('sw-sales-channel.detail.products.buttonAddProducts', 0) }}

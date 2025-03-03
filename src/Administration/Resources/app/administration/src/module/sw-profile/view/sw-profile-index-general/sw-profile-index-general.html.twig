@@ -117,8 +117,8 @@
         :is-loading="isUserLoading || !languageId"
     >
         {% block sw_profile_index_general_password_new_password %}
-        <sw-password-field
-            v-model:value="computedNewPassword"
+        <mt-password-field
+            v-model="computedNewPassword"
             name="sw-field--computedNewPassword"
             :label="$tc('sw-profile.index.labelNewPassword')"
             :disabled="!acl.can('user.update_profile')"
@@ -129,8 +129,8 @@
         {% endblock %}
 
         {% block sw_profile_index_general_password_new_password_confirm %}
-        <sw-password-field
-            v-model:value="computedNewPasswordConfirm"
+        <mt-password-field
+            v-model="computedNewPasswordConfirm"
             name="sw-field--computedNewPasswordConfirm"
             :label="$tc('sw-profile.index.labelNewPasswordConfirm')"
             :disabled="!acl.can('user.update_profile')"

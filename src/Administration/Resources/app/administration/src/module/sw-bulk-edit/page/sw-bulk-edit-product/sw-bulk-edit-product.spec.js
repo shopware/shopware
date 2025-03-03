@@ -3,6 +3,7 @@
  */
 import { config, mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
+import findByLabel from '../../../../../test/_helper_/find-by-label';
 
 let bulkEditResponse = {
     data: {},
@@ -85,8 +86,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'sw-ignore-class': true,
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
                     'sw-single-select': await wrapTestComponent('sw-single-select'),
-                    'sw-number-field': await wrapTestComponent('sw-number-field'),
-                    'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
@@ -143,7 +142,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'sw-help-center-v2': true,
                     'sw-help-text': true,
                     'sw-field-copyable': true,
-                    'mt-number-field': true,
                     'sw-maintain-currencies-modal': true,
                     'sw-product-variant-info': true,
                     'mt-textarea': true,
@@ -557,8 +555,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         await flushPromises();
 
         const priceFieldsForm = wrapper.find('.sw-bulk-edit-change-field-price');
-        const priceFields = priceFieldsForm.find('.sw-price-field');
-        const priceGrossInput = priceFields.find('#price-gross');
+        const priceGrossInput = wrapper.findByLabel('global.sw-price-field.labelPriceGross');
         await priceGrossInput.setValue('6');
         await flushPromises();
 
@@ -583,8 +580,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         const priceFieldsForm = wrapper.find('.sw-bulk-edit-change-field-price');
         await priceFieldsForm.find('.sw-bulk-edit-change-field__change input').setValue('checked');
-        const priceFields = priceFieldsForm.find('.sw-price-field');
-        const priceGrossInput = priceFields.find('#price-gross');
+        const priceGrossInput = findByLabel(priceFieldsForm, 'global.sw-price-field.labelPriceGross');
         await priceGrossInput.setValue('6');
         await flushPromises();
 
@@ -593,7 +589,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         await flushPromises();
 
         const listPriceFields = listPriceFieldsForm.find('.sw-price-field');
-        const listPriceGrossInput = listPriceFields.find('#listPrice-gross');
+        const listPriceGrossInput = findByLabel(listPriceFields, 'global.sw-price-field.labelPriceGross');
         await listPriceGrossInput.setValue('5');
 
         wrapper.vm.onProcessData();
@@ -613,17 +609,14 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         await flushPromises();
 
         const priceFieldsForm = wrapper.find('.sw-bulk-edit-change-field-price');
-        const priceFields = priceFieldsForm.find('.sw-price-field');
-        const priceGrossInput = priceFields.find('#price-gross');
+        const priceGrossInput = findByLabel(priceFieldsForm, 'global.sw-price-field.labelPriceGross');
         await priceGrossInput.setValue('6');
         await flushPromises();
 
         await priceFieldsForm.find('.sw-bulk-edit-change-field__change input').setValue('checked');
 
         const listPriceFieldsForm = wrapper.find('.sw-bulk-edit-change-field-listPrice');
-
-        const listPriceFields = listPriceFieldsForm.find('.sw-price-field');
-        const listPriceGrossInput = listPriceFields.find('#listPrice-gross');
+        const listPriceGrossInput = findByLabel(listPriceFieldsForm, 'global.sw-price-field.labelPriceGross');
         await listPriceGrossInput.setValue('5');
         await flushPromises();
 

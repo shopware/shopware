@@ -27,6 +27,7 @@
             class="sw-media-index__create-folder-action"
             ghost
             size="small"
+            variant="secondary"
             @click="createFolder"
         >
             {{ $tc('sw-media.index.buttonCreateFolder') }}
@@ -106,6 +107,7 @@
                 <mt-button
                     v-if="showLoadMoreButton"
                     class="sw-media-library__load-more-button"
+                    variant="secondary"
                     @click="loadNextItems"
                 >
                     {{ $tc('sw-media.mediaLibrary.labelButtonLoadMore') }}

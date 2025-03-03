@@ -19,6 +19,7 @@
                         class="sw-customer-detail-addresses__add-address-action"
                         :disabled="!customerEditMode"
                         size="small"
+                        variant="secondary"
                         @click="onCreateNewAddress"
                     >
                         <mt-icon
@@ -61,6 +62,7 @@
                 {% block sw_customer_detail_addresses_add_modal_cancel %}
                 <mt-button
                     size="small"
+                    variant="secondary"
                     @click="onCloseAddressModal"
                 >
                     {{ $tc('global.default.cancel') }}
@@ -216,6 +218,7 @@
                             {% block sw_customer_detail_addresses_delete_modal_cancel %}
                             <mt-button
                                 size="small"
+                                variant="secondary"
                                 @click="onCloseDeleteAddressModal"
                             >
                                 {{ $tc('global.default.cancel') }}

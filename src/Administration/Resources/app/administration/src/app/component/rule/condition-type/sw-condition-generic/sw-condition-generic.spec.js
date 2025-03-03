@@ -70,7 +70,6 @@ async function createWrapper(condition = {}) {
                 'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                 'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
                 'sw-condition-unit-menu': await wrapTestComponent('sw-condition-unit-menu', { sync: true }),
-                'sw-number-field': await wrapTestComponent('sw-number-field'),
                 'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
                 'sw-context-button': true,
                 'sw-context-menu-item': true,

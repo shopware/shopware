@@ -64,6 +64,7 @@
                                 class="associations-grid__row"
                                 :class="{ 'is--selected': item.entity === selectedEntity }"
                                 :disabled="isLoading"
+                                variant="secondary"
                                 @click.prevent="onAssignmentChange(item)"
                             >
                                 <mt-icon

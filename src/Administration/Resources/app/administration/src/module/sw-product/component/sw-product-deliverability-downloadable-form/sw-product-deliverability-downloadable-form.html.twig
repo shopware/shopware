@@ -30,8 +30,8 @@
         gap="0px 30px"
     >
 
-        <sw-number-field
-            v-model:value="product.stock"
+        <mt-number-field
+            v-model="product.stock"
             name="sw-field--product-stock"
             number-type="int"
             :disabled="disabled"
@@ -40,8 +40,8 @@
             :error="productStockError"
         />
 
-        <sw-number-field
-            v-model:value="product.availableStock"
+        <mt-number-field
+            v-model="product.availableStock"
             name="sw-field--product-available-stock"
             number-type="int"
             :disabled="true"

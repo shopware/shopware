@@ -4,6 +4,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 ## 6.6.10.2
 *  [#7132 - fix: Only change mailer transport definition if it is present in container](https://github.com/shopware/shopware/issues/7087)
 *  [#7121 - fix(form-validator): Escape snippets to prevent symbols like apostrophes to break the storefront](https://github.com/shopware/shopware/issues/7102)
+*  [#7190 - Fixed double form submit with reCaptcha plugin](./changelog/release-6-6-10-2/2025-02-28-fix-google-recaptcha-with-guest-orders.md)
 
 ## 6.6.10.1
 *  [#6911 - Fix MessengerMiddlewareCompilerPass](./changelog/release-6-6-10-1/2025-02-19-fix-messenger-middleware-compiler-path.md)

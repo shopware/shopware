@@ -3,9 +3,6 @@ import flowState from 'src/module/sw-flow/state/flow.state';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import FlowBuilderService from 'src/module/sw-flow/service/flow-builder.service';
 
-/**
- * @sw-package after-sales
- */
 
 class MockFlowBuilderService extends FlowBuilderService {
     rearrangeArrayObjects = jest.fn((sequence) => {
@@ -586,30 +583,36 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
 
     it('should wait for FlowData and TriggerEventsData requests before executing getDataForActionDescription', async () => {
         global.activeAclRoles = ['flow.editor'];
-
-        let resolveTriggerEvents;
-        const eventsPromise = new Promise(resolve => {
-            resolveTriggerEvents = () => resolve(mockBusinessEvents);
-        });
-
-        Shopware.Service('businessEventService').getBusinessEvents =
-            jest.fn().mockReturnValue(eventsPromise);
-
         const wrapper = await createWrapper({}, {}, ID_FLOW);
 
         const actionDescriptionSpy = jest.spyOn(wrapper.vm, 'getDataForActionDescription');
 
-        wrapper.vm.getDetailFlow();
+        // delay the execution
+        let resolvePromiseAll;
+        const promiseAllMock = new Promise(resolve => {
+            resolvePromiseAll = () => resolve([{}, {
+                id: ID_FLOW,
+                name: 'Test Flow',
+                sequences: getSequencesCollection([])
+            }]);
+        });
 
+        const originalPromiseAll = Promise.all;
+
+        Promise.all = jest.fn(() => {
+            return promiseAllMock;
+        });
+
+        wrapper.vm.getDetailFlow();
         await flushPromises();
 
-        // Promise.all() is still waiting for the second request to finish
         expect(actionDescriptionSpy).not.toHaveBeenCalled();
 
-        // running the second request
-        resolveTriggerEvents();
+        resolvePromiseAll();
         await flushPromises();
 
         expect(actionDescriptionSpy).toHaveBeenCalled();
+
+        Promise.all = originalPromiseAll;
     });
 });

@@ -27,7 +27,7 @@
                                     "oneOf": [
                                         {
                                             "type": "object",
-                                            "additionalProperties": true,
+                                            "additionalProperties": true
                                         },
                                         {
                                             "type": "null"

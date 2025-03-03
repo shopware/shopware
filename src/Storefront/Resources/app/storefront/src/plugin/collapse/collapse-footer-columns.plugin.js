@@ -15,6 +15,9 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
 
     init() {
         this._columns = this.el.querySelectorAll(this.options.collapseColumnSelector);
+        this._clickCallbackRegistry = new Map();
+        this._showCallbackRegistry = new Map();
+        this._hideCallbackRegistry = new Map();
 
         this._registerEvents();
     }
@@ -36,17 +39,15 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
      * @private
      */
     _onViewportHasChanged() {
-        const event = 'click';
-
         this._columns.forEach(column => {
             const trigger = column.querySelector(this.options.collapseColumnTriggerSelector);
-
-            // remove possibly existing event listeners
-            trigger.removeEventListener(event, this._onClickCollapseTrigger);
+            const collapseEl = column.querySelector(this.options.collapseColumnContentSelector);
 
             // add event listener if currently in an allowed viewport
             if (this._isInAllowedViewports()) {
-                trigger.addEventListener(event, this._onClickCollapseTrigger.bind(this));
+                this._initCollapse(trigger, collapseEl);
+            } else {
+                this._disposeCollapse(trigger, collapseEl);
             }
         });
 
@@ -54,33 +55,103 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
     }
 
     /**
-     * On clicking the collapse trigger (column headline) the columns
-     * content area shall be toggled open/close
-     * @param {Event} event
+     * Initializes new collapse.
+     *
+     * @param {HTMLElement} trigger
+     * @param {HTMLElement} collapseEl
      * @private
      */
-    _onClickCollapseTrigger(event) {
-        const trigger = event.target;
-        const collapseEl = trigger.parentNode.querySelector(this.options.collapseColumnContentSelector);
-        const collapseShowClass = this.options.collapseShowClass;
+    _initCollapse(trigger, collapseEl) {
+        if (!trigger || !collapseEl) {
+            return;
+        }
 
-        new bootstrap.Collapse(collapseEl, {
-            toggle: true,
+        const collapse = new bootstrap.Collapse(collapseEl, {
+            toggle: false,
         });
 
-        collapseEl.addEventListener('shown.bs.collapse', () => {
-            trigger.classList.add(collapseShowClass);
+        const clickCallback = this._onClickCollapseTrigger.bind(this, collapse);
+        const showCallback = this._onShowCollapse.bind(this, trigger, collapseEl);
+        const hideCallback = this._onHideCollapse.bind(this, trigger, collapseEl);
 
-            this.$emitter.publish('onCollapseShown');
-        });
+        trigger.addEventListener('click', clickCallback);
+        collapseEl.addEventListener('shown.bs.collapse', showCallback);
+        collapseEl.addEventListener('hidden.bs.collapse', hideCallback);
 
-        collapseEl.addEventListener('hidden.bs.collapse', () => {
-            trigger.classList.remove(collapseShowClass);
+        this._clickCallbackRegistry.set(trigger, clickCallback);
+        this._showCallbackRegistry.set(collapseEl, showCallback);
+        this._hideCallbackRegistry.set(collapseEl, hideCallback);
+    }
 
-            this.$emitter.publish('onCollapseHidden');
-        });
+    /**
+     * Removes the collapse and corresponding attributes.
+     *
+     * @param {HTMLElement} trigger
+     * @param {HTMLElement} collapseEl
+     * @private
+     */
+    _disposeCollapse(trigger, collapseEl) {
+        if (!trigger || !collapseEl) {
+            return;
+        }
+
+        const collapse = bootstrap.Collapse.getInstance(collapseEl);
+
+        if (collapse) {
+            collapse.dispose();
+        }
+
+        if (this._clickCallbackRegistry.get(trigger)) trigger.removeEventListener('click', this._clickCallbackRegistry.get(trigger));
+        if (this._showCallbackRegistry.get(collapseEl)) collapseEl.removeEventListener('shown.bs.collapse', this._showCallbackRegistry.get(collapseEl));
+        if (this._hideCallbackRegistry.get(collapseEl)) collapseEl.removeEventListener('hidden.bs.collapse', this._hideCallbackRegistry.get(collapseEl));
+
+        trigger.classList.remove(this.options.collapseShowClass);
+        collapseEl.classList.remove(this.options.collapseShowClass);
+
+        trigger.setAttribute('aria-expanded', 'true');
+        collapseEl.setAttribute('aria-expanded', 'true');
+    }
+
+    /**
+     * On clicking the collapse trigger (column headline) the columns
+     * content area shall be toggled open/close
+     * @private
+     * @param collapse
+     */
+    _onClickCollapseTrigger(collapse) {
+        collapse.toggle();
 
         this.$emitter.publish('onClickCollapseTrigger');
+    }
+
+    /**
+     * Triggered when the collapse is opened to apply additional attributes.
+     *
+     * @param {HTMLElement} trigger
+     * @param {HTMLElement} collapseEl
+     * @private
+     */
+    _onShowCollapse(trigger, collapseEl) {
+        trigger.classList.add(this.options.collapseShowClass);
+        trigger.setAttribute('aria-expanded', 'true');
+        collapseEl.setAttribute('aria-expanded', 'true');
+
+        this.$emitter.publish('onCollapseShown');
+    }
+
+    /**
+     * Triggered when the collapse is closed to remove additional attributes.
+     *
+     * @param {HTMLElement} trigger
+     * @param {HTMLElement} collapseEl
+     * @private
+     */
+    _onHideCollapse(trigger, collapseEl) {
+        trigger.classList.remove(this.options.collapseShowClass);
+        trigger.setAttribute('aria-expanded', 'false');
+        collapseEl.setAttribute('aria-expanded', 'false');
+
+        this.$emitter.publish('onCollapseHidden');
     }
 
     /**

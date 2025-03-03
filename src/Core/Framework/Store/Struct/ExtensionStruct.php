@@ -577,7 +577,6 @@ class ExtensionStruct extends Struct
         $this->allowUpdate = $allowUpdate;
     }
 
-
     /**
      * @return array<string>
      */

@@ -15,8 +15,10 @@ use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
+use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -176,6 +178,22 @@ class LineItemOfTypeRuleTest extends TestCase
     }
 
     public function testExceptionOnUnsupportedOperator(): void
+    {
+        $rule = new LineItemOfTypeRule(Rule::OPERATOR_GT, 'jeans');
+
+        $lineItem = new LineItem(Uuid::randomHex(), 'shirt');
+
+        $cart = new Cart(Uuid::randomHex());
+        $cart->setLineItems(new LineItemCollection([$lineItem]));
+        $scope = new CartRuleScope($cart, static::createMock(SalesChannelContext::class));
+
+        static::expectException(RuleException::class);
+
+        $rule->match($scope);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testExceptionOnUnsupportedOperatorDeprecated(): void
     {
         $rule = new LineItemOfTypeRule(Rule::OPERATOR_GT, 'jeans');
 

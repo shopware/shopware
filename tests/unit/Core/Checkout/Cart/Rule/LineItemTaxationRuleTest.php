@@ -14,7 +14,9 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemTaxationRule;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 
 /**
@@ -147,6 +149,22 @@ class LineItemTaxationRuleTest extends TestCase
     }
 
     public function testNotAvailableOperatorIsUsed(): void
+    {
+        $this->rule->assign([
+            'taxIds' => ['1', '2'],
+            'operator' => Rule::OPERATOR_LT,
+        ]);
+
+        $this->expectException(RuleException::class);
+
+        $this->rule->match(new LineItemScope(
+            $this->createLineItemWithTaxId('3'),
+            $this->createMock(SalesChannelContext::class)
+        ));
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testNotAvailableOperatorIsUsedDeprecated(): void
     {
         $this->rule->assign([
             'taxIds' => ['1', '2'],

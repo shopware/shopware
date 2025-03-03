@@ -11,8 +11,9 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemOfManufacturerRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
@@ -163,7 +164,22 @@ class LineItemOfManufacturerRuleTest extends TestCase
             'operator' => Rule::OPERATOR_LT,
         ]);
 
-        $this->expectException(UnsupportedOperatorException::class);
+        $this->expectException(RuleException::class);
+
+        $this->rule->match(new LineItemScope(
+            $this->createLineItemWithManufacturer('3'),
+            $this->createMock(SalesChannelContext::class)
+        ));
+    }
+
+    public function testNotAvailableOperatorIsUsedDeprecated(): void
+    {
+        $this->rule->assign([
+            'manufacturerIds' => ['1', '2'],
+            'operator' => Rule::OPERATOR_LT,
+        ]);
+
+        $this->expectExceptionObject(RuleException::unsupportedOperator(Rule::OPERATOR_LT, RuleComparison::class));
 
         $this->rule->match(new LineItemScope(
             $this->createLineItemWithManufacturer('3'),

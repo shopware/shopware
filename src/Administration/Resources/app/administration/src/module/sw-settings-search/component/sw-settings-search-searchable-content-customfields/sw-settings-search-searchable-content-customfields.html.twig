@@ -23,6 +23,7 @@
                 ghost
                 size="small"
                 :disabled="!acl.can('product_search_config.creator')"
+                variant="secondary"
                 @click="onAddField"
             >
                 {{ $tc('sw-settings-search.generalTab.buttonAddContent') }}
@@ -88,8 +89,8 @@
         <template #column-ranking="{ item, isInlineEdit }">
             <template v-if="isInlineEdit">
                 {% block sw_settings_search_searchable_content_customfields_ranking_editor %}
-                <sw-number-field
-                    v-model:value="item.ranking"
+                <mt-number-field
+                    v-model="item.ranking"
                     number-type="int"
                     size="small"
                 />
@@ -102,8 +103,8 @@
         <template #column-searchable="{ item, isInlineEdit }">
             <template v-if="isInlineEdit">
                 {% block sw_settings_search_searchable_content_customfields_searchable_editor %}
-                <sw-checkbox-field
-                    v-model:value="item.searchable"
+                <mt-checkbox
+                    v-model:checked="item.searchable"
                 />
                 {% endblock %}
             </template>
@@ -131,8 +132,8 @@
         <template #column-tokenize="{ item, isInlineEdit }">
             <template v-if="isInlineEdit">
                 {% block sw_settings_search_searchable_content_customfields_tokenize_editor %}
-                <sw-checkbox-field
-                    v-model:value="item.tokenize"
+                <mt-checkbox
+                    v-model:checked="item.tokenize"
                 />
                 {% endblock %}
             </template>

@@ -8,8 +8,11 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Rule\ShippingStreetRule;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -102,6 +105,32 @@ class ShippingStreetRuleTest extends TestCase
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))
+        );
+    }
+
+    public function testMatchThrowsException(): void
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(UnsupportedValueException::class);
+        } else {
+            $this->expectException(CustomerException::class);
+        }
+
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $context
+            ->method('getShippingLocation')
+            ->willReturn(
+                ShippingLocation::createFromAddress(
+                    $this->createAddress('example street')
+                )
+            );
+
+        (new ShippingStreetRule())->match(
+            new CartRuleScope(
+                new Cart('test'),
+                $context
+            )
         );
     }
 

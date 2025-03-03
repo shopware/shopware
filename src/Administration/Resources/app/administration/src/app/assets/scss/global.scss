@@ -101,3 +101,12 @@ a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .mt-button) {
         margin-left: auto;
     }
 }
+
+.mt-password-field {
+    margin-bottom: 32px;
+
+    // TODO: remove when the issue is fixed https://github.com/shopware/meteor/issues/537
+    &__block {
+        min-height: 45px !important;
+    }
+}

@@ -64,7 +64,8 @@ export default class FilterRatingSelectPlugin extends FilterMultiSelectPlugin {
      * @public
      */
     getLabels() {
-        const currentRating = this.el.querySelector(this.options.checkboxSelector + ':checked').value;
+        const activeRadio = this.el.querySelector(`${this.options.checkboxSelector}:checked`);
+        const currentRating = activeRadio ? activeRadio.value : false;
 
         let labels = [];
 

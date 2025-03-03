@@ -55,7 +55,6 @@ async function createWrapper(privileges = []) {
                     'sw-card-view': true,
                     'sw-container': true,
                     'sw-text-field': true,
-                    'sw-number-field': true,
                     'sw-language-info': true,
                     'sw-settings-price-rounding': true,
                     'sw-empty-state': true,

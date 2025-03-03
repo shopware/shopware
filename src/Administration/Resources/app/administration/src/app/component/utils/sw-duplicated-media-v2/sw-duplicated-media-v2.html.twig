@@ -100,9 +100,9 @@
     {% block sw_duplicated_media_v2_footer %}
     <template #modal-footer>
         {% block sw_duplicated_media_v2_save_selection %}
-        <sw-checkbox-field
+        <mt-checkbox
             v-if="!isLoading && hasAdditionalErrors"
-            v-model:value="shouldSaveSelection"
+            v-model:checked="shouldSaveSelection"
             class="sw-duplicated-media-v2__additional-error-count"
             :label="$tc('global.sw-duplicated-media-v2.labelSaveSelection', additionalErrorCount)"
         />
@@ -112,6 +112,7 @@
         <mt-button
             size="small"
             :disabled="isLoading"
+            variant="secondary"
             @click="skipCurrentFile"
         >
             {{ $tc('global.default.cancel') }}

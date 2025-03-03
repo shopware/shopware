@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Language\Rule;
 
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\System\Language\LanguageException;
 
 /**
  * @internal
@@ -33,12 +35,12 @@ class LanguageRule extends Rule
     }
 
     /**
-     * @throws UnsupportedOperatorException|UnsupportedValueException
+     * @throws UnsupportedOperatorException|UnsupportedValueException|CustomerException
      */
     public function match(RuleScope $scope): bool
     {
         if ($this->languageIds === null) {
-            throw new UnsupportedValueException(\gettype($this->languageIds), self::class);
+            throw LanguageException::unsupportedValue(\gettype($this->languageIds), self::class);
         }
 
         return RuleComparison::uuids([$scope->getContext()->getLanguageId()], $this->languageIds, $this->operator);

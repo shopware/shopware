@@ -48,6 +48,15 @@ export default {
                 this.documentConfig.documentNumber = Number(value);
             },
         },
+
+        invoiceNumberOptions() {
+            return this.invoiceNumbers.map((item) => {
+                return {
+                    label: String(item),
+                    value: item,
+                };
+            });
+        },
     },
 
     created() {

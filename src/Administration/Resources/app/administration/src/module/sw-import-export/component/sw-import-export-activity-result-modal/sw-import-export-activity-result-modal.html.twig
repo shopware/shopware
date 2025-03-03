@@ -150,6 +150,7 @@
         <mt-button
             class="sw-import-export-activity-result-modal__download-button"
             size="small"
+            variant="secondary"
             @click="openDownload(logEntity.file.id)"
         >
             {{ $tc('sw-import-export.activity.result.labelDownloadFile') }}
@@ -161,6 +162,7 @@
             v-if="logEntity.invalidRecordsLog"
             class="sw-import-export-activity-result-modal__download-failed"
             size="small"
+            variant="secondary"
             @click="openDownload(logEntity.invalidRecordsLog.file.id)"
         >
             {{ $tc('sw-import-export.activity.result.labelDownloadInvalidFile') }}

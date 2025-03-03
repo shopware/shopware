@@ -194,9 +194,9 @@
                         {% endblock %}
 
                         {% block sw_customer_card_metadata_customer_email_editor %}
-                        <sw-email-field
+                        <mt-email-field
                             v-else
-                            v-model:value="customer.email"
+                            v-model="customer.email"
                             name="sw-field--customer-email"
                             validation="required"
                             required
@@ -208,9 +208,9 @@
                         {% endblock %}
 
                         {% block sw_customer_card_password %}
-                        <sw-password-field
+                        <mt-password-field
                             v-if="editMode"
-                            v-model:value="customer.passwordNew"
+                            v-model="customer.passwordNew"
                             name="sw-field--customer-passwordNew"
                             autocomplete="new-password"
                             :disabled="customer.guest"
@@ -221,9 +221,9 @@
                         {% endblock %}
 
                         {% block sw_customer_card_password_confirm %}
-                        <sw-password-field
+                        <mt-password-field
                             v-if="editMode"
-                            v-model:value="customer.passwordConfirm"
+                            v-model="customer.passwordConfirm"
                             name="sw-field--customer-passwordConfirm"
                             autocomplete="new-password"
                             :disabled="customer.guest"

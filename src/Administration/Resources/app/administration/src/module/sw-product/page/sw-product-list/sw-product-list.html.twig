@@ -159,6 +159,7 @@
                             v-tooltip="{ message: $tc('sw-product.list.variantIndicatorTooltip') }"
                             class="sw-product-list__variant-indicator"
                             size="x-small"
+                            variant="secondary"
                             @click="openVariantModal(item)"
                         >
                             <mt-icon
@@ -189,8 +190,8 @@
                 <template #column-active="{ item, isInlineEdit }">
                     {% block sw_product_list_grid_columns_active_inline_edit %}
                     <template v-if="isInlineEdit">
-                        <sw-checkbox-field
-                            v-model:value="item.active"
+                        <mt-checkbox
+                            v-model:checked="item.active"
                         />
                     </template>
                     {% endblock %}
@@ -240,8 +241,8 @@
                 <template #column-stock="{ item, isInlineEdit, compact }">
                     {% block sw_product_list_grid_columns_stock_inline_edit %}
                     <template v-if="isInlineEdit">
-                        <sw-number-field
-                            v-model:value="item.stock"
+                        <mt-number-field
+                            v-model="item.stock"
                             :size="compact ? 'small' : 'default'"
                         />
                     </template>

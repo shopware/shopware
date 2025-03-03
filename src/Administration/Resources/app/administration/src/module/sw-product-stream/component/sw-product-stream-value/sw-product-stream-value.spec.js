@@ -19,7 +19,6 @@ async function createWrapper(privileges = [], fieldType = null, conditionType = 
         'sw-product-variant-info': true,
         'sw-select-result': true,
         'sw-tagged-field': true,
-        'sw-number-field': true,
         'sw-inheritance-switch': true,
         'sw-loader': true,
         'sw-ai-copilot-badge': true,

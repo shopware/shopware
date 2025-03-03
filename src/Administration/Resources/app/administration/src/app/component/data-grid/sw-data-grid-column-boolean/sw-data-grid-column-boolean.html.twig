@@ -1,8 +1,8 @@
 {% block sw_data_grid_column_boolean %}
 <div class="sw-data-grid-column-boolean">
-    <sw-checkbox-field
+    <mt-checkbox
         v-if="isInlineEdit"
-        v-model:value="currentValue"
+        v-model:checked="currentValue"
         :disabled="disabled"
     />
 

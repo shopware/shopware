@@ -38,6 +38,16 @@ export default {
         availableGroups() {
             return this.groupsWithOptions;
         },
+
+        availableGroupsOptions() {
+            return this.groupsWithOptions.map((groupWithOption) => {
+                return {
+                    id: groupWithOption.group.id,
+                    value: groupWithOption.group.id,
+                    label: groupWithOption.group.translated.name,
+                };
+            });
+        },
     },
 
     watch: {

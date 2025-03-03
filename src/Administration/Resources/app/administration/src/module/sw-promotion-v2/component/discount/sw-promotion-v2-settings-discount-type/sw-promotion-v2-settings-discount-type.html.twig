@@ -6,30 +6,18 @@
     >
 
         {% block sw_promotion_v2_settings_discount_type_type %}
-        <sw-select-field
-            v-model:value="discount.type"
+        <mt-select
+            v-model="discount.type"
             class="sw-promotion-v2-settings-discount-type__field-select-discount-type"
             :label="$tc('sw-promotion-v2.detail.discounts.settings.discountType.labelDiscountType')"
             :disabled="!acl.can('promotion.editor')"
-        >
-
-            {% block sw_promotion_v2_settings_discount_type_type_options %}
-            <option
-                v-for="selection in getDiscountTypeSelection()"
-                :key="selection.value"
-                :disabled="selection.disabled"
-                :value="selection.value"
-            >
-                {{ selection.display }}
-            </option>
-            {% endblock %}
-
-        </sw-select-field>
+            :options="discountTypeOptions"
+        />
         {% endblock %}
 
         {% block sw_promotion_v2_settings_discount_type_price %}
-        <sw-number-field
-            v-model:value="discount.value"
+        <mt-number-field
+            v-model="discount.value"
             class="sw-promotion-v2-settings-discount-type__field-price"
             :id-suffix="discount.id"
             :min="0"
@@ -45,7 +33,7 @@
             </template>
             {% endblock %}
 
-        </sw-number-field>
+        </mt-number-field>
         {% endblock %}
 
     </sw-container>
@@ -56,36 +44,24 @@
     >
 
         {% block sw_promotion_v2_settings_discount_type_apply_discount_to %}
-        <sw-select-field
-            v-model:value="discount.applierKey"
+        <mt-select
+            v-model="discount.applierKey"
             class="sw-promotion-v2-settings-discount-type__field-apply-discount-to"
             :label="$tc('sw-promotion-v2.detail.discounts.settings.discountType.labelApplyDiscountTo')"
             :disabled="discount.type === 'free' || !acl.can('promotion.editor')"
-        >
-
-            {% block sw_promotion_v2_settings_discount_type_apply_discount_to_options %}
-            <option
-                v-for="selection in getApplyDiscountToSelection()"
-                :key="selection.value"
-                :disabled="selection.disabled"
-                :value="selection.value"
-            >
-                {{ selection.display }}
-            </option>
-            {% endblock %}
-
-        </sw-select-field>
+            :options="applierOptions"
+        />
         {% endblock %}
 
         {% block sw_promotion_v2_settings_discount_type_max_discount_value %}
-        <sw-number-field
-            v-model:value="discount.maxValue"
+        <mt-number-field
+            v-model="discount.maxValue"
             class="sw-promotion-v2-settings-discount-type__field-max-discount"
             :id-suffix="discount.id"
             :label="$tc('sw-promotion-v2.detail.discounts.settings.discountType.labelMaxDiscountValue')"
             :disabled="discount.type !== 'percentage' || !acl.can('promotion.editor')"
             allow-empty
-            @update:value="onMaxValueChanged"
+            @update:model-value="onMaxValueChanged"
         >
 
             {% block sw_promotion_v2_settings_discount_type_max_discount_value_suffix %}
@@ -94,7 +70,7 @@
             </template>
             {% endblock %}
 
-        </sw-number-field>
+        </mt-number-field>
         {% endblock %}
 
     </sw-container>
@@ -143,8 +119,8 @@
 
             {% block sw_promotion_v2_settings_discount_type_advanced_prices_modal_grid_column_price %}
             <template #column-price="{ item }">
-                <sw-number-field
-                    v-model:value="item.price"
+                <mt-number-field
+                    v-model="item.price"
                     class="sw-promotion-v2-settings-discounts-type__advanced-prices-column-price"
                     type="text"
                     size="small"
@@ -157,7 +133,7 @@
                     </template>
                     {% endblock %}
 
-                </sw-number-field>
+                </mt-number-field>
             </template>
             {% endblock %}
 

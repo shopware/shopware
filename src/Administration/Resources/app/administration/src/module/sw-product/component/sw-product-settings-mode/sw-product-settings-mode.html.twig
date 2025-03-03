@@ -12,6 +12,7 @@
             size="x-small"
             square
             :aria-label="$tc('sw-product.general.tooltipModeSettings')"
+            variant="secondary"
         >
             {% block sw_product_settings_mode_trigger_icon %}
             <mt-icon
@@ -56,11 +57,11 @@
             class="sw-product-settings-mode__item"
         >
             {% block sw_product_settings_mode_item_visibility_checkbox %}
-            <sw-checkbox-field
-                v-model:value="item.enabled"
+            <mt-checkbox
+                v-model:checked="item.enabled"
                 :disabled="!advancedMode.enabled"
                 :label="$tc(item.label)"
-                @update:value="onChangeSettingItem"
+                @update:checked="onChangeSettingItem"
             />
             {% endblock %}
         </div>

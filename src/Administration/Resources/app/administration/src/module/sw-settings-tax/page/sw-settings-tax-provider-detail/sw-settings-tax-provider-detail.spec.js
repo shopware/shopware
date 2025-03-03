@@ -71,8 +71,7 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                     },
 
                     'sw-container': true,
-
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-select-rule-create': true,
                     'sw-extension-component-section': true,
                 },
@@ -99,7 +98,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
         const saveButton = wrapper.find('.sw-settings-tax-tax-provider-detail__save-action');
 
         const taxProviderPriority = wrapper.find(
-            'sw-number-field-stub[label="sw-settings-tax.taxProviderDetail.labelPriority"]',
+            'mt-number-field-stub[label="sw-settings-tax.taxProviderDetail.labelPriority"]',
         );
         const taxProviderActive = wrapper.find(
             '.mt-switch input[aria-label="sw-settings-tax.taxProviderDetail.labelActive"]',
@@ -122,7 +121,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
         const saveButton = wrapper.find('.sw-settings-tax-tax-provider-detail__save-action');
 
         const taxProviderPriority = wrapper.find(
-            'sw-number-field-stub[label="sw-settings-tax.taxProviderDetail.labelPriority"]',
+            'mt-number-field-stub[label="sw-settings-tax.taxProviderDetail.labelPriority"]',
         );
         const taxProviderActive = wrapper.find(
             '.mt-switch input[aria-label="sw-settings-tax.taxProviderDetail.labelActive"]',

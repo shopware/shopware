@@ -103,9 +103,9 @@ async function createWrapper() {
                 },
                 'sw-order-address-selection': true,
                 'sw-entity-single-select': true,
-                'sw-number-field': {
+                'mt-number-field': {
                     template:
-                        '<input class="sw-number-field" type="number" @input="$emit(\'input\', Number($event.target.value))" />',
+                        '<input class="mt-number-field" type="number" @input="$emit(\'input\', Number($event.target.value))" />',
                     props: {
                         value: 0,
                     },
@@ -237,7 +237,7 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         global.activeAclRoles = ['order.editor'];
         wrapper = await createWrapper();
         const shippingCostField = wrapper.findComponent('.sw-order-detail-details__shipping-cost');
-        await shippingCostField.vm.$emit('update:value', 20);
+        await shippingCostField.vm.$emit('update:modelValue', 20);
 
         expect(wrapper.vm.delivery.shippingCosts.unitPrice).toBe(20);
         expect(wrapper.vm.delivery.shippingCosts.totalPrice).toBe(20);

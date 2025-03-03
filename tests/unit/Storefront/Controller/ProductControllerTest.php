@@ -19,6 +19,8 @@ use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook;
 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -133,6 +135,10 @@ class ProductControllerTest extends TestCase
 
         $productEntity = new ProductEntity();
         $productEntity->setId($ids->get('variantId'));
+        $seoUrl = new SeoUrlEntity();
+        $seoUrl->setId($ids->get('seoUrl'));
+        $seoUrl->setPathInfo('/test');
+        $productEntity->setSeoUrls(new SeoUrlCollection([$seoUrl]));
 
         $this->findVariantRouteMock->method('load')
             ->with(
@@ -146,9 +152,10 @@ class ProductControllerTest extends TestCase
         $this->seoUrlPlaceholderHandlerMock->method('generate')->with(
             'frontend.detail.page',
             ['productId' => $ids->get('variantId')]
-        )->willReturn('https://test.com/test');
+        )->willReturn('/test');
 
-        $this->seoUrlPlaceholderHandlerMock->method('replace')->willReturnArgument(0);
+        $this->seoUrlPlaceholderHandlerMock->method('replace')
+            ->willReturn('https://test.com/test');
 
         $response = $this->controller->switch($ids->get('product'), $request, $this->createMock(SalesChannelContext::class));
 

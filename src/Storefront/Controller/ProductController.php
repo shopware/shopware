@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoade
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -74,30 +75,37 @@ class ProductController extends StorefrontController
         ];
 
         $variantRequest = $request->duplicate($variantRequestData);
+        $url = '';
+        $requestCriteria = new Criteria();
+        $requestCriteria->addAssociation('seoUrls');
 
         try {
             $variantResponse = $this->findVariantRoute->load(
                 $productId,
                 $variantRequest,
                 $salesChannelContext,
+                $requestCriteria
             );
 
-            $productId = $variantResponse->getFoundCombination()->getVariantId();
+            $variant = $variantResponse->getFoundCombination()->getVariant();
+            if ($variant !== null) {
+                $productId = $variant->getId();
+            }
+
+            $host = $request->attributes->get(RequestTransformer::SALES_CHANNEL_ABSOLUTE_BASE_URL)
+                . $request->attributes->get(RequestTransformer::SALES_CHANNEL_BASE_URL);
+
+            $url = $this->seoUrlPlaceholderHandler->replace(
+                $variant?->getSeoUrls()?->first()->getPathInfo() ?? $this->seoUrlPlaceholderHandler->generate(
+                    'frontend.detail.page',
+                    ['productId' => $productId]
+                ),
+                $host,
+                $salesChannelContext
+            );
         } catch (VariantNotFoundException|ProductNotFoundException) {
             // nth
         }
-
-        $host = $request->attributes->get(RequestTransformer::SALES_CHANNEL_ABSOLUTE_BASE_URL)
-            . $request->attributes->get(RequestTransformer::SALES_CHANNEL_BASE_URL);
-
-        $url = $this->seoUrlPlaceholderHandler->replace(
-            $this->seoUrlPlaceholderHandler->generate(
-                'frontend.detail.page',
-                ['productId' => $productId]
-            ),
-            $host,
-            $salesChannelContext
-        );
 
         return new JsonResponse([
             'url' => $url,

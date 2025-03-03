@@ -166,7 +166,12 @@ class FindProductVariantRouteTest extends TestCase
         )->configuratorSetting(
             'L',
             'Size'
-            )->visibility()->price(10)->tax($taxId)->write(static::getContainer());
+        )->visibility()
+            ->price(10)
+            ->tax($taxId)
+            ->write(
+                static::getContainer()
+            );
 
         (new ProductBuilder($this->ids, 'redXL', 10))->visibility()->parent('base')->price(10)->option(
             'Red',

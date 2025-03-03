@@ -17,20 +17,20 @@
                                 {% block layout_footer_navigation_hotline_icons %}
                                     <button class="footer-column-toggle btn btn-link btn-link-inline js-collapse-footer-column-trigger"
                                             data-bs-target="#collapseFooterHotline"
+                                            data-bs-toggle="collapse"
                                             aria-controls="collapseFooterHotline"
                                             aria-labelledby="collapseFooterHotlineTitle"
                                             aria-expanded="true">
 
-                                        <span class="footer-plus-icon">
-                                            {% sw_icon 'plus' style {
-                                                ariaLabel: 'general.expand'|trans
-                                            } %}
-                                        </span>
-                                        <span class="footer-minus-icon">
-                                            {% sw_icon 'minus' style {
-                                                ariaLabel: 'general.collapse'|trans
-                                            } %}
-                                        </span>
+                                        {% sw_icon 'plus' style {
+                                            ariaLabel: 'general.expand'|trans,
+                                            class: 'footer-plus'
+                                        } %}
+
+                                        {% sw_icon 'minus' style {
+                                            ariaLabel: 'general.collapse'|trans,
+                                            class: 'footer-minus'
+                                        } %}
                                     </button>
                                 {% endblock %}
                             </div>
@@ -83,21 +83,21 @@
                                         {% block layout_footer_navigation_information_icons %}
                                             {% if root.children|length > 0 %}
                                                 <button class="footer-column-toggle btn btn-link btn-link-inline js-collapse-footer-column-trigger"
-                                                        data-bs-target="#collapseFooterTitle{{ loop.index }}"
+                                                        data-bs-target="#collapseFooter{{ loop.index }}"
+                                                        data-bs-toggle="collapse"
                                                         aria-controls="collapseFooter{{ loop.index }}"
                                                         aria-labelledby="collapseFooterTitle{{ loop.index }}"
                                                         aria-expanded="true">
 
-                                                    <span class="footer-plus-icon">
-                                                        {% sw_icon 'plus' style {
-                                                            ariaLabel: 'general.expand'|trans
-                                                        } %}
-                                                    </span>
-                                                    <span class="footer-minus-icon">
-                                                        {% sw_icon 'minus' style {
-                                                            ariaLabel: 'general.collapse'|trans
-                                                        } %}
-                                                    </span>
+                                                    {% sw_icon 'plus' style {
+                                                        ariaLabel: 'general.expand'|trans,
+                                                        class: 'footer-plus'
+                                                    } %}
+
+                                                    {% sw_icon 'minus' style {
+                                                        ariaLabel: 'general.collapse'|trans,
+                                                        class: 'footer-minus'
+                                                    } %}
                                                 </button>
                                             {% endif %}
                                         {% endblock %}

@@ -30,8 +30,10 @@
 {% endblock %}
 
 {% block page_checkout_confirm_tos_control %}
-    {{ 'checkout.confirmTermsReminderText'|trans({
-        '%url%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') })
+    {{ (feature('ACCESSIBILITY_TWEAKS') ? 'checkout.confirmTermsReminderTextModal' : 'checkout.confirmTermsReminderText')|trans({
+        '%url%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') }),
+        '%tosModalTagOpen%': '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.tosPage') }) ~ '">',
+        '%tosModalTagClose%': '</button>'
     })|raw }}
 {% endblock %}
 

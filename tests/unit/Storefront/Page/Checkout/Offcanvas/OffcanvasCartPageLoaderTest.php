@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPage;
 use Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoadedEvent;
@@ -125,6 +126,21 @@ class OffcanvasCartPageLoaderTest extends TestCase
             new Request(),
             $this->createMock(SalesChannelContext::class)
         );
+    }
+
+    public function testOnlyAvailableFlagIsSet(): void
+    {
+        $request = new Request(['onlyAvailable' => true]);
+        $context = Generator::generateSalesChannelContext();
+
+        $shippingMethodRoute = $this->createMock(ShippingMethodRoute::class);
+        $shippingMethodRoute
+            ->expects(static::once())
+            ->method('load')
+            ->with($request, $context, static::equalTo(new Criteria()));
+
+        $loader = $this->createLoader(shippingMethodRoute: $shippingMethodRoute);
+        $loader->load(new Request(), $context);
     }
 
     private function createLoader(

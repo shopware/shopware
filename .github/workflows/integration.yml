@@ -477,7 +477,9 @@ jobs:
 
       - name: Refresh theme in previous major version
         if: ${{ contains(github.workflow_ref, 'nightly') }}
-        run: DATABASE_URL="mysql://root@127.0.0.1:3306/shopware_test" bin/console theme:refresh
+        env:
+          DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
+        run: bin/console theme:refresh
 
       - name: Run integration tests in previous major version
         if: ${{ contains(github.workflow_ref, 'nightly') }}

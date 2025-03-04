@@ -29,6 +29,13 @@
                             "type": "string",
                             "pattern": "^[0-9a-f]{32}$"
                         }
+                    },
+                    {
+                        "name": "sw-include-seo-urls",
+                        "in": "header",
+                        "description": "Instructs Shopware to try and resolve SEO URLs for the given navigation item",
+                        "required": false,
+                        "schema": { "type": "boolean" }
                     }
                 ],
                 "responses": {
@@ -165,6 +172,9 @@
                                 "schema": {
                                     "allOf": [
                                         {
+                                            "required": [
+                                                "elements"
+                                            ],
                                             "properties": {
                                                 "elements": {
                                                     "type": "array",

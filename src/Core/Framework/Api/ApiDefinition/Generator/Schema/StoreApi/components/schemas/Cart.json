@@ -26,11 +26,46 @@
                         }
                     },
                     "errors": {
-                        "type": "array",
+                        "type": "object",
                         "description": "A list of all cart errors, such as insufficient stocks, invalid addresses or vouchers.",
-                        "items": {
-                            "$ref": "#/components/schemas/CartError"
-                        }
+                        "anyOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/CartError"
+                                }
+                            },
+                            {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number"
+                                        },
+                                        "key": {
+                                            "type": "string"
+                                        },
+                                        "level": {
+                                            "type": "number"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "messageKey": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "code",
+                                        "key",
+                                        "level",
+                                        "message",
+                                        "messageKey"
+                                    ]
+                                }
+                            }
+                        ]
                     },
                     "deliveries": {
                         "type": "array",
@@ -70,8 +105,13 @@
                         "type": "string",
                         "description": "A campaign tracking code",
                         "nullable": true
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["cart"]
                     }
-                }
+                },
+                "required": ["price", "apiAlias"]
             }
         }
     }

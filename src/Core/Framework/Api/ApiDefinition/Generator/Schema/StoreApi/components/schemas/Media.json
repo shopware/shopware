@@ -7,11 +7,22 @@
             "Media": {
                 "type": "object",
                 "properties": {
+                    "metaData": {
+                        "type": "object",
+                        "properties": {
+                            "height": {
+                                "type": "integer",
+                                "format": "int64"
+                            },
+                            "width": {
+                                "type": "integer",
+                                "format": "int64"
+                            }
+                        }
+                    },
                     "apiAlias": {
                         "type": "string",
-                        "enum": [
-                            "media"
-                        ]
+                        "enum": ["media"]
                     },
                     "url": {
                         "type": "string"

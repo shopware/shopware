@@ -18,6 +18,9 @@
                             }
                         },
                         "required": ["name", "title"]
+                    },
+                    "fileType": {
+                        "type": "string"
                     }
                 }
             }

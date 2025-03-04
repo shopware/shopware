@@ -58,10 +58,7 @@
                         "application/json": {
                             "schema": {
                                 "type": "object",
-                                "required": [
-                                    "firstName",
-                                    "lastName"
-                                ],
+                                "required": ["firstName", "lastName"],
                                 "properties": {
                                     "salutationId": {
                                         "description": "Id of the salutation for the customer account. Fetch options using `salutation` endpoint.",
@@ -540,10 +537,23 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/CustomerAddress"
-                                    }
+                                    "allOf": [
+                                        {
+                                            "type": "object",
+                                            "required": ["elements"],
+                                            "properties": {
+                                                "elements": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/CustomerAddress"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/EntitySearchResult"
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -1049,7 +1059,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/CustomerAddress"
+                                "$ref": "#/components/schemas/CustomerAddressBody"
                             }
                         }
                     }

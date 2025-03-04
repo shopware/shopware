@@ -45,6 +45,9 @@
                                 "schema": {
                                     "allOf": [
                                         {
+                                            "required": [
+                                                "elements"
+                                            ],
                                             "properties": {
                                                 "total": {
                                                     "description": "Total amount",

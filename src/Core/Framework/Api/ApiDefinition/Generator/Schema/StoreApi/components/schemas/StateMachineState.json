@@ -4,9 +4,8 @@
     "paths": [],
     "components": {
         "schemas": {
-            "ProductMedia": {
-                "type": "object",
-                "required": ["media"]
+            "StateMachineState": {
+                "required": ["translated"]
             }
         }
     }

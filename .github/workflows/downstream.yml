@@ -59,6 +59,7 @@ jobs:
           workflow: Downstream
           ref: .auto
           timeout: 60m
+          poll_interval: 1m
           token: ${{ steps.sts.outputs.token }}
           env:
             NIGHTLY=${{ inputs.nightly }}

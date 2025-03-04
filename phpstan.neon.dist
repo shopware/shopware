@@ -1,6 +1,5 @@
 includes:
     - phpstan-baseline.neon
-    - phpstan-v67-baseline.neon
     - src/Core/DevOps/StaticAnalyze/PHPStan/common.neon
     - src/Core/DevOps/StaticAnalyze/PHPStan/core-rules.neon
 

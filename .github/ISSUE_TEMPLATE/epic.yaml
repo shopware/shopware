@@ -1,0 +1,98 @@
+name: Epic 
+description: A large body of work that's likely to take 1-3 months to complete.
+labels: [Epic]
+body:
+    - type: markdown
+      attributes:
+          value: |
+              Thanks for taking the time to share your idea with us! If your request relates to enhancing or improving the Shopware product, please file it in [UserVoice](https://feedback.shopware.com/forums/942607-shopware-6-product-feedback-ideas). Also, please check our issues backlog to ensure that no one else has suggested your idea yet. 
+    - type: textarea
+      id: problem
+      attributes:
+        label: Problem we must solve
+      description: |
+        A clear and concise description of the feature you're interested in.
+      value: |
+        <!--- Describe your feature here --->
+      validations:
+      required: true
+    - type: textarea
+      id: problem-why
+      attributes:
+        label: WHY we need to solve it
+      description: |
+        Tell us why we need to solve this problem.
+      value: |
+        <!--- Provide your answer here --->
+      validations:
+      required: true
+    - type: textarea
+      id: solution
+      attributes:
+        label: Solution to the problem
+      description: |
+        Ideas regarding a solution to the problem.
+      value: |
+        <!--- Provide your ideas for how we might solve the problem. If there's a related [Discussion](https://github.com/shopware/shopware/discussions), please link to it here. --->
+      validations:
+      required: false
+    - type: textarea
+      id: solution-what
+      attributes:
+        label: WHAT we want to do
+      description: |
+        Details about what we want to do to solve the problem.
+      value: |
+        <!--- Provide your answer here --->
+      validations:
+      required: false
+    - type: textarea
+      id: solution-who
+      attributes:
+        label: WHO we want to solve the problem for
+      description: |
+        Details about who benefits from the implementation.
+      value: |
+        <!--- Provide your answer here --->
+      validations:
+      required: false
+    - type: textarea
+      id: solution-where
+      attributes:
+        label: WHERE we want to do it
+      description: |
+        Details about where the work will take place: the core platform, extensions, etc.
+      value: |
+        <!--- Provide your answer here --->
+      validations:
+      required: true
+    - type: textarea
+      id: solution-how
+      attributes:
+        label: HOW we might solve it
+      description: |
+        Details about how we could solve the problem: technical implementation-related.
+      value: |
+        <!--- Provide your answer here --->
+      validations:
+      required: false
+    - type: textarea
+      id: out-of-scope
+      attributes:
+        label: Out of scope
+      description: |
+        Please add any essential details here that would help us to clarify scope.
+      value: |
+        <!--- Provide your answer here --->
+      validations:
+      required: false
+    - type: textarea
+      id: acceptance-criteria
+      attributes:
+        label: Acceptance criteria
+      description: |
+        Please share acceptance criteria, including attributes and possible metrics, that would help us validate success.
+      value: |
+        <!--- Provide your answer here --->
+      validations:
+      required: true

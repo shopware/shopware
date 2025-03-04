@@ -120,6 +120,10 @@ class CustomFieldRule
             return $renderedFieldValue ?? false; // those fields are initialized with null in the rule builder
         }
 
+        if (self::isDatetimeOrDateField($renderedField) && \is_string($renderedFieldValue)) {
+            return (new \DateTimeImmutable($renderedFieldValue))->format(\DATE_ATOM);
+        }
+
         return $renderedFieldValue;
     }
 
@@ -185,5 +189,13 @@ class CustomFieldRule
     private static function isSwitchOrBoolField(array $renderedField): bool
     {
         return \in_array($renderedField['type'], [CustomFieldTypes::BOOL, CustomFieldTypes::SWITCH], true);
+    }
+
+    /**
+     * @param array<string, string|array<string, string>> $renderedField
+     */
+    private static function isDatetimeOrDateField(array $renderedField): bool
+    {
+        return \in_array($renderedField['type'], [CustomFieldTypes::DATETIME, CustomFieldTypes::DATE], true);
     }
 }

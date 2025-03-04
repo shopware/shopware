@@ -24,9 +24,9 @@ export default Shopware.Component.wrapComponentConfig({
     computed: {
         welcomeMessage() {
             const greetingName = this.greetingName;
-            const welcomeMessage = this.$tc(this.cachedHeadlineGreetingKey, 1, {
+            const welcomeMessage = this.$tc(this.cachedHeadlineGreetingKey, {
                 greetingName,
-            });
+            }, 1);
 
             // in the headline we want to greet the user by his firstname
             // if his first name is not available, we remove the personalized greeting part
@@ -97,8 +97,9 @@ export default Shopware.Component.wrapComponentConfig({
         getGreetings(type = 'daytimeHeadline') {
             const i18nMessages = this.$i18n.messages;
 
-            const localeGreetings = i18nMessages?.[this.$i18n.locale]?.['sw-dashboard']?.introduction?.[type];
-            const fallbackGreetings = i18nMessages?.[this.$i18n.fallbackLocale]?.['sw-dashboard']?.introduction?.[type];
+            const localeGreetings = i18nMessages.value?.[this.$i18n.locale]?.['sw-dashboard']?.introduction?.[type];
+            const fallbackGreetings =
+                i18nMessages.value?.[this.$i18n.fallbackLocale.value]?.['sw-dashboard']?.introduction?.[type];
 
             return localeGreetings ?? fallbackGreetings;
         },

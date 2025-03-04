@@ -22,25 +22,13 @@
     <sw-container v-if="useTrigger">
 
         {% block sw_promotion_v2_settings_trigger_select_trigger_type %}
-        <sw-select-field
-            v-model:value="triggerType"
+        <mt-select
+            v-model="triggerType"
             class="sw-promotion-v2-settings-trigger-settings__trigger-type"
             :label="$tc('sw-promotion-v2.detail.discounts.settings.trigger.labelNumberOfTriggers')"
             :disabled="!acl.can('promotion.editor')"
-        >
-
-            {% block sw_promotion_v2_settings_trigger_select_trigger_amount_options %}
-            <option
-                v-for="selection in getTriggerSelection()"
-                :key="selection.value"
-                :value="selection.value"
-                :disabled="selection.disabled"
-            >
-                {{ selection.display }}
-            </option>
-            {% endblock %}
-
-        </sw-select-field>
+            :options="triggerOptions"
+        />
         {% endblock %}
 
         {% block sw_promotion_v2_settings_trigger_rule_selection_selection %}

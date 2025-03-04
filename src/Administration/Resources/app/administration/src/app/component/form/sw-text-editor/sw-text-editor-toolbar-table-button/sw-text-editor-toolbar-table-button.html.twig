@@ -11,28 +11,28 @@
 
     {% block sw_text_editor_toolbar_table_button_table_grid_input %}
     <div class="sw-text-editor-toolbar-table-button__grid-input">
-        <sw-number-field
-            v-model:value="selectedCols"
+        <mt-number-field
+            v-model="selectedCols"
             number-type="int"
             :min="0"
             :max="colMaxLimit"
             :label="$tc('sw-text-editor-toolbar.table.cols')"
             @input-change="setSelectedCols"
-            @update:value="setSelectedCols"
+            @update:model-value="setSelectedCols"
         />
         <mt-icon
             class="sw-text-editor-toolbar-table-button__grid-input-icon"
             name="regular-times"
             size="12"
         />
-        <sw-number-field
-            v-model:value="selectedRows"
+        <mt-number-field
+            v-model="selectedRows"
             number-type="int"
             :min="0"
             :max="rowMaxLimit"
             :label="$tc('sw-text-editor-toolbar.table.rows')"
             @input-change="setSelectedRows"
-            @update:value="setSelectedRows"
+            @update:model-value="setSelectedRows"
         />
     </div>
     {% endblock %}

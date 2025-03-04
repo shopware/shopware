@@ -23,7 +23,10 @@
             <div class="sw-product-variants-overview__filter-list-button">
 
                 {% block sw_product_variants_overview_option_list_toolbar_container_filter_list_button %}
-                <mt-button @click="filterWindowOpen = !filterWindowOpen">
+                <mt-button
+                    variant="secondary"
+                    @click="filterWindowOpen = !filterWindowOpen"
+                >
                     {{ $tc('sw-product.variations.generatedFilterList') }}
                     <mt-icon name="regular-filter" />
                 </mt-button>
@@ -63,7 +66,10 @@
                         {% block sw_product_variants_overview_option_list_toolbar_container_filter_buttons %}
                         <div class="sw-product-variants-overview__filter-buttons">
                             {% block sw_product_variants_overview_option_list_toolbar_container_button_filter_reset %}
-                            <mt-button @click="resetFilterOptions()">
+                            <mt-button
+                                variant="secondary"
+                                @click="resetFilterOptions()"
+                            >
                                 {{ $tc('sw-product.variations.overview.filterReset') }}
                             </mt-button>
                             {% endblock %}
@@ -95,6 +101,7 @@
                 ghost
                 :disabled="!acl.can('product.creator')"
                 class="sw-product-variants__generate-action"
+                variant="secondary"
                 @click="$emit('generator-open')"
             >
                 {{ $tc('sw-product.variations.overview.generateVariants') }}
@@ -104,6 +111,7 @@
                 ghost
                 class="sw-product-variants__configure-storefront-action"
                 :disabled="!acl.can('product.editor')"
+                variant="secondary"
                 @click="$emit('delivery-open')"
             >
                 {{ $tc('sw-product.variations.overview.storefrontDelivery') }}
@@ -230,9 +238,9 @@
             #column-stock="{ item, isInlineEdit, compact }"
         >
             {% block sw_product_variants_overview_data_grid_column_stock_inline_edit_field %}
-            <sw-number-field
+            <mt-number-field
                 v-if="isInlineEdit && (!variantIsDigital(item) || item.isCloseout === true)"
-                v-model:value="item.stock"
+                v-model="item.stock"
                 :size="compact ? 'small' : 'default'"
             />
             {% endblock %}
@@ -582,6 +590,7 @@
                 class="sw-product-variants-overview__modal--cancel-button"
                 size="small"
                 :disabled="modalLoading"
+                variant="secondary"
                 @click="onCloseDeleteModal"
             >
                 {{ $tc('global.default.cancel') }}

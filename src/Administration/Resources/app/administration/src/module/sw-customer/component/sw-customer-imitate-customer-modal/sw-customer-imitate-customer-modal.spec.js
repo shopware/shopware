@@ -40,7 +40,9 @@ async function createWrapper() {
                     }),
                     'sw-container': await wrapTestComponent('sw-container'),
                     'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                    'i18n-t': true,
+                    'i18n-t': {
+                        template: '<div class="i18n-stub"><slot></slot></div>',
+                    },
                     'sw-loader': true,
                     'router-link': true,
                 },

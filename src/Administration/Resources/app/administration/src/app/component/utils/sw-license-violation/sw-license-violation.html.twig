@@ -67,6 +67,7 @@
                         :link="action.externalLink"
                         ghost
                         size="small"
+                        variant="secondary"
                     >{{ action.label }}
                     </mt-button>
                 </div>
@@ -76,8 +77,8 @@
     </table>
 
     <template #modal-footer>
-        <sw-checkbox-field
-            v-model:value="readNotice"
+        <mt-checkbox
+            v-model:checked="readNotice"
             :label="$tc('sw-license-violation.checkboxMessage')"
         />
 
@@ -106,6 +107,7 @@
         <template #modal-footer>
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCloseDeleteModal"
             >
                 {{ $tc('global.default.cancel') }}

@@ -128,16 +128,16 @@
         />
         {% endblock %}
 
-        <sw-number-field
-            v-model:value="shippingCost"
+        <mt-number-field
+            v-model="shippingCost"
             class="sw-order-create-options__shipping-cost"
             :label="$tc('sw-order.initialModal.options.labelShippingCosts')"
-            @update:value="onChangeShippingCost"
+            @update:model-value="onChangeShippingCost"
         >
             <template #suffix>
                 {{ currency.symbol }}
             </template>
-        </sw-number-field>
+        </mt-number-field>
 
         <mt-switch
             v-model="isSameAsBillingAddress"

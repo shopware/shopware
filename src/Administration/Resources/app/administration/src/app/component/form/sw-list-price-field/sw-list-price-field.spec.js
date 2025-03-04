@@ -160,4 +160,34 @@ describe('components/form/sw-list-price-field', () => {
             wrapper.find('.sw-list-price-field__regulation-price sw-price-field-stub').attributes()['gross-help-text'],
         ).toBeUndefined();
     });
+
+    it('should returns default regulationPrice when it does not exist', async () => {
+        const wrapper = await setup();
+        await wrapper.setData({
+            priceForCurrency: {},
+        });
+
+        expect(wrapper.vm.regulationPrice).toEqual([
+            {
+                gross: null,
+                currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                linked: true,
+                net: null,
+            },
+        ]);
+    });
+
+    it('should sets regulationPrice correctly', async () => {
+        const wrapper = await setup();
+        const newRegulationPrice = {
+            gross: 200,
+            currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+            linked: true,
+            net: 186.92,
+        };
+
+        wrapper.vm.regulationPrice = newRegulationPrice;
+
+        expect(wrapper.vm.priceForCurrency.regulationPrice).toEqual(newRegulationPrice);
+    });
 });

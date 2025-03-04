@@ -24,21 +24,18 @@
         {{ $tc('sw-cms.components.cmsMissingElementModal.paragraph') }}
     </p>
     {% endblock %}
-
-    <sw-checkbox-field
+    <mt-checkbox
         class="sw-cms-missing-element-modal__dont-remind"
-        @update:value="onChangeDontRemindCheckbox()"
-    >
-        <template #label>
-            {{ $tc('sw-app.component.sw-app-actions.dontAskMeAgain') }}
-        </template>
-    </sw-checkbox-field>
+        :label="$tc('sw-app.component.sw-app-actions.dontAskMeAgain')"
+        @update:checked="onChangeDontRemindCheckbox()"
+    />
 
     <template #modal-footer>
         {% block sw_cms_missing_element_modal_button_cancel %}
         <mt-button
             class="sw-cms-missing-element-modal__button-cancel"
             size="small"
+            variant="secondary"
             @click="onClose"
         >
             {{ $tc('global.default.cancel') }}

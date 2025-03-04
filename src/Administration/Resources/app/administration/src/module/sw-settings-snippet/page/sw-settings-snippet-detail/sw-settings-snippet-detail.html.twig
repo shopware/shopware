@@ -37,6 +37,7 @@
         {% block sw_settings_snippet_detail_actions_abort %}
         <mt-button
             :disabled="isLoading"
+            variant="secondary"
             @click="$router.push(backPath)"
         >
             {{ $tc('global.default.cancel') }}

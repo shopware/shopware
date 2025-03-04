@@ -22,8 +22,6 @@ async function createWrapper(routerPushImplementation = jest.fn(), loginByUserna
                     `,
                 },
                 'sw-loader': await wrapTestComponent('sw-loader'),
-                'sw-password-field': await wrapTestComponent('sw-password-field'),
-                'sw-password-field-deprecated': await wrapTestComponent('sw-password-field-deprecated'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
@@ -156,7 +154,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         expect(loginByUserName).toHaveBeenCalledWith('max', '');
 
         expect(wrapper.vm.passwordError !== null).toBe(true);
-        const passwordError = wrapper.find('.sw-field__error');
+        const passwordError = wrapper.findByText('span', 'sw-inactivity-login.modal.errors.password');
         expect(passwordError.exists()).toBe(true);
     });
 
@@ -223,8 +221,8 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         );
         await flushPromises();
 
-        const rememberMeInput = wrapper.find('.sw-field--checkbox input');
-        await rememberMeInput.trigger('click');
+        const rememberMeInput = wrapper.find('.mt-field--checkbox__container input');
+        await rememberMeInput.setChecked(true);
 
         const loginButton = wrapper.findByText('button', 'sw-login.index.buttonLogin');
         await loginButton.trigger('click');

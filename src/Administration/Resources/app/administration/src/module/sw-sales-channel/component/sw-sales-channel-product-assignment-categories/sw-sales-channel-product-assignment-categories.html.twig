@@ -106,9 +106,9 @@
                 >
 
                     {% block sw_sales_channel_product_assignment_categories_search_results_item_checkbox %}
-                    <sw-checkbox-field
+                    <mt-checkbox
                         class="sw-sales-channel-product-assignment-categories__search-results-checkbox"
-                        :value="isSearchItemChecked(item.id)"
+                        :checked="isSearchItemChecked(item.id)"
                     />
                     {% endblock %}
 

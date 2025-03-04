@@ -1,3 +1,5 @@
+import { computed } from 'vue';
+
 import template from './sw-custom-field-set-renderer.html.twig';
 import './sw-custom-field-set-renderer.scss';
 
@@ -25,10 +27,10 @@ Component.register('sw-custom-field-set-renderer', {
     // Grant access to some variables to the child form render components
     provide() {
         return {
-            getEntity: this.entity,
-            getParentEntity: this.parentEntity,
-            getCustomFieldSet: this.set,
-            getCustomFieldSetVariant: this.variant,
+            getEntity: computed(() => this.entity),
+            getParentEntity: computed(() => this.parentEntity),
+            getCustomFieldSet: computed(() => this.set),
+            getCustomFieldSetVariant: computed(() => this.variant),
         };
     },
 
@@ -145,6 +147,7 @@ Component.register('sw-custom-field-set-renderer', {
                 'sw-number-field',
                 'sw-datepicker',
                 'sw-email-field',
+                'mt-email-field',
                 'sw-url-field',
                 'sw-password-field',
                 'sw-radio-field',

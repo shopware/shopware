@@ -24,6 +24,7 @@
                         ghost
                         size="small"
                         class="sw-settings-rule-detail-assignments__add-button"
+                        variant="secondary"
                         @click="onOpenAddModal(entity)"
                     >
                         {{ $tc('sw-settings-rule.detail.buttonAddAssignment') }}
@@ -162,6 +163,7 @@
             <mt-button
                 class="sw-settings-rule-detail-assignments__delete-modal-cancel-button"
                 size="small"
+                variant="secondary"
                 @click="onCloseDeleteModal"
             >
                 {{ $tc('global.default.cancel') }}

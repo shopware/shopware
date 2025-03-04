@@ -19,6 +19,7 @@
                 class="sw-order-customer-grid__add-customer"
                 ghost
                 size="small"
+                variant="secondary"
                 @click="onShowNewCustomerModal"
             >
                 {{ $tc('sw-order.initialModal.customerGrid.buttonAddNewCustomer') }}
@@ -165,6 +166,7 @@
                 {% block sw_order_customer_grid_sales_channel_action_close %}
                 <mt-button
                     size="small"
+                    variant="secondary"
                     @click="onCloseSalesChannelSelectModal"
                 >
                     {{ $tc('global.default.cancel') }}
@@ -205,6 +207,7 @@
                 {% block sw_order_customer_grid_customer_changes_modal_action_close %}
                 <mt-button
                     size="small"
+                    variant="secondary"
                     @click="onCloseCustomerChangesModal"
                 >
                     {{ $tc('global.default.cancel') }}

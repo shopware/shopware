@@ -23,8 +23,8 @@
                 {% endblock %}
 
                 {% block sw_settings_rule_detail_base_content_card_field_priority %}
-                <sw-number-field
-                    v-model:value="rule.priority"
+                <mt-number-field
+                    v-model="rule.priority"
                     name="sw-field--rule-priority"
                     :label="$tc('sw-settings-rule.detail.labelPriority')"
                     :placeholder="$tc('sw-settings-rule.detail.placeholderPriority')"

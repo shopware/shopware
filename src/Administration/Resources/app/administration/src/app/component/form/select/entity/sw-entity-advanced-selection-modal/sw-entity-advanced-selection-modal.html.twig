@@ -27,6 +27,7 @@
                         {% block sw_entity_advanced_selection_modal_toolbar_filter_button %}
                         <mt-button
                             size="small"
+                            variant="secondary"
                             @click="filterWindowOpen = !filterWindowOpen"
                         >
                             <mt-icon
@@ -167,6 +168,7 @@
         <mt-button
             size="small"
             class="sw-entity-advanced-selection-modal__button-cancel"
+            variant="secondary"
             @click="$emit('modal-close')"
         >
             {{ $tc('global.default.cancel') }}

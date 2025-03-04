@@ -3,8 +3,9 @@
 namespace Shopware\Core\Checkout\Promotion\Util;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeCollection;
 use Shopware\Core\Checkout\Promotion\Exception\PatternNotComplexEnoughException;
-use Shopware\Core\Checkout\Promotion\PromotionEntity;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -26,6 +27,9 @@ class PromotionCodeService
 
     /**
      * @internal
+     *
+     * @param EntityRepository<PromotionCollection> $promotionRepository
+     * @param EntityRepository<PromotionIndividualCodeCollection> $individualCodesRepository
      */
     public function __construct(
         private readonly EntityRepository $promotionRepository,
@@ -91,9 +95,8 @@ class PromotionCodeService
         $criteria = (new Criteria([$promotionId]))
             ->addAssociation('individualCodes');
 
-        $promotion = $this->promotionRepository->search($criteria, $context)->first();
-
-        if (!$promotion instanceof PromotionEntity) {
+        $promotion = $this->promotionRepository->search($criteria, $context)->getEntities()->first();
+        if (!$promotion) {
             throw PromotionException::promotionsNotFound([$promotionId]);
         }
 

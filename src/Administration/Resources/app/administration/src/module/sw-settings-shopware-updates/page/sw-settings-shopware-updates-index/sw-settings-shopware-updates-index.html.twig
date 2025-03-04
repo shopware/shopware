@@ -53,6 +53,7 @@
                         <mt-button
                             ghost
                             :is-loading="isSearchingForUpdates"
+                            variant="secondary"
                             @click="searchForUpdates"
                         >
                             {{ $t('sw-settings-shopware-updates.general.checkForUpdates') }}
@@ -76,6 +77,7 @@
             <template #modal-footer>
                 <mt-button
                     size="small"
+                    variant="secondary"
                     @click="updateModalShown = false"
                 >
                     {{ $tc('global.default.cancel') }}

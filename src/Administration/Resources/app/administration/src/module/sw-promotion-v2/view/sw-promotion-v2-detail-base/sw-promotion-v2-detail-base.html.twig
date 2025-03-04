@@ -26,8 +26,8 @@
                 :placeholder="placeholder(promotion, 'name', $tc('sw-promotion-v2.detail.base.general.namePlaceholder'))"
             />
 
-            <sw-number-field
-                v-model:value="promotion.priority"
+            <mt-number-field
+                v-model="promotion.priority"
                 :disabled="!acl.can('promotion.editor')"
                 :label="$tc('sw-promotion-v2.detail.base.general.priorityLabel')"
                 :help-text="$tc('sw-promotion-v2.detail.base.general.helpTextPriority')"
@@ -74,8 +74,8 @@
         >
 
             {% block sw_promotion_v2_detail_base_general_max_uses_global %}
-            <sw-number-field
-                v-model:value="promotion.maxRedemptionsGlobal"
+            <mt-number-field
+                v-model="promotion.maxRedemptionsGlobal"
                 class="sw-promotion-v2-detail-base__field-max-uses-global"
                 number-type="int"
                 :label="$tc('sw-promotion-v2.detail.base.general.maxUsesGlobalLabel')"
@@ -86,8 +86,8 @@
             {% endblock %}
 
             {% block sw_promotion_v2_detail_base_general_max_uses_customer %}
-            <sw-number-field
-                v-model:value="promotion.maxRedemptionsPerCustomer"
+            <mt-number-field
+                v-model="promotion.maxRedemptionsPerCustomer"
                 class="sw-promotion-v2-detail-base__field-max-uses-per-customer"
                 number-type="int"
                 :label="$tc('sw-promotion-v2.detail.base.general.maxUsesPerCustomerLabel')"
@@ -124,26 +124,14 @@
     >
 
         {% block sw_promotion_v2_detail_base_codes_select %}
-        <sw-select-field
+        <mt-select
             class="sw-promotion-v2-detail-base__field-code-type"
             :label="$tc('sw-promotion-v2.detail.base.codes.codeTypeLabel')"
             :disabled="!acl.can('promotion.editor')"
-            :value="selectedCodeType"
-            @update:value="onChangeCodeType"
-        >
-
-            {% block sw_promotion_v2_detail_base_codes_select_options %}
-            <option
-                v-for="option in codeTypeOptions"
-                :key="option.value"
-                :value="option.value"
-                :selected="option.value === selectedCodeType"
-            >
-                {{ option.label }}
-            </option>
-            {% endblock %}
-
-        </sw-select-field>
+            :model-value="selectedCodeType"
+            :options="codeTypeOptions"
+            @update:model-value="onChangeCodeType"
+        />
         {% endblock %}
 
         {% block sw_promotion_v2_detail_base_codes_type_fixed %}

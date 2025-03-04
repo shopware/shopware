@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Rule\RuleIdMatcher;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -31,7 +32,8 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
     public function __construct(
         private readonly SalesChannelRepository $paymentMethodRepository,
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly ScriptExecutor $scriptExecutor
+        private readonly ScriptExecutor $scriptExecutor,
+        private readonly RuleIdMatcher $ruleIdMatcher,
     ) {
     }
 
@@ -65,13 +67,17 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
         $result = $this->paymentMethodRepository->search($criteria, $context);
 
         $paymentMethods = $result->getEntities();
-
         $paymentMethods->sortPaymentMethodsByPreference($context);
+
+        if ($request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable')) {
+            $paymentMethods = $this->ruleIdMatcher->filterCollection($paymentMethods, $context->getRuleIds());
+        }
 
         $result->assign(['entities' => $paymentMethods, 'elements' => $paymentMethods->getElements(), 'total' => $paymentMethods->count()]);
 
         $this->scriptExecutor->execute(new PaymentMethodRouteHook(
             $paymentMethods,
+            $request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable'),
             $context,
         ));
 

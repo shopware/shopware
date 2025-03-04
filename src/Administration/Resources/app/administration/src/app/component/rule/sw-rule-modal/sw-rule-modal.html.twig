@@ -24,8 +24,8 @@
         />
         {% endblock %}
         {% block sw_rule_modal_basic_info_priority %}
-        <sw-number-field
-            v-model:value="rule.priority"
+        <mt-number-field
+            v-model="rule.priority"
             name="sw-field--rule-priority"
             :label="$tc('sw-rule-modal.labelPriority')"
             :placeholder="$tc('sw-rule-modal.placeholderPriority')"
@@ -66,6 +66,7 @@
         {% block sw_rule_modal_footer_button_abort %}
         <mt-button
             size="small"
+            variant="secondary"
             @click="$emit('modal-close')"
         >
             {{ $tc('global.default.cancel') }}

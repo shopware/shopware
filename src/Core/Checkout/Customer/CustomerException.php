@@ -16,10 +16,15 @@ use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\DuplicateWishlistProductException;
 use Shopware\Core\Checkout\Customer\Exception\InvalidImitateCustomerTokenException;
 use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
+use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Exception\MissingOptionsException;
 
 #[Package('checkout')]
 class CustomerException extends HttpException
@@ -53,6 +58,12 @@ class CustomerException extends HttpException
     public const CUSTOMER_CHANGE_PAYMENT_ERROR = 'CHECKOUT__CUSTOMER_CHANGE_PAYMENT_METHOD_NOT_FOUND';
     public const CUSTOMER_GUEST_AUTH_INVALID = 'CHECKOUT__CUSTOMER_AUTH_INVALID';
     public const IMITATE_CUSTOMER_INVALID_TOKEN = 'CHECKOUT__IMITATE_CUSTOMER_INVALID_TOKEN';
+    public const MISSING_ROUTE_ANNOTATION = 'CHECKOUT__MISSING_ROUTE_ANNOTATION';
+    public const MISSING_ROUTE_SALES_CHANNEL = 'CHECKOUT__MISSING_ROUTE_SALES_CHANNEL';
+    public const OPERATOR_NOT_SUPPORTED = 'CHECKOUT__CUSTOMER_RULE_OPERATOR_NOT_SUPPORTED';
+    public const VALUE_NOT_SUPPORTED = 'CONTENT__RULE_VALUE_NOT_SUPPORTED';
+    public const MISSING_REQUEST_PARAMETER_CODE = 'CONTENT__MISSING_REQUEST_PARAMETER_CODE';
+    public const MISSING_OPTIONS = 'CONTENT__MISSING_OPTIONS';
 
     public static function customerGroupNotFound(string $id): self
     {
@@ -282,5 +293,103 @@ class CustomerException extends HttpException
     public static function invalidImitationToken(string $token): InvalidImitateCustomerTokenException
     {
         return new InvalidImitateCustomerTokenException($token);
+    }
+
+    public static function missingRouteAnnotation(string $annotation, string $route): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MISSING_ROUTE_ANNOTATION,
+            'Missing @{{ annotation }} annotation for route: {{ route }}',
+            ['annotation' => $annotation, 'route' => $route]
+        );
+    }
+
+    public static function missingRouteSalesChannel(string $route): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MISSING_ROUTE_SALES_CHANNEL,
+            'Missing sales channel context for route {{ route }}',
+            ['route' => $route]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function unsupportedOperator(string $operator, string $class): self|UnsupportedOperatorException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new UnsupportedOperatorException($operator, $class);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::OPERATOR_NOT_SUPPORTED,
+            'Unsupported operator {{ operator }} in {{ class }}',
+            ['operator' => $operator, 'class' => $class]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function unsupportedValue(string $type, string $class): self|UnsupportedValueException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new UnsupportedValueException($type, $class);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::VALUE_NOT_SUPPORTED,
+            'Unsupported value of type {{ type }} in {{ class }}',
+            ['type' => $type, 'class' => $class]
+        );
+    }
+
+    public static function missingRequestParameter(string $name): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_REQUEST_PARAMETER_CODE,
+            'Parameter "{{ parameterName }}" is missing.',
+            ['parameterName' => $name]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function productNotFound(string $productId): self|ProductNotFoundException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new ProductNotFoundException($productId);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_REQUEST_PARAMETER_CODE,
+            'Product for id {{ productId }} not found.',
+            ['productId' => $productId]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function missingOption(string $option, string $constraint): self|MissingOptionsException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new MissingOptionsException(\sprintf('Option "%s" must be given for constraint %s', $option, $constraint), ['context']);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_OPTIONS,
+            'Option "{{ option }}" must be given for constraint {{ constraint }}',
+            ['option' => $option, 'constraint' => $constraint]
+        );
     }
 }

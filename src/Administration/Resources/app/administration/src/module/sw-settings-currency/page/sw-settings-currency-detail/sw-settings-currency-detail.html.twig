@@ -13,6 +13,7 @@
         <mt-button
             v-tooltip.bottom="tooltipCancel"
             :disabled="isLoading"
+            variant="secondary"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
@@ -127,8 +128,8 @@
                         {% endblock %}
 
                         {% block sw_settings_currency_detail_content_field_factor %}
-                        <sw-number-field
-                            v-model:value="currency.factor"
+                        <mt-number-field
+                            v-model="currency.factor"
                             name="sw-field--currency-factor"
                             required
                             :digits="14"
@@ -140,8 +141,8 @@
                         {% endblock %}
 
                         {% block sw_settings_currency_detail_content_field_tax_free_from %}
-                        <sw-number-field
-                            v-model:value="currency.taxFreeFrom"
+                        <mt-number-field
+                            v-model="currency.taxFreeFrom"
                             name="sw-field--currency-taxFreeFrom"
                             :min="0"
                             :label="$tc('sw-settings-currency.detail.taxFreeFrom')"
@@ -151,7 +152,7 @@
                             <template #suffix>
                                 {{ currency.symbol }}
                             </template>
-                        </sw-number-field>
+                        </mt-number-field>
                         {% endblock %}
 
                     </sw-container>
@@ -194,6 +195,7 @@
                                 ghost
                                 class="sw-settings-currency-detail__currency-country-toolbar-button"
                                 size="small"
+                                variant="secondary"
                                 @click="onAddCountry"
                             >
                                 {{ $tc('sw-settings-currency.detail.buttonAddCountry') }}

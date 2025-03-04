@@ -11,6 +11,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
+/**
+ * @deprecated tag:v6.8.0 - class will be marked internal - reason:becomes-internal
+ */
 #[Package('framework')]
 class CurrencyFilter extends AbstractExtension
 {
@@ -32,6 +35,8 @@ class CurrencyFilter extends AbstractExtension
     }
 
     /**
+     * @deprecated tag:v6.8.0 - arguments will be type-hinted - reason:becomes-internal
+     *
      * @param array<string, mixed> $twigContext
      * @param float $price
      * @param string|null $currencyIsoCode

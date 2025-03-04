@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Adapter;
 
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\AdapterFactoryNotFoundException;
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\DuplicateFilesystemFactoryException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Asset\Exception\InvalidArgumentException;
@@ -31,6 +32,8 @@ class AdapterException extends HttpException
     final public const CACHE_DIRECTORY_ERROR = 'FRAMEWORK__CACHE_DIRECTORY_ERROR';
     final public const CURRENCY_FILTER_MISSING_CONTEXT = 'FRAMEWORK__CURRENCY_FILTER_MISSING_CONTEXT';
     final public const CURRENCY_FILTER_MISSING_ISO_CODE = 'FRAMEWORK__CURRENCY_FILTER_MISSING_ISO_CODE';
+    final public const FILESYSTEM_FACTORY_NOT_FOUND = 'FRAMEWORK__FILESYSTEM_FACTORY_NOT_FOUND';
+    final public const DUPLICATE_FILESYSTEM_FACTORY = 'FRAMEWORK__DUPLICATE_FILESYSTEM_FACTORY';
 
     public static function unexpectedTwigExpression(AbstractExpression $expression): self
     {
@@ -223,13 +226,37 @@ class AdapterException extends HttpException
         );
     }
 
-    public static function filesystemFactoryNotFound(string $type): AdapterFactoryNotFoundException
+    /**
+     * @deprecated tag:v6.8.0 - It will return a self instance instead of AdapterFactoryNotFoundException - reason:remove-exception
+     */
+    public static function filesystemFactoryNotFound(string $type): AdapterFactoryNotFoundException|self
     {
+        if (Feature::isActive('v6.8.0.0')) {
+            return new self(
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                self::FILESYSTEM_FACTORY_NOT_FOUND,
+                'Filesystem factory for type "{{ type }}" not found.',
+                ['type' => $type]
+            );
+        }
+
         return new AdapterFactoryNotFoundException($type);
     }
 
-    public static function duplicateFilesystemFactory(string $type): DuplicateFilesystemFactoryException
+    /**
+     * @deprecated tag:v6.8.0 - It will return a self instance instead of DuplicateFilesystemFactoryException - reason:remove-exception
+     */
+    public static function duplicateFilesystemFactory(string $type): DuplicateFilesystemFactoryException|self
     {
+        if (Feature::isActive('v6.8.0.0')) {
+            return new self(
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                self::DUPLICATE_FILESYSTEM_FACTORY,
+                'Filesystem factory for type "{{ type }}" already exists.',
+                ['type' => $type]
+            );
+        }
+
         return new DuplicateFilesystemFactoryException($type);
     }
 }

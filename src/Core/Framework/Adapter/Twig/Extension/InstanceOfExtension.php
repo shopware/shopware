@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigTest;
 
+/**
+ * @deprecated tag:v6.8.0 - class will be marked internal - reason:becomes-internal
+ */
 #[Package('framework')]
 class InstanceOfExtension extends AbstractExtension
 {
@@ -17,6 +20,8 @@ class InstanceOfExtension extends AbstractExtension
     }
 
     /**
+     * @deprecated tag:v6.8.0 - arguments will be type-hinted - reason:becomes-internal
+     *
      * @param object $var
      * @param class-string $class
      */

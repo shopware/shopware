@@ -645,7 +645,18 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
                     stubs: {
                         'sw-page': true,
                         'sw-button': true,
-                        'sw-loader': true
+                        'sw-loader': true,
+                        'sw-tabs-item': true,
+                        'router-view': true,
+                        'sw-button-process': true,
+                        'sw-button-deprecated': true,
+                        'sw-skeleton': true,
+                        'sw-alert': true,
+                        'sw-flow-leave-page-modal': true,
+                        'sw-tabs': true,
+                        'sw-card-view': true,
+                        'sw-icon': true,
+                        'router-link': true
                     }
                 }
             }

@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
 use Shopware\Storefront\Checkout\Shipping\BlockedShippingMethodSwitcher;
@@ -247,6 +248,27 @@ class BlockedShippingMethodSwitcherTest extends TestCase
             ->willReturn($collection);
 
         return $shippingMethodResponse;
+    }
+
+    public function testOnlyAvailableFlagIsSet(): void
+    {
+        $shippingMethod = $this->shippingMethodCollection->get('original-shipping-method-id');
+        $errors = $this->getErrorCollection(['original-shipping-method-name']);
+
+        $context = Generator::generateSalesChannelContext(shippingMethod: $shippingMethod);
+
+        $shippingMethodRoute = $this->createMock(ShippingMethodRoute::class);
+        $shippingMethodRoute
+            ->expects(static::exactly(2))
+            ->method('load')
+            ->with(
+                static::equalTo(new Request(['onlyAvailable' => true])),
+                $context,
+                static::isInstanceOf(Criteria::class)
+            );
+
+        $switcher = new BlockedShippingMethodSwitcher($shippingMethodRoute);
+        $switcher->switch($errors, $context);
     }
 
     /**

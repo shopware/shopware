@@ -58,7 +58,7 @@ class BlockedShippingMethodSwitcher
     {
         $blockedShippingMethodNames = $errors->fmap(static fn (Error $error) => $error instanceof ShippingMethodBlockedError ? $error->getName() : null);
 
-        $request = new Request();
+        $request = new Request(['onlyAvailable' => true]);
         $defaultShippingMethod = $this->shippingMethodRoute->load(
             $request,
             $salesChannelContext,

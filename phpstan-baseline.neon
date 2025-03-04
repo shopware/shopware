@@ -2201,31 +2201,6 @@ parameters:
 			path: src/Core/Framework/Rule/Rule.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\Debug\\:\\:all\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Debugging/Debug.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\Debug\\:\\:\\$dumps type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Debugging/Debug.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Execution\\\\Script\\:\\:__construct\\(\\) has parameter \\$includes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Execution/Script.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Execution\\\\Script\\:\\:__construct\\(\\) has parameter \\$twigOptions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Execution/Script.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Execution\\\\Script\\:\\:getTwigOptions\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Execution/Script.php
-
-		-
 			message: "#^Expected domain exception class Shopware\\\\Core\\\\Framework\\\\Store\\\\StoreException, got Shopware\\\\Core\\\\Framework\\\\Routing\\\\RoutingException$#"
 			count: 1
 			path: src/Core/Framework/Store/Api/ExtensionStoreActionsController.php

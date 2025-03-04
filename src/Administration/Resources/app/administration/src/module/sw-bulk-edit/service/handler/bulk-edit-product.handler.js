@@ -65,11 +65,9 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
             return Promise.resolve({ data: [] });
         }
 
-        const syncPayloadStringified = JSON.stringify(syncPayload, (k, v) => (v === undefined ? null : v));
-
         return RetryHelper.retry(() => {
             return this.syncService.sync(
-                syncPayloadStringified,
+                syncPayload,
                 {},
                 {
                     'single-operation': 1,

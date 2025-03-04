@@ -164,21 +164,6 @@ class LineItemOfManufacturerRuleTest extends TestCase
             'operator' => Rule::OPERATOR_LT,
         ]);
 
-        $this->expectException(RuleException::class);
-
-        $this->rule->match(new LineItemScope(
-            $this->createLineItemWithManufacturer('3'),
-            $this->createMock(SalesChannelContext::class)
-        ));
-    }
-
-    public function testNotAvailableOperatorIsUsedDeprecated(): void
-    {
-        $this->rule->assign([
-            'manufacturerIds' => ['1', '2'],
-            'operator' => Rule::OPERATOR_LT,
-        ]);
-
         $this->expectExceptionObject(RuleException::unsupportedOperator(Rule::OPERATOR_LT, RuleComparison::class));
 
         $this->rule->match(new LineItemScope(

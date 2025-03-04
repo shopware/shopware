@@ -82,7 +82,7 @@ class DownloadResponseGenerator
                 return $response;
             case self::X_ACCEL_DOWNLOAD_STRATEGY:
                 $location = $media->getPath();
-                
+
                 // Apply the path prefix if configured
                 if (!empty($this->privateLocalPathPrefix)) {
                     $location = $this->privateLocalPathPrefix . '/' . ltrim($location, '/');

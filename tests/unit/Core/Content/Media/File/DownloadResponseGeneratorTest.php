@@ -187,12 +187,12 @@ class DownloadResponseGeneratorTest extends TestCase
 
         if ($strategy) {
             $response = new Response(null, 200, $headers);
-            
+
             $locationPath = 'foobar.txt';
             if ($strategy === DownloadResponseGenerator::X_ACCEL_REDIRECT && !empty($privateLocalPathPrefix)) {
                 $locationPath = $privateLocalPathPrefix . '/foobar.txt';
             }
-            
+
             $response->headers->set($strategy, $locationPath);
 
             return $response;

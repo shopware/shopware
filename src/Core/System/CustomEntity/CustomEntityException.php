@@ -46,6 +46,11 @@ class CustomEntityException extends HttpException
 
     public static function unsupportedOnDeletePropertyOnField(string $onDelete, string $name): self
     {
-        return new self(Response::HTTP_INTERNAL_SERVER_ERROR, self::CUSTOM_ENTITY_ON_DELETE_PROPERTY_NOT_SUPPORTED, 'onDelete property {{ onDelete }} are not supported on field {{ name }}', ['onDelete' => $onDelete, 'name' => $name]);
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CUSTOM_ENTITY_ON_DELETE_PROPERTY_NOT_SUPPORTED,
+            'onDelete property {{ onDelete }} are not supported on field {{ name }}',
+            ['onDelete' => $onDelete, 'name' => $name]
+        );
     }
 }

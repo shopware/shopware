@@ -87,7 +87,9 @@ describe('Offcanvas filter tests', () => {
 
     test('_onCloseOffCanvas replaces the dom innerHTML', () => {
         const sourceDomNode = document.createElement('div');
-        sourceDomNode.appendChild(document.createElement('h1'));
+        const wrapperDomNode = document.createElement('div');
+        wrapperDomNode.appendChild(document.createElement('h1'));
+        sourceDomNode.appendChild(wrapperDomNode);
         sourceDomNode.setAttribute('id', 'itWorksReallyGood');
 
         const targetDomNode = document.createElement('div');

@@ -160,7 +160,6 @@ This file contains the generic styling for all filter items.
     --#{$prefix}btn-hover-color: var(--#{$prefix}primary);
     --#{$prefix}btn-active-bg: var(--#{$prefix}gray-200);
     --#{$prefix}btn-active-color: var(--#{$prefix}primary);
-    display: none;
     width: 100%;
 
     .icon {
@@ -190,16 +189,6 @@ This file contains the generic styling for all filter items.
 
 .filter-panel-offcanvas-close {
     margin-left: auto;
-}
-
-@include media-breakpoint-down(lg) {
-    .btn.filter-panel-wrapper-toggle {
-        display: block;
-    }
-
-    .filter-panel-wrapper {
-        display: none;
-    }
 }
 
 .offcanvas-filter {

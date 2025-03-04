@@ -3,6 +3,13 @@ import Plugin from 'src/plugin-system/plugin.class';
 
 export default class OffCanvasFilter extends Plugin {
 
+    static options = {
+        /**
+         * Classes to remove from the filter wrapper when moved to OffCanvas
+         */
+        classesToRemoveFromWrapperInOffCanvas: ['d-none', 'd-lg-block'],
+    };
+
     init() {
         this._registerEventListeners();
     }
@@ -17,12 +24,13 @@ export default class OffCanvasFilter extends Plugin {
     }
 
     _onCloseOffCanvas(event) {
-        const oldChildNode = event.detail.offCanvasContent[0];
+        const oldChildNode = event.detail.offCanvasContent[0].childNodes[0]; // filterContentWrapper is removed here
 
         const filterContent = document.querySelector('[data-off-canvas-filter-content="true"]');
 
         // move filter back to original place
         filterContent.innerHTML = oldChildNode.innerHTML;
+        filterContent.classList.add(...this.options.classesToRemoveFromWrapperInOffCanvas);
 
         document.$emitter.unsubscribe('onCloseOffcanvas', this._onCloseOffCanvas.bind(this));
         window.PluginManager.getPluginInstances('Listing')[0].refreshRegistry();
@@ -42,21 +50,23 @@ export default class OffCanvasFilter extends Plugin {
         if (!filterContent) {
             throw Error('There was no DOM element with the data attribute "data-offcanvas-filter-content".');
         }
+        // create a virtual wrapper, remove the classes and append content, aria-labelledby is set for offcanvas
+        const filterContentWrapper = document.createElement('div');
+        filterContent.classList.remove(...this.options.classesToRemoveFromWrapperInOffCanvas);
+        filterContentWrapper.appendChild(filterContent.cloneNode(true));
 
         OffCanvas.open(
-            filterContent.innerHTML,
+            filterContentWrapper.innerHTML,
             () => {},
             'bottom',
             true,
-            OffCanvas.REMOVE_OFF_CANVAS_DELAY(),
+            OffCanvas.REMOVE_OFF_CANVAS_DELAY,
             true,
             'offcanvas-filter'
         );
 
-        const filterPanel = filterContent.querySelector('.filter-panel');
-
-        // move filter from original place to offcanvas
-        filterPanel.remove();
+        // remove complete innerHtml from original place to offcanvas
+        filterContent.innerHTML = '';
 
         window.PluginManager.getPluginInstances('Listing')[0].refreshRegistry();
         document.$emitter.subscribe('onCloseOffcanvas', this._onCloseOffCanvas.bind(this));

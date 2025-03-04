@@ -11,7 +11,7 @@
         <div class="cms-element-sidebar-filter">
             {% block element_product_listing_filter_button %}
                 <button
-                    class="btn btn-outline-primary filter-panel-wrapper-toggle"
+                    class="btn btn-outline-primary filter-panel-wrapper-toggle d-block d-lg-none"
                     type="button"
                     data-off-canvas-filter="true"
                     aria-haspopup="true"
@@ -28,8 +28,9 @@
             {% block element_sidebar_filter_panel %}
                 <div
                     id="filter-panel-wrapper"
-                    class="filter-panel-wrapper"
+                    class="d-none d-lg-block"
                     data-off-canvas-filter-content="true"
+                    aria-labelledby="filter-panel-title"
                 >
                     {% sw_include '@Storefront/storefront/component/listing/filter-panel.html.twig' with {
                         listing: listing,

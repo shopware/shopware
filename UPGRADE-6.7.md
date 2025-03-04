@@ -79,6 +79,17 @@ Shopware.Store.register({
 });
 ```
 
+### Vuex Breaking change
+Due to the migration from Vuex to Pinia, the Vuex helper utils have been renamed to avoid conflicts with Pinia helpers.
+If you are still using Vuex, please update your code accordingly:
+
+```
+    mapState -> mapVuexState
+    mapMutations -> mapVuexMutations
+    mapGetters -> mapVuexGetters
+    mapActions -> mapVuexActions
+```
+
 For more information refer to the [docs](https://developer.shopware.com/docs/resources/references/adr/2024-06-17-replace-vuex-with-pinia.html#replace-vuex-with-pinia).
 
 # Cache Rework

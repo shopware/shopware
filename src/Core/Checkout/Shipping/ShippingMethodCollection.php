@@ -4,7 +4,9 @@ namespace Shopware\Core\Checkout\Shipping;
 
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\RuleIdMatcher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -13,8 +15,16 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('checkout')]
 class ShippingMethodCollection extends EntityCollection
 {
+    /**
+     * @deprecated tag:v6.8.0 use RuleIdMatcher instead
+     */
     public function filterByActiveRules(SalesChannelContext $salesChannelContext): ShippingMethodCollection
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', RuleIdMatcher::class)
+        );
+
         return $this->filter(
             function (ShippingMethodEntity $shippingMethod) use ($salesChannelContext) {
                 if ($shippingMethod->getAvailabilityRuleId() === null) {

@@ -20,9 +20,6 @@ Please create a second pull request at https://github.com/shopware/docs
 <!-- Examples:
 - closes #123  - closes the issue #123 when the PR is merged
 - relates #123 - relates to the issue #123
-
-In case of issue existing only on Jira, link to the Jira issue.
-- Jira issue: https://shopware.atlassian.net/browse/NEXT-123
 -->
 
 ### 5. Checklist

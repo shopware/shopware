@@ -156,6 +156,7 @@ class AccountEditOrderPageLoader
     private function getPaymentMethods(SalesChannelContext $context, Request $request, OrderEntity $order): PaymentMethodCollection
     {
         $routeRequest = $request->duplicate();
+        $routeRequest->query->set('onlyAvailable', '1');
 
         $event = new PaymentMethodRouteRequestEvent($request, $routeRequest, $context);
         $this->eventDispatcher->dispatch($event);

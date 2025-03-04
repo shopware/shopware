@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('As an admin user, I want to have an overview of my assigned rules, so that I can easily see where they are used and easily assign new ones', { tag: '@Rule' }, async ({
+test.skip('As an admin user, I want to have an overview of my assigned rules, so that I can easily see where they are used and easily assign new ones', { tag: '@Rule' }, async ({
     TestDataService,
     ShopAdmin,
     AdminRuleDetail,

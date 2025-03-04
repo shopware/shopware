@@ -58,7 +58,7 @@ class BlockedPaymentMethodSwitcher
     {
         $blockedPaymentMethodNames = $errors->fmap(static fn (Error $error) => $error instanceof PaymentMethodBlockedError ? $error->getName() : null);
 
-        $request = new Request();
+        $request = new Request(['onlyAvailable' => true]);
         $defaultPaymentMethod = $this->paymentMethodRoute->load(
             $request,
             $salesChannelContext,

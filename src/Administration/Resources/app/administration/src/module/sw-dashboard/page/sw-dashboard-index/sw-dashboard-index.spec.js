@@ -23,13 +23,14 @@ async function createWrapper(privileges = []) {
                 'sw-error-summary': true,
             },
             mocks: {
-                $tc: jest.fn().mockImplementation((snippetPath, number, placeholders) => {
+                $tc: jest.fn().mockImplementation((snippetPath, placeholders) => {
                     return `${snippetPathGreeting}, ${placeholders?.greetingName || ''}`;
                 }),
                 $i18n: {
                     locale: 'en-GB',
+                    fallbackLocale: { value: 'en-GB' },
                     messages: {
-                        'en-GB': dictionary,
+                        value: { 'en-GB': dictionary },
                     },
                 },
                 $route: {

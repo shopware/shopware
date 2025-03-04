@@ -268,11 +268,10 @@ class OrderConverter
         $customer = null;
 
         if ($customerId) {
-            $customerCriteria = new Criteria([$customerId]);
-            $customerCriteria->addAssociation('addresses');
+            $customerCriteria = (new Criteria([$customerId]))
+                ->addAssociation('addresses');
 
             $customer = $this->customerRepository->search($customerCriteria, $context)->getEntities()->first();
-            \assert($customer?->getAddresses() !== null);
         }
 
         $orderBillingAddressId = $order->getBillingAddressId();

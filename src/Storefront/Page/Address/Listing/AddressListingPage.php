@@ -13,40 +13,15 @@ use Shopware\Storefront\Page\Page;
 #[Package('framework')]
 class AddressListingPage extends Page
 {
-    /**
-     * @var CustomerAddressCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $addresses;
+    protected CustomerAddressCollection $addresses;
 
-    /**
-     * @var SalutationCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salutations;
+    protected SalutationCollection $salutations;
 
-    /**
-     * @var CountryCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $countries;
+    protected CountryCollection $countries;
 
-    /**
-     * @var Cart
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cart;
+    protected Cart $cart;
 
-    /**
-     * @var CustomerAddressEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $address;
+    protected ?CustomerAddressEntity $address = null;
 
     public function getAddresses(): CustomerAddressCollection
     {

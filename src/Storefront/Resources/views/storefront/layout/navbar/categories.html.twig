@@ -5,12 +5,6 @@
         {% set level = 0 %}
     {% endif %}
 
-    {# @deprecated tag:v6.7.0 - variable `activeId` and `activePath` will be removed #}
-    {% if not feature('v6.7.0.0') %}
-        {% set activeId = shopware.navigation.id %}
-        {% set activePath = '|' ~ shopware.navigation.pathIdList|join('|') ~ '|' %}
-    {% endif %}
-
     <div class="{% if level == 0 %}row {% endif %}navigation-flyout-categories is-level-{{ level }}">
         {% for treeItem in navigationTree %}
             {% set category = treeItem.category %}

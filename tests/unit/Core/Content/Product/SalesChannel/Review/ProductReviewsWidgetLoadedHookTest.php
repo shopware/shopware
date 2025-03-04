@@ -16,7 +16,6 @@ use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -58,8 +57,6 @@ class ProductReviewsWidgetLoadedHookTest extends TestCase
 
     public function testHookTriggeredWhenProductReviewsWidgetIsLoaded(): void
     {
-        Feature::skipTestIfInActive('v6.7.0.0', $this);
-
         $ids = new IdsCollection();
 
         $this->systemConfigServiceMock->method('get')->with('core.listing.showReview')->willReturn(true);

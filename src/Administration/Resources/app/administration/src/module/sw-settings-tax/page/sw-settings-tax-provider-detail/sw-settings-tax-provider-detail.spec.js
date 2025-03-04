@@ -57,10 +57,9 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                     </div>
                 `,
                     },
-                    'sw-button': true,
                     'sw-button-process': true,
                     'sw-skeleton': true,
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot></slot><slot name="grid"></slot></div>',
                     },
                     'sw-card-view': {
@@ -72,8 +71,7 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                     },
 
                     'sw-container': true,
-                    'sw-switch-field': true,
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-select-rule-create': true,
                     'sw-extension-component-section': true,
                 },
@@ -100,17 +98,17 @@ describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
         const saveButton = wrapper.find('.sw-settings-tax-tax-provider-detail__save-action');
 
         const taxProviderPriority = wrapper.find(
-            'sw-number-field-stub[label="sw-settings-tax.taxProviderDetail.labelPriority"]',
+            'mt-number-field-stub[label="sw-settings-tax.taxProviderDetail.labelPriority"]',
         );
         const taxProviderActive = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-tax.taxProviderDetail.labelActive"]',
+            '.mt-switch input[aria-label="sw-settings-tax.taxProviderDetail.labelActive"]',
         );
 
         const taxProviderAvailability = wrapper.find('.sw-settings-tax-tax-provider-detail__field-availability-rule');
 
         expect(saveButton.attributes().disabled).toBeTruthy();
         expect(taxProviderPriority.attributes().disabled).toBeTruthy();
-        expect(taxProviderActive.attributes().disabled).toBeTruthy();
+        expect(taxProviderActive.attributes().disabled).toBeDefined();
         expect(taxProviderAvailability.attributes().disabled).toBeTruthy();
     });
 
@@ -123,10 +121,10 @@ describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
         const saveButton = wrapper.find('.sw-settings-tax-tax-provider-detail__save-action');
 
         const taxProviderPriority = wrapper.find(
-            'sw-number-field-stub[label="sw-settings-tax.taxProviderDetail.labelPriority"]',
+            'mt-number-field-stub[label="sw-settings-tax.taxProviderDetail.labelPriority"]',
         );
         const taxProviderActive = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-tax.taxProviderDetail.labelActive"]',
+            '.mt-switch input[aria-label="sw-settings-tax.taxProviderDetail.labelActive"]',
         );
 
         const taxProviderAvailability = wrapper.find('.sw-settings-tax-tax-provider-detail__field-availability-rule');

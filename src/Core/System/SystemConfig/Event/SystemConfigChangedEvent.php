@@ -15,7 +15,7 @@ class SystemConfigChangedEvent extends Event
      */
     public function __construct(
         private readonly string $key,
-        private array|bool|float|int|string|null $value,
+        private readonly array|bool|float|int|string|null $value,
         private readonly ?string $salesChannelId
     ) {
     }

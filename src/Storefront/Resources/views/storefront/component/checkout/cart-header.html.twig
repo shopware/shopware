@@ -10,12 +10,8 @@
     {% endif %}
 
     {% block component_checkout_cart_header_element %}
-        {# @deprecated tag:v6.7.0 - Cart header will be `<li>` element instead of `<div>` #}
-        {%- if feature('ACCESSIBILITY_TWEAKS') -%}
-            <li class="card-title cart-table-header" aria-hidden="true">
-        {%- else -%}
-            <div class="card-title cart-table-header" role="listitem" aria-hidden="true">
-        {%- endif -%}
+        <li class="card-title cart-table-header" aria-hidden="true">
+
             <div class="row cart-header-row">
                 {% block component_checkout_cart_header_product_info %}
                     <div class="{{ infoColumnClass }} cart-header-info">
@@ -53,11 +49,6 @@
                     </div>
                 {% endblock %}
             </div>
-        {# @deprecated tag:v6.7.0 - Cart header will be `<li>` element instead of `<div>` #}
-        {%- if not feature('ACCESSIBILITY_TWEAKS') -%}
-            </div>
-        {%- else -%}
-            </li>
-        {%- endif -%}
+        </li>
     {% endblock %}
 {% endblock %}

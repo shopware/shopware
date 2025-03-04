@@ -21,7 +21,6 @@ async function createWrapper() {
                         </div>`,
                 },
                 'sw-context-menu-item': true,
-                'sw-icon': true,
                 'sw-media-preview-v2': true,
             },
         },

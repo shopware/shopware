@@ -33,6 +33,19 @@ Component.register('sw-existence-filter', {
         value() {
             return this.filter.value;
         },
+
+        filterOptions() {
+            return [
+                {
+                    value: 'true',
+                    label: String(this.filter.optionHasCriteria),
+                },
+                {
+                    value: 'false',
+                    label: String(this.filter.optionNoCriteria),
+                },
+            ];
+        },
     },
 
     methods: {

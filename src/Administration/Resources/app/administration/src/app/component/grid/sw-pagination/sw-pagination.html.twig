@@ -10,7 +10,7 @@
         class="sw-pagination__page-button sw-pagination__page-button-prev"
         @click="prevPage"
     >
-        <sw-icon
+        <mt-icon
             name="regular-chevron-left-xs"
         />
     </button>
@@ -56,9 +56,9 @@
         class="sw-pagination__page-button sw-pagination__page-button-next"
         @click="nextPage"
     >
-        <sw-icon
+        <mt-icon
             name="regular-chevron-right-xs"
-            small
+            size="16px"
         />
     </button>
     {% endblock %}
@@ -68,22 +68,14 @@
         v-if="steps.length > 1"
         class="sw-pagination__per-page"
     >
-        <sw-select-field
+        <mt-select
             size="small"
             name="perPage"
             :label="$tc('global.sw-pagination.labelItemsPerPage')"
-            :value="String(perPage)"
-            aside
-            @update:value="onPageSizeChange"
-        >
-            <option
-                v-for="step in possibleSteps"
-                :key="step"
-                :value="step"
-            >
-                {{ step }}
-            </option>
-        </sw-select-field>
+            :model-value="String(perPage)"
+            :options="possibleStepsOptions"
+            @update:model-value="onPageSizeChange"
+        />
     </div>
     {% endblock %}
 </div>

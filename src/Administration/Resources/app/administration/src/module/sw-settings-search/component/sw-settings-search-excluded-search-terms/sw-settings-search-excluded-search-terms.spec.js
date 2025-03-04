@@ -59,9 +59,9 @@ async function createWrapper(privileges = [], resetError = false) {
                 },
 
                 stubs: {
-                    'sw-card': {
+                    'mt-card': {
                         template: `
-                    <div class="sw-card">
+                    <div class="mt-card">
                         <slot name="toolbar"></slot>
                         <slot name="grid"></slot>
                         <slot></slot>
@@ -69,8 +69,6 @@ async function createWrapper(privileges = [], resetError = false) {
                 `,
                     },
                     'sw-empty-state': true,
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-container': true,
                     'sw-card-filter': true,
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),
@@ -82,7 +80,6 @@ async function createWrapper(privileges = [], resetError = false) {
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
                     'sw-context-button': await wrapTestComponent('sw-context-button'),
-                    'sw-icon': true,
                     'sw-select-field': true,
                     'sw-popover': {
                         props: ['popoverClass'],
@@ -94,12 +91,10 @@ async function createWrapper(privileges = [], resetError = false) {
                     'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                     'sw-data-grid-skeleton': true,
                     'sw-loader': true,
-                    'mt-button': true,
                     'router-link': true,
                     'sw-data-grid-settings': true,
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-inline-edit': true,
-                    'mt-checkbox': true,
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,
                     'sw-help-text': true,
@@ -194,7 +189,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
         const firstRowAfterDelete = wrapper.find('.sw-data-grid__row.sw-data-grid__row--0');
         expect(firstRowAfterDelete.text()).not.toEqual(firstRowContext.text());
 
-        const checkBox = firstRowAfterDelete.find('.sw-field__checkbox input');
+        const checkBox = firstRowAfterDelete.find('.mt-field--checkbox__container input');
         await checkBox.setChecked();
         await flushPromises();
         expect(wrapper.find('.sw-data-grid__bulk-selected.sw-data-grid__bulk-selected-count').text()).toBe('1');
@@ -212,7 +207,10 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
         ]);
         await flushPromises();
 
-        const addExcludedTermButton = wrapper.find('.sw-button.sw-button--ghost.sw-button--small');
+        const addExcludedTermButton = wrapper.findByText(
+            'button',
+            'sw-settings-search.generalTab.buttonAddExcludedSearchTerms',
+        );
         expect(addExcludedTermButton.attributes().disabled).toBeDefined();
     });
 
@@ -223,7 +221,10 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
         await flushPromises();
 
         const firstValue = wrapper.vm.searchConfigs.excludedTerms[0];
-        const addExcludedTermButton = wrapper.find('.sw-button.sw-button--ghost.sw-button--small');
+        const addExcludedTermButton = wrapper.findByText(
+            'button',
+            'sw-settings-search.generalTab.buttonAddExcludedSearchTerms',
+        );
         await addExcludedTermButton.trigger('click');
 
         const firstRow = wrapper.find('.sw-data-grid__row.sw-data-grid__row--0');

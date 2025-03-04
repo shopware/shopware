@@ -820,4 +820,3 @@ tester.run('no-deprecated-components', rule, {
         }
     ]
 })
-

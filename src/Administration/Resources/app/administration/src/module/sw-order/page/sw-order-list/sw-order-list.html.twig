@@ -36,7 +36,7 @@
         {% block sw_order_list_smart_bar_actions_slot %}
 
         {% block sw_order_list_smart_bar_actions_add %}
-        <sw-button
+        <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('order.creator'),
@@ -45,10 +45,10 @@
             class="sw-order-list__add-order"
             :disabled="!acl.can('order.creator') || undefined"
             variant="primary"
-            :router-link="{ name: 'sw.order.create' }"
+            @click="$router.push({ name: 'sw.order.create' })"
         >
             {{ $tc('sw-order.list.buttonAddOrder') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% endblock %}
@@ -108,17 +108,18 @@
                     </sw-label>
                     {% endblock %}
 
-                    <sw-button
+                    <mt-button
                         v-if="item.customerComment"
                         v-tooltip="{ message: item.customerComment }"
                         class="sw-order-list__tooltip-order-comment"
                         size="x-small"
+                        variant="secondary"
                     >
-                        <sw-icon
+                        <mt-icon
                             name="regular-comments"
                             size="14px"
                         />
-                    </sw-button>
+                    </mt-button>
                 </template>
                 {% endblock %}
 
@@ -270,22 +271,23 @@
                         {% block sw_order_list_delete_modal_footer %}
                         <template #modal-footer>
                             {% block sw_order_list_delete_modal_cancel %}
-                            <sw-button
+                            <mt-button
                                 size="small"
+                                variant="secondary"
                                 @click="onCloseDeleteModal"
                             >
                                 {{ $tc('global.default.cancel') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
 
                             {% block sw_order_list_delete_modal_confirm %}
-                            <sw-button
-                                variant="danger"
+                            <mt-button
+                                variant="critical"
                                 size="small"
                                 @click="onConfirmDelete(item.id)"
                             >
                                 {{ $tc('sw-order.list.buttonDelete') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
                         </template>
                         {% endblock %}

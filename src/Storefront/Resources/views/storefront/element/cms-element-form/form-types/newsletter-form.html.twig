@@ -7,105 +7,105 @@
           aria-label="{{ element.config.title.value ? element.config.title.value : 'newsletter.headline'|trans }}">
 
         <div class="form-content">
-        <div class="row g-2">
-            {% block cms_form_newsletter_select_action %}
-                {% set newsletterOptions %}
-                    <option selected="selected"
-                            value="{{ constant('Shopware\\Storefront\\Controller\\FormController::SUBSCRIBE') }}">
-                        {{ 'newsletter.subscribeOption'|trans }}
-                    </option>
+            <div class="row g-2">
+                {% block cms_form_newsletter_select_action %}
+                    {% set newsletterOptions %}
+                        <option selected="selected"
+                                value="{{ constant('Shopware\\Storefront\\Controller\\FormController::SUBSCRIBE') }}">
+                            {{ 'newsletter.subscribeOption'|trans }}
+                        </option>
 
-                    <option value="{{ constant('Shopware\\Storefront\\Controller\\FormController::UNSUBSCRIBE') }}">
-                        {{ 'newsletter.unsubscribeOption'|trans }}
-                    </option>
+                        <option value="{{ constant('Shopware\\Storefront\\Controller\\FormController::UNSUBSCRIBE') }}">
+                            {{ 'newsletter.unsubscribeOption'|trans }}
+                        </option>
                 {% endset %}
 
-                {% sw_include '@Storefront/storefront/component/form/form-select.html.twig' with {
-                    label: 'newsletter.labelActionSelect'|trans|sw_sanitize,
-                    id: 'newsletterAction',
-                    name: 'option',
-                    options: newsletterOptions,
-                    validationRules: 'required',
-                    additionalClass: 'col-12',
-                    additionalSelectClass: 'contact-select',
-                    attributes: {
-                        'data-form-field-toggle': 'true',
-                        'data-form-field-toggle-target': '.js-field-toggle-newsletter-additional',
-                        'data-form-field-toggle-value': 'subscribe',
-                    },
-                } %}
-            {% endblock %}
-        </div>
-
-        <div class="row g-2">
-            {% block cms_form_newsletter_input_email %}
-                {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
-                    with {
-                    fieldName: 'email',
-                    autocomplete: 'email',
-                    type: 'email',
-                    required: true,
-                    additionalClass: 'col-12',
-                    label: 'newsletter.labelMail',
-                    placeholder: 'newsletter.placeholderMail'
-                }
-                %}
-            {% endblock %}
-        </div>
-
-        {% block cms_form_newsletter_additional_fields %}
-            <div class="js-field-toggle-newsletter-additional d-none">
-                <div class="row g-2">
-                    {% block cms_form_newsletter_select_salutation %}
-                        {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-select-salutation.html.twig'
-                            with {
-                            additionalClass: 'col-md-4'
-                        }
-                        %}
-                    {% endblock %}
-
-                    {% block cms_form_newsletter_input_first_name %}
-                        {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
-                            with {
-                            fieldName: 'firstName',
-                            autocomplete: 'section-personal given-name',
-                            additionalClass: 'col-md-4',
-                            label: 'newsletter.labelFirstName',
-                            placeholder: 'newsletter.placeholderFirstName'
-                        }
-                        %}
-                    {% endblock %}
-
-                    {% block cms_form_newsletter_input_last_name %}
-                        {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
-                            with {
-                            fieldName: 'lastName',
-                            autocomplete: 'section-personal family-name',
-                            additionalClass: 'col-md-4',
-                            label: 'newsletter.labelLastName',
-                            placeholder: 'newsletter.placeholderLastName'
-                        }
-                        %}
-                    {% endblock %}
-                </div>
+                    {% sw_include '@Storefront/storefront/component/form/form-select.html.twig' with {
+                        label: 'newsletter.labelActionSelect'|trans|sw_sanitize,
+                        id: 'newsletterAction',
+                        name: 'option',
+                        options: newsletterOptions,
+                        validationRules: 'required',
+                        additionalClass: 'col-12',
+                        additionalSelectClass: 'contact-select',
+                        attributes: {
+                            'data-form-field-toggle': 'true',
+                            'data-form-field-toggle-target': '.js-field-toggle-newsletter-additional',
+                            'data-form-field-toggle-value': 'subscribe',
+                        },
+                    } %}
+                {% endblock %}
             </div>
-        {% endblock %}
 
-        {% block cms_form_newsletter_captcha %}
-            {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' %}
-        {% endblock %}
+            <div class="row g-2">
+                {% block cms_form_newsletter_input_email %}
+                    {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
+                        with {
+                        fieldName: 'email',
+                        autocomplete: 'email',
+                        type: 'email',
+                        required: true,
+                        additionalClass: 'col-12',
+                        label: 'newsletter.labelMail',
+                        placeholder: 'newsletter.placeholderMail'
+                    }
+                    %}
+                {% endblock %}
+            </div>
 
-        {% block cms_form_newsletter_privacy %}
-            {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-privacy.html.twig' %}
-        {% endblock %}
+            {% block cms_form_newsletter_additional_fields %}
+                <div class="js-field-toggle-newsletter-additional d-none">
+                    <div class="row g-2">
+                        {% block cms_form_newsletter_select_salutation %}
+                            {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-select-salutation.html.twig'
+                                with {
+                                additionalClass: 'col-md-4'
+                            }
+                            %}
+                        {% endblock %}
 
-        {% block cms_form_newsletter_required_fields_info %}
-            {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-info-required.html.twig' %}
-        {% endblock %}
+                        {% block cms_form_newsletter_input_first_name %}
+                            {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
+                                with {
+                                fieldName: 'firstName',
+                                autocomplete: 'section-personal given-name',
+                                additionalClass: 'col-md-4',
+                                label: 'newsletter.labelFirstName',
+                                placeholder: 'newsletter.placeholderFirstName'
+                            }
+                            %}
+                        {% endblock %}
 
-        {% block cms_form_newsletter_submit %}
-            {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-submit.html.twig' %}
-        {% endblock %}
+                        {% block cms_form_newsletter_input_last_name %}
+                            {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
+                                with {
+                                fieldName: 'lastName',
+                                autocomplete: 'section-personal family-name',
+                                additionalClass: 'col-md-4',
+                                label: 'newsletter.labelLastName',
+                                placeholder: 'newsletter.placeholderLastName'
+                            }
+                            %}
+                        {% endblock %}
+                    </div>
+                </div>
+            {% endblock %}
+
+            {% block cms_form_newsletter_captcha %}
+                {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' %}
+            {% endblock %}
+
+            {% block cms_form_newsletter_privacy %}
+                {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-privacy.html.twig' %}
+            {% endblock %}
+
+            {% block cms_form_newsletter_required_fields_info %}
+                {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-info-required.html.twig' %}
+            {% endblock %}
+
+            {% block cms_form_newsletter_submit %}
+                {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-submit.html.twig' %}
+            {% endblock %}
         </div>
 
         {% block cms_form_newsletter_hidden_fields %}

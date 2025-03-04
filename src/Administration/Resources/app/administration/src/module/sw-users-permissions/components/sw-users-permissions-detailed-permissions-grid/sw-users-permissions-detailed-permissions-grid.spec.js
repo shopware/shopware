@@ -22,9 +22,6 @@ async function createWrapper({ privilegesMappings = [], rolePrivileges = [], det
         {
             global: {
                 renderStubDefaultSlot: true,
-                stubs: {
-                    'sw-card': true,
-                },
                 provide: {
                     privileges: privilegesService,
                 },

@@ -25,9 +25,9 @@
                                     {% set violationPath = "/#{prefix}/company" %}
                                 {% endif %}
 
-                                {# This field is only rendered in the account address editing, if the account type is "commercial". #}
                                 {% set companyValidationRules = (prefix != 'shippingAddress' and accountTypeRequired) ? 'required' : '' %}
 
+                                {# This field is only rendered in the account address editing, if the account type is "commercial". #}
                                 {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
                                     label: 'address.companyNameLabel'|trans|sw_sanitize,
                                     id: idPrefix ~ prefix ~ '-company',
@@ -262,103 +262,108 @@
         <div class="row g-2 country-and-state-form-elements" data-country-state-select="true" data-country-state-select-options="{{ options|json_encode }}">
             {% block component_address_form_country %}
 
-                {% set initialCountryId = null %}
+                {% block component_address_form_country_select %}
+                    {% set initialCountryId = null %}
 
-                {% if data.get('countryId') %}
-                    {% set initialCountryId = data.get('countryId') %}
-                {% elseif page.countries|length == 1 and disableNonShippableCountries is not defined %}
-                    {% set initialCountryId = (page.countries|first).id %}
-                {% endif %}
-
-                {% if formViolations.getViolations('/countryId') is not empty %}
-                    {% set violationPath = '/countryId' %}
-                {% elseif formViolations.getViolations("/#{prefix}/countryId") is not empty %}
-                    {% set violationPath = "/#{prefix}/countryId" %}
-                {% endif %}
-
-                {% set countryAutocomplete = 'country-name' %}
-
-                {% if prefix == 'shippingAddress' %}
-                    {% set countryAutocomplete = 'shipping country-name' %}
-                {% elseif prefix == 'billingAddress' %}
-                    {% set countryAutocomplete = 'billing country-name' %}
-                {% endif %}
-
-                {% set countryOptions %}
-                    {% if not initialCountryId %}
-                        <option value=""
-                                disabled="disabled"
-                                selected="selected">
-                            {{ 'address.countryPlaceholder'|trans|sw_sanitize }}
-                        </option>
+                    {% if data.get('countryId') %}
+                        {% set initialCountryId = data.get('countryId') %}
+                    {% elseif page.countries|length == 1 and disableNonShippableCountries is not defined %}
+                        {% set initialCountryId = (page.countries|first).id %}
                     {% endif %}
-                    {% for country in page.countries %}
-                        <option value="{{ country.id }}"
-                                {% if country.id == initialCountryId %}selected="selected"{% endif %}
-                                data-zipcode-required="{{ country.postalCodeRequired }}"
-                                data-vat-id-required="{{ country.vatIdRequired }}"
-                                data-state-required="{{ country.forceStateInRegistration }}"
+
+                    {% if formViolations.getViolations('/countryId') is not empty %}
+                        {% set violationPath = '/countryId' %}
+                    {% elseif formViolations.getViolations("/#{prefix}/countryId") is not empty %}
+                        {% set violationPath = "/#{prefix}/countryId" %}
+                    {% endif %}
+
+                    {% set countryAutocomplete = 'country-name' %}
+
+                    {% if prefix == 'shippingAddress' %}
+                        {% set countryAutocomplete = 'shipping country-name' %}
+                    {% elseif prefix == 'billingAddress' %}
+                        {% set countryAutocomplete = 'billing country-name' %}
+                    {% endif %}
+
+                    {% set countryOptions %}
+                        {% if not initialCountryId %}
+                            <option value=""
+                                    disabled="disabled"
+                                    selected="selected">
+                                {{ 'address.countryPlaceholder'|trans|sw_sanitize }}
+                            </option>
+                        {% endif %}
+                        {% for country in page.countries %}
+                            <option value="{{ country.id }}"
+                                    {% if country.id == initialCountryId %}selected="selected"{% endif %}
+                                    data-zipcode-required="{{ country.postalCodeRequired }}"
+                                    data-vat-id-required="{{ country.vatIdRequired }}"
+                                    data-state-required="{{ country.forceStateInRegistration }}"
                                 {% if not country.shippingAvailable and disableNonShippableCountries %}disabled="disabled"{% endif %}>
 
-                            {{ country.translated.name }}
+                                {{ country.translated.name }}
 
-                            {% if showNoShippingPostfix and not country.shippingAvailable %}
-                                {{ 'address.countryPostfixNoShipping'|trans|sw_sanitize }}
-                            {% endif %}
+                                {% if showNoShippingPostfix and not country.shippingAvailable %}
+                                    {{ 'address.countryPostfixNoShipping'|trans|sw_sanitize }}
+                                {% endif %}
+                            </option>
+                        {% endfor %}
+                    {% endset %}
+
+                    {% sw_include '@Storefront/storefront/component/form/form-select.html.twig' with {
+                        label: 'address.countryLabel'|trans|sw_sanitize,
+                        id: idPrefix ~ prefix ~ 'AddressCountry',
+                        name: prefix ~ '[countryId]',
+                        autocomplete: countryAutocomplete,
+                        options: countryOptions,
+                        violationPath: violationPath,
+                        validationRules: 'required',
+                        additionalClass: 'col-md-6',
+                        additionalSelectClass: 'country-select',
+                        attributes: {
+                            'data-initial-country-id': initialCountryId,
+                        }
+                    } %}
+                {% endblock %}
+
+                {% block component_address_form_state_select %}
+
+                    {% if formViolations.getViolations('/countryStateId') is not empty %}
+                        {% set violationPath = '/countryStateId' %}
+                    {% elseif formViolations.getViolations("/#{prefix}/countryStateId") is not empty %}
+                        {% set violationPath = "/#{prefix}/countryStateId" %}
+                    {% endif %}
+
+                    {% set countryStateAutocomplete = 'address-level1' %}
+
+                    {% if prefix == 'shippingAddress' %}
+                        {% set countryStateAutocomplete = 'shipping address-level1' %}
+                    {% elseif prefix == 'billingAddress' %}
+                        {% set countryStateAutocomplete = 'billing address-level1' %}
+                    {% endif %}
+
+                    {% set countryStateOptions %}
+                        <option value=""
+                                selected="selected"
+                                data-placeholder-option="true">
+                            {{ 'address.countryStatePlaceholder'|trans|sw_sanitize }}
                         </option>
-                    {% endfor %}
-                {% endset %}
+                    {% endset %}
 
-                {% sw_include '@Storefront/storefront/component/form/form-select.html.twig' with {
-                    label: 'address.countryLabel'|trans|sw_sanitize,
-                    id: idPrefix ~ prefix ~ 'AddressCountry',
-                    name: prefix ~ '[countryId]',
-                    autocomplete: countryAutocomplete,
-                    options: countryOptions,
-                    violationPath: violationPath,
-                    validationRules: 'required',
-                    additionalClass: 'col-md-6',
-                    additionalSelectClass: 'country-select',
-                    attributes: {
-                        'data-initial-country-id': initialCountryId,
-                    }
-                } %}
-
-                {% if formViolations.getViolations('/countryStateId') is not empty %}
-                    {% set violationPath = '/countryStateId' %}
-                {% elseif formViolations.getViolations("/#{prefix}/countryStateId") is not empty %}
-                    {% set violationPath = "/#{prefix}/countryStateId" %}
-                {% endif %}
-
-                {% set countryStateAutocomplete = 'address-level1' %}
-
-                {% if prefix == 'shippingAddress' %}
-                    {% set countryStateAutocomplete = 'shipping address-level1' %}
-                {% elseif prefix == 'billingAddress' %}
-                    {% set countryStateAutocomplete = 'billing address-level1' %}
-                {% endif %}
-
-                {% set countryStateOptions %}
-                    <option value=""
-                            selected="selected"
-                            data-placeholder-option="true">
-                        {{ 'address.countryStatePlaceholder'|trans|sw_sanitize }}
-                    </option>
-                {% endset %}
-
-                {% sw_include '@Storefront/storefront/component/form/form-select.html.twig' with {
-                    label: 'address.countryStateLabel'|trans|sw_sanitize,
-                    id: idPrefix ~ prefix ~ 'AddressCountryState',
-                    name: prefix ~ '[countryStateId]',
-                    autocomplete: countryStateAutocomplete,
-                    options: countryStateOptions,
-                    violationPath: violationPath,
-                    additionalClass: 'col-md-6 d-none',
-                    additionalSelectClass: 'country-state-select',
-                    attributes: {
-                        'data-initial-country-state-id': data.get('countryStateId'),
-                    }
-                } %}
+                    {% sw_include '@Storefront/storefront/component/form/form-select.html.twig' with {
+                        label: 'address.countryStateLabel'|trans|sw_sanitize,
+                        id: idPrefix ~ prefix ~ 'AddressCountryState',
+                        name: prefix ~ '[countryStateId]',
+                        autocomplete: countryStateAutocomplete,
+                        options: countryStateOptions,
+                        violationPath: violationPath,
+                        additionalClass: 'col-md-6 d-none',
+                        additionalSelectClass: 'country-state-select',
+                        attributes: {
+                            'data-initial-country-state-id': data.get('countryStateId'),
+                        }
+                    } %}
+                {% endblock %}
             {% endblock %}
         </div>
 

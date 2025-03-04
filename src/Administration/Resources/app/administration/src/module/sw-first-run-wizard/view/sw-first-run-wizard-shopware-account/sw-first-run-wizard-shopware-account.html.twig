@@ -26,8 +26,9 @@
                 </a>.
             </p>
             <div class="input-fields">
-                <sw-text-field
-                    v-model:value="shopwareId"
+
+                <mt-text-field
+                    v-model="shopwareId"
                     name="shopwareId"
                     validation="required"
                     :label="$tc('sw-first-run-wizard.shopwareAccount.emailAddressLabel')"
@@ -36,8 +37,8 @@
             </div>
 
             <div class="input-fields">
-                <sw-password-field
-                    v-model:value="password"
+                <mt-password-field
+                    v-model="password"
                     :label="$tc('sw-first-run-wizard.shopwareAccount.passwordLabel')"
                     :placeholder="$tc('sw-first-run-wizard.shopwareAccount.passwordPlaceholder')"
                 />

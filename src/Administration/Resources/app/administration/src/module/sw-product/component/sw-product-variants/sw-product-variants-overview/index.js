@@ -174,8 +174,11 @@ export default {
         },
 
         currencyColumns() {
-            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-            return this.currencies
+            if (!this.currencies || !Array.isArray(this.currencies)) {
+                return [];
+            }
+
+            return [...this.currencies]
                 .sort((_a, b) => {
                     return b.isSystemDefault ? 1 : -1;
                 })

@@ -1,5 +1,7 @@
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-extension/mixin/sw-extension-error.mixin';
+import findByText from 'test/_helper_/find-by-text';
+import selectMtSelectOptionByText from 'test/_helper_/select-mt-select-by-text';
 
 const setLocaleWithIdMock = jest.fn(() => Promise.resolve({}));
 
@@ -102,16 +104,15 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () =
                         'sw-container': await wrapTestComponent('sw-container'),
                         'sw-plugin-card': await wrapTestComponent('sw-plugin-card'),
                         'sw-button-process': await wrapTestComponent('sw-button-process'),
-                        'sw-button': await wrapTestComponent('sw-button'),
                         'sw-modal': await wrapTestComponent('sw-modal'),
                         'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
+                        'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
                         'sw-block-field': await wrapTestComponent('sw-block-field'),
                         'sw-base-field': await wrapTestComponent('sw-base-field'),
                         'sw-field-error': await wrapTestComponent('sw-field-error'),
-                        'sw-password-field': await wrapTestComponent('sw-password-field'),
                         'sw-text-field': await wrapTestComponent('sw-text-field'),
+                        'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                         'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                        'sw-icon': true,
                         'sw-loader': true,
                         'sw-extension-icon': await wrapTestComponent('sw-extension-icon'),
                         'router-link': true,
@@ -198,7 +199,7 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () =
         });
     });
 
-    it.skip('should install the SwagLanguagePack plugin and show the language switch modal', async () => {
+    it('should install the SwagLanguagePack plugin and show the language switch modal', async () => {
         const wrapper = await createWrapper();
 
         await flushPromises();
@@ -212,13 +213,11 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () =
         const modal = await wrapper.getComponent('.sw-first-run-wizard-confirmLanguageSwitch-modal');
         expect(modal.isVisible()).toBe(true);
 
-        const languageSelect = await modal.find('.sw-profile__language');
-        await languageSelect.findAll('option').at(1).setSelected();
+        await selectMtSelectOptionByText(modal, 'German (Germany)');
 
-        const selectedLanguage = languageSelect.find('option:checked').element.value;
         await modal.find('input[type="password"]').setValue('p4ssw0rd');
-        await modal.find('.sw-button--primary').trigger('click');
+        await findByText(modal, 'button', 'sw-first-run-wizard.welcome.confirmLanguageSwitch').trigger('click');
 
-        expect(setLocaleWithIdMock).toHaveBeenCalledWith(selectedLanguage);
+        expect(setLocaleWithIdMock).toHaveBeenCalledWith('4aed63b2afcd44049ba0cd898769cdbb');
     });
 });

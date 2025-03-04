@@ -10,8 +10,9 @@
         gap="0px 32px"
     >
         {% block sw_settings_state_machine_state_detail_content_name %}
-        <sw-text-field
-            v-model:value="stateMachineState.name"
+
+        <mt-text-field
+            v-model="stateMachineState.name"
             :label="$tc('sw-settings-state-machine.state.detail.labelName')"
             :error="stateMachineStateNameError"
             required
@@ -19,8 +20,9 @@
         {% endblock %}
 
         {% block sw_settings_state_machine_state_detail_content_technical_name %}
-        <sw-text-field
-            v-model:value="stateMachineState.technicalName"
+
+        <mt-text-field
+            v-model="stateMachineState.technicalName"
             :label="$tc('sw-settings-state-machine.state.detail.labelTechnicalName')"
             :disabled="true"
             required
@@ -32,22 +34,23 @@
     {% block sw_settings_state_machine_state_detail_footer %}
     <template #modal-footer>
         {% block sw_settings_state_machine_state_detail_footer_cancel %}
-        <sw-button
+        <mt-button
             size="small"
+            variant="secondary"
             @click="onCancel"
         >
-            {{ $tc('sw-settings-state-machine.state.detail.buttonCancel') }}
-        </sw-button>
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
         {% endblock %}
 
         {% block sw_settings_state_machine_state_detail_footer_save %}
-        <sw-button
+        <mt-button
             variant="primary"
             size="small"
             @click="onSave"
         >
-            {{ $tc('sw-settings-state-machine.state.detail.buttonSave') }}
-        </sw-button>
+            {{ $tc('global.default.save') }}
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

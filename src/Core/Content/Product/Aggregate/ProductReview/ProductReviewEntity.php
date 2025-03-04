@@ -31,7 +31,7 @@ class ProductReviewEntity extends Entity
 
     protected ?float $points = null;
 
-    protected bool $status;
+    protected ?bool $status = null;
 
     protected ?string $comment = null;
 

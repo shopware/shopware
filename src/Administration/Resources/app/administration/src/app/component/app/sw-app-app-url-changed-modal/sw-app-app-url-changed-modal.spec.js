@@ -67,20 +67,7 @@ describe('sw-app-app-url-changed-modal', () => {
                         </slot>
                     </div>`,
             },
-            'sw-button': await wrapTestComponent('sw-button'),
-            'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
             'sw-loader': await wrapTestComponent('sw-loader'),
-            'sw-icon': true,
-            'icons-default-basic-shape-circle-filled': {
-                template: '<span class="sw-icon sw-icon--default-basic-shape-circle-filled"></span>',
-            },
-            'icons-regular-circle': {
-                template: '<span class="sw-icon sw-icon--regular-circle"></span>',
-            },
-            'icons-regular-times-s': {
-                template: '<span class="sw-icon sw-icon--regular-times-s"></span>',
-            },
-            'mt-button': true,
             'router-link': true,
         };
     });

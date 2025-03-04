@@ -6,10 +6,10 @@
             class="sw-login__back"
             :to="{ name: 'sw.login.index.login' }"
         >
-            <sw-icon
+            <mt-icon
                 class="sw-login__back-arrow"
                 name="regular-long-arrow-left"
-                small
+                size="16px"
             />
         </router-link>
         {{ $tc('sw-login.recovery.recovery.headline') }}
@@ -19,29 +19,29 @@
         {% block sw_login_recovery_recovery_form %}
         <form @submit.prevent="updatePassword">
             {% block sw_login_recovery_recovery_form_new_password_field %}
-            <sw-password-field
+            <mt-password-field
                 ref="swLoginRecoveryRecoveryNewPasswordField"
-                v-model:value="newPassword"
+                v-model="newPassword"
                 :label="$tc('sw-login.recovery.recovery.newPasswordField.label')"
                 :error="userPasswordError"
             />
             {% endblock %}
 
             {% block sw_login_recovery_recovery_form_password_confirm_field %}
-            <sw-password-field
-                v-model:value="newPasswordConfirm"
+            <mt-password-field
+                v-model="newPasswordConfirm"
                 :label="$tc('sw-login.recovery.recovery.passwordConfirmField.label')"
             />
             {% endblock %}
 
             {% block sw_login_recovery_recovery_form_submit %}
             <div class="sw-login__submit">
-                <sw-button
+                <mt-button
                     variant="primary"
                     :disabled="!validatePasswords()"
                 >
                     {{ $tc('sw-login.recovery.recovery.submit.label') }}
-                </sw-button>
+                </mt-button>
             </div>
             {% endblock %}
         </form>

@@ -94,21 +94,12 @@
                 class="sw-cms-el-config-text__tab-options"
             >
                 {% block sw_cms_el_product_description_rating_config_options_alignment %}
-                <sw-select-field
-                    v-model:value="element.config.alignment.value"
+                <mt-select
+                    v-model="element.config.alignment.value"
                     :label="$tc('sw-cms.elements.general.config.label.alignment')"
                     :placeholder="$tc('sw-cms.elements.general.config.label.alignment')"
-                >
-                    <option value="flex-start">
-                        {{ $tc('sw-cms.elements.general.config.label.verticalAlignTop') }}
-                    </option>
-                    <option value="center">
-                        {{ $tc('sw-cms.elements.general.config.label.verticalAlignCenter') }}
-                    </option>
-                    <option value="flex-end">
-                        {{ $tc('sw-cms.elements.general.config.label.verticalAlignBottom') }}
-                    </option>
-                </sw-select-field>
+                    :options="alignmentOptions"
+                />
                 {% endblock %}
             </sw-container>
             {% endblock %}

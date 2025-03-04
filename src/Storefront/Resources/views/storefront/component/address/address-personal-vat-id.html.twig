@@ -1,5 +1,5 @@
 {% block component_account_register_personal_vat_id_field %}
-    {% set vatIdValue = activeRoute == 'frontend.account.profile.page' or (activeRoute == 'frontend.account.addressbook' and context.customer.guest) ? vatIds[0] : vatIds.get(0) %}
+    {% set vatIdValue = activeRoute == 'frontend.account.profile.page' or (activeRoute == 'frontend.account.addressmanager.get' and context.customer.guest) ? vatIds[0] : vatIds.get(0) %}
     {% set violationLabel = null %}
     {% set violationPath = null %}
 
@@ -13,44 +13,12 @@
         {% endif %}
     {% endfor %}
 
-    {% if feature('ACCESSIBILITY_TWEAKS') %}
-        {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
-            label: 'address.companyVatLabel'|trans|sw_sanitize,
-            id: 'vatIds',
-            name: 'vatIds[]',
-            value: vatIdValue,
-            violationPath: violationPath,
-            additionalClass: 'col-md-6',
-        } %}
-    {% else %}
-
-    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-    {# ludtwig-ignore twig-block-name-snake-case #}
-    {% block component_address_form_company_vatId_label %}
-        <label class="form-label"
-               for="vatIds">
-            {{ 'address.companyVatLabel'|trans|sw_sanitize }}
-        </label>
-    {% endblock %}
-
-    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-    {# ludtwig-ignore twig-block-name-snake-case #}
-    {% block component_address_form_company_vatId_input %}
-        <input type="text"
-               class="form-control{% if violationPath %} is-invalid{% endif %}"
-               id="vatIds"
-               placeholder="{{ 'address.companyVatPlaceholder'|trans|striptags }}"
-               name="vatIds[]"
-               value="{{ vatIdValue }}">
-    {% endblock %}
-
-    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-    {# ludtwig-ignore twig-block-name-snake-case #}
-    {% block component_address_form_company_vatId_input_error %}
-        {% if violationPath %}
-            {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
-        {% endif %}
-    {% endblock %}
-
-    {% endif %}
+    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+        label: 'address.companyVatLabel'|trans|sw_sanitize,
+        id: 'vatIds',
+        name: 'vatIds[]',
+        value: vatIdValue,
+        violationPath: violationPath,
+        additionalClass: 'col-md-6',
+    } %}
 {% endblock %}

@@ -68,7 +68,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
         // customer
         $customer = null;
-        if (\array_key_exists(SalesChannelContextService::CUSTOMER_ID, $options) && $options[SalesChannelContextService::CUSTOMER_ID] !== null) {
+        if (\is_string($options[SalesChannelContextService::CUSTOMER_ID] ?? null)) {
             // load logged in customer and set active addresses
             $customer = $this->loadCustomer($options, $base->getContext());
         }
@@ -111,7 +111,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $salesChannelContext = new SalesChannelContext(
             $context,
             $token,
-            $options[SalesChannelContextService::DOMAIN_ID] ?? null,
+            \is_string($options[SalesChannelContextService::DOMAIN_ID] ?? null) ? $options[SalesChannelContextService::DOMAIN_ID] : null,
             $base->getSalesChannel(),
             $base->getCurrency(),
             $customerGroup,
@@ -125,7 +125,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $base->getLanguageInfo(),
         );
 
-        if (\array_key_exists(SalesChannelContextService::PERMISSIONS, $options)) {
+        if (\is_array($options[SalesChannelContextService::PERMISSIONS] ?? null)) {
             $salesChannelContext->setPermissions($options[SalesChannelContextService::PERMISSIONS]);
 
             $event = new SalesChannelContextPermissionsChangedEvent($salesChannelContext, $options[SalesChannelContextService::PERMISSIONS]);
@@ -134,7 +134,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $salesChannelContext->lockPermissions();
         }
 
-        if (\array_key_exists(SalesChannelContextService::IMITATING_USER_ID, $options)) {
+        if (\is_string($options[SalesChannelContextService::IMITATING_USER_ID] ?? null)) {
             $salesChannelContext->setImitatingUserId($options[SalesChannelContextService::IMITATING_USER_ID]);
         }
 

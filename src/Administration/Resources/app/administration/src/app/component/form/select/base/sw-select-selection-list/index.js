@@ -98,31 +98,10 @@ Component.register('sw-select-selection-list', {
         },
     },
 
-    data() {
-        return {
-            /**
-             * @deprecated tag:v6.7.0 - Will be removed
-             */
-            tagLimit: true,
-        };
-    },
-
     computed: {
         showPlaceholder() {
             return this.alwaysShowPlaceholder || this.selections.length === 0 || this.hideLabels ? this.placeholder : '';
         },
-
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
-        // eslint-disable-next-line vue/return-in-computed-property
-        visibleTags() {},
-
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
-        // eslint-disable-next-line vue/return-in-computed-property
-        numberOfHiddenTags() {},
     },
 
     methods: {
@@ -171,10 +150,5 @@ Component.register('sw-select-selection-list', {
         getFocusEl() {
             return this.$refs.swSelectInput;
         },
-
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
-        removeTagLimit() {},
     },
 });

@@ -27,15 +27,8 @@ async function createWrapper() {
                     'sw-container': {
                         template: '<div class="sw-container"><slot></slot></div>',
                     },
-                    'sw-switch-field': {
-                        template: '<div class="sw-field sw-switch-field"></div>',
-                        props: [
-                            'value',
-                            'disabled',
-                        ],
-                    },
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot></slot></div>',
+                    'mt-card': {
+                        template: '<div class="mt-card"><slot></slot></div>',
                     },
                     'sw-promotion-rule-select': {
                         template: '<div class="sw-promotion-rule-select"></div>',
@@ -46,8 +39,6 @@ async function createWrapper() {
                     },
                     'sw-context-menu-item': true,
                     'sw-select-field': true,
-                    'sw-number-field': true,
-                    'sw-button': true,
                 },
                 provide: {
                     promotionSyncService: {
@@ -117,7 +108,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-fo
         global.activeAclRoles = [];
         const wrapper = await createWrapper();
 
-        const elements = wrapper.findAllComponents('.sw-field');
+        const elements = wrapper.findAllComponents('.mt-switch');
         expect(elements.length).toBeGreaterThan(0);
         elements.forEach((el) => expect(el.props('disabled')).toBe(true));
 
@@ -129,7 +120,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-fo
 
         const wrapper = await createWrapper();
 
-        const elements = wrapper.findAllComponents('.sw-field');
+        const elements = wrapper.findAllComponents('.mt-switch');
         expect(elements.length).toBeGreaterThan(0);
         elements.forEach((el) => expect(el.props('disabled')).toBe(false));
 

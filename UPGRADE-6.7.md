@@ -79,6 +79,17 @@ Shopware.Store.register({
 });
 ```
 
+### Vuex Breaking change
+Due to the migration from Vuex to Pinia, the Vuex helper utils have been renamed to avoid conflicts with Pinia helpers.
+If you are still using Vuex, please update your code accordingly:
+
+```
+    mapState -> mapVuexState
+    mapMutations -> mapVuexMutations
+    mapGetters -> mapVuexGetters
+    mapActions -> mapVuexActions
+```
+
 For more information refer to the [docs](https://developer.shopware.com/docs/resources/references/adr/2024-06-17-replace-vuex-with-pinia.html#replace-vuex-with-pinia).
 
 # Cache Rework
@@ -452,7 +463,10 @@ In the following event, the CustomerEntity has no association loaded anymore:
   * `RefundPaymentHandlerInterface`
   * `RecurringPaymentHandlerInterface`
 * Synchronous and asynchronous payments have been unified to return an optional redirect response. This response defines whether the customer is redirected to a payment provider or immediately returned to the order completion page.
-* Payment handlers from plugins now receive only the `orderTransactionId`, request information (if applicable, e.g., not for recurring payments), and a `Context`. Any additional data required to process the payment must be retrieved by the payment handler itself to reduce database load. This also minimises dependency on the `SalesChannelContext`, which may contain information that does not accurately reflect the order (e.g., customer addresses may differ from the order’s addresses). For apps, the same information as before is still sent to the app server.
+* Payment handlers from plugins now receive only the `orderTransactionId`, request information (if applicable, e.g., not for recurring payments), and a `Context`.
+  Any additional data required to process the payment must be retrieved by the payment handler itself to reduce database load.
+  This also minimises dependency on the `SalesChannelContext`, which may contain information that does not accurately reflect the order (e.g., customer addresses may differ from the order’s addresses).
+  For apps, the same information as before is still sent to the app server.
 
 ## Payment: Capture step of prepared payments removed
 * The method `capture` has been removed from the `PreparedPaymentHandler` interface. This method is no longer being called for apps.
@@ -601,6 +615,33 @@ The following methods of the `\Shopware\Core\Framework\DataAbstractionLayer\Enti
 * `\Shopware\Core\Framework\DataAbstractionLayer\Entity::checkIfPropertyAccessIsAllowed` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException` instead of a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`.
 * `\Shopware\Core\Framework\DataAbstractionLayer\Entity::get` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException` instead of a `\InvalidArgumentException`.
 </details>
+
+## Attributes classes made final
+We have made attribute classes final. 
+<details>
+  <summary>See the detailed list</summary>
+
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\AllowEmptyString`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\AllowHtml`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\AutoIncrement`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\CustomFields`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\ForeignKey`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\Inherited`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToOne`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\OneToMany`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\OneToOne`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\Protection`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\ReferenceVersion`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\Required`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\Serialized`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\State`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\Version`
+* `\Shopware\Core\Framework\Event\IsFlowEventAware`
+</details>
+
 </details>
 
 # Administration
@@ -2435,6 +2476,22 @@ If you want to restore the previous browser support in your project or want to a
 BROWSERSLIST='>= 0.5%, last 2 major versions, not dead, Chrome >= 60, Firefox >= 60, Firefox ESR, iOS >= 12, Safari >= 12, not Explorer <= 11'
 ```
 
+## Major upgrades of NPM packages
+
+With v6.7.0 we upgrade the following NPM packages to their newest major version.
+The upgrades are done for packages related to the webpack JS-build process and do not require changes to the source code.
+If you are customizing the webpack config inside `<plugin root>/src/Resources/app/storefront/build/webpack.config.js`, please consolidate the changelogs of the affected packages.
+
+* Upgrade `copy-webpack-plugin` from `11.0.0` to `12.0.2`
+* Upgrade `css-loader` from `6.8.1` to `7.1.2`
+* Upgrade `postcss-loader` from `7.3.4` to `8.1.1`
+* Upgrade `sass-loader` from `13.3.3` to `16.0.4`
+* Upgrade `style-loader` from `3.3.3` to `4.0.0`
+* Upgrade `webpack-cli` from `5.1.4` to `6.0.1`
+* Upgrade `webpack-merge` from `5.10.0` to `6.0.1`
+* Upgrade `webpackbar` from `6.0.0` to `7.0.0`
+* Upgrade `webpack-dev-server` from `4.15.1` to `5.2.0`
+
 ## Removal of NPM packages
 
 With v6.7.0 the following NPM packages will be removed.
@@ -2481,6 +2538,12 @@ We made some changes in the app-system, which might affect your apps.
 <details>
   <summary>Detailed Changes</summary>
 
+## Manifest version increased
+The version of the manifest XSD file increased.
+Consider validating your `manifest.xml` against `src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd` now.
+With this change we removed the `capture-url` element from the `payment-method` type.
+Implement the `pay-url` instead.
+
 ## Payment: payment states
 For asynchronous payments, the default payment state `unconfirmed` was used for the `pay` call and `paid` for `finalized`. This is no longer the case. Payment states are no longer set by default.
 
@@ -2489,6 +2552,7 @@ The `finalize` step now transmits the `queryParameters` under the object key `re
 
 ## Payment: onlyAvailable flag removed from CheckoutGatewayRoute
 The `onlyAvailable` flag in the `Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute` in the request is removed. The route always filters the payment and shipping methods before calling the checkout gateway based on availability.
+
 </details>
 
 # Hosting & Configuration

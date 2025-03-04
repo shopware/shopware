@@ -15,24 +15,16 @@ const createWrapper = async () => {
             global: {
                 stubs: {
                     'sw-container': await wrapTestComponent('sw-container'),
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
-                    'sw-icon': true,
                     'sw-loader': true,
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-inheritance-switch': true,
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-field-error': true,
-                    'sw-button': true,
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                     'sw-data-grid-settings': true,
                     'sw-field': true,
-                    'sw-number-field': await wrapTestComponent('sw-number-field'),
-                    'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                     'sw-context-button': true,
                     'sw-context-menu-item': true,
@@ -174,7 +166,7 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
 
         // check if input field has a value of 1 and is disabled
         expect(firstQuantityField.element.value).toBe('1');
-        expect(firstQuantityField.attributes('disabled')).toBe('');
+        expect(firstQuantityField.attributes('disabled')).toBeDefined();
     });
 
     it('second start quantity input should not be disabled', async () => {

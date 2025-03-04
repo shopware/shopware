@@ -455,11 +455,14 @@ jobs:
           ref: ${{ github.ref }}
 
       - name: Update to current major version
+        env:
+          COMPOSER_ROOT_VERSION: "6.7.9999999-dev"
+          DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
         run: |
           rm -rf vendor-bin
           rm -rf vendor
-          COMPOSER_ROOT_VERSION=6.7.9999999-dev composer update -o
-          DATABASE_URL="mysql://root@127.0.0.1:3306/shopware_test" bin/console system:update:finish
+          composer update -o
+          bin/console system:update:finish
 
       - name: Checkout previous major version again
         uses: actions/checkout@v4

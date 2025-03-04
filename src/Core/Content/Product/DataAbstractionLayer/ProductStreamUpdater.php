@@ -4,11 +4,11 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
@@ -31,6 +31,8 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ProductCollection> $repository
      */
     public function __construct(
         private readonly Connection $connection,
@@ -58,73 +60,66 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             return;
         }
 
-        $id = $message->getData();
-        if (!\is_string($id)) {
+        $streamId = $message->getData();
+        if (!\is_string($streamId)) {
             return;
         }
 
         $filter = $this->connection->fetchOne(
             'SELECT api_filter FROM product_stream WHERE invalid = 0 AND api_filter IS NOT NULL AND id = :id',
-            ['id' => Uuid::fromHexToBytes($id)]
+            ['id' => Uuid::fromHexToBytes($streamId)]
         );
         // if the filter is invalid
         if ($filter === false) {
             return;
         }
 
-        $insert = new MultiInsertQueryQueue($this->connection, 250, false, true);
-
         $version = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
         $filter = json_decode((string) $filter, true, 512, \JSON_THROW_ON_ERROR);
 
         $criteria = $this->getCriteria($filter);
-
         if ($criteria === null) {
             return;
         }
 
-        $criteria->setLimit(150);
         $considerInheritance = $message->getContext()->considerInheritance();
         $message->getContext()->setConsiderInheritance(true);
 
-        $iterator = new RepositoryIterator(
-            $this->repository,
-            $message->getContext(),
-            $criteria
-        );
+        $binaryStreamId = Uuid::fromHexToBytes($streamId);
 
-        $binary = Uuid::fromHexToBytes($id);
-
+        /** @var list<string> $ids */
         $ids = $this->connection->fetchFirstColumn(
             'SELECT LOWER(HEX(product_id)) FROM product_stream_mapping WHERE product_stream_id = :id',
-            ['id' => $binary],
+            ['id' => $binaryStreamId],
         );
 
-        RetryableTransaction::retryable($this->connection, function () use ($binary): void {
+        RetryableTransaction::retryable($this->connection, function () use ($binaryStreamId): void {
             $this->connection->executeStatement(
                 'DELETE FROM product_stream_mapping WHERE product_stream_id = :id',
-                ['id' => $binary],
+                ['id' => $binaryStreamId],
             );
         });
 
-        while ($matches = $iterator->fetchIds()) {
-            foreach ($matches as $id) {
-                if (!\is_string($id)) {
-                    continue;
-                }
-                $ids[] = $id;
-                $insert->addInsert('product_stream_mapping', [
-                    'product_id' => Uuid::fromHexToBytes($id),
-                    'product_version_id' => $version,
-                    'product_stream_id' => $binary,
-                ]);
-            }
+        /** @var list<string> $matches */
+        $matches = $this->repository->searchIds($criteria, $message->getContext())->getIds();
 
-            $insert->execute();
+        $insert = new MultiInsertQueryQueue($this->connection, 250, false, false);
+
+        foreach ($matches as $id) {
+            $ids[] = $id;
+            $insert->addInsert('product_stream_mapping', [
+                'product_id' => Uuid::fromHexToBytes($id),
+                'product_version_id' => $version,
+                'product_stream_id' => $binaryStreamId,
+            ]);
         }
 
+        $insert->execute();
+
         $message->getContext()->setConsiderInheritance($considerInheritance);
+
+        $ids = array_unique($ids);
 
         foreach (array_chunk($ids, 250) as $chunkedIds) {
             $this->manyToManyIdFieldUpdater->update(

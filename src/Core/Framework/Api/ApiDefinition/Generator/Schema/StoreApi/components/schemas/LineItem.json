@@ -1,5 +1,5 @@
 {
-    "openapi": "3.0.0",
+    "openapi": "3.1.0",
     "info": [],
     "paths": [],
     "components": {
@@ -114,17 +114,25 @@
                                 ]
                             },
                             "regulationPrice": {
-                                "type": "object",
-                                "properties": {
-                                    "price": {
-                                        "type": "number"
+                                "oneOf": [
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "price": {
+                                                "type": "number"
+                                            },
+                                            "apiAlias": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "cart_regulation_price"
+                                                ]
+                                            }
+                                        }
                                     },
-                                    "apiAlias": {
-                                        "type": "string",
-                                        "enum": ["cart_regulation_price"]
+                                    {
+                                        "type": "null"
                                     }
-                                },
-                                "nullable": true
+                                ]
                             },
                             "totalPrice": {
                                 "type": "number"

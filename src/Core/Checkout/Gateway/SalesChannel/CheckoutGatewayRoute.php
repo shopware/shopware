@@ -47,6 +47,8 @@ class CheckoutGatewayRoute extends AbstractCheckoutGatewayRoute
         $paymentCriteria->addAssociation('appPaymentMethod.app');
         $shippingCriteria->addAssociation('appShippingMethod.app');
 
+        $request->query->set('onlyAvailable', '1');
+
         $result = $this->paymentMethodRoute->load($request, $context, $paymentCriteria);
         $paymentMethods = $this->ruleIdMatcher->filterCollection($result->getPaymentMethods(), $context->getRuleIds());
 

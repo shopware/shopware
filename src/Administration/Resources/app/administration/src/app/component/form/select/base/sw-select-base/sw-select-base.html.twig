@@ -12,7 +12,7 @@
             class="sw-select__selection"
             tabindex="0"
             :aria-expanded="expanded ? 'true' : 'false'"
-            @click.stop="expand"
+            @click="expand"
             @focus="expand"
             @keydown.tab="collapse"
             @keydown.esc="collapse"
@@ -54,7 +54,7 @@
         </div>
 
         <template v-if="expanded">
-            <transition name="sw-select-result-list-fade-down">
+            <transition name="sw-select-result-list-fade-down" @click.stop>
                 <slot
                     name="results-list"
                     v-bind="{ collapse }"

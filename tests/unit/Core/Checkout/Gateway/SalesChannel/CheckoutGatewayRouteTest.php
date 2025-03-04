@@ -246,4 +246,40 @@ class CheckoutGatewayRouteTest extends TestCase
         static::assertSame('shipping-method-blocked', $error->getMessageKey());
         static::assertSame('Shipping method Foo not available', $error->getMessage());
     }
+
+    public function testOnlyAvailableFlagIsSet(): void
+    {
+        $request = new Request(['onlyAvailable' => true]);
+        $context = Generator::generateSalesChannelContext();
+
+        $paymentMethodRoute = $this->createMock(AbstractPaymentMethodRoute::class);
+        $paymentMethodRoute
+            ->expects(static::once())
+            ->method('load')
+            ->with($request, $context, static::isInstanceOf(Criteria::class));
+
+        $shippingMethodRoute = $this->createMock(AbstractShippingMethodRoute::class);
+        $shippingMethodRoute
+            ->expects(static::once())
+            ->method('load')
+            ->with($request, $context, static::isInstanceOf(Criteria::class));
+
+        $checkoutGateway = $this->createMock(CheckoutGatewayInterface::class);
+        $checkoutGateway
+            ->method('process')
+            ->willReturn(new CheckoutGatewayResponse(
+                new PaymentMethodCollection(),
+                new ShippingMethodCollection(),
+                new ErrorCollection()
+            ));
+
+        $route = new CheckoutGatewayRoute(
+            $paymentMethodRoute,
+            $shippingMethodRoute,
+            $checkoutGateway,
+            new RuleIdMatcher()
+        );
+
+        $route->load(new Request(), new Cart('hatoken'), $context);
+    }
 }

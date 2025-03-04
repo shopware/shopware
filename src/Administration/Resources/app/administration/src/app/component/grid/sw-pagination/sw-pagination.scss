@@ -90,15 +90,40 @@ $sw-pagination-border-radius: $border-radius-default;
     }
 
     .sw-pagination__per-page {
-        display: inline-block;
         font-size: $font-size-xs;
         line-height: 16px;
         position: absolute;
         right: 0;
+        top: calc(50% - 18px);
         margin: 0 20px;
 
         @media screen and (max-width: 900px) {
             display: none;
+        }
+
+        .mt-select {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            .mt-field__label {
+                margin: 0;
+            }
+
+            .mt-block-field__block {
+                max-width: 96px;
+                max-height: 36px;
+            }
+
+            .mt-select-selection-list--single {
+                margin: 0;
+            }
+
+            .mt-label--dismissable {
+                margin: 0;
+                padding-top: 6px;
+                padding-left: 0;
+            }
         }
     }
 }

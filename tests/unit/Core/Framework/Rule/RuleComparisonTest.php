@@ -149,9 +149,44 @@ class RuleComparisonTest extends TestCase
 
     public function testNumericComparisonThrowsExceptionIfUnsupportedOperatorIsUsed(): void
     {
-        $this->expectException(RuleException::class);
+        $this->expectExceptionObject(RuleException::unsupportedOperator('unsupported', RuleComparison::class));
 
         RuleComparison::numeric(1.0, 1.0, 'unsupported');
+    }
+
+    public function testStringComparisonThrowsExceptionIfUnsupportedOperatorIsUsed(): void
+    {
+        $this->expectExceptionObject(RuleException::unsupportedOperator('unsupported', RuleComparison::class));
+
+        RuleComparison::string('test', 'test', 'unsupported');
+    }
+
+    public function testStringArrayComparisonThrowsExceptionIfUnsupportedOperatorIsUsed(): void
+    {
+        $this->expectExceptionObject(RuleException::unsupportedOperator('unsupported', RuleComparison::class));
+
+        RuleComparison::stringArray('test', ['test'], 'unsupported');
+    }
+
+    public function testDateComparisonThrowsExceptionIfUnsupportedOperatorIsUsed(): void
+    {
+        $this->expectExceptionObject(RuleException::unsupportedOperator('unsupported', RuleComparison::class));
+
+        RuleComparison::date(new \DateTime(), new \DateTime(), 'unsupported');
+    }
+
+    public function testDateTimeComparisonThrowsExceptionIfUnsupportedOperatorIsUsed(): void
+    {
+        $this->expectExceptionObject(RuleException::unsupportedOperator('unsupported', RuleComparison::class));
+
+        RuleComparison::datetime(new \DateTime(), new \DateTime(), 'unsupported');
+    }
+
+    public function testUuidsThrowsExceptionIfUnsupportedOperatorIsUsed(): void
+    {
+        $this->expectExceptionObject(RuleException::unsupportedOperator('unsupported', RuleComparison::class));
+
+        RuleComparison::uuids(null, null, 'unsupported');
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]

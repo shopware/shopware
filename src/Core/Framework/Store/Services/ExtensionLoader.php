@@ -191,6 +191,7 @@ class ExtensionLoader
             'configurable' => $this->configurationService->checkConfiguration(\sprintf('%s.config', $plugin->getName()), $context),
             'updatedAt' => $plugin->getUpgradedAt(),
             'allowDisable' => true,
+            'allowUpdate' => !$plugin->getManagedByComposer() || !str_starts_with($plugin->getPath() ?? '', 'vendor'),
             'managedByComposer' => $plugin->getManagedByComposer(),
             'inAppPurchases' => $this->inAppPurchase->getByExtension($plugin->getName()),
         ];
@@ -246,6 +247,8 @@ class ExtensionLoader
                 'installedAt' => null,
                 'active' => false,
                 'type' => ExtensionStruct::EXTENSION_TYPE_APP,
+                'allowUpdate' => !$app->isManagedByComposer(),
+                'managedByComposer' => $app->isManagedByComposer(),
                 'isTheme' => is_file($app->getPath() . '/Resources/theme.json'),
                 'privacyPolicyExtension' => isset($appArray['privacyPolicyExtensions']) ? $this->getTranslationFromArray($appArray['privacyPolicyExtensions'], $language, 'en-GB') : '',
                 'privacyPolicyLink' => $app->getMetadata()->getPrivacy(),

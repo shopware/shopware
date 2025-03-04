@@ -118,16 +118,16 @@ class ExtensionLoaderTest extends TestCase
     {
         static::getContainer()->get(PluginService::class)->refreshPlugins(Context::createDefaultContext(), new NullIO());
 
+        /** @var EntityRepository<PluginCollection> $pluginRepo */
         $pluginRepo = static::getContainer()->get('plugin.repository');
-        /** @var PluginCollection $plugins */
+
         $plugins = $pluginRepo->search(new Criteria(), Context::createDefaultContext())->getEntities();
 
         $extensions = $this->extensionLoader->loadFromPluginCollection(Context::createDefaultContext(), $plugins);
 
-        /** @var ExtensionStruct $extension */
         $extension = $extensions->get('AppStoreTestPlugin');
 
-        static::assertNotNull($extension);
+        static::assertInstanceOf(ExtensionStruct::class, $extension);
         static::assertEquals('AppStoreTestPlugin', $extension->getName());
         static::assertTrue($extension->isAllowUpdate());
 
@@ -141,15 +141,13 @@ class ExtensionLoaderTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        /** @var PluginCollection $plugins */
         $plugins = $pluginRepo->search(new Criteria(), Context::createDefaultContext())->getEntities();
 
         $extensions = $this->extensionLoader->loadFromPluginCollection(Context::createDefaultContext(), $plugins);
 
-        /** @var ExtensionStruct $extension */
         $extension = $extensions->get('AppStoreTestPlugin');
 
-        static::assertNotNull($extension);
+        static::assertInstanceOf(ExtensionStruct::class, $extension);
         static::assertEquals('AppStoreTestPlugin', $extension->getName());
         // update still allowed, as the plugin is not loaded from vendor folder
         // this is the case for all plugins that `executeComposerCommands` but are still installed in /custom/plugins
@@ -162,15 +160,13 @@ class ExtensionLoaderTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        /** @var PluginCollection $plugins */
         $plugins = $pluginRepo->search(new Criteria(), Context::createDefaultContext())->getEntities();
 
         $extensions = $this->extensionLoader->loadFromPluginCollection(Context::createDefaultContext(), $plugins);
 
-        /** @var ExtensionStruct $extension */
         $extension = $extensions->get('AppStoreTestPlugin');
 
-        static::assertNotNull($extension);
+        static::assertInstanceOf(ExtensionStruct::class, $extension);
         static::assertEquals('AppStoreTestPlugin', $extension->getName());
         // update not allowed when it is installed over composer (and not just required by composer)
         static::assertFalse($extension->isAllowUpdate());

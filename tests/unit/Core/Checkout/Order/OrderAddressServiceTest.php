@@ -95,8 +95,11 @@ class OrderAddressServiceTest extends TestCase
 
     public function testMissingOrder(): void
     {
+        /** @var StaticEntityRepository<OrderCollection> */
+        $orderRepository = new StaticEntityRepository([new OrderCollection([])]);
+
         $orderAddressService = new OrderAddressService(
-            new StaticEntityRepository([new OrderCollection([])]),
+            $orderRepository,
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class)
@@ -150,16 +153,23 @@ class OrderAddressServiceTest extends TestCase
                 return $this->createMock(EntityWrittenContainerEvent::class);
             });
 
+        /** @var StaticEntityRepository<CustomerAddressCollection> */
+        $customerAddressRepository = new StaticEntityRepository([new CustomerAddressCollection([$customerAddress]), new CustomerAddressCollection([$customerAddress])]);
+
         $orderDeliveryRepository = $this->createMock(EntityRepository::class);
         $orderDeliveryRepository
             ->expects(static::once())
             ->method('update');
 
         $order = $this->createOrderEntity();
+
+        /** @var StaticEntityRepository<OrderCollection> */
+        $orderRepository = new StaticEntityRepository([new OrderCollection([$order])]);
+
         $orderAddressService = new OrderAddressService(
-            new StaticEntityRepository([new OrderCollection([$order])]),
+            $orderRepository,
             $orderAddressRepository,
-            new StaticEntityRepository([new CustomerAddressCollection([$customerAddress]), new CustomerAddressCollection([$customerAddress])]),
+            $customerAddressRepository,
             $orderDeliveryRepository
         );
 

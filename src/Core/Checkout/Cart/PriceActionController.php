@@ -105,6 +105,7 @@ class PriceActionController extends AbstractController
         }
 
         $data = [];
+
         foreach ($productPrices as $productId => $prices) {
             $calculatedPrices = [];
             foreach ($prices as $price) {

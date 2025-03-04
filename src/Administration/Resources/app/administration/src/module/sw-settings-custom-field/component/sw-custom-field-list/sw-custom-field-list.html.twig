@@ -30,6 +30,7 @@
                 square
                 size="small"
                 class="sw-custom-field-list__delete-button"
+                variant="secondary"
                 @click="onDeleteCustomFields"
             >
                 <mt-icon
@@ -49,6 +50,7 @@
                 :disabled="set.isLoading || !acl.can('custom_field.editor') || undefined"
                 size="small"
                 class="sw-custom-field-list__add-button"
+                variant="secondary"
                 @click="onAddCustomField(set)"
             >
                 {{ $tc('sw-settings-custom-field.set.detail.addCustomField') }}
@@ -133,8 +135,8 @@
 
                 {% block sw_custom_field_list_grid_column_custom_field_position_edit %}
                 <template #inline-edit>
-                    <sw-number-field
-                        v-model:value="item.config.customFieldPosition"
+                    <mt-number-field
+                        v-model="item.config.customFieldPosition"
                         number-type="int"
                     />
                 </template>
@@ -236,6 +238,7 @@
             {% block sw_custom_field_list_custom_field_delete_action_cancel %}
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCancelDeleteCustomField"
             >
                 {{ $tc('global.default.cancel') }}

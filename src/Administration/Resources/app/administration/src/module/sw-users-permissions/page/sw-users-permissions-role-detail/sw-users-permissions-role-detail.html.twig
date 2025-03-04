@@ -22,6 +22,7 @@
         {% block sw_users_permissions_role_detail_smart_bar_actions_button_cancel %}
         <mt-button
             v-tooltip.bottom="tooltipCancel"
+            variant="secondary"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}

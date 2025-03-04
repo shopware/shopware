@@ -151,17 +151,17 @@
         "usage_data": {
             "type": "object",
             "additionalProperties": false,
+            "collection_enabled": {
+                "type": "boolean"
+            },
             "properties": {
                 "gateway": {
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
-                        "collection_enabled": {
-                            "type": "boolean"
-                        },
                         "dispatch_enabled": {
                             "type": "boolean",
-                            "deprecationMessage": "The `dispatch_enabled` option is deprecated and will be removed in v6.8.0 Please use the `entity_dispatch_enabled` and `consent_dispatch_enabled` option instead."
+                            "deprecationMessage": "The `usage_data.gateway.dispatch_enabled` option is deprecated and will be removed in v6.8.0 Please use the `usage_data.gateway.entity_dispatch_enabled` and `usage_data.gateway.consent_dispatch_enabled` option instead."
                         },
                         "entity_dispatch_enabled": {
                             "type": "boolean"

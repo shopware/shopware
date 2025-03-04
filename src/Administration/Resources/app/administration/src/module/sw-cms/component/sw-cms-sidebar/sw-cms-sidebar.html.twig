@@ -44,24 +44,14 @@
                     {% endblock %}
 
                     {% block sw_cms_sidebar_page_settings_type_field %}
-                    <sw-select-field
+                    <mt-select
                         v-tooltip.bottom="tooltipDisabled"
-                        :value="page.type"
+                        :model-value="page.type"
                         :label="$tc('sw-cms.detail.label.pageTypeSelection')"
                         :disabled="!isSystemDefaultLanguage || page.type === 'product_detail' || undefined"
-                        @update:value="onPageTypeChange"
-                    >
-                        {% block sw_cms_sidebar_page_settings_type_field_options %}
-                        <option
-                            v-for="pageType in pageTypes"
-                            :key="pageType.name"
-                            :value="pageType.name"
-                            :disabled="isDisabledPageType(pageType) || undefined"
-                        >
-                            {{ $tc(pageType.title) }}
-                        </option>
-                        {% endblock %}
-                    </sw-select-field>
+                        :options="pageTypesOptions"
+                        @update:model-value="onPageTypeChange"
+                    />
                     {% endblock %}
 
                     {% block sw_cms_sidebar_page_settings_demo_field %}
@@ -129,20 +119,11 @@
 
             {% block sw_cms_sidebar_block_overview_category %}
             <div class="sw-cms-sidebar__block-category">
-                <sw-select-field
-                    v-model:value="currentBlockCategory"
+                <mt-select
+                    v-model="currentBlockCategory"
                     :label="$tc('sw-cms.detail.label.blockCategorySelection')"
-                >
-                    {% block sw_cms_sidebar_block_overview_category_options %}
-                    <option
-                        v-for="blockCategory in cmsBlockCategories"
-                        :key="blockCategory.value"
-                        :value="blockCategory.value"
-                    >
-                        {{ $tc(blockCategory.label) }}
-                    </option>
-                    {% endblock %}
-                </sw-select-field>
+                    :options="cmsBlockCategoriesOptions"
+                />
             </div>
             {% endblock %}
 
@@ -187,6 +168,7 @@
                             square
                             block
                             :disabled="block.appName === 'SwagCeToRiseUpsellingApp'"
+                            variant="secondary"
                             @click="onToggleBlockFavorite(block.name)"
                         >
                             <mt-icon
@@ -531,6 +513,7 @@
                 ghost
                 size="small"
                 class="sw-cms-sidebar__layout-assignment-open"
+                variant="secondary"
                 @click="onOpenLayoutAssignment"
             >
                 {{ $tc('sw-cms.sidebar.layoutAssignment.actionAssignLayout') }}
@@ -555,6 +538,7 @@
                 ghost
                 size="small"
                 class="sw-cms-sidebar__layout-set-as-default-open"
+                variant="secondary"
                 @click="onOpenLayoutSetAsDefault"
             >
                 {{ $tc('sw-cms.sidebar.layoutSetAsDefault.actionSetAsDefaultLayout') }}
@@ -577,8 +561,8 @@
             {{ $tc('sw-cms.detail.sidebar.confirmTextNavigator') }}
 
             {% block sw_cms_sidebar_navigator_confirm_modal_content_input_reminder %}
-            <sw-checkbox-field
-                v-model:value="navigatorDontRemind"
+            <mt-checkbox
+                v-model:checked="navigatorDontRemind"
                 class="sw-cms-sidebar__navigator-confirm-modal-reminder"
                 :label="$tc('sw-cms.detail.sidebar.confirmReminderNavigator')"
             />
@@ -592,6 +576,7 @@
             <mt-button
                 class="sw-cms-sidebar__navigator-confirm-modal-cancel"
                 size="small"
+                variant="secondary"
                 @click="onSidebarNavigationCancel"
             >
                 {{ $tc('global.default.cancel') }}

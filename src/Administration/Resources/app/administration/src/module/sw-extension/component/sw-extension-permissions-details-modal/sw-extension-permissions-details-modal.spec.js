@@ -112,18 +112,54 @@ describe('sw-extension-permissions-details-modal', () => {
         expect(entityLabels.at(2).text()).toBe('entityCategories.promotion.entities.promotion');
 
         const expectedIcons = [
-            ['regular-checkmark-xs', '#37D046'],
-            ['regular-times-s', '#DE294C'],
-            ['regular-checkmark-xs', '#37D046'],
-            ['regular-times-s', '#DE294C'],
-            ['regular-checkmark-xs', '#37D046'],
-            ['regular-times-s', '#DE294C'],
-            ['regular-checkmark-xs', '#37D046'],
-            ['regular-times-s', '#DE294C'],
-            ['regular-checkmark-xs', '#37D046'],
-            ['regular-times-s', '#DE294C'],
-            ['regular-checkmark-xs', '#37D046'],
-            ['regular-times-s', '#DE294C'],
+            [
+                'regular-checkmark-xs',
+                '#37D046',
+            ],
+            [
+                'regular-times-s',
+                '#DE294C',
+            ],
+            [
+                'regular-checkmark-xs',
+                '#37D046',
+            ],
+            [
+                'regular-times-s',
+                '#DE294C',
+            ],
+            [
+                'regular-checkmark-xs',
+                '#37D046',
+            ],
+            [
+                'regular-times-s',
+                '#DE294C',
+            ],
+            [
+                'regular-checkmark-xs',
+                '#37D046',
+            ],
+            [
+                'regular-times-s',
+                '#DE294C',
+            ],
+            [
+                'regular-checkmark-xs',
+                '#37D046',
+            ],
+            [
+                'regular-times-s',
+                '#DE294C',
+            ],
+            [
+                'regular-checkmark-xs',
+                '#37D046',
+            ],
+            [
+                'regular-times-s',
+                '#DE294C',
+            ],
         ];
 
         const allIcons = wrapper.findAllComponents('.mt-icon');
@@ -188,22 +224,70 @@ describe('sw-extension-permissions-details-modal', () => {
         expect(entityLabels.at(3).text()).toBe('entityCategories.promotion.entities.promotion_individual_code');
 
         const expectedIcons = [
-            ['regular-checkmark-xs', '#37D046'],
-            ['regular-checkmark-xs', '#37D046'],
-            ['regular-checkmark-xs', '#37D046'],
-            ['regular-checkmark-xs', '#37D046'],
-            ['regular-times-s', '#DE294C'],
-            ['regular-times-s', '#DE294C'],
-            ['regular-checkmark-xs', '#37D046'],
-            ['regular-times-s', '#DE294C'],
-            ['regular-times-s', '#DE294C'],
-            ['regular-times-s', '#DE294C'],
-            ['regular-checkmark-xs', '#37D046'],
-            ['regular-times-s', '#DE294C'],
-            ['regular-checkmark-xs', '#37D046'],
-            ['regular-checkmark-xs', '#37D046'],
-            ['regular-checkmark-xs', '#37D046'],
-            ['regular-checkmark-xs', '#37D046'],
+            [
+                'regular-checkmark-xs',
+                '#37D046',
+            ],
+            [
+                'regular-checkmark-xs',
+                '#37D046',
+            ],
+            [
+                'regular-checkmark-xs',
+                '#37D046',
+            ],
+            [
+                'regular-checkmark-xs',
+                '#37D046',
+            ],
+            [
+                'regular-times-s',
+                '#DE294C',
+            ],
+            [
+                'regular-times-s',
+                '#DE294C',
+            ],
+            [
+                'regular-checkmark-xs',
+                '#37D046',
+            ],
+            [
+                'regular-times-s',
+                '#DE294C',
+            ],
+            [
+                'regular-times-s',
+                '#DE294C',
+            ],
+            [
+                'regular-times-s',
+                '#DE294C',
+            ],
+            [
+                'regular-checkmark-xs',
+                '#37D046',
+            ],
+            [
+                'regular-times-s',
+                '#DE294C',
+            ],
+            [
+                'regular-checkmark-xs',
+                '#37D046',
+            ],
+            [
+                'regular-checkmark-xs',
+                '#37D046',
+            ],
+            [
+                'regular-checkmark-xs',
+                '#37D046',
+            ],
+            [
+                'regular-checkmark-xs',
+                '#37D046',
+            ],
         ];
 
         const allIcons = wrapper.findAllComponents('.sw-extension-permissions-details-modal__operation .mt-icon');

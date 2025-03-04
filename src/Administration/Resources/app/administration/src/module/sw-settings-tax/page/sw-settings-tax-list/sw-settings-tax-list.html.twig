@@ -113,8 +113,8 @@
                         {% block sw_settings_tax_list_grid_column_default_tax_rate %}
                         <template #column-taxRate="{ item, isInlineEdit, compact }">
                             <template v-if="isInlineEdit">
-                                <sw-number-field
-                                    v-model:value="item.taxRate"
+                                <mt-number-field
+                                    v-model="item.taxRate"
                                     :digits="3"
                                     :size="compact ? 'small' : 'default'"
                                 >
@@ -123,7 +123,7 @@
                                             <span v-html="$sanitize($tc('sw-settings-tax.general.taxRateSymbol'))"></span>
                                         </span>
                                     </template>
-                                </sw-number-field>
+                                </mt-number-field>
                             </template>
                             <template v-else>
                                 {{ item.taxRate }}%
@@ -135,9 +135,9 @@
                         <template #column-default="{ item, isInlineEdit }">
                             <template v-if="isInlineEdit">
                                 {% block sw_settings_tax_list_grid_column_default_editor %}
-                                <sw-checkbox-field
-                                    :value="isSelectedDefaultRate(item)"
-                                    @update:value="value => setSelectedDefaultRate(value, item.id)"
+                                <mt-checkbox
+                                    :checked="isSelectedDefaultRate(item)"
+                                    @update:checked="value => setSelectedDefaultRate(value, item.id)"
                                 />
                                 {% endblock %}
                             </template>
@@ -203,6 +203,7 @@
                                     {% block sw_settings_tax_list_delete_modal_cancel %}
                                     <mt-button
                                         size="small"
+                                        variant="secondary"
                                         @click="onCloseDeleteModal"
                                     >
                                         {{ $tc('global.default.cancel') }}

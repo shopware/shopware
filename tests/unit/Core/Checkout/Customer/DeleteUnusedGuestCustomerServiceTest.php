@@ -54,10 +54,7 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
             ->method('getInt')
             ->willReturn(1);
 
-        $service = new DeleteUnusedGuestCustomerService(
-            $customerRepository,
-            $configService
-        );
+        $service = new DeleteUnusedGuestCustomerService($customerRepository, $configService);
 
         $result = $service->countUnusedCustomers(Context::createDefaultContext());
 

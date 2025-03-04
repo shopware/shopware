@@ -148,15 +148,22 @@ export default {
                 return Promise.resolve();
             }
 
-            this.subject = mailTemplate.subject;
-
-            if (!this.order.salesChannel || !this.order.salesChannel.mailHeaderFooterId) {
-                return this.mailService.buildRenderPreview(mailTemplate.mailTemplateType, mailTemplate).then((result) => {
-                    this.content = result;
-                });
+            const localMailTemplate = { ...mailTemplate };
+            if (localMailTemplate?.mailTemplateType?.templateData?.order && this?.order) {
+                localMailTemplate.mailTemplateType.templateData.order = this.order;
             }
 
-            const mailTemplateWithHeaderFooter = { ...mailTemplate };
+            this.subject = localMailTemplate.subject;
+
+            if (!this.order.salesChannel || !this.order.salesChannel.mailHeaderFooterId) {
+                return this.mailService
+                    .buildRenderPreview(localMailTemplate.mailTemplateType, localMailTemplate)
+                    .then((result) => {
+                        this.content = result;
+                    });
+            }
+
+            const mailTemplateWithHeaderFooter = { ...localMailTemplate };
             return this.mailHeaderFooterRepository
                 .search(new Criteria(1, 1).addFilter(Criteria.equals('id', this.order.salesChannel.mailHeaderFooterId)))
                 .then((mailHeaderFooter) => {

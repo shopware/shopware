@@ -27,6 +27,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
@@ -53,6 +54,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -347,7 +349,7 @@ class RecalculationServiceTest extends TestCase
         $cart = $this->generateDemoCart();
         $orderId = $this->persistCart($cart)['orderId'];
 
-        /** @var EntityRepository $customerRepository */
+        /** @var EntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = static::getContainer()->get('customer.repository');
         $customerRepository->delete([['id' => $this->customerId]], $this->context);
 
@@ -1180,7 +1182,7 @@ class RecalculationServiceTest extends TestCase
 
     protected function getValidCountryIdWithTaxes(): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<CountryCollection> $repository */
         $repository = static::getContainer()->get('country.repository');
 
         $countryId = $this->getValidCountryId();

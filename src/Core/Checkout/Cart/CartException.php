@@ -10,12 +10,17 @@ use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Content\Flow\Exception\CustomerDeletedException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPriceFieldTypeException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class CartException extends HttpException
 {
@@ -67,6 +72,8 @@ class CartException extends HttpException
     public const LINE_ITEM_GROUP_PACKAGER_NOT_FOUND = 'CHECKOUT__GROUP_PACKAGER_NOT_FOUND';
     public const LINE_ITEM_GROUP_SORTER_NOT_FOUND = 'CHECKOUT__GROUP_SORTER_NOT_FOUND';
     public const UNEXPECTED_VALUE_EXCEPTION = 'CHECKOUT__UNEXPECTED_VALUE_EXCEPTION';
+    public const INVALID_REQUEST_PARAMETER_CODE = 'FRAMEWORK__INVALID_REQUEST_PARAMETER';
+    public const INVALID_PRICE_FIELD_TYPE = 'FRAMEWORK__INVALID_PRICE_FIELD_TYPE';
 
     public static function shippingMethodNotFound(string $id, ?\Throwable $e = null): self
     {
@@ -557,6 +564,33 @@ class CartException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::UNEXPECTED_VALUE_EXCEPTION,
             $message
+        );
+    }
+
+    public static function invalidRequestParameter(string $name): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_REQUEST_PARAMETER_CODE,
+            'The parameter "{{ parameter }}" is invalid.',
+            ['parameter' => $name]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function invalidPriceFieldTypeException(string $type): self|InvalidPriceFieldTypeException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new InvalidPriceFieldTypeException($type);
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_PRICE_FIELD_TYPE,
+            'The price field does not contain a valid "type" value. Received {{ type }}',
+            ['type' => $type]
         );
     }
 }

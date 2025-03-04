@@ -18,6 +18,7 @@
         <mt-button
             v-tooltip.bottom="tooltipCancel"
             :disabled="isLoading || undefined"
+            variant="secondary"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
@@ -238,9 +239,9 @@
                         {% endblock %}
 
                         {% block sw_settings_document_detail_content_field_display_divergent_delivery_address %}
-                        <sw-checkbox-field
+                        <mt-checkbox
                             v-if="isShowDivergentDeliveryAddress"
-                            v-model:value="documentConfig.config.displayDivergentDeliveryAddress"
+                            v-model:checked="documentConfig.config.displayDivergentDeliveryAddress"
                             name="sw-field--documentConfig-config-displayDivergentDeliveryAddress"
                             class="sw-settings-document-detail__field_divergent_delivery_address"
                             :disabled="!acl.can('document.editor') || undefined"
@@ -249,9 +250,9 @@
                         {% endblock %}
 
                         {% block sw_settings_document_detail_content_field_additional_note_delivery %}
-                        <sw-checkbox-field
+                        <mt-checkbox
                             v-if="isShowDisplayNoteDelivery"
-                            v-model:value="documentConfig.config.displayAdditionalNoteDelivery"
+                            v-model:checked="documentConfig.config.displayAdditionalNoteDelivery"
                             name="sw-field--documentConfig-config-displayAdditionalNoteDelivery"
                             class="sw-settings-document-detail__field_additional_note_delivery"
                             :disabled="!acl.can('document.editor') || undefined"
@@ -260,9 +261,9 @@
                         {% endblock %}
 
                         {% block sw_settings_document_detail_content_field_customer_vat_id %}
-                        <sw-checkbox-field
+                        <mt-checkbox
                             v-if="isShowDisplayNoteDelivery"
-                            v-model:value="documentConfig.config.displayCustomerVatId"
+                            v-model:checked="documentConfig.config.displayCustomerVatId"
                             name="sw-field--documentConfig-config-displayCustomerVatId"
                             class="sw-settings-document-detail__field_customer_vat_id"
                             :disabled="!acl.can('document.editor') || undefined"

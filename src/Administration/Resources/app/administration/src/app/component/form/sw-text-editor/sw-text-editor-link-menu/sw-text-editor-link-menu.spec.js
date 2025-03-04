@@ -3,6 +3,8 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { MtUrlField } from '@shopware-ag/meteor-component-library';
+import selectMtSelectOptionByText from 'test/_helper_/select-mt-select-by-text';
 
 const seoDomainPrefix = '124c71d524604ccbad6042edce3ac799';
 
@@ -50,7 +52,7 @@ const linkDataProvider = [
         value: 'test@shopware.com',
         type: 'email',
         prefix: 'mailto:',
-        selector: '.sw-field--email input',
+        selector: '.mt-email-field input',
         label: 'sw-text-editor-toolbar.link.linkTo',
         placeholder: 'sw-text-editor-toolbar.link.placeholderEmail',
     },
@@ -72,14 +74,10 @@ async function createWrapper(buttonConfig) {
     return mount(await wrapTestComponent('sw-text-editor-link-menu', { sync: true }), {
         global: {
             stubs: {
-                'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
-                'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
-
                 'sw-email-field': await wrapTestComponent('sw-email-field'),
                 'sw-email-field-deprecated': await wrapTestComponent('sw-email-field-deprecated'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                'sw-url-field': await wrapTestComponent('sw-url-field'),
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                 'sw-category-tree-field': await wrapTestComponent('sw-category-tree-field'),
                 'sw-media-field': await wrapTestComponent('sw-media-field'),
@@ -109,7 +107,6 @@ async function createWrapper(buttonConfig) {
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-loader': true,
                 'router-link': true,
-                'mt-select': true,
                 'sw-help-text': true,
                 'sw-ai-copilot-badge': true,
                 'sw-inheritance-switch': true,
@@ -119,8 +116,8 @@ async function createWrapper(buttonConfig) {
                 'sw-checkbox-field': true,
                 'sw-tree-item': true,
                 'sw-field-copyable': true,
-                'mt-email-field': true,
                 'mt-floating-ui': true,
+                'mt-url-field': MtUrlField,
             },
         },
         props: {
@@ -448,8 +445,7 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
 
         expect(wrapper.vm.linkCategory).toBe('link');
 
-        await wrapper.get('select').setValue('email');
-        await flushPromises();
+        await selectMtSelectOptionByText(wrapper, 'sw-text-editor-toolbar.link.labelEmail');
 
         expect(wrapper.vm.linkCategory).toBe('email');
 

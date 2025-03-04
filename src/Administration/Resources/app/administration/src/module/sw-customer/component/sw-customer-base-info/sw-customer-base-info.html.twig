@@ -82,8 +82,8 @@
 
             {% block sw_customer_base_metadata_active_editor %}
             <dd v-else>
-                <sw-checkbox-field
-                    v-model:value="customer.active"
+                <mt-checkbox
+                    v-model:checked="customer.active"
                     name="sw-field--customer-active"
                     class="sw-customer-base-info__checkbox-field"
                     :label="$tc('sw-customer.baseInfo.contentActive')"
@@ -113,13 +113,13 @@
 
             {% block sw_customer_base_metadata_confirmed_editor %}
             <dd v-else>
-                <sw-checkbox-field
+                <mt-checkbox
                     name="sw-field--customer-confirmed"
                     class="sw-customer-base-info__checkbox-field"
-                    :value="!!customer.doubleOptInConfirmDate"
+                    :checked="!!customer.doubleOptInConfirmDate"
                     :label="$tc('sw-customer.baseInfo.contentConfirmed')"
                     size="small"
-                    @update:value="customer.doubleOptInConfirmDate = $event ? new Date() : null"
+                    @update:checked="customer.doubleOptInConfirmDate = $event ? new Date() : null"
                 />
             </dd>
             {% endblock %}

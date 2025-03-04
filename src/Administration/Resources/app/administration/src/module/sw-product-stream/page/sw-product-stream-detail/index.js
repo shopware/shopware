@@ -2,6 +2,8 @@
  * @sw-package inventory
  */
 
+import { computed } from 'vue';
+
 import template from './sw-product-stream-detail.html.twig';
 import './sw-product-stream-detail.scss';
 
@@ -24,7 +26,7 @@ export default {
 
     provide() {
         return {
-            productCustomFields: this.productCustomFields,
+            productCustomFields: computed(() => this.productCustomFields),
         };
     },
 

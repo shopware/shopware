@@ -14,8 +14,7 @@ async function createWrapper() {
             global: {
                 stubs: {
                     'sw-container': true,
-
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-single-select': true,
                 },
             },

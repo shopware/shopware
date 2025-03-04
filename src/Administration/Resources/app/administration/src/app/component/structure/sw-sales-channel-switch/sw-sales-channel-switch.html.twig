@@ -15,6 +15,7 @@
             {% block sw_sales_channel_switch_footer_button_close %}
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCloseChangesModal"
             >
                 {{ $tc('global.default.cancel') }}
@@ -24,6 +25,7 @@
             {% block sw_sales_channel_switch_footer_button_revert %}
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="onClickRevertUnsavedChanges"
             >
                 {{ $tc('sw-sales-channel-switch.titleModalButtonRevertUnsavedChanges') }}

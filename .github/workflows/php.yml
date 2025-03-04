@@ -144,7 +144,7 @@ jobs:
         run: |
           echo "PATH=${{ env.NPM_CONFIG_PREFIX }}/bin:$PATH" >> $GITHUB_ENV
           curl localhost:8000/
-          npm i -g @redocly/cli@latest @shopware/api-gen
+          npm i -g @redocly/cli@1.31.3 @shopware/api-gen
           export STOREFRONT_ID=$(bin/console sales-channel:list --output json | jq -r '.[] | select(.name == "Storefront") | .id')
           export OPENAPI_ACCESS_KEY=$(mysql -u root -h 127.0.0.1 shopware -se "SELECT access_key FROM sales_channel WHERE id = UNHEX(\"${STOREFRONT_ID}\")";)
           echo -e "OPENAPI_JSON_URL=http://localhost:8000\nSHOPWARE_ADMIN_USERNAME=admin\nSHOPWARE_ADMIN_PASSWORD=shopware\nOPENAPI_ACCESS_KEY=${OPENAPI_ACCESS_KEY}" > .env

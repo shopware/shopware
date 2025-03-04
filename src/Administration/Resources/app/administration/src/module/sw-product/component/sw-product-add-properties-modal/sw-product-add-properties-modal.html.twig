@@ -74,6 +74,7 @@
             {% block sw_product_properties_empty_state_button_property %}
             <mt-button
                 ghost
+                variant="secondary"
                 @click="onOpenProperties"
             >
                 {{ $tc('sw-product.properties.buttonAddProperties') }}
@@ -87,6 +88,7 @@
         {% block sw_product_add_properties_modal_button_cancel %}
         <mt-button
             size="small"
+            variant="secondary"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}

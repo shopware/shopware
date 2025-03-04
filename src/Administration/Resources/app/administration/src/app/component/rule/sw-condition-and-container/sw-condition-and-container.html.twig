@@ -32,6 +32,7 @@
             size="small"
             class="sw-condition-and-container__actions--and"
             :disabled="disabled"
+            variant="secondary"
             @click="onAddPlaceholder"
         >
             {{ $tc('global.sw-condition.condition.AddAndCondition') }}
@@ -43,6 +44,7 @@
             size="small"
             class="sw-condition-and-container__actions--sub"
             :disabled="disabled"
+            variant="secondary"
             @click="onAddOrContainer"
         >
             {{ $tc('global.sw-condition.condition.AddSubCondition') }}
@@ -53,6 +55,7 @@
             size="small"
             class="sw-condition-and-container__actions--delete"
             :disabled="disabled"
+            variant="secondary"
             @click="onDeleteAll"
         >
             {{ $tc('global.sw-condition.condition.deleteConditions') }}

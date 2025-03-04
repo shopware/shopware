@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentIdCollection;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
@@ -19,6 +20,7 @@ use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
@@ -57,6 +59,9 @@ class DocumentControllerTest extends TestCase
 
     private DocumentGenerator $documentGenerator;
 
+    /**
+     * @var EntityRepository<OrderCollection>
+     */
     private EntityRepository $orderRepository;
 
     private string $customerId;
@@ -106,7 +111,7 @@ class DocumentControllerTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        /** @var EntityRepository $documentTypeRepository */
+        /** @var EntityRepository<DocumentTypeCollection> $documentTypeRepository */
         $documentTypeRepository = static::getContainer()->get('document_type.repository');
         $criteria = (new Criteria())->addFilter(new EqualsFilter('technicalName', 'invoice'));
         /** @var DocumentTypeEntity $type */

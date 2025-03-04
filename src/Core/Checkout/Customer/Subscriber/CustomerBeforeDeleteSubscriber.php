@@ -63,14 +63,16 @@ class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
             $salesChannelId = $source->getSalesChannelId();
         }
 
-        $criteria = new Criteria($ids);
-        $criteria->addAssociation('salutation');
-        $criteria->addAssociation('defaultBillingAddress.country');
-        $criteria->addAssociation('defaultBillingAddress.countryState');
-        $criteria->addAssociation('defaultBillingAddress.salutation');
-        $criteria->addAssociation('defaultShippingAddress.country');
-        $criteria->addAssociation('defaultShippingAddress.countryState');
-        $criteria->addAssociation('defaultShippingAddress.salutation');
+        $criteria = (new Criteria($ids))
+            ->addAssociations([
+                'salutation',
+                'defaultBillingAddress.country',
+                'defaultBillingAddress.countryState',
+                'defaultBillingAddress.salutation',
+                'defaultShippingAddress.country',
+                'defaultShippingAddress.countryState',
+                'defaultShippingAddress.salutation',
+            ]);
 
         $customers = $this->customerRepository->search($criteria, $context)->getEntities();
 

@@ -146,7 +146,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
 
         await flushPromises();
 
-        const gridCheckboxes = wrapper.find('.sw-grid .sw-grid__header sw-checkbox-field-stub');
+        const gridCheckboxes = wrapper.find('.sw-grid .sw-grid__header .mt-field--checkbox__container');
 
         expect(gridCheckboxes.exists()).toBe(displayCheckboxes);
     });

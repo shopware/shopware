@@ -78,25 +78,18 @@
                 gap="0px 30px"
             >
                 {% block sw_promotion_v2_cart_condition_setgroup_mode_field %}
-                <sw-select-field
-                    v-model:value="group.packagerKey"
+                <mt-select
+                    v-model="group.packagerKey"
                     class="sw-promotion-v2-cart-condition-form__setgroup-mode"
                     :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelMode')"
                     :disabled="isEditingDisabled"
-                >
-                    <option
-                        v-for="packager in packagers"
-                        :key="packager.key"
-                        :value="packager.key"
-                    >
-                        {{ packager.name }}
-                    </option>
-                </sw-select-field>
+                    :options="packagerOptions"
+                />
                 {% endblock %}
 
                 {% block sw_promotion_v2_cart_condition_setgroup_value_field %}
-                <sw-number-field
-                    v-model:value="group.value"
+                <mt-number-field
+                    v-model="group.value"
                     class="sw-promotion-v2-cart-condition-form__setgroup-value"
                     :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelValue')"
                     :disabled="isEditingDisabled"
@@ -110,20 +103,13 @@
                 gap="0px 30px"
             >
                 {% block sw_promotion_v2_cart_condition_setgroup_sorting_field %}
-                <sw-select-field
-                    v-model:value="group.sorterKey"
+                <mt-select
+                    v-model="group.sorterKey"
                     class="sw-promotion-v2-cart-condition-form__setgroup-sorting"
                     :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelSorting')"
                     :disabled="isEditingDisabled"
-                >
-                    <option
-                        v-for="sorter in sorters"
-                        :key="sorter.key"
-                        :value="sorter.key"
-                    >
-                        {{ sorter.name }}
-                    </option>
-                </sw-select-field>
+                    :options="sorterOptions"
+                />
                 {% endblock %}
 
             </sw-container>
@@ -156,6 +142,7 @@
                 ghost
                 class="sw-promotion-v2-cart-condition-form__add-group-button"
                 :disabled="isEditingDisabled"
+                variant="secondary"
                 @click="addSetGroup"
             >
                 {{ $tc('sw-promotion-v2.detail.conditions.setgroups.buttonAddGroup') }}

@@ -39,6 +39,7 @@
                 class="action"
                 size="small"
                 :disabled="document[selectedDocumentType.technicalName].isDownloading"
+                variant="secondary"
                 @click="downloadDocument(selectedDocumentType.technicalName)"
             >
                 {{ $tc('sw-bulk-edit.modal.success.buttonDownload') }}

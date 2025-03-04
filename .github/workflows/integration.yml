@@ -487,6 +487,8 @@ jobs:
 
       - name: Run blue-green check
         if: ${{ !contains(github.workflow_ref, 'nightly') }}
+        env:
+          DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
         run: php .github/bin/blue-green-check.php
 
   # this allows us to specifiy just one required job/check

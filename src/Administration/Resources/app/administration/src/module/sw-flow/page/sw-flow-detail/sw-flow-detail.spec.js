@@ -664,5 +664,7 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         resolveFlowData();
         await flushPromises();
         expect(actionDescriptionSpy).toHaveBeenCalled();
+
+        actionDescriptionSpy.mockRestore();
     });
 });

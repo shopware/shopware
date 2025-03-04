@@ -86,6 +86,11 @@ const mockBusinessEvents = [
     },
 ];
 
+const businessEventServiceMock = {
+    getBusinessEvents: () => Promise.resolve(mockBusinessEvents),
+};
+
+
 async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess = true, param = {}) {
     return mount(
         await wrapTestComponent('sw-flow-detail', {
@@ -176,6 +181,9 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
                     ruleConditionDataProviderService: {
                         getRestrictedRules: () => Promise.resolve([]),
                     },
+                    businessEventService:{
+                        getBusinessEvents : () => Promise.resolve(mockBusinessEvents)
+                    },
                 },
                 mocks: {
                     $route: { params: param, query: query },
@@ -233,6 +241,10 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
 
 describe('module/sw-flow/page/sw-flow-detail', () => {
     beforeAll(() => {
+        Shopware.Service().register('businessEventService', () => {
+            return businessEventServiceMock;
+        });
+
         Shopware.State.registerModule('swFlowState', {
             ...flowState,
             state: {
@@ -244,12 +256,6 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
                 appActions: [],
                 triggerEvents: [],
             },
-        });
-
-        Shopware.Service().register('businessEventService', () => {
-            return {
-                getBusinessEvents: () => Promise.resolve(mockBusinessEvents),
-            };
         });
     });
 
@@ -586,36 +592,77 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
 
     it('should wait for FlowData and TriggerEventsData requests before executing getDataForActionDescription', async () => {
         global.activeAclRoles = ['flow.editor'];
-        const wrapper = await createWrapper({}, {}, ID_FLOW);
+
+        let resolveEvents;
+        const eventsPromise = new Promise(resolve => {
+            resolveEvents = () => resolve(mockBusinessEvents);
+        });
+
+        businessEventServiceMock.getBusinessEvents = jest.fn().mockReturnValue(eventsPromise);
+
+        let resolveFlowData;
+        const flowDataPromise = new Promise(resolve => {
+            resolveFlowData = () => resolve({
+                id: ID_FLOW,
+                name: 'Flow 1',
+                eventName: 'checkout.customer',
+                sequences: getSequencesCollection([])
+            });
+        });
+
+        const repositoryFactoryMock = {
+            create: (entity) => {
+                if (entity === 'flow') {
+                    return {
+                        get: () => flowDataPromise
+                    };
+                }
+                return {
+                    create: () => ({}),
+                    search: () => Promise.resolve([])
+                };
+            }
+        };
+
+        const wrapper = mount(
+            await wrapTestComponent('sw-flow-detail', { sync: true }),
+            {
+                props: {
+                    flowId: ID_FLOW
+                },
+                global: {
+                    provide: {
+                        repositoryFactory: repositoryFactoryMock,
+                        flowBuilderService: Shopware.Service('flowBuilderService'),
+                        ruleConditionDataProviderService: {
+                            getRestrictedRules: () => Promise.resolve([])
+                        },
+                        businessEventService: businessEventServiceMock
+                    },
+                    mocks: {
+                        $route: { params: {}, query: {} }
+                    },
+                    stubs: {
+                        'sw-page': true,
+                        'sw-button': true,
+                        'sw-loader': true
+                    }
+                }
+            }
+        );
+
+        await flushPromises();
 
         const actionDescriptionSpy = jest.spyOn(wrapper.vm, 'getDataForActionDescription');
 
-        // delay the execution
-        let resolvePromiseAll;
-        const promiseAllMock = new Promise(resolve => {
-            resolvePromiseAll = () => resolve([{}, {
-                id: ID_FLOW,
-                name: 'Test Flow',
-                sequences: getSequencesCollection([])
-            }]);
-        });
-
-        const originalPromiseAll = Promise.all;
-
-        Promise.all = jest.fn(() => {
-            return promiseAllMock;
-        });
-
-        wrapper.vm.getDetailFlow();
-        await flushPromises();
-
         expect(actionDescriptionSpy).not.toHaveBeenCalled();
 
-        resolvePromiseAll();
+        resolveEvents();
         await flushPromises();
+        expect(actionDescriptionSpy).not.toHaveBeenCalled();
 
+        resolveFlowData();
+        await flushPromises();
         expect(actionDescriptionSpy).toHaveBeenCalled();
-
-        Promise.all = originalPromiseAll;
     });
 });

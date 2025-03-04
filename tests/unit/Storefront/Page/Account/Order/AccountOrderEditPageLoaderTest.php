@@ -204,6 +204,7 @@ class AccountOrderEditPageLoaderTest extends TestCase
             ->willReturn($orderContext);
 
         $request = new Request();
+        $request->query->set('onlyAvailable', 1);
         $this->checkoutGatewayRoute
             ->expects(static::once())
             ->method('load')
@@ -214,7 +215,7 @@ class AccountOrderEditPageLoaderTest extends TestCase
                 new ErrorCollection(),
             ));
 
-        $this->pageLoader->load($request, Generator::generateSalesChannelContext());
+        $this->pageLoader->load(new Request(), Generator::generateSalesChannelContext());
     }
 
     public function testLoadCancelled(): void

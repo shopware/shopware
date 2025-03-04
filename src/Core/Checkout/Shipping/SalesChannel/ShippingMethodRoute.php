@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Rule\RuleIdMatcher;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -31,7 +32,8 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
     public function __construct(
         private readonly SalesChannelRepository $shippingMethodRepository,
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly ScriptExecutor $scriptExecutor
+        private readonly ScriptExecutor $scriptExecutor,
+        private readonly RuleIdMatcher $ruleIdMatcher,
     ) {
     }
 
@@ -68,13 +70,17 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
         $result = $this->shippingMethodRepository->search($criteria, $context);
 
         $shippingMethods = $result->getEntities();
-
         $shippingMethods->sortShippingMethodsByPreference($context);
+
+        if ($request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable')) {
+            $shippingMethods = $this->ruleIdMatcher->filterCollection($shippingMethods, $context->getRuleIds());
+        }
 
         $result->assign(['entities' => $shippingMethods, 'elements' => $shippingMethods->getElements(), 'total' => $shippingMethods->count()]);
 
         $this->scriptExecutor->execute(new ShippingMethodRouteHook(
             $shippingMethods,
+            $request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable'),
             $context,
         ));
 

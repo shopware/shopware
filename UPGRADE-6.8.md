@@ -50,6 +50,12 @@ The concrete events being removed:
 - `\Shopware\Core\Content\Sitemap\Event\SitemapRouteCacheKeyEvent`
 - `\Shopware\Core\Content\Sitemap\Event\SitemapRouteCacheTagsEvent`
 
+## `filterByActiveRules` in Payment- and ShippingMethodCollection removed
+
+The `filterByActiveRules` methods in `Shopware\Core\Checkout\Payment\PaymentMethodCollection` and `Shopware\Core\Checkout\Shipping\ShippingMethodCollection` were removed.
+Use the new `Shopware\Core\Framework\Rule\RuleIdMatcher` instead.
+It allows filtering of `RuleIdAware` objects in either arrays or collections.
+
 # Administration
 
 # Storefront

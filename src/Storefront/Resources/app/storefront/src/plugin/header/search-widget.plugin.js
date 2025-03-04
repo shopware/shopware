@@ -204,7 +204,6 @@ export default class SearchWidgetPlugin extends Plugin {
     _focusInput() {
         if (this._toggleButton && !this._toggleButton.classList.contains(this.options.searchWidgetCollapseClass)) {
             this._toggleButton.blur(); // otherwise iOS won't focus the field.
-            this._inputField.setAttribute('tabindex', '-1');
             this._inputField.focus();
         }
 

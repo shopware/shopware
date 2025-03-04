@@ -1,5 +1,5 @@
 ---
-title: Removed deprecated Twig filter "spaceless".
+title: Accessibility of keyboard navigation on mobile
 issue: NEXT-40778
 ---
 # Storefront

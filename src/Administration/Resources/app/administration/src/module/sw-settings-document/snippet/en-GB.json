@@ -19,6 +19,7 @@
       "global": "Global"
     },
     "detail": {
+      "emptyFields": "Please enter a name and select a type before saving.",
       "textHeadline": "New document",
       "configCard": "Settings",
       "companyCard": "Company settings",

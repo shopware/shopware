@@ -4,67 +4,75 @@ import { mount } from '@vue/test-utils';
  * @sw-package after-sales
  */
 const documentBaseConfigRepositoryMock = {
-    create: () => {
-        return Promise.resolve({});
-    },
+    save: jest.fn(() => Promise.resolve({})),
+    create: () => Promise.resolve({}),
     get: (id) => {
         const salesChannels = new Shopware.Data.EntityCollection('source', 'entity', Shopware.Context.api);
-        if (id === 'documentConfigWithSalesChannels') {
-            salesChannels.push({
-                id: 'associationId1',
-                salesChannelId: 'salesChannelId1',
-            });
-            return Promise.resolve({
-                id: id,
-                documentTypeId: 'documentTypeId1',
-                salesChannels: salesChannels,
-            });
-        }
-        if (id === 'documentConfigWithDocumentType') {
-            return Promise.resolve({
-                id: id,
-                documentTypeId: 'documentTypeId1',
-                salesChannels: salesChannels,
-                documentType: { id: 'documentTypeId1' },
-            });
-        }
-        if (id === 'documentConfigWithDocumentTypeAndSalesChannels') {
-            salesChannels.push({
-                id: 'associationId1',
-                salesChannelId: 'salesChannelId1',
-            });
-            return Promise.resolve({
-                id: id,
-                documentTypeId: 'documentTypeId1',
-                salesChannels: salesChannels,
-                documentType: { id: 'documentTypeId1' },
-            });
-        }
 
-        if (id === 'documentConfigWithDocumentFileTypes') {
-            return Promise.resolve({
-                id: id,
-                documentTypeId: 'documentTypeId',
-                config: {
-                    fileTypes: [
-                        'pdf',
-                        'html',
+        switch (id) {
+            case 'documentConfigWithSalesChannels': {
+                return Promise.resolve({
+                    id: id,
+                    documentTypeId: 'documentTypeId1',
+                    salesChannels: [
+                        ...salesChannels,
+                        {
+                            id: 'associationId1',
+                            salesChannelId: 'salesChannelId1',
+                        },
                     ],
-                },
-            });
+                });
+            }
+            case 'documentConfigWithDocumentType': {
+                return Promise.resolve({
+                    id: id,
+                    documentTypeId: 'documentTypeId1',
+                    salesChannels: salesChannels,
+                    documentType: { id: 'documentTypeId1' },
+                    name: 'documentConfigWithDocumentType',
+                });
+            }
+            case 'documentConfigWithDocumentTypeAndSalesChannels': {
+                return Promise.resolve({
+                    id: id,
+                    documentTypeId: 'documentTypeId1',
+                    documentType: { id: 'documentTypeId1' },
+                    salesChannels: [
+                        ...salesChannels,
+                        {
+                            id: 'associationId1',
+                            salesChannelId: 'salesChannelId1',
+                        },
+                    ],
+                });
+            }
+            case 'documentConfigWithDocumentFileTypes': {
+                return Promise.resolve({
+                    id: id,
+                    documentTypeId: 'documentTypeId',
+                    config: {
+                        fileTypes: [
+                            'pdf',
+                            'html',
+                        ],
+                    },
+                });
+            }
+            default: {
+                return Promise.resolve({
+                    id: id,
+                    documentTypeId: 'documentTypeId',
+                    config: {
+                        fileTypes: [
+                            'pdf',
+                        ],
+                    },
+                });
+            }
         }
-
-        return Promise.resolve({
-            id: id,
-            documentTypeId: 'documentTypeId',
-            config: {
-                fileTypes: [
-                    'pdf',
-                ],
-            },
-        });
     },
 };
+
 const salesChannelRepositoryMock = {
     search: () => {
         return [
@@ -73,33 +81,38 @@ const salesChannelRepositoryMock = {
         ];
     },
 };
+
 const documentBaseConfigSalesChannelsRepositoryMock = {
     counter: 1,
     create: () => {
         const association = {
             id: `configSalesChannelId${documentBaseConfigSalesChannelsRepositoryMock.counter}`,
         };
+
         documentBaseConfigSalesChannelsRepositoryMock.counter += 1;
+
         return association;
     },
     search: () => {
         return Promise.resolve([]);
     },
 };
+
 const repositoryMockFactory = (entity) => {
-    if (entity === 'sales_channel') {
-        return salesChannelRepositoryMock;
+    switch (entity) {
+        case 'sales_channel': {
+            return salesChannelRepositoryMock;
+        }
+        case 'document_base_config': {
+            return documentBaseConfigRepositoryMock;
+        }
+        case 'document_base_config_sales_channel': {
+            return documentBaseConfigSalesChannelsRepositoryMock;
+        }
+        default: {
+            return false;
+        }
     }
-
-    if (entity === 'document_base_config') {
-        return documentBaseConfigRepositoryMock;
-    }
-
-    if (entity === 'document_base_config_sales_channel') {
-        return documentBaseConfigSalesChannelsRepositoryMock;
-    }
-
-    return false;
 };
 
 const createWrapper = async (customOptions, privileges = []) => {
@@ -111,6 +124,8 @@ const createWrapper = async (customOptions, privileges = []) => {
             global: {
                 renderStubDefaultSlot: true,
                 stubs: {
+                    'sw-card-view': await wrapTestComponent('sw-card-view', { sync: true }),
+                    'sw-error-summary': true,
                     'sw-page': {
                         template: `
                     <div class="sw-page">
@@ -131,7 +146,6 @@ const createWrapper = async (customOptions, privileges = []) => {
                         props: ['disabled'],
                     },
                     'sw-button-process': true,
-                    'sw-card-view': true,
                     'sw-container': true,
                     'sw-form-field-renderer': true,
                     'sw-checkbox-field': {
@@ -186,11 +200,10 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
     });
 
     it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper({});
         expect(wrapper.vm).toBeTruthy();
     });
 
-    // eslint-disable-next-line max-len
     it('should create an array with sales channel ids from the document config sales channels association', async () => {
         const wrapper = await createWrapper({
             props: { documentConfigId: 'documentConfigWithSalesChannels' },
@@ -355,7 +368,6 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         );
     });
 
-    // eslint-disable-next-line max-len
     it('should not exist "display divergent delivery address" in general form field and company form field', async () => {
         const wrapper = await createWrapper({}, ['document.editor']);
 
@@ -466,5 +478,32 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         expect(multiSelect).toBeTruthy();
         expect(multiSelect.attributes().value).toBe('pdf,html');
+    });
+
+    it('should save document', async () => {
+        const wrapper = await createWrapper({ props: { documentConfigId: 'documentConfigWithDocumentType' } }, [
+            'document.editor',
+        ]);
+        await flushPromises();
+
+        const saveButton = wrapper.find('.sw-settings-document-detail__save-action');
+        await saveButton.trigger('click');
+        await flushPromises();
+
+        expect(documentBaseConfigRepositoryMock.save).toHaveBeenCalled();
+    });
+
+    it('should display an error when trying to save an empty document', async () => {
+        const wrapper = await createWrapper({}, ['document.editor']);
+
+        const notificationSpy = jest.spyOn(wrapper.vm, 'createNotificationError');
+        await flushPromises();
+
+        const saveButton = wrapper.find('.sw-settings-document-detail__save-action');
+        await saveButton.trigger('click');
+
+        expect(notificationSpy).toHaveBeenNthCalledWith(1, {
+            message: 'sw-settings-document.detail.emptyFields',
+        });
     });
 });

@@ -386,6 +386,7 @@ export default {
                     appearance: 'light',
                 };
             }
+
             return {
                 message: this.$tc('sw-privileges.tooltip.warning'),
                 disabled: this.acl.can('order.editor'),
@@ -422,11 +423,7 @@ export default {
 
         // We don't want to select ZUGFeRD as a type. "invoice" configuration is used instead (NEXT-40492)
         documentCriteria() {
-            const criteria = new Criteria(1, 25);
-
-            criteria.addFilter(Criteria.not('AND', [Criteria.prefix('technicalName', 'zugferd_')]));
-
-            return criteria;
+            return new Criteria(1, 25).addFilter(Criteria.not('AND', [Criteria.prefix('technicalName', 'zugferd_')]));
         },
     },
 
@@ -437,7 +434,9 @@ export default {
     methods: {
         async createdComponent() {
             this.isLoading = true;
+
             await this.loadAvailableSalesChannel();
+
             if (this.documentConfigId) {
                 await Promise.all([
                     this.loadEntityData(),
@@ -461,9 +460,11 @@ export default {
                 Shopware.Context.api,
                 this.documentBaseConfigCriteria,
             );
+
             if (!this.documentConfig) {
                 this.documentConfig = {};
             }
+
             if (!this.documentConfig.config) {
                 this.documentConfig.config = {};
             }
@@ -563,24 +564,31 @@ export default {
                     params: { id: this.documentConfig.id },
                 });
             }
+
             this.loadEntityData();
         },
 
         onSave() {
             this.isSaveSuccessful = false;
+
+            if (!this.documentConfig?.documentTypeId || !this.documentConfig?.name) {
+                this.createNotificationError({
+                    message: this.$tc('sw-settings-document.detail.emptyFields'),
+                });
+
+                return Promise.resolve();
+            }
+
             this.isLoading = true;
             this.onChangeSalesChannel();
-
-            this.isSaveSuccessful = true;
 
             return this.documentBaseConfigRepository
                 .save(this.documentConfig)
                 .then(() => {
-                    this.isLoading = false;
                     this.isSaveSuccessful = true;
                 })
-                .catch(() => {
-                    this.isLoading = false;
+                .finally(() => {
+                    this.loading = false;
                 });
         },
 
@@ -602,12 +610,14 @@ export default {
 
             this.salesChannels.forEach((salesChannel) => {
                 let salesChannelAlreadyAssigned = false;
+
                 this.documentConfig.salesChannels.forEach((documentConfigSalesChannel) => {
                     if (documentConfigSalesChannel.salesChannelId === salesChannel.id) {
                         salesChannelAlreadyAssigned = true;
                         this.documentConfigSalesChannelOptionsCollection.push(documentConfigSalesChannel);
                     }
                 });
+
                 if (!salesChannelAlreadyAssigned) {
                     const option = this.documentBaseConfigSalesChannelRepository.create();
                     option.documentBaseConfigId = this.documentConfig.id;
@@ -621,6 +631,7 @@ export default {
 
         onRemoveDocumentType(type) {
             let fileTypes = this.documentConfig.config.fileTypes ?? [];
+
             if (fileTypes.length === 1) {
                 return;
             }

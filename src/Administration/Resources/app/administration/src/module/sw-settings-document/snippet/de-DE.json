@@ -19,6 +19,7 @@
       "global": "Global"
     },
     "detail": {
+      "emptyFields": "Bitte geben Sie einen Namen ein und wählen Sie einen Typ, bevor Sie speichern.",
       "textHeadline": "Neues Dokument",
       "configCard": "Einstellungen",
       "companyCard": "Geschäftseinstellungen",

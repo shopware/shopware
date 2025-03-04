@@ -6,7 +6,7 @@ test('Customer is able to search products in shop', { tag: '@Search' }, async ({
     StorefrontHome,
     StorefrontSearchSuggest,
     SearchForTerm,
-    IdProvider
+    IdProvider,
 }) => {
         const productNameSuffix = IdProvider.getIdPair().uuid;
 

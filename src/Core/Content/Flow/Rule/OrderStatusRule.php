@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @deprecated tag:v6.7.0 - reason:becomes-final - Will become final in v6.7.0
  */
 #[Package('fundamentals@after-sales')]
 class OrderStatusRule extends FlowRule

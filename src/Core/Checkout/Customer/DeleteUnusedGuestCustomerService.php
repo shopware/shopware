@@ -21,6 +21,8 @@ class DeleteUnusedGuestCustomerService
 
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerCollection> $customerRepository
      */
     public function __construct(
         private readonly EntityRepository $customerRepository,
@@ -56,8 +58,8 @@ class DeleteUnusedGuestCustomerService
             return [];
         }
 
-        $criteria = $this->getUnusedCustomerCriteria($maxLifeTime);
-        $criteria->setLimit(self::DELETE_CUSTOMERS_BATCH_SIZE);
+        $criteria = $this->getUnusedCustomerCriteria($maxLifeTime)
+            ->setLimit(self::DELETE_CUSTOMERS_BATCH_SIZE);
 
         /** @var list<string> $ids */
         $ids = $this->customerRepository->searchIds($criteria, $context)->getIds();
@@ -70,24 +72,17 @@ class DeleteUnusedGuestCustomerService
 
     private function getUnusedCustomerCriteria(\DateTime $maxLifeTime): Criteria
     {
-        $criteria = new Criteria();
-
-        $criteria->addAssociation('orderCustomers');
-
-        $criteria->addFilter(
-            new AndFilter(
-                [
-                    new EqualsFilter('guest', true),
-                    new EqualsFilter('orderCustomers.id', null),
-                    new RangeFilter(
-                        'createdAt',
-                        [
-                            RangeFilter::LTE => $maxLifeTime->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                        ]
-                    ),
-                ]
-            )
-        );
+        $criteria = (new Criteria())
+            ->addAssociation('orderCustomers')
+            ->addFilter(new AndFilter([
+                new EqualsFilter('guest', true),
+                new EqualsFilter('orderCustomers.id', null),
+                new RangeFilter(
+                    'createdAt',
+                    [
+                        RangeFilter::LTE => $maxLifeTime->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    ]
+                )]));
 
         return $criteria;
     }

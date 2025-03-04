@@ -16,6 +16,7 @@
                 appearance: 'light'
             }"
             :disabled="isLoading"
+            variant="secondary"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
@@ -195,7 +196,10 @@
             </div>
 
             <template #modal-footer>
-                <mt-button @click="onClose">
+                <mt-button
+                    variant="secondary"
+                    @click="onClose"
+                >
                     {{ $tc('global.default.cancel') }}
                 </mt-button>
                 <sw-button-process

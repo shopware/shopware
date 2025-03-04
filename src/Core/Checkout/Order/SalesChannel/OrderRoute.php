@@ -63,8 +63,7 @@ class OrderRoute extends AbstractOrderRoute
             ->addFilter(new EqualsFilter('config.displayInCustomerAccount', 'true'))
             ->addFilter(new EqualsFilter('sent', true));
 
-        $criteria->addAssociation('billingAddress');
-        $criteria->addAssociation('orderCustomer.customer');
+        $criteria->addAssociations(['billingAddress', 'orderCustomer.customer']);
 
         $deepLinkFilter = \current(array_filter($criteria->getFilters(), static fn (Filter $filter) => \in_array('order.deepLinkCode', $filter->getFields(), true)
             || \in_array('deepLinkCode', $filter->getFields(), true))) ?: null;
@@ -131,15 +130,14 @@ class OrderRoute extends AbstractOrderRoute
             }
         }
 
-        $promotions = new PromotionCollection();
-
-        if (!empty($promotionIds)) {
-            $criteria = new Criteria($promotionIds);
-            $criteria->addAssociation('cartRules');
-            $promotions = $this->promotionRepository->search($criteria, $context->getContext())->getEntities();
+        if (!$promotionIds) {
+            return new PromotionCollection();
         }
 
-        return $promotions;
+        $criteria = (new Criteria($promotionIds))
+            ->addAssociation('cartRules');
+
+        return $this->promotionRepository->search($criteria, $context->getContext())->getEntities();
     }
 
     private function checkRuleType(Container $rule): bool

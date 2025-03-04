@@ -316,6 +316,7 @@
             <mt-button
                 class="sw-cms-layout-assignment-modal__action-keep-editing"
                 size="small"
+                variant="secondary"
                 @click="onKeepEditing"
             >
                 {{ $tc('global.default.cancel') }}
@@ -328,6 +329,7 @@
                     class="sw-cms-layout-assignment-modal__action-changes-discard"
                     ghost
                     size="small"
+                    variant="secondary"
                     @click="onDiscardChanges"
                 >
                     {{ $tc('global.default.discard') }}
@@ -356,6 +358,7 @@
             :disabled="isLoading"
             class="sw-cms-layout-assignment-modal__action-cancel"
             size="small"
+            variant="secondary"
             @click="onAbort"
         >
             {{ $tc('global.default.cancel') }}

@@ -40,7 +40,6 @@ async function createWrapper(privileges = []) {
                     'sw-custom-field-set-renderer': true,
                     'sw-container': await wrapTestComponent('sw-container'),
                     'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper', { sync: true }),
-                    'sw-number-field': true,
                     'sw-text-field': true,
                     'sw-text-editor': true,
                     'sw-entity-single-select': true,

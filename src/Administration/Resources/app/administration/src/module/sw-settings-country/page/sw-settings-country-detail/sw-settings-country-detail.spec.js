@@ -150,7 +150,7 @@ async function createWrapper(privileges = []) {
                     'sw-field': true,
                     'sw-simple-search-field': true,
                     'sw-context-menu-item': true,
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-one-to-many-grid': true,
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),

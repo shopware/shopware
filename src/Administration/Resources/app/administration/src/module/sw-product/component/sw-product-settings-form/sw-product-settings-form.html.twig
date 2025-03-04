@@ -13,15 +13,15 @@
         >
             <template #content="props">
 
-                <sw-datepicker
+                <mt-datepicker
                     :map-inheritance="props"
                     date-type="datetime"
                     :disabled="props.isInherited || !allowEdit"
                     :error="productReleaseDateError"
                     :label="$tc('sw-product.settingsForm.labelReleaseDate')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderReleaseDate')"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
                 />
 
             </template>

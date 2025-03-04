@@ -37,6 +37,7 @@
         <mt-button
             v-if="detailType"
             size="small"
+            variant="secondary"
             @click.prevent="detailType = false"
         >
             {{ $tc('sw-sales-channel.modal.buttonBack') }}
@@ -68,6 +69,7 @@
         <mt-button
             v-if="!detailType"
             size="small"
+            variant="secondary"
             @click="onCloseModal"
         >
             {{ $tc('global.default.cancel') }}

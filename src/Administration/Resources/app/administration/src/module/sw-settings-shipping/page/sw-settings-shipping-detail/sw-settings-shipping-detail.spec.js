@@ -68,7 +68,7 @@ async function createWrapper(privileges = [], props = {}) {
                         props: ['disabled'],
                         template: '<input class="sw-field" :disabled="disabled" />',
                     },
-                    'sw-number-field': {
+                    'mt-number-field': {
                         props: ['disabled'],
                         template: '<input class="sw-field" :disabled="disabled" />',
                     },

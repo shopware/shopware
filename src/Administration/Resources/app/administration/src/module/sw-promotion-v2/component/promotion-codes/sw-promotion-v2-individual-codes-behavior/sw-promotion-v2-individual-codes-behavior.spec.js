@@ -37,10 +37,6 @@ async function createWrapper(additionalPromotionData = {}) {
                             '<button class="sw-button-process" @click="$emit(\'click\', $event.target.value)"></button>',
                         props: ['disabled'],
                     },
-                    'sw-number-field': {
-                        template: '<div class="sw-number-field"><slot></slot></div>',
-                        props: ['value'],
-                    },
                     'sw-loader': true,
                 },
                 provide: {
@@ -157,10 +153,10 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-individual-codes-
         addModal = wrapper.find('.sw-promotion-v2-individual-codes-behavior__add-codes-modal');
         expect(addModal.exists()).toBe(true);
 
-        const codeAmountInput = wrapper.getComponent('.sw-promotion-v2-individual-codes-behavior__code-amount');
+        const codeAmountInput = wrapper.findByLabel('sw-promotion-v2.detail.base.codes.individual.addCodesModal.codeAmountLabel');
         const addCodesModalButton = wrapper.find('.sw-promotion-v2-individual-codes-behavior__add-codes-button-confirm');
 
-        expect(codeAmountInput.props('value')).toBe(10);
+        expect(codeAmountInput.element.value).toBe('10');
         expect(addCodesModalButton.exists()).toBe(true);
         await addCodesModalButton.trigger('click');
 

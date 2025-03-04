@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CalculatedCheapestPrice;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -24,7 +23,6 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -128,14 +126,6 @@ class ProductLoadedSubscriberTest extends TestCase
             ->first();
 
         static::assertInstanceOf(SalesChannelProductEntity::class, $productEntity);
-
-        $subscriber = static::getContainer()->get(ProductSubscriber::class);
-        $productLoadedEvent = new EntityLoadedEvent(
-            static::getContainer()->get(ProductDefinition::class),
-            [$productEntity],
-            Context::createDefaultContext()
-        );
-        $subscriber->loaded($productLoadedEvent);
 
         $sortedPropertiesCollection = $productEntity->getSortedProperties();
 
@@ -413,10 +403,8 @@ class ProductLoadedSubscriberTest extends TestCase
             ->get('product.repository')
             ->search($criteria, $context)
             ->first();
+
         static::assertInstanceOf(ProductEntity::class, $productEntity);
-        $subscriber = static::getContainer()->get(ProductSubscriber::class);
-        $productLoadedEvent = new EntityLoadedEvent(static::getContainer()->get(ProductDefinition::class), [$productEntity], $context);
-        $subscriber->loaded($productLoadedEvent);
 
         $variation = $productEntity->getVariation();
 

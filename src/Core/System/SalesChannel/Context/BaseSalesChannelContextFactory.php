@@ -58,7 +58,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         private readonly EntityRepository $shippingMethodRepository,
         private readonly EntityRepository $countryStateRepository,
         private readonly EntityRepository $currencyCountryRepository,
-        private readonly ContextProvider $contextProvider,
+        private readonly ContextFactory $contextFactory,
     ) {
     }
 
@@ -67,7 +67,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
      */
     public function create(string $salesChannelId, array $options = []): BaseSalesChannelContext
     {
-        $context = $this->contextProvider->getContext($salesChannelId, $options);
+        $context = $this->contextFactory->getContext($salesChannelId, $options);
 
         $criteria = new Criteria([$salesChannelId]);
         $criteria->setTitle('base-context-factory::sales-channel');

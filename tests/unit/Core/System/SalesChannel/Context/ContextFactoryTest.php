@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\ContextProvider;
+use Shopware\Core\System\SalesChannel\Context\ContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Event\ContextCreatedEvent;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
@@ -17,8 +17,8 @@ use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(ContextProvider::class)]
-class ContextProviderTest extends TestCase
+#[CoversClass(ContextFactory::class)]
+class ContextFactoryTest extends TestCase
 {
     public function testGetContext(): void
     {
@@ -31,7 +31,7 @@ class ContextProviderTest extends TestCase
         ]);
 
         $eventDispatcher = new CollectingEventDispatcher();
-        $context = (new ContextProvider($connection, $eventDispatcher))->getContext(Uuid::randomHex(), [
+        $context = (new ContextFactory($connection, $eventDispatcher))->getContext(Uuid::randomHex(), [
             SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
             SalesChannelContextService::CURRENCY_ID => Uuid::randomHex(),
             SalesChannelContextService::COUNTRY_ID => Uuid::randomHex(),

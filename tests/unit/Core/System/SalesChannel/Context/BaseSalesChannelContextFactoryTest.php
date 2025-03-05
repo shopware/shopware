@@ -36,7 +36,7 @@ use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\Context\ContextProvider;
+use Shopware\Core\System\SalesChannel\Context\ContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -109,7 +109,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
             $connection->expects(static::atMost(1))->method('createQueryBuilder')->willReturn(new QueryBuilder($connection));
         }
 
-        $contextProvider = new ContextProvider($connection, new CollectingEventDispatcher());
+        $contextProvider = new ContextFactory($connection, new CollectingEventDispatcher());
 
         $factory = new BaseSalesChannelContextFactory(
             $salesChannelRepository,

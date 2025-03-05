@@ -78,10 +78,10 @@
             <argument type="service" id="shipping_method.repository"/>
             <argument type="service" id="country_state.repository"/>
             <argument type="service" id="currency_country_rounding.repository"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\ContextProvider"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\ContextFactory"/>
         </service>
 
-        <service id="Shopware\Core\System\SalesChannel\Context\ContextProvider">
+        <service id="Shopware\Core\System\SalesChannel\Context\ContextFactory">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
         </service>

@@ -19,7 +19,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @final
  */
 #[Package('framework')]
-class ContextProvider
+class ContextFactory
 {
     /**
      * @internal

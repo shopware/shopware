@@ -103,12 +103,14 @@ test('As a merchant, I want to be able to create and assign custom fields to dif
     await test.step('Validate the availability of one custom field on a rule builder page.', async () => {
 
         await ShopAdmin.goesTo(AdminRuleCreate.url());
-        await (await AdminRuleCreate.getSelectFieldListitem(AdminRuleCreate.conditionTypeSelectionInput, 'Item with custom field')).click();
-        await (await AdminRuleCreate.getSelectFieldListitem(AdminRuleCreate.conditionValueSelectionInput, customFieldTextName)).hover();
-        await ShopAdmin.expects(await AdminRuleCreate.getSelectFieldListitem(AdminRuleCreate.conditionValueSelectionInput, customFieldTextName)).not.toBeDisabled();
+        await AdminRuleCreate.conditionTypeSelectionInput.click();
+        await AdminRuleCreate.filtersResultPopoverSelectionList.filter({ hasText: 'Item with custom field' }).click();
+        await AdminRuleCreate.conditionValueSelectionInput.click();
+        await AdminRuleCreate.filtersResultPopoverSelectionList.getByText(customFieldTextName).hover();
+        await ShopAdmin.expects(AdminRuleCreate.filtersResultPopoverSelectionList.getByText(customFieldTextName)).not.toHaveClass(/.*is--disabled.*/);
         await ShopAdmin.expects(AdminRuleCreate.valueNotAvailableTooltip).not.toBeVisible();
-        await ShopAdmin.expects(await AdminRuleCreate.getSelectFieldListitem(AdminRuleCreate.conditionValueSelectionInput, customFieldNumberName)).toBeDisabled();
-        await (await AdminRuleCreate.getSelectFieldListitem(AdminRuleCreate.conditionValueSelectionInput, customFieldNumberName)).hover();
+        await AdminRuleCreate.filtersResultPopoverSelectionList.getByText(customFieldNumberName).hover();
+        await ShopAdmin.expects(AdminRuleCreate.filtersResultPopoverSelectionList.filter({hasText: customFieldNumberName})).toHaveClass(/.*is--disabled.*/);
         await ShopAdmin.expects(AdminRuleCreate.valueNotAvailableTooltip).toContainText('This custom field is currently not available in shopping carts.');
     });
 

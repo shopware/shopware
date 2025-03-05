@@ -62,5 +62,10 @@ class MediaUrlGeneratorTest extends TestCase
             new UrlParams('id', UrlParamsSource::MEDIA, 'https://test.com/photo/flower.jpg', null),
             'https://test.com/photo/flower.jpg',
         ];
+
+        yield 'Test with whitespaces in path' => [
+            new UrlParams('id', UrlParamsSource::MEDIA, 'media/foo/3a/test file.jpg', null),
+            'http://localhost:8000/media/foo/3a/test%20file.jpg',
+        ];
     }
 }

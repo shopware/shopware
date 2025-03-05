@@ -33,9 +33,45 @@ class MediaUrlGenerator extends AbstractMediaUrlGenerator
                 $url .= '?ts=' . $value->updatedAt->getTimestamp();
             }
 
-            $urls[$key] = $url;
+            $urls[$key] = $this->encodeUrl($url);
         }
 
         return $urls;
     }
+
+    private function encodeUrl(string $mediaUrl): string
+    {
+        $urlInfo = parse_url($mediaUrl);
+        if (!\is_array($urlInfo)) {
+            return $mediaUrl;
+        }
+
+        $segments = explode('/', $urlInfo['path'] ?? '');
+
+        foreach ($segments as $index => $segment) {
+            $segments[$index] = rawurlencode($segment);
+        }
+
+        $path = implode('/', $segments);
+        if (isset($urlInfo['query'])) {
+            $path .= "?{$urlInfo['query']}";
+        }
+
+        $encodedPath = '';
+
+        if (isset($urlInfo['scheme'])) {
+            $encodedPath = "{$urlInfo['scheme']}://";
+        }
+
+        if (isset($urlInfo['host'])) {
+            $encodedPath .= "{$urlInfo['host']}";
+        }
+
+        if (isset($urlInfo['port'])) {
+            $encodedPath .= ":{$urlInfo['port']}";
+        }
+
+        return $encodedPath . $path;
+    }
+
 }

@@ -250,7 +250,7 @@ class AdapterException extends HttpException
      */
     public static function filesystemFactoryNotFound(string $type): AdapterFactoryNotFoundException|self
     {
-        if ((bool) Feature::isActive('v6.8.0.0')) {
+        if (!Feature::isActive('v6.8.0.0')) {
             return new AdapterFactoryNotFoundException($type);
         }
 

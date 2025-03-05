@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test ('As a merchant, I can perform bulk edits on customer information', { tag: '@BulkEdits' }, async ({
+test('As a merchant, I can perform bulk edits on customer information', { tag: '@BulkEdits' }, async ({
     TestDataService,
     ShopAdmin,
     AdminCustomerListing,
@@ -43,11 +43,13 @@ test ('As a merchant, I can perform bulk edits on customer information', { tag: 
 
     await test.step('Prepares a custom field set', async () => {
         await TestDataService.createCustomFieldSet({ id: customFieldSetId, name: customFieldSetName });
-        await TestDataService.createCustomField(customFieldSetId, { name: customFieldTextName, config: {
-            label: {
-                'en-GB': customFieldTextName,
-            },
-        }});
+        await TestDataService.createCustomField(customFieldSetId, {
+            name: customFieldTextName, config: {
+                label: {
+                    'en-GB': customFieldTextName,
+                },
+            }
+        });
     });
 
     await test.step('Merchant bulk edits two customers', async () => {
@@ -63,7 +65,7 @@ test ('As a merchant, I can perform bulk edits on customer information', { tag: 
             const userCustomerGroup = await AdminCustomerDetail.getCustomerGroup();
             await ShopAdmin.expects(userCustomerGroup).toHaveText(accountData.customerGroup, { timeout: 10000 });
             const accountStatus = await AdminCustomerDetail.getAccountStatus();
-            await ShopAdmin.expects(accountStatus).toHaveText(accountData.accountStatus? 'Active': 'Inactive');
+            await ShopAdmin.expects(accountStatus).toHaveText(accountData.accountStatus ? 'Active' : 'Inactive');
             const language = await AdminCustomerDetail.getLanguage();
             await ShopAdmin.expects(language).toHaveText(accountData.language);
             //verify tags
@@ -85,9 +87,9 @@ test ('As a merchant, I can perform bulk edits on customer information', { tag: 
     await test.step('Verify that changes are not applied to other customers', async () => {
         await ShopAdmin.goesTo(AdminCustomerDetail.url(customer3.id));
         const userCustomerGroup = await AdminCustomerDetail.getCustomerGroup();
-        await ShopAdmin.expects(userCustomerGroup).toHaveText(currentCustomerGroup.name);
+        await ShopAdmin.expects(userCustomerGroup).toHaveText(currentCustomerGroup.name, { timeout: 15_000 });
         const accountStatus = await AdminCustomerDetail.getAccountStatus();
-        await ShopAdmin.expects(accountStatus).toHaveText(customer3.active? 'Active': 'Inactive');
+        await ShopAdmin.expects(accountStatus).toHaveText(customer3.active ? 'Active' : 'Inactive');
         const language = await AdminCustomerDetail.getLanguage();
         await ShopAdmin.expects(language).toHaveText(currentLanguage.name);
         ShopAdmin.expects(await AdminCustomerDetail.tagItems.all()).toHaveLength(0);

@@ -44,7 +44,7 @@ test('As a merchant, I want to create custom fields use it in categories, produc
     await ShopAdmin.attemptsTo(CreateCustomField(customFieldNumberName, 'number'));
 
     const url = AdminCustomFieldDetail.page.url();
-    const customFieldSetUuid = url.split('/')[url.split('/').length -1];
+    const customFieldSetUuid = url.split('/')[url.split('/').length - 1];
     TestDataService.addCreatedRecord('custom_field_set', customFieldSetUuid);
 
     await test.step('Validate the availability of custom field on custom field listing page.', async () => {
@@ -96,7 +96,7 @@ test('As a merchant, I want to create custom fields use it in categories, produc
 
     await test.step('Validate the unavailability of custom field within manufacturer page.', async () => {
 
-        await ShopAdmin.goesTo(AdminManufacturerDetail.url(manufacturer.id));
+        await ShopAdmin.goesTo(AdminManufacturerDetail.url(manufacturer.id), true);
         await ShopAdmin.expects(AdminManufacturerDetail.customFieldCard).not.toBeVisible();
     });
 
@@ -107,7 +107,7 @@ test('As a merchant, I want to create custom fields use it in categories, produc
         await AdminRuleCreate.filtersResultPopoverSelectionList.filter({ hasText: 'Customer with custom field' }).click();
         await AdminRuleCreate.conditionValueSelectionInput.click();
         await ShopAdmin.expects(AdminRuleCreate.filtersResultPopoverSelectionList.filter({ hasText: customFieldSetName })).toHaveCount(2);
-        await ShopAdmin.expects(AdminRuleCreate.filtersResultPopoverSelectionList.getByText(customFieldTextName+' '+customFieldSetName)).toBeVisible();
-        await ShopAdmin.expects(AdminRuleCreate.filtersResultPopoverSelectionList.getByText(customFieldNumberName+' '+customFieldSetName)).toBeVisible();
+        await ShopAdmin.expects(AdminRuleCreate.filtersResultPopoverSelectionList.getByText(customFieldTextName + ' ' + customFieldSetName)).toBeVisible();
+        await ShopAdmin.expects(AdminRuleCreate.filtersResultPopoverSelectionList.getByText(customFieldNumberName + ' ' + customFieldSetName)).toBeVisible();
     });
 });

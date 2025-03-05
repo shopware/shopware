@@ -57,7 +57,7 @@ class ServiceRegistryClient implements ResetInterface
 
             $rawServices = array_merge($rawServices, $response['services']);
             ++$page;
-        } while ($page <= ($response['pagination']['pages'] ?? 1));
+        } while ($page <= ($response['pagination']['total-pages'] ?? 1));
 
         $this->services = array_map(
             static fn (array $service) => new ServiceRegistryEntry(

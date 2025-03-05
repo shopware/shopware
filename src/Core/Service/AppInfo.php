@@ -15,7 +15,9 @@ readonly class AppInfo
         public string $version,
         public string $hash,
         public string $revision,
-        public string $zipUrl
+        public string $zipUrl,
+        public ?string $hashAlgorithm = null,
+        public ?string $minShopSupportedVersion = null
     ) {
     }
 
@@ -34,11 +36,13 @@ readonly class AppInfo
             $appInfo['app-hash'],
             $appInfo['app-revision'],
             $appInfo['app-zip-url'],
+            $appInfo['app-hash-algorithm'] ?? null,
+            $appInfo['app-min-shop-supported-version'] ?? null,
         );
     }
 
     /**
-     * @return array{version: string, hash: string, revision: string, zip-url: string}
+     * @return array{version: string, hash: string, revision: string, zip-url: string, hash-algorithm: string|null, min-shop-supported-version: string|null}
      */
     public function toArray(): array
     {
@@ -47,6 +51,8 @@ readonly class AppInfo
             'hash' => $this->hash,
             'revision' => $this->revision,
             'zip-url' => $this->zipUrl,
+            'hash-algorithm' => $this->hashAlgorithm,
+            'min-shop-supported-version' => $this->minShopSupportedVersion,
         ];
     }
 }

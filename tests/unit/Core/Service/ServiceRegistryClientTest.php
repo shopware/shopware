@@ -160,12 +160,12 @@ class ServiceRegistryClientTest extends TestCase
     {
         $servicesPage1 = [
             'services' => [['name' => 'MyCoolService1', 'host' => 'https://coolservice1.com', 'label' => 'My Cool Service 1', 'app-endpoint' => '/app-endpoint']],
-            'pagination' => ['page' => 1, 'pages' => 2, 'total' => 2, 'limit' => 10],
+            'pagination' => ['page' => 1, 'pages' => 2, 'total-pages' => 2, 'limit' => 10],
         ];
 
         $servicesPage2 = [
             'services' => [['name' => 'MyCoolService2', 'host' => 'https://coolservice2.com', 'label' => 'My Cool Service 2', 'app-endpoint' => '/app-endpoint']],
-            'pagination' => ['page' => 2, 'pages' => 2, 'total' => 2, 'limit' => 10],
+            'pagination' => ['page' => 2, 'pages' => 2, 'total-pages' => 2, 'limit' => 10],
         ];
 
         $client = new MockHttpClient([

@@ -6,9 +6,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleException;
 
 /**
  * @internal
@@ -147,9 +147,44 @@ class RuleComparisonTest extends TestCase
 
     public function testNumericComparisonThrowsExceptionIfUnsupportedOperatorIsUsed(): void
     {
-        $this->expectException(UnsupportedOperatorException::class);
+        $this->expectExceptionObject(RuleException::unsupportedOperator('unsupported', RuleComparison::class));
 
         RuleComparison::numeric(1.0, 1.0, 'unsupported');
+    }
+
+    public function testStringComparisonThrowsExceptionIfUnsupportedOperatorIsUsed(): void
+    {
+        $this->expectExceptionObject(RuleException::unsupportedOperator('unsupported', RuleComparison::class));
+
+        RuleComparison::string('test', 'test', 'unsupported');
+    }
+
+    public function testStringArrayComparisonThrowsExceptionIfUnsupportedOperatorIsUsed(): void
+    {
+        $this->expectExceptionObject(RuleException::unsupportedOperator('unsupported', RuleComparison::class));
+
+        RuleComparison::stringArray('test', ['test'], 'unsupported');
+    }
+
+    public function testDateComparisonThrowsExceptionIfUnsupportedOperatorIsUsed(): void
+    {
+        $this->expectExceptionObject(RuleException::unsupportedOperator('unsupported', RuleComparison::class));
+
+        RuleComparison::date(new \DateTime(), new \DateTime(), 'unsupported');
+    }
+
+    public function testDateTimeComparisonThrowsExceptionIfUnsupportedOperatorIsUsed(): void
+    {
+        $this->expectExceptionObject(RuleException::unsupportedOperator('unsupported', RuleComparison::class));
+
+        RuleComparison::datetime(new \DateTime(), new \DateTime(), 'unsupported');
+    }
+
+    public function testUuidsThrowsExceptionIfUnsupportedOperatorIsUsed(): void
+    {
+        $this->expectExceptionObject(RuleException::unsupportedOperator('unsupported', RuleComparison::class));
+
+        RuleComparison::uuids(null, null, 'unsupported');
     }
 
     #[DataProvider('valuesForDateTimeComparison')]

@@ -158,4 +158,29 @@ describe('NavbarPlugin', () => {
         navbarPlugin._closeAllDropdowns();
         expect(mockDropdown.hide).toHaveBeenCalled();
     });
+
+    test('_setAriaCurrentPage should be called on load event', () => {
+        const mockEvent = new Event('load');
+        jest.spyOn(navbarPlugin, '_setAriaCurrentPage'); // Spy on the method
+
+        window.addEventListener('load', () => {
+            navbarPlugin._setAriaCurrentPage();
+        });
+        window.dispatchEvent(mockEvent);
+
+        expect(navbarPlugin._setAriaCurrentPage).toHaveBeenCalled();
+    });
+
+    test('if aria-current is set for one nav-item', () => {
+        const mockLink = document.createElement('a');
+        mockLink.classList.add('nav-item-1-link');
+        mockLink.setAttribute('href', 'https://example.com');
+        mockElement.appendChild(mockLink);
+
+        window.activeNavigationId = 1; // Set the activeNavigationId
+
+        navbarPlugin._setAriaCurrentPage();
+
+        expect(mockLink.getAttribute('aria-current')).toBe('page');
+    });
 });

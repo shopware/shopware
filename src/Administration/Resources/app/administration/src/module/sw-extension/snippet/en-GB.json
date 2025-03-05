@@ -23,7 +23,8 @@
           }
         },
         "version": "Version",
-        "update": "Update"
+        "update": "Update",
+        "permission-review": "New permissions"
       },
       "account": {
         "headline": "Shopware Account",
@@ -254,7 +255,9 @@
         "installedLabel": "Installed:",
         "openExtensionLabel": "Open",
         "installExtensionLabel": "Install",
+        "reviewNewPermissionsLabel": "Review",
         "labelAcceptAndInstall": "Accept and install",
+        "labelAcceptRequestedPermissions": "Accept",
         "allowDisableTooltip": "This app uses its own data structures, that affect your system. Therefore, the app cannot be deactivated.",
         "contextMenu": {
           "getHelpLabel": "Get help",

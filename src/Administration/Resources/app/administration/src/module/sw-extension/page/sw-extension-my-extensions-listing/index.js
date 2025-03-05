@@ -15,6 +15,9 @@ export default {
             filterByActiveState: false,
             sortingOption: 'updated-at',
             hasPermissionRequests: true,
+            extensionToReview: null,
+            showExtensionReviewModal: false,
+            permissionModalActionLabel: null,
         };
     },
 
@@ -62,6 +65,12 @@ export default {
 
                 return label.toLowerCase().includes(searchTerm) || name.toLowerCase().includes(searchTerm);
             });
+        },
+
+        extensionListWithRequestedPermissions() {
+            return this.extensionList.filter((extension) => {
+                return Object.keys(extension.permissions).length;
+            })
         },
 
         isAppRoute() {
@@ -257,6 +266,35 @@ export default {
             return extensions.filter((extension) => {
                 return extension.active;
             });
+        },
+
+        reviewPermissionRequests() {
+            this.permissionModalActionLabel = this.$tc(
+                'sw-extension-store.component.sw-extension-card-base.labelAcceptRequestedPermissions',
+            );
+
+            if (this.extensionListWithRequestedPermissions.length) {
+                this.extensionToReview = this.extensionListWithRequestedPermissions[0];
+                this.showExtensionReviewModal = true;
+            }
+        },
+
+        closePermissionsReviewModal() {
+            this.permissionModalActionLabel = null;
+            this.extensionToReview = null;
+            this.showExtensionReviewModal = false;
+        },
+
+        async acceptAndCheckNext() {
+            const extension = this.extensionToReview;
+            this.closePermissionsReviewModal();
+            extension.permissions = {};
+
+            //if there are more extensions with requested permissions, show the next one
+            if (this.extensionListWithRequestedPermissions.length) {
+                this.extensionToReview = this.extensionListWithRequestedPermissions[0];
+                this.showExtensionReviewModal = true;
+            }
         },
     },
 };

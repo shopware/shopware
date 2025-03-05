@@ -35,6 +35,7 @@ export default {
             showUninstallModal: false,
             showRemovalModal: false,
             showPermissionsModal: false,
+            showPermissionsReviewModal: false,
             permissionsAccepted: false,
             showPrivacyModal: false,
             permissionModalActionLabel: null,
@@ -112,6 +113,14 @@ export default {
 
         permissions() {
             return Object.keys(this.extension.permissions).length ? this.extension.permissions : null;
+        },
+
+        requestedPermissions() {
+            return Object.keys(this.extension.permissions).length ? this.extension.permissions : null;
+        },
+
+        newPermissionRequests() {
+            return this.requestedPermissions !== null;
         },
 
         assetFilter() {
@@ -362,6 +371,13 @@ export default {
             this.showPermissionsModal = true;
         },
 
+        async openPermissionsReviewModal() {
+            this.permissionModalActionLabel = this.$tc(
+                'sw-extension-store.component.sw-extension-card-base.labelAcceptRequestedPermissions',
+            );
+            this.showPermissionsReviewModal = true;
+        },
+
         openPermissionsModal() {
             this.permissionModalActionLabel = null;
             this.showPermissionsModal = true;
@@ -372,10 +388,22 @@ export default {
             this.showPermissionsModal = false;
         },
 
+        closePermissionsReviewModal() {
+            this.permissionModalActionLabel = null;
+            this.showPermissionsReviewModal = false;
+        },
+
         async closePermissionsModalAndInstallExtension() {
             this.permissionsAccepted = true;
             this.closePermissionsModal();
             await this.installExtension();
+        },
+
+        async closePermissionsReviewModalAndAcceptRequestedPermissions() {
+            this.permissionsAccepted = true;
+            this.closePermissionsReviewModal();
+
+            console.log('accepting permissions')
         },
 
         /*

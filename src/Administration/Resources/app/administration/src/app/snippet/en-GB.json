@@ -1477,7 +1477,7 @@
       },
       "sw-app-permission-request-banner": {
         "title": "New permissions requested",
-        "explanation": "2 extensions require new permissions to be updated. Please review the new permissions to continue.",
+        "explanation": "1 extension requires new permissions to be updated. Please review the new permissions to continue. | {n} extensions require new permissions to be updated. Please review the new permissions to continue.",
         "reviewButton": "Review permissions"
       }
     }

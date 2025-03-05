@@ -51,7 +51,7 @@
     .sw-meteor-card__content .sw-meteor-card__content-wrapper {
         display: grid;
         grid-column-gap: 24px;
-        grid-template-columns: 24px 56px 5fr 2fr minmax(min-content, 1fr) auto;
+        grid-template-columns: 24px 56px 4fr 3fr minmax(min-content, 1fr) auto;
         align-items: center;
         padding: 16px 32px;
         border: none;
@@ -91,6 +91,14 @@
 
         &-version {
             font-weight: $font-weight-semi-bold;
+        }
+
+        &-permission-review {
+            font-weight: $font-weight-semi-bold;
+            border-radius: $border-radius-pill;
+            background-color: var(--color-background-attention-default);
+            color: $color-black;
+            padding: 4px 8px
         }
     }
 

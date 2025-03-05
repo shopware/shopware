@@ -52,14 +52,16 @@
 
             <template #default>
                 <div>
-                    {{ $tc('sw-app.component.sw-app-permission-request-banner.explanation') }}
+                    {{ $tc('sw-app.component.sw-app-permission-request-banner.explanation', extensionListWithRequestedPermissions.length) }}
                 </div>
+
+                {{ extensionToReview }}
                 <mt-button
                     variant="secondary"
                     size="x-small"
                     class="sw-extension-my-extensions-listing__permission-request-warning__review-button"
                     ghost
-                    :link="$tc('sw-app.component.sw-app-permission-request-banner.linkToDocsArticle')"
+                    @click="reviewPermissionRequests"
                 >
                     {{ $tc('sw-app.component.sw-app-permission-request-banner.reviewButton') }}
                 </mt-button>
@@ -114,7 +116,7 @@
                     position-identifier="sw-extension-my-extensions-listing__before-content"
                 />
 
-                <sw-meteor-card
+                <sw-meteor-card :ref="(card) => { extensionCardRefs[ext.name] = card }"
                     v-if="!extensionListPaginated.length && filterByActiveState"
                     class="sw-extension-my-extensions-listing__empty-state"
                 >
@@ -153,4 +155,14 @@
             </div>
         </template>
     </div>
+
+    <sw-extension-permissions-modal
+        v-if="showExtensionReviewModal"
+        :extension-label="extensionToReview.label"
+        :permissions="extensionToReview.permissions"
+        :domains="extensionToReview.domains"
+        :action-label="permissionModalActionLabel"
+        @modal-close="closePermissionsReviewModal"
+        @close-with-action="acceptAndCheckNext"
+    />
 </div>

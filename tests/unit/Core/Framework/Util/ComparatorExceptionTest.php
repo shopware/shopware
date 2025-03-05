@@ -9,6 +9,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed, use UtilException::operatorNotSupported()
  */
 #[CoversClass(ComparatorException::class)]
 class ComparatorExceptionTest extends TestCase

@@ -18,7 +18,8 @@
                             {% if feature('ACCESSIBILITY_TWEAKS') %}
 
                                 <div class="footer-column-headline footer-headline js-footer-column-headline"
-                                     id="collapseFooterHotlineTitle">
+                                     id="collapseFooterHotlineTitle"
+                                     role="listitem">
                                     {{ 'footer.serviceHotlineHeadline'|trans|sw_sanitize }}
 
                                     <button class="footer-column-toggle btn btn-link btn-link-inline js-collapse-footer-column-trigger"
@@ -100,7 +101,8 @@
 
                                     {% if feature('ACCESSIBILITY_TWEAKS') %}
                                         <div class="footer-column-headline footer-headline js-footer-column-headline"
-                                             id="collapseFooterTitle{{ loop.index }}">
+                                             id="collapseFooterTitle{{ loop.index }}"
+                                             role="listitem">
 
                                             {% if root.category.type == 'folder' %}
                                                 {{ root.category.translated.name }}

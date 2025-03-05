@@ -112,16 +112,16 @@ jobs:
           git remote add bc-checker-upstream https://github.com/shopware/platform.git
           git fetch bc-checker-upstream
       - name: BC Checker PR
-#       temporarily run against trunk, until we have a RC release tag
+        #       temporarily run against trunk, until we have a RC release tag
         if: github.event_name == 'pull_request' && !contains(github.base_ref, '/feature/')
         run: composer run bc-check -- --from="origin/${{ github.base_ref }}"
-#       ToDo: Activate BC checker for latest tag after RC release again
-#       - name: BC Checker lastest tag
-#         if: github.event_name != 'pull_request'
-#         run: composer run bc-check
-#       - name: BC Checker PR
-#         if: github.event_name == 'pull_request' && !contains(github.base_ref, '/feature/')
-#         run: composer run bc-check -- --from="origin/${{ github.base_ref }}"
+  #       ToDo: Activate BC checker for latest tag after RC release again
+  #       - name: BC Checker lastest tag
+  #         if: github.event_name != 'pull_request'
+  #         run: composer run bc-check
+  #       - name: BC Checker PR
+  #         if: github.event_name == 'pull_request' && !contains(github.base_ref, '/feature/')
+  #         run: composer run bc-check -- --from="origin/${{ github.base_ref }}"
 
   openapi-lint:
     runs-on: ubuntu-24.04
@@ -144,20 +144,41 @@ jobs:
         run: |
           echo "PATH=${{ env.NPM_CONFIG_PREFIX }}/bin:$PATH" >> $GITHUB_ENV
           curl localhost:8000/
-          npm i -g @redocly/cli@1.31.3 @shopware/api-gen
+          npm i -g @redocly/cli@1.32.1 @shopware/api-gen
           export STOREFRONT_ID=$(bin/console sales-channel:list --output json | jq -r '.[] | select(.name == "Storefront") | .id')
           export OPENAPI_ACCESS_KEY=$(mysql -u root -h 127.0.0.1 shopware -se "SELECT access_key FROM sales_channel WHERE id = UNHEX(\"${STOREFRONT_ID}\")";)
           echo -e "OPENAPI_JSON_URL=http://localhost:8000\nSHOPWARE_ADMIN_USERNAME=admin\nSHOPWARE_ADMIN_PASSWORD=shopware\nOPENAPI_ACCESS_KEY=${OPENAPI_ACCESS_KEY}" > .env
           cat .env
 
-      - name: Generate & Lint OpenApi StoreAPI schema
+      - name: Generate OpenApi StoreAPI schema
         run: |
           api-gen loadSchema --apiType=store && api-gen generate --apiType=store
+
+      - name: Upload OpenApi StoreAPI schema
+        uses: actions/upload-artifact@v4.6.1
+        with:
+          name: storeApiSchema.json
+          path: ./api-types/storeApiSchema.json
+          retention-days: 1
+
+      - name: Lint OpenApi StoreAPI schema
+        run: |
           redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/storeApiSchema.json
 
       - name: Generate & Lint OpenApi API schema
         run: |
           api-gen loadSchema --apiType=admin && api-gen generate --apiType=admin
+          redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/adminApiSchema.json
+
+      - name: Upload OpenApi AdminAPI schema
+        uses: actions/upload-artifact@v4.6.1
+        with:
+          name: adminApiSchema.json
+          path: ./api-types/adminApiSchema.json
+          retention-days: 1
+
+      - name: Lint OpenApi AdminAPI schema
+        run: |
           redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/adminApiSchema.json
 
   phpunit:
@@ -265,19 +286,19 @@ jobs:
   php-check:
     if: always()
     needs:
-    - lint
-    - phpstan
-    - openapi-lint
-    - phpunit
-    - license-check
-    - composer-audit
-    - bc-checker
+      - lint
+      - phpstan
+      - openapi-lint
+      - phpunit
+      - license-check
+      - composer-audit
+      - bc-checker
 
     runs-on: Ubuntu-latest
     steps:
-    - name: Decide whether the needed jobs succeeded or failed
-      uses: re-actors/alls-green@release/v1
-      with:
-        # allowed-failures: docs, linters
-        # allowed-skips: non-voting-flaky-job
-        jobs: ${{ toJSON(needs) }}
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@release/v1
+        with:
+          # allowed-failures: docs, linters
+          # allowed-skips: non-voting-flaky-job
+          jobs: ${{ toJSON(needs) }}

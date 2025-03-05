@@ -670,13 +670,19 @@ describe('src/app/component/rule/sw-condition-tree', () => {
             it('provides the conditionScopes', async () => {
                 const wrapper = await createWrapper({
                     initialConditions: createInitialOrContainer(),
-                    scopes: ['cart', 'checkout'],
+                    scopes: [
+                        'cart',
+                        'checkout',
+                    ],
                 });
 
                 const node = wrapper.getComponent(swConditionTreeNode);
 
                 expect(node.vm.conditionScopes).toBeDefined();
-                expect(node.vm.conditionScopes).toEqual(['cart', 'checkout']);
+                expect(node.vm.conditionScopes).toEqual([
+                    'cart',
+                    'checkout',
+                ]);
             });
         });
     });

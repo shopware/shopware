@@ -114,6 +114,8 @@ Component.register('sw-grid', {
         },
     },
 
+    expose: ['startInlineEditing', 'selectAll', 'selectItem'],
+
     data() {
         return {
             columns: [],
@@ -122,6 +124,7 @@ Component.register('sw-grid', {
             editing: null,
             allSelectedChecked: false,
             swGridDisableInlineEditListener: [],
+            rowRefs: [],
         };
     },
 
@@ -325,6 +328,10 @@ Component.register('sw-grid', {
             }
 
             return item.id;
+        },
+
+        startInlineEditing() {
+            this.$refs.rowRefs.at(-1).startInlineEditing();
         },
     },
 });

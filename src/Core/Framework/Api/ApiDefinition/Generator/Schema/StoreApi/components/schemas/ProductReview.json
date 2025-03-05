@@ -10,6 +10,12 @@
                     "points": {
                         "type": "number",
                         "format": "float"
+                    },
+                    "customerId": {
+                        "type": "string"
+                    },
+                    "externalUser": {
+                        "type": "string"
                     }
                 },
                 "required": ["points"]

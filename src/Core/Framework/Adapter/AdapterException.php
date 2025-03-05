@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Framework\Adapter;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\AdapterFactoryNotFoundException;
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\DuplicateFilesystemFactoryException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Symfony\Component\Asset\Exception\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Node\Expression\AbstractExpression;
@@ -34,6 +35,24 @@ class AdapterException extends HttpException
     final public const CURRENCY_FILTER_MISSING_ISO_CODE = 'FRAMEWORK__CURRENCY_FILTER_MISSING_ISO_CODE';
     final public const FILESYSTEM_FACTORY_NOT_FOUND = 'FRAMEWORK__FILESYSTEM_FACTORY_NOT_FOUND';
     final public const DUPLICATE_FILESYSTEM_FACTORY = 'FRAMEWORK__DUPLICATE_FILESYSTEM_FACTORY';
+    final public const OPERATOR_NOT_SUPPORTED = 'FRAMEWORK__OPERATOR_NOT_SUPPORTED';
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function unsupportedOperator(string $operator, string $class): self|UnsupportedOperatorException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new UnsupportedOperatorException($operator, $class);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::OPERATOR_NOT_SUPPORTED,
+            'Unsupported operator {{ operator }} in {{ class }}',
+            ['operator' => $operator, 'class' => $class]
+        );
+    }
 
     public static function unexpectedTwigExpression(AbstractExpression $expression): self
     {

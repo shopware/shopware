@@ -8,11 +8,18 @@
                 "type": "object",
                 "properties": {
                     "orders": {
+                        "type": "object",
                         "allOf": [
                             {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/components/schemas/Order"
+                                "type": "object",
+                                "required": ["elements"],
+                                "properties": {
+                                    "elements": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/Order"
+                                        }
+                                    }
                                 }
                             },
                             {

@@ -1,22 +1,9 @@
 {% block sw_alert %}
 <mt-banner
-    v-if="useMeteorComponent"
     v-bind="$attrs"
 >
     <template #default>
         <slot></slot>
     </template>
 </mt-banner>
-{% endblock %}
-
-{% block sw_alert_deprecated %}
-<sw-alert-deprecated
-    v-else
-    v-bind="$attrs"
->
-    <slot></slot>
-    <template #actions>
-        <slot name="actions"></slot>
-    </template>
-</sw-alert-deprecated>
 {% endblock %}

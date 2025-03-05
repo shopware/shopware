@@ -106,6 +106,13 @@ test('As a customer, I can perform a registration that is validated by the invis
 
             await StorefrontAccountLogin.registerButton.click();
 
+            /**
+             * Submitting the form triggers a request to google to validate the captcha.
+             * If we don't wait for this response the test will already have filled out the missing field and
+             * the form will be valid by the time the request returns and will therefore already trigger a valid submit.
+             */
+            await StorefrontAccountLogin.page.waitForResponse(resp => resp.url().includes('google.com/recaptcha/api2/clr'));
+
             await ShopCustomer.expects(StorefrontAccountLogin.lastNameInput).toHaveClass(/(^|\s)is-invalid(\s|$)/);
         });
 

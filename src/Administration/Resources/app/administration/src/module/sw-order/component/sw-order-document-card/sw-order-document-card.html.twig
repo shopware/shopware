@@ -183,7 +183,6 @@
 
     {% block sw_order_document_card_grid_column_modal %}
     <div v-if="showModal">
-        <h1>huhu</h1>
         <component
             :is="documentModal"
             :current-document-type="currentDocumentType"
@@ -223,6 +222,7 @@
         v-if="documentsEmpty"
         :title="emptyStateTitle"
         :show-description="false"
+        :absolute="false"
     >/
         <template #icon>
             <img

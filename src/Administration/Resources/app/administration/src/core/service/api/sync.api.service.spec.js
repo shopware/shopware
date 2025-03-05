@@ -20,28 +20,27 @@ describe('SyncService', () => {
         const { syncService, clientMock } = getSyncService();
         let didRequest = false;
 
-        clientMock.onPost(
-            '/_action/sync',
-            {
-                id: "foo",
+        clientMock
+            .onPost('/_action/sync', {
+                id: 'foo',
                 customFields: {
                     bar: null,
-                }
-            }
-        ).reply(() => {
-            didRequest = true;
+                },
+            })
+            .reply(() => {
+                didRequest = true;
 
-            return [
-                200,
-                {},
-            ];
-        });
+                return [
+                    200,
+                    {},
+                ];
+            });
 
         syncService.sync({
-            id: "foo",
+            id: 'foo',
             customFields: {
                 bar: undefined,
-            }
+            },
         });
 
         expect(didRequest).toBeTruthy();

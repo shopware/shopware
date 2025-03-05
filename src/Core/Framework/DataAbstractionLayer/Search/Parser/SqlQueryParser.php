@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Parser;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -109,7 +110,7 @@ class SqlQueryParser
             $query instanceof RangeFilter => $this->parseRangeFilter($query, $definition, $root, $context),
             $query instanceof NotFilter => $this->parseNotFilter($query, $definition, $root, $context),
             $query instanceof MultiFilter => $this->parseMultiFilter($query, $definition, $root, $context, $negated),
-            default => throw new \RuntimeException(\sprintf('Unsupported query %s', $query::class)),
+            default => throw DataAbstractionLayerException::unsupportedQueryFilter($query::class),
         };
     }
 

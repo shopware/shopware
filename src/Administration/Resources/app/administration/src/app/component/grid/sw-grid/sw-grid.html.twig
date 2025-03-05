@@ -104,6 +104,7 @@
                     >
                         {% block sw_grid_body_slot_items %}
                         <sw-grid-row
+                            ref="rowRefs"
                             :style="columnFlex"
                             :item="item"
                             :index="index"
@@ -120,7 +121,6 @@
                             >
                                 <div class="sw-grid__cell-content">
                                     <mt-checkbox
-
                                         :checked="isSelected(item.id)"
                                         @update:checked="selectItem($event, item)"
                                     />

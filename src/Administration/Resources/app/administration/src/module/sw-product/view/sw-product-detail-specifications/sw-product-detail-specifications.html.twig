@@ -7,7 +7,7 @@
 <div v-else>
     {% block sw_product_detail_specifications_measures_packaging %}
     <mt-card
-        v-show="showProductCard('measures_packaging') && !productStates.includes('is-download')"
+        v-if="showProductCard('measures_packaging') && !productStates.includes('is-download')"
         class="sw-product-detail-specification__measures-packaging"
         position-identifier="sw-product-detail-specifications-measures-packaging"
         :title="$tc('sw-product.specifications.cardTitleMeasuresPackaging')"

@@ -307,7 +307,6 @@ const missingTests = [
     'src/module/sw-media/component/sidebar/sw-media-tag/index.js',
     'src/module/sw-media/component/sw-media-breadcrumbs/index.js',
     'src/module/sw-media/component/sw-media-collapse/index.js',
-    'src/module/sw-media/component/sw-media-display-options/index.js',
     'src/module/sw-media/component/sw-media-grid/index.js',
     'src/module/sw-media/default-search-configuration.js',
     'src/module/sw-media/index.js',

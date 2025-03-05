@@ -40,6 +40,7 @@ use Shopware\Core\Checkout\Promotion\Exception\DiscountCalculatorNotFoundExcepti
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidScopeDefinitionException;
 use Shopware\Core\Checkout\Promotion\Exception\SetGroupNotFoundException;
+use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -255,7 +256,7 @@ class PromotionCalculator
             PromotionDiscountEntity::SCOPE_CART => $this->cartScopeDiscountPackager,
             PromotionDiscountEntity::SCOPE_SET => $this->setScopeDiscountPackager,
             PromotionDiscountEntity::SCOPE_SETGROUP => $this->setGroupScopeDiscountPackager,
-            default => throw new InvalidScopeDefinitionException($discount->getScope()),
+            default => throw PromotionException::invalidScopeDefinition($discount->getScope()),
         };
 
         $packages = $packager->getMatchingItems($discount, $calculatedCart, $context);
@@ -309,7 +310,7 @@ class PromotionCalculator
             PromotionDiscountEntity::TYPE_PERCENTAGE => new DiscountPercentageCalculator($this->absolutePriceCalculator, $this->percentagePriceCalculator),
             PromotionDiscountEntity::TYPE_FIXED => new DiscountFixedPriceCalculator($this->absolutePriceCalculator),
             PromotionDiscountEntity::TYPE_FIXED_UNIT => new DiscountFixedUnitPriceCalculator($this->absolutePriceCalculator),
-            default => throw new DiscountCalculatorNotFoundException($discount->getType()),
+            default => throw PromotionException::discountCalculatorNotFound($discount->getType()),
         };
 
         $result = $calculator->calculate($discount, $packages, $context);

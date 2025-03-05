@@ -5,7 +5,9 @@ namespace Shopware\Tests\Unit\Core\Checkout\Promotion;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\Exception\DiscountCalculatorNotFoundException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidCodePatternException;
+use Shopware\Core\Checkout\Promotion\Exception\InvalidScopeDefinitionException;
 use Shopware\Core\Checkout\Promotion\Exception\PatternNotComplexEnoughException;
 use Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException;
 use Shopware\Core\Checkout\Promotion\PromotionException;
@@ -126,5 +128,27 @@ class PromotionExceptionTest extends TestCase
         static::assertSame(PromotionException::PROMOTION_SET_GROUP_NOT_FOUND, $exception->getErrorCode());
         static::assertSame('Promotion SetGroup "fooGroupId" has not been found!', $exception->getMessage());
         static::assertSame(['id' => 'fooGroupId'], $exception->getParameters());
+    }
+
+    public function testDiscountCalculatorNotFound(): void
+    {
+        $exception = PromotionException::discountCalculatorNotFound('type-123');
+
+        static::assertInstanceOf(DiscountCalculatorNotFoundException::class, $exception);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame('CHECKOUT__DISCOUNT_CALCULATOR_NOT_FOUND', $exception->getErrorCode());
+        static::assertSame('Promotion Discount Calculator "type-123" has not been found!', $exception->getMessage());
+        static::assertSame(['type' => 'type-123'], $exception->getParameters());
+    }
+
+    public function testInvalidScopeDefinition(): void
+    {
+        $exception = PromotionException::invalidScopeDefinition('bad-scope');
+
+        static::assertInstanceOf(InvalidScopeDefinitionException::class, $exception);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame('CHECKOUT__INVALID_DISCOUNT_SCOPE_DEFINITION', $exception->getErrorCode());
+        static::assertSame('Invalid discount calculator scope definition "bad-scope"', $exception->getMessage());
+        static::assertSame(['label' => 'bad-scope'], $exception->getParameters());
     }
 }

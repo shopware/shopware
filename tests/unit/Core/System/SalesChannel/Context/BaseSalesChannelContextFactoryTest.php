@@ -35,7 +35,7 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
-use Shopware\Core\System\SalesChannel\Context\BaseContextFactory;
+use Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\ContextProvider;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -51,8 +51,8 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(BaseContextFactory::class)]
-class BaseContextFactoryTest extends TestCase
+#[CoversClass(BaseSalesChannelContextFactory::class)]
+class BaseSalesChannelContextFactoryTest extends TestCase
 {
     /**
      * @param array<string, mixed> $options
@@ -111,7 +111,7 @@ class BaseContextFactoryTest extends TestCase
 
         $contextProvider = new ContextProvider($connection, new CollectingEventDispatcher());
 
-        $factory = new BaseContextFactory(
+        $factory = new BaseSalesChannelContextFactory(
             $salesChannelRepository,
             $currencyRepository,
             $customerGroupRepository,

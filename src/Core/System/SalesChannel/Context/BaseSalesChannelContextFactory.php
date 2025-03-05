@@ -25,7 +25,7 @@ use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCoun
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Language\LanguageCollection;
-use Shopware\Core\System\SalesChannel\BaseContext;
+use Shopware\Core\System\SalesChannel\BaseSalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
@@ -35,7 +35,7 @@ use Shopware\Core\System\Tax\TaxCollection;
  * @internal
  */
 #[Package('framework')]
-class BaseContextFactory extends AbstractBaseContextFactory
+class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFactory
 {
     /**
      * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
@@ -65,7 +65,7 @@ class BaseContextFactory extends AbstractBaseContextFactory
     /**
      * @param array<string, mixed> $options
      */
-    public function create(string $salesChannelId, array $options = []): BaseContext
+    public function create(string $salesChannelId, array $options = []): BaseSalesChannelContext
     {
         $context = $this->contextProvider->getContext($salesChannelId, $options);
 
@@ -141,7 +141,7 @@ class BaseContextFactory extends AbstractBaseContextFactory
             $itemRounding
         );
 
-        return new BaseContext(
+        return new BaseSalesChannelContext(
             $context,
             $salesChannel,
             $currency,

@@ -19,7 +19,7 @@ use Shopware\Core\System\Tax\TaxCollection;
  * @codeCoverageIgnore
  */
 #[Package('framework')]
-class BaseContext
+class BaseSalesChannelContext
 {
     public function __construct(
         protected Context $context,

@@ -3,16 +3,16 @@
 namespace Shopware\Core\System\SalesChannel\Context;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\BaseContext;
+use Shopware\Core\System\SalesChannel\BaseSalesChannelContext;
 
 /**
  * @internal
  */
 #[Package('framework')]
-abstract class AbstractBaseContextFactory
+abstract class AbstractBaseSalesChannelContextFactory
 {
     /**
      * @param array<string, mixed> $options
      */
-    abstract public function create(string $salesChannelId, array $options = []): BaseContext;
+    abstract public function create(string $salesChannelId, array $options = []): BaseSalesChannelContext;
 }

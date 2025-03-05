@@ -68,7 +68,7 @@ jobs:
             CURRENTS_RECORD_KEY: ${{ secrets.CURRENTS_RECORD_KEY }}
         if: ${{ !contains(github.workflow_ref, 'nightly') }}
         working-directory: tests/acceptance
-        run: npx playwright test --project=Visual
+        run: npx pwc --project=Visual
       - uses: actions/upload-artifact@v4
         if: always()
         with:

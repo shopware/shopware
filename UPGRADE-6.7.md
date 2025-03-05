@@ -357,6 +357,203 @@ The hidden radio input will no longer be in the HTML. The current page value wil
     </a>
 {% endblock %}
 ```
+
+## Payment & shipping method display in Shopware 6.7
+The payment and shipping method selection in the checkout in the Storefront has been improved for accessibility.
+There are now all methods listed instead of only 5, which makes the `CollapseCheckoutConfirmMethodsPlugin` unnecessary and will be removed.
+Also, the payment and shipping method descriptions are now only shown for the selected method.
+To clean up the collapse logic, the following templates will be removed:
+* `Resources/views/storefront/component/payment/payment-fields.html.twig`, integrated into `Resources/views/storefront/component/payment/payment-form.html.twig`
+* `Resources/views/storefront/component/shipping/shipping-fields.html.twig`, integrated into `Resources/views/storefront/component/shipping/shipping-form.html.twig`
+  The `address-editor-modal.html.twig`, `address-editor-modal-list.html.twig`, `address-editor-modal-create-address.html.twig` and `address-editor.plugin.js` has been removed.
+  The `src/Storefront/Resources/views/storefront/page/account/addressbook/index.html.twig` page content is updated
+
+## Default listing layouts with `h1` tag
+The default layouts `Default listing layout` and `Default listing layout with sidebar` now include a `h1` HTML element for better SEO and accessibility.
+
+## Storefront accessibility: The `filter-active` span element is changed to a button:
+* The `filter-active` element that displays an active listing filter is changed from `<span>` to `<button>`.
+* The `filter-active` and `filter-reset-all` are now Bootstrap buttons using `--bs-btn-*` variables.
+* The method `getLabelTemplate` of JS-plugin `ListingPlugin` will return the updated HTML-structure.
+* The option `activeFilterLabelClass` of JS-plugin `ListingPlugin` is removed. Use `activeFilterLabelClasses` to render the label classes and `activeFilterLabelSelector` as the selector for events.
+
+If you are overriding `getLabelTemplate` of JS-plugin `ListingPlugin`, the new structure should be considered:
+
+change
+```js 
+class MyListing extends Listing {
+    getLabelTemplate(label) {
+        return `
+        <span class="${this.options.activeFilterLabelClass}" data-my-extra-attr="something">
+            ${this.getLabelPreviewTemplate(label)}
+            <span aria-hidden="true">${label.label}</span>
+            <button class="${this.options.activeFilterLabelRemoveClass}"
+                    data-id="${label.id}"
+                    aria-label="${this.options.snippets.removeFilterAriaLabel}: ${label.label}">
+                &times;
+            </button>
+        </span>
+        `;
+    }
+}
+```
+to
+```js
+class MyListing extends Listing {
+    getLabelTemplate(label) {
+        return `
+        <button 
+            data-my-extra-attr="something"
+            class="${this.options.activeFilterLabelClasses}" <!-- Use activeFilterLabelClasses to render the classes -->
+            data-id="${label.id}"
+            aria-label="${this.options.snippets.removeFilterAriaLabel}: ${label.label}">
+            ${this.getLabelPreviewTemplate(label)}
+            ${label.label}
+            <span aria-hidden="true" class="ms-1 fs-4">&times;</span> <!-- The activeFilterLabelRemoveClass is removed because no special styling is needed. -->
+        </button>
+        `;
+    }
+}
+```
+## New local form handling
+To make forms more accessible, we overhauled the form handling in the Storefront, which includes local form validation and best-practices for user feedback.
+
+### New validation service and form handler plugin
+There is a new central form validation class that is also available as a default instance under `window.formValidation`. This is used by a new form handler plugin that will automatically implement the necessary events and handling on a form element. It can be activated with the `data-form-handler="true"` attribute on a form element.
+
+**Example:**
+```HTML
+<form action="/newsletter" method="post" data-form-handler="true">
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" data-validation="required,email">
+    
+
+    <button type="submit">Submit</button>
+</form>
+```
+The form validation works with an associated `data-validation` attribute on the form fields. You can pass a comma separated list of validator keys. Their priority is defined by their order. Only the validation message of the highest applying validator is shown to the user for relevant feedback.
+
+These validators are available by default:
+
+| Key      | Description |
+| -------- | ------- |
+| `required` | Checks if the field is not empty. |
+| `email` | Checks the value of the field to be a valid email address. |
+| `conformation` | Checks if the value of a confirmation field matches the value of the original field. Make sure to use the right ID naming for the validator to work. As an example, the orginal field has the ID `email` and the confirmation field has the ID `emailConfirmation`. The `confirmation` validator should be added to the confirmation field. Note that unnecessary inputs are seen as not accessible and should be avoided wherever possible. |
+| `minLength` | Checks the value of the field for a minimum length. If available the validator will use the `minlength` attribute of the field to validate against. Otherwise, it will use the default configuration of eight characters. | 
+
+You can add your own custom validators via the global `formValidation` class.
+
+```JavaScript
+window.formValidation.addValidator('custom', (value, field) => {
+    // You custom validation. Should return a boolean.
+}, 'Your custom validation message.');
+```
+
+You can take a look at the reference documentation of the service and the plugin for further information.
+
+### New form field components in Twig
+To make it easier to implement all best practices without recreating a lot of boilerplate code for every form field, we created new templates for different field types which can be used for easy form field rendering. You can find them in `views/storefront/components/form/`. These components work in association with the described local form handling but also the additional server-side validation.
+
+**Example usage:**
+```TWIG
+<form action="/newsletter" method="post" data-form-handler="true">
+
+    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+        type: 'email',
+        label: 'account.personalMailLabel'|trans|sw_sanitize,
+        id: 'personalMail',
+        name: 'email',
+        value: data.get('email'),
+        autocomplete: 'section-personal email',
+        violationPath: '/email',
+        validationRules: 'required,email',
+        additionalClass: 'col-sm-6',
+    } %}
+
+    <button type="submit">Submit</button>
+</form>
+```
+
+### Updated Shopware standard forms
+The existing forms in the Shopware Storefront are already reworked to use the described practices and services.
+
+**Forms that are affected by the changes:**
+* Login
+* Guest Login
+* Registration
+* Custom Registration
+* Customer profile
+* Change email
+* Change password
+* Recover password
+* Reset password
+* Address creation
+* Address editing
+* Product reviews
+* Newsletter registration (CMS)
+* Contact form (CMS)
+
+## Use `<button>` elements instead of `<a>` to open modal windows
+
+Modal triggers that were previously using anchor `<a>` elements are now using `<button>` elements.
+Anchor `<a>` elements are recognized as native links by the screen-reader and should not open a dialog/modal window instead of redirecting to a new page.
+A modal window should be opened via `<button>` and is mainly driven by JavaScript. `<a href="#">` elements should only be native hyperlinks and not trigger additional modals. This can confuse screen-reader users.
+
+To maintain the link appearance, the classes `btn btn-link-inline` are used. The "link" looks like a regular link but is semantically a `<button>` when it triggers a modal.
+
+### Ajax modal trigger before:
+```html
+<a data-ajax-modal="true" data-url="/some-route" href="/some-route">Open ajax modal</a>
+```
+
+### Ajax modal trigger after:
+```html
+<button data-ajax-modal="true" data-url="/some-route" class="btn btn-link-inline">Open ajax modal</button>
+```
+
+### New translation keys with button modal triggers
+
+Some modal triggers are inside translation texts. With 6.7 new translation keys are used that have buttons instead of links.
+There are also new translation parameters to avoid too much HTML and modal logic inside the translation strings.
+
+| Old key                             | Old params                   | New key                                  | New params                                                                                   |
+|-------------------------------------|------------------------------|------------------------------------------|----------------------------------------------------------------------------------------------|
+| `general.privacyNoticeText`         | `%privacyUrl%`, `%tosUrl%`   | `general.privacyNoticeTextModal`         | `%privacyModalTagOpen%`, `%privacyModalTagClose%`, `%tosModalTagOpen%`, `%tosModalTagClose%` |
+| `contact.privacyNoticeText`         | `%privacyUrl%`, `%prevUrl%`  | `contact.privacyNoticeTextModal`         | `%privacyModalTagOpen%`, `%privacyModalTagClose%`                                            |
+| `checkout.confirmRevocationNotice`  | `%url%`                      | `checkout.confirmRevocationNoticeModal`  | `%revocationModalTagOpen%`, `%revocationModalTagClose%`                                      |
+| `checkout.confirmTermsText`         | `%url%`                      | `checkout.confirmTermsTextModal`         | `%tosModalTagOpen%`, `%tosModalTagClose%`                                                    |
+| `checkout.confirmTermsReminderText` | `%url%`                      | `checkout.confirmTermsReminderTextModal` | `%tosModalTagOpen%`, `'%tosModalTagClose%`                                                   |
+
+### Old translation string structure
+The HTML of the modal trigger was part of the translation.
+
+```twig
+{{ 'checkout.confirmTermsReminderText')|trans({
+    '%url%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') }),
+})|raw }}
+```
+```json
+{
+  "confirmTermsReminderText": "You have already accepted the <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"general terms and conditions\">general terms and conditions</a>."
+}
+```
+
+### New translation string structure
+The HTML of the modal trigger is now inside the twig template instead.
+
+```twig
+{{ 'checkout.confirmTermsReminderTextModal')|trans({
+    '%tosModalTagOpen%': '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.tosPage') }) ~ '">',
+    '%tosModalTagClose%': '</button>'
+})|raw }}
+```
+```json
+{
+  "confirmTermsReminderTextModal": "You have already accepted the %tosModalTagOpen%general terms and conditions%tosModalTagClose%."
+}
+```
+
 </details>
 
 # Further Changes
@@ -474,6 +671,43 @@ Changed the return type of the `Shopware\Core\Checkout\Promotion\Gateway\Promoti
 * Removed `profile` attribute from `ImportEntityCommand`. Use `--profile-technical-name` instead.
 * Removed `name` field from `ImportExportProfileEntity`.
 
+## ImportExport visibility changes
+The following classes are now marked as internal:
+* `\Shopware\Core\Content\ImportExport\ImportExport`
+* `\Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipe`
+* `\Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipeFactory`
+* `\Shopware\Core\Content\ImportExport\Processing\Pipe\ChainPipe`
+* `\Shopware\Core\Content\ImportExport\Processing\Pipe\EntityPipe`
+* `\Shopware\Core\Content\ImportExport\Processing\Pipe\KeyMappingPipe`
+* `\Shopware\Core\Content\ImportExport\Processing\Pipe\PipeFactory`
+
+This method is removed without replacement `\Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipe::getDecorated()` cause the `AbstractPipe` class is now marked as internal.
+
+## OffsetQuery & LastIdQuery signature changes
+OffsetQuery && LastIdQuery now accept `Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder` instead of `Doctrine\DBAL\Query\QueryBuilder`.
+If you are creating those classes manually, you need to change creating code:
+```php
+$queryBuilder = $this->connection->createQueryBuilder();
+$lastIdQuery = new LastIdQuery($queryBuilder);
+$offsetQuery = new OffsetQuery($queryBuilder);
+```
+to
+```php
+$queryBuilder = new \Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder($this->connection);
+$lastIdQuery = new LastIdQuery($queryBuilder);
+$offsetQuery = new OffsetQuery($queryBuilder);
+```
+
+## IterableQuery::getQuery signature changes
+`Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery::getQuery` will return `Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder` instead of `Doctrine\DBAL\Query\QueryBuilder`.
+Implementations of IterableQuery should be updated to return the correct type.
+
+## Rule classes becoming internal
+* Rule classes are marked internal, and direct extensions are not supported.
+* The preferred approach is to define **new** rule classes to encapsulate custom logic.
+* Ensure any dependencies on existing rule classes are replaced with standalone implementations to maintain compatibility.
+
+
 ## SitemapHandleFactoryInterface::create method signature change
 
 We added a new optional parameter `string $domainId` to `SitemapHandleFactoryInterface::create` and `SitemapHandleFactory::create`.
@@ -522,6 +756,84 @@ The `Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartOrderRoute::order` met
 * Removed service `Shopware\Core\Content\MailTemplate\Service\AttachmentLoader` without replacement.
 * Removed event `Shopware\Core\Content\MailTemplate\Service\Event\AttachmentLoaderCriteriaEvent` without replacement.
 
+## Removal of deprecated caching constants
+The following constants are removed from `Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber`. Use the ones with the same name from `Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber` instead.
+* `STATE_LOGGED_IN`
+* `STATE_CART_FILLED`
+
+The following constants are removed from `Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber`. Use the ones with the same name from `Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator` instead.
+* `CURRENCY_COOKIE`
+* `CONTEXT_CACHE_COOKIE`
+* `SYSTEM_STATE_COOKIE`
+* `INVALIDATION_STATES_HEADER`
+
+The following constants are removed from `Shopware\Core\Framework\Script\Api\ScriptStoreApiRoute`. Use the one with the same name from `Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator` instead.
+* `INVALIDATION_STATES_HEADER`
+
+## Removed `messenger.bus.shopware` service
+Use `messenger.default_bus` instead.
+
+## Removed EntityExtension::getDefinitionClass
+The method `EntityExtension::getDefinitionClass` has been removed. It is replaced by `EntityExtension::getEntityName`, which needs to return the entity name.
+
+Before:
+
+```php
+<?php
+
+namespace Examples\Extension;
+
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
+
+class MyEntityExtension extends EntityExtension
+{
+    public function getDefinitionClass(): string
+    { 
+        return ProductDefinition::class;
+    }
+}
+```
+
+After:
+
+```php
+<?php
+
+namespace Examples\Extension;
+
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
+
+class MyEntityExtension extends EntityExtension
+{
+    public function getEntityName() : string
+    {
+        return ProductDefinition::ENTITY_NAME;
+    }
+}
+```
+## Bulletproofing Plugin Migrations
+### Creation timestamp is now validated
+The returned timestamp `MigrationStep::getCreationTimestamp()` method is now validated, it needs to be between `1` and `2147483647` (the `max_int` value on 32-bit systems). This ensures that the migration order is always deterministic and prevents common errors when the method returns a higher number,
+that will silently be treated as max_int, leading to multiple migrations having the same creation timestamp, thus the execution order becomes random, which might lead to hard to debug errors while executing migrations.
+### Plugin migrations are now removed before calling `uninstall()`
+When `keepUserData` is set to false during plugin uninstall, the plugin is expected to clean up all DB tables the plugin created in the `unistall` method.
+Now we are cleaning up the plugin migrations from the migration table before calling the `uninstall` method, so in case of an error, the plugin can be reinstalled and the migrations can be rerun.
+
+## Removal of Generator::createSalesChannelContext()
+* The current static `Generator::createSalesChannelContext()` function lacks support for some SalesChannelContext components (e.g. ShippingLocation)
+* To allow a complete dynamic and simple creation of the SalesChannelContext with the Generator we added the new `Generator::generateSalesChannelContext()` function, which supports all SalesChannelContext components out of the box and additionally has a `overrides` parameter to further directly customize the SalesChannelContext fields
+
+change
+```php 
+Generator::createSalesChannelContext()
+```
+to
+```php
+Generator::generateSalesChannelContext()
+```
+
 ## Domain Exception Handling
 We have changed/removed some exception classes in accordance with the [domain exception handling ADR](./adr/2022-02-24-domain-exceptions.md).
 <details>
@@ -556,6 +868,11 @@ The following methods of the `\Shopware\Core\Framework\DataAbstractionLayer\Enti
 * `\Shopware\Core\Framework\DataAbstractionLayer\Entity::get` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException` instead of a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`.
 * `\Shopware\Core\Framework\DataAbstractionLayer\Entity::checkIfPropertyAccessIsAllowed` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException` instead of a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`.
 * `\Shopware\Core\Framework\DataAbstractionLayer\Entity::get` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException` instead of a `\InvalidArgumentException`.
+
+## Exception type in ElasticsearchIndexer
+Method `Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer::handleIndexingMessage` will throw `Shopware\Elasticsearch\ElasticsearchException` if the provided message contains no ids for indexing.
+Before, the method was calling OpenSearch client which throws `OpenSearch\Common\Exceptions\BadRequest400Exception` in such case. If your code catches the exception, you need to change the type of the exception to `Shopware\Elasticsearch\ElasticsearchException`.
+
 </details>
 </details>
 
@@ -2261,6 +2578,10 @@ We made some changes in the Storefront, which might affect your plugins and them
 <details>
   <summary>Detailed Changes</summary>
 
+## Additions due to the introduction of ESI for header and footer
+The former optional parameter `serviceMenu` of type `\Shopware\Core\Content\Category\CategoryCollection` in `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` is now required.
+Make sure to pass it to the constructor.
+
 ## Removals due to the introduction of ESI for header and footer
 * The properties `header` and `footer` and their getter and setter Methods in `\Shopware\Storefront\Framework\Twig\ErrorTemplateStruct` were removed.
 * The loading of header, footer, payment methods and shipping methods in `\Shopware\Storefront\Page\GenericPageLoader` is removed.
@@ -2304,6 +2625,9 @@ foreach($storefrontPluginConfig->getAssetPaths() as $relativePath) {
     $absolutePath = $fs->path('Resources', $relativePath);
 }
 ```
+
+## Removal of `showStagingBanner` Twig variable
+The global `showStagingBanner` Twig variable was removed. Use `shopware.showStagingBanner` instead.
 
 ## Removal of deprecated product review loading logic in Storefront
 * The service `\Shopware\Storefront\Page\Product\Review\ProductReviewLoader` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader` instead.
@@ -2375,6 +2699,11 @@ After:
     </div>
 </div>
 ```
+
+## setTwig in Storefront Controller removed
+
+The method `Shopware\Storefront\Controller\StorefrontController::setTwig` has been removed, you can remove the `setTwig` call from your DI config, no further change is required.
+
 </details>
 
 # App System
@@ -2438,4 +2767,15 @@ The fine-grained caching mechanism for system-config, snippets and theme config 
 * `shopware.cache.tagging.each_snippet`
 * `shopware.cache.tagging.each_theme_config`
 
+## Removal of ReverseProxyCacheClearer
+
+The `\Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCacheClearer` was removed.
+
+Use the `cache:clear:http` command to clear the HTTP cache explicitly, as it is no longer done with the `cache:clear` command. 
+Alternatively you can use the `cache:clear:all` command to clear all caches (including the HTTP cache).
+
+## Cache ID loaded by Database is removed
+
+Prior Shopware 6.7, the cache ID was loaded by the database from the `app_config` table and created complete different caches using that. This was used in earlier Shopware versions to clear the cache rapidly without having to clear the whole cache.
+You can still set `SHOPWARE_CACHE_ID` as an environment variable to set the cache ID.
 </details>

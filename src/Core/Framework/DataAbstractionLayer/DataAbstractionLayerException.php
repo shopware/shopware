@@ -62,6 +62,7 @@ class DataAbstractionLayerException extends HttpException
     public const NOT_AN_INSTANCE_OF_ENTITY_COLLECTION = 'FRAMEWORK__NOT_AN_INSTANCE_OF_ENTITY_COLLECTION';
     public const REFERENCE_FIELD_NOT_FOUND = 'FRAMEWORK__REFERENCE_FIELD_NOT_FOUND';
     public const NO_ID_FOR_ASSOCIATION = 'FRAMEWORK__NO_ID_FOR_ASSOCIATION';
+    public const MISSING_ASSOCIATION = 'FRAMEWORK__MISSING_ASSOCIATION';
     public const NO_INVERSE_ASSOCIATION_FOUND = 'FRAMEWORK__NO_INVERSE_ASSOCIATION_FOUND';
     public const NOT_SUPPORTED_FIELD_FOR_AGGREGATION = 'FRAMEWORK__NOT_SUPPORTED_FIELD_FOR_AGGREGATION';
     public const INVALID_DATE_FORMAT = 'FRAMEWORK__INVALID_DATE_FORMAT';
@@ -588,6 +589,16 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
+    public static function missingAssociation(string $entityName, string $propertyName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MISSING_ASSOCIATION,
+            'Can not find association by property name {{ propertyName }} in entity {{ entityName }}',
+            ['entityName' => $entityName, 'propertyName' => $propertyName]
+        );
+    }
+
     public static function noInverseAssociationFound(string $propertyName): self
     {
         return new self(
@@ -706,20 +717,6 @@ class DataAbstractionLayerException extends HttpException
             self::HOOK_INJECTION_EXCEPTION,
             'Class {{ class }} is only executable in combination with hooks that implement the {{ required }} interface. Hook {{ hook }} does not implement this interface',
             ['class' => $class, 'required' => $required, 'hook' => $hook]
-        );
-    }
-
-    /**
-     * @internal
-     *
-     * @deprecated tag:v6.7.0 - reason:remove-subscriber - remove method completely not used anymore
-     */
-    public static function deprecatedDefinitionCall(): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::FRAMEWORK_DEPRECATED_DEFINITION_CALL,
-            'Method getDefinitionClass is deprecated. Use getEntityName instead.'
         );
     }
 }

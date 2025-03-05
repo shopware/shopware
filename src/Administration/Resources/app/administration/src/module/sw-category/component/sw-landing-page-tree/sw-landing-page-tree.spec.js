@@ -41,7 +41,6 @@ async function createWrapper() {
                         </div>
                     `,
                 },
-                'sw-button': true,
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
             },

@@ -68,7 +68,6 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
 
             // TODO: future implementation (only fetch required data and associations)
 
-            /** @var OrderCollection $orders */
             $orders = $this->orderRepository->search($criteria, $context)->getEntities();
 
             $this->eventDispatcher->dispatch(new DeliveryNoteOrdersEvent($orders, $context, $operations));
@@ -109,10 +108,15 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
                     ]);
 
                     if ($operation->isStatic()) {
-                        $doc = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
+                        $doc = new RenderedDocument($number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
                         $result->addSuccess($orderId, $doc);
 
                         continue;
+                    }
+
+                    $deliveries = null;
+                    if ($order->getDeliveries()) {
+                        $deliveries = $order->getDeliveries()->first();
                     }
 
                     /** @var LanguageEntity|null $language */
@@ -122,16 +126,17 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
                     }
 
                     $doc = new RenderedDocument(
-                        '',
                         $number,
                         $config->buildName(),
                         $operation->getFileType(),
                         $config->jsonSerialize(),
                     );
 
+                    $doc->setParameters(['orderDelivery' => $deliveries]);
                     $doc->setTemplate($template);
                     $doc->setOrder($order);
                     $doc->setContext($context);
+
                     $doc->setContent($this->fileRendererRegistry->render($doc));
 
                     $result->addSuccess($orderId, $doc);

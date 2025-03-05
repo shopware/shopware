@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Rule\RuleIdMatcher;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -31,7 +32,8 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
     public function __construct(
         private readonly SalesChannelRepository $paymentMethodRepository,
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly ScriptExecutor $scriptExecutor
+        private readonly ScriptExecutor $scriptExecutor,
+        private readonly RuleIdMatcher $ruleIdMatcher,
     ) {
     }
 
@@ -45,7 +47,12 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
         return 'payment-method-route-' . $salesChannelId;
     }
 
-    #[Route(path: '/store-api/payment-method', name: 'store-api.payment.method', methods: ['GET', 'POST'], defaults: ['_entity' => 'payment_method'])]
+    #[Route(
+        path: '/store-api/payment-method',
+        name: 'store-api.payment.method',
+        defaults: ['_entity' => 'payment_method'],
+        methods: ['GET', 'POST']
+    )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): PaymentMethodRouteResponse
     {
         $this->dispatcher->dispatch(new AddCacheTagEvent(
@@ -60,22 +67,18 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
         $result = $this->paymentMethodRepository->search($criteria, $context);
 
         $paymentMethods = $result->getEntities();
-
         $paymentMethods->sortPaymentMethodsByPreference($context);
 
-        /**
-         * @deprecated tag:v6.7.0 - onlyAvailable flag will be removed, use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute instead
-         */
         if ($request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable')) {
-            $paymentMethods = $paymentMethods->filterByActiveRules($context);
+            $paymentMethods = $this->ruleIdMatcher->filterCollection($paymentMethods, $context->getRuleIds());
         }
 
-        $result->assign(['entities' => $paymentMethods, 'elements' => $paymentMethods, 'total' => $paymentMethods->count()]);
+        $result->assign(['entities' => $paymentMethods, 'elements' => $paymentMethods->getElements(), 'total' => $paymentMethods->count()]);
 
         $this->scriptExecutor->execute(new PaymentMethodRouteHook(
             $paymentMethods,
             $request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable'),
-            $context
+            $context,
         ));
 
         return new PaymentMethodRouteResponse($result);

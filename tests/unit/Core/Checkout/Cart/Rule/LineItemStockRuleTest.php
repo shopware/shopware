@@ -6,17 +6,20 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemStockRule;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -50,8 +53,28 @@ class LineItemStockRuleTest extends TestCase
             ->method('getLineItem')
             ->willReturn(static::createMock(LineItem::class));
 
-        static::expectException(UnsupportedValueException::class);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(UnsupportedValueException::class);
+        } else {
+            $this->expectException(CartException::class);
+        }
         $rule->match($ruleScope);
+    }
+
+    public function testMatchThrowsException(): void
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(UnsupportedValueException::class);
+        } else {
+            $this->expectException(CartException::class);
+        }
+
+        (new LineItemStockRule())->match(
+            new LineItemScope(
+                new LineItem(Uuid::randomHex(), 'product'),
+                $this->createMock(SalesChannelContext::class)
+            )
+        );
     }
 
     public static function provideLineItemTestCases(): \Generator

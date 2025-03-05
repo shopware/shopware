@@ -13,7 +13,6 @@ describe('src/app/component/media/sw-media-field', () => {
                 renderStubDefaultSlot: true,
                 stubs: {
                     'sw-media-media-item': true,
-                    'sw-button': true,
                     'sw-popover': {
                         template: `
                         <div>
@@ -25,7 +24,6 @@ describe('src/app/component/media/sw-media-field', () => {
                     'sw-media-upload-v2': true,
                     'sw-simple-search-field': true,
                     'sw-loader': true,
-                    'sw-icon': true,
                     'sw-pagination': true,
                 },
                 mocks: {

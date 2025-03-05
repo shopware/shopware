@@ -14,9 +14,6 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
                 },
             },
             global: {
-                stubs: {
-                    'sw-icon': true,
-                },
                 provide: {
                     repositoryFactory: {
                         create: () => ({

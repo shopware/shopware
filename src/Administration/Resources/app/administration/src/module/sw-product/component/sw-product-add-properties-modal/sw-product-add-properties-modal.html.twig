@@ -72,12 +72,13 @@
 
         <template #actions>
             {% block sw_product_properties_empty_state_button_property %}
-            <sw-button
-                variant="ghost"
+            <mt-button
+                ghost
+                variant="secondary"
                 @click="onOpenProperties"
             >
                 {{ $tc('sw-product.properties.buttonAddProperties') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
     </sw-empty-state>
@@ -85,16 +86,17 @@
 
     <template #modal-footer>
         {% block sw_product_add_properties_modal_button_cancel %}
-        <sw-button
+        <mt-button
             size="small"
+            variant="secondary"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_product_add_properties_modal_button_save %}
-        <sw-button
+        <mt-button
             v-if="showSaveButton"
             class="sw-product-add-properties-modal__button-save"
             variant="primary"
@@ -102,7 +104,7 @@
             @click="onSave"
         >
             {{ $tc('global.default.save') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
 </sw-modal>

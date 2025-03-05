@@ -20,13 +20,14 @@
     {% block sw_settings_state_machine_detail_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_state_machine_detail_smart_bar_actions_cancel %}
-        <sw-button
+        <mt-button
             v-tooltip.bottom="tooltipCancel"
             class="sw-settings-state-machine-detail__cancel"
+            variant="secondary"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_settings_state_machine_detail_smart_bar_actions_save %}
@@ -49,7 +50,7 @@
     <template #content>
         <sw-card-view>
             {% block sw_settings_state_machine_detail_content_card %}
-            <sw-card
+            <mt-card
                 v-if="!isLoading"
                 position-identifier="sw-settings-state-machine-detail-content"
                 :title="$tc('sw-settings-state-machine.detail.stateMachineCardTitle')"
@@ -59,8 +60,9 @@
                     gap="0px 30px"
                 >
                     {% block sw_settings_state_machine_detail_content_card_name %}
-                    <sw-text-field
-                        v-model:value="stateMachine.name"
+
+                    <mt-text-field
+                        v-model="stateMachine.name"
                         :label="$tc('sw-settings-state-machine.detail.fieldLabels.name')"
                         :error="stateMachineNameError"
                         required
@@ -68,15 +70,16 @@
                     {% endblock %}
 
                     {% block sw_settings_state_machine_detail_content_card_technical_name %}
-                    <sw-text-field
-                        v-model:value="stateMachine.technicalName"
+
+                    <mt-text-field
+                        v-model="stateMachine.technicalName"
                         :label="$tc('sw-settings-state-machine.detail.fieldLabels.technicalName')"
                         :disabled="true"
                         required
                     />
                     {% endblock %}
                 </sw-container>
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
             <sw-skeleton v-else />

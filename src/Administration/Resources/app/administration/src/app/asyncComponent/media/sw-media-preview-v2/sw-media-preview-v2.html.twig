@@ -7,7 +7,7 @@
     {% block sw_media_preview_v2_no_media %}
     <template v-if="!source">
         {% block sw_media_preview_v2_no_media_icon %}
-        <sw-icon
+        <mt-icon
             name="regular-image"
             size="16px"
         />
@@ -39,9 +39,9 @@
                 :src="assetFilter(placeholderIconPath)"
                 :alt="mimeType"
             >
-            <sw-icon
+            <mt-icon
                 v-if="mediaIsPrivate && lockIsVisible"
-                class="sw-media-preview-v2__locked-icon sw-icon--small"
+                class="sw-media-preview-v2__locked-icon"
                 name="regular-lock"
             />
             {% endblock %}
@@ -72,14 +72,14 @@
                 class="sw-media-preview-v2__play-button"
                 @click="onPlayClick"
             >
-                <sw-icon
+                <mt-icon
                     class="sw-media-preview-v2__play-icon"
                     name="regular-play"
                 />
             </button>
-            <sw-icon
+            <mt-icon
                 v-if="mediaIsPrivate && lockIsVisible"
-                class="sw-media-preview-v2__locked-icon sw-icon--small"
+                class="sw-media-preview-v2__locked-icon"
                 name="regular-lock"
             />
             {% endblock %}
@@ -110,14 +110,14 @@
                 class="sw-media-preview-v2__play-button"
                 @click="onPlayClick"
             >
-                <sw-icon
+                <mt-icon
                     class="sw-media-preview-v2__play-icon"
                     name="regular-play"
                 />
             </button>
-            <sw-icon
+            <mt-icon
                 v-if="mediaIsPrivate && lockIsVisible"
-                class="sw-media-preview-v2__locked-icon sw-icon--small"
+                class="sw-media-preview-v2__locked-icon"
                 name="regular-lock"
             />
             {% endblock %}
@@ -141,9 +141,9 @@
                 :alt="mimeType"
             >
             {% endblock %}
-            <sw-icon
+            <mt-icon
                 v-if="mediaIsPrivate && lockIsVisible"
-                class="sw-media-preview-v2__locked-icon sw-icon--small"
+                class="sw-media-preview-v2__locked-icon"
                 name="regular-lock"
             />
         </template>

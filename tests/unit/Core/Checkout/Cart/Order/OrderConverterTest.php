@@ -23,7 +23,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
@@ -118,7 +120,7 @@ class OrderConverterTest extends TestCase
                     SalesChannelContextService::CURRENCY_ID => 'order-currency-id',
                     SalesChannelContextService::LANGUAGE_ID => 'order-language-id',
                     SalesChannelContextService::CUSTOMER_ID => 'customer-id',
-                    SalesChannelContextService::COUNTRY_STATE_ID => 'order-address-country-state-id',
+                    SalesChannelContextService::COUNTRY_STATE_ID => 'country-state-id',
                     SalesChannelContextService::CUSTOMER_GROUP_ID => 'customer-group-id',
                     SalesChannelContextService::PERMISSIONS => OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS,
                     SalesChannelContextService::VERSION_ID => Defaults::LIVE_VERSION,
@@ -575,6 +577,7 @@ class OrderConverterTest extends TestCase
         $address = new OrderAddressEntity();
         $address->setId('order-address-id');
         $address->setUniqueIdentifier('order-address-id');
+        $address->setHash('order-address-hash');
 
         $addresses = new OrderAddressCollection([$address]);
 
@@ -594,8 +597,11 @@ class OrderConverterTest extends TestCase
         /** @var StaticEntityRepository<RuleCollection> $ruleRepository */
         $ruleRepository = new StaticEntityRepository([new RuleCollection()]);
 
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
+        $customerRepository = new StaticEntityRepository([new CustomerCollection([$this->getCustomer(false)])]);
+
         $converter = new OrderConverter(
-            $this->createMock(EntityRepository::class),
+            $customerRepository,
             $this->createMock(SalesChannelContextFactory::class),
             $dispatcher,
             $this->createMock(NumberRangeValueGeneratorInterface::class),
@@ -607,6 +613,51 @@ class OrderConverterTest extends TestCase
         );
 
         $converter->assembleSalesChannelContext($order, $salesChannelContext->getContext());
+    }
+
+    public function testAssembleSalesChannelContextWithCustomerRestoresAddresses(): void
+    {
+        $defaultAddress = $this->getCustomerAddress();
+        $defaultAddress->setId('default-address-id');
+        $defaultAddress->setHash('default-address-hash');
+
+        $billingAddress = $this->getCustomerAddress();
+        $billingAddress->setId('billing-address-id');
+        $billingAddress->setHash('billing-address-hash');
+
+        $shippingAddress = $this->getCustomerAddress();
+        $shippingAddress->setId('shipping-address-id');
+        $shippingAddress->setHash('shipping-address-hash');
+
+        $customer = $this->getCustomer(true);
+        $customer->setAddresses(new CustomerAddressCollection([$billingAddress, $shippingAddress]));
+
+        $orderBillingAddress = $this->getOrderAddress();
+        $orderBillingAddress->setId('order-billing-address-id');
+        $orderBillingAddress->setHash('billing-address-hash');
+
+        $orderShippingAddress = $this->getOrderAddress();
+        $orderShippingAddress->setId('order-shipping-address-id');
+        $orderShippingAddress->setHash('shipping-address-hash');
+
+        $order = $this->getOrder();
+        $order->setBillingAddressId('order-billing-address-id');
+        $delivery = $order->getDeliveries()?->first();
+        static::assertNotNull($delivery);
+        $delivery->setShippingOrderAddressId('order-shipping-address-id');
+
+        $converter = $this->getOrderConverter(
+            [$customer],
+            [$orderShippingAddress, $orderBillingAddress],
+            function (string $randomId, string $salesChannelId, array $options): SalesChannelContext {
+                static::assertSame('billing-address-id', $options[SalesChannelContextService::BILLING_ADDRESS_ID] ?? null);
+                static::assertSame('shipping-address-id', $options[SalesChannelContextService::SHIPPING_ADDRESS_ID] ?? null);
+
+                return $this->getSalesChannelContext(true);
+            }
+        );
+
+        $converter->assembleSalesChannelContext($order, Context::createDefaultContext());
     }
 
     private function getSalesChannelContext(bool $loginCustomer, bool $customerWithoutBillingAddress = false): SalesChannelContext
@@ -873,6 +924,7 @@ class OrderConverterTest extends TestCase
         $customer->setLastName('customer-last-name');
         $customer->setCustomerNumber('customer-number');
         $customer->setGroupId('customer-group-id');
+        $customer->setAddresses(new CustomerAddressCollection([$this->getCustomerAddress()]));
 
         if (!$withoutBillingAddress) {
             $customer->setDefaultBillingAddress($this->getCustomerAddress());
@@ -892,6 +944,7 @@ class OrderConverterTest extends TestCase
         $address->setZipcode('billing-address-zipcode');
         $address->setCity('billing-address-city');
         $address->setCountryId('billing-address-country-id');
+        $address->setHash('billing-address-hash');
 
         return $address;
     }
@@ -915,10 +968,20 @@ class OrderConverterTest extends TestCase
         $country = new CountryEntity();
         $country->setId('country-id');
         $country->setName('country-name');
+        $country->setPosition(0);
+        $country->setActive(true);
+        $country->setShippingAvailable(true);
+        $country->setDisplayStateInRegistration(true);
+        $country->setForceStateInRegistration(true);
+        $country->setCheckVatIdPattern(false);
 
         $countryState = new CountryStateEntity();
         $countryState->setId('country-state-id');
         $countryState->setName('country-state-name');
+        $countryState->setCountryId($country->getId());
+        $countryState->setShortCode('CSN');
+        $countryState->setPosition(0);
+        $countryState->setActive(true);
 
         $address = new OrderAddressEntity();
         $address->setId('order-address-id');
@@ -929,10 +992,11 @@ class OrderConverterTest extends TestCase
         $address->setStreet('order-address-street');
         $address->setZipcode('order-address-zipcode');
         $address->setCity('order-address-city');
-        $address->setCountryId('order-address-country-id');
-        $address->setCountryStateId('order-address-country-state-id');
+        $address->setCountryId($country->getId());
+        $address->setCountryStateId($countryState->getId());
         $address->setCountry($country);
         $address->setCountryState($countryState);
+        $address->setHash('order-address-hash');
 
         return $address;
     }
@@ -1080,13 +1144,13 @@ class OrderConverterTest extends TestCase
                         'country' => [
                             'name' => 'country-name',
                             'iso' => null,
-                            'position' => null,
-                            'active' => null,
-                            'shippingAvailable' => null,
+                            'position' => 0,
+                            'active' => true,
+                            'shippingAvailable' => true,
                             'iso3' => null,
-                            'displayStateInRegistration' => null,
-                            'forceStateInRegistration' => null,
-                            'checkVatIdPattern' => null,
+                            'displayStateInRegistration' => true,
+                            'forceStateInRegistration' => true,
+                            'checkVatIdPattern' => false,
                             'vatIdPattern' => null,
                             'vatIdRequired' => null,
                             'states' => null,
@@ -1109,11 +1173,11 @@ class OrderConverterTest extends TestCase
                             'defaultPostalCodePattern' => null,
                         ],
                         'state' => [
-                            'countryId' => null,
-                            'shortCode' => null,
+                            'countryId' => 'country-id',
+                            'shortCode' => 'CSN',
                             'name' => 'country-state-name',
-                            'position' => null,
-                            'active' => null,
+                            'position' => 0,
+                            'active' => true,
                             'country' => null,
                             'translations' => null,
                             'customerAddresses' => null,

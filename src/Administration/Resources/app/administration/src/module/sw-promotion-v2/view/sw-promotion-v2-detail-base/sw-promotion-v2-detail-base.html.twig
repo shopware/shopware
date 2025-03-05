@@ -2,7 +2,7 @@
 <div class="sw-promotion-v2-detail-base">
 
     {% block sw_promotion_v2_detail_base_general_card %}
-    <sw-card
+    <mt-card
         v-if="promotion"
         position-identifier="sw-promotion-detail-base-general"
         class="sw-promotion-v2-detail-base__card-general"
@@ -15,8 +15,9 @@
             columns="2fr 1fr"
             gap="0 32px"
         >
-            <sw-text-field
-                v-model:value="promotion.name"
+
+            <mt-text-field
+                v-model="promotion.name"
                 class="sw-promotion-v2-detail-base__field-name"
                 :label="$tc('sw-promotion-v2.detail.base.general.nameLabel')"
                 :disabled="!acl.can('promotion.editor')"
@@ -25,8 +26,8 @@
                 :placeholder="placeholder(promotion, 'name', $tc('sw-promotion-v2.detail.base.general.namePlaceholder'))"
             />
 
-            <sw-number-field
-                v-model:value="promotion.priority"
+            <mt-number-field
+                v-model="promotion.priority"
                 :disabled="!acl.can('promotion.editor')"
                 :label="$tc('sw-promotion-v2.detail.base.general.priorityLabel')"
                 :help-text="$tc('sw-promotion-v2.detail.base.general.helpTextPriority')"
@@ -41,8 +42,8 @@
         >
 
             {% block sw_promotion_v2_detail_base_general_valid_from %}
-            <sw-datepicker
-                v-model:value="promotion.validFrom"
+            <mt-datepicker
+                v-model="promotion.validFrom"
                 class="sw-promotion-v2-detail-base__field-valid-from"
                 date-type="datetime"
                 :label="$tc('sw-promotion-v2.detail.base.general.validFromLabel')"
@@ -52,8 +53,8 @@
             {% endblock %}
 
             {% block sw_promotion_v2_detail_base_general_valid_until %}
-            <sw-datepicker
-                v-model:value="promotion.validUntil"
+            <mt-datepicker
+                v-model="promotion.validUntil"
                 class="sw-promotion-v2-detail-base__field-valid-until"
                 date-type="datetime"
                 :label="$tc('sw-promotion-v2.detail.base.general.validUntilLabel')"
@@ -73,8 +74,8 @@
         >
 
             {% block sw_promotion_v2_detail_base_general_max_uses_global %}
-            <sw-number-field
-                v-model:value="promotion.maxRedemptionsGlobal"
+            <mt-number-field
+                v-model="promotion.maxRedemptionsGlobal"
                 class="sw-promotion-v2-detail-base__field-max-uses-global"
                 number-type="int"
                 :label="$tc('sw-promotion-v2.detail.base.general.maxUsesGlobalLabel')"
@@ -85,8 +86,8 @@
             {% endblock %}
 
             {% block sw_promotion_v2_detail_base_general_max_uses_customer %}
-            <sw-number-field
-                v-model:value="promotion.maxRedemptionsPerCustomer"
+            <mt-number-field
+                v-model="promotion.maxRedemptionsPerCustomer"
                 class="sw-promotion-v2-detail-base__field-max-uses-per-customer"
                 number-type="int"
                 :label="$tc('sw-promotion-v2.detail.base.general.maxUsesPerCustomerLabel')"
@@ -100,8 +101,9 @@
         {% endblock %}
 
         {% block sw_promotion_v2_detail_base_general_active %}
-        <sw-switch-field
-            v-model:value="promotion.active"
+
+        <mt-switch
+            v-model="promotion.active"
             class="sw-promotion-v2-detail-base__field-active"
             :label="$tc('sw-promotion-v2.detail.base.general.activeLabel')"
             :disabled="!acl.can('promotion.editor')"
@@ -109,11 +111,11 @@
         />
         {% endblock %}
 
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_promotion_v2_detail_base_codes_card %}
-    <sw-card
+    <mt-card
         v-if="promotion && !isCreateMode"
         class="sw-promotion-v2-detail-base__card-codes"
         position-identifier="sw-promotion-detail-base-codes"
@@ -122,34 +124,23 @@
     >
 
         {% block sw_promotion_v2_detail_base_codes_select %}
-        <sw-select-field
+        <mt-select
             class="sw-promotion-v2-detail-base__field-code-type"
             :label="$tc('sw-promotion-v2.detail.base.codes.codeTypeLabel')"
             :disabled="!acl.can('promotion.editor')"
-            :value="selectedCodeType"
-            @update:value="onChangeCodeType"
-        >
-
-            {% block sw_promotion_v2_detail_base_codes_select_options %}
-            <option
-                v-for="option in codeTypeOptions"
-                :key="option.value"
-                :value="option.value"
-                :selected="option.value === selectedCodeType"
-            >
-                {{ option.label }}
-            </option>
-            {% endblock %}
-
-        </sw-select-field>
+            :model-value="selectedCodeType"
+            :options="codeTypeOptions"
+            @update:model-value="onChangeCodeType"
+        />
         {% endblock %}
 
         {% block sw_promotion_v2_detail_base_codes_type_fixed %}
         <template v-if="selectedCodeType === CODE_TYPES.FIXED">
 
             {% block sw_promotion_v2_detail_base_codes_type_fixed_code %}
-            <sw-text-field
-                v-model:value="promotion.code"
+
+            <mt-text-field
+                v-model="promotion.code"
                 class="sw-promotion-v2-detail-base__fixed-field-code"
                 :disabled="!acl.can('promotion.editor')"
                 :label="$tc('sw-promotion-v2.detail.base.codes.fixed.codeLabel')"
@@ -188,11 +179,11 @@
         </template>
         {% endblock %}
 
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_promotion_detail_custom_field_sets %}
-    <sw-card
+    <mt-card
         v-if="showCustomFields"
         position-identifier="sw-promotion-detail-base-custom-field-sets"
         :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
@@ -203,7 +194,7 @@
             :disabled="!acl.can('promotion.editor')"
             :sets="customFieldSets"
         />
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>
 {% endblock %}

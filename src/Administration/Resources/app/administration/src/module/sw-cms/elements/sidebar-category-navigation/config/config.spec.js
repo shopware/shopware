@@ -10,9 +10,7 @@ async function createWrapper() {
         }),
         {
             global: {
-                stubs: {
-                    'sw-alert': await wrapTestComponent('sw-alert'),
-                },
+                stubs: {},
             },
         },
     );

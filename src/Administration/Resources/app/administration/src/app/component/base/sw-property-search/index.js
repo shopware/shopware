@@ -39,14 +39,6 @@ Component.register('sw-property-search', {
                 return [];
             },
         },
-        /**
-         * @deprecated tag:v6.7.0 - disabled will be removed. Use `isAddOnly` instead.
-         */
-        disabled: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
         isAddOnly: {
             type: Boolean,
             required: false,

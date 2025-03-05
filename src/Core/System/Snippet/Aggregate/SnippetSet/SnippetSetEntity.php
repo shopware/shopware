@@ -15,40 +15,15 @@ class SnippetSetEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $baseFile;
+    protected string $baseFile;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $iso;
+    protected string $iso;
 
-    /**
-     * @var SnippetCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $snippets;
+    protected ?SnippetCollection $snippets = null;
 
-    /**
-     * @var SalesChannelDomainCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannelDomains;
+    protected ?SalesChannelDomainCollection $salesChannelDomains = null;
 
     public function getName(): string
     {

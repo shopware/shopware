@@ -1,3 +1,5 @@
+import { computed } from 'vue';
+
 import template from './sw-condition-tree.html.twig';
 import './sw-condition-tree.scss';
 
@@ -17,15 +19,15 @@ Component.register('sw-condition-tree', {
 
     provide() {
         return {
-            availableTypes: this.availableTypes,
-            availableGroups: this.availableGroups,
+            availableTypes: computed(() => this.availableTypes),
+            availableGroups: computed(() => this.availableGroups),
             createCondition: this.createCondition,
             insertNodeIntoTree: this.insertNodeIntoTree,
             removeNodeFromTree: this.removeNodeFromTree,
-            childAssociationField: this.childAssociationField,
-            conditionDataProviderService: this.conditionDataProviderService,
-            conditionScopes: this.scopes,
-            restrictedConditions: this.restrictedConditions,
+            childAssociationField: computed(() => this.childAssociationField),
+            conditionDataProviderService: computed(() => this.conditionDataProviderService),
+            conditionScopes: computed(() => this.scopes),
+            restrictedConditions: computed(() => this.restrictedConditions),
         };
     },
 

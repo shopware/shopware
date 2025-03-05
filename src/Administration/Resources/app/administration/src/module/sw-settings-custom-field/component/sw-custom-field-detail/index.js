@@ -90,6 +90,16 @@ export default {
         ruleConditionRepository() {
             return this.repositoryFactory.create('rule_condition');
         },
+
+        customFieldTypeOptions() {
+            return Object.keys(this.fieldTypes).map((key) => {
+                return {
+                    id: key,
+                    value: key,
+                    label: this.$tc(`sw-settings-custom-field.types.${key}`),
+                };
+            });
+        },
     },
 
     created() {

@@ -32,7 +32,7 @@ $sw-media-modal-move-breadcrumbs-parent-color: $color-gray-300;
         &.--target {
             color: $sw-media-modal-move-breadcrumbs-target-color;
 
-            .sw-icon {
+            .mt-icon {
                 color: $sw-media-modal-move-breadcrumbs-right-arrow-color;
             }
         }
@@ -40,7 +40,7 @@ $sw-media-modal-move-breadcrumbs-parent-color: $color-gray-300;
         &.--parent {
             color: $sw-media-modal-move-breadcrumbs-parent-color;
 
-            .sw-icon {
+            .mt-icon {
                 color: $sw-media-modal-move-breadcrumbs-right-arrow-color;
             }
         }

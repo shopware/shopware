@@ -49,7 +49,6 @@ async function createWrapper() {
             stubs: {
                 'sw-block-field': true,
                 'sw-select-selection-list': true,
-                'sw-icon': true,
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select'),
                 'sw-product-variant-info': true,

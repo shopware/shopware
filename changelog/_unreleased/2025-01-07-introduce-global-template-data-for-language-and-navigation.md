@@ -21,7 +21,7 @@ ___
     * `context.currency` instead of `page.header.activeCurrency`
     * `shopware.navigation.id` instead of `page.header.navigation.active.id`
     * `shopware.navigation.pathIdList` instead of `page.header.navigation.active.path`
-    * `context.saleschannel.languages.first` instead of `page.header.activeLanguage`
+    * `context.languageInfo` instead of `page.header.activeLanguage`
 * Added new optional parameter `serviceMenu` of type `\Shopware\Core\Content\Category\CategoryCollection` to `\Shopware\Storefront\Pagelet\Footer\FooterPagelet`. It will be required in the next major version.
 ___
 

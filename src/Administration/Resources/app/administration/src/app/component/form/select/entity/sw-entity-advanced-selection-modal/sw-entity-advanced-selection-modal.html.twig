@@ -8,7 +8,7 @@
 >
 
     {% block sw_entity_advanced_selection_modal_content_card %}
-    <sw-card
+    <mt-card
         class="sw-entity-advanced-selection-modal__content"
         position-identifier="sw-entity-advanced-selection-modal-content"
         :large="true"
@@ -25,20 +25,21 @@
                 <template #filter>
                     <div class="sw-entity-advanced-selection-modal__filter-list-button">
                         {% block sw_entity_advanced_selection_modal_toolbar_filter_button %}
-                        <sw-button
+                        <mt-button
                             size="small"
+                            variant="secondary"
                             @click="filterWindowOpen = !filterWindowOpen"
                         >
-                            <sw-icon
+                            <mt-icon
                                 name="regular-filter-s"
-                                small
+                                size="16px"
                             />
                             <i
                                 v-if="activeFilterNumber > 0"
                                 class="sw-entity-advanced-selection-modal__filter-badge"
                             >{{ activeFilterNumber }}</i>
                             {{ $tc('global.sw-entity-advanced-selection-modal.filter') }}
-                        </sw-button>
+                        </mt-button>
                         {% endblock %}
 
                         {% block sw_entity_advanced_selection_modal_toolbar_filter_panel %}
@@ -159,22 +160,23 @@
             </sw-empty-state>
             {% endblock %}
         </template>
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     <template #modal-footer>
         {% block sw_entity_advanced_selection_modal_button_cancel %}
-        <sw-button
+        <mt-button
             size="small"
             class="sw-entity-advanced-selection-modal__button-cancel"
+            variant="secondary"
             @click="$emit('modal-close')"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_entity_advanced_selection_modal_button_apply %}
-        <sw-button
+        <mt-button
             variant="primary"
             size="small"
             class="sw-entity-advanced-selection-modal__button-apply"
@@ -182,7 +184,7 @@
             @click="onApply"
         >
             {{ $tc('global.sw-entity-advanced-selection-modal.applySelection') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
 

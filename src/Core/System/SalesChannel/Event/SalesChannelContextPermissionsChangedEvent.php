@@ -12,17 +12,12 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class SalesChannelContextPermissionsChangedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**
-     * @var array
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @param array<string, bool> $permissions
      */
-    protected $permissions = [];
-
     public function __construct(
         private readonly SalesChannelContext $salesChannelContext,
-        array $permissions
+        protected array $permissions = []
     ) {
-        $this->permissions = $permissions;
     }
 
     public function getContext(): Context
@@ -35,6 +30,9 @@ class SalesChannelContextPermissionsChangedEvent extends NestedEvent implements 
         return $this->salesChannelContext;
     }
 
+    /**
+     * @return array<string, bool>
+     */
     public function getPermissions(): array
     {
         return $this->permissions;

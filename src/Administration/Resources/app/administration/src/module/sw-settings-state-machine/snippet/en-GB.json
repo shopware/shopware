@@ -31,9 +31,7 @@
       "detail": {
         "stateMachineStateCardTitle": "State machine state",
         "labelName": "Name",
-        "labelTechnicalName": "Technical name",
-        "buttonCancel": "Cancel",
-        "buttonSave": "Save"
+        "labelTechnicalName": "Technical name"
       },
       "notification": {
         "successMessage": "State machine state has been saved.",

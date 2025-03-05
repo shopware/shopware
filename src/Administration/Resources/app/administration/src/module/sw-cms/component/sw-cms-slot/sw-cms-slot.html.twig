@@ -33,7 +33,7 @@
             gap: 16px;
         "
     >
-        <sw-icon
+        <mt-icon
             name="regular-exclamation-circle"
             color="#de294c"
         />
@@ -76,7 +76,7 @@
                 @click="onSettingsButtonClick"
                 @keydown.enter="onSelectElement(element.name)"
             >
-                <sw-icon
+                <mt-icon
                     name="regular-cog"
                     size="16"
                 />
@@ -92,7 +92,7 @@
                 @click="onElementButtonClick"
                 @keydown.enter="onSelectElement(element.name)"
             >
-                <sw-icon
+                <mt-icon
                     name="regular-repeat"
                     size="16"
                 />
@@ -123,12 +123,12 @@
         {% block sw_cms_slot_content_settings_modal_footer %}
         <template #modal-footer>
             {% block sw_cms_slot_content_settings_modal_action_confirm %}
-            <sw-button
+            <mt-button
                 variant="primary"
                 @click="onCloseSettingsModal"
             >
                 {{ $tc('sw-cms.detail.label.buttonElementSettingsConfirm') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
         {% endblock %}
@@ -182,7 +182,7 @@
                                         @click="onSelectElement(element)"
                                         @keydown.enter="onSelectElement(element)"
                                     >
-                                        <sw-icon
+                                        <mt-icon
                                             name="regular-repeat"
                                             size="28"
                                         />
@@ -197,12 +197,12 @@
                                         @click="onToggleElementFavorite(element.name)"
                                         @keydown.enter="onToggleElementFavorite(element.name)"
                                     >
-                                        <sw-icon
+                                        <mt-icon
                                             v-if="cmsElementFavorites.isFavorite(element.name)"
                                             name="solid-heart"
                                             size="28"
                                         />
-                                        <sw-icon
+                                        <mt-icon
                                             v-else
                                             name="regular-heart"
                                             size="28"
@@ -228,9 +228,12 @@
         <template #modal-footer>
 
             {% block sw_cms_slot_content_element_modal_action_abort %}
-            <sw-button @click="onCloseElementModal">
+            <mt-button
+                variant="secondary"
+                @click="onCloseElementModal"
+            >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
         {% endblock %}

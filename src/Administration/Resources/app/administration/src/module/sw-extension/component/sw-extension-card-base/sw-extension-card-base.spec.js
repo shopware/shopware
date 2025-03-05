@@ -13,13 +13,12 @@ async function createWrapper(propsData = {}, provide = {}) {
             },
             stubs: {
                 'sw-loader': true,
-                'sw-switch-field': true,
+
                 'sw-extension-icon': true,
                 'sw-context-menu-item': {
                     name: 'sw-context-menu-item',
                     template: '<div class="sw-context-menu-item"><slot></slot></div>',
                 },
-                'sw-icon': true,
                 'sw-context-button': {
                     template: '<div class="sw-context-button"><slot></slot></div>',
                 },

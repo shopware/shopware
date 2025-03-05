@@ -24,8 +24,8 @@ Shopware.Service('cmsService').registerCmsBlock({
     defaultConfig: {
         marginBottom: '40px',
         marginTop: '40px',
-        marginLeft: '20px',
-        marginRight: '20px',
+        marginLeft: null,
+        marginRight: null,
         sizingMode: 'boxed',
         backgroundColor: '#e9e9e9',
     },

@@ -143,7 +143,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                 ]);
 
                 if ($operation->isStatic()) {
-                    $doc = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
+                    $doc = new RenderedDocument($number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
                     $result->addSuccess($orderId, $doc);
 
                     continue;
@@ -158,16 +158,21 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                 }
 
                 $doc = new RenderedDocument(
-                    '',
                     $number,
                     $config->buildName(),
                     $operation->getFileType(),
                     $config->jsonSerialize(),
                 );
 
+                $doc->setParameters([
+                    'creditItems' => $creditItems,
+                    'price' => $price->getTotalPrice() * -1,
+                    'amountTax' => $price->getCalculatedTaxes()->getAmount(),
+                ]);
                 $doc->setTemplate($template);
                 $doc->setOrder($order);
                 $doc->setContext($context);
+
                 $doc->setContent($this->fileRendererRegistry->render($doc));
 
                 $result->addSuccess($orderId, $doc);
@@ -196,9 +201,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         $criteria = OrderDocumentCriteriaFactory::create([$orderId], $deepLinkCode, self::TYPE)
             ->addFilter(new EqualsFilter('lineItems.type', LineItem::CREDIT_LINE_ITEM_TYPE));
 
-        /** @var ?OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $versionContext)->get($orderId);
-
+        $order = $this->orderRepository->search($criteria, $versionContext)->getEntities()->first();
         if ($order) {
             return $order;
         }
@@ -209,10 +212,8 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
 
         $criteria = OrderDocumentCriteriaFactory::create([$orderId], $deepLinkCode, self::TYPE);
 
-        /** @var ?OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $versionContext)->get($orderId);
-
-        if ($order === null) {
+        $order = $this->orderRepository->search($criteria, $versionContext)->getEntities()->first();
+        if (!$order) {
             throw DocumentException::orderNotFound($orderId);
         }
 

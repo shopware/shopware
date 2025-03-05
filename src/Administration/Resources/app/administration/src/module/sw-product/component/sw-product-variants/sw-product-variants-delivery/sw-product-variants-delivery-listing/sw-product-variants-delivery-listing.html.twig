@@ -117,11 +117,11 @@
                     class="sw-product-variants-delivery-listing__groupElement"
                 >
                     {% block sw_product_variants_delivery_listing_config_expanded_group_list_item %}
-                    <sw-checkbox-field
-                        :value="isActiveGroupInListing(group.id)"
+                    <mt-checkbox
+                        :checked="isActiveGroupInListing(group.id)"
                         :disabled="isDisabledListingMode('expanded')"
                         :label="group.translated.name"
-                        @update:value="onChangeGroupListing($event, group.id)"
+                        @update:checked="onChangeGroupListing($event, group.id)"
                     />
                     {% endblock %}
                 </dd>

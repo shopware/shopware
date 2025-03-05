@@ -21,7 +21,7 @@
             />
 
             <template #modal-footer>
-                <sw-button
+                <mt-button
                     v-for="button in modal.buttons"
                     :key="button.label"
                     :variant="buttonProps(button).variant"
@@ -30,7 +30,7 @@
                     @click="() => buttonProps(button).method()"
                 >
                     {{ $tc(button.label ?? '') }}
-                </sw-button>
+                </mt-button>
             </template>
         </sw-modal>
     </template>

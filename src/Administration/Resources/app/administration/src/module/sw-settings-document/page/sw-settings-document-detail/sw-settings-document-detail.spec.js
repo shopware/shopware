@@ -130,11 +130,8 @@ const createWrapper = async (customOptions, privileges = []) => {
                         template: '<div class="sw-field"/>',
                         props: ['disabled'],
                     },
-                    'sw-button': true,
                     'sw-button-process': true,
                     'sw-card-view': true,
-                    'sw-icon': true,
-                    'sw-card': true,
                     'sw-container': true,
                     'sw-form-field-renderer': true,
                     'sw-checkbox-field': {
@@ -331,12 +328,12 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
             },
         });
 
-        const displayAdditionalNoteDeliveryCheckbox = wrapper.find(
+        const displayAdditionalNoteDeliveryCheckbox = wrapper.findComponent(
             '.sw-settings-document-detail__field_additional_note_delivery',
         );
 
-        expect(displayAdditionalNoteDeliveryCheckbox.attributes('value')).toBe('true');
-        expect(displayAdditionalNoteDeliveryCheckbox.attributes('label')).toBe(
+        expect(displayAdditionalNoteDeliveryCheckbox.props('checked')).toBe(true);
+        expect(displayAdditionalNoteDeliveryCheckbox.props('label')).toBe(
             'sw-settings-document.detail.labelDisplayAdditionalNoteDelivery',
         );
     });
@@ -349,11 +346,11 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
             isShowDivergentDeliveryAddress: true,
         });
 
-        const displayDivergentDeliveryAddress = wrapper.find(
+        const displayDivergentDeliveryAddress = wrapper.findComponent(
             '.sw-settings-document-detail__field_divergent_delivery_address',
         );
         expect(displayDivergentDeliveryAddress).toBeDefined();
-        expect(displayDivergentDeliveryAddress.attributes('label')).toBe(
+        expect(displayDivergentDeliveryAddress.props('label')).toBe(
             'sw-settings-document.detail.labelDisplayDivergentDeliveryAddress',
         );
     });
@@ -412,7 +409,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         await flushPromises();
 
-        const swCardComponents = wrapper.findAll('sw-card-stub');
+        const swCardComponents = wrapper.findAll('.mt-card');
 
         expect(swCardComponents.length).toBeGreaterThan(0);
         expect(swCardComponents.at(0).attributes()['position-identifier']).toBe('sw-settings-document-detail-assignment');

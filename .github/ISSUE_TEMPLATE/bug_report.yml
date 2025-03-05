@@ -1,5 +1,5 @@
 name: Bug report 🐛
-description: Existing feature does not behave as expected.
+description: Errors or flaws in the code are leading to incorrect or unexpected behavior.
 labels: [Bug]
 body:
     - type: markdown

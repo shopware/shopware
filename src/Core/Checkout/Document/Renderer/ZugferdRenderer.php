@@ -104,7 +104,6 @@ class ZugferdRenderer extends AbstractDocumentRenderer
             $renderResult->addSuccess(
                 $order->getId(),
                 new RenderedDocument(
-                    '',
                     $documentNumber,
                     $config->buildName(),
                     FileTypes::XML,

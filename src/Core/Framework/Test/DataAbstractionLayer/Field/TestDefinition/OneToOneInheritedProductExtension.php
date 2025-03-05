@@ -29,11 +29,6 @@ class OneToOneInheritedProductExtension extends EntityExtension
         );
     }
 
-    public function getDefinitionClass(): string
-    {
-        return ProductDefinition::class;
-    }
-
     public function getEntityName(): string
     {
         return ProductDefinition::ENTITY_NAME;

@@ -14,14 +14,15 @@
     {% block sw_property_detail_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_property_detail_smart_bar_actions_cancel %}
-        <sw-button
+        <mt-button
             v-tooltip.bottom="tooltipCancel"
             class="sw-property-detail__back-action"
             :disabled="isLoading || undefined"
+            variant="secondary"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_property_detail_smart_bar_actions_save %}
@@ -88,7 +89,7 @@
                 {% endblock %}
 
                 {% block sw_property_detail_custom_field_sets %}
-                <sw-card
+                <mt-card
                     v-if="showCustomFields"
                     position-identifier="sw-property-detail"
                     :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
@@ -98,7 +99,7 @@
                         :disabled="!acl.can('property.editor') || undefined"
                         :sets="customFieldSets"
                     />
-                </sw-card>
+                </mt-card>
                 {% endblock %}
             </div>
         </sw-card-view>

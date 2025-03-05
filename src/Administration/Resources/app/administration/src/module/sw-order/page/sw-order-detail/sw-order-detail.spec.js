@@ -52,8 +52,6 @@ async function createWrapper(order = {}) {
                             <slot name="content"></slot>
                         </div>`,
                 },
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-label': true,
                 'sw-skeleton': true,
                 'sw-button-process': await wrapTestComponent('sw-button-process'),
@@ -63,14 +61,14 @@ async function createWrapper(order = {}) {
                             <slot></slot>
                         </div>`,
                 },
-                'sw-alert': true,
+
                 'sw-loader': true,
                 'router-view': true,
                 'sw-tabs': true,
                 'sw-tabs-item': true,
-                'sw-icon': true,
                 'sw-language-switch': true,
                 'sw-order-leave-page-modal': true,
+                'sw-order-save-changes-beforehand-modal': true,
                 'sw-extension-component-section': true,
                 'router-link': true,
             },
@@ -467,5 +465,35 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
         expect(createNewVersionIdMock).toHaveBeenCalled();
         expect(Shopware.Store.get('swOrderDetail').isLoading).toBe(false);
+    });
+
+    it('should ask for saving confirmation before continuing', async () => {
+        wrapper = await createWrapper();
+        const onSaveEditsSpy = jest.fn();
+        wrapper.vm.onSaveEdits = onSaveEditsSpy;
+
+        let promise = wrapper.vm.askAndSaveEdits();
+
+        expect(wrapper.vm.askForSaveBeforehand).toBeFalsy();
+        expect(await promise).toBe(true);
+        expect(onSaveEditsSpy).not.toHaveBeenCalled();
+
+        wrapper.vm.hasOrderDeepEdit = true;
+        await flushPromises();
+
+        promise = wrapper.vm.askAndSaveEdits();
+        expect(wrapper.vm.askForSaveBeforehand).toBeTruthy();
+
+        wrapper.vm.onAskAndSaveEditsCancel();
+        expect(await promise).toBe(false);
+        expect(onSaveEditsSpy).not.toHaveBeenCalled();
+
+        promise = wrapper.vm.askAndSaveEdits();
+        expect(wrapper.vm.askForSaveBeforehand).toBeTruthy();
+
+        wrapper.vm.onAskAndSaveEditsConfirm();
+        Shopware.Store.get('swOrderDetail').savedSuccessful = true;
+        expect(await promise).toBe(true);
+        expect(onSaveEditsSpy).toHaveBeenCalled();
     });
 });

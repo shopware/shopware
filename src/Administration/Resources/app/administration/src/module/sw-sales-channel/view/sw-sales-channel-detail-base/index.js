@@ -112,11 +112,6 @@ export default {
             return this.showSecretAccessKey ? 'text' : 'password';
         },
 
-        /** @deprecated tag:v6.7.0 - Use `isStorefront` instead */
-        isStoreFront() {
-            return this.isStorefront;
-        },
-
         isStorefront() {
             return this.salesChannel?.typeId === Defaults.storefrontSalesChannelTypeId;
         },
@@ -500,6 +495,16 @@ export default {
 
             // eslint-disable-next-line max-len
             return `php bin/console product-export:generate ${this.salesChannel.productExports[0].storefrontSalesChannelId} ${this.salesChannel.productExports[0].id}`;
+        },
+
+        templateSelectOptions() {
+            return this.templateOptions.map((templateOption) => {
+                return {
+                    value: templateOption.name,
+                    id: templateOption.name,
+                    label: this.$tc(templateOption.translationKey),
+                };
+            });
         },
     },
 

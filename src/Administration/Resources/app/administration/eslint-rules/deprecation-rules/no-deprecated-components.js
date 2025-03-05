@@ -21,7 +21,18 @@ module.exports = {
         },
         schema: [
             {
-                enum: ['disableFix', 'enableFix'],
+                type: 'object',
+                properties: {
+                    fix: {
+                        type: 'boolean',
+                    },
+                    activatedComponents: {
+                        type: 'array',
+                        items: {
+                            type: 'string'
+                        }
+                    }
+                }
             }
         ]
     },
@@ -31,6 +42,33 @@ module.exports = {
             // Event handlers for <template> tags
             {
                 VElement(node) {
+                    const enableFix = context.options?.[0]?.fix ?? true;
+                    const activatedComponents = context.options?.[0]?.activatedComponents ?? [
+                        'sw-button',
+                        'sw-icon',
+                        'sw-colorpicker',
+                        'sw-card',
+                        'sw-text-field',
+                        'sw-number-field',
+                        'sw-external-link',
+                        'sw-url-field',
+                        'sw-loader',
+                        'sw-tabs',
+                        'sw-datepicker',
+                        'sw-skeleton-bar',
+                        'sw-email-field',
+                        'sw-tabs',
+                        'sw-password-field',
+                        'sw-progress-bar',
+                        'sw-switch-field',
+                        'sw-checkbox-field',
+                        'sw-textarea-field',
+                        'sw-select-field',
+                        'sw-alert',
+                        'sw-popover',
+                        'sw-data-grid'
+                    ];
+
                     const conversionMap = [
                         {
                             before: 'sw-switch-field',
@@ -56,7 +94,7 @@ module.exports = {
                             before: 'sw-popover',
                             after: 'mt-floating-ui'
                         },
-                    ]
+                    ].filter(conversion => activatedComponents.includes(conversion.before));
 
                     // Handle deprecated components
                     conversionMap.forEach(conversion => {
@@ -69,7 +107,7 @@ module.exports = {
                                 loc: node.loc,
                                 message: `"${componentName}" is deprecated. Please use "${newComponentName}" instead.`,
                                 *fix(fixer) {
-                                    if (context.options.includes('disableFix')) return;
+                                    if (!enableFix) return;
 
                                     const isSelfClosing = node.startTag.selfClosing;
 
@@ -123,7 +161,7 @@ module.exports = {
                         'sw-tabs',
                         'sw-password-field',
                         'sw-progress-bar'
-                    ];
+                    ].filter(component => activatedComponents.includes(component));
 
                     // Handle other deprecated components
                     if (deprecatedComponents.includes(node.name)) {
@@ -135,7 +173,7 @@ module.exports = {
                             loc: node.loc,
                             message: `"${componentName}" is deprecated. Please use "${newComponentName}" instead.`,
                             *fix(fixer) {
-                                if (context.options.includes('disableFix')) return;
+                                if (!enableFix) return;
 
                                 const isSelfClosing = node.startTag.selfClosing;
 
@@ -173,7 +211,7 @@ module.exports = {
 
                     // Handle special sw-data-grid component
                     const swDatagridName = 'sw-data-grid';
-                    if (node.name === swDatagridName) {
+                    if (node.name === swDatagridName && activatedComponents.includes(swDatagridName)) {
                         // Check if comment a line before the sw-data-grid component exists
                         const commentBeforeNode = context.getSourceCode().getText().split('\n')[node.loc.start.line - 2];
 
@@ -187,7 +225,7 @@ module.exports = {
                             loc: node.loc,
                             message: `"${swDatagridName}" is deprecated. Please use "mt-data-table" instead.`,
                             *fix(fixer) {
-                                if (context.options.includes('disableFix')) return;
+                                if (!enableFix) return;
 
                                 const isSelfClosing = node.startTag.selfClosing;
 

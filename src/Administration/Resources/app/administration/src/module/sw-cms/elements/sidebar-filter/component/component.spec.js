@@ -14,9 +14,6 @@ async function createWrapper() {
                 element: {},
             },
             global: {
-                stubs: {
-                    'sw-icon': true,
-                },
                 provide: {
                     cmsService: {
                         getCmsElementRegistry: () => ({

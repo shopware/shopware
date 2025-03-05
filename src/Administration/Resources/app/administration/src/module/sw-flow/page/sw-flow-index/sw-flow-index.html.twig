@@ -11,9 +11,9 @@
     <template #smart-bar-header>
         <h2>
             {{ $tc('sw-settings.index.title') }}
-            <sw-icon
+            <mt-icon
                 name="regular-chevron-right-xs"
-                small
+                size="16px"
             />
             {{ $tc('sw-flow.list.textHeadline') }}
 
@@ -33,7 +33,7 @@
         />
         {% endblock %}
 
-        <sw-button
+        <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('flow.creator'),
@@ -42,11 +42,11 @@
             }"
             class="sw-flow-list__create"
             variant="primary"
-            :router-link="{ name: 'sw.flow.create' }"
             :disabled="!acl.can('flow.creator') || undefined"
+            @click="$router.push({ name: 'sw.flow.create' })"
         >
             {{ $tc('sw-flow.list.buttonAddFlow') }}
-        </sw-button>
+        </mt-button>
     </template>
 
     <template #content>

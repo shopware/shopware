@@ -45,7 +45,7 @@
 
         {% block sw_order_detail_actions_slot_smart_bar_actions %}
         {% block sw_order_detail_actions_abort %}
-        <sw-button
+        <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('order.editor'),
@@ -53,10 +53,11 @@
             }"
             class="sw-order-detail__smart-bar-cancel-button"
             :disabled="isLoading || !acl.can('order.editor')"
+            variant="secondary"
             @click="onCancelEditing"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_order_detail_actions_save %}
@@ -91,20 +92,29 @@
             @page-leave-confirm="onLeaveModalConfirm"
         />
         {% endblock %}
+        {% block sw_order_detail_content_save_changes_beforehand_modal %}
+        <sw-order-save-changes-beforehand-modal
+            v-if="askForSaveBeforehand"
+            @cancel="onAskAndSaveEditsCancel"
+            @confirm="onAskAndSaveEditsConfirm"
+        >
+            {{ askForSaveBeforehand.reason }}
+        </sw-order-save-changes-beforehand-modal>
+        {% endblock %}
         <sw-card-view>
 
-            <sw-alert
+            <mt-banner
                 v-if="isOrderEditing"
                 class="sw-order-detail__alert"
-                variant="warning"
+                variant="attention"
             >
                 {{ $tc('sw-order.detail.textUnsavedOrderWarning') }}
-            </sw-alert>
+            </mt-banner>
 
-            <sw-alert
+            <mt-banner
                 v-if="missingProductLineItems.length > 0"
                 class="sw-order-detail__alert"
-                variant="warning"
+                variant="attention"
             >
                 {{ $tc('sw-order.detailBase.textMissingProductLineItems') }}
 
@@ -118,9 +128,9 @@
                 </ul>
 
                 {{ $tc('sw-order.detailBase.textMissingProductLineItemsDescription') }}
-            </sw-alert>
+            </mt-banner>
 
-            <sw-alert
+            <mt-banner
                 v-if="convertedProductLineItems.length > 0"
                 class="sw-order-detail__alert"
                 variant="info"
@@ -137,7 +147,7 @@
                 </ul>
 
                 {{ $tc('sw-order.detailBase.textConvertedProductLineItemsDescription') }}
-            </sw-alert>
+            </mt-banner>
 
             {% block sw_order_detail_content_tabs %}
             <sw-tabs
@@ -176,7 +186,7 @@
                 >
                     {{ $tc('sw-order.detail.tabDocuments') }}
 
-                    <sw-icon
+                    <mt-icon
                         v-if="isOrderEditing"
                         v-tooltip="{ message: $tc('sw-order.documentTab.tooltipSaveBeforeCreateDocument') }"
                         class="sw-order-detail__tab-warning-badge"

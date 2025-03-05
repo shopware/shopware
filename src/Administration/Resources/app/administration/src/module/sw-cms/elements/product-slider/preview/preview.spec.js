@@ -12,7 +12,6 @@ async function createWrapper() {
             global: {
                 stubs: {
                     'sw-cms-product-box-preview': await wrapTestComponent('sw-cms-product-box-preview'),
-                    'sw-icon': true,
                 },
             },
         },

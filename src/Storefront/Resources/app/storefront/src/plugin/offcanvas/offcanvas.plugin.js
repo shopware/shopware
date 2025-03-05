@@ -1,4 +1,3 @@
-import DeviceDetection from 'src/helper/device-detection.helper';
 import NativeEventEmitter from 'src/helper/emitter.helper';
 
 const OFF_CANVAS_CLASS = 'offcanvas';
@@ -134,7 +133,7 @@ class OffCanvasSingleton {
      * @private
      */
     _registerEvents(delay) {
-        const event = (DeviceDetection.isTouchDevice()) ? 'touchend' : 'click';
+        const event = 'click';
         const offCanvasElements = this.getOffCanvas();
 
         // Ensure OffCanvas is removed from the DOM and events are published.

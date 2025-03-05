@@ -129,28 +129,9 @@ class FlowDispatcherTest extends TestCase
             ->method('dispatch')
             ->willReturnOnConsecutiveCalls($event, $flowLogEvent);
 
-        if (Feature::isActive('v6.7.0.0')) {
-            $this->bufferedFlowQueue->expects(static::once())
-                ->method('queueFlow')
-                ->with($event);
-        } else {
-            $flow = new StorableFlow('state_enter.order.state.in_progress', $event->getContext(), [], []);
-            $this->flowFactory->expects(static::once())
-                ->method('create')
-                ->willReturn($flow);
-
-            $flowLoader = $this->createMock(FlowLoader::class);
-            $flowLoader->expects(static::once())
-                ->method('load')
-                ->willReturn($flows);
-
-            $flowExecutor = $this->createMock(FlowExecutor::class);
-            $flowExecutor->expects(static::exactly(is_countable($flows['state_enter.order.state.in_progress']) ? \count($flows['state_enter.order.state.in_progress']) : 0))
-                ->method('execute');
-
-            $this->container->set(FlowLoader::class, $flowLoader);
-            $this->container->set(FlowExecutor::class, $flowExecutor);
-        }
+        $this->bufferedFlowQueue->expects(static::once())
+            ->method('queueFlow')
+            ->with($event);
 
         $this->flowDispatcher->dispatch($event);
     }

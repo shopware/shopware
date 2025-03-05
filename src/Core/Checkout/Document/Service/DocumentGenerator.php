@@ -22,7 +22,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -54,20 +53,19 @@ class DocumentGenerator
         string $deepLinkCode = '',
         string $fileType = PdfRenderer::FILE_EXTENSION
     ): ?RenderedDocument {
-        $criteria = new Criteria([$documentId]);
+        $criteria = (new Criteria([$documentId]))
+            ->addAssociations([
+                'documentMediaFile',
+                'documentType',
+                'documentA11yMediaFile',
+            ]);
 
         if ($deepLinkCode !== '') {
             $criteria->addFilter(new EqualsFilter('deepLinkCode', $deepLinkCode));
         }
 
-        $criteria->addAssociations([
-            'documentMediaFile',
-            'documentType',
-            'documentA11yMediaFile',
-        ]);
-
-        $document = $this->documentRepository->search($criteria, $context)->get($documentId);
-        if (!$document instanceof DocumentEntity) {
+        $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
+        if (!$document) {
             throw DocumentException::documentNotFound($documentId);
         }
 
@@ -175,11 +173,11 @@ class DocumentGenerator
 
     public function upload(string $documentId, Context $context, Request $uploadedFileRequest): DocumentIdStruct
     {
-        $criteria = new Criteria([$documentId]);
-        $criteria->addAssociation('documentMediaFile');
+        $criteria = (new Criteria([$documentId]))
+            ->addAssociation('documentMediaFile');
 
-        $document = $this->documentRepository->search($criteria, $context)->first();
-        if (!($document instanceof DocumentEntity)) {
+        $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
+        if (!$document) {
             throw DocumentException::documentNotFound($documentId);
         }
 
@@ -305,14 +303,10 @@ class DocumentGenerator
         }
 
         // Fetch the document again because new mediaFile is generated
-        $criteria = new Criteria([$documentId]);
+        $criteria = (new Criteria([$documentId]))
+            ->addAssociations(['documentMediaFile', 'documentA11yMediaFile', 'documentType']);
 
-        $criteria->addAssociation('documentMediaFile')
-            ->addAssociation('documentA11yMediaFile')
-            ->addAssociation('documentType');
-
-        /** @var ?DocumentEntity $document */
-        $document = $this->documentRepository->search($criteria, $context)->get($documentId);
+        $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
 
         return $document;
     }
@@ -321,14 +315,6 @@ class DocumentGenerator
     {
         if ($operation->isStatic()) {
             return null;
-        }
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $document->setContent($this->fileRendererRegistry->render($document));
-
-            if ($documentType && $result) {
-                $this->rendererRegistry->finalize($documentType, $operation, $context, new DocumentRendererConfig(), $result);
-            }
         }
 
         if ($document->getContent() === '') {
@@ -366,6 +352,14 @@ class DocumentGenerator
         $document = clone $document;
         $document->setContentType(HtmlRenderer::FILE_CONTENT_TYPE);
         $document->setFileExtension(HtmlRenderer::FILE_EXTENSION);
+
+        try {
+            $content = $this->fileRendererRegistry->render($document);
+        } catch (\Throwable) {
+            return null;
+        }
+
+        $document->setContent($content);
 
         return $this->resolveMediaId($operation, $context, $document);
     }

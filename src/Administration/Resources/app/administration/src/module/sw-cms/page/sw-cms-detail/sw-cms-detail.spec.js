@@ -114,10 +114,9 @@ async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
                     `,
                     },
                     'sw-cms-toolbar': await wrapTestComponent('sw-cms-toolbar'),
-                    'sw-alert': true,
+
                     'sw-language-switch': true,
                     'sw-router-link': true,
-                    'sw-icon': true,
                     'router-link': true,
                     'sw-button-process': true,
                     'sw-cms-stage-add-section': true,
@@ -144,8 +143,27 @@ async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
                     'sw-loader': true,
                     'sw-cms-section': await wrapTestComponent('sw-cms-section'),
                     'sw-cms-layout-assignment-modal': true,
-                    'sw-button': true,
                     'sw-app-actions': true,
+                    'sw-overlay': true,
+                    'sw-cms-page-form': true,
+                    'sw-cms-missing-element-modal': true,
+                    'sw-product-variant-info': true,
+                    'sw-select-result': true,
+                    'sw-entity-single-select': true,
+                    'sw-empty-state': true,
+                    'sw-cms-block-layout-config': true,
+                    'sw-cms-visibility-config': true,
+                    'sw-context-menu-item': true,
+                    'sw-context-button': true,
+                    'sw-cms-sidebar-nav-element': true,
+                    'sw-sidebar': true,
+                    'sw-checkbox-field': true,
+                    'sw-cms-visibility-toggle': true,
+                    'sw-cms-stage-add-block': true,
+                    'sw-cms-slot': true,
+                    'sw-colorpicker': true,
+                    'sw-media-compact-upload-v2': true,
+                    'sw-upload-listener': true,
                     'sw-modal': {
                         template: `
                     <div class="sw-modal-stub">
@@ -269,7 +287,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
             isLoading: false,
         });
 
-        const formIcon = wrapper.find('sw-icon-stub[name="regular-bars-square"]');
+        const formIcon = wrapper.find('.mt-icon.icon--regular-bars-square');
         expect(formIcon.classes()).toContain('is--disabled');
 
         const saveAction = wrapper.find('.sw-cms-detail__save-action');
@@ -299,7 +317,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
             isLoading: false,
         });
 
-        const formIcon = wrapper.find('sw-icon-stub[name="regular-bars-square"]');
+        const formIcon = wrapper.find('.mt-icon.icon--regular-bars-square');
         expect(formIcon.classes()).not.toContain('is--disabled');
 
         const saveAction = wrapper.find('.sw-cms-detail__save-action');

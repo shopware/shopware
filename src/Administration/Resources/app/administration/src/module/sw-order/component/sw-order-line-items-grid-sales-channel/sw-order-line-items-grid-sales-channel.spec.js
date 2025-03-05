@@ -162,8 +162,6 @@ async function createWrapper() {
                 },
                 stubs: {
                     'sw-container': await wrapTestComponent('sw-container'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-button-group': {
                         template: '<div class="sw-button-group"><slot></slot></div>',
                     },
@@ -176,10 +174,10 @@ async function createWrapper() {
                     },
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                    'sw-number-field': {
+                    'mt-number-field': {
                         // eslint-disable-next-line max-len
                         template:
-                            '<input class="sw-number-field" type="number" :value="value" @input="$emit(\'change\', Number($event.target.value))" />',
+                            '<input class="mt-number-field" type="number" :value="value" @input="$emit(\'change\', Number($event.target.value))" />',
                         props: {
                             value: 0,
                             size: 'default',
@@ -206,7 +204,6 @@ async function createWrapper() {
                         props: ['to'],
                     },
                     'sw-empty-state': true,
-                    'sw-icon': true,
                     'sw-loader': true,
                     'sw-data-grid-settings': true,
                     'sw-data-grid-inline-edit': true,
@@ -469,7 +466,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
         const quantityField = firstRow.findComponent('.sw-data-grid__cell--quantity input');
 
-        await quantityField.vm.$emit('update:value', 3);
+        await quantityField.vm.$emit('update:modelValue', 3);
 
         const buttonInlineSave = wrapper.find('.sw-data-grid__inline-edit-save');
         await buttonInlineSave.trigger('click');
@@ -619,7 +616,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         await labelField.trigger('input');
 
         const unitPriceField = firstRow.findComponent('.sw-data-grid__cell--unitPrice input');
-        await unitPriceField.vm.$emit('update:value', 100);
+        await unitPriceField.vm.$emit('update:modelValue', 100);
 
         const buttonInlineSave = wrapper.find('.sw-data-grid__inline-edit-save');
         await buttonInlineSave.trigger('click');

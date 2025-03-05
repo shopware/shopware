@@ -61,7 +61,7 @@ test ('As a merchant, I can perform bulk edits on customer information', { tag: 
             //verify general information
             await ShopAdmin.goesTo(AdminCustomerDetail.url(customer.id));
             const userCustomerGroup = await AdminCustomerDetail.getCustomerGroup();
-            await ShopAdmin.expects(userCustomerGroup).toHaveText(accountData.customerGroup);
+            await ShopAdmin.expects(userCustomerGroup).toHaveText(accountData.customerGroup, { timeout: 10000 });
             const accountStatus = await AdminCustomerDetail.getAccountStatus();
             await ShopAdmin.expects(accountStatus).toHaveText(accountData.accountStatus? 'Active': 'Inactive');
             const language = await AdminCustomerDetail.getLanguage();

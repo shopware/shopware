@@ -1,5 +1,4 @@
 import deepmerge from 'deepmerge';
-import DomAccess from 'src/helper/dom-access.helper';
 import StringHelper from 'src/helper/string.helper';
 import NativeEventEmitter from 'src/helper/emitter.helper';
 
@@ -16,7 +15,7 @@ export default class Plugin {
      * @param {string} pluginName
      */
     constructor(el, options = {}, pluginName = false) {
-        if (!DomAccess.isNode(el)) {
+        if (!(el instanceof Node)) {
             throw new Error('There is no valid element given.');
         }
 
@@ -79,10 +78,13 @@ export default class Plugin {
      * @private
      */
     _mergeOptions(options) {
-        const dashedPluginName = StringHelper.toDashCase(this._pluginName);
-        const dataAttributeConfig = DomAccess.getDataAttribute(this.el, `data-${dashedPluginName}-config`, false);
-        const dataAttributeOptions = DomAccess.getAttribute(this.el, `data-${dashedPluginName}-options`, false);
+        if (typeof this.el.getAttribute !== 'function') {
+            return;
+        }
 
+        const dashedPluginName = StringHelper.toDashCase(this._pluginName);
+        const dataAttributeConfig = this.el.getAttribute(`data-${dashedPluginName}-config`);
+        const dataAttributeOptions = this.el.getAttribute(`data-${dashedPluginName}-options`);
 
         // static plugin options
         // previously merged options

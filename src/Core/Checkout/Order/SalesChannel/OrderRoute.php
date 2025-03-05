@@ -73,7 +73,7 @@ class OrderRoute extends AbstractOrderRoute
         } elseif ($deepLinkFilter === null) {
             // @deprecated tag:v6.8.0 - remove this if block
             if (!Feature::isActive('v6.8.0.0')) {
-                throw CartException::customerNotLoggedIn(); // @phpstan-ignore-line shopware.domainException
+                throw CartException::customerNotLoggedIn(); // @phpstan-ignore shopware.domainException
             }
             throw OrderException::customerNotLoggedIn();
         }
@@ -204,14 +204,14 @@ class OrderRoute extends AbstractOrderRoute
     private function checkGuestAuth(?OrderEntity $order, Request $request): void
     {
         if ($order === null) {
-            throw OrderException::guestNotAuthenticatedException();
+            throw OrderException::guestNotAuthenticated();
         }
 
         $orderCustomer = $order->getOrderCustomer();
         if ($orderCustomer === null) {
             // @deprecated tag:v6.8.0 - remove this if block
             if (!Feature::isActive('v6.8.0.0')) {
-                throw CartException::customerNotLoggedIn(); // @phpstan-ignore-line shopware.domainException
+                throw CartException::customerNotLoggedIn(); // @phpstan-ignore shopware.domainException
             }
             throw OrderException::customerNotLoggedIn();
         }
@@ -221,7 +221,7 @@ class OrderRoute extends AbstractOrderRoute
         if (!$guest) {
             // @deprecated tag:v6.8.0 - remove this if block
             if (!Feature::isActive('v6.8.0.0')) {
-                throw CartException::customerNotLoggedIn(); // @phpstan-ignore-line shopware.domainException
+                throw CartException::customerNotLoggedIn(); // @phpstan-ignore shopware.domainException
             }
             throw OrderException::customerNotLoggedIn();
         }
@@ -232,10 +232,10 @@ class OrderRoute extends AbstractOrderRoute
             if ($billingAddress === null
                 || $request->get('email') !== $orderCustomer->getEmail()
                 || $request->get('zipcode') !== $billingAddress->getZipcode()) {
-                throw OrderException::wrongGuestCredentialsException();
+                throw OrderException::wrongGuestCredentials();
             }
         } else {
-            throw OrderException::guestNotAuthenticatedException();
+            throw OrderException::guestNotAuthenticated();
         }
     }
 }

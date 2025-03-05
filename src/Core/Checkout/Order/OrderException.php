@@ -205,11 +205,15 @@ class OrderException extends HttpException
      */
     public static function guestNotAuthenticated(): self
     {
-        return new self(
-            Response::HTTP_FORBIDDEN,
-            self::CHECKOUT_GUEST_NOT_AUTHENTICATED,
-            'Guest not authenticated.'
-        );
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new self(
+                Response::HTTP_FORBIDDEN,
+                self::CHECKOUT_GUEST_NOT_AUTHENTICATED,
+                'Guest not authenticated.'
+            );
+        }
+
+        return new GuestNotAuthenticatedException();
     }
 
     /**
@@ -217,11 +221,15 @@ class OrderException extends HttpException
      */
     public static function wrongGuestCredentials(): self
     {
-        return new self(
-            Response::HTTP_FORBIDDEN,
-            self::CHECKOUT_GUEST_WRONG_CREDENTIALS,
-            'Wrong credentials for guest authentication.'
-        );
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new self(
+                Response::HTTP_FORBIDDEN,
+                self::CHECKOUT_GUEST_WRONG_CREDENTIALS,
+                'Wrong credentials for guest authentication.'
+            );
+        }
+
+        return new WrongGuestCredentialsException();
     }
 
     public static function invalidUuid(string $uuid): self
@@ -272,21 +280,5 @@ class OrderException extends HttpException
                 'stateMachine' => $stateMachineName,
             ]
         );
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed, use OrderException::guestNotAuthenticated() instead
-     */
-    public static function guestNotAuthenticatedException(): GuestNotAuthenticatedException
-    {
-        return new GuestNotAuthenticatedException();
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed, use OrderException::wrongGuestCredentials() instead
-     */
-    public static function wrongGuestCredentialsException(): WrongGuestCredentialsException
-    {
-        return new WrongGuestCredentialsException();
     }
 }

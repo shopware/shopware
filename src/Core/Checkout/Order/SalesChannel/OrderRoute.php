@@ -204,6 +204,9 @@ class OrderRoute extends AbstractOrderRoute
     private function checkGuestAuth(?OrderEntity $order, Request $request): void
     {
         if ($order === null) {
+            if (!Feature::isActive('v6.8.0.0')) {
+                throw OrderException::guestNotAuthenticatedException();
+            }
             throw OrderException::guestNotAuthenticated();
         }
 
@@ -232,9 +235,15 @@ class OrderRoute extends AbstractOrderRoute
             if ($billingAddress === null
                 || $request->get('email') !== $orderCustomer->getEmail()
                 || $request->get('zipcode') !== $billingAddress->getZipcode()) {
+                if (!Feature::isActive('v6.8.0.0')) {
+                    throw OrderException::wrongGuestCredentialsException();
+                }
                 throw OrderException::wrongGuestCredentials();
             }
         } else {
+            if (!Feature::isActive('v6.8.0.0')) {
+                throw OrderException::guestNotAuthenticatedException();
+            }
             throw OrderException::guestNotAuthenticated();
         }
     }

@@ -5,7 +5,7 @@ import template from './sw-datepicker.html.twig';
  *
  * @private
  * @status ready
- * @description Wrapper component for sw-textarea-field and mt-textarea. Autoswitches between the two components.
+ * @description Wrapper component for sw-datepicker and mt-datepicker. Autoswitches between the two components.
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
@@ -32,22 +32,6 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        useMeteorComponent() {
-            // Use new meteor component in major
-            if (Shopware.Feature.isActive('ENABLE_METEOR_COMPONENTS')) {
-                return true;
-            }
-
-            // Throw warning when deprecated component is used
-            Shopware.Utils.debug.warn(
-                'sw-textarea-field',
-                // eslint-disable-next-line max-len
-                'The old usage of "sw-textarea-field" is deprecated and will be removed in v6.7.0.0. Please use "mt-textarea" instead.',
-            );
-
-            return false;
-        },
-
         realValue: {
             get() {
                 return this.modelValue || this.value;

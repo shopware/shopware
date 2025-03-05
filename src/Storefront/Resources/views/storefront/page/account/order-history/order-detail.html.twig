@@ -125,36 +125,33 @@
                                                     {% endblock %}
 
                                                     {% block page_account_order_item_detail_tracking_code_label_value %}
-                                                        {% apply spaceless %}
-                                                            <dd class="col-6 col-md-7">
-                                                                {% set totalOutput = 0 %}
+                                                        <dd class="col-6 col-md-7">
+                                                            {% for delivery in order.deliveries %}
+                                                                {% set trackingCodes = delivery.trackingCodes %}
+                                                                {% set trackingUrl = delivery.shippingMethod.translated.trackingUrl %}
 
-                                                                {% for delivery in order.deliveries %}
-                                                                    {% set trackingCodes = delivery.trackingCodes %}
-                                                                    {% set trackingUrl = delivery.shippingMethod.translated.trackingUrl %}
+                                                                {% if trackingCodes|length > 0 %}
 
-                                                                    {% if trackingCodes|length > 0 %}
-                                                                        {% for trackingCode in trackingCodes %}
-                                                                            {% if trackingUrl %}
-                                                                                {% set output %}
-                                                                                    <a href="{{ trackingUrl|format(trackingCode) }}" target="_blank" rel="noopener">{{ trackingCode }}</a>
-                                                                                {% endset %}
-                                                                            {% else %}
-                                                                                {% set output %}
-                                                                                    <span>{{ trackingCode }}</span>
-                                                                                {% endset %}
-                                                                            {% endif %}
+                                                                    {% set trackingCodesOutput = [] %}
 
-                                                                            {% set totalOutput = totalOutput + 1 %}
+                                                                    {% for trackingCode in trackingCodes %}
+                                                                        {% if trackingUrl %}
+                                                                            {% set trackingCodesOutput = trackingCodesOutput|merge(
+                                                                                ['<a href="' ~ trackingUrl|format(trackingCode) ~ '" target="_blank" rel="noopener">' ~ trackingCode ~ '</a>']
+                                                                            ) %}
+                                                                        {% else %}
+                                                                            {% set trackingCodesOutput = trackingCodesOutput|merge(
+                                                                                ['<span>' ~ trackingCode ~ '</span>']
+                                                                            ) %}
+                                                                        {% endif %}
+                                                                    {% endfor %}
 
-                                                                            {% if totalOutput > 1 %}<span>, </span>{% endif %}{{ output }}
-                                                                        {% endfor %}
-                                                                    {% else %}
-                                                                        {{ 'account.orderTrackingNotAvailable'|trans|sw_sanitize }}
-                                                                    {% endif %}
-                                                                {% endfor %}
-                                                            </dd>
-                                                        {% endapply %}
+                                                                    {{- trackingCodesOutput|join(', ')|raw -}}
+                                                                {% else %}
+                                                                    {{ 'account.orderTrackingNotAvailable'|trans|sw_sanitize }}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </dd>
                                                     {% endblock %}
                                                 {% endif %}
                                             {% endblock %}

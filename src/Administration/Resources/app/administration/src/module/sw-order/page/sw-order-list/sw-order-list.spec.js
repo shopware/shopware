@@ -69,7 +69,6 @@ async function createWrapper() {
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
                 'sw-pagination': true,
-                'sw-icon': true,
                 'sw-data-grid-settings': true,
                 'sw-empty-state': true,
                 'router-link': {

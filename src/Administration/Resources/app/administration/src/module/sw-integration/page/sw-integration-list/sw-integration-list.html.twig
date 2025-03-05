@@ -6,9 +6,9 @@
         <h2>
             {% block sw_integration_list_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
-            <sw-icon
+            <mt-icon
                 name="regular-chevron-right-xs"
-                small
+                size="16px"
             />
             {{ $tc('sw-integration.general.headlineIntegrations') }}
             {% endblock %}
@@ -19,7 +19,6 @@
 
     <template #smart-bar-actions>
         {% block sw_integration_list_smart_bar_actions %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
@@ -41,7 +40,7 @@
         <sw-card-view class="sw-integration-list__content">
 
             {% block sw_integration_list_introduction %}
-            <sw-card
+            <mt-card
                 :hero="true"
                 position-identifier="sw-integration-list-introduction"
             >
@@ -49,11 +48,11 @@
                     {{ $tc('sw-integration.general.heroHeadlineIntegrations') }}
                 </h3>
                 <p>{{ $tc('sw-integration.general.heroDescriptionIntegrations') }}</p>
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
             {% block sw_integration_list_overview %}
-            <sw-card
+            <mt-card
                 :is-loading="isLoading"
                 class="sw-integration-list__overview"
                 position-identifier="sw-integration-list-overview"
@@ -84,8 +83,9 @@
                         />
 
                         {% block sw_integration_list_detail_modal_inner_acl_is_admin %}
-                        <sw-switch-field
-                            v-model:value="currentIntegration.admin"
+
+                        <mt-switch
+                            v-model="currentIntegration.admin"
                             name="sw-field--currentIntegration-admin"
                             class="sw-settings-user-detail__grid-is-admin"
                             :label="$tc('sw-users-permissions.users.user-detail.labelAdministrator')"
@@ -137,9 +137,9 @@
                             :copyable-tooltip="true"
                         />
 
-                        <sw-password-field
+                        <mt-password-field
                             v-if="secretAccessKeyFieldTypeIsPassword"
-                            v-model:value="currentIntegration.secretAccessKey"
+                            v-model="currentIntegration.secretAccessKey"
                             name="sw-field--currentIntegration-secretAccessKey"
                             :label="$tc('sw-integration.detail.secretFieldLabel')"
                             :disabled="true"
@@ -149,7 +149,6 @@
                         />
                     </template>
 
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         v-if="!showSecretAccessKey"
                         variant="critical"
@@ -183,10 +182,10 @@
                     {% block sw_integration_list_detail_modal_inner_footer %}
                     <template #modal-footer>
                         {% block sw_integration_list_detail_modal_inner_footer_cancel %}
-                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                         <mt-button
                             size="small"
                             :disabled="isModalLoading"
+                            variant="secondary"
                             @click="onCloseDetailModal"
                         >
                             {{ $tc('global.default.cancel') }}
@@ -194,7 +193,6 @@
                         {% endblock %}
 
                         {% block sw_integration_list_detail_modal_inner_footer_apply %}
-                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                         <mt-button
                             size="small"
                             class="sw-integration-detail-modal__save-action"
@@ -229,7 +227,7 @@
                     {% block sw_integration_list_grid_inner_slot_columns_label %}
                     <template #column-label="{ item }">
                         <span class="sw-integration-list__app-icon">
-                            <sw-icon name="regular-share" />
+                            <mt-icon name="regular-share" />
                         </span>
                         <a
                             href="#"
@@ -306,15 +304,14 @@
 
                             {% block sw_integration_list_grid_inner_slot_delete_modal_footer %}
                             <template #modal-footer>
-                                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                                 <mt-button
                                     size="small"
+                                    variant="secondary"
                                     @click="onCloseDeleteModal"
                                 >
                                     {{ $tc('global.default.cancel') }}
                                 </mt-button>
 
-                                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                                 <mt-button
                                     size="small"
                                     variant="primary"
@@ -338,7 +335,7 @@
                 />
                 {% endblock %}
                 {% endblock %}
-            </sw-card>
+            </mt-card>
         {% endblock %}
         </sw-card-view>
         {% endblock %}

@@ -46,9 +46,6 @@ async function createWrapper(
                         template: '<div><slot name="content"></slot></div>',
                     },
                     'sw-select-field': true,
-                    'sw-icon': {
-                        template: '<div></div>',
-                    },
                     'sw-pagination': {
                         template: '<div></div>',
                     },
@@ -66,7 +63,7 @@ async function createWrapper(
                     'sw-media-modal-v2': {
                         template: '<div class="sw-media-modal-v2-mock"></div>',
                     },
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot name="grid"></slot></div>',
                     },
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),

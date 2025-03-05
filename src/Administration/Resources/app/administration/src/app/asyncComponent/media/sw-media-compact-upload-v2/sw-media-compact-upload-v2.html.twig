@@ -17,7 +17,6 @@
     >
         <sw-button-group split-button>
             {% block sw_media_upload_v2_compact_button_file_upload %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 :disabled="disabled"
                 class="sw-media-upload-v2__button-compact-upload"
@@ -34,14 +33,13 @@
                 :disabled="disabled"
             >
                 <template #button>
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         :disabled="disabled"
                         square
                         variant="primary"
                         class="sw-media-upload-v2__button-context-menu"
                     >
-                        <sw-icon
+                        <mt-icon
                             name="regular-chevron-down-xs"
                             size="16"
                         />
@@ -138,7 +136,7 @@
                     v-else
                     class="sw-media-upload-v2__preview is--fallback"
                 >
-                    <sw-icon
+                    <mt-icon
                         class="sw-media-upload-v2__fallback-icon"
                         name="regular-image"
                     />
@@ -159,7 +157,7 @@
                     <div class="sw-media-upload-v2__file-headline">
                         {{ mediaNameFilter(source) }}
                     </div>
-                    <sw-icon
+                    <mt-icon
                         class="sw-media-upload-v2__remove-icon"
                         name="regular-times-xs"
                         @click="onRemoveMediaItem"
@@ -179,12 +177,12 @@
                     {% block sw_media_upload_v2_regular_actions_add %}
                     <template v-if="!isUrlUpload">
                         {% block sw_media_upload_v2_regular_upload_button %}
-                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                         <mt-button
                             class="sw-media-upload-v2__button upload"
                             :disabled="isLoading || disabled"
                             ghost
                             size="small"
+                            variant="secondary"
                             @click="onClickUpload"
                         >
                             {{ buttonFileUploadLabel }}
@@ -192,14 +190,13 @@
                         {% endblock %}
 
                         <template v-if="!privateFilesystem">
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 variant="primary"
                                 :disabled="disabled"
                                 class="sw-media-compact-upload-v2__browse-button"
                                 @click="mediaModalIsOpen = true"
                             >
-                                <sw-icon
+                                <mt-icon
                                     class="sw-media-compact-upload-v2__browse-icon"
                                     name="regular-image"
                                 />

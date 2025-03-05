@@ -1,5 +1,5 @@
 {% block sw_custom_field_list %}
-<sw-card
+<mt-card
     class="sw-custom-field-list"
     position-identifier="sw-custom-field-list"
 >
@@ -20,7 +20,6 @@
             {% endblock %}
 
             {% block sw_custom_field_list_toolbar_delete %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-tooltip.bottom="{
                     message: $tc('sw-privileges.tooltip.warning'),
@@ -31,17 +30,17 @@
                 square
                 size="small"
                 class="sw-custom-field-list__delete-button"
+                variant="secondary"
                 @click="onDeleteCustomFields"
             >
-                <sw-icon
+                <mt-icon
                     name="regular-trash"
-                    small
+                    size="16px"
                 />
             </mt-button>
             {% endblock %}
 
             {% block sw_custom_field_list_toolbar_add %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-tooltip.bottom="{
                     message: $tc('sw-privileges.tooltip.warning'),
@@ -51,6 +50,7 @@
                 :disabled="set.isLoading || !acl.can('custom_field.editor') || undefined"
                 size="small"
                 class="sw-custom-field-list__add-button"
+                variant="secondary"
                 @click="onAddCustomField(set)"
             >
                 {{ $tc('sw-settings-custom-field.set.detail.addCustomField') }}
@@ -135,8 +135,8 @@
 
                 {% block sw_custom_field_list_grid_column_custom_field_position_edit %}
                 <template #inline-edit>
-                    <sw-number-field
-                        v-model:value="item.config.customFieldPosition"
+                    <mt-number-field
+                        v-model="item.config.customFieldPosition"
                         number-type="int"
                     />
                 </template>
@@ -236,9 +236,9 @@
         {% block sw_custom_field_list_custom_field_delete_actions %}
         <template #modal-footer>
             {% block sw_custom_field_list_custom_field_delete_action_cancel %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCancelDeleteCustomField"
             >
                 {{ $tc('global.default.cancel') }}
@@ -246,7 +246,6 @@
             {% endblock %}
 
             {% block sw_custom_field_list_custom_field_delete_action_confirm %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 variant="critical"
                 size="small"
@@ -263,5 +262,5 @@
     {% block sw_custom_field_list_loader %}
     <sw-loader v-if="isLoading" />
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

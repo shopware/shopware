@@ -4,6 +4,7 @@
     {% block sw_order_detail_details_payment %}
     <sw-order-details-state-card
         v-if="transaction"
+        position="transaction"
         :title="$tc('sw-order.detailsTab.labelTransactionCard')"
         :order="order"
         :entity="transaction"
@@ -44,6 +45,7 @@
     {% block sw_order_detail_details_shipping %}
     <sw-order-details-state-card
         v-if="delivery"
+        position="delivery"
         :title="$tc('sw-order.detailsTab.labelDeliveryCard')"
         :order="order"
         :entity="delivery"
@@ -78,8 +80,8 @@
         {% endblock %}
 
         {% block sw_order_detail_details_shipping_costs %}
-        <sw-number-field
-            v-model:value="shippingCosts"
+        <mt-number-field
+            v-model="shippingCosts"
             class="sw-order-detail-details__shipping-cost"
             :disabled="!acl.can('order.editor')"
             fill-digits
@@ -88,12 +90,12 @@
             <template #suffix>
                 {{ order.currency.symbol }}
             </template>
-        </sw-number-field>
+        </mt-number-field>
         {% endblock %}
 
         {% block sw_order_detail_details_shipping_date %}
-        <sw-datepicker
-            v-model:value="delivery.shippingDateEarliest"
+        <mt-datepicker
+            v-model="delivery.shippingDateEarliest"
             disabled
             hide-hint
             :label="$tc('sw-order.detailDeliveries.labelDeliveryDate')"
@@ -124,6 +126,7 @@
 
     {% block sw_order_detail_details_order %}
     <sw-order-details-state-card
+        position="order"
         :title="$tc('sw-order.detailsTab.labelOrderCard')"
         :order="order"
         :entity="order"
@@ -201,8 +204,8 @@
         {% endblock %}
 
         {% block sw_order_detail_details_order_customer_comment %}
-        <sw-textarea-field
-            v-model:value="order.customerComment"
+        <mt-textarea
+            v-model="order.customerComment"
             class="sw-order-detail-details__customer-comment"
             :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.detailBase.labelCustomerComment')"
@@ -226,7 +229,7 @@
         position-identifier="sw-order-detail-base-custom-fields__before"
     />
 
-    <sw-card
+    <mt-card
         v-if="customFieldSets.length > 0"
         position-identifier="sw-order-detail-details-custom-fields"
         :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
@@ -236,7 +239,7 @@
             :disabled="!acl.can('order.editor')"
             :sets="customFieldSets"
         />
-    </sw-card>
+    </mt-card>
 
     <sw-extension-component-section
         position-identifier="sw-order-detail-base-custom-fields__after"

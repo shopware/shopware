@@ -12,7 +12,6 @@ const createWrapper = async () => {
             global: {
                 renderStubDefaultSlot: true,
                 stubs: {
-                    'sw-card': true,
                     'sw-container': true,
                     'sw-select-rule-create': true,
                     'sw-context-button': true,
@@ -20,7 +19,7 @@ const createWrapper = async () => {
                     'sw-context-menu-item': true,
 
                     'sw-price-rule-modal': true,
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-inheritance-switch': true,
                     'sw-inherit-wrapper': true,
                     'sw-single-select': true,

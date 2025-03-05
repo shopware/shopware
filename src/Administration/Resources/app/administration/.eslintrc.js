@@ -23,6 +23,7 @@ const baseRules = {
     'comma-dangle': ['error', 'always-multiline'],
     'sw-core-rules/require-position-identifier': ['error', {
         components: [
+            'sw-button',
             'sw-card',
             'sw-tabs',
             'sw-extension-component-section',
@@ -206,8 +207,23 @@ module.exports = {
                 'sw-deprecation-rules/no-deprecated-components': ['error', {
                     fix: true,
                     activatedComponents: [
+                        'sw-button',
+                        'sw-colorpicker',
                         'sw-alert',
-                        'sw-text-field'
+                        'sw-progress-bar',
+                        'sw-button',
+                        'sw-text-field',
+                        'sw-email-field',
+                        'sw-card',
+                        'sw-switch-field',
+                        'sw-textarea-field',
+                        'sw-icon',
+                        'sw-url-field',
+                        'sw-datepicker',
+                        'sw-select-field',
+                        'sw-checkbox-field',
+                        'sw-number-field',
+                        'sw-password-field',
                     ],
                 }],
                 // @deprecated v.6.7.0.0 - will be error in v.6.7
@@ -248,7 +264,6 @@ module.exports = {
                 'jest/require-top-level-describe': 'error',
                 'jest/prefer-to-contain': 'error',
                 'jest/prefer-to-have-length': 'error',
-                'jest/no-disabled-tests': 'warn',
                 'jest/consistent-test-it': ['error', { fn: 'it', withinDescribe: 'it' }],
                 'jest/valid-expect': [
                     'error',

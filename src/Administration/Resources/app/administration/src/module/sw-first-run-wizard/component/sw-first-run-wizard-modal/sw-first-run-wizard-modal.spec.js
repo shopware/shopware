@@ -24,7 +24,6 @@ async function createWrapper(routerViewComponent = 'sw-first-run-wizard-welcome'
                 'sw-modal': await wrapTestComponent('sw-modal'),
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-loader': true,
-                'sw-icon': true,
                 'router-view': {
                     template: '<div class="router-view"><slot v-bind="slotBindings"></slot></div>',
                     data() {
@@ -35,7 +34,6 @@ async function createWrapper(routerViewComponent = 'sw-first-run-wizard-welcome'
                         };
                     },
                 },
-                'sw-password-field': true,
                 'sw-step-display': true,
                 'sw-step-item': true,
                 'sw-plugin-card': true,

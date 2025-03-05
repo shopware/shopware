@@ -19,11 +19,11 @@
 
         <template #actions>
             {% block sw_settings_search_searchable_content_customfields_empty_state_action %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 ghost
                 size="small"
                 :disabled="!acl.can('product_search_config.creator')"
+                variant="secondary"
                 @click="onAddField"
             >
                 {{ $tc('sw-settings-search.generalTab.buttonAddContent') }}
@@ -89,8 +89,8 @@
         <template #column-ranking="{ item, isInlineEdit }">
             <template v-if="isInlineEdit">
                 {% block sw_settings_search_searchable_content_customfields_ranking_editor %}
-                <sw-number-field
-                    v-model:value="item.ranking"
+                <mt-number-field
+                    v-model="item.ranking"
                     number-type="int"
                     size="small"
                 />
@@ -103,25 +103,25 @@
         <template #column-searchable="{ item, isInlineEdit }">
             <template v-if="isInlineEdit">
                 {% block sw_settings_search_searchable_content_customfields_searchable_editor %}
-                <sw-checkbox-field
-                    v-model:value="item.searchable"
+                <mt-checkbox
+                    v-model:checked="item.searchable"
                 />
                 {% endblock %}
             </template>
 
             <template v-else>
                 {% block sw_settings_search_searchable_content_customfields_searchable_label %}
-                <sw-icon
+                <mt-icon
                     v-if="item.searchable"
                     class="is--active"
                     name="regular-checkmark-xs"
-                    small
+                    size="16px"
                 />
-                <sw-icon
+                <mt-icon
                     v-else
                     class="is--inactive"
                     name="regular-times-s"
-                    small
+                    size="16px"
                 />
                 {% endblock %}
             </template>
@@ -132,25 +132,25 @@
         <template #column-tokenize="{ item, isInlineEdit }">
             <template v-if="isInlineEdit">
                 {% block sw_settings_search_searchable_content_customfields_tokenize_editor %}
-                <sw-checkbox-field
-                    v-model:value="item.tokenize"
+                <mt-checkbox
+                    v-model:checked="item.tokenize"
                 />
                 {% endblock %}
             </template>
 
             <template v-else>
                 {% block sw_settings_search_searchable_content_customfields_tokenize_label %}
-                <sw-icon
+                <mt-icon
                     v-if="item.tokenize"
                     class="is--active"
                     name="regular-checkmark-xs"
-                    small
+                    size="16px"
                 />
-                <sw-icon
+                <mt-icon
                     v-else
                     class="is--inactive"
                     name="regular-times-s"
-                    small
+                    size="16px"
                 />
                 {% endblock %}
             </template>

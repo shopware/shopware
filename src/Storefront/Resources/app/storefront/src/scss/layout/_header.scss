@@ -9,34 +9,6 @@ The header contains the shop logo, the search form and various actions like the 
     padding: $spacer-sm 0;
 }
 
-@if not feature('v6.7.0.0') {
-    .header-logo-col {
-        margin: $spacer 0;
-    }
-
-    .header-logo-main {
-        text-align: center;
-        display: block;
-    }
-
-    .header-logo-main-link {
-        width: 100%;
-    }
-
-    .header-search {
-        margin: $spacer-sm 0;
-    }
-
-    .header-cart-total {
-        display: none;
-    }
-
-    .header-logo-picture {
-        display: block;
-        margin: auto;
-    }
-}
-
 .header-logo-picture {
     max-width: 300px;
     min-width: 200px;
@@ -88,22 +60,6 @@ The header contains the shop logo, the search form and various actions like the 
 
     .header-search {
         max-width: 400px;
-    }
-
-    @if not feature('v6.7.0.0') {
-        .header-search {
-            margin: auto;
-        }
-
-
-        .header-logo-col {
-            padding-bottom: $spacer-sm;
-        }
-
-        .header-cart-total {
-            display: inline-block;
-            margin-left: $spacer-sm;
-        }
     }
 }
 

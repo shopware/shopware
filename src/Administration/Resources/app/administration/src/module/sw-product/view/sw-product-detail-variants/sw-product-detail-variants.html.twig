@@ -2,7 +2,7 @@
 <div class="sw-product-detail-variants">
 
     {% block sw_product_detail_variants_sw_card_generated_variants %}
-    <sw-card
+    <mt-card
         class="sw-product-detail-variants__generated-variants"
         position-identifier="sw-product-detail-variants-generated-variants"
         :class="{'is--loading': isLoading}"
@@ -64,7 +64,6 @@
 
             <template #actions>
                 {% block sw_product_properties_empty_state_button_property %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
@@ -73,6 +72,7 @@
                     }"
                     ghost
                     :disabled="!acl.can('product.editor')"
+                    variant="secondary"
                     @click="openAddPropertiesModal"
                 >
                     {{ $tc('sw-product.properties.buttonAddProperties') }}
@@ -102,7 +102,6 @@
 
             <template #actions>
                 {% block sw_product_properties_empty_state_button %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
@@ -112,6 +111,7 @@
                     class="sw-product-detail-variants__generated-variants-empty-state-button"
                     ghost
                     :disabled="!acl.can('product.creator')"
+                    variant="secondary"
                     @click="openModal('variantGeneration')"
                 >
                     {{ $tc('sw-product.variations.emptyStateButton') }}
@@ -136,7 +136,7 @@
         />
         {% endblock %}
 
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_product_detail_variants_modal_variant_generation %}

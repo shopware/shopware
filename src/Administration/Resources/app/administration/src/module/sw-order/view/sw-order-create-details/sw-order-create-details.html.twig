@@ -14,7 +14,7 @@
     {% endblock %}
 
     {% block sw_order_create_details_payment %}
-    <sw-card
+    <mt-card
         class="sw-order-create-details__payment"
         position-identifier="sw-order-create-details-payment"
         :title="$tc('sw-order.createBase.detailsTab.labelTransactionCard')"
@@ -55,11 +55,11 @@
                 required
             />
         </sw-container>
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_order_create_details_shipping %}
-    <sw-card
+    <mt-card
         class="sw-order-create-details__shipping"
         position-identifier="sw-order-create-details-shipping"
         :title="$tc('sw-order.createBase.detailsTab.labelDeliveryCard')"
@@ -89,8 +89,8 @@
                 required
             />
 
-            <sw-number-field
-                v-model:value="shippingCosts"
+            <mt-number-field
+                v-model="shippingCosts"
                 :label="$tc('sw-order.createBase.labelShippingCosts')"
                 :min="0"
                 fill-digits
@@ -99,20 +99,20 @@
                 <template #suffix>
                     {{ currency.symbol }}
                 </template>
-            </sw-number-field>
+            </mt-number-field>
 
-            <sw-datepicker
-                v-model:value="deliveryDate"
+            <mt-datepicker
+                v-model="deliveryDate"
                 disabled
                 hide-hint
                 :label="$tc('sw-order.detailDeliveries.labelDeliveryDate')"
             />
         </sw-container>
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_order_create_details_order %}
-    <sw-card
+    <mt-card
         class="sw-order-create-details__order"
         position-identifier="sw-order-create-details-order"
         :title="$tc('sw-order.createBase.detailsTab.labelOrderCard')"
@@ -184,14 +184,15 @@
         {% endblock %}
 
         {% block sw_order_create_details_switch_disable_auto_promotion %}
-        <sw-switch-field
+
+        <mt-switch
             class="sw-order-create-details__disable-auto-promotion"
-            :value="disabledAutoPromotion"
+            :checked="disabledAutoPromotion"
             :label="$tc('sw-order.createBase.labelToggleAutomaticPromotions')"
-            @update:value="toggleAutomaticPromotions"
+            @change="toggleAutomaticPromotions"
         />
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>
 {% endblock %}

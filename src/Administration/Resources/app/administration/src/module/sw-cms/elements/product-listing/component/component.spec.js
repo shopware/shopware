@@ -47,7 +47,6 @@ async function createWrapper() {
                         template: '<div>Product-Box</div>',
                         props: ['element'],
                     },
-                    'sw-icon': true,
                 },
                 provide: {
                     cmsService: {

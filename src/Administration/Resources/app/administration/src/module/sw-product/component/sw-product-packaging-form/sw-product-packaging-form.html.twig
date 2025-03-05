@@ -12,7 +12,7 @@
         >
             <template #content="props">
 
-                <sw-number-field
+                <mt-number-field
                     :map-inheritance="props"
                     :label="$tc('sw-product.settingsForm.labelWidth')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderWidth')"
@@ -20,13 +20,13 @@
                     :min="0"
                     :error="productWidthError"
                     :disabled="props.isInherited || !allowEdit"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
                 >
                     <template #suffix>
                         <span>mm</span>
                     </template>
-                </sw-number-field>
+                </mt-number-field>
 
             </template>
         </sw-inherit-wrapper>
@@ -40,7 +40,7 @@
         >
             <template #content="props">
 
-                <sw-number-field
+                <mt-number-field
                     :map-inheritance="props"
                     :label="$tc('sw-product.settingsForm.labelHeight')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderHeight')"
@@ -48,13 +48,13 @@
                     :min="0"
                     :error="productHeightError"
                     :disabled="props.isInherited || !allowEdit"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
                 >
                     <template #suffix>
                         <span>mm</span>
                     </template>
-                </sw-number-field>
+                </mt-number-field>
 
             </template>
         </sw-inherit-wrapper>
@@ -68,7 +68,7 @@
         >
             <template #content="props">
 
-                <sw-number-field
+                <mt-number-field
                     :map-inheritance="props"
                     :label="$tc('sw-product.settingsForm.labelLength')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderLength')"
@@ -76,13 +76,13 @@
                     :min="0"
                     :error="productLengthError"
                     :disabled="props.isInherited || !allowEdit"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
                 >
                     <template #suffix>
                         <span>mm</span>
                     </template>
-                </sw-number-field>
+                </mt-number-field>
 
             </template>
         </sw-inherit-wrapper>
@@ -100,7 +100,7 @@
         >
             <template #content="props">
 
-                <sw-number-field
+                <mt-number-field
                     :map-inheritance="props"
                     :label="$tc('sw-product.settingsForm.labelWeight')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderWeight')"
@@ -109,13 +109,13 @@
                     :digits="3"
                     :error="productWeightError"
                     :disabled="props.isInherited || !allowEdit"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
                 >
                     <template #suffix>
                         <span>kg</span>
                     </template>
-                </sw-number-field>
+                </mt-number-field>
 
             </template>
         </sw-inherit-wrapper>
@@ -130,7 +130,7 @@
         >
             <template #content="props">
 
-                <sw-number-field
+                <mt-number-field
                     class="sw-product-packaging-form__purchase-unit-field"
                     :map-inheritance="props"
                     number-type="float"
@@ -142,8 +142,8 @@
                     :disabled="props.isInherited || !allowEdit"
                     :placeholder="$tc('sw-product.priceForm.placeholderPurchaseUnit')"
                     :help-text="$tc('sw-product.packagingForm.purchaseUnitHelpText')"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
                 />
 
             </template>
@@ -239,7 +239,7 @@
         >
             <template #content="props">
 
-                <sw-number-field
+                <mt-number-field
                     class="sw-product-packaging-form__reference-unit-field"
                     :map-inheritance="props"
                     number-type="float"
@@ -250,9 +250,9 @@
                     :disabled="props.isInherited || !allowEdit"
                     :placeholder="$tc('sw-product.priceForm.placeholderReferenceUnit')"
                     :label="$tc('sw-product.priceForm.labelReferenceUnit')"
-                    :value="props.currentValue"
+                    :model-value="props.currentValue"
                     :help-text="$tc('sw-product.packagingForm.referenceUnitHelpText')"
-                    @update:value="props.updateCurrentValue"
+                    @update:model-value="props.updateCurrentValue"
                 />
 
             </template>

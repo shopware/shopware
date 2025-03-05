@@ -40,7 +40,6 @@
     <template #smart-bar-actions>
 
         {% block sw_property_list_add_button %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
@@ -115,20 +114,20 @@
                 <template #column-filterable="{ item, isInlineEdit }">
                     {% block sw_property_list_grid_columns_filterable_inline_edit %}
                     <template v-if="isInlineEdit">
-                        <sw-checkbox-field
-                            v-model:value="item.filterable"
+                        <mt-checkbox
+                            v-model:checked="item.filterable"
                         />
                     </template>
                     {% endblock %}
 
                     {% block sw_property_list_grid_columns_filterable_content %}
                     <template v-else>
-                        <sw-icon
+                        <mt-icon
                             v-if="item.filterable"
                             name="regular-checkmark-xs"
                             class="is--active"
                         />
-                        <sw-icon
+                        <mt-icon
                             v-else
                             name="regular-times-s"
                             class="is--inactive"
@@ -180,15 +179,14 @@
                         </p>
 
                         <template #modal-footer>
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 size="small"
+                                variant="secondary"
                                 @click="onCloseDeleteModal"
                             >
                                 {{ $tc('global.default.cancel') }}
                             </mt-button>
 
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 variant="critical"
                                 size="small"

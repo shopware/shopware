@@ -26,11 +26,6 @@ async function createWrapper() {
                     id: 'action-name',
                 },
             },
-            global: {
-                stubs: {
-                    'sw-icon': true,
-                },
-            },
         },
     );
 }

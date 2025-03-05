@@ -15,7 +15,7 @@
             @click="addRating(key)"
         >
             {% block sw_extension_rating_stars_wrapper_stars_full_star %}
-            <sw-icon
+            <mt-icon
                 name="solid-star"
                 :style="starSize"
             />
@@ -31,7 +31,7 @@
                     class="sw-extension-rating-stars__partial-star-wrapper"
                     :style="{ width: partialStarWidth }"
                 >
-                    <sw-icon
+                    <mt-icon
                         name="solid-star"
                         :size="partialStarSize"
                     />

@@ -33,8 +33,7 @@ async function createWrapper() {
                     'sw-text-field': true,
                     'sw-datepicker': true,
                     'sw-checkbox-field': true,
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                     'sw-base-field': await wrapTestComponent('sw-base-field', {
                         sync: true,
                     }),
@@ -55,7 +54,6 @@ async function createWrapper() {
                     'sw-upload-listener': true,
                     'sw-textarea-field': true,
                     'sw-field-error': true,
-                    'sw-icon': true,
                     'sw-media-modal-v2': true,
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,

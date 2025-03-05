@@ -92,9 +92,9 @@ async function createWrapper(privileges = []) {
                     </div>
                 `,
                     },
-                    'sw-card': {
+                    'mt-card': {
                         template: `
-                    <div class="sw-card">
+                    <div class="mt-card">
                         <slot name="grid"></slot>
                     </div>
                 `,
@@ -120,7 +120,6 @@ async function createWrapper(privileges = []) {
                     'sw-language-switch': true,
                     'sw-search-bar': true,
                     'sw-context-menu-item': true,
-                    'sw-icon': true,
                     'sw-checkbox-field': true,
                 },
             },

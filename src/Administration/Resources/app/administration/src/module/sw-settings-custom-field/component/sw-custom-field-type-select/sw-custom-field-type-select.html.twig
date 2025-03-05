@@ -2,8 +2,9 @@
 {% parent() %}
 
 {% block sw_custom_field_type_select_multi %}
-<sw-switch-field
-    v-model:value="multiSelectSwitch"
+
+<mt-switch
+    v-model="multiSelectSwitch"
     class="sw-custom-field-detail__switch"
     :disabled="multiSelectSwitchDisabled || undefined"
     :label="$tc('sw-settings-custom-field.customField.detail.labelMultiSelect')"
@@ -23,10 +24,10 @@
     {% endblock %}
 
     {% block sw_custom_field_type_select_options_delete %}
-    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
     <mt-button
         class="sw-custom-field-type-select__delete-option-button"
         size="small"
+        variant="secondary"
         @click="onDeleteOption(index)"
     >
         {{ $tc('sw-settings-custom-field.customField.detail.labelDeleteOption') }}
@@ -65,11 +66,11 @@
 {% endblock %}
 
 {% block sw_custom_field_type_select_add_option %}
-<!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
 <mt-button
     v-if="isOptionAddable"
     size="small"
     class="sw-custom-field-type-select__button-add"
+    variant="secondary"
     @click="onClickAddOption"
 >
     {{ $tc('sw-settings-custom-field.customField.detail.buttonAddOption') }}

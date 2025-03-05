@@ -28,10 +28,10 @@
                 size="16px"
             />
 
-            <sw-icon
+            <mt-icon
                 class="sw-settings-country-new-snippet-modal__search-icon"
                 name="regular-search-s"
-                small
+                size="16px"
             />
         </template>
     </sw-contextual-field>
@@ -82,9 +82,9 @@
 
                 <template #actions="{ item }">
 
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         v-if="item.childCount === 0"
+                        variant="secondary"
                         @click="addElement(item.data)"
                     >
                         {{ $tc('sw-settings-country.detail.buttonInsertSnippet') }}

@@ -140,7 +140,6 @@ async function createWrapper(layoutType = 'product_list', systemConfigApiService
                     'sw-multi-select': true,
                     'sw-entity-multi-select': true,
                     'sw-loader': true,
-                    'sw-icon': true,
                     'sw-cms-product-assignment': {
                         template: `
                         <div class="sw-cms-product-assignment">

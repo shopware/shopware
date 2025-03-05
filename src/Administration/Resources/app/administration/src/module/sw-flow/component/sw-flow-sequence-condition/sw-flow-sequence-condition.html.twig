@@ -15,10 +15,10 @@
         {% endblock %}
 
         {% block sw_flow_sequence_condition_true_arrow_icon %}
-        <sw-icon
+        <mt-icon
             v-if="showArrowIcon(true)"
             name="regular-chevron-right-s"
-            small
+            size="16px"
         />
 
         <sw-context-button
@@ -92,10 +92,10 @@
         {% endblock %}
 
         {% block sw_flow_sequence_condition_false_arrow_icon %}
-        <sw-icon
+        <mt-icon
             v-if="showArrowIcon(false)"
             name="regular-chevron-down-s"
-            small
+            size="16px"
         />
 
         <sw-context-button
@@ -178,7 +178,7 @@
                         v-if="!sequence.rule"
                         class="sw-flow-sequence-condition__rule-empty"
                     >
-                        <sw-icon
+                        <mt-icon
                             size="12px"
                             name="regular-rule-s"
                         />
@@ -196,7 +196,7 @@
                         {% block sw_flow_sequence_condition_rule_header %}
                         <div class="sw-flow-sequence-condition__rule-header">
                             <div class="sw-flow-sequence-condition__rule-icon">
-                                <sw-icon
+                                <mt-icon
                                     size="12px"
                                     name="regular-rule-s"
                                 />

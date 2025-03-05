@@ -6,6 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 
 #[Package('after-sales')]
 #[\Attribute(\Attribute::TARGET_CLASS)]
-class IsFlowEventAware
+final class IsFlowEventAware
 {
 }

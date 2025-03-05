@@ -20,7 +20,7 @@
                         class="sw-settings-tax-provider-sorting-modal__tax-provider-list-item"
                         :class="!taxProvider.active ? 'is--disabled' : ''"
                     >
-                        <sw-icon
+                        <mt-icon
                             class="sw-settings-tax-provider-sorting-modal__tax-provider-list-item__action"
                             name="regular-grip-vertical"
                         />
@@ -35,9 +35,9 @@
     </template>
 
     <template #modal-footer>
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             class="sw-settings-tax-provider-sorting-modal__cancel-button"
+            variant="secondary"
             @click="closeModal"
         >
             {{ $tc('global.default.cancel') }}

@@ -10,29 +10,27 @@
     <component
         :is="component"
         ref="edit-field"
-        :value="value"
         :placeholder="placeholder"
-        v-bind="$attrs"
+        v-bind="computedAttrs"
     />
     {% endblock %}
     {% endblock %}
     {% block sw_order_saveable_field_actions %}
     {% block sw_order_saveable_field_cancel_button %}
-    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
     <mt-button
         size="x-small"
         square
         aria-label="global.default.cancel"
+        variant="secondary"
         @click="onCancelButtonClicked"
     >
-        <sw-icon
+        <mt-icon
             name="regular-times-xs"
-            small
+            size="16px"
         />
     </mt-button>
     {%  endblock %}
     {%  block sw_order_saveable_field_save_button %}
-    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
     <mt-button
         size="x-small"
         variant="primary"
@@ -40,9 +38,9 @@
         square
         @click="onSaveButtonClicked"
     >
-        <sw-icon
+        <mt-icon
             name="regular-checkmark-xxs"
-            small
+            size="16px"
         />
     </mt-button>
     {%  endblock %}

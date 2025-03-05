@@ -364,7 +364,7 @@ export default {
             // Remove selector sequence type before saving
             this.removeAllSelectors();
 
-            if (!this.flow?.name  || !this.flow?.eventName) {
+            if (!this.flow?.name || !this.flow?.eventName) {
                 this.createNotificationWarning({
                     message: this.$tc('sw-flow.flowNotification.emptyFields.general'),
                 });

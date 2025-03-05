@@ -35,7 +35,6 @@ async function createWrapper(element = defaultElement) {
             global: {
                 stubs: {
                     'sw-cms-el-product-box': true,
-                    'sw-icon': true,
                 },
                 provide: {
                     cmsService: Shopware.Service('cmsService'),

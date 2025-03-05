@@ -127,7 +127,6 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
                     'sw-pagination': await wrapTestComponent('sw-pagination', {
                         sync: true,
                     }),
-                    'sw-icon': true,
                     'sw-time-ago': true,
                     'sw-label': {
                         template: '<div class="sw-label"><slot></slot></div>',

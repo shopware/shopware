@@ -65,7 +65,6 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
                     sync: true,
                 }),
                 'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field', { sync: true }),
-                'sw-icon': true,
                 'sw-context-menu': await wrapTestComponent('sw-context-menu', { sync: true }),
                 'sw-tree': await wrapTestComponent('sw-tree', {
                     sync: true,
@@ -79,7 +78,6 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
                 'sw-inheritance-switch': true,
                 'sw-price-field': true,
                 'sw-price-preview': true,
-                'sw-number-field': true,
                 'sw-text-field': true,
                 'sw-product-variants-media-upload': true,
                 'sw-upload-listener': true,
@@ -501,7 +499,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                 isSystemDefault: true,
                 translated: {
                     name: 'Euro',
-                }
+                },
             },
             {
                 id: 'b7d2554b0ce847cd82f3ac9bd1c0dfcb',
@@ -509,21 +507,23 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                 isSystemDefault: false,
                 translated: {
                     name: 'Dollar',
-                }
-            }
+                },
+            },
         ];
 
-        expect(wrapper.vm.currencyColumns).toEqual(expect.arrayContaining([
-            expect.objectContaining({
-                property: 'price.b7d2554b0ce847cd82f3ac9bd1c0dfca.net',
-                label: 'Euro',
-                visible: true,
-            }),
-            expect.objectContaining({
-                property: 'price.b7d2554b0ce847cd82f3ac9bd1c0dfcb.net',
-                label: 'Dollar',
-                visible: false,
-            }),
-        ]));
+        expect(wrapper.vm.currencyColumns).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    property: 'price.b7d2554b0ce847cd82f3ac9bd1c0dfca.net',
+                    label: 'Euro',
+                    visible: true,
+                }),
+                expect.objectContaining({
+                    property: 'price.b7d2554b0ce847cd82f3ac9bd1c0dfcb.net',
+                    label: 'Dollar',
+                    visible: false,
+                }),
+            ]),
+        );
     });
 });

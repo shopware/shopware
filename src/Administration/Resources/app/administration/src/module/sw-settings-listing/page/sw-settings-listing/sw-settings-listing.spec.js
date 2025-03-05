@@ -449,7 +449,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         'sw-card-view': {
                             template: '<div class=""><slot></slot></div>',
                         },
-                        'sw-card': {
+                        'mt-card': {
                             template: '<div><slot></slot></div>',
                         },
                         'sw-context-button': true,
@@ -461,7 +461,6 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         },
                         'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                         'sw-empty-state': true,
-                        'sw-icon': true,
                         'sw-pagination': await wrapTestComponent('sw-pagination'),
                         'sw-single-select': await wrapTestComponent('sw-single-select'),
                         'sw-select-base': await wrapTestComponent('sw-select-base'),

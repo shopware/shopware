@@ -24,8 +24,8 @@
         />
         {% endblock %}
         {% block sw_rule_modal_basic_info_priority %}
-        <sw-number-field
-            v-model:value="rule.priority"
+        <mt-number-field
+            v-model="rule.priority"
             name="sw-field--rule-priority"
             :label="$tc('sw-rule-modal.labelPriority')"
             :placeholder="$tc('sw-rule-modal.placeholderPriority')"
@@ -36,9 +36,9 @@
     </sw-container>
 
     {% block sw_rule_modal_basic_info_description %}
-    <sw-textarea-field
+    <mt-textarea
         v-if="rule"
-        v-model:value="rule.description"
+        v-model="rule.description"
         name="sw-field--rule-description"
         :label="$tc('sw-rule-modal.labelDescription')"
         :placeholder="$tc('sw-rule-modal.placeholderDescription')"
@@ -64,9 +64,9 @@
     <template #modal-footer>
         {% block sw_rule_modal_footer %}
         {% block sw_rule_modal_footer_button_abort %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             size="small"
+            variant="secondary"
             @click="$emit('modal-close')"
         >
             {{ $tc('global.default.cancel') }}
@@ -74,7 +74,6 @@
         {% endblock %}
 
         {% block sw_rule_modal_footer_button_save %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             :disabled="isLoading"
             class="sw-rule-modal__save"

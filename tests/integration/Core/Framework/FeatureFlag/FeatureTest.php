@@ -14,11 +14,18 @@ use Twig\Loader\FilesystemLoader;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type FeatureFlagConfig from Feature
  */
 #[Group('skip-paratest')]
 class FeatureTest extends TestCase
 {
     use KernelTestBehaviour;
+
+    /**
+     * @var array<string, FeatureFlagConfig>
+     */
+    public static array $features;
 
     public static string $featureAllValue;
 
@@ -38,15 +45,7 @@ class FeatureTest extends TestCase
     {
         self::$featureAllValue = $_SERVER['FEATURE_ALL'] ?? 'false';
         self::$appEnvValue = $_ENV['APP_ENV'] ?? $_SERVER['APP_ENV'];
-        KernelLifecycleManager::bootKernel(true, self::$customCacheId);
-    }
-
-    public static function tearDownAfterClass(): void
-    {
-        $_SERVER['FEATURE_ALL'] = self::$featureAllValue;
-        $_ENV['FEATURE_ALL'] = $_SERVER['FEATURE_ALL'];
-        $_SERVER['APP_ENV'] = self::$appEnvValue;
-        $_ENV['APP_ENV'] = $_SERVER['APP_ENV'];
+        self::$features = Feature::getRegisteredFeatures();
         KernelLifecycleManager::bootKernel(true, self::$customCacheId);
     }
 
@@ -59,7 +58,7 @@ class FeatureTest extends TestCase
         unset($_SERVER['FEATURE_NEXT_101'], $_SERVER['FEATURE_NEXT_102']);
 
         Feature::resetRegisteredFeatures();
-        Feature::registerFeatures(static::getContainer()->getParameter('shopware.feature.flags'));
+        Feature::registerFeatures(self::$features);
     }
 
     protected function tearDown(): void
@@ -70,6 +69,9 @@ class FeatureTest extends TestCase
         $_ENV['FEATURE_ALL'] = $_SERVER['FEATURE_ALL'];
 
         unset($_SERVER['FEATURE_NEXT_101'], $_SERVER['FEATURE_NEXT_102']);
+
+        Feature::resetRegisteredFeatures();
+        Feature::registerFeatures(self::$features);
 
         KernelLifecycleManager::bootKernel(true, self::$customCacheId);
     }
@@ -129,9 +131,8 @@ class FeatureTest extends TestCase
 
     public function testConfigGetAllReturnsAllAndTracksState(): void
     {
-        $this->setUp();
         $currentConfig = array_keys(Feature::getAll(false));
-        $featureFlags = array_keys(static::getContainer()->getParameter('shopware.feature.flags'));
+        $featureFlags = array_keys(self::$features);
 
         static::assertEquals(\array_map(Feature::normalizeName(...), $featureFlags), \array_map(Feature::normalizeName(...), $currentConfig));
 

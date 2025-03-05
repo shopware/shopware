@@ -1,6 +1,7 @@
 import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 import ShopwareService from 'src/module/sw-extension/service/shopware-extension.service';
+import selectMtSelectOptionByText from '../../../../../test/_helper_/select-mt-select-by-text';
 
 const routes = [
     {
@@ -49,15 +50,13 @@ async function createWrapper() {
                     'sw-pagination': await wrapTestComponent('sw-pagination', {
                         sync: true,
                     }),
-                    'sw-icon': true,
                     'sw-field': true,
                     // eslint-disable-next-line max-len
                     'sw-extension-my-extensions-listing-controls': await wrapTestComponent(
                         'sw-extension-my-extensions-listing-controls',
                         { sync: true },
                     ),
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                     'sw-base-field': await wrapTestComponent('sw-base-field', {
                         sync: true,
                     }),
@@ -334,7 +333,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         const allExtensions = wrapper.findAll('.sw-self-maintained-extension-card');
         expect(allExtensions).toHaveLength(25);
 
-        const switchField = wrapper.find('.sw-field--switch input[type="checkbox"]');
+        const switchField = wrapper.find('.mt-switch input[type="checkbox"]');
         await switchField.trigger('click');
 
         const filteredExtensions = wrapper.findAll('.sw-self-maintained-extension-card');
@@ -363,10 +362,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         await wrapper.vm.$nextTick();
 
-        const sortingOption = wrapper.find('option[value="name-desc"]');
-
-        // setting sorting option
-        await sortingOption.setSelected();
+        await selectMtSelectOptionByText(wrapper, 'sw-extension.my-extensions.listing.controls.filterOptions.name-desc');
 
         const correctOrder = [
             'very smart plugin',
@@ -401,12 +397,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         Shopware.Store.get('shopwareExtensions').setMyExtensions(extensions);
 
-        await wrapper.vm.$nextTick();
-
-        const sortingOption = wrapper.find('option[value="name-asc"]');
-
-        // setting sorting option
-        await sortingOption.setSelected();
+        await selectMtSelectOptionByText(wrapper, 'sw-extension.my-extensions.listing.controls.filterOptions.name-asc');
 
         const correctOrder = [
             '#1 best plugin',

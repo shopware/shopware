@@ -11,14 +11,14 @@
     {% block sw_product_detail_cross_selling_items_wrapper %}
     <template v-if="showCrossSellingCard">
         {% block sw_product_detail_cross_selling_restore_inheritance %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-if="isChild"
             class="sw-product-detail-cross-selling__restore-inheritance-btn"
             :disabled="!acl.can('product.editor')"
+            variant="secondary"
             @click="onShowRestoreInheritanceModal"
         >
-            <sw-icon
+            <mt-icon
                 key="inherit-icon"
                 name="regular-link-horizontal"
                 size="16px"
@@ -39,7 +39,6 @@
         {% endblock %}
 
         {% block sw_product_detail_cross_selling_add %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip="{
                 message: onAddCrossSellingTooltipMessage,
@@ -49,6 +48,7 @@
             class="sw-product-detail-cross-selling__add-btn"
             ghost
             :disabled="!acl.can('product.editor') || !isSystemDefaultLanguage"
+            variant="secondary"
             @click="onAddCrossSelling"
         >
             {{ $tc('sw-product.crossselling.buttonAddCrossSelling') }}
@@ -58,7 +58,7 @@
     {% endblock %}
 
     {% block sw_product_detail_cross_selling_empty_state_card %}
-    <sw-card
+    <mt-card
         v-else
         position-identifier="sw-product-detail-cross-selling-empty-state"
     >
@@ -93,9 +93,9 @@
                             class="sw-product-detail-cross-selling__parent-cross-sellings-link"
                         >
                             {{ $tc('sw-product.crossselling.linkCrossSellingsOfParent') }}
-                            <sw-icon
+                            <mt-icon
                                 name="regular-long-arrow-right"
-                                small
+                                size="16px"
                             />
                         </router-link>
                         {% endblock %}
@@ -122,8 +122,9 @@
                         class="sw-product-detail-cross-selling__inherit-toggle-wrapper"
                         :class="{ 'is--inherited': isInherited }"
                     >
-                        <sw-switch-field
-                            v-model:value="isInherited"
+
+                        <mt-switch
+                            v-model="isInherited"
                             class="sw-product-detail-cross-selling__inherit-switch"
                             :disabled="!acl.can('product.editor')"
                         />
@@ -146,7 +147,6 @@
             {% block sw_product_detail_cross_selling_empty_state_actions %}
             <template #actions>
                 {% block sw_product_detail_cross_selling_empty_state_actions_add %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     v-tooltip="{
                         message: onAddCrossSellingTooltipMessage,
@@ -155,6 +155,7 @@
                     }"
                     ghost
                     :disabled="isInherited || !acl.can('product.editor') || !isSystemDefaultLanguage"
+                    variant="secondary"
                     @click="onAddCrossSelling"
                 >
                     {{ $tc('sw-product.crossselling.buttonAddCrossSelling') }}
@@ -164,7 +165,7 @@
             {% endblock %}
         </sw-empty-state>
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_product_detail_cross_selling_modal_restore_inheritance %}
@@ -184,9 +185,9 @@
         {% block sw_product_detail_cross_selling_modal_restore_inheritance_footer %}
         <template #modal-footer>
             {% block sw_product_detail_cross_selling_modal_restore_inheritance_action_cancel %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCloseRestoreInheritanceModal"
             >
                 {{ $tc('global.default.cancel') }}
@@ -194,7 +195,6 @@
             {% endblock %}
 
             {% block sw_product_detail_cross_selling_modal_restore_inheritance_action_restore %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 class="sw-product-detail-cross-selling__restore-button"
                 size="small"

@@ -45,6 +45,7 @@ function getSnippetSetData() {
 }
 
 describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
+    const saveSpy = jest.fn(() => Promise.resolve());
     async function createWrapper(privileges = []) {
         return mount(
             await wrapTestComponent('sw-settings-snippet-set-list', {
@@ -78,6 +79,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
                         repositoryFactory: {
                             create: () => ({
                                 search: () => Promise.resolve(getSnippetSetData()),
+                                save: saveSpy,
                             }),
                         },
                         searchRankingService: {},
@@ -86,8 +88,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
                         'sw-page': {
                             template: '<div class="sw-page"><slot name="content"></slot></div>',
                         },
-                        'sw-icon': true,
-                        'sw-card': {
+                        'mt-card': {
                             template: '<div><slot></slot><slot name="grid"></slot></div>',
                         },
                         'sw-card-view': {
@@ -147,7 +148,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
 
         await flushPromises();
 
-        const gridCheckboxes = wrapper.find('.sw-grid .sw-grid__header sw-checkbox-field-stub');
+        const gridCheckboxes = wrapper.find('.sw-grid .sw-grid__header .mt-field--checkbox__container');
 
         expect(gridCheckboxes.exists()).toBe(displayCheckboxes);
     });
@@ -270,5 +271,20 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
         }
 
         expect(duplicateButton.classes()).toContain('is--disabled');
+    });
+
+    it('adds a new snippet', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+        const createSetButton = wrapper.findByText('button', 'sw-settings-snippet.setList.buttonAddSet');
+        await createSetButton.trigger('click');
+        await flushPromises();
+
+        const nameInput = wrapper.findByPlaceholder('sw-settings-snippet.setList.placeholderName');
+        await nameInput.setValue('test');
+        await wrapper.findByText('button', 'global.default.save').trigger('click');
+        await flushPromises();
+
+        expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({ name: 'test' }));
     });
 });

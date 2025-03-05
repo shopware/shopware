@@ -35,7 +35,6 @@
     {% block sw_sales_channel_list_actions %}
     <template #smart-bar-actions>
         {% block sw_sales_channel_list_smart_bar_actions %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
@@ -56,7 +55,7 @@
     <template #content>
         <sw-card-view>
             {% block sw_sales_channel_list_content_card %}
-            <sw-card
+            <mt-card
                 v-if="entitySearchable && total > 0"
                 position-identifier="sw-sales-channel-list"
                 :title="$tc('sw-sales-channel.list.title')"
@@ -80,7 +79,7 @@
                     >
                         {% block sw_sales_channel_list_grid_column_name %}
                         <template #column-name="{ item }">
-                            <sw-icon
+                            <mt-icon
                                 :name="item.type.iconName"
                                 size="18px"
                             />
@@ -123,12 +122,13 @@
 
                         {% block sw_sales_channel_list_grid_column_favorite %}
                         <template #column-id="{ item }">
-                            <sw-switch-field
+
+                            <mt-switch
                                 v-tooltip.right="{ message: $tc('sw-sales-channel.detail.favouriteLabel') }"
                                 class="favorite-switch"
                                 :disabled="!acl.can('user_config:create') || !acl.can('user_config:update')"
-                                :value="isFavorite(item.id)"
-                                @update:value="(isFavorite) => { salesChannelFavoritesService?.update(isFavorite, item.id) }"
+                                :checked="isFavorite(item.id)"
+                                @change="(isFavorite) => { salesChannelFavoritesService?.update(isFavorite, item.id) }"
                             />
                         </template>
                         {% endblock %}
@@ -160,7 +160,7 @@
                     </sw-entity-listing>
                 </template>
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
             {% block sw_sales_channel_list_empty_state %}

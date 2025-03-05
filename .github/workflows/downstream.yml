@@ -21,34 +21,46 @@ jobs:
   rufus:
     name: Rufus
     runs-on: ubuntu-24.04
-    if: ${{ startsWith(github.repository, 'shopware/') && !github.event.pull_request && github.event_name != 'merge_group'}}
+    if: ${{ !github.event.pull_request && github.event_name != 'merge_group'}}
     steps:
+      - id: sts
+        continue-on-error: true
+        uses: octo-sts/action@v1.0.0
+        with:
+          scope: shopware
+          identity: ShopwareDownstream
       - name: Rufus
         uses: shopware/github-actions/downstream@main
+        if: steps.sts.outputs.token
         with:
           repo: shopware/rufus
           workflow: Downstream
           ref: .auto
           timeout: 30m
-          token-scope: shopware
-          identity: ShopwareDownstream
+          token: ${{ steps.sts.outputs.token }}
           env:
             NIGHTLY=${{ inputs.nightly }}
   
   commercial:
     name: Commercial
     runs-on: ubuntu-24.04
-    if: startsWith(github.repository, 'shopware/')
     steps:
+      - id: sts
+        continue-on-error: true
+        uses: octo-sts/action@v1.0.0
+        with:
+          scope: shopware
+          identity: ShopwareDownstream
       - name: Commercial
         uses: shopware/github-actions/downstream@main
+        if: steps.sts.outputs.token
         with:
           repo: shopware/SwagCommercial
           workflow: Downstream
           ref: .auto
           timeout: 60m
-          token-scope: shopware
-          identity: ShopwareDownstream
+          poll_interval: 1m
+          token: ${{ steps.sts.outputs.token }}
           env:
             NIGHTLY=${{ inputs.nightly }}
 
@@ -64,6 +76,5 @@ jobs:
     - name: Decide whether the needed jobs succeeded or failed
       uses: re-actors/alls-green@release/v1
       with:
-        # allowed-failures: docs, linters
         allowed-skips: rufus, commercial
         jobs: ${{ toJSON(needs) }}

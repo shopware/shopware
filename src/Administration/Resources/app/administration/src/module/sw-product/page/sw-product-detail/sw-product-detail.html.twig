@@ -17,10 +17,10 @@
     {% block sw_product_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_product_detail_actions_abort %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="tooltipCancel"
             :disabled="isLoading"
+            variant="secondary"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
@@ -54,14 +54,13 @@
             {% block sw_product_detail_actions_save_context_menu %}
             <sw-context-button>
                 <template #button>
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         class="sw-product-detail__button-context-menu"
                         square
                         variant="primary"
                         :disabled="isLoading || !acl.can('product.editor')"
                     >
-                        <sw-icon
+                        <mt-icon
                             name="regular-chevron-down-xs"
                             size="16"
                         />
@@ -107,9 +106,9 @@
                     class="sw-card__back-link"
                     :to="{ name: 'sw.product.detail.variants', params: { id: product.parentId } }"
                 >
-                    <sw-icon
+                    <mt-icon
                         name="regular-long-arrow-left"
-                        small
+                        size="16px"
                     />
                     {{ $tc('sw-product.general.backToParent') }}
                 </router-link>
@@ -119,9 +118,9 @@
                     class="sw-card__back-link"
                     :to="{ name: 'sw.product.detail.base', params: { id: product.parentId } }"
                 >
-                    <sw-icon
+                    <mt-icon
                         name="regular-long-arrow-left"
-                        small
+                        size="16px"
                     />
                     {{ $tc('sw-product.general.backToGeneralOverview') }}
                 </router-link>

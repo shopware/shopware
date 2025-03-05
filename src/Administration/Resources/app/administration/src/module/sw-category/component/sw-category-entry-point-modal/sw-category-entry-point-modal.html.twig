@@ -19,8 +19,9 @@
     <template v-if="selectedSalesChannel">
 
         {% block sw_category_entry_point_modal_selected_sales_channel_show_in_main_navigation %}
-        <sw-switch-field
-            v-model:value="selectedSalesChannel.homeEnabled"
+
+        <mt-switch
+            v-model="selectedSalesChannel.homeEnabled"
             class="sw-category-entry-point-modal__show-in-main-navigation"
             :label="$tc('sw-category.base.entry-point-modal.showInMainNavigation')"
             :disabled="!acl.can('category.editor') || undefined"
@@ -106,11 +107,11 @@
                 <div class="sw-category-entry-point-modal__desc-actions">
 
                     {% block sw_category_entry_point_modal_layout_desc_actions_layout %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         class="sw-category-detail-layout__change-layout-action"
                         size="small"
                         :disabled="!acl.can('category.editor')"
+                        variant="secondary"
                         @click="openLayoutModal"
                     >
                         {{ selectedSalesChannel.homeCmsPage ? $tc('sw-category.base.cms.changeLayout') : $tc('sw-category.base.cms.changeLayoutEmpty') }}
@@ -118,11 +119,11 @@
                     {% endblock %}
 
                     {% block sw_category_entry_point_modal_layout_desc_actions_designer %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         class="sw-category-detail-layout__open-in-pagebuilder"
                         size="small"
                         :disabled="!acl.can('category.editor')"
+                        variant="secondary"
                         @click="openInPagebuilder"
                     >
                         {{ selectedSalesChannel.homeCmsPage ? $tc('sw-category.base.cms.editInPagebuilder'): $tc('sw-category.base.cms.editInPagebuilderEmpty') }}
@@ -130,18 +131,18 @@
                     {% endblock %}
 
                     {% block sw_category_entry_point_modal_layout_desc_actions_remove %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         v-if="selectedSalesChannel.homeCmsPage"
                         size="small"
                         :disabled="!acl.can('category.editor')"
                         class="sw-category-detail-layout__layout-reset"
                         square
+                        variant="secondary"
                         @click="onLayoutReset"
                     >
-                        <sw-icon
+                        <mt-icon
                             name="regular-trash"
-                            small
+                            size="16px"
                         />
                     </mt-button>
                     {% endblock %}
@@ -173,8 +174,8 @@
         {% endblock %}
 
         {% block sw_category_entry_point_modal_selected_sales_channel_seo_meta_description %}
-        <sw-textarea-field
-            v-model:value="selectedSalesChannel.homeMetaDescription"
+        <mt-textarea
+            v-model="selectedSalesChannel.homeMetaDescription"
             class="sw-category-entry-point-modal__meta-description"
             :label="$tc('sw-category.base.entry-point-modal.metaDescriptionLabel')"
             :placeholder="selectedSalesChannel.translated.homeMetaDescription || $tc('sw-category.base.entry-point-modal.metaDescriptionPlaceholder')"
@@ -200,9 +201,9 @@
     <template #modal-footer>
 
         {% block sw_category_entry_point_modal_footer_cancel_button %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             class="sw-category-entry-point-modal__cancel-button"
+            variant="secondary"
             @click="closeModal"
         >
             {{ $tc('global.default.cancel') }}
@@ -210,7 +211,6 @@
         {% endblock %}
 
         {% block sw_category_entry_point_modal_footer_apply_button %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             class="sw-category-entry-point-modal__apply-button"
             variant="primary"

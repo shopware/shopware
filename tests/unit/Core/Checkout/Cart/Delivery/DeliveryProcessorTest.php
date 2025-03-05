@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
@@ -43,10 +44,7 @@ class DeliveryProcessorTest extends TestCase
         $result = $this->createMock(EntitySearchResult::class);
         $result
             ->expects(static::once())
-            ->method('has')->with($shippingMethod->getId())->willReturn(true);
-        $result
-            ->expects(static::once())
-            ->method('get')->with($shippingMethod->getId())->willReturn($shippingMethod);
+            ->method('getEntities')->willReturn(new EntityCollection([$shippingMethod]));
 
         $repository = $this->createMock(EntityRepository::class);
         $repository

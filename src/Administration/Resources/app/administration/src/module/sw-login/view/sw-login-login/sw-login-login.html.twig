@@ -35,8 +35,8 @@
     {% endblock %}
 
     {% block sw_login_login_password_field %}
-    <sw-password-field
-        v-model:value="password"
+    <mt-password-field
+        v-model="password"
         name="sw-field--password"
         :label="$tc('sw-login.index.labelPassword')"
         :placeholder="$tc('sw-login.index.placeholderPassword')"
@@ -45,8 +45,8 @@
     />
     {% endblock %}
 
-    <sw-checkbox-field
-        v-model:value="rememberMe"
+    <mt-checkbox
+        v-model:checked="rememberMe"
         :label="$tc('sw-login.index.labelKeepLoggedIn')"
     />
 
@@ -62,7 +62,6 @@
         {% endblock %}
 
         {% block sw_login_login_submit_button %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             :disabled="password.length <= 0 || username.length <= 0 || showLoginAlert"
             class="sw-login__login-action"

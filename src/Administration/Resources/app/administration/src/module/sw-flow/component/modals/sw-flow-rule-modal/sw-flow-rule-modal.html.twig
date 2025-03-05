@@ -61,8 +61,8 @@
                         {% endblock %}
 
                         {% block sw_flow_rule_modal_detail_priority %}
-                        <sw-number-field
-                            v-model:value="rule.priority"
+                        <mt-number-field
+                            v-model="rule.priority"
                             name="sw-field--rule-priority"
                             class="sw-flow-rule-modal__priority"
                             required
@@ -74,8 +74,8 @@
                     </sw-container>
 
                     {% block sw_flow_rule_modal_detail_description %}
-                    <sw-textarea-field
-                        v-model:value="rule.description"
+                    <mt-textarea
+                        v-model="rule.description"
                         name="sw-field--rule-description"
                         class="sw-flow-rule-modal__description"
                         :label="$tc('sw-flow.modals.rule.labelDescription')"
@@ -132,10 +132,10 @@
 
     <template #modal-footer>
         {% block sw_flow_rule_modal_footer_cancel_button %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             class="sw-flow-rule-modal__cancel-button"
             size="small"
+            variant="secondary"
             @click="onClose"
         >
             {{ $tc('global.default.cancel') }}

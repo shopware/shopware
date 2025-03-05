@@ -15,10 +15,9 @@ async function createWrapper(privileges = []) {
             global: {
                 renderStubDefaultSlot: true,
                 stubs: {
-                    'sw-card': true,
-                    'sw-textarea-field': true,
+                    'mt-textarea': true,
                     'sw-text-field': true,
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-users-permissions-permissions-grid': true,
                     'sw-users-permissions-additional-permissions': true,
                 },
@@ -49,7 +48,7 @@ describe('module/sw-users-permissions/view/sw-users-permissions-role-view-genera
 
         const fieldRoleName = wrapper.find('input[aria-label="sw-users-permissions.roles.detail.labelName"]');
         const fieldRoleDescription = wrapper.find(
-            'sw-textarea-field-stub[label="sw-users-permissions.roles.detail.labelDescription"]',
+            'mt-textarea-stub[label="sw-users-permissions.roles.detail.labelDescription"]',
         );
         const permissionsGrid = wrapper.find('sw-users-permissions-permissions-grid-stub');
         const additionalPermissionsGrid = wrapper.find('sw-users-permissions-additional-permissions-stub');
@@ -65,7 +64,7 @@ describe('module/sw-users-permissions/view/sw-users-permissions-role-view-genera
 
         const fieldRoleName = wrapper.find('input[aria-label="sw-users-permissions.roles.detail.labelName"]');
         const fieldRoleDescription = wrapper.find(
-            'sw-textarea-field-stub[label="sw-users-permissions.roles.detail.labelDescription"]',
+            'mt-textarea-stub[label="sw-users-permissions.roles.detail.labelDescription"]',
         );
         const permissionsGrid = wrapper.find('sw-users-permissions-permissions-grid-stub');
         const additionalPermissionsGrid = wrapper.find('sw-users-permissions-additional-permissions-stub');

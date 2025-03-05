@@ -66,7 +66,6 @@ async function createWrapper(order = {}) {
                 'router-view': true,
                 'sw-tabs': true,
                 'sw-tabs-item': true,
-                'sw-icon': true,
                 'sw-language-switch': true,
                 'sw-order-leave-page-modal': true,
                 'sw-order-save-changes-beforehand-modal': true,

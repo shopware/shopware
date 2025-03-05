@@ -14,7 +14,6 @@
         {% endblock %}
 
         {% block sw_import_export_edit_profile_modal_mapping_toolbar_add_mapping %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip="{
                 message: $tc('sw-import-export.profile.addMappingTooltipText'),
@@ -25,6 +24,7 @@
             ghost
             :disabled="profile.systemDefault || !addMappingEnabled"
             size="small"
+            variant="secondary"
             @click="onAddMapping"
         >
             {{ $tc('sw-import-export.profile.addMappingLabel') }}
@@ -71,15 +71,17 @@
 
         {% block sw_import_export_edit_profile_modal_mapping_grid_required_column %}
         <template #column-required="{ item }">
-            <sw-switch-field
+
+            <mt-switch
                 v-show="isRequiredBySystem(item)"
                 class="sw-import-export-edit-profile-modal-mapping__required-by-user-switch"
-                :value="true"
+                :checked="true"
                 :disabled="true"
             />
-            <sw-switch-field
+
+            <mt-switch
                 v-show="!isRequiredBySystem(item)"
-                v-model:value="item.requiredByUser"
+                v-model="item.requiredByUser"
                 class="sw-import-export-edit-profile-modal-mapping__required-by-user-switch"
                 :disabled="profile.systemDefault"
             />
@@ -88,8 +90,9 @@
 
         {% block sw_import_export_edit_profile_modal_mapping_grid_default_value_column %}
         <template #column-defaultValue="{ item, itemIndex }">
-            <sw-switch-field
-                v-model:value="item.useDefaultValue"
+
+            <mt-switch
+                v-model="item.useDefaultValue"
                 :name="`useDefaultValue-${itemIndex}`"
                 :disabled="isDefaultValueCheckboxDisabled()"
                 class="sw-import-export-edit-profile-modal-mapping__default-value-switch"
@@ -107,36 +110,36 @@
         <template #column-position="{ item, itemIndex }">
 
             {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group %}
-            <sw-button-group>
+            <sw-button-group class="sw-import-export-edit-profile-modal-mapping__position-buttons">
                 {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_up %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="x-small"
                     square
                     :disabled="isFirstMapping(item) || !!searchTerm"
+                    variant="secondary"
                     @click="updateSorting(itemIndex, 'up')"
                 >
                     {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_up_icon %}
-                    <sw-icon
+                    <mt-icon
                         name="regular-chevron-up-xxs"
-                        size="14px"
+                        size="12px"
                     />
                     {% endblock %}
                 </mt-button>
                 {% endblock %}
 
                 {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_down %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="x-small"
                     square
                     :disabled="isLastMapping(item) || !!searchTerm"
+                    variant="secondary"
                     @click="updateSorting(itemIndex, 'down')"
                 >
                     {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_down_icon %}
-                    <sw-icon
+                    <mt-icon
                         name="regular-chevron-down-xxs"
-                        size="14px"
+                        size="12px"
                     />
                     {% endblock %}
                 </mt-button>

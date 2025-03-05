@@ -61,7 +61,6 @@ const createWrapper = async () => {
                     'sw-product-variant-info': true,
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                    'sw-icon': true,
                     'sw-field-error': true,
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-field-copyable': true,
@@ -72,7 +71,6 @@ const createWrapper = async () => {
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,
                     'sw-help-text': true,
-                    'mt-checkbox': true,
                     'sw-provide': true,
                 },
                 mocks: {
@@ -260,7 +258,7 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
 
         await flushPromises();
 
-        const inputEl = wrapper.find('.sw-data-grid__row--0 .sw-field--checkbox input');
+        const inputEl = wrapper.find('.sw-data-grid__row--0 .mt-field--checkbox__container input');
         await inputEl.setChecked();
 
         expect(wrapper.emitted('selection-change')).toBeTruthy();

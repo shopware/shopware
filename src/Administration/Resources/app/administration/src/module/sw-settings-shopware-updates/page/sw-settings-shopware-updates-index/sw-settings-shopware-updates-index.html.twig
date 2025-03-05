@@ -7,9 +7,9 @@
         <h2>
             {% block sw_settings_showare_updates_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
-            <sw-icon
+            <mt-icon
                 name="regular-chevron-right-xs"
-                small
+                size="16px"
             />
             {{ $tc('sw-settings-shopware-updates.general.emptyTitle') }}
             {% endblock %}
@@ -50,10 +50,10 @@
             >
                 <template #card-element-last>
                     <div class="sw-settings-shopware-updates-index__check-for-updates-btn">
-                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                         <mt-button
                             ghost
                             :is-loading="isSearchingForUpdates"
+                            variant="secondary"
                             @click="searchForUpdates"
                         >
                             {{ $t('sw-settings-shopware-updates.general.checkForUpdates') }}
@@ -75,15 +75,14 @@
             {{ $t('sw-settings-shopware-updates.updateModal.messageUpdateCheck', {version: updateInfo.version}) }}
 
             <template #modal-footer>
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="small"
+                    variant="secondary"
                     @click="updateModalShown = false"
                 >
                     {{ $tc('global.default.cancel') }}
                 </mt-button>
 
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     variant="primary"
                     size="small"

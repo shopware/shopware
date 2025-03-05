@@ -39,15 +39,12 @@ async function createWrapper(privileges = [], props = {}) {
                     </div>
                 `,
                 },
-                'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-internal-link': await wrapTestComponent('sw-internal-link'),
                 'router-link': {
                     props: ['to'],
                     // eslint-disable-next-line no-template-curly-in-string
                     template: '<a :href="`${to.name}/${to.params.flowTemplateId}`">asdf</a>',
                 },
-                'sw-icon': true,
                 'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
                 'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                 'sw-context-menu-item': true,

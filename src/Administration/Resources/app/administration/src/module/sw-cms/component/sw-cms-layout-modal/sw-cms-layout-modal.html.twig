@@ -40,7 +40,7 @@
             >
 
                 {% block sw_cms_layout_modal_header_view_toogle_grid %}
-                <sw-icon
+                <mt-icon
                     v-if="listMode === 'grid'"
                     name="regular-view-normal"
                     size="16"
@@ -48,7 +48,7 @@
                 {% endblock %}
 
                 {% block sw_cms_layout_modal_header_view_toogle_list %}
-                <sw-icon
+                <mt-icon
                     v-if="listMode === 'list'"
                     name="regular-view-grid"
                     size="16"
@@ -87,10 +87,10 @@
                     {% block sw_cms_layout_modal_content_listing_item %}
 
                     {% block sw_cms_layout_modal_content_listing_item_checkbox %}
-                    <sw-checkbox-field
-                        :value="cmsPage.id === selectedPageObject?.id"
+                    <mt-checkbox
+                        :checked="cmsPage.id === selectedPageObject?.id"
                         class="sw-cms-layout-modal__content-checkbox"
-                        @update:value="selectItem(cmsPage)"
+                        @update:checked="selectItem(cmsPage)"
                     />
                     {% endblock %}
 
@@ -192,11 +192,12 @@
 
     {% block sw_cms_layout_modal_footer %}
     <template #modal-footer>
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
-        <mt-button @click="closeModal">
+        <mt-button
+            variant="secondary"
+            @click="closeModal"
+        >
             {{ $tc('global.default.cancel') }}
         </mt-button>
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             variant="primary"
             class="sw-cms-layout-modal__button-select-layout"

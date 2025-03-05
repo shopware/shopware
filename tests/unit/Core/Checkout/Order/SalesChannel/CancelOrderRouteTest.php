@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Order\SalesChannel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\SalesChannel\CancelOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
@@ -73,10 +74,10 @@ class CancelOrderRouteTest extends TestCase
             ->method('getCustomerId')
             ->willReturn($customer->getId());
 
-        $route = new CancelOrderRoute(
-            $this->createMock(OrderService::class),
-            new StaticEntityRepository([[]]),
-        );
+        /** @var StaticEntityRepository<OrderCollection> */
+        $orderRepository = new StaticEntityRepository([[]]);
+
+        $route = new CancelOrderRoute($this->createMock(OrderService::class), $orderRepository);
 
         $route->cancel(new Request(['orderId' => Uuid::randomHex()]), $salesChannelContext);
     }
@@ -107,10 +108,10 @@ class CancelOrderRouteTest extends TestCase
             ->with($orderId, 'cancel', new ParameterBag(), Context::createDefaultContext())
             ->willReturn(new StateMachineStateEntity());
 
-        $route = new CancelOrderRoute(
-            $orderService,
-            new StaticEntityRepository([[Uuid::randomHex()]]),
-        );
+        /** @var StaticEntityRepository<OrderCollection> */
+        $orderRepository = new StaticEntityRepository([[Uuid::randomHex()]]);
+
+        $route = new CancelOrderRoute($orderService, $orderRepository);
 
         $route->cancel(new Request(['orderId' => $orderId]), $salesChannelContext);
     }

@@ -30,7 +30,7 @@
                         :class="!paymentMethod.active ? 'is--disabled' : ''"
                     >
                         {% block sw_settings_payment_sorting_modal_content_payment_method_action %}
-                        <sw-icon
+                        <mt-icon
                             class="sw-settings-payment-sorting-modal__payment-method-list-item__action"
                             name="regular-grip-vertical"
                         />
@@ -67,9 +67,9 @@
     <template #modal-footer>
 
         {% block sw_settings_payment_sorting_modal_footer_cancel_button %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             class="sw-settings-payment-sorting-modal__cancel-button"
+            variant="secondary"
             @click="closeModal"
         >
             {{ $tc('global.default.cancel') }}

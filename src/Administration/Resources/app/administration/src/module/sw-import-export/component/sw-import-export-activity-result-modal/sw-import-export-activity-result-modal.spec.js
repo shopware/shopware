@@ -51,7 +51,7 @@ describe('module/sw-import-export/components/sw-import-export-activity-result-mo
                         importExport: {},
                     },
                     stubs: {
-                        'sw-card': {
+                        'mt-card': {
                             template: '<div><slot></slot></div>',
                         },
                         'sw-color-badge': true,

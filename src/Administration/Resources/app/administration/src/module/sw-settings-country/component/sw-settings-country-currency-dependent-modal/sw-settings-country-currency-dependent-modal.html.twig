@@ -35,12 +35,12 @@
 
         {% block sw_settings_country_currency_dependent_grid_column_value %}
         <template #column-amount="{ item }">
-            <sw-number-field
-                v-model:value="item.amount"
+            <mt-number-field
+                v-model="item.amount"
                 class="sw-settings-country-currency-dependent-modal__input"
                 :min="0"
                 :disabled="(!item.enabled || !acl.can('country.editor')) || undefined"
-                @update:value="reCalculatorInherited(item)"
+                @update:model-value="reCalculatorInherited(item)"
             />
         </template>
         {% endblock %}
@@ -79,17 +79,16 @@
     {% block sw_settings_country_currency_dependent_modal_footer %}
     <template #modal-footer>
         {% block sw_settings_country_currency_dependent_modal_close %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             class="sw-settings-country-currency-dependent-modal__cancel-button"
             size="small"
             :disabled="!acl.can('country.editor') || undefined"
+            variant="secondary"
             @click="closeModal"
         >
             {{ $tc('global.default.cancel') }}
         </mt-button>
 
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             class="sw-settings-country-currency-dependent-modal__save-button"
             variant="primary"

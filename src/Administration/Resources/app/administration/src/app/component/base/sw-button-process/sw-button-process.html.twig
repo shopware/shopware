@@ -1,11 +1,11 @@
 {% block sw_button_process %}
-<!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
 <mt-button
     class="sw-button-process"
     v-bind="$attrs"
+    :variant="$attrs.variant || 'secondary'"
 >
 
-    <sw-icon
+    <mt-icon
         v-if="processSuccess"
         class="sw-button-process__status-indicator"
         name="regular-checkmark-xs"

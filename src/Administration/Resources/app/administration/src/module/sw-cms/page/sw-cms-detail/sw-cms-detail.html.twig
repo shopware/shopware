@@ -33,7 +33,7 @@
                             @click="onClickBack"
                             @keyup.enter="onClickBack"
                         >
-                            <sw-icon name="regular-times" />
+                            <mt-icon name="regular-times" />
                         </a>
                         {% endblock %}
 
@@ -69,7 +69,7 @@
                         class="sw-cms-detail__device-actions"
                     >
                         {% block sw_cms_detail_toolbar_device_actions_mobile %}
-                        <sw-icon
+                        <mt-icon
                             name="regular-mobile"
                             :class="{ 'is--active': currentDeviceView === 'mobile' }"
                             @click="onDeviceViewChange('mobile')"
@@ -77,7 +77,7 @@
                         {% endblock %}
 
                         {% block sw_cms_detail_toolbar_device_actions_tablet_landscape %}
-                        <sw-icon
+                        <mt-icon
                             name="regular-tablet"
                             :class="{ 'is--active': currentDeviceView === 'tablet-landscape' }"
                             @click="onDeviceViewChange('tablet-landscape')"
@@ -85,7 +85,7 @@
                         {% endblock %}
 
                         {% block sw_cms_detail_toolbar_device_actions_desktop %}
-                        <sw-icon
+                        <mt-icon
                             name="regular-desktop"
                             :class="{ 'is--active': currentDeviceView === 'desktop' }"
                             @click="onDeviceViewChange('desktop')"
@@ -93,7 +93,7 @@
                         {% endblock %}
 
                         {% block sw_cms_detail_toolbar_device_actions_form %}
-                        <sw-icon
+                        <mt-icon
                             name="regular-bars-square"
                             :class="{ 'is--active': currentDeviceView === 'form', 'is--disabled': !acl.can('cms.editor') }"
                             @click="onDeviceViewChange('form')"

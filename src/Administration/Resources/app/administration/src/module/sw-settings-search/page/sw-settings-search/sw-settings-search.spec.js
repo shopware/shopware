@@ -84,7 +84,6 @@ async function createWrapper() {
                     </div>
                 `,
                     },
-                    'sw-icon': true,
                     'sw-language-switch': true,
                     'sw-card-view': {
                         template: `

@@ -1,5 +1,5 @@
 {% block sw_sales_channel_detail_products %}
-<sw-card
+<mt-card
     v-if="salesChannel && products"
     position-identifier="sw-sales-channel-detail-products"
     class="sw-sales-channel-detail-products"
@@ -28,7 +28,6 @@
                     {% endblock %}
 
                     {% block sw_sales_channel_detail_products_card_section_secondary_button %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         v-tooltip="{
                             message: $tc('sw-privileges.tooltip.warning'),
@@ -38,6 +37,7 @@
                         ghost
                         size="small"
                         :disabled="!acl.can('sales_channel.editor')"
+                        variant="secondary"
                         @click="openAddProductsModal"
                     >
                         {{ $tc('sw-sales-channel.detail.products.buttonAddProducts', 0) }}
@@ -74,15 +74,15 @@
                         <slot v-bind="{ item, isSelected, isRecordSelectable, selectItem, itemIdentifierProperty }">
                             <div class="sw-data-grid__cell-content">
                                 {% block sw_sales_channel_detail_products_listing_select_item_checkbox %}
-                                <sw-checkbox-field
+                                <mt-checkbox
                                     v-tooltip="{
                                         message: $tc('sw-sales-channel.detail.products.inheritVariantNotRemovableTooltip'),
                                         disabled: isRecordSelectable(item),
                                         showOnDisabledElements: true
                                     }"
                                     :disabled="!isRecordSelectable(item)"
-                                    :value="isSelected(item[itemIdentifierProperty])"
-                                    @update:value="selectItem($event, item)"
+                                    :checked="isSelected(item[itemIdentifierProperty])"
+                                    @update:checked="selectItem($event, item)"
                                 />
                                 {% endblock %}
                             </div>
@@ -104,8 +104,8 @@
 
                     <template #column-active="{ item }">
                         {% block sw_sales_channel_detail_products_listing_column_active %}
-                        <sw-icon
-                            small
+                        <mt-icon
+                            size="16px"
                             :name="item.active === false ? 'regular-times-s' : 'regular-checkmark-xs'"
                             :color="item.active === false ? '#de294c' : '#37d046'"
                         />
@@ -192,7 +192,6 @@
 
         <template #actions>
             {% block sw_sales_channel_detail_products_empty_state_button %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-tooltip="{
                     message: $tc('sw-privileges.tooltip.warning'),
@@ -201,6 +200,7 @@
                 }"
                 ghost
                 :disabled="!acl.can('sales_channel.editor')"
+                variant="secondary"
                 @click="openAddProductsModal"
             >
                 {{ $tc('sw-sales-channel.detail.products.buttonAddProducts', 0) }}
@@ -219,5 +219,5 @@
         @products-add="onAddProducts"
     />
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

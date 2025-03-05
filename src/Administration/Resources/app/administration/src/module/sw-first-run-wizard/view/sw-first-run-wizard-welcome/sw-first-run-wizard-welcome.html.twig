@@ -50,22 +50,16 @@
         <p class="sw-first-run-wizard-welcome__modal-text">
             {{ $tc('sw-first-run-wizard.welcome.switchLanguageMessage', { pluginName: latestTouchedPlugin.name }, {}) }}
         </p>
-        <sw-select-field
-            v-model:value="user.localeId"
+
+        <mt-select
+            v-model="user.localeId"
             class="sw-profile__language"
             :label="$tc('sw-users-permissions.users.user-detail.labelLanguage')"
-        >
-            <option
-                v-for="language in languages"
-                :key="language.locale.id"
-                :value="language.locale.id"
-                :selected="user.localeId === language.locale.id"
-            >
-                {{ language.customLabel }}
-            </option>
-        </sw-select-field>
-        <sw-password-field
-            v-model:value="user.pw"
+            :options="localeOptions"
+        />
+
+        <mt-password-field
+            v-model="user.pw"
             type="password"
             :label="$tc('sw-first-run-wizard.shopwareAccount.passwordPlaceholder')"
             @keypress.enter="onConfirmLanguageSwitch"
@@ -75,9 +69,9 @@
         {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_footer %}
         <template #modal-footer>
             {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_action_cancel %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCancelSwitch"
             >
                 {{ $tc('global.default.cancel') }}
@@ -85,7 +79,6 @@
             {% endblock %}
 
             {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_action_switch %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
                 variant="primary"

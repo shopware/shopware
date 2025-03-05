@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd">
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd">
     <meta>
         <name>testPayments</name>
         <label>Swag App Payments Test</label>
@@ -41,14 +41,12 @@
             <name>The app payment method</name>
             <description>This is a description</description>
             <validate-url>https://payment.app/payment/validate</validate-url>
-            <capture-url>https://payment.app/payment/capture</capture-url>
         </payment-method>
         <payment-method>
             <identifier>preparedAsync</identifier>
             <name>The app payment method</name>
             <description>This is a description</description>
             <validate-url>https://payment.app/payment/validate</validate-url>
-            <capture-url>https://payment.app/payment/capture</capture-url>
             <pay-url>https://payment.app/payment/process</pay-url>
             <finalize-url>https://payment.app/payment/finalize</finalize-url>
         </payment-method>
@@ -56,7 +54,6 @@
             <identifier>refundable</identifier>
             <name>The app payment method</name>
             <description>This is a description</description>
-            <capture-url>https://payment.app/payment/capture</capture-url>
             <refund-url>https://payment.app/payment/refund</refund-url>
         </payment-method>
         <payment-method>

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\Source\TemporaryDirectoryFactory;
@@ -317,8 +318,8 @@ class ServiceLifecycleTest extends TestCase
 
         $this->appLifecycle->expects(static::once())
             ->method('install')
-            ->willReturnCallback(function (Manifest $manifest, bool $activate): void {
-                static::assertFalse($activate);
+            ->willReturnCallback(function (Manifest $manifest, AppInstallParameters $options): void {
+                static::assertFalse($options->activate);
                 static::assertSame('https://mycoolservice.com', $manifest->getPath());
                 static::assertSame([
                     'version' => '6.6.0.0',
@@ -550,7 +551,7 @@ class ServiceLifecycleTest extends TestCase
     {
         return Manifest::createFromXml(<<<'XML'
 <?xml version="1.0" encoding="UTF-8"?>
-<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd">
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd">
     <meta>
         <name>MyCoolService</name>
         <label>My Cool Service</label>

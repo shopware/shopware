@@ -1,5 +1,5 @@
 {% block sw_settings_user_list %}
-<sw-card
+<mt-card
     class="sw-users-permissions-user-listing sw-settings-user-list"
     position-identifier="sw-users-permissions-user-listing"
     :title="$tc('sw-users-permissions.users.general.cardLabel')"
@@ -21,12 +21,12 @@
             {% endblock %}
 
             {% block sw_settings_user_list_actions_create_user %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 ghost
                 size="small"
                 :disabled="!acl.can('users_and_permissions.creator') || undefined"
                 class="sw-users-permissions-user-listing__add-user-button"
+                variant="secondary"
                 @click="$router.push({ name: 'sw.users.permissions.user.create' })"
             >
                 {{ $tc('sw-users-permissions.users.general.labelCreateNewUser') }}
@@ -142,8 +142,8 @@
                 {% endblock %}
 
                 {% block sw_settings_user_list_delete_modal_input__confirm_password %}
-                <sw-password-field
-                    v-model:value="confirmPassword"
+                <mt-password-field
+                    v-model="confirmPassword"
                     class="sw-settings-user-detail__confirm-password"
                     required
                     name="sw-field--confirm-password"
@@ -158,9 +158,9 @@
                 {% block sw_settings_user_list_delete_modal_footer %}
                 <template #modal-footer>
                     {% block sw_settings_user_list_delete_modal_cancel %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         size="small"
+                        variant="secondary"
                         @click="onCloseDeleteModal"
                     >
                         {{ $tc('global.default.cancel') }}
@@ -168,7 +168,6 @@
                     {% endblock %}
 
                     {% block sw_settings_user_list_delete_modal_confirm %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         :disabled="!confirmPassword || undefined"
                         :is-loading="isConfirmingPassword"
@@ -187,5 +186,5 @@
     </sw-data-grid>
     {% endblock %}
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

@@ -27,7 +27,7 @@ async function createWrapper() {
                 },
             },
             stubs: {
-                'sw-progress-bar': true,
+                'mt-progress-bar': true,
             },
         },
     });

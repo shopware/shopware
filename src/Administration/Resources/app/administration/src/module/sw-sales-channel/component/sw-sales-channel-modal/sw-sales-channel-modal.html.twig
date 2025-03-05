@@ -34,10 +34,10 @@
 
         {% block sw_sales_channel_modal_footer_detail_actions %}
         {% block sw_sales_channel_modal_footer_back %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-if="detailType"
             size="small"
+            variant="secondary"
             @click.prevent="detailType = false"
         >
             {{ $tc('sw-sales-channel.modal.buttonBack') }}
@@ -45,7 +45,6 @@
         {% endblock %}
 
         {% block sw_sales_channel_modal_footer_add_channel %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-if="detailType"
             v-tooltip="{
@@ -67,10 +66,10 @@
 
         {% block sw_sales_channel_modal_footer_actions %}
         {% block sw_sales_channel_modal_footer_cancel %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-if="!detailType"
             size="small"
+            variant="secondary"
             @click="onCloseModal"
         >
             {{ $tc('global.default.cancel') }}

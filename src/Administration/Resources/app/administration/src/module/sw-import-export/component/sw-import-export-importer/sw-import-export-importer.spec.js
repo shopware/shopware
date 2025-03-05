@@ -82,11 +82,10 @@ async function createWrapper() {
                 },
                 'sw-file-input': true,
                 'sw-product-variant-info': true,
-                'sw-icon': true,
                 'sw-loader': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
-                'sw-switch-field': true,
+
                 'sw-import-export-progress': true,
                 'sw-inheritance-switch': true,
                 'sw-field-error': true,

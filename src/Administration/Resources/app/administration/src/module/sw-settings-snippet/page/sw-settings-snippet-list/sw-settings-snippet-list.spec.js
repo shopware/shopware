@@ -125,7 +125,6 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
                         'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                         'sw-pagination': true,
                         'sw-data-grid-skeleton': true,
-                        'sw-icon': true,
                         'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                         'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                         'sw-context-button': await wrapTestComponent('sw-context-button'),

@@ -54,11 +54,8 @@ class SwitchContextEvent implements ShopwareSalesChannelEvent
         return $this->parameters;
     }
 
-    /**
-     * @param array<string, mixed> $parameters
-     */
-    public function setParameters(array $parameters): void
+    public function addParameter(string $key, mixed $value): void
     {
-        $this->parameters = $parameters;
+        $this->parameters[$key] = $value;
     }
 }

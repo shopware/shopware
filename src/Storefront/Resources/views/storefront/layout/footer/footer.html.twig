@@ -72,6 +72,7 @@
 
                             <div id="collapseFooterHotline"
                                  class="footer-column-content collapse js-footer-column-content footer-contact{% if feature('ACCESSIBILITY_TWEAKS') %} mb-4 mb-md-0{% endif %}"
+                                 aria-labelledby="collapseFooterHotlineTitle"
                                  role="listitem">
 
                                 <div class="footer-column-content-inner">
@@ -170,6 +171,7 @@
                                 {% block layout_footer_navigation_information_content %}
                                     <div id="collapseFooter{{ loop.index }}"
                                          class="footer-column-content collapse js-footer-column-content"
+                                         aria-labelledby="collapseFooterTitle{{ loop.index }}"
                                          role="listitem">
 
                                         <div class="footer-column-content-inner">

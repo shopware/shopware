@@ -1,5 +1,5 @@
 {
-    "openapi": "3.0.0",
+    "openapi": "3.1.0",
     "info": [],
     "paths": [],
     "components": {
@@ -10,13 +10,25 @@
                 "properties": {
                     "no-aggregations": {
                         "description": "Resets all aggregations in the criteria. This parameter is a flag, the value has no effect.",
-                        "type": "string",
-                        "nullable": true
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "only-aggregations": {
                         "description": "If this flag is set, no products are fetched. Sorting and associations are also ignored. This parameter is a flag, the value has no effect.",
-                        "type": "string",
-                        "nullable": true
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 }
             }

@@ -147,8 +147,8 @@ Component.register('sw-pagination', {
         possibleStepsOptions() {
             return this.possibleSteps.map((step) => {
                 return {
-                    value: step,
-                    label: step,
+                    value: String(step),
+                    label: String(step),
                 };
             });
         },

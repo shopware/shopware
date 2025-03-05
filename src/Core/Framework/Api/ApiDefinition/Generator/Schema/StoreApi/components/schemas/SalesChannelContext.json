@@ -1,5 +1,5 @@
 {
-    "openapi": "3.0.0",
+    "openapi": "3.1.0",
     "info": [],
     "paths": [],
     "components": {
@@ -39,74 +39,7 @@
                         "$ref": "#/components/schemas/Currency"
                     },
                     "salesChannel": {
-                        "description": "Information about the current sales channel",
-                        "type": "object",
-                        "properties": {
-                            "typeId": {
-                                "type": "string"
-                            },
-                            "languageId": {
-                                "type": "string"
-                            },
-                            "currencyId": {
-                                "type": "string"
-                            },
-                            "paymentMethodId": {
-                                "type": "string"
-                            },
-                            "shippingMethodId": {
-                                "type": "string"
-                            },
-                            "countryId": {
-                                "type": "string"
-                            },
-                            "navigationCategoryId": {
-                                "type": "string"
-                            },
-                            "navigationCategoryDepth": {
-                                "type": "integer",
-                                "format": "int32"
-                            },
-                            "footerCategoryId": {
-                                "type": "string"
-                            },
-                            "serviceCategoryId": {
-                                "type": "string"
-                            },
-                            "name": {
-                                "type": "string"
-                            },
-                            "shortName": {
-                                "type": "string"
-                            },
-                            "accessKey": {
-                                "type": "string"
-                            },
-                            "active": {
-                                "type": "boolean"
-                            },
-                            "maintenance": {
-                                "type": "boolean"
-                            },
-                            "maintenanceIpWhitelist": {
-                                "type": "string"
-                            },
-                            "mailHeaderFooterId": {
-                                "type": "string"
-                            },
-                            "customerGroupId": {
-                                "type": "string"
-                            },
-                            "hreflangActive": {
-                                "type": "boolean"
-                            },
-                            "hreflangDefaultDomainId": {
-                                "type": "string"
-                            },
-                            "analyticsId": {
-                                "type": "string"
-                            }
-                        }
+                        "$ref": "#/components/schemas/SalesChannel"
                     },
                     "taxRules": {
                         "type": "array",
@@ -135,9 +68,7 @@
                         "properties": {
                             "apiAlias": {
                                 "type": "string",
-                                "enum": [
-                                    "cart_delivery_shipping_location"
-                                ]
+                                "enum": ["cart_delivery_shipping_location"]
                             },
                             "country": {
                                 "$ref": "#/components/schemas/Country"
@@ -186,8 +117,13 @@
                                 "type": "boolean"
                             }
                         }
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["sales_channel_context"]
                     }
-                }
+                },
+                "required": ["salesChannel", "apiAlias"]
             }
         }
     }

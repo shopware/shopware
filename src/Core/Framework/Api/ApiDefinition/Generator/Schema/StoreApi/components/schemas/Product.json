@@ -1,5 +1,5 @@
 {
-    "openapi": "3.0.0",
+    "openapi": "3.1.0",
     "info": [],
     "paths": [],
     "components": {
@@ -16,13 +16,19 @@
                         "$ref": "#/components/schemas/Category"
                     },
                     "variantListingConfig": {
-                        "nullable": true,
-                        "type": "object",
-                        "properties": {
-                            "displayParent": {
-                                "type": "boolean"
+                        "oneOf": [
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "displayParent": {
+                                        "type": "boolean"
+                                    }
+                                }
+                            },
+                            {
+                                "type": "null"
                             }
-                        }
+                        ]
                     },
                     "calculatedPrice": {
                         "$ref": "#/components/schemas/CalculatedPrice"
@@ -38,75 +44,60 @@
                         }
                     },
                     "calculatedCheapestPrice": {
-                        "allOf": [
-                            {
-                                "$ref": "#/components/schemas/CalculatedPrice"
+                        "type": "object",
+                        "properties": {
+                            "unitPrice": { "type": "number" },
+                            "quantity": { "type": "number" },
+                            "totalPrice": { "type": "number" },
+                            "referencePrice": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/ReferencePrice"
+                                    },
+                                    { "type": "null" }
+                                ]
                             },
-                            {
-                                "type": "object",
-                                "properties": {
-                                    "unitPrice": {
-                                        "type": "number"
+                            "listPrice": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/ListPrice"
                                     },
-                                    "quantity": {
-                                        "type": "number"
-                                    },
-                                    "totalPrice": {
-                                        "type": "number"
-                                    },
-                                    "referencePrice": {
-                                        "oneOf": [
-                                            {
-                                                "$ref": "#/components/schemas/CartPriceReference"
-                                            },
-                                            {
-                                                "type": "null"
-                                            }
-                                        ]
-                                    },
-                                    "listPrice": {
-                                        "oneOf": [
-                                            {
-                                                "$ref": "#/components/schemas/CartListPrice"
-                                            },
-                                            {
-                                                "type": "null"
-                                            }
-                                        ]
-                                    },
-                                    "regulationPrice": {
+                                    { "type": "null" }
+                                ]
+                            },
+                            "regulationPrice": {
+                                "oneOf": [
+                                    {
                                         "type": "object",
-                                        "properties": {
-                                            "price": {
-                                                "type": "number"
-                                            }
-                                        },
-                                        "required": ["price"],
-                                        "nullable": true
+                                        "properties": { "price": { "type": "number" } },
+                                        "required": ["price"]
                                     },
-                                    "hasRange": {
-                                        "type": "boolean"
-                                    },
-                                    "variantId": {
+                                    { "type": "null" }
+                                ]
+                            },
+                            "hasRange": { "type": "boolean" },
+                            "variantId": {
+                                "oneOf": [
+                                    {
                                         "type": "string",
-                                        "format": "",
-                                        "nullable": true
+                                        "format": ""
                                     },
-
-                                    "apiAlias": {
-                                        "type": "string",
-                                        "enum": ["calculated_cheapest_price"]
-                                    }
-                                }
+                                    { "type": "null" }
+                                ]
+                            },
+                            "apiAlias": {
+                                "type": "string",
+                                "enum": ["calculated_cheapest_price"]
                             }
-                        ]
+                        }
                     }
                 },
                 "required": [
                     "apiAlias",
                     "calculatedPrice",
                     "calculatedPrices",
-                    "seoCategory"
+                    "seoCategory",
+                    "translated"
                 ]
             }
         }

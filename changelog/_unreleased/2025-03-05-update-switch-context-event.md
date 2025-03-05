@@ -1,6 +1,6 @@
 ---
 title: Update SwitchContextEvent
-issue: 
+issue: #7238
 author: Ioannis Pourliotis
 author_email: dev@pourliotis.de
 author_github: @PheysX

@@ -54,10 +54,8 @@ export default class OffCanvasFilter extends Plugin {
             'offcanvas-filter'
         );
 
-        const filterPanel = DomAccess.querySelector(filterContent, '.filter-panel');
-
-        // move filter from original place to offcanvas
-        filterPanel.remove();
+        // remove filter content from original place
+        filterContent.innerHTML = '';
 
         window.PluginManager.getPluginInstances('Listing')[0].refreshRegistry();
         document.$emitter.subscribe('onCloseOffcanvas', this._onCloseOffCanvas.bind(this));

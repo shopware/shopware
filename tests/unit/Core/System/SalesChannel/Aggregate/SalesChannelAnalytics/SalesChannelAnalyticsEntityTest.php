@@ -2,10 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+/**
+ * @internal
+ */
+#[CoversClass(SalesChannelAnalyticsEntity::class)]
 class SalesChannelAnalyticsEntityTest extends TestCase
 {
     public function testGetSetTrackingId(): void

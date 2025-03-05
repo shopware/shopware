@@ -5,7 +5,6 @@
                 id="footerColumns"
                 class="row footer-columns"
                 data-collapse-footer-columns="true"
-                role="list"
             >
                 {% block layout_footer_navigation_hotline %}
                     <div class="col-md-4 footer-column js-footer-column">
@@ -40,9 +39,7 @@
                             {% set cmsPath = 'frontend.cms.page.full' %}
 
                             <div id="collapseFooterHotline"
-                                 class="footer-column-content collapse js-footer-column-content footer-contact mb-4 mb-md-0"
-                                 aria-labelledby="collapseFooterHotlineTitle"
-                                 aria-expanded="true">
+                                 class="footer-column-content collapse js-footer-column-content footer-contact mb-4 mb-md-0">
 
                                 <div class="footer-column-content-inner">
                                     <p class="footer-contact-hotline">
@@ -106,9 +103,7 @@
 
                                 {% block layout_footer_navigation_information_content %}
                                     <div id="collapseFooter{{ loop.index }}"
-                                         class="footer-column-content collapse js-footer-column-content"
-                                         aria-labelledby="collapseFooterTitle{{ loop.index }}"
-                                         aria-expanded="true">
+                                         class="footer-column-content collapse js-footer-column-content">
 
                                         <div class="footer-column-content-inner">
                                             {% block layout_footer_navigation_information_links %}

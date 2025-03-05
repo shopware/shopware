@@ -20,6 +20,10 @@
                     "totalPrice": {
                         "type": "number"
                     },
+                    "taxStatus": {
+                        "type": "string",
+                        "enum": ["net", "tax-free"]
+                    },
                     "calculatedTaxes": {
                         "type": "array",
                         "items": {
@@ -136,7 +140,9 @@
                     "unitPrice",
                     "positionPrice",
                     "netPrice",
-                    "taxRules"
+                    "taxRules",
+                    "rawTotal",
+                    "taxStatus"
                 ]
             }
         }

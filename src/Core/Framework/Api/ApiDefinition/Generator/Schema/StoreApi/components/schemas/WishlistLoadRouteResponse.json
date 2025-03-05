@@ -6,6 +6,7 @@
         "schemas": {
             "WishlistLoadRouteResponse": {
                 "type": "object",
+                "required": ["products"],
                 "properties": {
                     "wishlist": {
                         "type": "object",

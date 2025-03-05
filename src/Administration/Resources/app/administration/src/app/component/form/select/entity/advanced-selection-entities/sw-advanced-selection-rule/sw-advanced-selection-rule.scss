@@ -1,5 +1,7 @@
 @import "~scss/variables";
 
-.sw-advanced-selection-rule-disabled {
-    color: darken($color-gray-300, 15%);
+.sw-advanced-selection-rule {
+    &-disabled {
+        color: darken($color-gray-300, 15%);
+    }
 }

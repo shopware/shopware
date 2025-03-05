@@ -1,3 +1,6 @@
+parameters:
+    env(SHOPWARE_USAGE_DATA_GATEWAY_BASE_URI): 'http://localhost:8888'
+
 shopware:
     api:
         api_browser:
@@ -11,9 +14,7 @@ shopware:
         integrations: ['Symfony']
 
     usage_data:
-        collection_enabled: true
         gateway:
-            dispatch_enabled: false
+            dispatch_enabled: true
             entity_dispatch_enabled: false
-            consent_dispatch_enabled: false
-            base_uri: 'http://localhost:8888'
+            consent_dispatch_enabled: true

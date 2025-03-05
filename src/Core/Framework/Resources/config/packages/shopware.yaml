@@ -3,6 +3,7 @@ parameters:
     env(APP_URL): ''
     APP_URL: "%env(string:APP_URL)%"
     env(REDIS_PREFIX): ''
+    env(SHOPWARE_USAGE_DATA_GATEWAY_BASE_URI): 'https://data.shopware.io'
 
 shopware:
     http_cache:
@@ -526,7 +527,7 @@ shopware:
             dispatch_enabled: true
             entity_dispatch_enabled: true
             consent_dispatch_enabled: true
-            base_uri: 'https://data.shopware.io'
+            base_uri: '%env(SHOPWARE_USAGE_DATA_GATEWAY_BASE_URI)%'
             batch_size: 50
 
     feature_toggle:

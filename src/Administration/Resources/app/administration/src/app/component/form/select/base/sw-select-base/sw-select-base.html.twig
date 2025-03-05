@@ -54,7 +54,10 @@
         </div>
 
         <template v-if="expanded">
-            <transition name="sw-select-result-list-fade-down" @click.stop>
+            <transition
+                name="sw-select-result-list-fade-down"
+                @click.stop
+            >
                 <slot
                     name="results-list"
                     v-bind="{ collapse }"

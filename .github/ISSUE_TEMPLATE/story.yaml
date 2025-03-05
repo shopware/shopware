@@ -1,0 +1,29 @@
+name: Story 
+description: A new feature or functionality that typically takes 1-2 weeks to deliver.
+labels: [Story]
+body:
+    - type: markdown
+      attributes:
+          value: |
+              Thanks for taking the time to share your idea with us! If your request relates to enhancing or improving the Shopware product, please file it in [UserVoice](https://feedback.shopware.com/forums/942607-shopware-6-product-feedback-ideas). Also, please check our issues backlog to ensure that no one else has suggested your idea yet. 
+              If there's a related [Discussion](https://github.com/shopware/shopware/discussions), please link to it here.
+    - type: textarea
+      id: user-story
+      attributes:
+        label: User story
+      description: |
+        Tell us about your desired technical functionality.
+      value: |
+        <!--- Please complete this template, filling in the elements in brackets with your own content, so that we can better process your request: As a [user persona], I would like to [goal], So that I can [benefit in some way]. --->
+      validations:
+      required: true
+    - type: textarea
+      id: acceptance-criteria
+      attributes:
+        label: Acceptance criteria
+      description: |
+        Please share acceptance criteria, including attributes and possible metrics, that would help us to validate that we've successfully fulfilled the request.
+      value: |
+        <!--- Provide your answer here --->
+      validations:
+      required: true

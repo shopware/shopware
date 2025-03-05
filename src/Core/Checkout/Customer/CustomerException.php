@@ -20,14 +20,12 @@ use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Exception\MissingOptionsException;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('checkout')]
 class CustomerException extends HttpException
 {
@@ -62,6 +60,7 @@ class CustomerException extends HttpException
     public const IMITATE_CUSTOMER_INVALID_TOKEN = 'CHECKOUT__IMITATE_CUSTOMER_INVALID_TOKEN';
     public const MISSING_ROUTE_ANNOTATION = 'CHECKOUT__MISSING_ROUTE_ANNOTATION';
     public const MISSING_ROUTE_SALES_CHANNEL = 'CHECKOUT__MISSING_ROUTE_SALES_CHANNEL';
+    public const OPERATOR_NOT_SUPPORTED = 'CHECKOUT__CUSTOMER_RULE_OPERATOR_NOT_SUPPORTED';
     public const VALUE_NOT_SUPPORTED = 'CONTENT__RULE_VALUE_NOT_SUPPORTED';
     public const MISSING_REQUEST_PARAMETER_CODE = 'CONTENT__MISSING_REQUEST_PARAMETER_CODE';
     public const MISSING_OPTIONS = 'CONTENT__MISSING_OPTIONS';
@@ -313,6 +312,23 @@ class CustomerException extends HttpException
             self::MISSING_ROUTE_SALES_CHANNEL,
             'Missing sales channel context for route {{ route }}',
             ['route' => $route]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function unsupportedOperator(string $operator, string $class): self|UnsupportedOperatorException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new UnsupportedOperatorException($operator, $class);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::OPERATOR_NOT_SUPPORTED,
+            'Unsupported operator {{ operator }} in {{ class }}',
+            ['operator' => $operator, 'class' => $class]
         );
     }
 

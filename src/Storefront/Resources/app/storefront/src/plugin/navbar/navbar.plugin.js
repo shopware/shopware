@@ -11,6 +11,10 @@ export default class NavbarPlugin extends Plugin {
          * Class to select the top level links.
          */
         topLevelLinksSelector: '.main-navigation-link',
+        /**
+         * Class to select the current page to add aria label current page to it.
+         */
+        ariaCurrentPageSelector: '.nav-item-{id}-link',
     };
 
     init() {
@@ -29,7 +33,9 @@ export default class NavbarPlugin extends Plugin {
             el.addEventListener(closeEvent, this._toggleNavbar.bind(this, el));
             el.addEventListener(clickEvent, this._navigateToLinkOnClick.bind(this, el));
         });
-
+        window.addEventListener('load', () => {
+            this._setAriaCurrentPage();
+        });
     }
 
     _toggleNavbar(topLevelLink, event) {
@@ -99,5 +105,18 @@ export default class NavbarPlugin extends Plugin {
      */
     _clearDebounce() {
         clearTimeout(this._debouncer);
+    }
+
+    /**
+     * Sets the aria-current attribute on the configured selector.
+     * @private
+     */
+    _setAriaCurrentPage() {
+        if (!window.activeNavigationId) { return; }
+        const selector = this.options.ariaCurrentPageSelector.replace('{id}', window.activeNavigationId);
+        const activeNavItem = this.el.querySelector(selector);
+        if (activeNavItem) {
+            activeNavItem.setAttribute('aria-current', 'page');
+        }
     }
 }

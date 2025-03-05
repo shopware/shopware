@@ -14,12 +14,14 @@ use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\Tax\TaxCollection;
 
 /**
+ * Contains basic customer-independent information of the current sales channel.
+ *
  * @internal Use SalesChannelContext for extensions
  *
  * @codeCoverageIgnore
  */
 #[Package('framework')]
-class BaseContext
+class BaseSalesChannelContext
 {
     public function __construct(
         protected Context $context,

@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class ShippingStateRule extends Rule
@@ -24,6 +24,8 @@ class ShippingStateRule extends Rule
 
     /**
      * @param list<string>|null $stateIds
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

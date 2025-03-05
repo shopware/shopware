@@ -28,8 +28,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
-use Shopware\Core\System\SalesChannel\BaseContext;
-use Shopware\Core\System\SalesChannel\Context\AbstractBaseContextFactory;
+use Shopware\Core\System\SalesChannel\BaseSalesChannelContext;
+use Shopware\Core\System\SalesChannel\Context\AbstractBaseSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -73,7 +73,7 @@ class SalesChannelContextFactoryTest extends TestCase
         $shippingAddress->setCountry($country);
         $addresses = new CustomerAddressCollection([$billingAddress, $shippingAddress]);
 
-        $baseContext = new BaseContext(
+        $baseContext = new BaseSalesChannelContext(
             Context::createDefaultContext(new SalesChannelApiSource($salesChannel->getId())),
             $salesChannel,
             $currency,
@@ -148,8 +148,8 @@ class SalesChannelContextFactoryTest extends TestCase
             SalesChannelContextService::CUSTOMER_ID => $customer->getId(),
         ];
 
-        $baseContextFactory = $this->createMock(AbstractBaseContextFactory::class);
-        $baseContextFactory
+        $baseSalesChannelContextFactory = $this->createMock(AbstractBaseSalesChannelContextFactory::class);
+        $baseSalesChannelContextFactory
             ->expects(static::once())
             ->method('create')
             ->with($salesChannel->getId(), $options)
@@ -164,7 +164,7 @@ class SalesChannelContextFactoryTest extends TestCase
             [],
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(EntityRepository::class),
-            $baseContextFactory,
+            $baseSalesChannelContextFactory,
         );
 
         $generatedContext = $factory->create(Uuid::randomHex(), $salesChannel->getId(), $options);

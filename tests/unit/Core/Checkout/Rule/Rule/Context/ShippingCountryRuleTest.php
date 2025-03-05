@@ -12,8 +12,10 @@ use Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -105,6 +107,8 @@ class ShippingCountryRuleTest extends TestCase
     #[DataProvider('unsupportedOperators')]
     public function testUnsupportedOperators(string $operator): void
     {
+        $this->expectExceptionObject(RuleException::unsupportedOperator($operator, RuleComparison::class));
+
         $rule = (new ShippingCountryRule())
             ->assign([
                 'countryIds' => ['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'],
@@ -122,11 +126,38 @@ class ShippingCountryRuleTest extends TestCase
             ->method('getShippingLocation')
             ->willReturn(ShippingLocation::createFromCountry($country));
 
-        $this->expectException(UnsupportedOperatorException::class);
         $rule->match(new CartRuleScope($cart, $context));
     }
 
     public function testUnsupportedOperatorMessage(): void
+    {
+        $rule = (new ShippingCountryRule())
+            ->assign([
+                'countryIds' => ['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'],
+                'operator' => ShippingCountryRule::OPERATOR_GTE,
+            ]);
+
+        $cart = new Cart('test');
+
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $country = new CountryEntity();
+        $country->setId('SWAG-AREA-COUNTRY-ID-2');
+
+        $context
+            ->method('getShippingLocation')
+            ->willReturn(ShippingLocation::createFromCountry($country));
+
+        try {
+            $rule->match(new CartRuleScope($cart, $context));
+        } catch (RuleException $e) {
+            static::assertSame(ShippingCountryRule::OPERATOR_GTE, $e->getParameter('operator'));
+            static::assertSame(RuleComparison::class, $e->getParameter('class'));
+        }
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testUnsupportedOperatorMessageDeprecated(): void
     {
         $rule = (new ShippingCountryRule())
             ->assign([

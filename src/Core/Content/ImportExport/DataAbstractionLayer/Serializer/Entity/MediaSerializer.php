@@ -119,13 +119,12 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
             $entity = iterator_to_array($entity);
         }
 
-        if (isset($entity['url'])) {
+        if (is_array($entity) && isset($entity['url'])) {
             $urlEncodingTwig = new UrlEncodingTwigFilter();
             $entity['url'] = $urlEncodingTwig->encodeUrl($entity['url']);
         }
 
         yield from parent::serialize($config, $definition, $entity);
-        yield from $entity;
     }
 
     public function supports(string $entity): bool

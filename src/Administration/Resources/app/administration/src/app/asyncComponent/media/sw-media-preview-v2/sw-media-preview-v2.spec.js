@@ -235,6 +235,7 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
         await wrapper.setData({
             trueSource: { thumbnails: [] },
         });
+
         expect(wrapper.vm.sourceSet).toBe('');
     });
 
@@ -248,15 +249,19 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
                 ],
             },
         });
-        expect(wrapper.vm.sourceSet).toBe('https://example.com/image1.jpg 200w, https://example.com/image2.jpg 400w');
+
+        expect(wrapper.vm.sourceSet).toBe(
+            'https://example.com/image1.jpg 200w, https://example.com/image2.jpg 400w'
+        );
     });
+
     it('should return an empty string if trueSource is a file', async () => {
         const wrapper = await createWrapper();
         const trueSource = new File([''], 'example.jpg', { type: 'image/jpg' });
         trueSource.thumbnails = [];
-        await wrapper.setData({
-            trueSource: trueSource,
-        });
+
+        await wrapper.setData({ trueSource });
+
         expect(wrapper.vm.sourceSet).toBe('');
     });
 
@@ -264,9 +269,9 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
         const wrapper = await createWrapper();
         const trueSource = new URL('https://example.com/image.jpg');
         trueSource.thumbnails = [];
-        await wrapper.setData({
-            trueSource: trueSource,
-        });
+
+        await wrapper.setData({ trueSource });
+
         expect(wrapper.vm.sourceSet).toBe('');
     });
 });

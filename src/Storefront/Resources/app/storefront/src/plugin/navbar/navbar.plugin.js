@@ -108,7 +108,7 @@ export default class NavbarPlugin extends Plugin {
     }
 
     /**
-     * Sets the aria-current attribute on the provided selector
+     * Sets the aria-current attribute on the configured selector.
      * @private
      */
     _setAriaCurrentPage() {

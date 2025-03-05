@@ -5,7 +5,7 @@ namespace Shopware\Core\System\SalesChannel\Context;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
-use Shopware\Core\System\SalesChannel\BaseContext;
+use Shopware\Core\System\SalesChannel\BaseSalesChannelContext;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
@@ -13,15 +13,15 @@ use Symfony\Contracts\Cache\ItemInterface;
  * @internal
  */
 #[Package('framework')]
-class CachedBaseContextFactory extends AbstractBaseContextFactory
+class CachedBaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFactory
 {
     public function __construct(
-        private readonly AbstractBaseContextFactory $decorated,
+        private readonly AbstractBaseSalesChannelContextFactory $decorated,
         private readonly CacheInterface $cache,
     ) {
     }
 
-    public function create(string $salesChannelId, array $options = []): BaseContext
+    public function create(string $salesChannelId, array $options = []): BaseSalesChannelContext
     {
         if (isset($options[SalesChannelContextService::ORIGINAL_CONTEXT])) {
             return $this->decorated->create($salesChannelId, $options);

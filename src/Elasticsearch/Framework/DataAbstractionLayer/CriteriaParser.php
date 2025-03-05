@@ -548,7 +548,7 @@ class CriteriaParser
             $aggregation instanceof TermsAggregation => $this->parseTermsAggregation($aggregation, $fieldName, $definition, $context),
             $aggregation instanceof DateHistogramAggregation => $this->parseDateHistogramAggregation($aggregation, $fieldName, $definition, $context),
             $aggregation instanceof RangeAggregation => $this->parseRangeAggregation($aggregation, $fieldName),
-            default => throw new \RuntimeException(\sprintf('Provided aggregation of class %s not supported', $aggregation::class)),
+            default => throw ElasticsearchException::unsupportedAggregation($aggregation::class),
         };
     }
 
@@ -803,7 +803,7 @@ class CriteriaParser
             MultiFilter::CONNECTION_OR => $this->parseOrMultiFilter($filter, $definition, $root, $context),
             MultiFilter::CONNECTION_AND => $this->parseAndMultiFilter($filter, $definition, $root, $context),
             MultiFilter::CONNECTION_XOR => $this->parseXorMultiFilter($filter, $definition, $root, $context),
-            default => throw new \InvalidArgumentException('Operator ' . $filter->getOperator() . ' not allowed'),
+            default => throw ElasticsearchException::operatorNotAllowed($filter->getOperator()),
         };
     }
 

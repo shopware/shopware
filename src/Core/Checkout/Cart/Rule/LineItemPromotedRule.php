@@ -10,13 +10,16 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class LineItemPromotedRule extends Rule
 {
     final public const RULE_NAME = 'cartLineItemPromoted';
 
+    /**
+     * @internal
+     */
     public function __construct(protected bool $isPromoted = false)
     {
         parent::__construct();

@@ -12,13 +12,16 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class CustomerBirthdayRule extends Rule
 {
     final public const RULE_NAME = 'customerBirthday';
 
+    /**
+     * @internal
+     */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
         protected ?string $birthday = null

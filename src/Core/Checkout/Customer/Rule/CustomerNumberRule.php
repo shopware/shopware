@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class CustomerNumberRule extends Rule
@@ -21,6 +21,8 @@ class CustomerNumberRule extends Rule
 
     /**
      * @param list<string>|null $numbers
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

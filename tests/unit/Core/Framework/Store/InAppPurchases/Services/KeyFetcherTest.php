@@ -103,8 +103,8 @@ class KeyFetcherTest extends TestCase
 
     public function testGetKeyReturns400ResponseWithoutExistingKey(): void
     {
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('Unable to retrieve JWKS key');
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('Unable to retrieve JWKS key');
 
         $systemConfig = $this->createMock(SystemConfigService::class);
         $systemConfig->expects($this->once())

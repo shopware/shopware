@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Store;
 
 use GuzzleHttp\Exception\ClientException;
+use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
@@ -117,6 +119,23 @@ class StoreException extends HttpException
                 'expectedContextSource' => $expectedContextSource,
                 'actualContextSource' => $actualContextSource,
             ],
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function jwksNotFound(?\Throwable $e = null): self|AppException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return AppException::jwksNotFound($e);
+        }
+
+        return new self(
+            statusCode: Response::HTTP_INTERNAL_SERVER_ERROR,
+            errorCode: self::JWKS_KEY_NOT_FOUND,
+            message: 'Unable to retrieve JWKS key',
+            previous: $e
         );
     }
 

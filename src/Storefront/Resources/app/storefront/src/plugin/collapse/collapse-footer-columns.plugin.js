@@ -85,7 +85,6 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
         }
 
         trigger.setAttribute('aria-expanded', 'true');
-        collapseEl.setAttribute('aria-expanded', 'true');
     }
 
     /**

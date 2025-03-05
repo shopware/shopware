@@ -15,7 +15,7 @@ use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Language\LanguageException;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@discovery')]
 class LanguageRule extends Rule

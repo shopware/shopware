@@ -108,13 +108,13 @@ export default {
         },
 
         presentationOptions() {
-            return this.presentationOptions.map((item) => {
+            return this.previewOptions?.map((item) => {
                 return {
                     id: item.value,
                     value: item.value,
                     label: item.name,
                 };
-            });
+            }) ?? [];
         },
 
         sortOptionsSelect() {

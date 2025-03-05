@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Rule\Container;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\Framework\Util\FloatComparator;
@@ -69,7 +68,7 @@ abstract class ZipCodeRule extends Rule
             self::OPERATOR_GT => is_numeric($zipCode) && is_numeric($compareZipCode) && FloatComparator::greaterThan((float) $zipCode, (float) $compareZipCode),
             self::OPERATOR_LT => is_numeric($zipCode) && is_numeric($compareZipCode) && FloatComparator::lessThan((float) $zipCode, (float) $compareZipCode),
             self::OPERATOR_EMPTY => empty($zipCode),
-            default => throw new UnsupportedOperatorException($this->operator, self::class),
+            default => throw RuleException::unsupportedOperator($this->operator, self::class),
         };
     }
 

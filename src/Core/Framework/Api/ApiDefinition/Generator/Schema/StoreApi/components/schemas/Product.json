@@ -44,88 +44,60 @@
                         }
                     },
                     "calculatedCheapestPrice": {
-                        "allOf": [
-                            {
-                                "$ref": "#/components/schemas/CalculatedPrice"
+                        "type": "object",
+                        "properties": {
+                            "unitPrice": { "type": "number" },
+                            "quantity": { "type": "number" },
+                            "totalPrice": { "type": "number" },
+                            "referencePrice": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/ReferencePrice"
+                                    },
+                                    { "type": "null" }
+                                ]
                             },
-                            {
-                                "type": "object",
-                                "properties": {
-                                    "unitPrice": {
-                                        "type": "number"
+                            "listPrice": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/ListPrice"
                                     },
-                                    "quantity": {
-                                        "type": "number"
+                                    { "type": "null" }
+                                ]
+                            },
+                            "regulationPrice": {
+                                "oneOf": [
+                                    {
+                                        "type": "object",
+                                        "properties": { "price": { "type": "number" } },
+                                        "required": ["price"]
                                     },
-                                    "totalPrice": {
-                                        "type": "number"
-                                    },
-                                    "referencePrice": {
-                                        "oneOf": [
-                                            {
-                                                "$ref": "#/components/schemas/CartPriceReference"
-                                            },
-                                            {
-                                                "type": "null"
-                                            }
-                                        ]
-                                    },
-                                    "listPrice": {
-                                        "oneOf": [
-                                            {
-                                                "$ref": "#/components/schemas/CartListPrice"
-                                            },
-                                            {
-                                                "type": "null"
-                                            }
-                                        ]
-                                    },
-                                    "regulationPrice": {
-                                        "oneOf": [
-                                            {
-                                                "type": "object",
-                                                "properties": {
-                                                    "price": {
-                                                        "type": "number"
-                                                    }
-                                                },
-                                                "required": [
-                                                    "price"
-                                                ]
-                                            },
-                                            {
-                                                "type": "null"
-                                            }
-                                        ]
-                                    },
-                                    "hasRange": {
-                                        "type": "boolean"
-                                    },
-                                    "variantId": {
-                                        "oneOf": [
-                                            {
-                                                "type": "string",
-                                                "format": ""
-                                            },
-                                            {
-                                                "type": "null"
-                                            }
-                                        ]
-                                    },
-                                    "apiAlias": {
+                                    { "type": "null" }
+                                ]
+                            },
+                            "hasRange": { "type": "boolean" },
+                            "variantId": {
+                                "oneOf": [
+                                    {
                                         "type": "string",
-                                        "enum": ["calculated_cheapest_price"]
-                                    }
-                                }
+                                        "format": ""
+                                    },
+                                    { "type": "null" }
+                                ]
+                            },
+                            "apiAlias": {
+                                "type": "string",
+                                "enum": ["calculated_cheapest_price"]
                             }
-                        ]
+                        }
                     }
                 },
                 "required": [
                     "apiAlias",
                     "calculatedPrice",
                     "calculatedPrices",
-                    "seoCategory"
+                    "seoCategory",
+                    "translated"
                 ]
             }
         }

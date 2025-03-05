@@ -207,7 +207,14 @@
                         "type": "string"
                     }
                 },
-                "required": ["id", "type"]
+                "required": [
+                    "id",
+                    "type",
+                    "deliveryInformation",
+                    "payload",
+                    "quantity",
+                    "states"
+                ]
             }
         }
     }

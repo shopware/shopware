@@ -39,6 +39,9 @@ class SqlQueryParser
     ) {
     }
 
+    /**
+     * @param list<ScoreQuery> $queries
+     */
     public function parseRanking(
         array $queries,
         EntityDefinition $definition,
@@ -47,7 +50,6 @@ class SqlQueryParser
     ): ParseResult {
         $result = new ParseResult();
 
-        /** @var ScoreQuery $query */
         foreach ($queries as $query) {
             $parsed = $this->parse($query->getQuery(), $definition, $context, $root);
 

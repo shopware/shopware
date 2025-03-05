@@ -61,6 +61,8 @@ Component.register('sw-grid-row', {
         },
     },
 
+    expose: ['startInlineEditing'],
+
     data() {
         return {
             columns: [],
@@ -132,6 +134,10 @@ Component.register('sw-grid-row', {
         onInlineEditFinish() {
             this.isEditingActive = false;
             this.$emit('inline-edit-finish', this.item);
+        },
+
+        startInlineEditing() {
+            this.onInlineEditStart();
         },
     },
 });

@@ -6,6 +6,7 @@
         "schemas": {
             "CartItems": {
                 "type": "object",
+                "required": ["items"],
                 "properties": {
                     "items": {
                         "type": "array",

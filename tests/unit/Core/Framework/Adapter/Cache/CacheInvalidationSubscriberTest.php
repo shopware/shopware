@@ -43,7 +43,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $this->connection = $this->createMock(Connection::class);
     }
 
-    public function testConsidersKeyOfCachedBaseContextFactoryForInvalidatingContext(): void
+    public function testConsidersKeyOfCachedBaseSalesChannelContextFactoryForInvalidatingContext(): void
     {
         $salesChannelId = Uuid::randomHex();
 

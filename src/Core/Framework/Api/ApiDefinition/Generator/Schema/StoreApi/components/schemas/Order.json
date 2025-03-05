@@ -5,7 +5,15 @@
     "components": {
         "schemas": {
             "Order": {
-                "required": ["documents", "orderDate", "stateMachineState"]
+                "required": [
+                    "documents",
+                    "orderDate",
+                    "stateMachineState",
+                    "price"
+                ],
+                "properties": {
+                    "price": { "$ref": "#/components/schemas/CalculatedPrice" }
+                }
             }
         }
     }

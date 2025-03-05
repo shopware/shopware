@@ -55,7 +55,7 @@ class OffCanvasSingleton {
     }
 
     /**
-     * Methode to add additional class to the first OffCanvas
+     * Method to add additional class to the first OffCanvas
      * @param {string} className
      */
     setAdditionalClassName(className) {

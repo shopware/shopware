@@ -4,9 +4,9 @@ namespace Shopware\Core\Checkout\Promotion;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
-use Shopware\Core\Checkout\Promotion\Exception\DiscountCalculatorNotFoundException;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Exception\FilterPickerNotFoundException;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Exception\FilterSorterNotFoundException;
+use Shopware\Core\Checkout\Promotion\Exception\DiscountCalculatorNotFoundException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidCodePatternException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidScopeDefinitionException;
 use Shopware\Core\Checkout\Promotion\Exception\PatternNotComplexEnoughException;
@@ -20,13 +20,9 @@ use Symfony\Component\HttpFoundation\Response;
 class PromotionException extends HttpException
 {
     public const PROMOTION_CODE_ALREADY_REDEEMED = 'CHECKOUT__CODE_ALREADY_REDEEMED';
-
     public const DISCOUNT_CALCULATOR_NOT_FOUND = 'CHECKOUT__PROMOTION_DISCOUNT_CALCULATOR_NOT_FOUND';
-
     public const INVALID_CODE_PATTERN = 'CHECKOUT__INVALID_CODE_PATTERN';
-
     public const INVALID_DISCOUNT_SCOPE_DEFINITION = 'CHECKOUT__PROMOTION_INVALID_DISCOUNT_SCOPE_DEFINITION';
-
     public const PATTERN_NOT_COMPLEX_ENOUGH = 'PROMOTION__INDIVIDUAL_CODES_PATTERN_INSUFFICIENTLY_COMPLEX';
     public const PATTERN_ALREADY_IN_USE = 'PROMOTION__INDIVIDUAL_CODES_PATTERN_ALREADY_IN_USE';
     public const PROMOTION_NOT_FOUND = 'CHECKOUT__PROMOTION__NOT_FOUND';

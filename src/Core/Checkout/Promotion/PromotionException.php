@@ -242,6 +242,9 @@ class PromotionException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
     public static function filterPickerNotFoundException(string $key): self|FilterPickerNotFoundException
     {
         if (!Feature::isActive('v6.8.0.0')) {

@@ -24,12 +24,12 @@ class PrefixFilesystem implements FilesystemOperator
         string $prefix
     ) {
         if (empty($prefix)) {
-            if (Feature::isActive('v6.8.0.0')) {
-                throw AdapterException::invalidArgument('The prefix must not be empty.');
+            if (!Feature::isActive('v6.8.0.0')) {
+                // @phpstan-ignore-next-line
+                throw new \InvalidArgumentException('The prefix must not be empty.');
             }
 
-            // @phpstan-ignore-next-line
-            throw new \InvalidArgumentException('The prefix must not be empty.');
+            throw AdapterException::invalidArgument('The prefix must not be empty.');
         }
         $this->prefix = trim($prefix, '/') . '/';
     }

@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Adapter;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\AdapterFactoryNotFoundException;
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\DuplicateFilesystemFactoryException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
@@ -250,16 +250,16 @@ class AdapterException extends HttpException
      */
     public static function filesystemFactoryNotFound(string $type): AdapterFactoryNotFoundException|self
     {
-        if (Feature::isActive('v6.8.0.0')) {
-            return new self(
-                Response::HTTP_INTERNAL_SERVER_ERROR,
-                self::FILESYSTEM_FACTORY_NOT_FOUND,
-                'Filesystem factory for type "{{ type }}" not found.',
-                ['type' => $type]
-            );
+        if ((bool) Feature::isActive('v6.8.0.0')) {
+            return new AdapterFactoryNotFoundException($type);
         }
 
-        return new AdapterFactoryNotFoundException($type);
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::FILESYSTEM_FACTORY_NOT_FOUND,
+            'Filesystem factory for type "{{ type }}" not found.',
+            ['type' => $type]
+        );
     }
 
     /**
@@ -267,15 +267,15 @@ class AdapterException extends HttpException
      */
     public static function duplicateFilesystemFactory(string $type): DuplicateFilesystemFactoryException|self
     {
-        if (Feature::isActive('v6.8.0.0')) {
-            return new self(
-                Response::HTTP_INTERNAL_SERVER_ERROR,
-                self::DUPLICATE_FILESYSTEM_FACTORY,
-                'Filesystem factory for type "{{ type }}" already exists.',
-                ['type' => $type]
-            );
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new DuplicateFilesystemFactoryException($type);
         }
 
-        return new DuplicateFilesystemFactoryException($type);
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DUPLICATE_FILESYSTEM_FACTORY,
+            'Filesystem factory for type "{{ type }}" already exists.',
+            ['type' => $type]
+        );
     }
 }

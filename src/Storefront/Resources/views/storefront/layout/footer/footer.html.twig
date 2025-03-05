@@ -11,7 +11,8 @@
                     <div class="col-md-4 footer-column js-footer-column">
                         {% block layout_footer_navigation_hotline_headline %}
                             <div class="footer-column-headline footer-headline js-footer-column-headline"
-                                 id="collapseFooterHotlineTitle">
+                                 id="collapseFooterHotlineTitle"
+                                 role="listitem">
                                 {{ 'footer.serviceHotlineHeadline'|trans|sw_sanitize }}
 
                                 {% block layout_footer_navigation_hotline_icons %}
@@ -68,7 +69,8 @@
                             <div class="col-md-4 footer-column js-footer-column">
                                 {% block layout_footer_navigation_information_headline %}
                                     <div class="footer-column-headline footer-headline js-footer-column-headline"
-                                         id="collapseFooterTitle{{ loop.index }}">
+                                         id="collapseFooterTitle{{ loop.index }}"
+                                         role="listitem">
 
                                         {% if root.category.type == 'folder' %}
                                             {{ root.category.translated.name }}

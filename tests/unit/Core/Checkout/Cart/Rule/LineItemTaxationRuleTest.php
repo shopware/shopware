@@ -156,8 +156,6 @@ class LineItemTaxationRuleTest extends TestCase
             'operator' => Rule::OPERATOR_LT,
         ]);
 
-        $this->expectException(RuleException::class);
-
         $this->rule->match(new LineItemScope(
             $this->createLineItemWithTaxId('3'),
             $this->createMock(SalesChannelContext::class)

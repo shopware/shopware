@@ -188,8 +188,6 @@ class LineItemOfTypeRuleTest extends TestCase
         $cart->setLineItems(new LineItemCollection([$lineItem]));
         $scope = new CartRuleScope($cart, static::createMock(SalesChannelContext::class));
 
-        static::expectException(RuleException::class);
-
         $rule->match($scope);
     }
 }

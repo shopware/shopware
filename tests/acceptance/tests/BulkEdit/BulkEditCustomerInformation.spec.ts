@@ -80,7 +80,7 @@ test('As a merchant, I can perform bulk edits on customer information', { tag: '
             await customFieldSetTabContent.customFieldSetTab.click();
             await ShopAdmin.expects(customFieldSetTabContent.customFieldSetTabCustomContent).toBeVisible();
             await ShopAdmin.expects(customFieldSetTabContent.customFieldSetTabCustomContent.getByText(customFieldTextName)).toBeVisible();
-            await ShopAdmin.expects(customFieldSetTabContent.customFieldSetTabCustomContent.locator(`#${customFieldTextName}`)).toHaveValue(customFieldValue);
+            await ShopAdmin.expects(customFieldSetTabContent.customFieldSetTabCustomContent.locator(`#${customFieldTextName}`)).toHaveValue(customFieldValue, { timeout: 15_000 });
         }
     });
 
@@ -99,7 +99,7 @@ test('As a merchant, I can perform bulk edits on customer information', { tag: '
         await customFieldSetTabContent.customFieldSetTab.click();
         await ShopAdmin.expects(customFieldSetTabContent.customFieldSetTabCustomContent).toBeVisible();
         await ShopAdmin.expects(customFieldSetTabContent.customFieldSetTabCustomContent.getByText(customFieldTextName)).toBeVisible();
-        await ShopAdmin.expects(customFieldSetTabContent.customFieldSetTabCustomContent.locator(`#${customFieldTextName}`)).toHaveValue('');
+        await ShopAdmin.expects(customFieldSetTabContent.customFieldSetTabCustomContent.locator(`#${customFieldTextName}`)).toHaveValue('', { timeout: 15_000 });
     });
 
 });

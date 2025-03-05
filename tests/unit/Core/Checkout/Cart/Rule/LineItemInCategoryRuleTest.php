@@ -12,12 +12,11 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemInCategoryRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -164,23 +163,7 @@ class LineItemInCategoryRuleTest extends TestCase
             'operator' => Rule::OPERATOR_LT,
         ]);
 
-        $this->expectException(RuleException::class);
-
-        $this->rule->match(new LineItemScope(
-            $this->createLineItemWithCategories(['3']),
-            $this->createMock(SalesChannelContext::class)
-        ));
-    }
-
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testNotAvailableOperatorIsUsedDeprecated(): void
-    {
-        $this->rule->assign([
-            'categoryIds' => ['1', '2'],
-            'operator' => Rule::OPERATOR_LT,
-        ]);
-
-        $this->expectException(UnsupportedOperatorException::class);
+        $this->expectExceptionObject(RuleException::unsupportedOperator(Rule::OPERATOR_LT, RuleComparison::class));
 
         $this->rule->match(new LineItemScope(
             $this->createLineItemWithCategories(['3']),

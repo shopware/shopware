@@ -107,6 +107,8 @@ class ShippingCountryRuleTest extends TestCase
     #[DataProvider('unsupportedOperators')]
     public function testUnsupportedOperators(string $operator): void
     {
+        $this->expectExceptionObject(RuleException::unsupportedOperator($operator, RuleComparison::class));
+
         $rule = (new ShippingCountryRule())
             ->assign([
                 'countryIds' => ['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'],
@@ -124,32 +126,6 @@ class ShippingCountryRuleTest extends TestCase
             ->method('getShippingLocation')
             ->willReturn(ShippingLocation::createFromCountry($country));
 
-        $this->expectException(RuleException::class);
-        $rule->match(new CartRuleScope($cart, $context));
-    }
-
-    #[DisabledFeatures(['v6.8.0.0'])]
-    #[DataProvider('unsupportedOperators')]
-    public function testUnsupportedOperatorsDeprecated(string $operator): void
-    {
-        $rule = (new ShippingCountryRule())
-            ->assign([
-                'countryIds' => ['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'],
-                'operator' => $operator,
-            ]);
-
-        $cart = new Cart('test');
-
-        $context = $this->createMock(SalesChannelContext::class);
-
-        $country = new CountryEntity();
-        $country->setId('SWAG-AREA-COUNTRY-ID-2');
-
-        $context
-            ->method('getShippingLocation')
-            ->willReturn(ShippingLocation::createFromCountry($country));
-
-        $this->expectException(UnsupportedOperatorException::class);
         $rule->match(new CartRuleScope($cart, $context));
     }
 

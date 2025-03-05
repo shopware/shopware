@@ -6,11 +6,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleException;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -187,14 +185,6 @@ class RuleComparisonTest extends TestCase
         $this->expectExceptionObject(RuleException::unsupportedOperator('unsupported', RuleComparison::class));
 
         RuleComparison::uuids(null, null, 'unsupported');
-    }
-
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testNumericComparisonThrowsExceptionIfUnsupportedOperatorIsUsedDeprecated(): void
-    {
-        $this->expectException(UnsupportedOperatorException::class);
-
-        RuleComparison::numeric(1.0, 1.0, 'unsupported');
     }
 
     #[DataProvider('valuesForDateTimeComparison')]

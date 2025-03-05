@@ -178,7 +178,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: ["javascript"]
+        language: [ "javascript" ]
 
     steps:
       - name: Checkout repository
@@ -344,11 +344,11 @@ jobs:
         working-directory: new-shopware/tests/acceptance
         run: npx playwright install --with-deps chromium
       - name: Run update tests with reporting
-        if: ${{ contains(github.workflow_ref, 'nightly') }}
+        if: inputs.nightly == 'true'
         working-directory: new-shopware/tests/acceptance
         run: npx pwc --project-id ${{ secrets.CURRENTS_PROJECT_ID }} --key ${{ secrets.CURRENTS_RECORD_KEY }} -- --project=Update --trace=on
       - name: Run update tests
-        if: ${{ !contains(github.workflow_ref, 'nightly') }}
+        if: inputs.nightly != 'true'
         working-directory: new-shopware/tests/acceptance
         run: npx playwright test --project=Update --trace=on
 
@@ -359,7 +359,7 @@ jobs:
           path: new-shopware/tests/acceptance/test-results/
           retention-days: 3
 
-  blue-green-66-67:
+  blue-green-67-68:
     name: "PHP blue green 6.7 -> 6.8 -> 6.7"
     runs-on: ubuntu-24.04
     env:
@@ -391,28 +391,105 @@ jobs:
         run: symfony server:start -d
 
       - name: Install Shopware in previous major version on test DB
-        if: ${{ contains(github.workflow_ref, 'nightly') }}
+        if: inputs.nightly == 'true'
         run: composer init:testdb
 
       - name: Run next major migrations on test DB
-        if: ${{ contains(github.workflow_ref, 'nightly') }}
+        if: inputs.nightly == 'true'
         run: DATABASE_URL="mysql://root@127.0.0.1:3306/shopware_test" bin/console database:migrate --all core.V6_8
 
       - name: Run integration tests
-        if: ${{ contains(github.workflow_ref, 'nightly') }}
+        if: inputs.nightly == 'true'
         run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --exclude-group=needsWebserver,skip-paratest,not-deterministic --stop-on-error --stop-on-failure
 
       - name: Install Shopware in previous major version
-        if: ${{ !contains(github.workflow_ref, 'nightly') }}
+        if: inputs.nightly != 'true'
         run: bin/console system:install --basic-setup --create-database --skip-assets-install
 
       - name: Run next major migrations
-        if: ${{ !contains(github.workflow_ref, 'nightly') }}
+        if: inputs.nightly != 'true'
         run: bin/console database:migrate --all core.V6_8
 
       - name: Run blue-green check
-        if: ${{ !contains(github.workflow_ref, 'nightly') }}
-        run: php .gitlab/bin/blue-green-check.php # TODO: Move script to .github after migration
+        if: inputs.nightly != 'true'
+        run: php .github/bin/blue-green-check.php
+
+  blue-green-66-67:
+    name: "PHP blue green 6.6 -> 6.7 -> 6.6"
+    runs-on: ubuntu-24.04
+    env:
+      APP_ENV: test
+      APP_URL: http://localhost:8000
+      APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
+      OPENSEARCH_URL: 127.0.0.1:9200
+      BLUE_GREEN_DEPLOYMENT: 1
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+      PREVIOUS_MAJOR_VERSION_BRANCH: "6.6.x"
+
+    services:
+      elasticsearch:
+        image: "opensearchproject/opensearch:1"
+        env:
+          discovery.type: single-node
+          plugins.security.disabled: "true"
+        ports:
+          - "9200:9200"
+
+    steps:
+      - name: Setup previous major version
+        uses: shopware/setup-shopware@main
+        with:
+          install: "false"
+          shopware-version: ${{ env.PREVIOUS_MAJOR_VERSION_BRANCH }}
+          shopware-repository: ${{ github.repository }}
+
+      - name: Start Webserver
+        run: symfony server:start -d
+
+      - name: Install Shopware in previous major version on test DB
+        run: composer init:testdb
+
+      - name: Checkout current major version
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Update to current major version
+        env:
+          COMPOSER_ROOT_VERSION: "6.7.9999999-dev"
+          DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
+        run: |
+          rm -rf vendor-bin
+          rm -rf vendor
+          composer update -o
+          bin/console system:update:finish
+
+      - name: Checkout previous major version again
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.PREVIOUS_MAJOR_VERSION_BRANCH }}
+
+      - name: Setup Composer in previous major version again
+        run: |
+          rm -rf vendor-bin
+          composer update -o
+          bin/console system:generate-jwt-secret
+
+      - name: Refresh theme in previous major version
+        if: inputs.nightly == 'true'
+        env:
+          DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
+        run: bin/console theme:refresh
+
+      - name: Run integration tests in previous major version
+        if: inputs.nightly == 'true'
+        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --exclude-group=needsWebserver,skip-paratest,not-deterministic --stop-on-error --stop-on-failure
+
+      - name: Run blue-green check
+        if: inputs.nightly != 'true'
+        env:
+          DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
+        run: php .github/bin/blue-green-check.php
 
   # this allows us to specifiy just one required job/check
   # this is not practical with matrix jobs directly, because you've to specify all permutations
@@ -435,4 +512,3 @@ jobs:
           # allow all jobs to be skipped in case of a PR run
           allowed-skips: acceptance, phpunit, win-checkout, code-ql, acceptance-update, blue-green-66-67
           jobs: ${{ toJSON(needs) }}
-

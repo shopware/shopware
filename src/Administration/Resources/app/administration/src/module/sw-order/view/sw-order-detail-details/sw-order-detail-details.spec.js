@@ -110,6 +110,7 @@ async function createWrapper() {
                         value: 0,
                     },
                 },
+                'mt-textarea': true,
                 'sw-datepicker': true,
                 'sw-multi-tag-select': true,
                 'sw-textarea-field': true,
@@ -242,5 +243,15 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         expect(wrapper.vm.delivery.shippingCosts.unitPrice).toBe(20);
         expect(wrapper.vm.delivery.shippingCosts.totalPrice).toBe(20);
         expect(wrapper.emitted('save-and-recalculate')).toBeTruthy();
+    });
+
+    it('should be able to edit internal comment', async () => {
+        global.activeAclRoles = ['order.editor'];
+        wrapper = await createWrapper();
+        const internalCommentField = wrapper.findComponent('.sw-order-detail-details__internal-comment');
+        await internalCommentField.vm.$emit('update:modelValue', 'This is a longtext');
+
+        expect(wrapper.vm.order.internalComment).toBe('This is a longtext');
+        expect(wrapper.emitted('save-and-recalculate')).toBeFalsy();
     });
 });

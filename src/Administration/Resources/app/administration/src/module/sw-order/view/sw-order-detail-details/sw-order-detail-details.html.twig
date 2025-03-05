@@ -212,6 +212,16 @@
         />
         {% endblock %}
 
+        {% block sw_order_detail_details_order_internal_comment %}
+        <mt-textarea
+            v-model="order.internalComment"
+            class="sw-order-detail-details__internal-comment"
+            :disabled="!acl.can('order.editor')"
+            :label="$tc('sw-order.detailBase.labelInternalComment')"
+            :help-text="$tc('sw-order.detailBase.helpTextInternalComment')"
+        />
+        {% endblock %}
+
         {% block sw_order_detail_details_order_promotion %}
         <sw-order-promotion-field
             class="sw-order-detail-details__promotion"

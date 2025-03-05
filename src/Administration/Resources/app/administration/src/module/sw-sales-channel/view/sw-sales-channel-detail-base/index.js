@@ -17,8 +17,6 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'salesChannelService',
         'productExportService',
@@ -112,11 +110,6 @@ export default {
     computed: {
         secretAccessKeyFieldType() {
             return this.showSecretAccessKey ? 'text' : 'password';
-        },
-
-        /** @deprecated tag:v6.7.0 - Use `isStorefront` instead */
-        isStoreFront() {
-            return this.isStorefront;
         },
 
         isStorefront() {
@@ -368,13 +361,17 @@ export default {
                 name: 'sw.settings.tax.index',
             };
 
-            return this.$tc('sw-sales-channel.detail.helpTextTaxCalculation.label', 0, {
-                link: `<sw-internal-link
+            return this.$tc(
+                'sw-sales-channel.detail.helpTextTaxCalculation.label',
+                {
+                    link: `<sw-internal-link
                            :router-link=${JSON.stringify(link)}
                            :inline="true">
                            ${this.$tc('sw-sales-channel.detail.helpTextTaxCalculation.linkText')}
                       </sw-internal-link>`,
-            });
+                },
+                0,
+            );
         },
 
         taxCalculationTypeOptions() {
@@ -499,6 +496,16 @@ export default {
             // eslint-disable-next-line max-len
             return `php bin/console product-export:generate ${this.salesChannel.productExports[0].storefrontSalesChannelId} ${this.salesChannel.productExports[0].id}`;
         },
+
+        templateSelectOptions() {
+            return this.templateOptions.map((templateOption) => {
+                return {
+                    value: templateOption.name,
+                    id: templateOption.name,
+                    label: this.$tc(templateOption.translationKey),
+                };
+            });
+        },
     },
 
     watch: {
@@ -567,9 +574,13 @@ export default {
 
                 this.salesChannel.active = false;
                 this.createNotificationError({
-                    message: this.$tc('sw-sales-channel.detail.messageActivateWithoutThemeError', 0, {
-                        name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name'),
-                    }),
+                    message: this.$tc(
+                        'sw-sales-channel.detail.messageActivateWithoutThemeError',
+                        {
+                            name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name'),
+                        },
+                        0,
+                    ),
                 });
             });
         },
@@ -589,11 +600,7 @@ export default {
 
         deleteSalesChannel(salesChannelId) {
             this.salesChannelRepository.delete(salesChannelId, Context.api).then(() => {
-                if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                    this.$root.$emit('sales-channel-change');
-                } else {
-                    Shopware.Utils.EventBus.emit('sw-sales-channel-detail-base-sales-channel-change');
-                }
+                Shopware.Utils.EventBus.emit('sw-sales-channel-detail-base-sales-channel-change');
                 this.salesChannelFavoritesService.refresh();
             });
         },
@@ -745,7 +752,7 @@ export default {
                 name: collection.first().translated[property].replaceAll('|', '&vert;'),
                 addition:
                     collection.length > 2
-                        ? this.$tc('sw-sales-channel.detail.warningDisabledAddition', 1, { amount: collection.length - 1 })
+                        ? this.$tc('sw-sales-channel.detail.warningDisabledAddition', { amount: collection.length - 1 }, 1)
                         : collection.last().translated[property].replaceAll('|', '&vert;'),
             };
 

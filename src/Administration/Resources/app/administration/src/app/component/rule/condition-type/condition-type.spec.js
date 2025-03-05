@@ -41,8 +41,8 @@ async function createWrapperForComponent(componentName, props = {}) {
                 'sw-context-button': {
                     template: '<div class="sw-context-button"></div>',
                 },
-                'sw-number-field': {
-                    template: '<div class="sw-number-field"></div>',
+                'mt-number-field': {
+                    template: '<div class="mt-number-field"></div>',
                 },
                 'sw-condition-type-select': {
                     template: '<div class="sw-condition-type-select"></div>',
@@ -73,12 +73,6 @@ async function createWrapperForComponent(componentName, props = {}) {
                 },
                 'sw-datepicker': {
                     template: '<div class="sw-datepicker"></div>',
-                },
-                'sw-button': {
-                    template: '<div class="sw-button"></div>',
-                },
-                'sw-icon': {
-                    template: '<div class="sw-icon"></div>',
                 },
                 'sw-textarea-field': {
                     template: '<div class="sw-textarea-field"></div>',
@@ -125,7 +119,7 @@ function getAllFields(wrapper) {
     return [
         wrapper.findAll('.sw-context-menu-item'),
         wrapper.findAll('.sw-context-button'),
-        wrapper.findAll('.sw-number-field'),
+        wrapper.findAll('.mt-number-field'),
         wrapper.findAll('.sw-condition-type-select'),
         wrapper.findAll('.sw-condition-operator-select'),
         wrapper.findAll('.sw-entity-multi-select'),
@@ -135,7 +129,7 @@ function getAllFields(wrapper) {
         wrapper.findAll('.sw-single-select'),
         wrapper.findAll('.sw-entity-tag-select'),
         wrapper.findAll('.sw-datepicker'),
-        wrapper.findAll('.sw-button'),
+        wrapper.findAll('.mt-button'),
         wrapper.findAll('.sw-textarea-field'),
     ];
 }
@@ -146,7 +140,7 @@ describe('src/app/component/rule/condition-type/*.js', () => {
     });
 
     beforeEach(() => {
-        Shopware.State.commit('ruleConditionsConfig/setConfig', ruleConditionsConfig);
+        Shopware.Store.get('ruleConditionsConfig').config = ruleConditionsConfig;
     });
 
     it.each(conditionTypes)('The component "%s" should have all fields enabled', async (conditionType) => {

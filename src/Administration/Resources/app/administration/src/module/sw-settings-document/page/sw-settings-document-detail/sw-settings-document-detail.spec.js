@@ -117,7 +117,6 @@ const createWrapper = async (customOptions, privileges = []) => {
                         <slot name="search-bar"></slot>
                         <slot name="smart-bar-back"></slot>
                         <slot name="smart-bar-header"></slot>
-                        <slot name="language-switch"></slot>
                         <slot name="smart-bar-actions"></slot>
                         <slot name="side-content"></slot>
                         <slot name="content"></slot>
@@ -131,14 +130,10 @@ const createWrapper = async (customOptions, privileges = []) => {
                         template: '<div class="sw-field"/>',
                         props: ['disabled'],
                     },
-                    'sw-button': true,
                     'sw-button-process': true,
                     'sw-card-view': true,
-                    'sw-icon': true,
-                    'sw-card': true,
                     'sw-container': true,
                     'sw-form-field-renderer': true,
-                    'sw-language-switch': true,
                     'sw-checkbox-field': {
                         template: `
                     <div class="sw-field--checkbox">
@@ -333,12 +328,12 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
             },
         });
 
-        const displayAdditionalNoteDeliveryCheckbox = wrapper.find(
+        const displayAdditionalNoteDeliveryCheckbox = wrapper.findComponent(
             '.sw-settings-document-detail__field_additional_note_delivery',
         );
 
-        expect(displayAdditionalNoteDeliveryCheckbox.attributes('value')).toBe('true');
-        expect(displayAdditionalNoteDeliveryCheckbox.attributes('label')).toBe(
+        expect(displayAdditionalNoteDeliveryCheckbox.props('checked')).toBe(true);
+        expect(displayAdditionalNoteDeliveryCheckbox.props('label')).toBe(
             'sw-settings-document.detail.labelDisplayAdditionalNoteDelivery',
         );
     });
@@ -351,11 +346,11 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
             isShowDivergentDeliveryAddress: true,
         });
 
-        const displayDivergentDeliveryAddress = wrapper.find(
+        const displayDivergentDeliveryAddress = wrapper.findComponent(
             '.sw-settings-document-detail__field_divergent_delivery_address',
         );
         expect(displayDivergentDeliveryAddress).toBeDefined();
-        expect(displayDivergentDeliveryAddress.attributes('label')).toBe(
+        expect(displayDivergentDeliveryAddress.props('label')).toBe(
             'sw-settings-document.detail.labelDisplayDivergentDeliveryAddress',
         );
     });
@@ -402,34 +397,6 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         );
     });
 
-    /* @deprecated: tag:v6.7.0 - Remove this test */
-    // eslint-disable-next-line max-len
-    it('should be have countries in country select when have toggle display intra-community delivery checkbox', async () => {
-        const wrapper = await createWrapper({}, ['document.editor']);
-
-        await wrapper.vm.$nextTick();
-        await wrapper.setData({
-            isShowDisplayNoteDelivery: true,
-            documentConfig: {
-                config: {
-                    deliveryCountries: [
-                        '0110c22a5a92481aa8722a782dfc2573',
-                        '0143d24eb0264eb89cc34f50d427b828',
-                    ],
-                },
-            },
-        });
-
-        const displayAdditionalNoteDeliveryCheckbox = wrapper.find(
-            '.sw-settings-document-detail__field_additional_note_delivery input',
-        );
-
-        await displayAdditionalNoteDeliveryCheckbox.setChecked();
-
-        expect(displayAdditionalNoteDeliveryCheckbox.element.checked).toBe(true);
-        expect(wrapper.vm.documentConfig.config.deliveryCountries).toHaveLength(2);
-    });
-
     it('should have assignment card at the top of the page', async () => {
         const wrapper = await createWrapper(
             {
@@ -442,7 +409,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         await flushPromises();
 
-        const swCardComponents = wrapper.findAll('sw-card-stub');
+        const swCardComponents = wrapper.findAll('.mt-card');
 
         expect(swCardComponents.length).toBeGreaterThan(0);
         expect(swCardComponents.at(0).attributes()['position-identifier']).toBe('sw-settings-document-detail-assignment');

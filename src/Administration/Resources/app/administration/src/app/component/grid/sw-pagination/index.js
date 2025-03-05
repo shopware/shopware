@@ -16,8 +16,6 @@ const { Component } = Shopware;
 Component.register('sw-pagination', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['page-change'],
 
     props: {
@@ -144,6 +142,15 @@ Component.register('sw-pagination', {
             });
 
             return possibleSteps;
+        },
+
+        possibleStepsOptions() {
+            return this.possibleSteps.map((step) => {
+                return {
+                    value: step,
+                    label: step,
+                };
+            });
         },
     },
 

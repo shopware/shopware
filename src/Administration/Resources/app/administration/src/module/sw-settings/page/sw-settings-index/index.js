@@ -10,8 +10,6 @@ const { hasOwnProperty } = Shopware.Utils.object;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'acl',
         'feature',
@@ -25,7 +23,7 @@ export default {
 
     computed: {
         settingsGroups() {
-            const settingsGroups = Object.entries(Shopware.State.get('settingsItems').settingsGroups);
+            const settingsGroups = Object.entries(Shopware.Store.get('settingsItems').settingsGroups);
             return settingsGroups.reduce(
                 (
                     acc,

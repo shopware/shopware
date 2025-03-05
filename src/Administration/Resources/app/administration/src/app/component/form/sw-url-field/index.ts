@@ -33,22 +33,6 @@ Component.register('sw-url-field', {
     },
 
     computed: {
-        useMeteorComponent() {
-            // Use new meteor component in major
-            if (Shopware.Feature.isActive('v6.7.0.0')) {
-                return true;
-            }
-
-            // Throw warning when deprecated component is used
-            Shopware.Utils.debug.warn(
-                'sw-url-field',
-                // eslint-disable-next-line max-len
-                'The old usage of "sw-url-field" is deprecated and will be removed in v6.7.0.0. Please use "mt-url-field" instead.',
-            );
-
-            return false;
-        },
-
         realValue: {
             get() {
                 return this.modelValue || this.value;
@@ -58,25 +42,11 @@ Component.register('sw-url-field', {
                 this.$emit('update:modelValue', value);
             },
         },
-
-        listeners() {
-            if (!this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return {};
-            }
-
-            return this.$listeners;
-        },
     },
 
     methods: {
         getSlots() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return {
-                    ...this.$slots,
-                    ...this.$scopedSlots,
-                };
-            }
 
             return this.$slots;
         },

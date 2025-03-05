@@ -7,9 +7,9 @@
         <h2>
             {% block sw_settings_mailer_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
-            <sw-icon
+            <mt-icon
                 name="regular-chevron-right-xs"
-                small
+                size="16px"
             />
             {{ $tc('sw-settings-mailer.general.textHeadline') }}
             {% endblock %}
@@ -39,7 +39,7 @@
         <sw-card-view>
             <sw-skeleton v-if="isLoading" />
 
-            <sw-card
+            <mt-card
                 v-else
                 position-identifier="sw-settings-mailer-configuration"
                 :is-loading="isLoading"
@@ -75,22 +75,10 @@
 
                 <div class="sw-settings-mailer__radio-selection">
                     {% block sw_settings_mailer_agent_options %}
-                    <sw-select-field
-                        v-model:value="mailerSettings['core.mailerSettings.emailAgent']"
-                    >
-                        <option value="local">
-                            {{ $tc('sw-settings-mailer.mailer-configuration.local-agent') }}
-                        </option>
-                        <option value="smtp">
-                            {{ $tc('sw-settings-mailer.mailer-configuration.smtp-server') }}
-                        </option>
-                        <option value="smtp+oauth">
-                            {{ $tc('sw-settings-mailer.mailer-configuration.smtp-server-oauth') }}
-                        </option>
-                        <option value="">
-                            {{ $tc('sw-settings-mailer.mailer-configuration.env-file') }}
-                        </option>
-                    </sw-select-field>
+                    <mt-select
+                        v-model="mailerSettings['core.mailerSettings.emailAgent']"
+                        :options="emailAgentOptions"
+                    />
 
                     <sw-radio-field
                         v-if="mailerSettings['core.mailerSettings.emailAgent'] === 'local'"
@@ -101,16 +89,16 @@
                 </div>
 
                 <p v-html="$tc('sw-settings-mailer.helpText')"></p>
-                <sw-switch-field
+
+                <mt-switch
                     v-if="!isSmtpMode"
-                    v-model:value="mailerSettings['core.mailerSettings.disableDelivery']"
-                    size="small"
+                    v-model="mailerSettings['core.mailerSettings.disableDelivery']"
                     :label="$tc('sw-settings-mailer.card-smtp.disable-delivery')"
                 />
-            </sw-card>
+            </mt-card>
 
             {% block sw_settings_mailer_smtp %}
-            <sw-card
+            <mt-card
                 v-if="isSmtpMode"
                 position-identifier="sw-settings-mailer-smtp-settings"
                 :is-loading="isLoading"
@@ -128,7 +116,7 @@
                 />
                 {% endblock %}
 
-            </sw-card>
+            </mt-card>
             {% endblock %}
         </sw-card-view>
     </template>

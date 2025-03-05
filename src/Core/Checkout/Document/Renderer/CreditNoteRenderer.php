@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
-use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -19,11 +18,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Language\LanguageEntity;
-use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -34,15 +31,15 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
 
     /**
      * @internal
+     *
+     * @param EntityRepository<OrderCollection> $orderRepository
      */
     public function __construct(
         private readonly EntityRepository $orderRepository,
         private readonly DocumentConfigLoader $documentConfigLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly DocumentTemplateRenderer $documentTemplateRenderer,
         private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         private readonly ReferenceInvoiceLoader $referenceInvoiceLoader,
-        private readonly string $rootDir,
         private readonly Connection $connection,
         private readonly DocumentFileRendererRegistry $fileRendererRegistry,
     ) {
@@ -146,7 +143,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                 ]);
 
                 if ($operation->isStatic()) {
-                    $doc = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
+                    $doc = new RenderedDocument($number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
                     $result->addSuccess($orderId, $doc);
 
                     continue;
@@ -160,44 +157,23 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                     throw DocumentException::generationError('Can not generate credit note document because no language exists. OrderId: ' . $operation->getOrderId());
                 }
 
-                /** @var LocaleEntity $locale */
-                $locale = $language->getLocale();
-
-                $html = '';
-                if (!Feature::isActive('v6.7.0.0')) {
-                    $html = $this->documentTemplateRenderer->render(
-                        $template,
-                        [
-                            'order' => $order,
-                            'creditItems' => $creditItems,
-                            'price' => $price->getTotalPrice() * -1,
-                            'amountTax' => $price->getCalculatedTaxes()->getAmount(),
-                            'config' => $config,
-                            'rootDir' => $this->rootDir,
-                            'context' => $context,
-                        ],
-                        $context,
-                        $order->getSalesChannelId(),
-                        $order->getLanguageId(),
-                        $locale->getCode(),
-                    );
-                }
-
                 $doc = new RenderedDocument(
-                    $html,
                     $number,
                     $config->buildName(),
                     $operation->getFileType(),
                     $config->jsonSerialize(),
                 );
 
+                $doc->setParameters([
+                    'creditItems' => $creditItems,
+                    'price' => $price->getTotalPrice() * -1,
+                    'amountTax' => $price->getCalculatedTaxes()->getAmount(),
+                ]);
                 $doc->setTemplate($template);
                 $doc->setOrder($order);
                 $doc->setContext($context);
 
-                if (Feature::isActive('v6.7.0.0')) {
-                    $doc->setContent($this->fileRendererRegistry->render($doc));
-                }
+                $doc->setContent($this->fileRendererRegistry->render($doc));
 
                 $result->addSuccess($orderId, $doc);
             } catch (\Throwable $exception) {
@@ -219,29 +195,25 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
 
         // Get the correct order with versioning from reference invoice
         $versionContext = $context->createWithVersionId($versionId)->assign([
-            'languageIdChain' => array_values(array_unique(array_filter([$languageId, ...$context->getLanguageIdChain()]))),
+            'languageIdChain' => \array_values(\array_unique(\array_filter([$languageId, ...$context->getLanguageIdChain()]))),
         ]);
 
         $criteria = OrderDocumentCriteriaFactory::create([$orderId], $deepLinkCode, self::TYPE)
             ->addFilter(new EqualsFilter('lineItems.type', LineItem::CREDIT_LINE_ITEM_TYPE));
 
-        /** @var ?OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $versionContext)->get($orderId);
-
+        $order = $this->orderRepository->search($criteria, $versionContext)->getEntities()->first();
         if ($order) {
             return $order;
         }
 
         $versionContext = $context->createWithVersionId(Defaults::LIVE_VERSION)->assign([
-            'languageIdChain' => array_values(array_unique(array_filter([$languageId, ...$context->getLanguageIdChain()]))),
+            'languageIdChain' => \array_values(\array_unique(\array_filter([$languageId, ...$context->getLanguageIdChain()]))),
         ]);
 
         $criteria = OrderDocumentCriteriaFactory::create([$orderId], $deepLinkCode, self::TYPE);
 
-        /** @var ?OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $versionContext)->get($orderId);
-
-        if ($order === null) {
+        $order = $this->orderRepository->search($criteria, $versionContext)->getEntities()->first();
+        if (!$order) {
             throw DocumentException::orderNotFound($orderId);
         }
 
@@ -281,7 +253,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                 -$order->getPositionPrice(),
                 $taxes,
                 $creditItemsCalculatedPrice->getTaxRules(),
-                $order->getTaxStatus()
+                $order->getTaxStatus() ?? $order->getPrice()->getTaxStatus(),
             );
         } else {
             $price = new CartPrice(
@@ -290,7 +262,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                 -$order->getPositionPrice(),
                 $taxes,
                 $creditItemsCalculatedPrice->getTaxRules(),
-                $order->getTaxStatus()
+                $order->getTaxStatus() ?? $order->getPrice()->getTaxStatus(),
             );
         }
 

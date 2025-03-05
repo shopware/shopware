@@ -13,8 +13,6 @@ const { Component } = Shopware;
 Component.register('sw-number-filter', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'filter-reset',
         'filter-update',

@@ -52,31 +52,8 @@ const successResponseForNotification = {
 };
 
 const createStateMapper = (customOrder = {}) => {
-    if (Shopware.State.list().includes('swOrderDetail')) {
-        Shopware.State.unregisterModule('swOrderDetail');
-    }
-
-    const newModule = {
-        state: {
-            order: {
-                ...orderFixture,
-                ...customOrder,
-            },
-        },
-    };
-
-    Shopware.State.registerModule('swOrderDetail', {
-        ...{
-            namespaced: true,
-            state: {
-                isLoading: false,
-                isSavedSuccessful: false,
-                versionContext: {},
-                order: orderFixture,
-            },
-        },
-        ...newModule,
-    });
+    Shopware.Store.get('swOrderDetail').$reset();
+    Shopware.Store.get('swOrderDetail').order = { ...orderFixture, ...customOrder };
 };
 
 async function createWrapper(privileges = []) {
@@ -95,7 +72,6 @@ async function createWrapper(privileges = []) {
         global: {
             stubs: {
                 'sw-order-promotion-tag-field': true,
-                'sw-switch-field': true,
             },
             provide: {
                 repositoryFactory: {
@@ -283,7 +259,7 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.find('sw-order-promotion-tag-field-stub').attributes('disabled')).toBe(String(true));
-        expect(wrapper.find('sw-switch-field-stub').attributes('disabled')).toBe(String(true));
+        expect(wrapper.findComponent('.mt-switch').props('disabled')).toBe(true);
     });
 
     it('should enable the fields with roles', async () => {
@@ -292,6 +268,6 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         const wrapper = await createWrapper(['order.editor']);
 
         expect(wrapper.find('sw-order-promotion-tag-field-stub').attributes('disabled')).toBeUndefined();
-        expect(wrapper.find('sw-switch-field-stub').attributes('disabled')).toBeUndefined();
+        expect(wrapper.findComponent('.mt-switch').props('disabled')).toBeUndefined();
     });
 });

@@ -12,8 +12,6 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     emits: [
@@ -42,8 +40,6 @@ export default {
             modalClass: 'sw-media-modal-folder-settings--shows-overflow',
             unusedThumbnailSizes: [],
             thumbnailSizes: [],
-            // @deprecated tag:v6.7.0 - Remove the property "isEditThumbnails"
-            isEditThumbnails: false,
             parent: null,
             configuration: null,
             mediaFolderConfigurationThumbnailSizeRepository: null,
@@ -83,12 +79,6 @@ export default {
         notEditable() {
             return this.mediaFolder.useParentConfiguration || !this.configuration.createThumbnails || this.disabled;
         },
-
-        // @deprecated tag:v6.7.0 - Remove the computed property
-        thumbnailListClass() {},
-
-        // @deprecated tag:v6.7.0 - Remove the computed property
-        labelToggleButton() {},
 
         thumbnailSizeFilter() {
             return Shopware.Filter.getByName('thumbnailSize');
@@ -153,9 +143,6 @@ export default {
                 );
             });
         },
-
-        // @deprecated tag:v6.7.0 - Remove the method
-        toggleEditThumbnails() {},
 
         async addThumbnail({ width, height }) {
             if (this.checkIfThumbnailExists({ width, height })) {

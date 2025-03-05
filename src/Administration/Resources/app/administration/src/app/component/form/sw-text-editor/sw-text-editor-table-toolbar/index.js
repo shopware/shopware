@@ -5,13 +5,12 @@ const { Component } = Shopware;
 
 /**
  * @sw-package framework
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-text-editor instead.
  *
  * @private
  */
 Component.register('sw-text-editor-table-toolbar', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'table-modify',

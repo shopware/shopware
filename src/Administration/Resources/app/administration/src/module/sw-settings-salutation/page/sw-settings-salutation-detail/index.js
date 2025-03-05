@@ -13,8 +13,6 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
@@ -153,7 +151,7 @@ export default {
                 return;
             }
 
-            Shopware.State.commit('context/resetLanguageToDefault');
+            Shopware.Store.get('context').resetLanguageToDefault();
             this.salutation = this.salutationRepository.create();
             this.isLoading = false;
         },

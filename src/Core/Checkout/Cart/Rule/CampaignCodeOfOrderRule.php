@@ -12,16 +12,13 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 #[Package('fundamentals@after-sales')]
 class CampaignCodeOfOrderRule extends Rule
 {
     final public const RULE_NAME = 'orderCampaignCode';
 
-    /**
-     * @internal
-     */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
         protected ?string $campaignCode = null
@@ -37,6 +34,7 @@ class CampaignCodeOfOrderRule extends Rule
         if (!$this->campaignCode && $this->operator !== self::OPERATOR_EMPTY) {
             throw CartException::unsupportedValue(\gettype($this->campaignCode), self::class);
         }
+
         if (!$campaignCode = $scope->getOrder()->getCampaignCode()) {
             return RuleComparison::isNegativeOperator($this->operator);
         }

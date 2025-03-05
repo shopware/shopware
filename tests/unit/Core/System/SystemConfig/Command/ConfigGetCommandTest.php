@@ -7,7 +7,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Command\ConfigGet;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -71,23 +70,6 @@ class ConfigGetCommandTest extends TestCase
         yield 'test 1D array nested' => ['foo', "bar\n    testBoolFalse => false\n    testBoolTrue => true\n    testInt => 123\n    testString => test"];
         yield 'test single value true' => ['foo.bar.testBoolTrue', 'foo.bar.testBoolTrue => true'];
         yield 'test single value int' => ['foo.bar.testInt', 'foo.bar.testInt => 123'];
-    }
-
-    #[DataProvider('configFormatLegacyProvider')]
-    #[DisabledFeatures(['v6.7.0.0'])]
-    public function testConfigGetLegacy(string $key, string $output): void
-    {
-        $commandOutput = $this->executeCommand($key, 'legacy');
-        static::assertEquals(addslashes($commandOutput), addslashes($output));
-    }
-
-    public static function configFormatLegacyProvider(): \Generator
-    {
-        // config key, output
-        yield 'test 1d array value' => ['foo.bar', "1\n123\ntest"];
-        yield 'test true' => ['foo.bar.testBoolTrue', '1'];
-        yield 'test false' => ['foo.bar.testBoolFalse', ''];
-        yield 'test int' => ['foo.bar.testInt', '123'];
     }
 
     private function executeCommand(string $key, string $format = 'default'): string

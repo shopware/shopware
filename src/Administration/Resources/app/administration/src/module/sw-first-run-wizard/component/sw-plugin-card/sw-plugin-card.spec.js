@@ -28,13 +28,9 @@ async function createWrapper(plugin, showDescription) {
             },
             stubs: {
                 'sw-extension-icon': await Shopware.Component.build('sw-extension-icon'),
-                'sw-icon': true,
                 'sw-button-process': await wrapTestComponent('sw-button-process'),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-loader': await wrapTestComponent('sw-loader'),
                 'router-link': true,
-                'sw-loader-deprecated': true,
             },
         },
     });
@@ -119,7 +115,7 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
 
         const isInstalled = wrapper.get('.plugin-installed');
 
-        expect(isInstalled.get('sw-icon-stub').attributes('name')).toBe('regular-check-circle-s');
+        expect(isInstalled.get('.mt-icon').classes()).toContain('icon--regular-check-circle-s');
         expect(isInstalled.text()).toBe('sw-first-run-wizard.general.pluginInstalled');
     });
 

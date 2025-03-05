@@ -3408,7 +3408,7 @@ class ElasticsearchProductTest extends TestCase
                 ->property('red', 'color')
                 ->build(),
             (new ProductBuilder($this->ids, 'zanother-product-3b'))
-                ->name('Foo Sti')
+                ->name('Bar Sti')
                 ->manufacturer('m2')
                 ->price(100, 100, 'default', 100, 100)
                 ->purchasePrice(100)
@@ -4063,6 +4063,8 @@ class ElasticsearchProductTest extends TestCase
 
 /**
  * @internal
+ *
+ * @phpstan-ignore class.extendsFinalByPhpDoc
  */
 class EsAwareCriteria extends Criteria
 {

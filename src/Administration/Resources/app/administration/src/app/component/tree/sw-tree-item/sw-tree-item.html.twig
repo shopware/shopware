@@ -49,13 +49,13 @@
 
         {% block sw_tree_item_element_selection %}
         <div class="sw-tree-item__selection">
-            <sw-checkbox-field
+            <mt-checkbox
                 v-if="displayCheckbox"
                 :disabled="currentEditElement === item.data.id"
-                :ghost-value="checkedGhost"
-                :value="checked"
+                :checked="checked"
+                :partial="checkedGhost"
                 :aria-label="$t('sw-tree-item.toggleItem', { name: getName(item) })"
-                @update:value="toggleItemCheck($event, item)"
+                @update:checked="toggleItemCheck($event, item)"
             />
         </div>
         {% endblock %}

@@ -13,8 +13,6 @@ const {
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'snippetSetService',
         'repositoryFactory',
@@ -71,6 +69,16 @@ export default {
 
         dateFilter() {
             return Shopware.Filter.getByName('date');
+        },
+
+        baseFileOptions() {
+            return this.baseFiles.map((file, index) => {
+                return {
+                    id: index,
+                    value: file.name,
+                    label: file.name,
+                };
+            });
         },
     },
 
@@ -262,7 +270,7 @@ export default {
 
         createInlineSuccessNote(name) {
             this.createNotificationSuccess({
-                message: this.$tc('sw-settings-snippet.setList.inlineEditSuccessMessage', 0, { name }),
+                message: this.$tc('sw-settings-snippet.setList.inlineEditSuccessMessage', { name }, 0),
             });
         },
 

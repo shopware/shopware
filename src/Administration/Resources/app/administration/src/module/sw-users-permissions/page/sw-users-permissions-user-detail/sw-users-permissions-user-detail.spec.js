@@ -118,7 +118,7 @@ async function createWrapper(
 </div>`,
                     },
                     'sw-card-view': true,
-                    'sw-card': {
+                    'mt-card': {
                         template: `
     <div class="sw-card-stub">
         <slot></slot>
@@ -126,7 +126,6 @@ async function createWrapper(
     </div>
     `,
                     },
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-text-field': await wrapTestComponent('sw-text-field', {
                         sync: true,
@@ -137,14 +136,10 @@ async function createWrapper(
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
                     'sw-upload-listener': true,
                     'sw-media-upload-v2': true,
-                    'sw-password-field': await wrapTestComponent('sw-text-field', {
-                        sync: true,
-                    }),
                     'sw-select-field': true,
-                    'sw-switch-field': true,
+
                     'sw-entity-multi-select': true,
                     'sw-single-select': true,
-                    'sw-icon': true,
                     'sw-data-grid': {
                         props: ['dataSource'],
                         template: `
@@ -159,10 +154,9 @@ async function createWrapper(
                     'sw-empty-state': true,
                     'sw-skeleton': true,
                     'sw-loader': true,
-                    'sw-button': true,
                     'sw-verify-user-modal': true,
                     'sw-media-modal-v2': true,
-                    'sw-alert': true,
+
                     'sw-text-field-deprecated': true,
                     'sw-help-text': true,
                     'sw-inheritance-switch': true,
@@ -190,7 +184,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
     });
 
     beforeEach(async () => {
-        Shopware.State.get('session').languageId = '123456789';
+        Shopware.Store.get('session').languageId = '123456789';
         wrapper = await createWrapper();
     });
 
@@ -198,7 +192,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         // Unmount need to be called here manually because the publishData cleanup does
         // not work with automatic unmount
         await wrapper.unmount();
-        Shopware.State.get('session').languageId = '';
+        Shopware.Store.get('session').languageId = '';
     });
 
     it('should be a Vue.js component', async () => {
@@ -225,13 +219,13 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(fieldPassword.exists()).toBeTruthy();
         expect(fieldLanguage.exists()).toBeTruthy();
 
-        expect(fieldFirstName.attributes('value')).toBe('');
-        expect(fieldLastName.attributes('value')).toBe('admin');
-        expect(fieldEmail.attributes('value')).toBe('info@shopware.com');
-        expect(fieldUsername.attributes('value')).toBe('admin');
+        expect(fieldFirstName.props('modelValue')).toBe('');
+        expect(fieldLastName.props('modelValue')).toBe('admin');
+        expect(fieldEmail.props('modelValue')).toBe('info@shopware.com');
+        expect(fieldUsername.props('modelValue')).toBe('admin');
         expect(fieldProfilePicture.attributes('value')).toBeUndefined();
         expect(fieldPassword.attributes('value')).toBeUndefined();
-        expect(fieldLanguage.attributes('value')).toBe('7dc07b43229843d387bb5f59233c2d66');
+        expect(fieldLanguage.props('modelValue')).toBe('7dc07b43229843d387bb5f59233c2d66');
     });
 
     it('should contain all fields with a given user', async () => {
@@ -263,13 +257,13 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(fieldPassword.exists()).toBeTruthy();
         expect(fieldLanguage.exists()).toBeTruthy();
 
-        expect(fieldFirstName.attributes('value')).toBe('Max');
-        expect(fieldLastName.attributes('value')).toBe('Mustermann');
-        expect(fieldEmail.attributes('value')).toBe('max@mustermann.com');
-        expect(fieldUsername.attributes('value')).toBe('maxmuster');
+        expect(fieldFirstName.props('modelValue')).toBe('Max');
+        expect(fieldLastName.props('modelValue')).toBe('Mustermann');
+        expect(fieldEmail.props('modelValue')).toBe('max@mustermann.com');
+        expect(fieldUsername.props('modelValue')).toBe('maxmuster');
         expect(fieldProfilePicture.attributes('value')).toBeUndefined();
         expect(fieldPassword.attributes('value')).toBeUndefined();
-        expect(fieldLanguage.attributes('value')).toBe('12345');
+        expect(fieldLanguage.props('modelValue')).toBe('12345');
     });
 
     it('should enable the tooltip warning when user is admin', async () => {
@@ -336,18 +330,18 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         const fieldEmail = wrapper.findComponent('.sw-settings-user-detail__grid-eMail');
         const fieldUsername = wrapper.findComponent('.sw-settings-user-detail__grid-username');
         const fieldProfilePicture = wrapper.findComponent('.sw-settings-user-detail__grid-profile-picture');
-        const fieldPassword = wrapper.findComponent('.sw-settings-user-detail__grid-password');
+        const fieldPassword = wrapper.findByLabel('sw-users-permissions.users.user-detail.labelPassword');
         const fieldLanguage = wrapper.findComponent('.sw-settings-user-detail__grid-language');
         const contextMenuItemEdit = wrapper.findComponent('.sw-settings-user-detail__grid-context-menu-edit');
         const contextMenuItemDelete = wrapper.findComponent('.sw-settings-user-detail__grid-context-menu-delete');
 
-        expect(fieldFirstName.attributes('disabled')).toBe('true');
-        expect(fieldLastName.attributes('disabled')).toBe('true');
-        expect(fieldEmail.attributes('disabled')).toBe('true');
-        expect(fieldUsername.attributes('disabled')).toBe('true');
+        expect(fieldFirstName.props('disabled')).toBe(true);
+        expect(fieldLastName.props('disabled')).toBe(true);
+        expect(fieldEmail.props('disabled')).toBe(true);
+        expect(fieldUsername.props('disabled')).toBe(true);
         expect(fieldProfilePicture.attributes().disabled).toBe('true');
-        expect(fieldPassword.attributes().disabled).toBe('true');
-        expect(fieldLanguage.attributes().disabled).toBe('true');
+        expect(fieldPassword.attributes('disabled')).toBeDefined();
+        expect(fieldLanguage.props().disabled).toBe(true);
         expect(contextMenuItemEdit.attributes().disabled).toBe('true');
         expect(contextMenuItemDelete.attributes().disabled).toBe('true');
     });

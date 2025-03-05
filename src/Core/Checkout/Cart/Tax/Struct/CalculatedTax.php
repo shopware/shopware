@@ -9,26 +9,11 @@ use Shopware\Core\Framework\Util\FloatComparator;
 #[Package('checkout')]
 class CalculatedTax extends Struct
 {
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $tax = 0;
+    protected float $tax = 0;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $taxRate;
+    protected float $taxRate;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $price = 0;
+    protected float $price = 0;
 
     public function __construct(
         float $tax,

@@ -143,19 +143,14 @@ async function createWrapper(privileges = []) {
                 `,
                     },
                     'sw-card-view': await wrapTestComponent('sw-card-view'),
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-container': await wrapTestComponent('sw-container'),
                     'sw-language-switch': true,
                     'sw-language-info': true,
-                    'sw-button': true,
                     'sw-button-process': true,
                     'sw-field': true,
-                    'sw-switch-field': true,
-                    'sw-icon': true,
                     'sw-simple-search-field': true,
                     'sw-context-menu-item': true,
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-one-to-many-grid': true,
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
@@ -176,7 +171,7 @@ async function createWrapper(privileges = []) {
 
 describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
     beforeAll(() => {
-        Shopware.State.get('session').currentUser = {};
+        Shopware.Store.get('session').setCurrentUser({});
     });
 
     it('should be a Vue.JS component', async () => {

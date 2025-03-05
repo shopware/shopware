@@ -9,8 +9,6 @@ import './sw-media-tag.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     props: {

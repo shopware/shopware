@@ -10,8 +10,8 @@
     {% endblock %}
 
     {% block sw_category_view_column_info %}
-    <sw-alert
-        v-if="category.isColumn"
+    <mt-banner
+        v-if="isCategoryColumn"
         class="swag-category-view__column-info"
         variant="info"
     >
@@ -21,7 +21,7 @@
         <div class="swag-category-view__column-info-content">
             {{ $tc('sw-category.view.columnInfo') }}
         </div>
-    </sw-alert>
+    </mt-banner>
     {% endblock %}
 
     {% block sw_category_view_tabs %}

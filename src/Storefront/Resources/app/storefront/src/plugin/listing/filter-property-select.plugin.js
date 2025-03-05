@@ -3,8 +3,6 @@
  */
 
 import FilterMultiSelectPlugin from 'src/plugin/listing/filter-multi-select.plugin';
-import Iterator from 'src/helper/iterator.helper';
-import DomAccess from 'src/helper/dom-access.helper';
 import deepmerge from 'deepmerge';
 
 export default class FilterPropertySelectPlugin extends FilterMultiSelectPlugin {
@@ -19,12 +17,12 @@ export default class FilterPropertySelectPlugin extends FilterMultiSelectPlugin 
      */
     getLabels() {
         const activeCheckboxes =
-            DomAccess.querySelectorAll(this.el, `${this.options.checkboxSelector}:checked`, false);
+            this.el.querySelectorAll(`${this.options.checkboxSelector}:checked`);
 
         let labels = [];
 
         if (activeCheckboxes) {
-            Iterator.iterate(activeCheckboxes, (checkbox) => {
+            activeCheckboxes.forEach((checkbox) => {
                 labels.push({
                     label: checkbox.dataset.label,
                     id: checkbox.id,

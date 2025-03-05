@@ -17,8 +17,6 @@ const { Component } = Shopware;
 Component.register('sw-notifications', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['feature'],
 
     props: {
@@ -48,7 +46,7 @@ Component.register('sw-notifications', {
 
     computed: {
         notifications() {
-            return Object.values(Shopware.State.getters['notification/getGrowlNotificationsObject']);
+            return Object.values(Shopware.Store.get('notification').growlNotifications);
         },
 
         notificationsStyle() {
@@ -78,7 +76,7 @@ Component.register('sw-notifications', {
 
     methods: {
         onClose(notification) {
-            Shopware.State.commit('notification/removeGrowlNotification', notification);
+            Shopware.Store.get('notification').removeGrowlNotification(notification);
         },
 
         handleAction(action, notification) {
@@ -97,6 +95,39 @@ Component.register('sw-notifications', {
             }
 
             this.onClose(notification);
+        },
+
+        getNotificationVariant(notification) {
+            // If notification has a correct new variant, return it
+            if (
+                [
+                    'info',
+                    'critical',
+                    'positive',
+                    'attention',
+                    'neutral',
+                ].includes(notification.variant)
+            ) {
+                return notification.variant;
+            }
+
+            if (notification.variant === 'info') {
+                return 'info';
+            }
+
+            if (notification.variant === 'error') {
+                return 'critical';
+            }
+
+            if (notification.variant === 'success') {
+                return 'positive';
+            }
+
+            if (notification.variant === 'warning') {
+                return 'attention';
+            }
+
+            return 'neutral';
         },
     },
 });

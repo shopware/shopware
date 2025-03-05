@@ -13,13 +13,12 @@ async function createWrapper(propsData = {}, provide = {}) {
             },
             stubs: {
                 'sw-loader': true,
-                'sw-switch-field': true,
+
                 'sw-extension-icon': true,
                 'sw-context-menu-item': {
                     name: 'sw-context-menu-item',
                     template: '<div class="sw-context-menu-item"><slot></slot></div>',
                 },
-                'sw-icon': true,
                 'sw-context-button': {
                     template: '<div class="sw-context-button"><slot></slot></div>',
                 },
@@ -47,13 +46,13 @@ async function createWrapper(propsData = {}, provide = {}) {
  */
 describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     beforeAll(() => {
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
         }
 
-        Shopware.State.registerModule('context', {
-            namespaced: true,
-            state: {
+        Shopware.Store.register({
+            id: 'context',
+            state: () => ({
                 app: {
                     config: {
                         settings: {
@@ -67,7 +66,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
                         token: 'testToken',
                     },
                 },
-            },
+            }),
         });
     });
 

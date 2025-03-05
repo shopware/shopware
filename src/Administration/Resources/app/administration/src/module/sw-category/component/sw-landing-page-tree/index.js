@@ -2,7 +2,6 @@ import template from './sw-landing-page-tree.html.twig';
 import './sw-landing-page-tree.scss';
 
 const { Criteria } = Shopware.Data;
-const { mapState } = Shopware.Component.getComponentHelper();
 
 /**
  * @sw-package discovery
@@ -10,8 +9,6 @@ const { mapState } = Shopware.Component.getComponentHelper();
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -72,9 +69,9 @@ export default {
     },
 
     computed: {
-        ...mapState('swCategoryDetail', [
-            'landingPagesToDelete',
-        ]),
+        landingPagesToDelete() {
+            return Shopware.Store.get('swCategoryDetail').landingPagesToDelete;
+        },
 
         cmsLandingPageCriteria() {
             const criteria = new Criteria(1, 500);
@@ -84,7 +81,7 @@ export default {
         },
 
         landingPage() {
-            return Shopware.State.get('swCategoryDetail').landingPage;
+            return Shopware.Store.get('swCategoryDetail').landingPage;
         },
 
         landingPageRepository() {
@@ -120,9 +117,7 @@ export default {
 
             this.$refs.landingPageTree.onDeleteElements(value);
 
-            Shopware.State.commit('swCategoryDetail/setLandingPagesToDelete', {
-                landingPagesToDelete: undefined,
-            });
+            Shopware.Store.get('swCategoryDetail').landingPagesToDelete = undefined;
         },
 
         landingPage(newVal, oldVal) {
@@ -191,11 +186,7 @@ export default {
 
         onDeleteLandingPage({ data: landingPage }) {
             if (landingPage.isNew()) {
-                if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                    this.$delete(this.loadedLandingPages, landingPage.id);
-                } else {
-                    delete this.loadedLandingPages[landingPage.id];
-                }
+                delete this.loadedLandingPages[landingPage.id];
                 return Promise.resolve();
             }
 

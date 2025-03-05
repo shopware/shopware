@@ -8,8 +8,6 @@ import './sw-settings-snippet-sidebar.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'sw-sidebar-close',
         'sw-sidebar-open',

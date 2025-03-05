@@ -26,7 +26,7 @@ const headlessSalesChannel = {
     domains: [],
     type: {
         id: Shopware.Defaults.apiSalesChannelTypeId,
-        iconName: 'default-shopping-basket',
+        iconName: 'regular-shopping-basket',
     },
     translated: {
         name: 'Headless',
@@ -112,7 +112,26 @@ const inactiveStorefront = {
     },
 };
 
+let repositoryFactoryMock;
+
 async function createWrapper(salesChannels = []) {
+    repositoryFactoryMock = {
+        search: jest.fn((criteria, context) => {
+            const salesChannelsWithLimit = salesChannels.slice(0, criteria.limit);
+
+            return Promise.resolve(
+                new EntityCollection(
+                    'sales-channel',
+                    'sales_channel',
+                    context,
+                    criteria,
+                    salesChannelsWithLimit,
+                    salesChannels.length,
+                    null,
+                ),
+            );
+        }),
+    };
     const router = createRouter({
         history: createWebHistory(),
         routes: [
@@ -144,11 +163,6 @@ async function createWrapper(salesChannels = []) {
     return mount(await wrapTestComponent('sw-sales-channel-menu', { sync: true }), {
         global: {
             stubs: {
-                'sw-icon': {
-                    // eslint-disable-next-line no-template-curly-in-string
-                    template: '<div :class="`sw-icon sw-icon--${name}`"></div>',
-                    props: ['name'],
-                },
                 'sw-admin-menu-item': {
                     template:
                         '<div class="sw-admin-menu-item" :class="$attrs.class"><div>{{ entry.label }}</div><slot name="additional-text"></slot></div>',
@@ -166,23 +180,7 @@ async function createWrapper(salesChannels = []) {
                     getDomainLink: getDomainLink,
                 },
                 repositoryFactory: {
-                    create: () => ({
-                        search: jest.fn((criteria, context) => {
-                            const salesChannelsWithLimit = salesChannels.slice(0, criteria.limit);
-
-                            return Promise.resolve(
-                                new EntityCollection(
-                                    'sales-channel',
-                                    'sales_channel',
-                                    context,
-                                    criteria,
-                                    salesChannelsWithLimit,
-                                    salesChannels.length,
-                                    null,
-                                ),
-                            );
-                        }),
-                    }),
+                    create: () => repositoryFactoryMock,
                 },
             },
         },
@@ -219,7 +217,7 @@ Shopware.Application.addServiceProvider('salesChannelFavorites', () => {
 describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu', () => {
     beforeEach(async () => {
         Shopware.Service('salesChannelFavorites').state.favorites = [];
-        Shopware.State.get('session').languageId = defaultAdminLanguageId;
+        Shopware.Store.get('session').languageId = defaultAdminLanguageId;
         global.repositoryFactoryMock.showError = false;
     });
 
@@ -315,7 +313,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
     it('takes first domain link if neither default language nor admin language exists', async () => {
         window.open = jest.fn();
-        Shopware.State.get('session').languageId = Shopware.Utils.createId();
+        Shopware.Store.get('session').languageId = Shopware.Utils.createId();
 
         const wrapper = await createWrapper([storefrontWithoutDefaultDomain]);
 
@@ -362,7 +360,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
                 translated: { name: `${i}a` },
                 type: {
                     id: Shopware.Defaults.apiSalesChannelTypeId,
-                    iconName: 'default-shopping-basket',
+                    iconName: 'regular-shopping-basket',
                 },
             });
         }
@@ -392,7 +390,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
                 translated: { name: `${i}a` },
                 type: {
                     id: Shopware.Defaults.apiSalesChannelTypeId,
-                    iconName: 'default-shopping-basket',
+                    iconName: 'regular-shopping-basket',
                 },
             });
         }
@@ -421,7 +419,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
                 translated: { name: '1a' },
                 type: {
                     id: Shopware.Defaults.apiSalesChannelTypeId,
-                    iconName: 'default-shopping-basket',
+                    iconName: 'regular-shopping-basket',
                 },
             },
             {
@@ -429,7 +427,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
                 translated: { name: '2b' },
                 type: {
                     id: Shopware.Defaults.apiSalesChannelTypeId,
-                    iconName: 'default-shopping-basket',
+                    iconName: 'regular-shopping-basket',
                 },
             },
         ]);

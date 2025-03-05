@@ -13,7 +13,7 @@ use Shopware\Core\System\Tag\TagDefinition;
 use Symfony\Component\Validator\Constraint;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 #[Package('fundamentals@after-sales')]
 class LineItemTagRule extends Rule
@@ -21,8 +21,6 @@ class LineItemTagRule extends Rule
     final public const RULE_NAME = 'cartLineItemTag';
 
     /**
-     * @internal
-     *
      * @param list<string>|null $identifiers
      */
     public function __construct(

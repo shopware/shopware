@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
@@ -137,13 +136,6 @@ class CustomerRepositoryTest extends TestCase
             ],
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $paymentMethod = $this->getValidPaymentMethodId();
-            foreach ($records as &$customer) {
-                $customer['defaultPaymentMethodId'] = $paymentMethod;
-            }
-        }
-
         $this->repository->create($records, Context::createDefaultContext());
 
         $context = Context::createDefaultContext();
@@ -201,10 +193,6 @@ class CustomerRepositoryTest extends TestCase
             'tags' => [['name' => 'testTag']],
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
         $this->repository->create([$customer], Context::createDefaultContext());
 
         $this->repository->delete([['id' => $customerId]], Context::createDefaultContext());
@@ -237,10 +225,6 @@ class CustomerRepositoryTest extends TestCase
             'salutationId' => $this->getValidSalutationId(),
             'customerNumber' => '12345',
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         $repo = static::getContainer()->get('customer.repository');
 

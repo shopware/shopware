@@ -3,6 +3,8 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
@@ -12,16 +14,13 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 #[Package('fundamentals@after-sales')]
 class CartVolumeRule extends Rule
 {
     final public const RULE_NAME = 'cartVolume';
 
-    /**
-     * @internal
-     */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
         protected ?float $volume = null
@@ -36,7 +35,11 @@ class CartVolumeRule extends Rule
         }
 
         if ($this->volume === null) {
-            throw new UnsupportedValueException(\gettype($this->volume), self::class);
+            if (!Feature::isActive('v6.8.0.0')) {
+                // @phpstan-ignore-next-line
+                throw new UnsupportedValueException(\gettype($this->volume), self::class);
+            }
+            throw CartException::unsupportedValue(\gettype($this->volume), self::class);
         }
 
         return RuleComparison::numeric($this->calculateCartVolume($scope->getCart()), $this->volume * self::VOLUME_FACTOR, $this->operator);

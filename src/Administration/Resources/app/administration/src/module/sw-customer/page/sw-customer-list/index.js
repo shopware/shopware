@@ -12,13 +12,10 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
         'filterFactory',
-        'feature',
     ],
 
     mixins: [
@@ -90,11 +87,6 @@ export default {
                 .addAssociation('group')
                 .addAssociation('requestedGroup')
                 .addAssociation('boundSalesChannel');
-
-            // @deprecated tag:v6.7.0 - Will be removed, because it's unused
-            if (!Shopware.Feature.isActive('v6.7.0.0')) {
-                defaultCriteria.addAssociation('salesChannel');
-            }
 
             this.filterCriteria.forEach((filter) => {
                 defaultCriteria.addFilter(filter);
@@ -187,14 +179,6 @@ export default {
                 },
             };
 
-            if (!this.feature.isActive('v6.7.0.0')) {
-                options['default-payment-method-filter'] = {
-                    property: 'defaultPaymentMethod',
-                    label: this.$tc('sw-customer.filter.defaultPaymentMethod.label'),
-                    placeholder: this.$tc('sw-customer.filter.defaultPaymentMethod.placeholder'),
-                };
-            }
-
             return options;
         },
 
@@ -233,7 +217,7 @@ export default {
             promise
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-customer.detail.messageSaveSuccess', 0, { name: this.salutation(customer) }),
+                        message: this.$tc('sw-customer.detail.messageSaveSuccess', { name: this.salutation(customer) }, 0),
                     });
                 })
                 .catch(() => {

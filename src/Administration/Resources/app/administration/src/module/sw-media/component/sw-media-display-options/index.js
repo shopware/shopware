@@ -8,8 +8,6 @@ import './sw-media-display-options.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'media-sorting-change',
         'media-presentation-change',
@@ -107,6 +105,26 @@ export default {
                     name: this.$tc('sw-media.presentation.labelPresentationList'),
                 },
             ];
+        },
+
+        presentationOptions() {
+            return this.presentationOptions.map((item) => {
+                return {
+                    id: item.value,
+                    value: item.value,
+                    label: item.name,
+                };
+            });
+        },
+
+        sortOptionsSelect() {
+            return this.sortOptions.map((item) => {
+                return {
+                    id: item.value,
+                    value: item.value,
+                    label: item.name,
+                };
+            });
         },
     },
 

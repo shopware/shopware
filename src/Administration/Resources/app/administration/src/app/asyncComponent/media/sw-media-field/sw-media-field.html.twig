@@ -33,20 +33,21 @@
         {% endblock %}
 
         {% block sw_media_field_toggle_button %}
-        <sw-button
+        <mt-button
             class="sw-media-field__toggle-button"
             square
             :disabled="disabled"
+            variant="secondary"
             @click="onTogglePicker"
         >
             {% block sw_media_field_media_icon %}
-            <sw-icon name="regular-image" />
+            <mt-icon name="regular-image" />
             {% endblock %}
 
             {% block sw_media_field_media_popover %}
             <sw-popover
                 v-if="showPicker"
-                :z-index="1000"
+                :z-index="1100"
                 popover-class="sw-media-field__expanded-content"
                 class="sw-media-field__popover"
             >
@@ -54,32 +55,34 @@
                     {% block sw_media_field_action_bar %}
                     <div class="sw-media-field__actions_bar">
                         {% block sw_media_field_action_bar_button_toggle %}
-                        <sw-button
+                        <mt-button
                             class="sw-media-field__action-button"
+                            variant="secondary"
                             @click="toggleUploadField"
                         >
-                            <sw-icon
+                            <mt-icon
                                 class="sw-media-field__icon-add"
                                 name="regular-plus"
-                                small
+                                size="16px"
                             />
                             {{ toggleButtonLabel }}
-                        </sw-button>
+                        </mt-button>
                         {% endblock %}
 
                         {% block sw_media_field_action_bar_button_unlink %}
-                        <sw-button
+                        <mt-button
                             v-if="mediaId"
                             class="sw-media-field__action-button is--remove"
+                            variant="secondary"
                             @click="removeLink"
                         >
-                            <sw-icon
+                            <mt-icon
                                 class="sw-media-field__icon-remove"
                                 name="regular-times-circle-s"
-                                small
+                                size="16px"
                             />
                             {{ $tc('global.sw-media-field.labelUnlink') }}
-                        </sw-button>
+                        </mt-button>
                         {% endblock %}
                     </div>
                     {% endblock %}
@@ -151,7 +154,7 @@
                 </div>
             </sw-popover>
             {% endblock %}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </div>
     {% endblock %}

@@ -19,39 +19,41 @@
     {% block sw_flow_sequence_selector_actions %}
     <div class="sw-flow-sequence-selector__actions">
         {% block sw_flow_sequence_selector_if_condition %}
-        <sw-button
+        <mt-button
             class="sw-flow-sequence-selector__add-condition"
             :disabled="disabled"
+            variant="secondary"
             @click="addIfCondition"
         >
 
             {% block sw_flow_sequence_selector_then_action_icon_rule %}
-            <sw-icon
+            <mt-icon
                 size="16"
                 name="regular-rule-s"
             />
             {% endblock %}
 
             {{ $tc('sw-flow.detail.sequence.selectorIfCondition') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_flow_sequence_selector_then_action %}
-        <sw-button
+        <mt-button
             class="sw-flow-sequence-selector__add-action"
             :disabled="disabled"
+            variant="secondary"
             @click="addThenAction"
         >
 
             {% block sw_flow_sequence_selector_then_action_icon_file %}
-            <sw-icon
+            <mt-icon
                 size="16"
                 name="regular-file-edit-s"
             />
             {% endblock %}
 
             {{ $tc('sw-flow.detail.sequence.selectorThenAction') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_flow_sequence_selector_extension_options %}{% endblock %}

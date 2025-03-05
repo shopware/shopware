@@ -1,20 +1,20 @@
 {% block sw_settings_shipping_price_matrix %}
-<sw-card
+<mt-card
     :title="cardTitle"
     :is-loading="isLoading"
     class="sw-settings-shipping-price-matrix"
     position-identifier="sw-settings-shipping-price-matrix"
 >
     {% block sw_settings_shipping_price_matrix_topbar_alert %}
-    <sw-alert
+    <mt-banner
         v-if="priceGroup.isNew"
         class="sw-settings-shipping-price-matrix__new-matrix-alert"
-        variant="warning"
+        variant="attention"
         :title="$tc('global.default.warning')"
         :closable="false"
     >
         {{ $tc('sw-settings-shipping.priceMatrix.newMatrixAlertMessage') }}
-    </sw-alert>
+    </mt-banner>
     {% endblock %}
     {% block sw_settings_shipping_price_matrix_topbar %}
     <sw-container
@@ -38,7 +38,7 @@
         {% endblock %}
 
         {% block sw_settings_shipping_price_matrix_topbar_new_price %}
-        <sw-button
+        <mt-button
             size="x-small"
             class="sw-settings-shipping-price-matrix__top-container-add-new-rule"
             :variant="!showDataGrid ? '': 'ghost'"
@@ -51,7 +51,7 @@
             <template v-else>
                 {{ $tc('sw-settings-shipping.priceMatrix.addNewShippingPrice') }}
             </template>
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_settings_shipping_price_matrix_topbar_context_button %}
@@ -128,8 +128,8 @@
         <template
             #column-quantityStart="{ item, itemIndex, compact }"
         >
-            <sw-number-field
-                v-model:value="item.quantityStart"
+            <mt-number-field
+                v-model="item.quantityStart"
                 :disabled="disabled"
                 :name="`sw-field--${item.id}-quantity-start`"
                 :number-type="numberFieldType"
@@ -144,8 +144,8 @@
         <template
             #column-quantityEnd="{ item, itemIndex, compact }"
         >
-            <sw-number-field
-                v-model:value="item.quantityEnd"
+            <mt-number-field
+                v-model="item.quantityEnd"
                 :disabled="disabled"
                 :name="`sw-field--${item.id}-quantity-end`"
                 :number-type="numberFieldType"
@@ -154,7 +154,7 @@
                 :validation="item.quantityEnd === null || item.quantityEnd > item.quantityStart"
                 :min="item.quantityStart"
                 :digits="3"
-                @update:value="onQuantityEndChange(item)"
+                @update:model-value="onQuantityEndChange(item)"
             />
         </template>
         {% endblock %}
@@ -182,16 +182,16 @@
                         @inheritance-remove="props.removeInheritance"
                     />
 
-                    <sw-number-field
-                        v-model:value="props.currentValue.gross"
+                    <mt-number-field
+                        v-model="props.currentValue.gross"
                         :name="`sw-field--${item.id}-${currency.id}-gross`"
                         :size="compact ? 'small' : 'default'"
                         class="sw-settings-shipping-price-matrix__price-input"
                         :digits="50"
                         :disabled="props.isInherited || disabled"
                     />
-                    <sw-number-field
-                        v-model:value="props.currentValue.net"
+                    <mt-number-field
+                        v-model="props.currentValue.net"
                         :name="`sw-field--${item.id}-${currency.id}-net`"
                         :size="compact ? 'small' : 'default'"
                         class="sw-settings-shipping-price-matrix__price-input"
@@ -221,14 +221,15 @@
         v-if="showDataGrid && !showAllPrices"
         class="sw-settings-shipping-price-matrix__price-load-all"
     >
-        <sw-button
-            variant="ghost"
+        <mt-button
+            ghost
             size="small"
             class="sw-settings-shipping-price-matrix__price-load-all-button"
+            variant="secondary"
             @click="updateShowAllPrices"
         >
             {{ $tc('sw-settings-shipping.priceMatrix.buttonLoadAllPrices') }}
-        </sw-button>
+        </mt-button>
     </div>
     {% endblock %}
 
@@ -303,26 +304,27 @@
         {% block sw_settings_shipping_price_matrix_delete_modal_footer %}
         <template #modal-footer>
             {% block sw_settings_shipping_price_matrix_delete_modal_cancel %}
-            <sw-button
+            <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCloseDeleteModal"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_settings_shipping_price_matrix_delete_modal_confirm %}
-            <sw-button
-                variant="danger"
+            <mt-button
+                variant="critical"
                 size="small"
                 @click="onConfirmDeleteShippingPrice"
             >
                 {{ $tc('sw-settings-shipping.priceMatrix.buttonDelete') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
         {% endblock %}
     </sw-modal>
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

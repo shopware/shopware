@@ -18,9 +18,9 @@
         <h2>
             {% block sw_settings_document_list_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
-            <sw-icon
+            <mt-icon
                 name="regular-chevron-right-xs"
-                small
+                size="16px"
             /> {{ $tc('sw-settings-document.list.textHeadline') }}
             {% endblock %}
 
@@ -40,34 +40,28 @@
     {% block sw_settings_document_list_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_document_list_smart_bar_actions_add %}
-        <sw-button
+        <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('document.creator'),
                 showOnDisabledElements: true
             }"
-            :router-link="{ name: 'sw.settings.document.create' }"
             :disabled="!acl.can('document.creator') || undefined"
             class="sw-settings-document-list__add-document"
             variant="primary"
+            @click="$router.push({ name: 'sw.settings.document.create' })"
         >
             {{ $tc('sw-settings-document.list.buttonAddDocument') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}
-
-    <template #language-switch>
-        <sw-language-switch
-            @on-change="onChangeLanguage"
-        />
-    </template>
 
     {% block sw_settings_document_list_content %}
     <template #content>
         <sw-card-view>
             {% block sw_settings_document_list_content_card %}
-            <sw-card
+            <mt-card
                 :is-loading="isLoading"
                 position-identifier="sw-settings-document-list-content"
             >
@@ -190,29 +184,30 @@
                             >
                                 {% block sw_settings_document_list_delete_modal_confirm_text %}
                                 <p>
-                                    {{ $tc('sw-settings-document.list.textDeleteConfirm', 0, { name: item.name }) }}
+                                    {{ $tc('sw-settings-document.list.textDeleteConfirm', { name: item.name }, 0) }}
                                 </p>
                                 {% endblock %}
 
                                 {% block sw_settings_document_list_delete_modal_footer %}
                                 <template #modal-footer>
                                     {% block sw_settings_document_list_delete_modal_actions_cancel %}
-                                    <sw-button
+                                    <mt-button
                                         size="small"
+                                        variant="secondary"
                                         @click="onCloseDeleteModal"
                                     >
                                         {{ $tc('global.default.cancel') }}
-                                    </sw-button>
+                                    </mt-button>
                                     {% endblock %}
 
                                     {% block sw_settings_document_list_delete_modal_actions_delete %}
-                                    <sw-button
-                                        variant="danger"
+                                    <mt-button
+                                        variant="critical"
                                         size="small"
                                         @click="onConfirmDelete(item.id)"
                                     >
                                         {{ $tc('sw-settings-document.list.buttonDelete') }}
-                                    </sw-button>
+                                    </mt-button>
                                     {% endblock %}
                                 </template>
                                 {% endblock %}
@@ -235,7 +230,7 @@
                     </sw-grid>
                 </template>
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
         </sw-card-view>
     </template>

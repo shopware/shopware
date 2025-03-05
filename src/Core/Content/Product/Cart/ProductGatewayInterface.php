@@ -9,5 +9,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('inventory')]
 interface ProductGatewayInterface
 {
+    /**
+     * @param array<string> $ids
+     */
     public function get(array $ids, SalesChannelContext $context): ProductCollection;
 }

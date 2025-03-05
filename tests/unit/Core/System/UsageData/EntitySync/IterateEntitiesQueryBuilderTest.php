@@ -46,7 +46,7 @@ class IterateEntitiesQueryBuilderTest extends TestCase
         $connection->expects(static::never())
             ->method('createQueryBuilder');
         $connection->expects(static::any())
-            ->method('getExpressionBuilder')
+            ->method('createExpressionBuilder')
             ->willReturn(new ExpressionBuilder($connection));
         $connection->expects(static::any())
             ->method('getDatabasePlatform')
@@ -107,7 +107,7 @@ class IterateEntitiesQueryBuilderTest extends TestCase
             ->willReturn(new QueryBuilder($connection));
 
         $expressionBuilder = new ExpressionBuilder($connection);
-        $connection->method('getExpressionBuilder')->willReturn($expressionBuilder);
+        $connection->method('createExpressionBuilder')->willReturn($expressionBuilder);
 
         $queryBuilderMock = $this->createMock(QueryBuilder::class);
         $connection->method('createQueryBuilder')->willReturn($queryBuilderMock);

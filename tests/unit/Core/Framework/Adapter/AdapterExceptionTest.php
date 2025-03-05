@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\AdapterException;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Node\Expression\AbstractExpression;
@@ -16,6 +17,29 @@ use Twig\Node\Expression\AbstractExpression;
 #[CoversClass(AdapterException::class)]
 class AdapterExceptionTest extends TestCase
 {
+    public function testUnsupportedOperator(): void
+    {
+        $exception = AdapterException::unsupportedOperator('$', 'testClass');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(AdapterException::OPERATOR_NOT_SUPPORTED, $exception->getErrorCode());
+        static::assertSame('Unsupported operator $ in testClass', $exception->getMessage());
+        static::assertSame(['operator' => '$', 'class' => 'testClass'], $exception->getParameters());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testUnsupportedOperatorDeprecated(): void
+    {
+        $exception = AdapterException::unsupportedOperator('$', 'testClass');
+
+        static::assertInstanceOf(UnsupportedOperatorException::class, $exception);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame('CONTENT__RULE_OPERATOR_NOT_SUPPORTED', $exception->getErrorCode());
+        static::assertSame('Unsupported operator $ in testClass', $exception->getMessage());
+        static::assertSame('$', $exception->getOperator());
+        static::assertSame('testClass', $exception->getClass());
+    }
+
     public function testUnexpectedTwigExpression(): void
     {
         /** @var AbstractExpression&MockObject $expression */
@@ -73,21 +97,9 @@ class AdapterExceptionTest extends TestCase
     {
         $exception = AdapterException::invalidArgument('test');
 
-        static::assertInstanceOf(AdapterException::class, $exception);
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
         static::assertSame(AdapterException::INVALID_ARGUMENT, $exception->getErrorCode());
         static::assertSame('test', $exception->getMessage());
         static::assertEmpty($exception->getParameters());
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - reason: see AdapterException::invalidArgument - to be removed
-     */
-    #[DisabledFeatures(['v6.7.0.0'])]
-    public function testInvalidArgumentDeprecated(): void
-    {
-        $exception = AdapterException::invalidArgument('test');
-        static::assertInstanceOf(\InvalidArgumentException::class, $exception);
-        static::assertSame('test', $exception->getMessage());
     }
 }

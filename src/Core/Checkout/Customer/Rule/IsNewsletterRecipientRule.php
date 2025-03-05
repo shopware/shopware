@@ -12,16 +12,13 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 #[Package('fundamentals@after-sales')]
 class IsNewsletterRecipientRule extends Rule
 {
     final public const RULE_NAME = 'customerIsNewsletterRecipient';
 
-    /**
-     * @internal
-     */
     public function __construct(protected bool $isNewsletterRecipient = true)
     {
         parent::__construct();

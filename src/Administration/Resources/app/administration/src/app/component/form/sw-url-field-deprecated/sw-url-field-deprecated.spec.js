@@ -8,7 +8,6 @@ import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/base/sw-icon';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/filter/unicode-uri';
 import { nextTick, ref } from 'vue';
@@ -23,16 +22,10 @@ async function createWrapper({ provide, ...additionalOptions } = {}) {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
-                'sw-icon': await wrapTestComponent('sw-icon'),
-                'icons-regular-lock': true,
-                'icons-regular-lock-open': true,
-                'icons-solid-exclamation-circle': true,
                 'sw-field-copyable': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
-                'mt-icon': true,
-                'sw-icon-deprecated': true,
             },
             provide: {
                 validationService: {},

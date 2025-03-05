@@ -3,26 +3,21 @@
 namespace Shopware\Core\System\SystemConfig\Exception;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\System\SystemConfig\SystemConfigException;
+use Symfony\Component\HttpFoundation\Response;
 
 #[Package('framework')]
-class BundleConfigNotFoundException extends ShopwareHttpException
+class BundleConfigNotFoundException extends SystemConfigException
 {
     public function __construct(
         string $configPath,
         string $bundleName
     ) {
         parent::__construct(
-            'Could not find "{{ configPath }}" for bundle "{{ bundle }}".',
-            [
-                'configPath' => $configPath,
-                'bundle' => $bundleName,
-            ]
+            Response::HTTP_NOT_FOUND,
+            self::BUNDLE_CONFIG_NOT_FOUND,
+            'Bundle configuration for path "{{ configPath }}" in bundle "{{ bundleName }}" not found.',
+            ['configPath' => $configPath, 'bundleName' => $bundleName]
         );
-    }
-
-    public function getErrorCode(): string
-    {
-        return 'SYSTEM__BUNDLE_CONFIG_NOT_FOUND';
     }
 }

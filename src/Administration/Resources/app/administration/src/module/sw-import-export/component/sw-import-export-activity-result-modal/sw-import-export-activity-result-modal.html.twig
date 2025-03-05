@@ -8,10 +8,10 @@
     {% block sw_import_export_activity_result_modal_info %}
     <div class="sw-import-export-activity-result-modal__info">
         {% block sw_import_export_activity_result_modal_info_mainEntity %}
-        <sw-card
+        <mt-card
             class="sw-import-export-activity-result-modal__main-activity"
             position-identifier="sw-import-export-activity-result-modal-main-activity"
-            :title="$tc('sw-import-export.activity.result.mainEntity.title', 0, { entity: mainEntity })"
+            :title="$tc('sw-import-export.activity.result.mainEntity.title', { entity: mainEntity }, 0)"
         >
             {% block sw_import_export_activity_result_modal_info_mainEntity_list %}
             <dl class="sw-import-export-activity-result-modal__main-activity-content">
@@ -59,11 +59,11 @@
                 {% endblock %}
             </dl>
             {% endblock %}
-        </sw-card>
+        </mt-card>
         {% endblock %}
 
         {% block sw_import_export_activity_result_modal_info_log %}
-        <sw-card
+        <mt-card
             class="sw-import-export-activity-result-modal__log-info"
             position-identifier="sw-import-export-activity-result-modal-log-info"
             :title="$tc('sw-import-export.activity.result.logInfo.title')"
@@ -139,7 +139,7 @@
                 {% endblock %}
             </dl>
             {% endblock %}
-        </sw-card>
+        </mt-card>
         {% endblock %}
     </div>
     {% endblock %}
@@ -147,24 +147,26 @@
     {% block sw_import_export_activity_result_modal_download %}
     <div class="sw-import-export-activity-result-modal__download-section">
         {% block sw_import_export_activity_result_modal_download_records_button %}
-        <sw-button
+        <mt-button
             class="sw-import-export-activity-result-modal__download-button"
             size="small"
+            variant="secondary"
             @click="openDownload(logEntity.file.id)"
         >
             {{ $tc('sw-import-export.activity.result.labelDownloadFile') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_import_export_activity_result_modal_download_invalid_records_button %}
-        <sw-button
+        <mt-button
             v-if="logEntity.invalidRecordsLog"
             class="sw-import-export-activity-result-modal__download-failed"
             size="small"
+            variant="secondary"
             @click="openDownload(logEntity.invalidRecordsLog.file.id)"
         >
             {{ $tc('sw-import-export.activity.result.labelDownloadInvalidFile') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </div>
     {% endblock %}
@@ -180,7 +182,7 @@
 
         {% block sw_import_export_activity_result_modal_activity_description %}
         <p class="sw-import-export-activity-result-modal__acitvity-description">
-            {{ $tc('sw-import-export.activity.result.activityDescription', 0, { entity: mainEntity }) }}
+            {{ $tc('sw-import-export.activity.result.activityDescription', { entity: mainEntity }, 0) }}
         </p>
         {% endblock %}
 

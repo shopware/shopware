@@ -16,8 +16,6 @@ const { Component } = Shopware;
 Component.register('sw-tagged-field', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['feature'],
 
     emits: ['update:value'],
@@ -67,17 +65,6 @@ Component.register('sw-tagged-field', {
                 'sw-tagged-field__input--full-width': !this.hasValues,
                 'sw-tagged-field__input--hidden': this.hasValues && !this.hasFocus,
             };
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
-        listeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 

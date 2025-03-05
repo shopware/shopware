@@ -65,7 +65,7 @@ class CustomFieldUpdaterTest extends TestCase
 
         $command = new ElasticsearchIndexingCommand(
             static::getContainer()->get(ElasticsearchIndexer::class),
-            static::getContainer()->get('messenger.bus.shopware'),
+            static::getContainer()->get('messenger.default_bus'),
             static::getContainer()->get(CreateAliasTaskHandler::class),
             true
         );

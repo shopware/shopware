@@ -92,17 +92,18 @@
 
     <template #modal-footer>
         {% block sw_order_create_modal_footer_modal_footer_cancel %}
-        <sw-button
+        <mt-button
             class="sw-order-create-initial-modal__button-cancel"
             size="small"
+            variant="secondary"
             @click="onCloseModal"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_order_create_modal_footer_modal_footer_preview_order %}
-        <sw-button
+        <mt-button
             class="sw-order-create-initial-modal__button-preview"
             size="small"
             variant="primary"
@@ -111,7 +112,7 @@
             @click="onPreviewOrder"
         >
             {{ $tc('sw-order.initialModal.buttonPreviewOrder') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
 

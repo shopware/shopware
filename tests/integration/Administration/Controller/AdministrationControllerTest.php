@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -260,10 +259,6 @@ class AdministrationControllerTest extends TestCase
             'customerNumber' => '12345',
         ], $overrideData);
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
         $this->customerRepository->create([$customer], Context::createDefaultContext());
 
         return $customerId;
@@ -290,9 +285,12 @@ class AdministrationControllerTest extends TestCase
         }
 
         $newLanguageId = Uuid::randomBytes();
-        $statement = $this->connection->prepare('INSERT INTO `language` (`id`, `name`, `locale_id`, `translation_code_id`, `created_at`)
-            VALUES (?, ?, ?, ?, ?)');
-        $statement->executeStatement([$newLanguageId, 'Vietnamese', $localeId[0], $localeId[0], '2021-04-01 04:41:12.045']);
+        $this->connection->executeStatement(
+            '
+            INSERT INTO `language` (`id`, `name`, `locale_id`, `translation_code_id`, `created_at`)
+            VALUES (?, ?, ?, ?, ?)',
+            [$newLanguageId, 'Vietnamese', $localeId[0], $localeId[0], '2021-04-01 04:41:12.045']
+        );
 
         return $newLanguageId;
     }
@@ -308,9 +306,11 @@ class AdministrationControllerTest extends TestCase
 
         if (!$configId) {
             $newConfigId = Uuid::randomBytes();
-            $statement = $this->connection->prepare('INSERT INTO `product_search_config` (`id`, `language_id`, `and_logic`, `min_search_length`, `created_at`)
-                VALUES (?, ?, ?, ?, ?)');
-            $statement->executeStatement([$newConfigId, $newLanguageId, 0, 2, '2021-04-01 04:41:12.045']);
+            $this->connection->executeStatement(
+                'INSERT INTO `product_search_config` (`id`, `language_id`, `and_logic`, `min_search_length`, `created_at`)
+                VALUES (?, ?, ?, ?, ?)',
+                [$newConfigId, $newLanguageId, 0, 2, '2021-04-01 04:41:12.045']
+            );
         }
     }
 

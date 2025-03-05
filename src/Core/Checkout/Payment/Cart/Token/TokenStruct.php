@@ -8,78 +8,20 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class TokenStruct extends Struct
 {
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $id;
+    protected ?\Throwable $exception = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $token;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $paymentMethodId;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $transactionId;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $finishUrl;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $errorUrl;
-
-    /**
-     * @deprecated tag:v6.7.0 - will be of type Throwable|null and strictly typed
-     *
-     * @var \Exception|null
-     */
-    protected $exception;
-
-    /**
-     * @var int Unix Timestamp
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $expires;
+    protected int $expires;
 
     public function __construct(
-        ?string $id = null,
-        ?string $token = null,
-        ?string $paymentMethodId = null,
-        ?string $transactionId = null,
-        ?string $finishUrl = null,
+        protected ?string $id = null,
+        protected ?string $token = null,
+        protected ?string $paymentMethodId = null,
+        protected ?string $transactionId = null,
+        protected ?string $finishUrl = null,
         ?int $expires = null,
-        ?string $errorUrl = null
+        protected ?string $errorUrl = null
     ) {
-        $this->id = $id;
-        $this->token = $token;
-        $this->paymentMethodId = $paymentMethodId;
-        $this->transactionId = $transactionId;
-        $this->finishUrl = $finishUrl;
         $this->expires = $expires ?? 1800;
-        $this->errorUrl = $errorUrl;
     }
 
     public function getId(): ?string
@@ -127,22 +69,12 @@ class TokenStruct extends Struct
         return $this->expires < time();
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - return type will be Throwable
-     *
-     * @phpstan-ignore-next-line nothing to throw for extended types
-     */
-    public function getException(): ?\Exception
+    public function getException(): ?\Throwable
     {
         return $this->exception;
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - param `exception` will be of type Throwable
-     *
-     * @phpstan-ignore-next-line nothing to throw for extended types
-     */
-    public function setException(?\Exception $exception): void
+    public function setException(?\Throwable $exception): void
     {
         $this->exception = $exception;
     }

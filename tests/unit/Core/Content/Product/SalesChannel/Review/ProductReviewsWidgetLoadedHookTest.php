@@ -16,7 +16,6 @@ use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -25,7 +24,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader;
 use Shopware\Tests\Unit\Storefront\Controller\Stub\ProductControllerStub;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -54,14 +52,11 @@ class ProductReviewsWidgetLoadedHookTest extends TestCase
             $this->createMock(SeoUrlPlaceholderHandlerInterface::class),
             $this->productReviewLoaderMock,
             $this->systemConfigServiceMock,
-            $this->createMock(EventDispatcher::class),
         );
     }
 
     public function testHookTriggeredWhenProductReviewsWidgetIsLoaded(): void
     {
-        Feature::skipTestIfInActive('v6.7.0.0', $this);
-
         $ids = new IdsCollection();
 
         $this->systemConfigServiceMock->method('get')->with('core.listing.showReview')->willReturn(true);

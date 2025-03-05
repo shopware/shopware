@@ -8,10 +8,12 @@ use Shopware\Core\Content\Product\AbstractProductVariationBuilder;
 use Shopware\Core\Content\Product\AbstractPropertyGroupSorter;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalculator;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -46,6 +48,9 @@ class ProductSubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @param EntityLoadedEvent<ProductEntity|PartialEntity> $event
+     */
     public function loaded(EntityLoadedEvent $event): void
     {
         foreach ($event->getEntities() as $product) {
@@ -55,6 +60,9 @@ class ProductSubscriber implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @param SalesChannelEntityLoadedEvent<ProductEntity|PartialEntity> $event
+     */
     public function salesChannelLoaded(SalesChannelEntityLoadedEvent $event): void
     {
         foreach ($event->getEntities() as $product) {

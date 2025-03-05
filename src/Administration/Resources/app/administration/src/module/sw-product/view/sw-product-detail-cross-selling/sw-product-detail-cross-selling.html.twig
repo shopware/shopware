@@ -11,19 +11,20 @@
     {% block sw_product_detail_cross_selling_items_wrapper %}
     <template v-if="showCrossSellingCard">
         {% block sw_product_detail_cross_selling_restore_inheritance %}
-        <sw-button
+        <mt-button
             v-if="isChild"
             class="sw-product-detail-cross-selling__restore-inheritance-btn"
             :disabled="!acl.can('product.editor')"
+            variant="secondary"
             @click="onShowRestoreInheritanceModal"
         >
-            <sw-icon
+            <mt-icon
                 key="inherit-icon"
                 name="regular-link-horizontal"
                 size="16px"
             />
             {{ $tc('sw-product.crossselling.buttonRestoreCrossSellingInheritance') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_product_detail_cross_selling_items %}
@@ -38,27 +39,26 @@
         {% endblock %}
 
         {% block sw_product_detail_cross_selling_add %}
-        <sw-button
+        <mt-button
             v-tooltip="{
                 message: onAddCrossSellingTooltipMessage,
                 disabled: acl.can('product.editor') && isSystemDefaultLanguage,
                 showOnDisabledElements: true
             }"
             class="sw-product-detail-cross-selling__add-btn"
-            variant="ghost"
+            ghost
             :disabled="!acl.can('product.editor') || !isSystemDefaultLanguage"
+            variant="secondary"
             @click="onAddCrossSelling"
         >
             {{ $tc('sw-product.crossselling.buttonAddCrossSelling') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}
 
     {% block sw_product_detail_cross_selling_empty_state_card %}
-    {# @deprecated tag:v6.7.0 - Block will be removed. Use `sw_product_detail_cross_selling_empty_state_card` instead. #}
-    {% block sw_product_detail_empty_state %}
-    <sw-card
+    <mt-card
         v-else
         position-identifier="sw-product-detail-cross-selling-empty-state"
     >
@@ -93,9 +93,9 @@
                             class="sw-product-detail-cross-selling__parent-cross-sellings-link"
                         >
                             {{ $tc('sw-product.crossselling.linkCrossSellingsOfParent') }}
-                            <sw-icon
+                            <mt-icon
                                 name="regular-long-arrow-right"
-                                small
+                                size="16px"
                             />
                         </router-link>
                         {% endblock %}
@@ -122,8 +122,9 @@
                         class="sw-product-detail-cross-selling__inherit-toggle-wrapper"
                         :class="{ 'is--inherited': isInherited }"
                     >
-                        <sw-switch-field
-                            v-model:value="isInherited"
+
+                        <mt-switch
+                            v-model="isInherited"
                             class="sw-product-detail-cross-selling__inherit-switch"
                             :disabled="!acl.can('product.editor')"
                         />
@@ -144,30 +145,27 @@
             </template>
 
             {% block sw_product_detail_cross_selling_empty_state_actions %}
-            {# @deprecated tag:v6.7.0 - Block will be removed. Use `sw_product_detail_cross_selling_empty_state_actions` instead. #}
-            {% block sw_product_detail_empty_state_cross_selling_add %}
             <template #actions>
                 {% block sw_product_detail_cross_selling_empty_state_actions_add %}
-                <sw-button
+                <mt-button
                     v-tooltip="{
                         message: onAddCrossSellingTooltipMessage,
                         disabled: acl.can('product.editor') && isSystemDefaultLanguage,
                         showOnDisabledElements: true
                     }"
-                    variant="ghost"
+                    ghost
                     :disabled="isInherited || !acl.can('product.editor') || !isSystemDefaultLanguage"
+                    variant="secondary"
                     @click="onAddCrossSelling"
                 >
                     {{ $tc('sw-product.crossselling.buttonAddCrossSelling') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </template>
             {% endblock %}
-            {% endblock %}
         </sw-empty-state>
         {% endblock %}
-    </sw-card>
-    {% endblock %}
+    </mt-card>
     {% endblock %}
 
     {% block sw_product_detail_cross_selling_modal_restore_inheritance %}
@@ -187,23 +185,24 @@
         {% block sw_product_detail_cross_selling_modal_restore_inheritance_footer %}
         <template #modal-footer>
             {% block sw_product_detail_cross_selling_modal_restore_inheritance_action_cancel %}
-            <sw-button
+            <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCloseRestoreInheritanceModal"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_product_detail_cross_selling_modal_restore_inheritance_action_restore %}
-            <sw-button
+            <mt-button
                 class="sw-product-detail-cross-selling__restore-button"
                 size="small"
-                variant="danger"
+                variant="critical"
                 @click="onConfirmRestoreInheritance"
             >
                 {{ $tc('sw-product.crossselling.restoreInheritanceButtonRestore') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
         {% endblock %}

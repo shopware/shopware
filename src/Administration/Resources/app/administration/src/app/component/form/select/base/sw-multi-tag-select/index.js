@@ -20,8 +20,6 @@ const { get } = Shopware.Utils;
 Component.register('sw-multi-tag-select', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inheritAttrs: false,
 
     inject: ['feature'],
@@ -94,12 +92,6 @@ Component.register('sw-multi-tag-select', {
     },
 
     computed: {
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
-        // eslint-disable-next-line vue/return-in-computed-property
-        objectValues() {},
-
         errorObject() {
             return null;
         },
@@ -130,15 +122,6 @@ Component.register('sw-multi-tag-select', {
             }
 
             return Math.max(0, this.totalValuesCount - this.limit);
-        },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 

@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Installer\Controller\ShopConfigurationController;
@@ -73,7 +74,7 @@ class ShopConfigurationService
 
         $countryId = $this->getCountryId($shop['country'], $connection);
 
-        $statement = $connection->prepare(
+        $connection->executeStatement(
             'INSERT INTO sales_channel (
                 id,
                 type_id, access_key, navigation_category_id, navigation_category_version_id,
@@ -84,57 +85,59 @@ class ShopConfigurationService
                 UNHEX(?), ?, ?, UNHEX(?),
                 ?, ?, ?,
                 ?, ?, ?, ?
-            )'
+            )',
+            [
+                $newId,
+                $typeId,
+                AccessKeyHelper::generateAccessKey('sales-channel'),
+                $this->getRootCategoryId($connection), Defaults::LIVE_VERSION,
+                $languageId,
+                $currencyId,
+                $paymentMethod,
+                $shippingMethod,
+                $countryId,
+                $this->getCustomerGroupId($connection),
+                (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
         );
-        $statement->executeStatement([
-            $newId,
-            $typeId,
-            AccessKeyHelper::generateAccessKey('sales-channel'),
-            $this->getRootCategoryId($connection), Defaults::LIVE_VERSION,
-            $languageId,
-            $currencyId,
-            $paymentMethod,
-            $shippingMethod,
-            $countryId,
-            $this->getCustomerGroupId($connection),
-            (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
 
-        $statement = $connection->prepare(
+        $connection->executeStatement(
             'INSERT INTO sales_channel_translation (sales_channel_id, language_id, `name`, created_at)
-             VALUES (?, UNHEX(?), ?, ?)'
+             VALUES (?, UNHEX(?), ?, ?)',
+            [
+                $newId, Defaults::LANGUAGE_SYSTEM, $shop['name'], (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
         );
-        $statement->executeStatement([$newId, Defaults::LANGUAGE_SYSTEM, $shop['name'], (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
-        $statement = $connection->prepare(
+        $connection->executeStatement(
             'INSERT INTO sales_channel_language (sales_channel_id, language_id)
-             VALUES (?, UNHEX(?))'
+             VALUES (?, UNHEX(?))',
+            [$newId, Defaults::LANGUAGE_SYSTEM]
         );
-        $statement->executeStatement([$newId, Defaults::LANGUAGE_SYSTEM]);
 
-        $statement = $connection->prepare(
+        $connection->executeStatement(
             'INSERT INTO sales_channel_currency (sales_channel_id, currency_id)
-             VALUES (?, ?)'
+             VALUES (?, ?)',
+            [$newId, $currencyId]
         );
-        $statement->executeStatement([$newId, $currencyId]);
 
-        $statement = $connection->prepare(
+        $connection->executeStatement(
             'INSERT INTO sales_channel_payment_method (sales_channel_id, payment_method_id)
-             VALUES (?, ?)'
+             VALUES (?, ?)',
+            [$newId, $paymentMethod]
         );
-        $statement->executeStatement([$newId, $paymentMethod]);
 
-        $statement = $connection->prepare(
+        $connection->executeStatement(
             'INSERT INTO sales_channel_shipping_method (sales_channel_id, shipping_method_id)
-             VALUES (?, ?)'
+             VALUES (?, ?)',
+            [$newId, $shippingMethod]
         );
-        $statement->executeStatement([$newId, $shippingMethod]);
 
-        $statement = $connection->prepare(
+        $connection->executeStatement(
             'INSERT INTO sales_channel_country (sales_channel_id, country_id)
-             VALUES (?, ?)'
+             VALUES (?, ?)',
+            [$newId, $countryId]
         );
-        $statement->executeStatement([$newId, $countryId]);
 
         $this->addAdditionalCurrenciesToSalesChannel($shop, $newId, $connection);
         $this->removeUnwantedCurrencies($shop, $connection);
@@ -163,7 +166,7 @@ SQL;
 
         $insertSalesChannel = $connection->prepare($insertSql);
 
-        $insertSalesChannel->executeStatement([
+        StatementHelper::executeStatement($insertSalesChannel, [
             'id' => Uuid::randomBytes(),
             'salesChannelId' => $newId,
             'languageId' => $languageId,
@@ -173,7 +176,7 @@ SQL;
             'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
-        $insertSalesChannel->executeStatement([
+        StatementHelper::executeStatement($insertSalesChannel, [
             'id' => Uuid::randomBytes(),
             'salesChannelId' => $newId,
             'languageId' => $languageId,
@@ -256,13 +259,17 @@ SQL;
         $idOfHeadlessSalesChannel = $this->getIdOfSalesChannelViaTypeId(Defaults::SALES_CHANNEL_TYPE_API, $connection);
 
         // set the default currency of the headless sales channel
-        $statement = $connection->prepare('UPDATE sales_channel SET currency_id = ? WHERE id = ?');
         $defaultCurrencyId = $this->getCurrencyId($shop['currency'], $connection);
-        $statement->executeStatement([$defaultCurrencyId, $idOfHeadlessSalesChannel]);
+        $connection->executeStatement(
+            'UPDATE sales_channel SET currency_id = ? WHERE id = ?',
+            [$defaultCurrencyId, $idOfHeadlessSalesChannel]
+        );
 
         // remove all currencies from the headless sales channel, except the default currency
-        $statement = $connection->prepare('DELETE FROM sales_channel_currency WHERE sales_channel_id = ? AND currency_id != UNHEX(?)');
-        $statement->executeStatement([$idOfHeadlessSalesChannel, $defaultCurrencyId]);
+        $connection->executeStatement(
+            'DELETE FROM sales_channel_currency WHERE sales_channel_id = ? AND currency_id != UNHEX(?)',
+            [$idOfHeadlessSalesChannel, $defaultCurrencyId]
+        );
 
         if ($shop['additionalCurrencies'] === null) {
             return;
@@ -278,8 +285,10 @@ SQL;
                 $currencyId = $this->getCurrencyId($additionalCurrency, $connection);
 
                 // add additional currencies
-                $statement = $connection->prepare('INSERT INTO sales_channel_currency (sales_channel_id, currency_id) VALUES (?, ?)');
-                $statement->executeStatement([$currentSalesChannelId, $currencyId]);
+                $connection->executeStatement(
+                    'INSERT INTO sales_channel_currency (sales_channel_id, currency_id) VALUES (?, ?)',
+                    [$currentSalesChannelId, $currencyId]
+                );
             }
         }
     }

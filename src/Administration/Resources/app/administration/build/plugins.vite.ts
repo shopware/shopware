@@ -7,16 +7,17 @@
  * The environment variable VITE_MODE is automatically set by the npm commands in the package.json.
  * You can just run `composer build:js:admin` or `composer watch:admin` respectively.
  *
- * @package framework
+ * @sw-package framework
  */
 
-import { createServer, build, defineConfig, Plugin } from 'vite';
+import { createServer, build, defineConfig, createLogger } from 'vite';
 import path from 'path';
 import fs from 'fs';
-import chalk from 'chalk';
+import colors from 'picocolors';
 import vue from '@vitejs/plugin-vue';
 import svgLoader from 'vite-svg-loader';
 import symfonyPlugin from 'vite-plugin-symfony';
+import debug from 'debug';
 
 // Shopware imports
 import TwigPlugin from './vite-plugins/twigjs-plugin';
@@ -31,21 +32,43 @@ import injectHtml from './vite-plugins/inject-html';
 const VITE_MODE = process.env.VITE_MODE || 'development';
 const isDev = VITE_MODE === 'development';
 
+// This env variable is provided by the symfony recipes
+const hasAdminRootEnv = !!process.env.ADMIN_ROOT;
+
 const extensionEntries = loadExtensions();
 
 // Common configuration shared between dev and build
-const getBaseConfig = (plugin: ExtensionDefinition) =>
-    defineConfig({
-        root: plugin.path,
+const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
+    const extensionInfoDebug = debug(`vite:${extension.isPlugin ? 'plugin' : 'app'}:${extension.technicalName}`);
+    const configInfoDebug = debug('vite:config');
+    const useSourceMap = !isProd && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1';
+
+    const logger = createLogger();
+
+    logger.info = (msg) => {
+        if (msg.includes('vite:config')) {
+            configInfoDebug(msg);
+            return;
+        }
+
+        extensionInfoDebug(msg);
+    };
+
+    return defineConfig({
+        root: extension.path,
+
+        logLevel: isProd ? 'warn' : 'info',
+
+        customLogger: logger,
 
         plugins: [
             TwigPlugin(),
             AssetPlugin(!isDev, __dirname),
-            AssetPathPlugin(),
+            AssetPathPlugin(extension.technicalFolderName),
             svgLoader(),
             OverrideComponentRegisterPlugin({
-                root: plugin.path,
-                pluginEntryFile: plugin.filePath,
+                root: extension.path,
+                pluginEntryFile: extension.filePath,
             }),
             vue({
                 template: {
@@ -72,21 +95,33 @@ const getBaseConfig = (plugin: ExtensionDefinition) =>
                     find: /^src\//,
                     replacement: '/src/',
                 },
-                {
-                    find: /^~scss\/(.*)/,
-                    replacement: `${process.env.PROJECT_ROOT}/src/Administration/Resources/app/administration/src/app/assets/scss/$1.scss`,
-                },
+
+                // In the symfony recipes, shopware lies in the vendor folder, therefore we can't use the PROJECT_ROOT
+                ...(hasAdminRootEnv
+                    ? [
+                          {
+                              find: /^~scss\/(.*)/,
+                              replacement: `${process.env.ADMIN_ROOT}/Resources/app/administration/src/app/assets/scss/$1.scss`,
+                          },
+                      ]
+                    : [
+                          {
+                              find: /^~scss\/(.*)/,
+                              replacement: `${process.env.PROJECT_ROOT}/src/Administration/Resources/app/administration/src/app/assets/scss/$1.scss`,
+                          },
+                      ]),
                 {
                     find: /^~(.*)$/,
                     replacement: '$1',
                 },
             ],
+            preserveSymlinks: true,
         },
 
         ...(isDev
             ? {}
             : {
-                  base: `/bundles/${plugin.technicalFolderName}/administration/`,
+                  base: `/bundles/${extension.technicalFolderName}/administration/`,
                   optimizeDeps: {
                       include: [
                           'vue-router',
@@ -106,13 +141,13 @@ const getBaseConfig = (plugin: ExtensionDefinition) =>
               }),
 
         build: {
-            outDir: path.resolve(plugin.basePath, 'Resources/public/administration'),
+            outDir: path.resolve(extension.basePath, 'Resources/public/administration'),
             emptyOutDir: true,
             manifest: true,
-            sourcemap: true,
+            sourcemap: useSourceMap,
             rollupOptions: {
                 input: {
-                    [plugin.technicalName]: plugin.filePath,
+                    [extension.technicalName]: extension.filePath,
                 },
                 output: {
                     entryFileNames: 'assets/[name]-[hash].js',
@@ -120,6 +155,7 @@ const getBaseConfig = (plugin: ExtensionDefinition) =>
             },
         },
     });
+};
 
 // Main function to handle both dev and build modes
 const main = async () => {
@@ -167,6 +203,7 @@ const main = async () => {
         for (let i = 0; i < extensionEntries.length; i++) {
             const extension = extensionEntries[i];
             const port = availablePorts[i];
+            const extensionInfoDebug = debug(`vite:${extension.isPlugin ? 'plugin' : 'app'}:${extension.technicalName}`);
 
             let server;
 
@@ -177,7 +214,7 @@ const main = async () => {
                     server: { port },
                 });
 
-                console.log(chalk.green(`# App "${extension.name}": Injected successfully`));
+                extensionInfoDebug(colors.green(`# App "${extension.name}": Injected successfully`));
             } else {
                 // For plugins
                 server = await createServer({
@@ -185,7 +222,7 @@ const main = async () => {
                     server: { port },
                 });
 
-                console.log(chalk.green(`# Plugin "${extension.name}": Injected successfully`));
+                extensionInfoDebug(colors.green(`# Plugin "${extension.name}": Injected successfully`));
             }
 
             await server.listen();
@@ -194,8 +231,10 @@ const main = async () => {
     } else {
         // Build mode
         for (const extension of extensionEntries) {
+            const extensionInfoDebug = debug(`vite:${extension.isPlugin ? 'plugin' : 'app'}:${extension.technicalName}`);
+
             if (extension.isApp) {
-                console.log(chalk.green(`# Building app "${extension.name}"`));
+                extensionInfoDebug(colors.green(`# Building app "${extension.name}"`));
                 // For apps
                 await build({
                     root: extension.path,
@@ -216,7 +255,7 @@ const main = async () => {
                     ],
                 });
             } else {
-                console.log(chalk.green(`# Building plugin "${extension.name}"`));
+                extensionInfoDebug(colors.green(`# Building plugin "${extension.name}"`));
                 // For plugins
                 await build(getBaseConfig(extension));
             }

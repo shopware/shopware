@@ -4,7 +4,14 @@
 import { mount } from '@vue/test-utils';
 import FileValidationService from 'src/app/service/file-validation.service';
 
+let repositoryFactoryMock;
 async function createWrapper(customOptions = {}) {
+    repositoryFactoryMock = {
+        create: () => ({}),
+        save: () => Promise.resolve({}),
+        saveAll: () => Promise.resolve({}),
+    };
+
     return mount(await wrapTestComponent('sw-media-upload-v2', { sync: true }), {
         attachTo: document.body,
         props: {
@@ -17,11 +24,6 @@ async function createWrapper(customOptions = {}) {
                 droppable: {},
             },
             stubs: {
-                'sw-icon': {
-                    template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
-                },
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-context-button': await wrapTestComponent('sw-context-button'),
                 'sw-button-group': await wrapTestComponent('sw-button-group'),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
@@ -36,10 +38,8 @@ async function createWrapper(customOptions = {}) {
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                 'sw-popover': true,
                 'sw-help-text': true,
-                'mt-button': true,
                 'router-link': true,
                 'sw-loader': true,
-                'mt-text-field': true,
                 'sw-field-copyable': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
@@ -48,11 +48,7 @@ async function createWrapper(customOptions = {}) {
                 fileValidationService: new FileValidationService(),
                 validationService: {},
                 repositoryFactory: {
-                    create: () => ({
-                        create: () => ({}),
-                        save: () => Promise.resolve({}),
-                        saveAll: () => Promise.resolve({}),
-                    }),
+                    create: () => repositoryFactoryMock,
                 },
                 mediaService: {
                     addListener: () => {},
@@ -243,11 +239,6 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
                     },
                     stubs: {
                         'sw-media-upload-v2': await wrapTestComponent('sw-media-upload-v2'),
-                        'sw-icon': {
-                            template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
-                        },
-                        'sw-button': await wrapTestComponent('sw-button'),
-                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                         'sw-context-button': await wrapTestComponent('sw-context-button'),
                         'sw-button-group': await wrapTestComponent('sw-button-group'),
                         'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
@@ -262,7 +253,6 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
                         'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                         'sw-popover': true,
                         'sw-help-text': true,
-                        'mt-button': true,
                         'router-link': true,
                         'sw-loader': true,
                     },
@@ -316,11 +306,6 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
                     },
                     stubs: {
                         'sw-media-upload-v2': await wrapTestComponent('sw-media-upload-v2'),
-                        'sw-icon': {
-                            template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
-                        },
-                        'sw-button': await wrapTestComponent('sw-button'),
-                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                         'sw-context-button': await wrapTestComponent('sw-context-button'),
                         'sw-button-group': await wrapTestComponent('sw-button-group'),
                         'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
@@ -335,7 +320,6 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
                         'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                         'sw-popover': true,
                         'sw-help-text': true,
-                        'mt-button': true,
                         'router-link': true,
                         'sw-loader': true,
                     },

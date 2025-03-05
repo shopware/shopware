@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 #[Package('fundamentals@after-sales')]
 class PromotionLineItemRule extends Rule
@@ -22,8 +22,6 @@ class PromotionLineItemRule extends Rule
     final public const RULE_NAME = 'promotionLineItem';
 
     /**
-     * @internal
-     *
      * @param list<string>|null $identifiers
      */
     public function __construct(

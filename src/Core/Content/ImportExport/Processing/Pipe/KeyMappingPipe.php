@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Util\ArrayNormalizer;
 /**
  * @phpstan-import-type MappingArray from Mapping
  *
- * @deprecated tag:v6.7.0 - reason:becomes-internal
+ * @internal
  */
 #[Package('fundamentals@after-sales')]
 class KeyMappingPipe extends AbstractPipe

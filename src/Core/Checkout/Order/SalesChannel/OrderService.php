@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Exception\PaymentMethodNotAvailableException;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -46,6 +47,8 @@ class OrderService
 
     /**
      * @internal
+     *
+     * @param EntityRepository<PaymentMethodCollection> $paymentMethodRepository
      */
     public function __construct(
         private readonly DataValidator $dataValidator,

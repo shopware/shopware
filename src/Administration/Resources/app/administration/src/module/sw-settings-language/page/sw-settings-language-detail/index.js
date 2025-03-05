@@ -12,8 +12,6 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
@@ -165,7 +163,7 @@ export default {
     methods: {
         createdComponent() {
             if (!this.languageId) {
-                Shopware.State.commit('context/resetLanguageToDefault');
+                Shopware.Store.get('context').resetLanguageToDefault();
                 this.language = this.languageRepository.create();
 
                 return;

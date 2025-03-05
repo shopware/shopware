@@ -1,6 +1,4 @@
-import DeviceDetection from 'src/helper/device-detection.helper';
 import NativeEventEmitter from 'src/helper/emitter.helper';
-import Iterator from 'src/helper/iterator.helper';
 
 const OFF_CANVAS_CLASS = 'offcanvas';
 const OFF_CANVAS_FULLWIDTH_CLASS = 'is-fullwidth';
@@ -81,7 +79,7 @@ class OffCanvasSingleton {
     close(delay) {
         const OffCanvasElements = this.getOffCanvas();
 
-        Iterator.iterate(OffCanvasElements, (offCanvas) => {
+        OffCanvasElements.forEach(offCanvas => {
             const offCanvasInstance = bootstrap.Offcanvas.getInstance(offCanvas);
             offCanvasInstance.hide();
         });
@@ -135,11 +133,11 @@ class OffCanvasSingleton {
      * @private
      */
     _registerEvents(delay) {
-        const event = (DeviceDetection.isTouchDevice()) ? 'touchend' : 'click';
+        const event = 'click';
         const offCanvasElements = this.getOffCanvas();
 
         // Ensure OffCanvas is removed from the DOM and events are published.
-        Iterator.iterate(offCanvasElements, offCanvas => {
+        offCanvasElements.forEach(offCanvas => {
             const onBsClose = () => {
                 setTimeout(() => {
                     offCanvas.remove();
@@ -159,7 +157,7 @@ class OffCanvasSingleton {
 
         window.addEventListener('popstate', this.close.bind(this, delay), { once: true });
         const closeTriggers = document.querySelectorAll(`.${OFF_CANVAS_CLOSE_TRIGGER_CLASS}`);
-        Iterator.iterate(closeTriggers, trigger => trigger.addEventListener(event, this.close.bind(this, delay)));
+        closeTriggers.forEach(trigger => trigger.addEventListener(event, this.close.bind(this, delay)));
     }
 
     /**
@@ -169,7 +167,7 @@ class OffCanvasSingleton {
     _removeExistingOffCanvas() {
         OffCanvasSingleton.bsOffcanvas = null;
         const offCanvasElements = this.getOffCanvas();
-        return Iterator.iterate(offCanvasElements, offCanvas => offCanvas.remove());
+        return offCanvasElements.forEach(offCanvas => offCanvas.remove());
     }
 
     /**

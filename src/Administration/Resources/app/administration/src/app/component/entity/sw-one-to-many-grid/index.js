@@ -63,10 +63,6 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
             page: 1,
             limit: 25,
             total: 0,
-            /**
-             * @deprecated tag:v6.7.0 - Will be removed because wrong typo, use `initial` instead
-             */
-            intial: true,
             initial: true,
         };
     },
@@ -89,10 +85,6 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
             // assign collection as records for the sw-data-grid
             this.applyResult(this.collection);
 
-            /**
-             * @deprecated tag:v6.7.0 - Will be removed this.intial assignment
-             */
-            this.intial = false;
             this.initial = false;
 
             // local mode means, the records are loaded with the parent record

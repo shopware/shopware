@@ -12,7 +12,6 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
@@ -26,137 +25,36 @@ class SalesChannelContext extends Struct
     use StateAwareTrait;
 
     /**
-     * Unique token for context, e.g. stored in session or provided in request headers
-     *
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $token;
-
-    /**
-     * @var CustomerGroupEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currentCustomerGroup;
-
-    /**
-     * @var CurrencyEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currency;
-
-    /**
-     * @var SalesChannelEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannel;
-
-    /**
-     * @var TaxCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $taxRules;
-
-    /**
-     * @var CustomerEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customer;
-
-    /**
-     * @var PaymentMethodEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $paymentMethod;
-
-    /**
-     * @var ShippingMethodEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingMethod;
-
-    /**
-     * @var ShippingLocation
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingLocation;
-
-    /**
      * @var array<string, bool>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $permissions = [];
+    protected array $permissions = [];
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $permisionsLocked = false;
+    protected bool $permisionsLocked = false;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $imitatingUserId;
-
-    /**
-     * @var Context
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $context;
+    protected ?string $imitatingUserId = null;
 
     /**
      * @internal
      *
      * @param array<string, array<string>> $areaRuleIds
-     *
-     * @deprecated tag:v6.7.0 - Parameter 'languageInfo' will be required and not nullable. It will also be the second last parameter
      */
     public function __construct(
-        Context $baseContext,
-        string $token,
+        protected Context $context,
+        protected string $token,
         private ?string $domainId,
-        SalesChannelEntity $salesChannel,
-        CurrencyEntity $currency,
-        CustomerGroupEntity $currentCustomerGroup,
-        TaxCollection $taxRules,
-        PaymentMethodEntity $paymentMethod,
-        ShippingMethodEntity $shippingMethod,
-        ShippingLocation $shippingLocation,
-        ?CustomerEntity $customer,
+        protected SalesChannelEntity $salesChannel,
+        protected CurrencyEntity $currency,
+        protected CustomerGroupEntity $currentCustomerGroup,
+        protected TaxCollection $taxRules,
+        protected PaymentMethodEntity $paymentMethod,
+        protected ShippingMethodEntity $shippingMethod,
+        protected ShippingLocation $shippingLocation,
+        protected ?CustomerEntity $customer,
         protected CashRoundingConfig $itemRounding,
         protected CashRoundingConfig $totalRounding,
+        protected LanguageInfo $languageInfo,
         protected array $areaRuleIds = [],
-        protected ?LanguageInfo $languageInfo = null,
     ) {
-        $this->currentCustomerGroup = $currentCustomerGroup;
-        $this->currency = $currency;
-        $this->salesChannel = $salesChannel;
-        $this->taxRules = $taxRules;
-        $this->customer = $customer;
-        $this->paymentMethod = $paymentMethod;
-        $this->shippingMethod = $shippingMethod;
-        $this->shippingLocation = $shippingLocation;
-        $this->token = $token;
-        $this->context = $baseContext;
-        $this->imitatingUserId = null;
-
-        if ($this->languageInfo === null) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter "languageInfo" will be required and not nullable in the next major');
-        }
     }
 
     public function getCurrentCustomerGroup(): CustomerGroupEntity
@@ -492,15 +390,8 @@ class SalesChannelContext extends Struct
         return $this->currentCustomerGroup->getId();
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'LanguageInfo' as it is required in the next major
-     */
-    public function getLanguageInfo(): ?LanguageInfo
+    public function getLanguageInfo(): LanguageInfo
     {
-        if ($this->languageInfo === null) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property "languageInfo" will be required in the next major');
-        }
-
         return $this->languageInfo;
     }
 

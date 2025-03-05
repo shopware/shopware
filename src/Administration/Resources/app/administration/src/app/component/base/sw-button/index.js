@@ -12,12 +12,6 @@ const { Component } = Shopware;
 Component.register('sw-button', {
     template,
 
-    compatConfig: {
-        ...Shopware.compatConfig,
-        // Needed so that Button classes are bound correctly via `v-bind="$attrs"`
-        INSTANCE_ATTRS_CLASS_STYLE: false,
-    },
-
     props: {
         routerLink: {
             type: [
@@ -26,33 +20,6 @@ Component.register('sw-button', {
             ],
             default: null,
             required: false,
-        },
-    },
-
-    computed: {
-        useMeteorComponent() {
-            // Use new meteor component in major
-            if (Shopware.Feature.isActive('v6.7.0.0')) {
-                return true;
-            }
-
-            // Throw warning when deprecated component is used
-            Shopware.Utils.debug.warn(
-                'sw-button',
-                // eslint-disable-next-line max-len
-                'The old usage of "sw-button" is deprecated and will be removed in v6.7.0.0. Please use "mt-button" instead.',
-            );
-
-            return false;
-        },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 

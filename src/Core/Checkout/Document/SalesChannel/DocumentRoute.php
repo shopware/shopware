@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Document\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Document\DocumentCollection;
-use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
@@ -40,19 +39,14 @@ final class DocumentRoute extends AbstractDocumentRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - Parameter $fileType will be added - reason:new-optional-parameter
-     */
     #[Route(path: '/store-api/document/download/{documentId}/{deepLinkCode}', name: 'store-api.document.download', methods: ['GET', 'POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true, '_entity' => 'document'])]
     public function download(
         string $documentId,
         Request $request,
         SalesChannelContext $context,
         string $deepLinkCode = '',
-        /* , string $fileType = PdfRenderer::FILE_EXTENSION */
+        string $fileType = PdfRenderer::FILE_EXTENSION
     ): Response {
-        $fileType = \func_get_args()[4] ?? PdfRenderer::FILE_EXTENSION;
-
         if (!$context->getCustomer()) {
             $this->checkGuestAuth($documentId, $request, $context->getContext());
         }
@@ -98,22 +92,21 @@ final class DocumentRoute extends AbstractDocumentRoute
 
     private function checkGuestAuth(string $documentId, Request $request, Context $context): void
     {
-        $criteria = new Criteria([$documentId]);
-        $criteria->addAssociation('order.orderCustomer.customer');
-        $criteria->addAssociation('order.billingAddress');
+        $criteria = (new Criteria([$documentId]))
+            ->addAssociations(['order.orderCustomer.customer', 'order.billingAddress']);
 
-        $document = $this->documentRepository->search($criteria, $context)->first();
-        if (!$document instanceof DocumentEntity) {
+        $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
+        if (!$document) {
             throw DocumentException::documentNotFound($documentId);
         }
 
         $order = $document->getOrder();
-        if ($order === null) {
+        if (!$order) {
             throw DocumentException::guestNotAuthenticated();
         }
 
         $orderCustomer = $order->getOrderCustomer();
-        if ($orderCustomer === null) {
+        if (!$orderCustomer) {
             throw DocumentException::customerNotLoggedIn();
         }
 

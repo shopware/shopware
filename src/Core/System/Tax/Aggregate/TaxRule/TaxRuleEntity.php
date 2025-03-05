@@ -14,68 +14,23 @@ class TaxRuleEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $taxId;
+    protected string $taxId;
 
-    /**
-     * @var TaxEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $tax;
+    protected ?TaxEntity $tax = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $countryId;
+    protected string $countryId;
 
-    /**
-     * @var CountryEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $country;
+    protected ?CountryEntity $country = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $taxRuleTypeId;
+    protected string $taxRuleTypeId;
 
-    /**
-     * @var TaxRuleTypeEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $type;
+    protected TaxRuleTypeEntity $type;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $taxRate;
+    protected float $taxRate;
 
-    /**
-     * @var array|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $data;
+    protected ?array $data = null;
 
-    /**
-     * @var \DateTimeInterface|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $activeFrom;
+    protected ?\DateTimeInterface $activeFrom = null;
 
     public function getTaxId(): string
     {

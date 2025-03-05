@@ -11,7 +11,6 @@ use Shopware\Administration\Snippet\SnippetFinderInterface;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -98,8 +97,6 @@ class AdministrationController extends AbstractController
             'systemLanguageId' => Defaults::LANGUAGE_SYSTEM,
             'defaultLanguageIds' => [Defaults::LANGUAGE_SYSTEM],
             'systemCurrencyId' => Defaults::CURRENCY,
-            // @deprecated tag:v6.7.0 - remove as read-only extension manager is a better solution
-            'disableExtensions' => EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false),
             'systemCurrencyISOCode' => $defaultCurrency?->getIsoCode(),
             'liveVersionId' => Defaults::LIVE_VERSION,
             'firstRunWizard' => $this->firstRunWizardService->frwShouldRun(),
@@ -145,21 +142,12 @@ class AdministrationController extends AbstractController
     {
         try {
             $publicAssetBaseUrl = $this->fileSystem->publicUrl('/');
-
-            if (Feature::isActive('ADMIN_VITE')) {
-                $viteIndexHtml = $this->fileSystem->read('bundles/' . $pluginName . '/meteor-app/index.html');
-            } else {
-                $webpackIndexHtml = $this->fileSystem->read('bundles/' . $pluginName . '/administration/index.html');
-            }
+            $viteIndexHtml = $this->fileSystem->read('bundles/' . $pluginName . '/meteor-app/index.html');
         } catch (FilesystemException $e) {
             return new Response('Plugin index.html not found', Response::HTTP_NOT_FOUND);
         }
 
-        if (Feature::isActive('ADMIN_VITE')) {
-            $indexHtml = str_replace('__$ASSET_BASE_PATH$__', \sprintf('%sbundles/%s/meteor-app/', $publicAssetBaseUrl, $pluginName), $viteIndexHtml);
-        } else {
-            $indexHtml = str_replace('__$ASSET_BASE_PATH$__', $publicAssetBaseUrl, $webpackIndexHtml);
-        }
+        $indexHtml = str_replace('__$ASSET_BASE_PATH$__', \sprintf('%sbundles/%s/meteor-app/', $publicAssetBaseUrl, $pluginName), $viteIndexHtml);
 
         $response = new Response($indexHtml, Response::HTTP_OK, [
             'Content-Type' => 'text/html',
@@ -193,7 +181,6 @@ class AdministrationController extends AbstractController
 
                 break;
             default:
-                /** @var PreResetExcludedSearchTermEvent $preResetExcludedSearchTermEvent */
                 $preResetExcludedSearchTermEvent = $this->eventDispatcher->dispatch(new PreResetExcludedSearchTermEvent($searchConfigId, [], $context));
                 $defaultExcludedTerm = $preResetExcludedSearchTermEvent->getExcludedTerms();
         }

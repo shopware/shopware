@@ -40,13 +40,12 @@ async function createWrapper({ props = {}, privileges = [] } = {}) {
         return privileges.includes(privilege);
     };
 
-    const aclService = new AclService(Shopware.State);
+    const aclService = new AclService();
 
     return mount(await wrapTestComponent('sw-admin-menu-item', { sync: true }), {
         props,
         global: {
             stubs: {
-                'sw-icon': true,
                 'sw-admin-menu-item': await Shopware.Component.build('sw-admin-menu-item'),
                 'router-link': {
                     template: '<a class="router-link"></a>',
@@ -81,25 +80,9 @@ async function createWrapper({ props = {}, privileges = [] } = {}) {
 }
 
 describe('src/app/component/structure/sw-admin-menu-item', () => {
-    beforeAll(() => {
-        if (Shopware.State.get('settingsItems')) {
-            Shopware.State.unregisterModule('settingsItems');
-        }
-
-        Shopware.State.registerModule('settingsItems', {
-            namespaced: true,
-            state: {
-                settingsGroups: {
-                    shop: [],
-                    system: [],
-                },
-            },
-        });
-    });
-
     beforeEach(async () => {
-        Shopware.State.get('settingsItems').settingsGroups.shop = [];
-        Shopware.State.get('settingsItems').settingsGroups.system = [];
+        Shopware.Store.get('settingsItems').settingsGroups.shop = [];
+        Shopware.Store.get('settingsItems').settingsGroups.system = [];
     });
 
     it('should be a Vue.js component', async () => {
@@ -142,7 +125,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     label: 'sw-product.general.mainMenuItemGeneral',
                     color: '#57D9A3',
                     path: 'sw.product.index',
-                    icon: 'default-symbol-products',
+                    icon: 'regular-products',
                     parent: 'sw-catalogue',
                     position: 10,
                     children: [],
@@ -164,7 +147,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     label: 'sw-product.general.mainMenuItemGeneral',
                     color: '#57D9A3',
                     path: 'sw.product.index',
-                    icon: 'default-symbol-products',
+                    icon: 'regular-products',
                     parent: 'sw-catalogue',
                     position: 10,
                     level: 1,
@@ -200,7 +183,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     label: 'sw-product.general.mainMenuItemGeneral',
                     color: '#57D9A3',
                     path: 'sw.product.index',
-                    icon: 'default-symbol-products',
+                    icon: 'regular-products',
                     parent: 'sw-catalogue',
                     privilege: 'product.viewer',
                     position: 10,
@@ -223,7 +206,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     label: 'sw-product.general.mainMenuItemGeneral',
                     color: '#57D9A3',
                     path: 'sw.product.index',
-                    icon: 'default-symbol-products',
+                    icon: 'regular-products',
                     parent: 'sw-catalogue',
                     privilege: 'product.viewer',
                     position: 10,
@@ -246,7 +229,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     label: 'sw-product.general.mainMenuItemGeneral',
                     color: '#57D9A3',
                     path: 'sw.product.index',
-                    icon: 'default-symbol-products',
+                    icon: 'regular-products',
                     parent: 'sw-catalogue',
                     position: 10,
                     level: 1,
@@ -257,7 +240,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                             label: 'sw-product.general.mainMenuItemGeneral',
                             color: '#57D9A3',
                             path: 'sw.product.index',
-                            icon: 'default-symbol-products',
+                            icon: 'regular-products',
                             parent: 'sw-catalogue',
                             position: 10,
                             level: 2,
@@ -270,7 +253,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                             label: 'sw-review.general.mainMenuItemList',
                             color: '#57D9A3',
                             path: 'sw.review.index',
-                            icon: 'default-symbol-products',
+                            icon: 'regular-products',
                             parent: 'sw-catalogue',
                             position: 20,
                             level: 2,
@@ -295,7 +278,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     label: 'sw-product.general.mainMenuItemGeneral',
                     color: '#57D9A3',
                     path: 'sw.product.index',
-                    icon: 'default-symbol-products',
+                    icon: 'regular-products',
                     parent: 'sw-catalogue',
                     position: 10,
                     level: 1,
@@ -306,7 +289,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                             label: 'sw-product.general.mainMenuItemGeneral',
                             color: '#57D9A3',
                             path: 'sw.product.index',
-                            icon: 'default-symbol-products',
+                            icon: 'regular-products',
                             parent: 'sw-catalogue',
                             position: 10,
                             level: 2,
@@ -321,7 +304,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                             label: 'sw-review.general.mainMenuItemList',
                             color: '#57D9A3',
                             path: 'sw.review.index',
-                            icon: 'default-symbol-products',
+                            icon: 'regular-products',
                             parent: 'sw-catalogue',
                             position: 20,
                             level: 2,
@@ -351,7 +334,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     label: 'sw-product.general.mainMenuItemGeneral',
                     color: '#57D9A3',
                     path: 'sw.product.index',
-                    icon: 'default-symbol-products',
+                    icon: 'regular-products',
                     parent: 'sw-catalogue',
                     position: 10,
                     level: 1,
@@ -362,7 +345,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                             label: 'sw-product.general.mainMenuItemGeneral',
                             color: '#57D9A3',
                             path: 'sw.product.index',
-                            icon: 'default-symbol-products',
+                            icon: 'regular-products',
                             parent: 'sw-catalogue',
                             position: 10,
                             level: 2,
@@ -375,7 +358,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                             label: 'sw-review.general.mainMenuItemList',
                             color: '#57D9A3',
                             path: 'sw.review.index',
-                            icon: 'default-symbol-products',
+                            icon: 'regular-products',
                             parent: 'sw-catalogue',
                             privilege: 'reviewer.viewer',
                             position: 20,
@@ -399,7 +382,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     id: 'sw-product',
                     label: 'sw-product.general.mainMenuItemGeneral',
                     color: '#57D9A3',
-                    icon: 'default-symbol-products',
+                    icon: 'regular-products',
                     parent: 'sw-catalogue',
                     position: 10,
                     moduleType: 'core',
@@ -410,7 +393,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                             label: 'sw-product.general.mainMenuItemGeneral',
                             color: '#57D9A3',
                             path: 'sw.product.index',
-                            icon: 'default-symbol-products',
+                            icon: 'regular-products',
                             parent: 'sw-catalogue',
                             position: 10,
                             level: 2,
@@ -423,7 +406,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                             label: 'sw-review.general.mainMenuItemList',
                             color: '#57D9A3',
                             path: 'sw.review.index',
-                            icon: 'default-symbol-products',
+                            icon: 'regular-products',
                             parent: 'sw-catalogue',
                             privilege: 'reviewer.viewer',
                             position: 20,
@@ -449,7 +432,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     label: 'sw-product.general.mainMenuItemGeneral',
                     color: '#57D9A3',
                     path: 'sw.cms.index',
-                    icon: 'default-symbol-products',
+                    icon: 'regular-products',
                     parent: 'sw-catalogue',
                     position: 10,
                     moduleType: 'core',
@@ -460,7 +443,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                             label: 'sw-product.general.mainMenuItemGeneral',
                             color: '#57D9A3',
                             path: 'sw.product.index',
-                            icon: 'default-symbol-products',
+                            icon: 'regular-products',
                             parent: 'sw-catalogue',
                             position: 10,
                             level: 2,
@@ -473,7 +456,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                             label: 'sw-review.general.mainMenuItemList',
                             color: '#57D9A3',
                             path: 'sw.review.index',
-                            icon: 'default-symbol-products',
+                            icon: 'regular-products',
                             parent: 'sw-catalogue',
                             privilege: 'reviewer.viewer',
                             position: 20,
@@ -494,7 +477,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     });
 
     it('should hide settings menu if no item is visible', async () => {
-        Shopware.State.get('settingsItems').settingsGroups.shop = [
+        Shopware.Store.get('settingsItems').settingsGroups.shop = [
             { privilege: 'no-set', path: 'it' },
         ];
 
@@ -506,7 +489,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     label: 'sw-product.general.mainMenuItemGeneral',
                     color: '#57D9A3',
                     path: 'sw.settings.index',
-                    icon: 'default-symbol-products',
+                    icon: 'regular-products',
                     level: 1,
                     moduleType: 'core',
                     position: 10,
@@ -518,7 +501,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     });
 
     it('settings should be shown if all item is visible', async () => {
-        Shopware.State.get('settingsItems').settingsGroups.shop = [
+        Shopware.Store.get('settingsItems').settingsGroups.shop = [
             { privilege: 'priv-1' },
             { privilege: 'priv-2' },
         ];
@@ -534,7 +517,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     label: 'sw-product.general.mainMenuItemGeneral',
                     color: '#57D9A3',
                     path: 'sw.settings.index',
-                    icon: 'default-symbol-products',
+                    icon: 'regular-products',
                     position: 10,
                     level: 1,
                     moduleType: 'core',
@@ -547,7 +530,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     });
 
     it('settings should be shown if one item is visible', async () => {
-        Shopware.State.get('settingsItems').settingsGroups.shop = [
+        Shopware.Store.get('settingsItems').settingsGroups.shop = [
             { privilege: 'priv-1' },
             { privilege: 'priv-2' },
         ];
@@ -560,7 +543,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     label: 'sw-product.general.mainMenuItemGeneral',
                     color: '#57D9A3',
                     path: 'sw.settings.index',
-                    icon: 'default-symbol-products',
+                    icon: 'regular-products',
                     position: 10,
                     level: 1,
                     moduleType: 'core',
@@ -614,7 +597,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             moduleType: 'core',
             label: 'global.sw-admin-menu.navigation.mainMenuItemCatalogue',
             color: '#57D9A3',
-            icon: 'default-symbol-products',
+            icon: 'regular-products',
             position: 20,
             level: 1,
         });
@@ -651,7 +634,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     label: 'sw-product.general.mainMenuItemGeneral',
                     color: '#57D9A3',
                     path: 'sw.product.index',
-                    icon: 'default-symbol-products',
+                    icon: 'regular-products',
                     parent: 'sw-catalogue',
                     position: 10,
                     level: 1,
@@ -662,7 +645,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                             label: 'sw-product.general.mainMenuItemGeneral',
                             color: '#57D9A3',
                             path: 'sw.product.index',
-                            icon: 'default-symbol-products',
+                            icon: 'regular-products',
                             parent: 'sw-catalogue',
                             position: 10,
                             level: 2,
@@ -674,7 +657,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                             label: 'sw-review.general.mainMenuItemList',
                             color: '#57D9A3',
                             path: 'sw.review.index',
-                            icon: 'default-symbol-products',
+                            icon: 'regular-products',
                             parent: 'sw-catalogue',
                             position: 20,
                             level: 2,

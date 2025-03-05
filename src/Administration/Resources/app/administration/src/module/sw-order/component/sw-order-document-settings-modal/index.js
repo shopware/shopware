@@ -12,11 +12,8 @@ const { isEmpty } = Utils.types;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'numberRangeService',
-        'feature',
         'repositoryFactory',
     ],
 
@@ -58,7 +55,7 @@ export default {
             uploadDocument: false,
             documentConfig: {
                 custom: {},
-                documentNumber: 0,
+                documentNumber: '0',
                 documentComment: '',
                 documentDate: '',
             },
@@ -88,6 +85,20 @@ export default {
 
         mediaRepository() {
             return this.repositoryFactory.create('media');
+        },
+
+        // XML content has no HTML preview (NEXT-40492)
+        htmlPreviewDisabled() {
+            return this.currentDocumentType?.technicalName?.startsWith('zugferd_') ?? false;
+        },
+
+        documentNumber: {
+            get() {
+                return String(this.documentConfig.documentNumber);
+            },
+            set(value) {
+                this.documentConfig.documentNumber = Number(value);
+            },
         },
     },
 
@@ -132,8 +143,14 @@ export default {
         },
 
         async reserveDocumentNumber(isPreview) {
+            // ZUGFeRD document types have no own number range. We will use the invoice number range instead (NEXT-40492)
+            let technicalName = this.currentDocumentType.technicalName;
+            if (technicalName?.startsWith('zugferd_')) {
+                technicalName = 'invoice';
+            }
+
             const { number } = await this.numberRangeService.reserve(
-                `document_${this.currentDocumentType.technicalName}`,
+                `document_${technicalName}`,
                 this.order.salesChannelId,
                 isPreview,
             );

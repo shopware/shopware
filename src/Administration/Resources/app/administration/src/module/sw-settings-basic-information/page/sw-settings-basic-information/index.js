@@ -9,8 +9,6 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     mixins: [
         Mixin.getByName('notification'),
     ],
@@ -53,30 +51,6 @@ export default {
 
         onLoadingChanged(loading) {
             this.isLoading = loading;
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
-        abortOnLanguageChange() {
-            // We don't know if there are changes. So show the warning everytime.
-            return true;
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
-        saveOnLanguageChange() {
-            return this.onSave();
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
-        onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
-
-            this.$refs.systemConfig.createdComponent();
         },
     },
 };

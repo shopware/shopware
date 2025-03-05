@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-class ForeignKey extends Field
+final class ForeignKey extends Field
 {
     public const TYPE = 'fk';
 

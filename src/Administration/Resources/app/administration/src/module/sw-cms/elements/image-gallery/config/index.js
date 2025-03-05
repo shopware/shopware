@@ -15,8 +15,6 @@ const Criteria = Shopware.Data.Criteria;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'feature',
@@ -69,6 +67,78 @@ export default {
 
         isProductPage() {
             return (this.cmsPageState?.currentPage?.type ?? '') === 'product_detail';
+        },
+
+        displayModeValueOptions() {
+            return [
+                { value: 'standard', label: this.$tc('sw-cms.elements.general.config.label.displayModeStandard') },
+                { value: 'contain', label: this.$tc('sw-cms.elements.general.config.label.displayModeContain') },
+                { value: 'cover', label: this.$tc('sw-cms.elements.general.config.label.displayModeCover') },
+            ];
+        },
+
+        verticalAlignValueOptions() {
+            return [
+                {
+                    value: 'flex-start',
+                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignTop'),
+                },
+                {
+                    value: 'center',
+                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignCenter'),
+                },
+                {
+                    value: 'flex-end',
+                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignBottom'),
+                },
+            ];
+        },
+
+        navigationArrowsValueOptions() {
+            return [
+                {
+                    value: 'none',
+                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionNone'),
+                },
+                {
+                    value: 'inside',
+                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionInside'),
+                },
+                {
+                    value: 'outside',
+                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionOutside'),
+                },
+            ];
+        },
+
+        navigationDotsValueOptions() {
+            return [
+                {
+                    value: 'none',
+                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionNone'),
+                },
+                {
+                    value: 'inside',
+                    label: this.$tc('-cms.elements.imageSlider.config.label.navigationPositionInside'),
+                },
+                {
+                    value: 'outside',
+                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionOutside'),
+                },
+            ];
+        },
+
+        galleryPositionValueOptions() {
+            return [
+                {
+                    value: 'left',
+                    label: this.$tc('sw-cms.elements.imageGallery.config.label.navigationPreviewPositionLeft'),
+                },
+                {
+                    value: 'right',
+                    label: this.$tc('sw-cms.elements.imageGallery.config.label.navigationPreviewPositionUnderneath'),
+                },
+            ];
         },
     },
 
@@ -263,16 +333,8 @@ export default {
                 });
 
                 if (!this.element.data) {
-                    if (this.isCompatEnabled('INSTANCE_SET')) {
-                        this.$set(this.element, 'data', { sliderItems });
-                    } else {
-                        this.element.data = { sliderItems };
-                    }
-                } else if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.element.data, 'sliderItems', sliderItems);
-                } else {
-                    this.element.data.sliderItems = sliderItems;
-                }
+                    this.element.data = { sliderItems };
+                } else this.element.data.sliderItems = sliderItems;
             }
         },
 

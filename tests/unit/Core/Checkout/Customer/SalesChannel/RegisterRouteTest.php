@@ -71,7 +71,7 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setDoubleOptInRegistration(false);
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
-        $result->method('first')->willReturn($customerEntity);
+        $result->method('getEntities')->willReturn(new CustomerCollection([$customerEntity]));
 
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository->method('search')->willReturn($result);
@@ -356,7 +356,7 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setDoubleOptInRegistration(false);
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
-        $result->method('first')->willReturn($customerEntity);
+        $result->method('getEntities')->willReturn(new CustomerCollection([$customerEntity]));
 
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository->method('search')->willReturn($result);
@@ -423,7 +423,7 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setDoubleOptInRegistration(false);
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
-        $result->method('first')->willReturn($customerEntity);
+        $result->method('getEntities')->willReturn(new CustomerCollection([$customerEntity]));
 
         $salutationId = Uuid::randomHex();
         /** @var StaticEntityRepository<SalutationCollection> $salutationRepository */

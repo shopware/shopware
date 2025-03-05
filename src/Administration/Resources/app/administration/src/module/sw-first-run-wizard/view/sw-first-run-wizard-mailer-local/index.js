@@ -9,8 +9,6 @@ import template from './sw-first-run-wizard-mailer-local.html.twig';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['systemConfigApiService'],
 
     emits: [
@@ -48,7 +46,7 @@ export default {
         },
 
         nextAction() {
-            if (Shopware.State.get('context').app.config.settings.disableExtensionManagement) {
+            if (Shopware.Store.get('context').app.config.settings.disableExtensionManagement) {
                 return 'sw.first.run.wizard.index.shopware.account';
             }
 

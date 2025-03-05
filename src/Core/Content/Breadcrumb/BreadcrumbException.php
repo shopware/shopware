@@ -9,9 +9,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @experimental stableVersion:v6.7.0 feature:BREADCRUMB_STORE_API
- */
 #[Package('inventory')]
 class BreadcrumbException extends CategoryException
 {

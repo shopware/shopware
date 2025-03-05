@@ -1,24 +1,22 @@
 import Plugin from 'src/plugin-system/plugin.class';
-import DomAccess from 'src/helper/dom-access.helper';
 import HttpClient from 'src/service/http-client.service';
 
 /**
- * @package content
+ * @package discovery
  */
 export default class CountryStateSelectPlugin extends Plugin {
 
     static options = {
         countrySelectSelector: '.country-select',
-        initialCountryAttribute: 'initial-country-id',
+        initialCountryAttribute: 'data-initial-country-id',
         countryStateSelectSelector: '.country-state-select',
-        initialCountryStateAttribute: 'initial-country-state-id',
+        initialCountryStateAttribute: 'data-initial-country-state-id',
         countryStatePlaceholderSelector: '[data-placeholder-option="true"]',
         vatIdFieldInput: '#vatIds',
         zipcodeFieldInput: '[data-input-name="zipcodeInput"]',
-        vatIdRequired: 'vat-id-required',
-        stateRequired: 'state-required',
-        zipcodeRequired: 'zipcode-required',
-        zipcodeLabel: '#zipcodeLabel',
+        vatIdRequired: 'data-vat-id-required',
+        stateRequired: 'data-state-required',
+        zipcodeRequired: 'data-zipcode-required',
         scopeElementSelector: null,
         prefix: null,
     };
@@ -42,24 +40,21 @@ export default class CountryStateSelectPlugin extends Plugin {
         this.scopeElement = this.el;
 
         if (this.options.scopeElementSelector) {
-            this.scopeElement = DomAccess.querySelector(document, this.options.scopeElementSelector);
+            this.scopeElement = document.querySelector(this.options.scopeElementSelector);
         }
 
         const { countrySelectSelector, countryStateSelectSelector, initialCountryAttribute, initialCountryStateAttribute } = CountryStateSelectPlugin.options;
-        const countrySelect = DomAccess.querySelector(this.scopeElement, countrySelectSelector);
-        const countryStateSelect = DomAccess.querySelector(this.scopeElement, countryStateSelectSelector);
-        const initialCountryId = DomAccess.getDataAttribute(countrySelect, initialCountryAttribute, false);
-        const initialCountryStateId = DomAccess.getDataAttribute(countryStateSelect, initialCountryStateAttribute, false);
+        const countrySelect = this.scopeElement.querySelector(countrySelectSelector);
+        const countryStateSelect = this.scopeElement.querySelector(countryStateSelectSelector);
+        const initialCountryId = countrySelect.getAttribute(initialCountryAttribute);
+        const initialCountryStateId = countryStateSelect.getAttribute(initialCountryStateAttribute);
         const countrySelectCurrentOption = countrySelect.options[countrySelect.selectedIndex];
-        const vatIdRequired = !!DomAccess.getDataAttribute(countrySelectCurrentOption, this.options.vatIdRequired, false);
+        const vatIdRequired = !!countrySelectCurrentOption.getAttribute(this.options.vatIdRequired);
         const vatIdInput = document.querySelector(this.options.vatIdFieldInput);
-        const stateRequired = !!DomAccess.getDataAttribute(countrySelectCurrentOption, this.options.stateRequired, false);
+        const stateRequired = !!countrySelectCurrentOption.getAttribute(this.options.stateRequired);
 
-        // @deprecated tag:v6.7.0 - Will be removed. The labels are handled by the global form validation method.
-        const zipcodeLabels = DomAccess.querySelectorAll(this.scopeElement, this.options.zipcodeLabel, false);
-
-        const zipcodeInputs = DomAccess.querySelectorAll(this.scopeElement, this.options.zipcodeFieldInput, false);
-        const zipcodeRequired = !!DomAccess.getDataAttribute(countrySelectCurrentOption, this.options.zipcodeRequired, false);
+        const zipcodeInputs = this.scopeElement.querySelectorAll(this.options.zipcodeFieldInput);
+        const zipcodeRequired = !!countrySelectCurrentOption.getAttribute(this.options.zipcodeRequired);
 
         countrySelect.addEventListener('change', this.onChangeCountry.bind(this));
 
@@ -69,50 +64,32 @@ export default class CountryStateSelectPlugin extends Plugin {
         this.requestStateData(initialCountryId, initialCountryStateId, stateRequired);
 
         if (zipcodeRequired) {
-            if (window.Feature.isActive('ACCESSIBILITY_TWEAKS')) {
-                this._updateZipcodeFields(zipcodeInputs, zipcodeRequired);
-            } else {
-                this._updateZipcodeRequired(zipcodeLabels, zipcodeInputs, zipcodeRequired);
-            }
+            this._updateZipcodeFields(zipcodeInputs, zipcodeRequired);
         }
 
         if (!vatIdInput) {
             return;
         }
-        if (window.Feature.isActive('ACCESSIBILITY_TWEAKS')) {
-            this._updateVatIdField(vatIdInput, vatIdRequired);
-        } else {
-            this._updateRequiredVatId(vatIdInput, vatIdRequired);
-        }
+
+        this._updateVatIdField(vatIdInput, vatIdRequired);
     }
 
     onChangeCountry(event) {
         const countryId = event.target.value;
 
         const countrySelect = event.target.options[event.target.selectedIndex];
-        const stateRequired = !!DomAccess.getDataAttribute(countrySelect, this.options.stateRequired);
+        const stateRequired = !!countrySelect.getAttribute(this.options.stateRequired);
         this.requestStateData(countryId, null, stateRequired);
-        const vatIdRequired = DomAccess.getDataAttribute(countrySelect, this.options.vatIdRequired);
+        const vatIdRequired = countrySelect.getAttribute(this.options.vatIdRequired);
         const vatIdInput = document.querySelector(this.options.vatIdFieldInput);
 
-        // @deprecated tag:v6.7.0 - Will be removed. The labels are handled by the global form validation method.
-        const zipcodeLabels = DomAccess.querySelectorAll(this.scopeElement, this.options.zipcodeLabel, false);
+        const zipcodeInputs = this.scopeElement.querySelectorAll(this.options.zipcodeFieldInput);
+        const zipcodeRequired = !!countrySelect.getAttribute(this.options.zipcodeRequired);
 
-        const zipcodeInputs = DomAccess.querySelectorAll(this.scopeElement, this.options.zipcodeFieldInput, false);
-        const zipcodeRequired = !!DomAccess.getDataAttribute(countrySelect, this.options.zipcodeRequired, false);
-
-        if (window.Feature.isActive('ACCESSIBILITY_TWEAKS')) {
-            this._updateZipcodeFields(zipcodeInputs, zipcodeRequired);
-        } else {
-            this._updateZipcodeRequired(zipcodeLabels, zipcodeInputs, zipcodeRequired);
-        }
+        this._updateZipcodeFields(zipcodeInputs, zipcodeRequired);
 
         if (vatIdInput) {
-            if (window.Feature.isActive('ACCESSIBILITY_TWEAKS')) {
-                this._updateVatIdField(vatIdInput, vatIdRequired);
-            } else {
-                this._updateRequiredVatId(vatIdInput, vatIdRequired);
-            }
+            this._updateVatIdField(vatIdInput, vatIdRequired);
         }
     }
 
@@ -123,14 +100,8 @@ export default class CountryStateSelectPlugin extends Plugin {
             window.router['frontend.country.country-data'],
             payload,
             (response) => {
-                if (window.Feature.isActive('ACCESSIBILITY_TWEAKS')) {
-                    const responseData = JSON.parse(response);
-                    this._updateStateSelect(responseData.states, stateRequired, countryStateId);
-                } else {
-                    let responseData = JSON.parse(response);
-                    responseData = {...responseData, ...{ stateRequired }};
-                    updateStateSelect(responseData, countryStateId, this.el, CountryStateSelectPlugin.options);
-                }
+                const responseData = JSON.parse(response);
+                this._updateStateSelect(responseData.states, stateRequired, countryStateId);
             }
         );
     }
@@ -155,33 +126,6 @@ export default class CountryStateSelectPlugin extends Plugin {
     }
 
     /**
-     * @deprecated tag:v6.7.0 - Use _updateVatIdField instead.
-     */
-    _updateRequiredVatId(vatIdFieldInput, vatIdRequired) {
-        if (this._differentShippingCheckbox && this.options.prefix === 'billingAddress') {
-            return;
-        }
-
-        const label = vatIdFieldInput.parentNode.querySelector('label');
-
-        if (vatIdRequired) {
-            vatIdFieldInput.setAttribute('required', 'required');
-
-            if (label?.textContent && label.textContent.substr(-1, 1) !== '*') {
-                label.textContent = `${label.textContent}*`;
-            }
-
-            return;
-        }
-
-        if (label?.textContent && label.textContent.substr(-1, 1) === '*') {
-            label.textContent = label.textContent.substr(0, label.textContent.length -1);
-        }
-
-        vatIdFieldInput.removeAttribute('required');
-    }
-
-    /**
      * Updates the required state of the zip code fields.
      *
      * @param {NodeList} inputs
@@ -202,34 +146,8 @@ export default class CountryStateSelectPlugin extends Plugin {
         });
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - Use _updateZipcodeFields instead.
-     *
-     * @param labels
-     * @param inputs
-     * @param required
-     * @private
-     */
-    _updateZipcodeRequired(labels, inputs, required) {
-        if (!labels || !inputs) {
-            return;
-        }
-
-        labels.forEach(label => {
-            label.className = required ? '' : 'd-none';
-        });
-
-        inputs.forEach(input => {
-            if (required) {
-                input.setAttribute('required', 'required');
-            } else {
-                input.removeAttribute('required');
-            }
-        });
-    }
-
     _updateStateSelect(states, stateRequired, countryStateId) {
-        const countryStateSelect = DomAccess.querySelector(this.scopeElement, this.options.countryStateSelectSelector);
+        const countryStateSelect = this.scopeElement.querySelector(this.options.countryStateSelectSelector);
         const placeholder = countryStateSelect.querySelector(this.options.countryStatePlaceholderSelector);
 
         this._removeStateOptions(countryStateSelect);
@@ -249,7 +167,7 @@ export default class CountryStateSelectPlugin extends Plugin {
         let stateSelect = countryStateSelect;
 
         if (!countryStateSelect) {
-            stateSelect = DomAccess.querySelector(this.scopeElement, this.options.countryStateSelectSelector);
+            stateSelect = this.scopeElement.querySelector(this.options.countryStateSelectSelector);
         }
 
         stateSelect.querySelectorAll(optionSelector).forEach((option) => option.remove());
@@ -259,7 +177,7 @@ export default class CountryStateSelectPlugin extends Plugin {
         let stateSelect = countryStateSelect;
 
         if (!countryStateSelect) {
-            stateSelect = DomAccess.querySelector(this.scopeElement, this.options.countryStateSelectSelector);
+            stateSelect = this.scopeElement.querySelector(this.options.countryStateSelectSelector);
         }
 
         if (states.length === 0) {
@@ -290,7 +208,7 @@ export default class CountryStateSelectPlugin extends Plugin {
     }
 
     _getFormFieldToggleInstance() {
-        const toggleField = DomAccess.querySelector(document, '[data-form-field-toggle-target=".js-form-field-toggle-shipping-address"]', false);
+        const toggleField = document.querySelector('[data-form-field-toggle-target=".js-form-field-toggle-shipping-address"]');
         if (!toggleField) {
             return;
         }
@@ -302,101 +220,18 @@ export default class CountryStateSelectPlugin extends Plugin {
         this._differentShippingCheckbox = event.target.checked;
 
         const scopeElementSelector = this._differentShippingCheckbox ? '.register-shipping' : '.register-billing';
-        const scopeElement = DomAccess.querySelector(document, scopeElementSelector);
+        const scopeElement = document.querySelector(scopeElementSelector);
 
-        const countrySelect = DomAccess.querySelector(scopeElement, this.options.countrySelectSelector);
+        const countrySelect = scopeElement.querySelector(this.options.countrySelectSelector);
         const countrySelectCurrentOption = countrySelect.options[countrySelect.selectedIndex];
 
-        const vatIdRequired = !!DomAccess.getDataAttribute(countrySelectCurrentOption, this.options.vatIdRequired, false);
+        const vatIdRequired = !!countrySelectCurrentOption.getAttribute(this.options.vatIdRequired);
         const vatIdInput = document.querySelector(this.options.vatIdFieldInput);
 
         if (!vatIdInput) {
             return;
         }
 
-        if (window.Feature.isActive('ACCESSIBILITY_TWEAKS')) {
-            this._updateVatIdField(vatIdInput, vatIdRequired);
-        } else {
-            this._updateRequiredVatId(vatIdInput, vatIdRequired);
-        }
+        this._updateVatIdField(vatIdInput, vatIdRequired);
     }
-}
-
-/**
- * @deprecated tag:v6.7.0 - Use _updateStateSelect from the actual plugin class.
- */
-function updateStateSelect({ stateRequired, states}, countryStateId, rootElement, options) {
-    const { countryStateSelectSelector, countryStatePlaceholderSelector } = options;
-    const countryStateSelect = DomAccess.querySelector(rootElement, countryStateSelectSelector);
-
-    removeOldOptions(countryStateSelect, `option:not(${countryStatePlaceholderSelector})`);
-    addNewStates(countryStateSelect, states, countryStateId);
-    updateRequiredState(countryStateSelect, stateRequired, `option${countryStatePlaceholderSelector}`);
-}
-
-/**
- * @deprecated tag:v6.7.0 - Use _removeStateOptions from the actual plugin class.
- */
-function removeOldOptions(el, optionQuery) {
-    el.querySelectorAll(optionQuery).forEach((option) => option.remove());
-}
-
-/**
- * @deprecated tag:v6.7.0 - Use _addStateOptions from the actual plugin class.
- */
-function addNewStates(selectEl, states, selectedStateId) {
-    if (states.length === 0) {
-        selectEl.parentNode.classList.add('d-none');
-        selectEl.setAttribute('disabled', 'disabled');
-        return;
-    }
-
-    states.map(option => createOptionFromState(option, selectedStateId))
-        .forEach((option) => {
-            selectEl.append(option);
-        });
-    selectEl.parentNode.classList.remove('d-none');
-    selectEl.removeAttribute('disabled');
-}
-
-/**
- * @deprecated tag:v6.7.0 - Use _createStateOptionEl from the actual plugin class.
- */
-function createOptionFromState(state, selectedStateId) {
-    const option = document.createElement('option');
-
-    option.setAttribute('value', state.id);
-    option.innerText = state.translated.name;
-
-    if (state.id === selectedStateId) {
-        option.setAttribute('selected', 'selected');
-    }
-
-    return option;
-}
-
-/**
- * @deprecated tag:v6.7.0 - Removed with not replacement. Required state is handled in _updateStateSelect of the actual plugin class.
- */
-function updateRequiredState(countryStateSelect, stateRequired, placeholderQuery) {
-    const placeholder = countryStateSelect.querySelector(placeholderQuery);
-    const label = countryStateSelect.parentNode.querySelector('label');
-
-    if (stateRequired) {
-        placeholder.setAttribute('disabled', 'disabled');
-        countryStateSelect.setAttribute('required', 'required');
-
-        if (label?.textContent && label.textContent.substr(-1, 1) !== '*') {
-            label.textContent = `${label.textContent.trim()}*`;
-        }
-
-        return;
-    }
-
-    if (label?.textContent && label.textContent.substr(-1, 1) === '*') {
-        label.textContent = label.textContent.substr(0, label.textContent.length -1);
-    }
-
-    placeholder.removeAttribute('disabled');
-    countryStateSelect.removeAttribute('required');
 }

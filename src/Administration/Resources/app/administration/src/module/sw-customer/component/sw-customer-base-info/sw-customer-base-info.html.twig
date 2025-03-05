@@ -63,44 +63,6 @@
         </sw-description-list>
         {% endblock %}
 
-        {# @deprecated tag:v6.7.0 - customer default payment method will be removed #}
-        {% block sw_customer_base_metadata_default_payment %}
-        <sw-description-list v-if="!feature.isActive('v6.7.0.0')">
-            {# @deprecated tag:v6.7.0 - customer default payment method will be removed #}
-            {% block sw_customer_base_metadata_default_payment_label %}
-            <dt class="sw-customer-base-info__label">
-                {{ $tc('sw-customer.baseInfo.labelDefaultPayment') }}
-            </dt>
-            {% endblock %}
-
-            {# @deprecated tag:v6.7.0 - customer default payment method will be removed #}
-            {% block sw_customer_base_metadata_default_payment_content %}
-            <dd
-                v-if="!customerEditMode"
-                class="sw-customer-base__label-default-payment-method"
-            >
-                {{ customer.defaultPaymentMethod.translated.distinguishableName }}
-            </dd>
-            {% endblock %}
-
-            {# @deprecated tag:v6.7.0 - customer default payment method will be removed #}
-            {% block sw_customer_base_metadata_default_payment_editor %}
-            <dd v-else>
-                <sw-entity-single-select
-                    v-model:value="customer.defaultPaymentMethodId"
-                    name="sw-field--customer-defaultPaymentMethodId"
-                    class="sw-customer-base-info__payment-select"
-                    entity="payment_method"
-                    label-property="distinguishableName"
-                    size="small"
-                    show-clearable-button
-                    :error="customerDefaultPaymentMethodIdError"
-                />
-            </dd>
-            {% endblock %}
-        </sw-description-list>
-        {% endblock %}
-
         {% block sw_customer_base_metadata_active %}
         <sw-description-list>
             {% block sw_customer_base_metadata_active_label %}
@@ -120,8 +82,8 @@
 
             {% block sw_customer_base_metadata_active_editor %}
             <dd v-else>
-                <sw-checkbox-field
-                    v-model:value="customer.active"
+                <mt-checkbox
+                    v-model:checked="customer.active"
                     name="sw-field--customer-active"
                     class="sw-customer-base-info__checkbox-field"
                     :label="$tc('sw-customer.baseInfo.contentActive')"
@@ -151,13 +113,13 @@
 
             {% block sw_customer_base_metadata_confirmed_editor %}
             <dd v-else>
-                <sw-checkbox-field
+                <mt-checkbox
                     name="sw-field--customer-confirmed"
                     class="sw-customer-base-info__checkbox-field"
-                    :value="!!customer.doubleOptInConfirmDate"
+                    :checked="!!customer.doubleOptInConfirmDate"
                     :label="$tc('sw-customer.baseInfo.contentConfirmed')"
                     size="small"
-                    @update:value="customer.doubleOptInConfirmDate = $event ? new Date() : null"
+                    @update:checked="customer.doubleOptInConfirmDate = $event ? new Date() : null"
                 />
             </dd>
             {% endblock %}
@@ -204,8 +166,9 @@
                 {{ customer.affiliateCode || '-' }}
             </dd>
             <dd v-else>
-                <sw-text-field
-                    v-model:value="customer.affiliateCode"
+
+                <mt-text-field
+                    v-model="customer.affiliateCode"
                     name="sw-field--customer-customerAffiliateCode"
                     :placeholder="$tc('sw-customer.baseInfo.placeholderCustomerAffiliateCode')"
                     size="small"
@@ -221,8 +184,9 @@
                 {{ customer.campaignCode || '-' }}
             </dd>
             <dd v-else>
-                <sw-text-field
-                    v-model:value="customer.campaignCode"
+
+                <mt-text-field
+                    v-model="customer.campaignCode"
                     name="sw-field--customer-customerCampaignCode"
                     :placeholder="$tc('sw-customer.baseInfo.placeholderCustomerCampaignCode')"
                     size="small"
@@ -328,8 +292,8 @@
 
             {% block sw_custoemr_base_metadata_birthday_editor %}
             <dd v-else>
-                <sw-datepicker
-                    v-model:value="customer.birthday"
+                <mt-datepicker
+                    v-model="customer.birthday"
                     name="sw-field--customer-birthday"
                     size="small"
                     date-type="date"

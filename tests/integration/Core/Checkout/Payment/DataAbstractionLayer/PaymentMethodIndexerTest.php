@@ -188,7 +188,7 @@ class PaymentMethodIndexerTest extends TestCase
     public function testPaymentMethodIndexerNotLooping(): void
     {
         // Setup payment method(s)
-        /** @var EntityRepository $paymentRepository */
+        /** @var EntityRepository<PaymentMethodCollection> $paymentRepository */
         $paymentRepository = static::getContainer()->get('payment_method.repository');
 
         $paymentMethodId = Uuid::randomHex();
@@ -221,7 +221,7 @@ class PaymentMethodIndexerTest extends TestCase
         }, EntityIndexerRegistry::DISABLE_INDEXING, EntityIndexerRegistry::USE_INDEXING_QUEUE);
 
         // Run indexer
-        $messageBus = static::getContainer()->get('messenger.bus.shopware');
+        $messageBus = static::getContainer()->get('messenger.default_bus');
         static::assertInstanceOf(TraceableMessageBus::class, $messageBus);
         $messageBus->reset();
         $ids = [$paymentMethodId];

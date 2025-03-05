@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Rule;
 
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\MultiEntitySelectField;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\MultiSelectField;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Util\ArrayComparator;
@@ -87,35 +86,6 @@ class CustomFieldRule
     }
 
     /**
-     * @deprecated tag:v6.7.0 - Method will be removed, use FloatComparator::compare instead
-     */
-    public static function floatMatch(string $operator, float $actual, float $expected): bool
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'FloatComparator::compare')
-        );
-
-        return FloatComparator::compare($actual, $expected, $operator);
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Method will be removed, use ArrayComparator::compare instead
-     *
-     * @param array<string|int|bool|float> $actual
-     * @param array<string|int|bool|float> $expected
-     */
-    public static function arrayMatch(string $operator, array $actual, array $expected): bool
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'ArrayComparator::compare')
-        );
-
-        return ArrayComparator::compare($actual, $expected, $operator);
-    }
-
-    /**
      * @param array<string, mixed> $customFields
      * @param array<string, string|array<string, string>> $renderedField
      *
@@ -148,6 +118,10 @@ class CustomFieldRule
 
         if (self::isSwitchOrBoolField($renderedField)) {
             return $renderedFieldValue ?? false; // those fields are initialized with null in the rule builder
+        }
+
+        if (self::isDatetimeOrDateField($renderedField) && \is_string($renderedFieldValue)) {
+            return (new \DateTimeImmutable($renderedFieldValue))->format(\DATE_ATOM);
         }
 
         return $renderedFieldValue;
@@ -215,5 +189,13 @@ class CustomFieldRule
     private static function isSwitchOrBoolField(array $renderedField): bool
     {
         return \in_array($renderedField['type'], [CustomFieldTypes::BOOL, CustomFieldTypes::SWITCH], true);
+    }
+
+    /**
+     * @param array<string, string|array<string, string>> $renderedField
+     */
+    private static function isDatetimeOrDateField(array $renderedField): bool
+    {
+        return \in_array($renderedField['type'], [CustomFieldTypes::DATETIME, CustomFieldTypes::DATE], true);
     }
 }

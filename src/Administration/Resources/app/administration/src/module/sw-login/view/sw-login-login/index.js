@@ -13,8 +13,6 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-login-login', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'loginService',
         'userService',
@@ -49,7 +47,7 @@ Component.register('sw-login-login', {
 
     created() {
         if (!localStorage.getItem('sw-admin-locale')) {
-            Shopware.State.dispatch('setAdminLocale', navigator.language);
+            Shopware.Store.get('session').setAdminLocale(navigator.language);
         }
     },
 
@@ -148,7 +146,7 @@ Component.register('sw-login-login', {
 
             if (parseInt(error.status, 10) === 429) {
                 const seconds = error?.meta?.parameters?.seconds;
-                this.loginAlertMessage = this.$tc('sw-login.index.messageAuthThrottled', 0, { seconds });
+                this.loginAlertMessage = this.$tc('sw-login.index.messageAuthThrottled', { seconds }, 0);
 
                 setTimeout(() => {
                     this.loginAlertMessage = '';

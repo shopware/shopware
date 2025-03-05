@@ -133,7 +133,7 @@ const mockMailTemplates = [
                         email: 'personal@ema.il',
                         firstName: 'Personal',
                         lastName: 'Data',
-                    }
+                    },
                 },
             },
         },
@@ -303,7 +303,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         const wrapper = await createWrapper(
             {
                 ...defaultProps,
-                document: mockDocuments[2]
+                document: mockDocuments[2],
             },
             true,
             [mockMailTemplates[3]],
@@ -312,9 +312,9 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
 
         const previewContent = wrapper.find('.sw-order-send-document-modal__email-content');
         expect(previewContent.element.innerHTML).toBe(
-            mockMailHeaderFooter.headerHtml
-            + replaceTemplateVariables(mockMailTemplates[3].contentHtml,defaultProps)
-            + mockMailHeaderFooter.footerHtml,
+            mockMailHeaderFooter.headerHtml +
+                replaceTemplateVariables(mockMailTemplates[3].contentHtml, defaultProps) +
+                mockMailHeaderFooter.footerHtml,
         );
     });
 

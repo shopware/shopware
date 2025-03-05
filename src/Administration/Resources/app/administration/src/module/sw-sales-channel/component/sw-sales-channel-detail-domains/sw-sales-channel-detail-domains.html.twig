@@ -20,6 +20,7 @@
             size="small"
             :disabled="disableEdit || undefined"
             class="sw-sales-channel-detail__button-domain-add"
+            variant="secondary"
             @click="onClickOpenCreateDomainModal"
         >
             {{ $tc('sw-sales-channel.detail.buttonAddDomain') }}
@@ -186,6 +187,7 @@
             {% block sw_sales_channel_detail_domains_create_action_cancel %}
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCloseCreateDomainModal"
             >
                 {{ $tc('global.default.cancel') }}
@@ -223,6 +225,7 @@
             {% block sw_sales_channel_detail_domains_delete_modal_abort %}
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCloseDeleteDomainModal"
             >
                 {{ $tc('global.default.cancel') }}

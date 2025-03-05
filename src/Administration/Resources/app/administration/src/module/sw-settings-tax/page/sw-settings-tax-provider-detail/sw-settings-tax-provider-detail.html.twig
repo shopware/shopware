@@ -13,6 +13,7 @@
         <mt-button
             v-tooltip.bottom="{ message: 'ESC', appearance: 'light' }"
             :disabled="isLoading"
+            variant="secondary"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
@@ -55,8 +56,8 @@
                         columns="5fr 1fr"
                         gap="0px 30px"
                     >
-                        <sw-number-field
-                            v-model:value="taxProvider.priority"
+                        <mt-number-field
+                            v-model="taxProvider.priority"
                             class="sw-settings-tax-tax-provider-detail__field-priority"
                             :disabled="true"
                             :label="$tc('sw-settings-tax.taxProviderDetail.labelPriority')"

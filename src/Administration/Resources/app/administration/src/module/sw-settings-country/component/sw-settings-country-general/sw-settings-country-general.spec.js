@@ -72,7 +72,7 @@ async function createWrapper(privileges = [], customPropsData = {}) {
                     'sw-ignore-class': true,
                     'sw-container': await wrapTestComponent('sw-container'),
                     'sw-text-field': true,
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-settings-country-currency-dependent-modal': true,
                     'sw-entity-single-select': true,
                     'sw-extension-component-section': true,
@@ -110,7 +110,7 @@ describe('module/sw-settings-country/component/sw-settings-country-general', () 
         await flushPromises();
 
         const countryNameField = wrapper.find('.mt-text-field input[aria-label="sw-settings-country.detail.labelName"]');
-        const countryPositionField = wrapper.find('sw-number-field-stub[label="sw-settings-country.detail.labelPosition"]');
+        const countryPositionField = wrapper.find('mt-number-field-stub[label="sw-settings-country.detail.labelPosition"]');
         const countryIsoField = wrapper.find('.mt-text-field input[aria-label="sw-settings-country.detail.labelIso"]');
         const countryIso3Field = wrapper.find('.mt-text-field input[aria-label="sw-settings-country.detail.labelIso3"]');
         const countryActiveField = wrapper.find('.mt-switch input[aria-label="sw-settings-country.detail.labelActive"]');
@@ -124,7 +124,7 @@ describe('module/sw-settings-country/component/sw-settings-country-general', () 
         const countryCheckVatIdFormatField = wrapper.find(
             '.mt-switch input[aria-label="sw-settings-country.detail.labelCheckVatIdFormat"]',
         );
-        const countryTaxFreeFromField = wrapper.find('sw-number-field-stub[label="sw-settings-country.detail.taxFreeFrom"]');
+        const countryTaxFreeFromField = wrapper.find('mt-number-field-stub[label="sw-settings-country.detail.taxFreeFrom"]');
         const countryVatIdRequiredField = wrapper.find(
             '.mt-switch input[aria-label="sw-settings-country.detail.labelVatIdRequired"]',
         );
@@ -150,7 +150,7 @@ describe('module/sw-settings-country/component/sw-settings-country-general', () 
         await wrapper.vm.$nextTick();
 
         const countryNameField = wrapper.find('.mt-text-field input[aria-label="sw-settings-country.detail.labelName"]');
-        const countryPositionField = wrapper.find('sw-number-field-stub[label="sw-settings-country.detail.labelPosition"]');
+        const countryPositionField = wrapper.find('mt-number-field-stub[label="sw-settings-country.detail.labelPosition"]');
         const countryIsoField = wrapper.find('.mt-text-field input[aria-label="sw-settings-country.detail.labelIso"]');
         const countryIso3Field = wrapper.find('.mt-text-field input[aria-label="sw-settings-country.detail.labelIso3"]');
         const countryActiveField = wrapper.find('.mt-switch input[aria-label="sw-settings-country.detail.labelActive"]');
@@ -164,7 +164,7 @@ describe('module/sw-settings-country/component/sw-settings-country-general', () 
         const countryCheckVatIdFormatField = wrapper.find(
             '.mt-switch input[aria-label="sw-settings-country.detail.labelCheckVatIdFormat"]',
         );
-        const countryTaxFreeFromField = wrapper.find('sw-number-field-stub[label="sw-settings-country.detail.taxFreeFrom"]');
+        const countryTaxFreeFromField = wrapper.find('mt-number-field-stub[label="sw-settings-country.detail.taxFreeFrom"]');
         const currencyDropdownList = wrapper.find('sw-entity-single-select-stub');
         const countryVatIdRequiredField = wrapper.find(
             '.mt-switch input[aria-label="sw-settings-country.detail.labelVatIdRequired"]',

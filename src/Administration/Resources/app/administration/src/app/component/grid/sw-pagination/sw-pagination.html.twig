@@ -74,6 +74,7 @@
             :label="$tc('global.sw-pagination.labelItemsPerPage')"
             :model-value="String(perPage)"
             :options="possibleStepsOptions"
+            hide-clearable-button
             @update:model-value="onPageSizeChange"
         />
     </div>

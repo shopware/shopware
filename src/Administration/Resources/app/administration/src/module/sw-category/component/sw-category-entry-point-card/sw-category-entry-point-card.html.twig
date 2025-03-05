@@ -64,6 +64,7 @@
         ghost
         size="small"
         :disabled="selectedEntryPoint !== 'navigationSalesChannels' || category.navigationSalesChannels.length === 0"
+        variant="secondary"
         @click="openConfigureHomeModal"
     >
         {{ $tc('sw-category.base.entry-point-card.buttonConfigureHome') }}

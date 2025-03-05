@@ -11,10 +11,11 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
+use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -177,6 +178,8 @@ class LineItemOfTypeRuleTest extends TestCase
 
     public function testExceptionOnUnsupportedOperator(): void
     {
+        $this->expectExceptionObject(RuleException::unsupportedOperator(Rule::OPERATOR_GT, RuleComparison::class));
+
         $rule = new LineItemOfTypeRule(Rule::OPERATOR_GT, 'jeans');
 
         $lineItem = new LineItem(Uuid::randomHex(), 'shirt');
@@ -184,8 +187,6 @@ class LineItemOfTypeRuleTest extends TestCase
         $cart = new Cart(Uuid::randomHex());
         $cart->setLineItems(new LineItemCollection([$lineItem]));
         $scope = new CartRuleScope($cart, static::createMock(SalesChannelContext::class));
-
-        static::expectException(UnsupportedOperatorException::class);
 
         $rule->match($scope);
     }

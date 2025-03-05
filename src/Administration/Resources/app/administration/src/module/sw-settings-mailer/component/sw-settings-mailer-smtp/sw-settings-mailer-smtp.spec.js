@@ -21,15 +21,12 @@ describe('src/module/sw-settings-mailer/component/sw-settings-mailer-smtp', () =
                     stubs: {
                         'sw-text-field': await wrapTestComponent('sw-text-field'),
                         'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                        'sw-number-field': await wrapTestComponent('sw-number-field'),
-                        'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
                         'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                         'sw-block-field': await wrapTestComponent('sw-block-field'),
                         'sw-base-field': await wrapTestComponent('sw-base-field'),
                         'sw-field-error': true,
                         'sw-single-select': true,
 
-                        'sw-password-field': true,
                         'sw-help-text': true,
                         'sw-field-copyable': true,
                         'sw-inheritance-switch': true,
@@ -67,7 +64,7 @@ describe('src/module/sw-settings-mailer/component/sw-settings-mailer-smtp', () =
         });
         await flushPromises();
 
-        const port = wrapper.find('.sw-field[label="sw-settings-mailer.card-smtp.port"] input').element.value;
+        const port = wrapper.findByLabel('sw-settings-mailer.card-smtp.port').element.value;
         expect(port).toBe('476');
     });
 });

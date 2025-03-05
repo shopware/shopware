@@ -84,6 +84,7 @@
 
                     <mt-button
                         v-if="item.childCount === 0"
+                        variant="secondary"
                         @click="addElement(item.data)"
                     >
                         {{ $tc('sw-settings-country.detail.buttonInsertSnippet') }}

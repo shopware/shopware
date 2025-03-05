@@ -480,9 +480,9 @@
             {% endblock %}
 
             {% block sw_product_stream_value_relative_time_value %}
-            <sw-number-field
+            <mt-number-field
                 ref="product-stream-value-relative-time-number-field"
-                v-model:value="stringValue"
+                v-model="stringValue"
                 class="sw-product-stream-value__time-input"
                 size="medium"
                 number-type="int"
@@ -493,7 +493,7 @@
                 <template #suffix>
                     <span>{{ $tc('sw-product-stream.filter.timeUnits.days') }}</span>
                 </template>
-            </sw-number-field>
+            </mt-number-field>
             {% endblock %}
         </template>
 

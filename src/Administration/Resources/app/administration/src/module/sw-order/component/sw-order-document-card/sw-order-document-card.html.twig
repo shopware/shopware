@@ -35,6 +35,7 @@
                         ghost
                         :disabled="!acl.can('document.viewer') || isEditing"
                         class="sw-order-document-grid-button"
+                        variant="secondary"
                         @click="onShowSelectDocumentTypeModal"
                     >
 
@@ -182,7 +183,6 @@
 
     {% block sw_order_document_card_grid_column_modal %}
     <div v-if="showModal">
-        <h1>huhu</h1>
         <component
             :is="documentModal"
             :current-document-type="currentDocumentType"
@@ -222,6 +222,7 @@
         v-if="documentsEmpty"
         :title="emptyStateTitle"
         :show-description="false"
+        :absolute="false"
     >/
         <template #icon>
             <img
@@ -242,6 +243,7 @@
                 ghost
                 :disabled="!acl.can('document.viewer') || isEditing"
                 class="sw-order-document-grid-button"
+                variant="secondary"
                 @click="onShowSelectDocumentTypeModal"
             >
 

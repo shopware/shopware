@@ -12,8 +12,8 @@
 
         {% block sw_price_field_gross %}
         {# TODO: check selectors #}
-        <sw-number-field
-            v-model:value="priceForCurrency.gross"
+        <mt-number-field
+            v-model="priceForCurrency.gross"
             class="sw-price-field__gross"
             :allow-empty="allowEmpty"
             :placeholder="$tc('sw-product.priceForm.placeholderPriceGross')"
@@ -27,7 +27,7 @@
             :disabled="isDisabled"
             :name="grossFieldName"
             v-bind="attributesWithoutListeners"
-            @update:value="onPriceGrossChange"
+            @update:model-value="onPriceGrossChange"
             @keyup="keymonitor"
             @input-change="onPriceGrossInputChange"
             @ends-with-decimal-separator="onEndsWithDecimalSeparator"
@@ -38,7 +38,7 @@
             >
                 {{ currency.symbol }}
             </template>
-        </sw-number-field>
+        </mt-number-field>
         {% endblock %}
 
         {% block sw_price_field_lock_button %}
@@ -66,8 +66,8 @@
         {% endblock %}
 
         {% block sw_price_field_net %}
-        <sw-number-field
-            v-model:value="priceForCurrency.net"
+        <mt-number-field
+            v-model="priceForCurrency.net"
             class="sw-price-field__net"
             :allow-empty="allowEmpty"
             :placeholder="$tc('sw-product.priceForm.placeholderPriceNet')"
@@ -81,7 +81,7 @@
             :disabled="isInherited || disabled"
             :name="netFieldName"
             v-bind="attributesWithoutListeners"
-            @update:value="onPriceNetChange"
+            @update:model-value="onPriceNetChange"
             @keyup="keymonitor"
             @input-change="onPriceNetInputChange"
             @ends-with-decimal-separator="onEndsWithDecimalSeparator"
@@ -92,7 +92,7 @@
             >
                 {{ currency.symbol }}
             </template>
-        </sw-number-field>
+        </mt-number-field>
         {% endblock %}
     </div>
 

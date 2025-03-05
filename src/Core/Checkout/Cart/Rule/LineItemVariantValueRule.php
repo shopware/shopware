@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class LineItemVariantValueRule extends Rule
@@ -21,6 +21,8 @@ class LineItemVariantValueRule extends Rule
 
     /**
      * @param list<string>|null $identifiers
+     *
+     * @internal
      */
     public function __construct(
         public string $operator = Rule::OPERATOR_EQ,

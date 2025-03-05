@@ -3,8 +3,11 @@
 namespace Shopware\Core\Checkout\Promotion;
 
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\Exception\DiscountCalculatorNotFoundException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidCodePatternException;
+use Shopware\Core\Checkout\Promotion\Exception\InvalidScopeDefinitionException;
 use Shopware\Core\Checkout\Promotion\Exception\PatternNotComplexEnoughException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,7 +17,11 @@ class PromotionException extends HttpException
 {
     public const PROMOTION_CODE_ALREADY_REDEEMED = 'CHECKOUT__CODE_ALREADY_REDEEMED';
 
+    public const DISCOUNT_CALCULATOR_NOT_FOUND = 'CHECKOUT__PROMOTION_DISCOUNT_CALCULATOR_NOT_FOUND';
+
     public const INVALID_CODE_PATTERN = 'CHECKOUT__INVALID_CODE_PATTERN';
+
+    public const INVALID_DISCOUNT_SCOPE_DEFINITION = 'CHECKOUT__PROMOTION_INVALID_DISCOUNT_SCOPE_DEFINITION';
 
     public const PATTERN_NOT_COMPLEX_ENOUGH = 'PROMOTION__INDIVIDUAL_CODES_PATTERN_INSUFFICIENTLY_COMPLEX';
 
@@ -42,6 +49,23 @@ class PromotionException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function discountCalculatorNotFound(string $type): self|DiscountCalculatorNotFoundException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new DiscountCalculatorNotFoundException($type);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DISCOUNT_CALCULATOR_NOT_FOUND,
+            'Promotion Discount Calculator "{{ type }}" has not been found!',
+            ['type' => $type]
+        );
+    }
+
     public static function invalidCodePattern(string $codePattern): self
     {
         return new InvalidCodePatternException(
@@ -49,6 +73,23 @@ class PromotionException extends HttpException
             self::INVALID_CODE_PATTERN,
             'Invalid code pattern "{{ codePattern }}".',
             ['codePattern' => $codePattern]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function invalidScopeDefinition(string $scope): self|InvalidScopeDefinitionException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new InvalidScopeDefinitionException($scope);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_DISCOUNT_SCOPE_DEFINITION,
+            'Invalid discount calculator scope definition "{{ label }}"',
+            ['label' => $scope]
         );
     }
 

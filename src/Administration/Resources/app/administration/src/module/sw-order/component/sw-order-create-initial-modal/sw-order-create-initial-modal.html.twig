@@ -53,9 +53,9 @@
                 {% block sw_order_create_modal_tabs_content %}
                 <div class="sw-order-create-initial-modal__content">
                     {% block sw_order_create_modal_tabs_content_customer %}
-                    <sw-order-customer-grid
-                        v-show="active === 'customer'"
-                    />
+                    <div v-show="active === 'customer'">
+                        <sw-order-customer-grid />
+                    </div>
                     {% endblock %}
 
                     {% block sw_order_create_modal_tabs_content_products %}
@@ -73,7 +73,7 @@
 
                     {% block sw_order_create_modal_tabs_content_options %}
                     <sw-order-create-options
-                        v-if="active === 'options'"
+                        v-show="active === 'options'"
                         :disabled="!customer || undefined"
                         :disabled-auto-promotion="disabledAutoPromotion"
                         :promotion-codes="promotionCodes"
@@ -95,6 +95,7 @@
         <mt-button
             class="sw-order-create-initial-modal__button-cancel"
             size="small"
+            variant="secondary"
             @click="onCloseModal"
         >
             {{ $tc('global.default.cancel') }}

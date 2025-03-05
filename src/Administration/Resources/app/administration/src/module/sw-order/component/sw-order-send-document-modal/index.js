@@ -156,10 +156,11 @@ export default {
             this.subject = localMailTemplate.subject;
 
             if (!this.order.salesChannel || !this.order.salesChannel.mailHeaderFooterId) {
-                return this.mailService.buildRenderPreview(localMailTemplate.mailTemplateType, localMailTemplate)
+                return this.mailService
+                    .buildRenderPreview(localMailTemplate.mailTemplateType, localMailTemplate)
                     .then((result) => {
                         this.content = result;
-                });
+                    });
             }
 
             const mailTemplateWithHeaderFooter = { ...localMailTemplate };

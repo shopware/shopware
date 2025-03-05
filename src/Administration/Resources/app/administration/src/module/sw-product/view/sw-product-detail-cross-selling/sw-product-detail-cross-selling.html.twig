@@ -15,6 +15,7 @@
             v-if="isChild"
             class="sw-product-detail-cross-selling__restore-inheritance-btn"
             :disabled="!acl.can('product.editor')"
+            variant="secondary"
             @click="onShowRestoreInheritanceModal"
         >
             <mt-icon
@@ -47,6 +48,7 @@
             class="sw-product-detail-cross-selling__add-btn"
             ghost
             :disabled="!acl.can('product.editor') || !isSystemDefaultLanguage"
+            variant="secondary"
             @click="onAddCrossSelling"
         >
             {{ $tc('sw-product.crossselling.buttonAddCrossSelling') }}
@@ -153,6 +155,7 @@
                     }"
                     ghost
                     :disabled="isInherited || !acl.can('product.editor') || !isSystemDefaultLanguage"
+                    variant="secondary"
                     @click="onAddCrossSelling"
                 >
                     {{ $tc('sw-product.crossselling.buttonAddCrossSelling') }}
@@ -184,6 +187,7 @@
             {% block sw_product_detail_cross_selling_modal_restore_inheritance_action_cancel %}
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCloseRestoreInheritanceModal"
             >
                 {{ $tc('global.default.cancel') }}

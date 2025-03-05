@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\BaseSalesChannelContext;
 
 /**
+ * Loads customer-independent information for a sales channel, which could be cached separately.
+ *
  * @internal
  */
 #[Package('framework')]

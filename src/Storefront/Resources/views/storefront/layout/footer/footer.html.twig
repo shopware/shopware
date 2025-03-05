@@ -15,13 +15,12 @@
                 {% block layout_footer_navigation_hotline %}
                     <div class="col-md-4 footer-column js-footer-column">
                         {% block layout_footer_navigation_hotline_headline %}
-                            {% if feature('ACCESSIBILITY_TWEAKS') %}
+                            <div class="footer-column-headline footer-headline js-footer-column-headline"
+                                 id="collapseFooterHotlineTitle"
+                                 role="listitem">
+                                {{ 'footer.serviceHotlineHeadline'|trans|sw_sanitize }}
 
-                                <div class="footer-column-headline footer-headline js-footer-column-headline"
-                                     id="collapseFooterHotlineTitle"
-                                     role="listitem">
-                                    {{ 'footer.serviceHotlineHeadline'|trans|sw_sanitize }}
-
+                                {% block layout_footer_navigation_hotline_icons %}
                                     <button class="footer-column-toggle btn btn-link btn-link-inline js-collapse-footer-column-trigger"
                                             data-bs-target="#collapseFooterHotline"
                                             data-bs-toggle="collapse"
@@ -39,40 +38,15 @@
                                             class: 'footer-minus'
                                         } %}
                                     </button>
-                                </div>
-                            {% else %}
-                                <div class="footer-column-headline footer-headline js-footer-column-headline js-collapse-footer-column-trigger"
-                                     id="collapseFooterHotlineTitle"
-                                     data-bs-target="#collapseFooterHotline"
-                                     data-bs-toggle="collapse"
-                                     aria-expanded="true"
-                                     aria-controls="collapseFooterHotline"
-                                     role="listitem">
-                                    {{ 'footer.serviceHotlineHeadline'|trans|sw_sanitize }}
-
-                                    {% block layout_footer_navigation_hotline_icons %}
-                                        <div class="footer-column-toggle">
-                                            <span class="footer-plus-icon">
-                                                {% sw_icon 'plus' style {
-                                                    ariaLabel: 'general.expand'|trans
-                                                } %}
-                                            </span>
-                                            <span class="footer-minus-icon">
-                                                {% sw_icon 'minus' style {
-                                                    ariaLabel: 'general.collapse'|trans
-                                                } %}
-                                            </span>
-                                        </div>
-                                    {% endblock %}
-                                </div>
-                            {% endif %}
+                                {% endblock %}
+                            </div>
                         {% endblock %}
 
                         {% block layout_footer_navigation_hotline_content %}
                             {% set cmsPath = feature('ACCESSIBILITY_TWEAKS') ? 'frontend.cms.page.full' : 'frontend.cms.page' %}
 
                             <div id="collapseFooterHotline"
-                                 class="footer-column-content collapse js-footer-column-content footer-contact{% if feature('ACCESSIBILITY_TWEAKS') %} mb-4 mb-md-0{% endif %}"
+                                 class="footer-column-content collapse js-footer-column-content footer-contact mb-4 mb-md-0"
                                  aria-labelledby="collapseFooterHotlineTitle"
                                  role="listitem">
 
@@ -81,6 +55,7 @@
                                         {{ 'footer.serviceHotline'|trans|sw_sanitize }}
                                     </p>
                                 </div>
+
                                 <div class="footer-contact-form">
                                     {% set contactSnippetKey = feature('ACCESSIBILITY_TWEAKS') ? 'footer.serviceContactTextPage' : 'footer.serviceContactText' %}
 
@@ -98,13 +73,16 @@
                         {% block layout_footer_navigation_column %}
                             <div class="col-md-4 footer-column js-footer-column">
                                 {% block layout_footer_navigation_information_headline %}
+                                    <div class="footer-column-headline footer-headline js-footer-column-headline"
+                                         id="collapseFooterTitle{{ loop.index }}"
+                                         role="listitem">
 
-                                    {% if feature('ACCESSIBILITY_TWEAKS') %}
-                                        <div class="footer-column-headline footer-headline js-footer-column-headline"
-                                             id="collapseFooterTitle{{ loop.index }}"
-                                             role="listitem">
-
-                                            {% if root.category.type == 'folder' %}
+                                        {% if root.category.type == 'folder' %}
+                                            {{ root.category.translated.name }}
+                                        {% else %}
+                                            <a href="{{ category_url(root.category) }}"
+                                               {% if category_linknewtab(root.category) %}target="_blank"{% endif %}
+                                               title="{{ root.category.translated.name }}">
                                                 {{ root.category.translated.name }}
                                             {% else %}
                                                 <a href="{{ category_url(root.category) }}"
@@ -114,6 +92,15 @@
                                                 </a>
                                             {% endif %}
 
+                                            {% if root.children|length > 0 %}
+                                                <button class="footer-column-toggle btn btn-link btn-link-inline js-collapse-footer-column-trigger"
+                                                        data-bs-target="#collapseFooter{{ loop.index }}"
+                                                        data-bs-toggle="collapse"
+                                                        aria-controls="collapseFooter{{ loop.index }}"
+                                                        aria-labelledby="collapseFooterTitle{{ loop.index }}"
+                                                        aria-expanded="true">
+
+                                        {% block layout_footer_navigation_information_icons %}
                                             {% if root.children|length > 0 %}
                                                 <button class="footer-column-toggle btn btn-link btn-link-inline js-collapse-footer-column-trigger"
                                                         data-bs-target="#collapseFooter{{ loop.index }}"
@@ -133,41 +120,8 @@
                                                     } %}
                                                 </button>
                                             {% endif %}
-                                        </div>
-
-                                    {% else %}
-                                        <div class="footer-column-headline footer-headline js-collapse-footer-column-trigger"
-                                             data-bs-target="#collapseFooter{{ loop.index }}"
-                                             data-bs-toggle="collapse"
-                                             aria-expanded="true"
-                                             aria-controls="collapseFooter{{ loop.index }}">
-
-                                            {% if root.category.type == 'folder' %}
-                                                {{ root.category.translated.name }}
-                                            {% else %}
-                                                <a href="{{ category_url(root.category) }}"
-                                                   {% if category_linknewtab(root.category) %}target="_blank"{% endif %}
-                                                   title="{{ root.category.translated.name }}">
-                                                    {{ root.category.translated.name }}
-                                                </a>
-                                            {% endif %}
-
-                                            {% block layout_footer_navigation_information_icons %}
-                                                <div class="footer-column-toggle">
-                                                    <span class="footer-plus-icon">
-                                                        {% sw_icon 'plus' style {
-                                                            ariaLabel: 'general.expand'|trans
-                                                        } %}
-                                                    </span>
-                                                    <span class="footer-minus-icon">
-                                                        {% sw_icon 'minus' style {
-                                                            ariaLabel: 'general.collapse'|trans
-                                                        } %}
-                                                    </span>
-                                                </div>
-                                            {% endblock %}
-                                        </div>
-                                    {% endif %}
+                                        {% endblock %}
+                                    </div>
                                 {% endblock %}
 
                                 {% block layout_footer_navigation_information_content %}

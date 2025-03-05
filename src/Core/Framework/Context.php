@@ -32,8 +32,8 @@ class Context extends Struct
     protected array $extensions = [];
 
     /**
-     * @param non-empty-list<string> $languageIdChain
      * @param array<string> $ruleIds
+     * @param non-empty-list<string> $languageIdChain
      */
     public function __construct(
         protected ContextSource $source,

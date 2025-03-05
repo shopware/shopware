@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Controller\TriggerFlowController;
 use Shopware\Core\Content\Flow\Exception\CustomTriggerByNameNotFoundException;
+use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\App\Aggregate\FlowEvent\AppFlowEventCollection;
 use Shopware\Core\Framework\App\Aggregate\FlowEvent\AppFlowEventEntity;
 use Shopware\Core\Framework\Context;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -55,6 +57,29 @@ class TriggerFlowControllerTest extends TestCase
     }
 
     public function testTriggerWithWrongEventName(): void
+    {
+        $this->expectExceptionObject(FlowException::customTriggerByNameNotFound('custom.checkout.event'));
+
+        $request = new Request();
+        $request->setMethod('POST');
+        $context = Context::createDefaultContext();
+        $appFlowEventRepository = new StaticEntityRepository([
+            new EntitySearchResult(
+                'app_flow_event',
+                1,
+                new EntityCollection([]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext(),
+            ),
+        ]);
+
+        $triggerFlowController = new TriggerFlowController(new EventDispatcher(), $appFlowEventRepository);
+        $triggerFlowController->trigger('custom.checkout.event', $request, $context);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testTriggerWithWrongEventNameDeprecated(): void
     {
         $this->expectExceptionObject(new CustomTriggerByNameNotFoundException('custom.checkout.event'));
 

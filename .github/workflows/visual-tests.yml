@@ -64,7 +64,7 @@ jobs:
       - name: Run your tests
         continue-on-error: true
         env:
-            CURRENTS_PROJECT_ID: ${{ secrets.CURRENTS_PROJECT_ID }}
+            CURRENTS_PROJECT_ID: ${{ secrets.CURRENTS_PROJECT_ID_VISUAL }}
             CURRENTS_RECORD_KEY: ${{ secrets.CURRENTS_RECORD_KEY }}
         if: ${{ !contains(github.workflow_ref, 'nightly') }}
         working-directory: tests/acceptance

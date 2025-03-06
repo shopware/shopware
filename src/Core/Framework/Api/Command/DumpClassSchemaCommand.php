@@ -127,7 +127,7 @@ class DumpClassSchemaCommand extends Command
     /**
      * @param array <int, Stmt> $stmts
      *
-     * @return Node[]
+     * @return array<int, Node>
      */
     private function resolveNames(array $stmts): array
     {
@@ -139,7 +139,7 @@ class DumpClassSchemaCommand extends Command
     }
 
     /**
-     * @return Node[]|null
+     * @return array <int, Node>|null
      */
     private function parseFile(string $filePath): ?array
     {

@@ -80,7 +80,7 @@ class ThemeLifecycleHandlerTest extends TestCase
             ->method('compileTheme')
             ->with(
                 TestDefaults::SALES_CHANNEL,
-                static::isType('string'),
+                static::isString(),
                 static::isInstanceOf(Context::class),
                 static::callback(fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 2)
             );
@@ -101,7 +101,7 @@ class ThemeLifecycleHandlerTest extends TestCase
             ->method('compileTheme')
             ->with(
                 TestDefaults::SALES_CHANNEL,
-                static::isType('string'),
+                static::isString(),
                 static::isInstanceOf(Context::class),
                 static::callback(fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 2)
             );
@@ -166,7 +166,7 @@ class ThemeLifecycleHandlerTest extends TestCase
             ->method('compileTheme')
             ->with(
                 TestDefaults::SALES_CHANNEL,
-                static::isType('string'),
+                static::isString(),
                 static::isInstanceOf(Context::class),
                 static::callback(fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 1 && (
                     (

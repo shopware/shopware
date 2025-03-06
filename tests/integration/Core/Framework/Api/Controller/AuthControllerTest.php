@@ -245,6 +245,7 @@ class AuthControllerTest extends TestCase
 
         $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
+        static::assertIsArray($data);
         static::assertArrayHasKey(
             'access_token',
             $data,
@@ -268,6 +269,7 @@ class AuthControllerTest extends TestCase
         $client->request('POST', '/api/oauth/token', $refreshPayload, [], [], json_encode($refreshPayload, \JSON_THROW_ON_ERROR));
         static::assertNotFalse($client->getResponse()->getContent());
         $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
         static::assertArrayHasKey(
             'access_token',
             $data,

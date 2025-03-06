@@ -47,6 +47,7 @@ class AdministrationControllerTest extends TestCase
         static::assertNotFalse($content);
 
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($response);
         static::assertArrayHasKey('de-DE', $response);
         static::assertArrayHasKey('en-GB', $response);
     }

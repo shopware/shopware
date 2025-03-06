@@ -42,8 +42,6 @@ export default defineConfig(({ command }) => {
     if (isProd) {
         console.log(colors.yellow('# Production mode activated 🚀'));
     }
-    console.log(colors.yellow(`# Project Root: ${process.env.PROJECT_ROOT}`));
-    console.log(colors.yellow(`# Admin root: ${process.env.ADMIN_ROOT}`));
 
     // We only load extensions here to display the successfull injection
     const extensions = loadExtensions();

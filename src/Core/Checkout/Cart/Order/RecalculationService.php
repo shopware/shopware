@@ -360,9 +360,10 @@ class RecalculationService
             $cart = $this->processor->process($cart, $live, $behavior);
 
             // validate cart against the context rules
-            $validated = $this->cartRuleLoader->loadByCart($live, $cart, $behavior);
+            $validatedCart = $this->cartRuleLoader->loadByCart($live, $cart, $behavior)->getCart();
+            $validatedCart->setErrors($cart->getErrors());
 
-            return $validated->getCart();
+            return $validatedCart;
         });
     }
 

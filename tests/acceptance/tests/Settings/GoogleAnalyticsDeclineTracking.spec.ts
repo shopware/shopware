@@ -5,7 +5,6 @@ test('As a shop customer, I want to accept only the technically required cookies
     StorefrontHome,
     TestDataService,
     DefaultSalesChannel,
-
 }) => {
 
     await test.step('Configure sales channel analytics and verify cookie banner visibility', async () => {

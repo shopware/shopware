@@ -125,7 +125,7 @@ class DumpClassSchemaCommand extends Command
     }
 
     /**
-     * @param Stmt[] $stmts
+     * @param array <int, Stmt> $stmts
      *
      * @return Node[]
      */

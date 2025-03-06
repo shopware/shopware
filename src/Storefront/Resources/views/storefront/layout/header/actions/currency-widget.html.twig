@@ -22,7 +22,7 @@
                                         aria-label="{{ 'header.currencyTrigger'|trans({ '%currency%': context.currency.translated.name })|striptags }}">
                                     {% block layout_header_actions_currency_widget_dropdown_toggle_name %}
                                         <span aria-hidden="true">{{ context.currency.translated.symbol }}</span>
-                                        <span class="top-bar-nav-text d-none d-md-inline">{{ context.currency.translated.name }}</span>
+                                        <span class="top-bar-nav-text d-md-inline">{{ context.currency.translated.name }}</span>
                                     {% endblock %}
                                 </button>
                             {% endblock %}
@@ -48,6 +48,9 @@
                             {% endblock %}
                         </div>
                     {% endblock %}
+                    {% if position == 'offcanvas' %}
+                        <input name="redirectParameters[offcanvas]" type="hidden" value="menu">
+                    {% endif %}
                 </form>
             {% endblock %}
         </div>

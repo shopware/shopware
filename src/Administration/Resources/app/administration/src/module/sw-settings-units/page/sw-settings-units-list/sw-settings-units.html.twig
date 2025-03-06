@@ -21,6 +21,7 @@
             class="sw-settings-units__create-action"
             variant="primary"
             :disabled="isAddingUnitsDisabled || !acl.can('scale_unit.creator') || undefined"
+            size="default"
             @click="createNewUnit"
         >
             {{ $tc('sw-settings-units.general.createNewUnit') }}

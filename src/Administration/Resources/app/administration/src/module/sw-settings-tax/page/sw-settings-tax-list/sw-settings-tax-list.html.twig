@@ -49,6 +49,7 @@
             class="sw-settings-tax-list__button-create"
             variant="primary"
             :disabled="!acl.can('tax.creator') || undefined"
+            size="default"
             @click="$router.push({ name: 'sw.settings.tax.create' })"
         >
             {{ $tc('sw-settings-tax.list.buttonAddTax') }}

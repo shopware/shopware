@@ -55,6 +55,7 @@
             class="sw-settings-language-list__button-create"
             variant="primary"
             :disabled="!allowCreate || undefined"
+            size="default"
             @click="$router.push({ name: 'sw.settings.language.create' })"
         >
             {{ $tc('sw-settings-language.list.buttonAddLanguage') }}

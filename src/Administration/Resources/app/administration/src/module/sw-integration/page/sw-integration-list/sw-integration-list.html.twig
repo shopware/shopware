@@ -28,6 +28,7 @@
             class="sw-integration-list__add-integration-action"
             variant="primary"
             :disabled="!acl.can('integration.creator')"
+            size="default"
             @click="onCreateIntegration"
         >
             {{ $tc('sw-integration.general.buttonCreateIntegration') }}
@@ -227,7 +228,10 @@
                     {% block sw_integration_list_grid_inner_slot_columns_label %}
                     <template #column-label="{ item }">
                         <span class="sw-integration-list__app-icon">
-                            <mt-icon name="regular-share" size="12px" />
+                            <mt-icon
+                                name="regular-share"
+                                size="12px"
+                            />
                         </span>
                         <a
                             href="#"

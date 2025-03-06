@@ -32,6 +32,7 @@
                 class="sw-customer-detail__open-edit-mode-action"
                 variant="primary"
                 :disabled="isLoading || !acl.can('customer.editor')"
+                size="default"
                 @click.prevent="onActivateCustomerEditMode"
             >
                 {{ $tc('sw-customer.detail.buttonEdit') }}
@@ -44,6 +45,7 @@
             <mt-button
                 :disabled="isLoading"
                 variant="secondary"
+                size="default"
                 @click="onAbortButtonClick"
             >
                 {{ $tc('global.default.cancel') }}

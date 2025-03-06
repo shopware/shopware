@@ -31,6 +31,9 @@ class CategoryUrlExtension extends AbstractExtension
         ];
     }
 
+    /**
+     * @param array<string, mixed> $twigContext
+     */
     public function getCategoryUrl(array $twigContext, CategoryEntity $category): ?string
     {
         $salesChannel = null;

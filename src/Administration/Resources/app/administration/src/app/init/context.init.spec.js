@@ -21,6 +21,7 @@ describe('src/app/init/context.init.ts', () => {
 
     beforeEach(() => {
         Shopware.Store.get('extensions').extensionsState = {};
+        Shopware.Store.get('context').app.windowId = null;
     });
 
     it('should handle currency', async () => {
@@ -212,7 +213,7 @@ describe('src/app/init/context.init.ts', () => {
     });
 
     it('returns windowId from store', async () => {
-        Shopware.Store.get('context').windowId = '123';
+        Shopware.Store.get('context').app.windowId = '123';
 
         const windowId = await getId();
 
@@ -220,11 +221,11 @@ describe('src/app/init/context.init.ts', () => {
     });
 
     it('should initialize windowId if not set', async () => {
-        expect(Shopware.Store.get('context').windowId).toBeNull();
+        expect(Shopware.Store.get('context').app.windowId).toBeNull();
 
         const windowId = await getId();
 
         expect(Shopware.Store.get('context').windowId).not.toBeNull();
-        expect(windowId).toBe(Shopware.Store.get('context').windowId);
+        expect(windowId).toBe(Shopware.Store.get('context').app.windowId);
     })
 });

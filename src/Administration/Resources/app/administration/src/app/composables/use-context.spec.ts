@@ -124,9 +124,4 @@ describe('use-context', () => {
         store.api.languageId = '123345';
         expect(store.isSystemDefaultLanguage.value).toBe(false);
     });
-
-    it('initializes windowId if not set', () => {
-        const store = useContext();
-        expect(store.app.windowId).not.toBeNull();
-    })
 });

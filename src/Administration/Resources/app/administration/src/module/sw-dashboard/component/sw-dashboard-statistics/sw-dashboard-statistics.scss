@@ -1,0 +1,60 @@
+@import "~scss/variables";
+
+$content-max-width: 960px;
+
+.sw-dashboard-statistics {
+    &__card-headline {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        max-width: $content-max-width;
+        margin: 0 auto;
+        padding-top: 32px;
+        padding-bottom: 16px;
+
+        h1 {
+            color: $color-darkgray-200;
+            font-size: $font-size-m;
+            line-height: 25px;
+            font-weight: normal;
+            margin-bottom: 0;
+        }
+
+        &-timerange {
+            color: $color-gray-500;
+        }
+    }
+
+    &__intro-stats-today {
+        &-stats {
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+            border-bottom: 1px solid $color-gray-300;
+        }
+
+        &-single-stat {
+            display: flex;
+            margin-right: 40px;
+
+            &-number-type {
+                font-size: $font-size-m;
+                color: $color-gray-800;
+                margin-top: 10px;
+                margin-right: 10px;
+            }
+
+            &-number-value {
+                font-size: ($font-size-m * 2.5);
+            }
+        }
+    }
+
+    &__title {
+        font-weight: $font-weight-semi-bold;
+    }
+
+    &__help-text {
+        margin-left: 8px;
+    }
+}

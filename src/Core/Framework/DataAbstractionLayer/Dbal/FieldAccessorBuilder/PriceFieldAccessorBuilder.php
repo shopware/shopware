@@ -81,8 +81,8 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
         $variables = [
             '#root#' => EntityDefinitionQueryHelper::escape($root),
             '#field#' => EntityDefinitionQueryHelper::escape($field->getStorageName()),
-            '#currencyId#' => $currencyId,
-            '#property#' => $jsonAccessor,
+            '#currencyId#' => (string) $currencyId,
+            '#property#' => (string) $jsonAccessor,
             '#factor#' => '+ 0.0',
         ];
 
@@ -93,7 +93,7 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
                 '#root#' => EntityDefinitionQueryHelper::escape($root),
                 '#field#' => EntityDefinitionQueryHelper::escape($field->getStorageName()),
                 '#currencyId#' => Defaults::CURRENCY,
-                '#property#' => $jsonAccessor,
+                '#property#' => (string) $jsonAccessor,
                 '#factor#' => $currencyFactor,
             ];
 
@@ -104,7 +104,7 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
 
         $variables = [
             '#template#' => $template,
-            '#decimals#' => $context->getRounding()->getDecimals(),
+            '#decimals#' => (string) $context->getRounding()->getDecimals(),
         ];
 
         $template = str_replace(
@@ -118,7 +118,7 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
 
             $variables = [
                 '#accessor#' => $template,
-                '#multiplier#' => $multiplier,
+                '#multiplier#' => (string) $multiplier,
             ];
 
             $template = str_replace(array_keys($variables), array_values($variables), '(ROUND(#accessor# * #multiplier#, 0) / #multiplier#)');

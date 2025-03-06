@@ -19,6 +19,7 @@ export default {
         'orderStateMachineService',
         'stateMachineService',
         'stateStyleDataProviderService',
+        'swOrderDetailAskAndSaveEdits',
     ],
 
     emits: [
@@ -58,6 +59,11 @@ export default {
             type: Boolean,
             required: false,
             default: false,
+        },
+        position: {
+            type: String,
+            required: false,
+            default: '',
         },
     },
 
@@ -130,6 +136,14 @@ export default {
                     return null;
             }
         },
+
+        cardPosition() {
+            if (!this.position) {
+                return 'sw-order-details-state';
+            }
+
+            return `sw-order-details-state-${this.position}`;
+        },
     },
 
     created() {
@@ -184,9 +198,14 @@ export default {
             return options;
         },
 
-        onStateSelected(stateType, actionName) {
+        async onStateSelected(stateType, actionName) {
             if (!stateType || !actionName) {
                 this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
+                return;
+            }
+
+            const proceed = await this.swOrderDetailAskAndSaveEdits();
+            if (!proceed) {
                 return;
             }
 

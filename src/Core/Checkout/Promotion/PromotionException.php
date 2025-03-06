@@ -112,8 +112,18 @@ class PromotionException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
+     * @param list<string> $codes
      */
+    public static function promotionCodesNotFound(array $codes): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PROMOTION_CODE_NOT_FOUND,
+            'None of the promotion codes "{{ code }}" have not been found!',
+            ['code' => \implode(', ', $codes)]
+        );
+    }
+
     public static function invalidPriceDefinition(string $label, ?string $code): self|ShopwareHttpException
     {
         if (!Feature::isActive('v6.7.0.0')) {

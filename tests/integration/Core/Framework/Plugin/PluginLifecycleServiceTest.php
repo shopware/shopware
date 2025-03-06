@@ -19,7 +19,6 @@ use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
-use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginService;
@@ -433,7 +432,6 @@ class PluginLifecycleServiceTest extends TestCase
     #[DataProvider('themeProvideData')]
     public function testThemeRemovalOnUninstall(bool $keepUserData): void
     {
-        static::markTestSkipped('This test needs the storefront bundle installed.');
         $this->addTestPluginToKernel(
             $this->fixturePath . 'plugins/SwagTestTheme',
             'SwagTestTheme'
@@ -475,7 +473,6 @@ class PluginLifecycleServiceTest extends TestCase
 
     private function installNotSupportedPlugin(string $name): PluginEntity
     {
-        /** @var EntityRepository<PluginCollection> $pluginRepository */
         $pluginRepository = static::getContainer()->get('plugin.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
@@ -633,7 +630,7 @@ class PluginLifecycleServiceTest extends TestCase
 
         $plugin = $this->getPlugin($context);
 
-        static::expectException(PluginNotInstalledException::class);
+        $this->expectException(PluginNotInstalledException::class);
         $this->expectExceptionMessage(\sprintf('Plugin "%s" is not installed.', self::PLUGIN_NAME));
         $this->pluginLifecycleService->updatePlugin($plugin, $context);
     }

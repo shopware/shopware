@@ -13,6 +13,7 @@ test('As an admin, I can create and verify customer groups in the admin.', { tag
         await ShopAdmin.goesTo(AdminCustomerGroupListing.url());
         const customerGroupLineItem = await AdminCustomerGroupListing.getCustomerGroupByName(customerGroup.name);
         await ShopAdmin.expects(customerGroupLineItem.customerGroupName).toBeVisible({ timeout: 10000 });
+
         await ShopAdmin.goesTo(AdminCustomerGroupDetail.url(customerGroup.id));
         await ShopAdmin.expects(AdminCustomerGroupDetail.headline).toContainText(customerGroup.name);
         await ShopAdmin.expects(AdminCustomerGroupDetail.customerGroupNameField).toHaveValue(customerGroup.name);
@@ -28,7 +29,7 @@ test('As an admin, I can create and verify customer groups in the admin.', { tag
     });
 
 });
-test('As a customer, I must be able to register under a customer group in the Storefront.', { tag: '@Registration @CustomerGroups' }, async ({
+test('As a customer, I can register under a customer group in the Storefront.', { tag: '@Registration @CustomerGroups' }, async ({
     TestDataService,
     ShopAdmin,
     ShopCustomer,
@@ -38,7 +39,6 @@ test('As a customer, I must be able to register under a customer group in the St
     Register,
     CustomerGroupActivation,
 }) => {
-
     const customer = { email: IdProvider.getIdPair().uuid + '@test.com' };
     const customerGroup = await TestDataService.createCustomerGroup();
 
@@ -59,7 +59,7 @@ test('As a customer, I must be able to register under a customer group in the St
 
 });
 
-test('As a commercial customer, I must be able to register under a customer group in the Storefront.', { tag: '@Registration @CustomerGroups' }, async ({
+test('As a commercial customer, I can register under a customer group in the Storefront.', { tag: '@Registration @CustomerGroups' }, async ({
     TestDataService,
     ShopAdmin,
     ShopCustomer,
@@ -69,7 +69,6 @@ test('As a commercial customer, I must be able to register under a customer grou
     Register,
     CustomerGroupActivation,
 }) => {
-
     const uuid = IdProvider.getIdPair().uuid;
     const customer = { isCommercial: true, email: uuid + '@test.com', vatRegNo: uuid + '-VatId'};
     const commercialCustomerGroup = await TestDataService.createCustomerGroup({ registrationOnlyCompanyRegistration: true });

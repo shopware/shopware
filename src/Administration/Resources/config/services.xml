@@ -182,7 +182,7 @@
 
         <service id="Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator" decorates="pentatrion_vite.file_accessor">
             <argument>%pentatrion_vite.configs%</argument>
-            <argument type="service" id="assets.packages"/>
+            <argument type="service" id="shopware.asset.asset"/>
             <argument type="service" id="kernel"/>
         </service>
     </services>

@@ -4,7 +4,6 @@ namespace Shopware\Administration\Framework\Twig;
 
 use Pentatrion\ViteBundle\Service\FileAccessor;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Asset\Packages;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -23,10 +22,10 @@ class ViteFileAccessorDecorator extends FileAccessor
      */
     public function __construct(
         array $configs,
-        private readonly Packages $packages,
+        private readonly \Symfony\Component\Asset\Package $package,
         private readonly KernelInterface $kernel,
     ) {
-        $this->assetPath = $this->packages->getUrl('', 'asset');
+        $this->assetPath = $this->package->getUrl('');
 
         parent::__construct($this->assetPath, $configs, null);
     }

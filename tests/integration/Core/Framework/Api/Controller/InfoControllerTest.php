@@ -430,8 +430,6 @@ class InfoControllerTest extends TestCase
 
     public function testBaseAdminPaths(): void
     {
-        static::markTestSkipped('#6556');
-
         if (!class_exists(AdministrationController::class)) {
             static::markTestSkipped('Cannot test without Administration as results will differ');
         }
@@ -488,6 +486,7 @@ class InfoControllerTest extends TestCase
         $content = $infoController->config(Context::createDefaultContext(), Request::create($appUrl))->getContent();
         static::assertNotFalse($content);
         $config = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        var_dump($config);
         static::assertCount(3, $config['bundles']);
 
         static::assertArrayHasKey('AdminExtensionApiPlugin', $config['bundles']);

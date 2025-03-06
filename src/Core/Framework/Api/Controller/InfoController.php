@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
-use League\Flysystem\FilesystemOperator;
 use Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
@@ -56,7 +55,6 @@ class InfoController extends AbstractController
         private readonly SystemConfigService $systemConfigService,
         private readonly ApiRouteInfoResolver $apiRouteInfoResolver,
         private readonly InAppPurchase $inAppPurchase,
-        private readonly FilesystemOperator $filesystem,
         private readonly ViteFileAccessorDecorator $viteFileAccessorDecorator,
     ) {
     }

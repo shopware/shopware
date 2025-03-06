@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 /**
  * @internal
  */
-class MemoryAdapterFactory implements AdapterFactoryInterface
+final class MemoryAdapterFactory implements AdapterFactoryInterface
 {
     /**
      * @var MemoryFilesystemAdapter[]

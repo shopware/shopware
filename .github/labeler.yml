@@ -32,3 +32,8 @@ labels:
     body: "Extension:Showroom-Theme"
   - label: "Extension:Social-Shopping"
     body: "Extension:Social-Shopping"
+
+  # Add a label for issues that are created by members of the customer support team
+  - label: "domain/customer-support"
+    type: "issue"
+    author-in-team: "customer-support"

@@ -208,10 +208,7 @@ class PromotionException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
-    public static function priceNotFound(LineItem $lineItem): self|PriceNotFoundException
+    public static function priceNotFound(LineItem $lineItem): self
     {
         if (!Feature::isActive('v6.8.0.0')) {
             return new PriceNotFoundException($lineItem);
@@ -225,10 +222,7 @@ class PromotionException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
-    public static function filterSorterNotFound(string $key): self|FilterSorterNotFoundException
+    public static function filterSorterNotFound(string $key): self
     {
         if (!Feature::isActive('v6.8.0.0')) {
             return new FilterSorterNotFoundException($key);
@@ -242,10 +236,7 @@ class PromotionException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
-    public static function filterPickerNotFoundException(string $key): self|FilterPickerNotFoundException
+    public static function filterPickerNotFoundException(string $key): self
     {
         if (!Feature::isActive('v6.8.0.0')) {
             return new FilterPickerNotFoundException($key);

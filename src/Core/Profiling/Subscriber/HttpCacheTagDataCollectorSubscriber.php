@@ -38,15 +38,6 @@ class HttpCacheTagDataCollectorSubscriber extends AbstractDataCollector implemen
         ];
     }
 
-    public function store(HttpCacheStoreEvent $event): void
-    {
-        $uri = $this->uri($event->request);
-
-        foreach ($event->tags as $tag) {
-            self::$tags[$uri][$tag] = [];
-        }
-    }
-
     public function reset(): void
     {
     }

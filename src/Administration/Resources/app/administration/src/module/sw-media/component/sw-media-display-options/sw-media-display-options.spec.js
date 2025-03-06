@@ -22,7 +22,7 @@ describe('src/module/sw-media/component/sw-media-display-options', () => {
 
         // Click on the presentation dropdown
         const presentationSelect = wrapper.find('.sw-media-display-options__label-presentation');
-        await presentationSelect.find('input').trigger('click');
+        await presentationSelect.find('.mt-select__selection').trigger('click');
 
         // Contains 4 preview options
         const selectResults = wrapper.findAll('.mt-select-result');

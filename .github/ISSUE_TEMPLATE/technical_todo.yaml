@@ -1,6 +1,6 @@
-name: Technical Improvement/Task
+name: Technical TODO
 description: For Improvements and Tasks related to refactoring, testing, perf, docs, spikes, config changes, etc.
-labels: [Technical Improvement/Task]
+labels: [Technical TODO]
 body:
     - type: markdown
       attributes:
@@ -8,12 +8,9 @@ body:
               Thanks for taking the time to share your idea with us! If your request relates to enhancing or improving the Shopware product, please file it in [UserVoice](https://feedback.shopware.com/forums/942607-shopware-6-product-feedback-ideas). Also, please check our issues backlog to ensure that no one else has suggested your idea yet. 
               If there's a related [Discussion](https://github.com/shopware/shopware/discussions), please link to it here.
     - type: textarea
-      id: improvement-task
+      id: technical-todo
       attributes:
-        label: Technical Improvement or Task
-      description: |
-        Describe the technical to-do.
-      value: |
-        <!--- Provide your answer here --->
+        label: Technical TODO
+        description: Please describe here what we need to do and why.
       validations:
-      required: true
+        required: true

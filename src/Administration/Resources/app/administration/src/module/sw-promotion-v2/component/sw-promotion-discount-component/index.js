@@ -287,7 +287,7 @@ export default {
             let i;
             for (i = 1; i < 10; i += 1) {
                 counts.push({
-                    key: i,
+                    key: i.toString(),
                     name: this.$tc('sw-promotion-v2.detail.conditions.filter.counter.SELECT', { count: i }, 0),
                 });
             }

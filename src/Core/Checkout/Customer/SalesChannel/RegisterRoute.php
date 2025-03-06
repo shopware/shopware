@@ -601,7 +601,7 @@ class RegisterRoute extends AbstractRegisterRoute
 
         return str_replace(
             ['%%HASHEDEMAIL%%', '%%SUBSCRIBEHASH%%'],
-            [$emailHash, $customer->getHash()],
+            [$emailHash, (string) $customer->getHash()],
             $urlEvent->getConfirmUrl()
         );
     }

@@ -52,7 +52,7 @@ test('As a merchant, I want to be able to create and assign custom fields to dif
     expect(customFieldSetResponse).toBeTruthy();
 
     const url = AdminCustomFieldDetail.page.url();
-    const customFieldSetUuid = url.split('/')[url.split('/').length -1];
+    const customFieldSetUuid = url.split('/')[url.split('/').length - 1];
     TestDataService.addCreatedRecord('custom_field_set', customFieldSetUuid);
 
     await test.step('Validate the availability of custom fields in the custom field listing.', async () => {
@@ -110,13 +110,13 @@ test('As a merchant, I want to be able to create and assign custom fields to dif
         await ShopAdmin.expects(AdminRuleCreate.filtersResultPopoverSelectionList.getByText(customFieldTextName)).not.toHaveClass(/.*is--disabled.*/);
         await ShopAdmin.expects(AdminRuleCreate.valueNotAvailableTooltip).not.toBeVisible();
         await AdminRuleCreate.filtersResultPopoverSelectionList.getByText(customFieldNumberName).hover();
-        await ShopAdmin.expects(AdminRuleCreate.filtersResultPopoverSelectionList.filter({hasText: customFieldNumberName})).toHaveClass(/.*is--disabled.*/);
+        await ShopAdmin.expects(AdminRuleCreate.filtersResultPopoverSelectionList.filter({ hasText: customFieldNumberName })).toHaveClass(/.*is--disabled.*/);
         await ShopAdmin.expects(AdminRuleCreate.valueNotAvailableTooltip).toContainText('This custom field is currently not available in shopping carts.');
     });
 
     await test.step('Validate the unavailability of the custom field on a customer detail page.', async () => {
 
-        await ShopAdmin.goesTo(AdminCustomerDetail.url(customer.id));
+        await ShopAdmin.goesTo(AdminCustomerDetail.url(customer.id), true);
         await ShopAdmin.expects(AdminCustomerDetail.customFieldCard).not.toBeVisible();
     });
 });

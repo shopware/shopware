@@ -14,7 +14,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(DumpClassSchemaCommand::class)]
 class DumpClassSchemaCommandTest extends TestCase
 {
-    public function testThrowsExceptionWhenClassGiveIsInvalid(): void
+    public function testThrowsExceptionWhenClassGivenIsInvalid(): void
     {
         $this->expectExceptionObject(
             new \InvalidArgumentException(

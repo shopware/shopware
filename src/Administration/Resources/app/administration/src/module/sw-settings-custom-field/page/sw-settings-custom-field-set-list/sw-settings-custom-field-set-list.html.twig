@@ -43,6 +43,7 @@
             class="sw-settings-custom-field-set-list__button-create"
             :disabled="!acl.can('custom_field.creator') || undefined"
             variant="primary"
+            size="default"
             @click="$router.push({ name: 'sw.settings.custom.field.create' })"
         >
             {{ $tc('sw-settings-custom-field.set.list.buttonAdd') }}

@@ -49,6 +49,7 @@
             }"
             :disabled="!acl.can('rule.creator') || undefined"
             variant="primary"
+            size="default"
             @click="$router.push({ name: 'sw.settings.rule.create' })"
         >
             {{ $tc('sw-settings-rule.list.buttonAddRule') }}

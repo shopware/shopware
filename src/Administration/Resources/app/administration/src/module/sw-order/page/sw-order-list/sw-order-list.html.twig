@@ -45,6 +45,7 @@
             class="sw-order-list__add-order"
             :disabled="!acl.can('order.creator') || undefined"
             variant="primary"
+            size="default"
             @click="$router.push({ name: 'sw.order.create' })"
         >
             {{ $tc('sw-order.list.buttonAddOrder') }}

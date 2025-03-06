@@ -44,6 +44,7 @@
             class="sw-customer-list__button-create"
             variant="primary"
             :disabled="!acl.can('customer.creator') || undefined"
+            size="default"
             @click="$router.push({ name: 'sw.customer.create' })"
         >
             {{ $tc('sw-customer.list.buttonAddCustomer') }}

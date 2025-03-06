@@ -9,10 +9,10 @@ test('As a merchant, I can perform bulk edits on customer information', { tag: '
     IdProvider,
     DefaultSalesChannel,
 }) => {
-
-    const customer1 = await TestDataService.createCustomer();
-    const customer2 = await TestDataService.createCustomer();
-    const customer3 = await TestDataService.createCustomer();
+    let i = 1;
+    const customer1 = await TestDataService.createCustomer({ firstName: `Bulk edit ${i++}` });
+    const customer2 = await TestDataService.createCustomer({ firstName: `Bulk edit ${i++}` });
+    const customer3 = await TestDataService.createCustomer({ firstName: `Bulk edit ${i++}` });
     const currentCustomerGroup = (await TestDataService.getCustomerGroupById(customer3.groupId));
     const customerGroupToUpdate = await TestDataService.createCustomerGroup();
     const currentLanguage = await TestDataService.getLanguageById(customer3.languageId);
@@ -85,7 +85,7 @@ test('As a merchant, I can perform bulk edits on customer information', { tag: '
     });
 
     await test.step('Verify that changes are not applied to other customers', async () => {
-        await ShopAdmin.goesTo(AdminCustomerDetail.url(customer3.id));
+        await ShopAdmin.goesTo(AdminCustomerDetail.url(customer3.id), true);
         const userCustomerGroup = await AdminCustomerDetail.getCustomerGroup();
         await ShopAdmin.expects(userCustomerGroup).toHaveText(currentCustomerGroup.name, { timeout: 15_000 });
         const accountStatus = await AdminCustomerDetail.getAccountStatus();

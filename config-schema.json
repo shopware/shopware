@@ -953,8 +953,11 @@
                         "php",
                         "x-sendfile",
                         "x-accel"
-                    ],
-                    "type": "string"
+                    ]
+                },
+                "private_local_path_prefix": {
+                    "type": "string",
+                    "description": "Path prefix to be prepended to the path when using a local download strategy"
                 }
             },
             "title": "Filesystem"

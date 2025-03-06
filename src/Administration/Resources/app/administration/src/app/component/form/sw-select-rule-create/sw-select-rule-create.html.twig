@@ -2,11 +2,12 @@
 <div class="sw-select-rule-create">
     <sw-entity-multi-select
         v-if="rules !== null"
+        v-bind="$attrs"
         v-model:entity-collection="collection"
         :criteria="ruleFilter"
-        v-bind="$attrs"
         advanced-selection-component="sw-advanced-selection-rule"
         :advanced-selection-parameters="getAdvancedSelectionParameters()"
+        @update:entity-collection="onUpdateCollection"
     >
 
         <template #before-item-list>

@@ -38,16 +38,9 @@
     }
 
     .sw-extension-card-base__switch {
-        .sw-field--switch {
+        .mt-switch {
             margin: 0;
-
-            .sw-field--switch__input {
-                padding: 8px 0;
-            }
-
-            .sw-field__switch-state {
-                top: 0;
-            }
+            min-height: auto;
         }
     }
 

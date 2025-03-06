@@ -66,6 +66,7 @@
                                 v-if="isDisplayingValue"
                                 v-bind="formField"
                                 :key="`formField-${index}`"
+                                v-model="entity[formField.name]"
                                 v-model:value="entity[formField.name]"
                                 @update:value="onChangeValue($event, formField.name)"
                             />

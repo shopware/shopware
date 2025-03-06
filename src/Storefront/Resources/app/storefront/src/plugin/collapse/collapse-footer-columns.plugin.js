@@ -36,17 +36,14 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
      * @private
      */
     _onViewportHasChanged() {
-        const event = 'click';
-
         this._columns.forEach(column => {
             const trigger = column.querySelector(this.options.collapseColumnTriggerSelector);
+            const collapseEl = column.querySelector(this.options.collapseColumnContentSelector);
 
-            // remove possibly existing event listeners
-            trigger.removeEventListener(event, this._onClickCollapseTrigger);
-
-            // add event listener if currently in an allowed viewport
             if (this._isInAllowedViewports()) {
-                trigger.addEventListener(event, this._onClickCollapseTrigger.bind(this));
+                this._initCollapse(collapseEl);
+            } else {
+                this._disposeCollapse(trigger, collapseEl);
             }
         });
 
@@ -54,33 +51,40 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
     }
 
     /**
-     * On clicking the collapse trigger (column headline) the columns
-     * content area shall be toggled open/close
-     * @param {Event} event
+     * Initializes new collapse.
+     *
+     * @param {HTMLElement} collapseEl
      * @private
      */
-    _onClickCollapseTrigger(event) {
-        const trigger = event.target;
-        const collapseEl = trigger.parentNode.querySelector(this.options.collapseColumnContentSelector);
-        const collapseShowClass = this.options.collapseShowClass;
+    _initCollapse(collapseEl) {
+        if (!collapseEl) {
+            return;
+        }
 
         new bootstrap.Collapse(collapseEl, {
-            toggle: true,
+            toggle: false,
         });
+    }
 
-        collapseEl.addEventListener('shown.bs.collapse', () => {
-            trigger.classList.add(collapseShowClass);
+    /**
+     * Removes the collapse and corresponding attributes.
+     *
+     * @param {HTMLElement} trigger
+     * @param {HTMLElement} collapseEl
+     * @private
+     */
+    _disposeCollapse(trigger, collapseEl) {
+        if (!trigger || !collapseEl) {
+            return;
+        }
 
-            this.$emitter.publish('onCollapseShown');
-        });
+        const collapse = bootstrap.Collapse.getInstance(collapseEl);
 
-        collapseEl.addEventListener('hidden.bs.collapse', () => {
-            trigger.classList.remove(collapseShowClass);
+        if (collapse) {
+            collapse.dispose();
+        }
 
-            this.$emitter.publish('onCollapseHidden');
-        });
-
-        this.$emitter.publish('onClickCollapseTrigger');
+        trigger.setAttribute('aria-expanded', 'true');
     }
 
     /**

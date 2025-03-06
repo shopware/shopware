@@ -96,6 +96,7 @@ test('Shop administrator should be able to create a internal link type of landin
     CreateLandingPage,
     TestDataService,
     InstanceMeta,
+    AdminDashboard,
 }) => {
 
     test.skip(InstanceMeta.features['V6_7_0_0'], 'This test has a bug: https://shopware.atlassian.net/browse/NEXT-40154');
@@ -125,6 +126,8 @@ test('Shop administrator should be able to create a internal link type of landin
         await ShopAdmin.goesTo(AdminCategories.url());
         await ShopAdmin.attemptsTo(CreateLandingPage(null, landingPageData));
     });
+
+    await ShopAdmin.goesTo(AdminDashboard.url());
 
     await test.step('Create a category with internal link type of Product', async () => {
         await TestDataService.createCategory({ name: categoryCustomizableLinkData.category, active: true, parentId: null });

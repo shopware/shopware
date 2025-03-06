@@ -1379,7 +1379,7 @@ export default {
                 return;
             }
 
-            this.$set(this.product, item.name, parentProductFrozen[item.name]);
+            this.product[item.name] = parentProductFrozen[item.name];
         },
 
         onInheritanceRemove(item) {

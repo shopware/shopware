@@ -14,5 +14,5 @@ shopware:
         gateway:
             dispatch_enabled: true
             entity_dispatch_enabled: false
-            consent_dispatch_enabled: true
+            consent_dispatch_enabled: false
             base_uri: 'http://localhost:8888'

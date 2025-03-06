@@ -200,35 +200,13 @@ class OrderException extends HttpException
         return new CustomerDeletedException($orderId);
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return GuestNotAuthenticatedException
-     */
     public static function guestNotAuthenticated(): self
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new self(
-                Response::HTTP_FORBIDDEN,
-                self::CHECKOUT_GUEST_NOT_AUTHENTICATED,
-                'Guest not authenticated.'
-            );
-        }
-
         return new GuestNotAuthenticatedException();
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return WrongGuestCredentialsException
-     */
     public static function wrongGuestCredentials(): self
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new self(
-                Response::HTTP_FORBIDDEN,
-                self::CHECKOUT_GUEST_WRONG_CREDENTIALS,
-                'Wrong credentials for guest authentication.'
-            );
-        }
-
         return new WrongGuestCredentialsException();
     }
 

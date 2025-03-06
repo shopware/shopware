@@ -28,7 +28,7 @@
     {% else %}
         {% set dataProtectionLabel = contactPrivacyNoticeSnippet|trans({
             '%privacyModalTagOpen%': '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.privacyPage') }) ~ '" data-prev-url="' ~ prevUrl ~ '">',
-            '%privacyModalTagClose%': '</button>'
+            '%privacyModalTagClose%': '</button>',
             '%prevUrl%': prevUrl
         })|raw %}
     {% endif %}

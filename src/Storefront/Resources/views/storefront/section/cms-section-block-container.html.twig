@@ -49,9 +49,10 @@
         {% set blockClasses = ['hidden-desktop']|merge(blockClasses) %}
     {% endif %}
 
-    <div class="cms-block {{ blockClasses|join(' ') }} position-relative"
-         style="{% if blockBgColor %} background-color: {{ blockBgColor }};{% endif %};">
-
+    <div
+        class="cms-block {{ blockClasses|join(' ') }} position-relative"
+        {% if blockBgColor %}style="background-color: {{ blockBgColor }}"{% endif %}
+    >
         {% block section_content_block_background_image %}
             {% if block.backgroundMedia %}
                 {% sw_thumbnails 'cms-block-background' with {

@@ -240,7 +240,6 @@
                                                             :name="updater"
                                                             size="small"
                                                             :disabled="indexerSelection.includes(indexer)"
-                                                            @click.prevent
                                                             @update:checked="changeSelection($event, updater)"
                                                         />
                                                     </li>
@@ -258,6 +257,7 @@
                             name="updateIndexesButton"
                             class="sw-button--large"
                             ghost
+                            size="large"
                             :is-loading="processes.updateIndexes"
                             :process-success="processSuccess.updateIndexes"
                             @update:process-success="resetButtons"

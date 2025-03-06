@@ -17,6 +17,8 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
         this.grecaptchaContainerIframe = null;
         this.grecaptchaWidgetId = null;
 
+        this.currentToken = null;
+
         this._renderV2Captcha();
     }
 
@@ -35,19 +37,30 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
 
             this.grecaptcha.execute(this.grecaptchaWidgetId).then(() => {
                 this._formSubmitting = false;
+
+                /**
+                 * If the form was not valid on a first submit because of other fields the captcha callback won't be called again by reCaptcha.
+                 * So if a valid token is already present we can proceed with submitting the form.
+                 * Otherwise, the form submit will be called by the captcha callback.
+                 */
+                if (this.currentToken !== null && this.grecaptchaInput.value === this.currentToken) {
+                    this._submitInvisibleForm();
+                }
             });
         } else {
-            if (!this.grecaptchaInput.value) {
-                this.grecaptchaContainerIframe = this.el.querySelector('iframe');
-                this.grecaptchaContainerIframe.classList.add(this.options.grecaptchaIframeHasErrorClassSelector);
-            }
-
-            this._formSubmitting = false;
 
             this.$emitter.publish('beforeGreCaptchaFormSubmit', {
                 info: this.getGreCaptchaInfo(),
                 token: this.grecaptchaInput.value,
             });
+
+            if (!this.grecaptchaInput.value) {
+                this._formSubmitting = false;
+                this.grecaptchaContainerIframe = this.el.querySelector('iframe');
+                this.grecaptchaContainerIframe.classList.add(this.options.grecaptchaIframeHasErrorClassSelector);
+            } else {
+                this._submitInvisibleForm();
+            }
         }
     }
 
@@ -67,15 +80,15 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
             token,
         });
 
-        this._formSubmitting = false;
+        this.currentToken = token;
         this.grecaptchaInput.value = token;
 
         if (!this.options.invisible) {
             this.grecaptchaContainerIframe.classList.remove(this.options.grecaptchaIframeHasErrorClassSelector);
-            return;
+        } else {
+            // If the captcha is invisible it is validated on submit and therefore the callback has to trigger the submit.
+            this._submitInvisibleForm();
         }
-
-        this._submitInvisibleForm();
     }
 
     /**

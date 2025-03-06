@@ -6,7 +6,7 @@ Styling for productbox component.
 
 $box-standard-height-img: 200px;
 
-.product-box{
+.product-box {
     // Do not expand the Bootstrap `stretched-link` pseudo element over the entire product card.
     // By giving it the image height, only the image itself is linked and the remaining content is still selectable.
     &.box-wishlist .stretched-link::after {

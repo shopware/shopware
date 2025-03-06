@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\Logging;
+namespace Shopware\Tests\Integration\Core\Framework\Log;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;

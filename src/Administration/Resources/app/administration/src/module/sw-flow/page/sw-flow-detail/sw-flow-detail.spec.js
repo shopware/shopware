@@ -90,8 +90,7 @@ const businessEventServiceMock = {
     getBusinessEvents: () => Promise.resolve(mockBusinessEvents),
 };
 
-
-async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess = true, param = {}) {
+async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess = true, param = {}, customProvides = {}) {
     return mount(
         await wrapTestComponent('sw-flow-detail', {
             sync: true,
@@ -181,9 +180,8 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
                     ruleConditionDataProviderService: {
                         getRestrictedRules: () => Promise.resolve([]),
                     },
-                    businessEventService:{
-                        getBusinessEvents : () => Promise.resolve(mockBusinessEvents)
-                    },
+                    businessEventService: businessEventServiceMock,
+                    ...customProvides,
                 },
                 mocks: {
                     $route: { params: param, query: query },
@@ -598,8 +596,6 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
             resolveEvents = () => resolve(mockBusinessEvents);
         });
 
-        businessEventServiceMock.getBusinessEvents = jest.fn().mockReturnValue(eventsPromise);
-
         let resolveFlowData;
         const flowDataPromise = new Promise(resolve => {
             resolveFlowData = () => resolve({
@@ -610,7 +606,12 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
             });
         });
 
-        const repositoryFactoryMock = {
+        // custom services with controlled promises
+        const customBusinessEventServiceMock = {
+            getBusinessEvents: jest.fn().mockReturnValue(eventsPromise)
+        };
+
+        const customRepositoryFactoryMock = {
             create: (entity) => {
                 if (entity === 'flow') {
                     return {
@@ -624,41 +625,15 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
             }
         };
 
-        const wrapper = mount(
-            await wrapTestComponent('sw-flow-detail', { sync: true }),
+        const wrapper = await createWrapper(
+            {},
+            {},
+            ID_FLOW,
+            true,
+            {},
             {
-                props: {
-                    flowId: ID_FLOW
-                },
-                global: {
-                    provide: {
-                        repositoryFactory: repositoryFactoryMock,
-                        flowBuilderService: Shopware.Service('flowBuilderService'),
-                        ruleConditionDataProviderService: {
-                            getRestrictedRules: () => Promise.resolve([])
-                        },
-                        businessEventService: businessEventServiceMock
-                    },
-                    mocks: {
-                        $route: { params: {}, query: {} }
-                    },
-                    stubs: {
-                        'sw-page': true,
-                        'sw-button': true,
-                        'sw-loader': true,
-                        'sw-tabs-item': true,
-                        'router-view': true,
-                        'sw-button-process': true,
-                        'sw-button-deprecated': true,
-                        'sw-skeleton': true,
-                        'sw-alert': true,
-                        'sw-flow-leave-page-modal': true,
-                        'sw-tabs': true,
-                        'sw-card-view': true,
-                        'sw-icon': true,
-                        'router-link': true
-                    }
-                }
+                businessEventService: customBusinessEventServiceMock,
+                repositoryFactory: customRepositoryFactoryMock
             }
         );
 

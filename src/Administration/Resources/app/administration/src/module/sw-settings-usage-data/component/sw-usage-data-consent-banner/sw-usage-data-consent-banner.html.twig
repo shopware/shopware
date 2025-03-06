@@ -12,6 +12,7 @@
     <i18n-t
         tag="p"
         :keypath="showThankYouBanner ? 'sw-usage-data-consent-banner.thankYouMessage' : 'sw-usage-data-consent-banner.rejectedMessage'"
+        scope="local"
     >
         <template
             #thanksForParticipation
@@ -169,6 +170,7 @@
         <i18n-t
             tag="p"
             keypath="sw-usage-data-consent-banner.fullDetailsDescription"
+            scope="local"
             class="sw-usage-data-consent-banner__content-details-description"
         >
             <template #link>
@@ -197,6 +199,7 @@
             <mt-button
                 v-if="canBeHidden"
                 class="sw-usage-data-consent-banner__footer-decline-button"
+                variant="secondary"
                 @click="onHide"
             >
                 {{ $tc('sw-usage-data-consent-banner.declineDataCollection') }}

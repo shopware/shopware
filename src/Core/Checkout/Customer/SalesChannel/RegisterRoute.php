@@ -41,7 +41,6 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Country\CountryCollection;
-use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
@@ -192,8 +191,8 @@ class RegisterRoute extends AbstractRegisterRoute
 
         $criteria = new Criteria([$customer['id']]);
 
-        /** @var CustomerEntity $customerEntity */
-        $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->first();
+        $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->getEntities()->first();
+        \assert(assertion: $customerEntity !== null);
 
         if ($customerEntity->getDoubleOptInRegistration()) {
             $this->eventDispatcher->dispatch(
@@ -391,12 +390,9 @@ class RegisterRoute extends AbstractRegisterRoute
         $birthdayMonth = $data->get('birthdayMonth');
         $birthdayYear = $data->get('birthdayYear');
 
-        if (!$birthdayDay || !$birthdayMonth || !$birthdayYear) {
+        if (!\is_numeric($birthdayDay) || !\is_numeric($birthdayMonth) || !\is_numeric($birthdayYear)) {
             return null;
         }
-        \assert(\is_numeric($birthdayDay));
-        \assert(\is_numeric($birthdayMonth));
-        \assert(\is_numeric($birthdayYear));
 
         return new \DateTime(\sprintf(
             '%d-%d-%d',
@@ -470,8 +466,8 @@ class RegisterRoute extends AbstractRegisterRoute
     {
         $validation = $this->accountValidationFactory->create($context);
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('registrationSalesChannels.id', $context->getSalesChannelId()));
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('registrationSalesChannels.id', $context->getSalesChannelId()));
 
         $validation->add('requestedGroupId', new EntityExists([
             'entity' => 'customer_group',
@@ -570,7 +566,7 @@ class RegisterRoute extends AbstractRegisterRoute
         if (!Feature::isActive('v6.8.0.0')) {
             $country = $this->countryRepository->search(new Criteria([$countryId]), $context)->get($countryId);
 
-            if (!$country instanceof CountryEntity) {
+            if (!$country) {
                 throw CustomerException::countryNotFound($countryId);
             }
 
@@ -605,18 +601,16 @@ class RegisterRoute extends AbstractRegisterRoute
 
         return str_replace(
             ['%%HASHEDEMAIL%%', '%%SUBSCRIBEHASH%%'],
-            [$emailHash, $customer->getHash()],
+            [$emailHash, (string) $customer->getHash()],
             $urlEvent->getConfirmUrl()
         );
     }
 
     private function getDefaultSalutationId(SalesChannelContext $context): ?string
     {
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $criteria->addFilter(
-            new EqualsFilter('salutationKey', SalutationDefinition::NOT_SPECIFIED)
-        );
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addFilter(new EqualsFilter('salutationKey', SalutationDefinition::NOT_SPECIFIED));
 
         return $this->salutationRepository->searchIds($criteria, $context->getContext())->firstId();
     }

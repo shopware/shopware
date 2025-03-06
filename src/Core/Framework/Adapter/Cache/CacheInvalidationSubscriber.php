@@ -50,7 +50,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChanne
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelPaymentMethod\SalesChannelPaymentMethodDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelShippingMethod\SalesChannelShippingMethodDefinition;
-use Shopware\Core\System\SalesChannel\Context\CachedBaseContextFactory;
+use Shopware\Core\System\SalesChannel\Context\CachedBaseSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Salutation\SalesChannel\SalutationRoute;
@@ -286,7 +286,7 @@ class CacheInvalidationSubscriber
         // invalidates the context cache - each time one of the entities which are considered inside the context factory changed
         $ids = $event->getPrimaryKeys(SalesChannelDefinition::ENTITY_NAME);
         $keys = array_map(CachedSalesChannelContextFactory::buildName(...), $ids);
-        $keys = array_merge($keys, array_map(CachedBaseContextFactory::buildName(...), $ids));
+        $keys = array_merge($keys, array_map(CachedBaseSalesChannelContextFactory::buildName(...), $ids));
 
         if ($event->getEventByEntityName(CurrencyDefinition::ENTITY_NAME)) {
             $keys[] = CachedSalesChannelContextFactory::ALL_TAG;

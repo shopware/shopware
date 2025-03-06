@@ -14,13 +14,13 @@
             {% block sw_bulk_edit_change_type_field_renderer_change_field %}
             <div class="sw-bulk-edit-change-field-renderer__change-field">
                 {% block sw_bulk_edit_change_type_field_renderer_change_field_title %}
-                <sw-checkbox-field
-                    v-model:value="bulkEditData[formField.name].isChanged"
+                <mt-checkbox
+                    v-model:checked="bulkEditData[formField.name].isChanged"
                     class="sw-bulk-edit-change-field__change"
                     :label="!formField.config.changeLabel ? $tc('sw-bulk-edit.general.defaultChangeLabel') : formField.config.changeLabel"
                     :help-text="formField.labelHelpText"
                     :disabled="!!bulkEditData[formField.name].disabled"
-                    @update:value="onChangeToggle($event, formField.name)"
+                    @update:checked="onChangeToggle($event, formField.name)"
                 />
                 {% endblock %}
 
@@ -66,6 +66,7 @@
                                 v-if="isDisplayingValue"
                                 v-bind="formField"
                                 :key="`formField-${index}`"
+                                v-model="entity[formField.name]"
                                 v-model:value="entity[formField.name]"
                                 @update:value="onChangeValue($event, formField.name)"
                             />

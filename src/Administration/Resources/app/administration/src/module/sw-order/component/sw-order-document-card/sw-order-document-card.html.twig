@@ -35,6 +35,7 @@
                         ghost
                         :disabled="!acl.can('document.viewer') || isEditing"
                         class="sw-order-document-grid-button"
+                        variant="secondary"
                         @click="onShowSelectDocumentTypeModal"
                     >
 
@@ -117,7 +118,7 @@
                 <sw-context-menu-item
                     :disabled="!acl.can('document.viewer')"
                     class="sw-order-document-card__context-button-open-pdf"
-                    @click="onOpenDocument(item.id, item.deepLinkCode)"
+                    @click="onOpenDocument(item.id, item.deepLinkCode, item.documentMediaFile?.fileExtension)"
                 >
                     {% block sw_order_document_card_grid_action_open_label %}
                     {{ $tc('sw-order.documentCard.labelOpenDocument') }}
@@ -129,7 +130,7 @@
                 <sw-context-menu-item
                     :disabled="!acl.can('document.viewer')"
                     class="sw-order-document-card__context-button-download-pdf"
-                    @click="onDownload(item.id, item.deepLinkCode)"
+                    @click="onDownload(item.id, item.deepLinkCode, item.documentMediaFile?.fileExtension)"
                 >
                     {% block sw_order_document_card_grid_action_download_label %}
                     {{ $tc('sw-order.documentCard.labelDownloadPdf') }}
@@ -182,7 +183,6 @@
 
     {% block sw_order_document_card_grid_column_modal %}
     <div v-if="showModal">
-        <h1>huhu</h1>
         <component
             :is="documentModal"
             :current-document-type="currentDocumentType"
@@ -222,6 +222,7 @@
         v-if="documentsEmpty"
         :title="emptyStateTitle"
         :show-description="false"
+        :absolute="false"
     >/
         <template #icon>
             <img
@@ -242,6 +243,7 @@
                 ghost
                 :disabled="!acl.can('document.viewer') || isEditing"
                 class="sw-order-document-grid-button"
+                variant="secondary"
                 @click="onShowSelectDocumentTypeModal"
             >
 

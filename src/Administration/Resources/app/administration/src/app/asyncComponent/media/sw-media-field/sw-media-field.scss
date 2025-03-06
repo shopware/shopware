@@ -51,6 +51,7 @@ $sw-media-field-color-unlink: $color-crimson-500;
             border: 1px solid $sw-media-field-border-color-input;
             border-left: 0 none;
             width: 45px;
+            height: 45px;
         }
 
         &.is--active .sw-media-field__input {

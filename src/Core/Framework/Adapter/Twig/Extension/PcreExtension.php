@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -35,7 +36,7 @@ class PcreExtension extends AbstractExtension
         $value = preg_replace($pattern, $replacement, $subject);
 
         if ($value === null) {
-            throw new \RuntimeException(\sprintf('Error while processing Twig preg_replace filter. Error: %s', preg_last_error_msg()));
+            throw AdapterException::pcreFunctionError('preg_replace', preg_last_error_msg());
         }
 
         return $value;
@@ -46,7 +47,7 @@ class PcreExtension extends AbstractExtension
         $result = preg_match($pattern, $subject);
 
         if ($result === false) {
-            throw new \RuntimeException(\sprintf('Error while processing Twig preg_match function. Error: %s', preg_last_error_msg()));
+            throw AdapterException::pcreFunctionError('preg_match', preg_last_error_msg());
         }
 
         return (bool) $result;

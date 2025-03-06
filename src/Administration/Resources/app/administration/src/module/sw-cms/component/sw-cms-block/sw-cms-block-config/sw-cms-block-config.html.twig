@@ -79,21 +79,12 @@
         />
 
         {% block sw_cms_block_config_background_image_position_field %}
-        <sw-select-field
-            v-model:value="block.backgroundMediaMode"
+        <mt-select
+            v-model="block.backgroundMediaMode"
             :label="$tc('sw-cms.detail.label.backgroundMediaMode')"
             :disabled="!block.backgroundMediaId"
-        >
-            <option value="auto">
-                {{ $tc('sw-cms.detail.label.backgroundMediaModeAuto') }}
-            </option>
-            <option value="contain">
-                {{ $tc('sw-cms.detail.label.backgroundMediaModeContain') }}
-            </option>
-            <option value="cover">
-                {{ $tc('sw-cms.detail.label.backgroundMediaModeCover') }}
-            </option>
-        </sw-select-field>
+            :options="backgroundModeOptions"
+        />
         {% endblock %}
         {% endblock %}
     </div>

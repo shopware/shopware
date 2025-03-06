@@ -33,6 +33,7 @@
                 {% block sw_product_variant_modal_option_list_toolbar_container_filter_list_button %}
                 <mt-button
                     class="sw-product-variant-modal__button-filter"
+                    variant="secondary"
                     @click="toggleFilterMenu"
                 >
                     {{ $tc('sw-product.variations.generatedFilterList') }}
@@ -77,6 +78,7 @@
                             {% block sw_product_variant_modal_option_list_toolbar_container_button_filter_reset %}
                             <mt-button
                                 class="sw-product-variant-modal__reset-filter"
+                                variant="secondary"
                                 @click="resetFilterOptions"
                             >
                                 {{ $tc('sw-product.variations.overview.filterReset') }}
@@ -358,9 +360,9 @@
         <template #column-stock="{item, isInlineEdit}">
 
             {% block sw_product_variant_modal_body_grid_column_stock_inline_edit %}
-            <sw-number-field
+            <mt-number-field
                 v-if="isInlineEdit"
-                v-model:value="item.stock"
+                v-model="item.stock"
                 :placeholder="$tc('sw-product.list.variantModalInlineEditStockPlaceholder')"
                 size="small"
             />
@@ -380,8 +382,8 @@
 
             {% block sw_product_variant_modal_body_grid_column_active_inline_edit %}
             <template v-if="isInlineEdit">
-                <sw-checkbox-field
-                    v-model:value="item.active"
+                <mt-checkbox
+                    v-model:checked="item.active"
                     :disabled="item.active === null"
                 />
 
@@ -536,6 +538,7 @@
             {% block sw_product_variant_modal_body_delete_modal_footer_close %}
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="closeDeleteModal"
             >
                 {{ $tc('global.default.cancel') }}
@@ -577,6 +580,7 @@
         {% block sw_product_variant_modal_footer_close_button %}
         <mt-button
             size="small"
+            variant="secondary"
             @click="$emit('modal-close')"
         >
             {{ $tc('global.sw-modal.labelClose') }}

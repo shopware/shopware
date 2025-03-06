@@ -70,6 +70,8 @@
         .sw-field.sw-field--checkbox,
         .sw-field.sw-field--radio,
         .sw-field--checkbox,
+        .mt-field--checkbox,
+        .mt-switch,
         .sw-field--radio {
             display: block;
             margin-bottom: 0;
@@ -100,6 +102,8 @@
         }
 
         .sw-data-grid__inline-edit-cancel {
+            line-height: 1;
+
             .mt-icon {
                 width: 16px;
                 height: 16px;
@@ -108,6 +112,8 @@
         }
 
         .sw-data-grid__inline-edit-save {
+            line-height: 1;
+
             .mt-icon {
                 width: 16px;
                 height: 16px;
@@ -498,6 +504,20 @@
     .sort-indicator-leave-to {
         transform: translateY(10px);
         opacity: 0;
+    }
+
+    &__cell {
+        .mt-number-field {
+            margin-bottom: 0;
+
+            &--size-small {
+                height: 25px;
+            }
+
+            &__controls {
+                display: none;
+            }
+        }
     }
 }
 

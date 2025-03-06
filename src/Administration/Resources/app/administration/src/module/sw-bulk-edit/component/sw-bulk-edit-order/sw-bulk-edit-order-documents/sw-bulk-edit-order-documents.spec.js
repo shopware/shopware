@@ -67,7 +67,7 @@ describe('sw-bulk-edit-order-documents', () => {
             },
         });
 
-        expect(wrapper.find('sw-checkbox-field-stub').attributes().disabled).toBeTruthy();
+        expect(wrapper.findComponent('.mt-field--checkbox__container').props().disabled).toBe(true);
         expect(wrapper.findComponent('.mt-switch').props().disabled).toBeDefined();
 
         await wrapper.setProps({
@@ -75,7 +75,7 @@ describe('sw-bulk-edit-order-documents', () => {
                 disabled: false,
             },
         });
-        expect(wrapper.find('sw-checkbox-field-stub').attributes().disabled).toBeUndefined();
+        expect(wrapper.findComponent('.mt-field--checkbox__container').props().disabled).toBe(false);
         expect(wrapper.findComponent('.mt-switch').props().disabled).toBeUndefined();
     });
 });

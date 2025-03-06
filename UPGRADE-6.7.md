@@ -79,6 +79,17 @@ Shopware.Store.register({
 });
 ```
 
+### Vuex Breaking change
+Due to the migration from Vuex to Pinia, the Vuex helper utils have been renamed to avoid conflicts with Pinia helpers.
+If you are still using Vuex, please update your code accordingly:
+
+```
+    mapState -> mapVuexState
+    mapMutations -> mapVuexMutations
+    mapGetters -> mapVuexGetters
+    mapActions -> mapVuexActions
+```
+
 For more information refer to the [docs](https://developer.shopware.com/docs/resources/references/adr/2024-06-17-replace-vuex-with-pinia.html#replace-vuex-with-pinia).
 
 # Cache Rework
@@ -701,6 +712,8 @@ In short this means we replaced the following components:
 * `sw-loader` with `mt-loader`
 * `sw-checkbox-field` with `mt-checkbox`
 
+Note that these new components follow the standard Vue conventions for passing the value to the component. In short, when a two-way binding is needed the `v-model="myValue"` attribute should be used. If only the value should be passed to the component `:model-value=myValue` should be used, but then the `@update:model-value` needs to be implemented. For more information refer to the [Vue documentation](https://vuejs.org/guide/components/v-model.html).
+
 <details>
     <summary>See the detailed list</summary>
 
@@ -885,8 +898,8 @@ After:
 <mt-select />
 ```
 
-### "sw-select-field" prop "value" was renamed to "modelValue"
-Replace all occurrences of the prop "value" with "modelValue"
+### "sw-select-field" prop "value" was renamed to "model-value"
+Replace all occurrences of the prop "value" with "model-value"
 
 Before:
 ```html
@@ -895,7 +908,7 @@ Before:
 
 After:
 ```html
-<mt-select :modelValue="selectedValue" />
+<mt-select :model-value="selectedValue" />
 ```
 
 ### "sw-select-field" the "v-model:value" was renamed to "v-model"
@@ -970,8 +983,8 @@ After:
 <mt-select label="My Label" />
 ```
 
-### "sw-select-field" the event "update:value" was renamed to "update:modelValue"
-The event "update:value" was renamed to "update:modelValue"
+### "sw-select-field" the event "update:value" was renamed to "update:model-value"
+The event "update:value" was renamed to "update:model-value"
 
 Before:
 ```html
@@ -980,7 +993,7 @@ Before:
 
 After:
 ```html
-<mt-select @update:modelValue="onUpdateValue" />
+<mt-select @update:model-value="onUpdateValue" />
 ```
 ## Removal of "sw-textarea-field":
 The old "sw-textarea-field" component will be removed in the next major version. Please use the new "mt-textarea" component instead.
@@ -1003,8 +1016,8 @@ After:
 <mt-textarea />
 ```
 
-### "sw-textarea-field" property "value" is replaced by "modelValue"
-Replace all occurrences of the property "value" with "modelValue"
+### "sw-textarea-field" property "value" is replaced by "model-value"
+Replace all occurrences of the property "value" with "model-value"
 
 Before:
 ```html
@@ -1012,7 +1025,7 @@ Before:
 ```
 After:
 ```html
-<mt-textarea :modelValue="myValue" />
+<mt-textarea :model-value="myValue" />
 ```
 
 ### "sw-textarea-field" binding "v-model:value" is replaced by "v-model"
@@ -1045,8 +1058,8 @@ After:
 <mt-textarea label="My Label" />
 ```
 
-### "sw-textarea-field" event "update:value" is replaced by "update:modelValue"
-Replace all occurrences of the event "update:value" with "update:modelValue"
+### "sw-textarea-field" event "update:value" is replaced by "update:model-value"
+Replace all occurrences of the event "update:value" with "update:model-value"
 
 Before:
 ```html
@@ -1055,7 +1068,7 @@ Before:
 
 After:
 ```html
-<mt-textarea @update:modelValue="onUpdateValue" />
+<mt-textarea @update:model-value="onUpdateValue" />
 ```
 ## Removal of "sw-datepicker":
 The old "sw-datepicker" component will be removed in the next major version. Please use the new "mt-datepicker" component instead.
@@ -1078,8 +1091,8 @@ After:
 <mt-datepicker />
 ```
 
-### "sw-datepicker" property "value" is replaced by "modelValue"
-Replace all occurrences of the property "value" with "modelValue"
+### "sw-datepicker" property "value" is replaced by "model-value"
+Replace all occurrences of the property "value" with "model-value"
 
 Before:
 ```html
@@ -1087,7 +1100,7 @@ Before:
 ```
 After:
 ```html
-<mt-datepicker :modelValue="myValue" />
+<mt-datepicker :model-value="myValue" />
 ```
 
 ### "sw-datepicker" binding "v-model:value" is replaced by "v-model"
@@ -1120,8 +1133,8 @@ After:
 <mt-datepicker label="My Label" />
 ```
 
-### "sw-datepicker" event "update:value" is replaced by "update:modelValue"
-Replace all occurrences of the event "update:value" with "update:modelValue"
+### "sw-datepicker" event "update:value" is replaced by "update:model-value"
+Replace all occurrences of the event "update:value" with "update:model-value"
 
 Before:
 ```html
@@ -1130,7 +1143,7 @@ Before:
 
 After:
 ```html
-<mt-datepicker @update:modelValue="onUpdateValue" />
+<mt-datepicker @update:model-value="onUpdateValue" />
 ```
 ## Removal of "sw-password-field":
 The old "sw-password-field" component will be removed in the next major version. Please use the new "mt-password-field" component instead.
@@ -1154,7 +1167,7 @@ After:
 ```
 
 ### "mt-password-field" has no property "value" anymore
-Replace all occurrences of the "value" prop with "modelValue"
+Replace all occurrences of the "value" prop with "model-value"
 
 Before:
 ```html
@@ -1162,7 +1175,7 @@ Before:
 ```
 After:
 ```html
-<mt-password-field modelValue="Hello World" />
+<mt-password-field model-value="Hello World" />
 ```
 
 ### "mt-password-field" v-model:value is deprecated
@@ -1202,7 +1215,7 @@ After:
 ```
 
 ### "mt-password-field" has no event "update:value" anymore
-Replace all occurrences of the "update:value" event with "update:modelValue"
+Replace all occurrences of the "update:value" event with "update:model-value"
 
 Before:
 ```html
@@ -1211,7 +1224,7 @@ Before:
 
 After:
 ```html
-<mt-password-field @update:modelValue="updateValue" />
+<mt-password-field @update:model-value="updateValue" />
 ```
 
 ### "mt-password-field" has no event "base-field-mounted" anymore
@@ -1281,8 +1294,8 @@ After:
 <mt-colorpicker />
 ```
 
-### "sw-colorpicker" property "value" is replaced by "modelValue"
-Replace all occurrences of the property "value" with "modelValue"
+### "sw-colorpicker" property "value" is replaced by "model-value"
+Replace all occurrences of the property "value" with "model-value"
 
 Before:
 ```html
@@ -1290,7 +1303,7 @@ Before:
 ```
 After:
 ```html
-<mt-colorpicker :modelValue="myValue" />
+<mt-colorpicker :model-value="myValue" />
 ```
 
 ### "sw-colorpicker" binding "v-model:value" is replaced by "v-model"
@@ -1323,8 +1336,8 @@ After:
 <mt-colorpicker label="My Label" />
 ```
 
-### "sw-colorpicker" event "update:value" is replaced by "update:modelValue"
-Replace all occurrences of the event "update:value" with "update:modelValue"
+### "sw-colorpicker" event "update:value" is replaced by "update:model-value"
+Replace all occurrences of the event "update:value" with "update:model-value"
 
 Before:
 ```html
@@ -1333,7 +1346,7 @@ Before:
 
 After:
 ```html
-<mt-colorpicker @update:modelValue="onUpdateValue" />
+<mt-colorpicker @update:model-value="onUpdateValue" />
 ```
 ## Removal of "sw-external-link":
 The old "sw-external-link" component will be removed in the next major version. Please use the new "mt-external-link" component instead.
@@ -1409,7 +1422,7 @@ After:
 ```
 
 ### "mt-email-field" has no property "value" anymore
-Replace all occurrences of the "value" prop with "modelValue"
+Replace all occurrences of the "value" prop with "model-value"
 
 Before:
 ```html
@@ -1417,7 +1430,7 @@ Before:
 ```
 After:
 ```html
-<mt-email-field modelValue="Hello World" />
+<mt-email-field model-value="Hello World" />
 ```
 
 ### "mt-email-field" v-model:value is deprecated
@@ -1469,7 +1482,7 @@ After:
 ```
 
 ### "mt-email-field" has no event "update:value" anymore
-Replace all occurrences of the "update:value" event with "update:modelValue"
+Replace all occurrences of the "update:value" event with "update:model-value"
 
 Before:
 ```html
@@ -1478,7 +1491,7 @@ Before:
 
 After:
 ```html
-<mt-email-field @update:modelValue="updateValue" />
+<mt-email-field @update:model-value="updateValue" />
 ```
 
 ### "mt-email-field" has no event "base-field-mounted" anymore
@@ -1532,7 +1545,7 @@ After:
 ```
 
 ### "mt-url-field" has no property "value" anymore
-Replace all occurrences of the "value" prop with "modelValue"
+Replace all occurrences of the "value" prop with "model-value"
 
 Before:
 ```html
@@ -1540,7 +1553,7 @@ Before:
 ```
 After:
 ```html
-<mt-url-field modelValue="Hello World" />
+<mt-url-field model-value="Hello World" />
 ```
 
 ### "mt-url-field" v-model:value is deprecated
@@ -1556,7 +1569,7 @@ After:
 ```
 
 ### "mt-url-field" has no event "update:value" anymore
-Replace all occurrences of the "update:value" event with "update:modelValue"
+Replace all occurrences of the "update:value" event with "update:model-value"
 
 Before:
 ```html
@@ -1565,7 +1578,7 @@ Before:
 
 After:
 ```html
-<mt-url-field @update:modelValue="updateValue" />
+<mt-url-field @update:model-value="updateValue" />
 ```
 
 ### "mt-url-field" has no slot "label" anymore
@@ -1624,7 +1637,7 @@ After:
 ```
 
 ### "mt-progress-bar" has no property "value" anymore
-Replace all occurrences of the "value" prop with "modelValue"
+Replace all occurrences of the "value" prop with "model-value"
 
 Before:
 ```html
@@ -1632,7 +1645,7 @@ Before:
 ```
 After:
 ```html
-<mt-progress-bar modelValue="5" />
+<mt-progress-bar model-value="5" />
 ```
 
 ### "mt-progress-bar" v-model:value is deprecated
@@ -1648,7 +1661,7 @@ After:
 ```
 
 ### "mt-progress-bar" has no event "update:value" anymore
-Replace all occurrences of the "update:value" event with "update:modelValue"
+Replace all occurrences of the "update:value" event with "update:model-value"
 
 Before:
 ```html
@@ -1657,7 +1670,7 @@ Before:
 
 After:
 ```html
-<mt-progress-bar @update:modelValue="updateValue" />
+<mt-progress-bar @update:model-value="updateValue" />
 ```
 
 ## Removal of "sw-button":
@@ -1864,7 +1877,7 @@ After:
 ```
 
 ### "mt-text-field" has no property "value" anymore
-Replace all occurrences of the "value" prop with "modelValue"
+Replace all occurrences of the "value" prop with "model-value"
 
 Before:
 ```html
@@ -1872,7 +1885,7 @@ Before:
 ```
 After:
 ```html
-<mt-text-field modelValue="Hello World" />
+<mt-text-field model-value="Hello World" />
 ```
 
 ### "mt-text-field" v-model:value is deprecated
@@ -1924,7 +1937,7 @@ After:
 ```
 
 ### "mt-text-field" has no event "update:value" anymore
-Replace all occurrences of the "update:value" event with "update:modelValue"
+Replace all occurrences of the "update:value" event with "update:model-value"
 
 Before:
 ```html
@@ -1933,7 +1946,7 @@ Before:
 
 After:
 ```html
-<mt-text-field @update:modelValue="updateValue" />
+<mt-text-field @update:model-value="updateValue" />
 ```
 
 ### "mt-text-field" has no event "base-field-mounted" anymore
@@ -2133,28 +2146,30 @@ After:
 <mt-number-field />
 ```
 
-### "mt-number-field" has no property "value" anymore
-Replace all occurrences of the "value" prop with "modelValue"
+### "sw-number-field" prop "value" was renamed to "model-value"
+Replace all occurrences of the prop "value" with "model-value"
 
 Before:
 ```html
-<mt-number-field :value="5" />
-```
-After:
-```html
-<mt-number-field :modelValue="5" />
+<sw-number-field value="5" />
 ```
 
-### "mt-number-field" v-model:value is deprecated
-Replace all occurrences of the "v-model:value" directive with the combination of `:modelValue` and `@change`
+After:
+```html
+<mt-number-field model-value="5" />
+```
+
+### "sw-number-field" the "v-model:value" was renamed to "v-model"
+Replace all occurrences of the "v-model:value" directive with "v-model"
 
 Before:
 ```html
-<mt-number-field v-model:value="myValue" />
+<sw-number-field v-model:value="myValue" />
 ```
+
 After:
 ```html
-<mt-number-field :modelValue="myValue" @change="myValue = $event" />
+<mt-number-field v-model="myValue" />
 ```
 
 ### "mt-number-field" label slot is deprecated
@@ -2175,7 +2190,7 @@ After:
 ```
 
 ### "mt-number-field" update:value event is deprecated
-Replace all occurrences of the "update:value" event with the "change" event
+Replace all occurrences of the "update:value" event with the "update:model-value" event
 
 Before:
 ```html
@@ -2183,8 +2198,9 @@ Before:
 ```
 After:
 ```html
-<mt-number-field @change="updateValue" />
+<mt-number-field @update:model-value="updateValue" />
 ```
+
 ## Removal of "sw-loader":
 The old "sw-loader" component will be removed in the next major version. Please use the new "mt-loader" component instead.
 

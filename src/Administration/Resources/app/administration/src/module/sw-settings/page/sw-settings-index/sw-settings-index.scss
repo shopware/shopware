@@ -1,6 +1,10 @@
 @import "~scss/variables";
 
 .sw-settings-index {
+    &__card-view {
+        background-color: var(--color-elevation-surface-default);
+    }
+
     .sw-settings__card--hero {
         container-type: inline-size;
         color: var(--color-text-primary-default, #2d2e32);

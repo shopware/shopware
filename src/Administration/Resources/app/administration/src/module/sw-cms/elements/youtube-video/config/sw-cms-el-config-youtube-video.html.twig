@@ -81,18 +81,12 @@
     </div>
 
     {% block sw_cms_element_youtube_video_config_display_mode %}
-    <sw-select-field
-        v-model:value="element.config.displayMode.value"
+    <mt-select
+        v-model="element.config.displayMode.value"
         :placeholder="$tc('sw-cms.elements.general.config.label.displayMode')"
         :label="$tc('sw-cms.elements.general.config.label.displayMode')"
-    >
-        <option value="standard">
-            {{ $tc('sw-cms.elements.general.config.label.displayModeStandard') }}
-        </option>
-        <option value="streched">
-            {{ $tc('sw-cms.elements.general.config.label.displayModeStretch') }}
-        </option>
-    </sw-select-field>
+        :options="displayModeOptions"
+    />
     {% endblock %}
 
     {% block sw_cms_element_youtube_video_config_needs_confirmation %}

@@ -45,6 +45,7 @@
             class="sw-order-list__add-order"
             :disabled="!acl.can('order.creator') || undefined"
             variant="primary"
+            size="default"
             @click="$router.push({ name: 'sw.order.create' })"
         >
             {{ $tc('sw-order.list.buttonAddOrder') }}
@@ -113,6 +114,7 @@
                         v-tooltip="{ message: item.customerComment }"
                         class="sw-order-list__tooltip-order-comment"
                         size="x-small"
+                        variant="secondary"
                     >
                         <mt-icon
                             name="regular-comments"
@@ -272,6 +274,7 @@
                             {% block sw_order_list_delete_modal_cancel %}
                             <mt-button
                                 size="small"
+                                variant="secondary"
                                 @click="onCloseDeleteModal"
                             >
                                 {{ $tc('global.default.cancel') }}

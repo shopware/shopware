@@ -43,6 +43,7 @@
         <mt-button
             :disabled="!acl.can('shipping.creator') || undefined"
             variant="primary"
+            size="default"
             @click="$router.push({ name: 'sw.settings.shipping.create' })"
         >
             {{ $tc('sw-settings-shipping.list.buttonAddShippingMethod') }}
@@ -86,8 +87,8 @@
                 >
                     {% block sw_settings_shipping_list_grid_columns_active_inline_edit %}
                     <template v-if="isInlineEdit">
-                        <sw-checkbox-field
-                            v-model:value="item.active"
+                        <mt-checkbox
+                            v-model:checked="item.active"
                         />
                     </template>
                     {% endblock %}
@@ -178,6 +179,7 @@
                             {% block sw_settings_shipping_list_delete_modal_cancel %}
                             <mt-button
                                 size="small"
+                                variant="secondary"
                                 @click="onCloseDeleteModal"
                             >
                                 {{ $tc('global.default.cancel') }}

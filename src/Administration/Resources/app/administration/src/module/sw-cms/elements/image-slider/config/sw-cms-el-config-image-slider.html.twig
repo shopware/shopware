@@ -70,31 +70,28 @@
             >
                 <div class="sw-cms-el-config-image-slider__settings-options">
 
+                    {% block sw_cms_element_image_slider_config_settings_display_mode %}
+                    {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_cms_element_image_slider_config_settings_display_mode` instead. #}
                     {% block sw_cms_element_image_gallery_config_settings_display_mode %}
                     <div class="sw-cms-el-config-image-slider__setting-option">
 
+                        {% block sw_cms_element_image_slider_config_settings_display_mode_select %}
+                        {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_cms_element_image_slider_config_settings_display_mode_select` instead. #}
                         {% block sw_cms_element_image_gallery_config_settings_display_mode_select %}
-                        <sw-select-field
-                            v-model:value="element.config.displayMode.value"
+                        <mt-select
+                            v-model="element.config.displayMode.value"
                             class="sw-cms-el-config-image-slider__setting-display-mode"
                             :label="$tc('sw-cms.elements.general.config.label.displayMode')"
                             :help-text="$tc('sw-cms.elements.imageSlider.config.helpText.displayMode')"
-                            @update:value="onChangeDisplayMode"
-                        >
-                            <option value="standard">
-                                {{ $tc('sw-cms.elements.general.config.label.displayModeStandard') }}
-                            </option>
-                            <option value="contain">
-                                {{ $tc('sw-cms.elements.general.config.label.displayModeContain') }}
-                            </option>
-                            <option value="cover">
-                                {{ $tc('sw-cms.elements.general.config.label.displayModeCover') }}
-                            </option>
-                        </sw-select-field>
+                            :options="displayModeValueOptions"
+                            @update:model-value="onChangeDisplayMode"
+                        />
+                        {% endblock %}
                         {% endblock %}
 
+                        {% block sw_cms_element_image_slider_config_settings_min_height %}
+                        {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_cms_element_image_slider_config_settings_min_height` instead. #}
                         {% block sw_cms_element_image_gallery_config_settings_min_height %}
-
                         <mt-text-field
                             v-model="element.config.minHeight.value"
                             :label="$tc('sw-cms.elements.image.config.label.minHeight')"
@@ -104,26 +101,22 @@
                             @update:model-value="onChangeMinHeight"
                         />
                         {% endblock %}
+                        {% endblock %}
 
+                        {% block sw_cms_element_image_slider_config_settings_vertical_align %}
+                        {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_cms_element_image_slider_config_settings_vertical_align` instead. #}
                         {% block sw_cms_element_image_gallery_config_settings_vertical_align %}
-                        <sw-select-field
-                            v-model:value="element.config.verticalAlign.value"
+                        <mt-select
+                            v-model="element.config.verticalAlign.value"
                             :label="$tc('sw-cms.elements.general.config.label.verticalAlign')"
                             :placeholder="$tc('sw-cms.elements.general.config.label.verticalAlign')"
                             :disabled="element.config.displayMode.value === 'cover'"
-                        >
-                            <option value="flex-start">
-                                {{ $tc('sw-cms.elements.general.config.label.verticalAlignTop') }}
-                            </option>
-                            <option value="center">
-                                {{ $tc('sw-cms.elements.general.config.label.verticalAlignCenter') }}
-                            </option>
-                            <option value="flex-end">
-                                {{ $tc('sw-cms.elements.general.config.label.verticalAlignBottom') }}
-                            </option>
-                        </sw-select-field>
+                            :options="verticalAlignValueOptions"
+                        />
+                        {% endblock %}
                         {% endblock %}
                     </div>
+                    {% endblock %}
                     {% endblock %}
 
                     {% block sw_cms_element_image_slider_config_settings_navigation %}
@@ -131,64 +124,64 @@
                         <div class="sw-cms-el-config-image-slider__settings-navigation">
 
                             {% block sw_cms_element_image_slider_config_settings_navigation_arrow_position %}
-                            <sw-select-field
-                                v-model:value="element.config.navigationArrows.value"
+                            <mt-select
+                                v-model="element.config.navigationArrows.value"
                                 :label="$tc('sw-cms.elements.imageSlider.config.label.navigationArrows')"
-                                @update:value="emitUpdateEl"
-                            >
-                                <option value="none">
-                                    {{ $tc('sw-cms.elements.imageSlider.config.label.navigationPositionNone') }}
-                                </option>
-                                <option value="inside">
-                                    {{ $tc('sw-cms.elements.imageSlider.config.label.navigationPositionInside') }}
-                                </option>
-                                <option value="outside">
-                                    {{ $tc('sw-cms.elements.imageSlider.config.label.navigationPositionOutside') }}
-                                </option>
-                            </sw-select-field>
+                                :options="navigationArrowsValueOptions"
+                                @update:model-value="emitUpdateEl"
+                            />
                             {% endblock %}
                         </div>
 
                         <div class="sw-cms-el-config-image-slider__settings-navigation">
 
                             {% block sw_cms_element_image_slider_config_settings_navigation_dots_position %}
-                            <sw-select-field
-                                v-model:value="element.config.navigationDots.value"
+                            <mt-select
+                                v-model="element.config.navigationDots.value"
                                 :label="$tc('sw-cms.elements.imageSlider.config.label.navigationDots')"
-                                @update:value="emitUpdateEl"
-                            >
-                                <option value="none">
-                                    {{ $tc('sw-cms.elements.imageSlider.config.label.navigationPositionNone') }}
-                                </option>
-                                <option value="inside">
-                                    {{ $tc('sw-cms.elements.imageSlider.config.label.navigationPositionInside') }}
-                                </option>
-                                <option value="outside">
-                                    {{ $tc('sw-cms.elements.imageSlider.config.label.navigationPositionOutside') }}
-                                </option>
-                            </sw-select-field>
+                                :options="navigationDotsValueOptions"
+                                @update:model-value="emitUpdateEl"
+                            />
                             {% endblock %}
                         </div>
                     </div>
                     {% endblock %}
 
-                    <div class="sw-cms-el-config-image-slider__setting-slide">
-                        {# @todo NEXT-40267 - Re-implement after tiny-slider has been replaced, due to accessibility issues #}
-
-                        <mt-switch
-                            :checked="false"
-                            class="sw-cms-el-config-image-slider__setting-auto-slide"
-                            :label="$tc('sw-cms.elements.general.config.label.autoSlide')"
-                            :help-text="$tc('sw-cms.elements.general.config.helpText.autoSlide')"
-                            bordered
-                            disabled
+                    <div class="sw-cms-el-config-image-slider__setting-speed">
+                        {% block sw_cms_element_image_slider_config_settings_speed %}
+                        <mt-number-field
+                            v-model="element.config.speed.value"
+                            class="sw-cms-el-config-image-slider__setting-speed-slide"
+                            number-type="int"
+                            :min="0"
+                            :max="3600000"
+                            :label="$tc('sw-cms.elements.general.config.label.speed')"
+                            :placeholder="$tc('sw-cms.elements.general.config.label.speed')"
+                            :help-text="$tc('sw-cms.elements.general.config.helpText.speed')"
                         />
+                        {% endblock %}
                     </div>
 
                     <div class="sw-cms-el-config-image-slider__setting-option">
+                        <div class="sw-cms-el-config-image-slider__setting-slide">
+                            {# @todo NEXT-40267 - Re-implement after tiny-slider has been replaced, due to accessibility issues #}
+
+                            {% block sw_cms_element_image_slider_config_settings_auto_slide %}
+                            <mt-switch
+                                :checked="false"
+                                class="sw-cms-el-config-image-slider__setting-auto-slide"
+                                :label="$tc('sw-cms.elements.general.config.label.autoSlide')"
+                                :help-text="$tc('sw-cms.elements.general.config.helpText.autoSlide')"
+                                bordered
+                                disabled
+                            />
+                            {% endblock %}
+                        </div>
+
                         <div class="sw-cms-el-config-image-slider__setting-delay">
-                            <sw-number-field
-                                v-model:value="element.config.autoplayTimeout.value"
+                            {% block sw_cms_element_image_slider_config_settings_autoplay_timeout %}
+                            <mt-number-field
+                                v-model="element.config.autoplayTimeout.value"
                                 class="sw-cms-el-config-image-slider__setting-delay-slide"
                                 number-type="int"
                                 :min="0"
@@ -198,19 +191,7 @@
                                 :placeholder="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
                                 :help-text="$tc('sw-cms.elements.general.config.helpText.autoplayTimeout')"
                             />
-                        </div>
-                        <div class="sw-cms-el-config-image-slider__setting-speed">
-                            <sw-number-field
-                                v-model:value="element.config.speed.value"
-                                class="sw-cms-el-config-image-slider__setting-speed-slide"
-                                number-type="int"
-                                :min="0"
-                                :max="3600000"
-                                :disabled="true"
-                                :label="$tc('sw-cms.elements.general.config.label.speed')"
-                                :placeholder="$tc('sw-cms.elements.general.config.label.speed')"
-                                :help-text="$tc('sw-cms.elements.general.config.helpText.speed')"
-                            />
+                            {% endblock %}
                         </div>
                     </div>
 
@@ -234,8 +215,8 @@
                                     alt=""
                                 >
 
-                                <sw-url-field
-                                    v-model:value="sliderItem.url"
+                                <mt-url-field
+                                    v-model="sliderItem.url"
                                     class="sw-cms-el-config-image-slider__settings-link-input"
                                     :name="sliderItem.mediaUrl"
                                     :label="$tc('sw-cms.elements.image.config.label.linkTo')"

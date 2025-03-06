@@ -7,8 +7,8 @@
 >
     {% block sw_flow_set_order_state_modal_content %}
     {% block sw_flow_set_order_state_modal_payment_status %}
-    <sw-select-field
-        v-model:value="config.order_transaction"
+    <mt-select
+        v-model="config.order_transaction"
         name="sw-field--config-order_transaction"
         class="sw-flow-set-order-state-modal__payment-status"
         :options="paymentOptions"
@@ -18,8 +18,8 @@
     {% endblock %}
 
     {% block sw_flow_set_order_state_modal_delivery_status %}
-    <sw-select-field
-        v-model:value="config.order_delivery"
+    <mt-select
+        v-model="config.order_delivery"
         name="sw-field--config-order_delivery"
         class="sw-flow-set-order-state-modal__delivery-status"
         :options="deliveryOptions"
@@ -29,8 +29,8 @@
     {% endblock %}
 
     {% block sw_flow_set_order_state_modal_order_status %}
-    <sw-select-field
-        v-model:value="config.order"
+    <mt-select
+        v-model="config.order"
         name="sw-field--config-order"
         class="sw-flow-set-order-state-modal__order-status"
         :options="orderOptions"
@@ -40,8 +40,8 @@
     {% endblock %}
 
     {% block sw_flow_set_order_state_modal_force_transition %}
-    <sw-checkbox-field
-        v-model:value="config.force_transition"
+    <mt-checkbox
+        v-model:checked="config.force_transition"
         name="sw-field--config-force_transition"
         class="sw-flow-set-order-state-modal__force-transition"
         :label="$tc('sw-flow.modals.status.forceTransition')"
@@ -56,6 +56,7 @@
         <mt-button
             class="sw-flow-set-order-state-modal__cancel-button"
             size="small"
+            variant="secondary"
             @click="onClose"
         >
             {{ $tc('global.default.cancel') }}

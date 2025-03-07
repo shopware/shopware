@@ -21,6 +21,7 @@
             v-tooltip.bottom="tooltipCancel"
             :disabled="isLoading"
             variant="secondary"
+            size="default"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
@@ -58,6 +59,7 @@
                         square
                         variant="primary"
                         :disabled="isLoading || !acl.can('product_stream.editor')"
+                        size="default"
                     >
                         <mt-icon name="regular-chevron-down-xs" />
                     </mt-button>

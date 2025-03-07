@@ -40,6 +40,7 @@
             :key="button.buttonId"
             :disabled="button.disabled"
             :variant="button.variant"
+            size="default"
             @click="button.onClickCallback"
         >
             {{ $tc(button.label ?? '') }}

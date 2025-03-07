@@ -153,7 +153,9 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-individual-codes-
         addModal = wrapper.find('.sw-promotion-v2-individual-codes-behavior__add-codes-modal');
         expect(addModal.exists()).toBe(true);
 
-        const codeAmountInput = wrapper.findByLabel('sw-promotion-v2.detail.base.codes.individual.addCodesModal.codeAmountLabel');
+        const codeAmountInput = wrapper.findByLabel(
+            'sw-promotion-v2.detail.base.codes.individual.addCodesModal.codeAmountLabel',
+        );
         const addCodesModalButton = wrapper.find('.sw-promotion-v2-individual-codes-behavior__add-codes-button-confirm');
 
         expect(codeAmountInput.element.value).toBe('10');

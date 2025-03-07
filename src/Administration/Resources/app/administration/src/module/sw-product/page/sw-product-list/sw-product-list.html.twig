@@ -53,6 +53,7 @@
                 class="sw-product-list__add-physical-button"
                 variant="primary"
                 :disabled="!acl.can('product.creator')"
+                size="default"
                 @click="$router.push({ name: 'sw.product.create', query: { creationStates: ['is-physical'] } })"
             >
                 {{ $tc('sw-product.list.buttonAddProduct') }}
@@ -67,6 +68,7 @@
                         square
                         variant="primary"
                         :disabled="!acl.can('product.editor')"
+                        size="default"
                     >
                         <mt-icon
                             name="regular-chevron-down-xs"

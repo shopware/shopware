@@ -24,6 +24,9 @@ class SwSanitizeTwigFilter extends AbstractExtension
         ];
     }
 
+    /**
+     * @param array<string, mixed> $options
+     */
     public function sanitize(string $text, ?array $options = [], bool $override = false): string
     {
         return $this->sanitizer->sanitize($text, $options, $override);

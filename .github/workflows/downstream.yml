@@ -21,7 +21,6 @@ jobs:
   rufus:
     name: Rufus
     runs-on: ubuntu-24.04
-    if: ${{ !github.event.pull_request && github.event_name != 'merge_group'}}
     steps:
       - id: sts
         continue-on-error: true
@@ -68,7 +67,7 @@ jobs:
     if: always()
     needs:
     # fix with shopware/shopware#6556
-    # - rufus
+    - rufus
     - commercial
 
     runs-on: Ubuntu-latest

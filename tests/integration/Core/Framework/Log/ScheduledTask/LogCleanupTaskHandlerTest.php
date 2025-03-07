@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\Logging\ScheduledTask;
+namespace Shopware\Tests\Integration\Core\Framework\Log\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -10,11 +10,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\LogEntryCollection;
 use Shopware\Core\Framework\Log\ScheduledTask\LogCleanupTask;
 use Shopware\Core\Framework\Log\ScheduledTask\LogCleanupTaskHandler;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
-use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
@@ -22,10 +24,17 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  */
 class LogCleanupTaskHandlerTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
+    /**
+     * @var EntityRepository<ScheduledTaskCollection>
+     */
     private EntityRepository $scheduledTaskRepository;
 
+    /**
+     * @var EntityRepository<LogEntryCollection>
+     */
     private EntityRepository $logEntryRepository;
 
     private SystemConfigService $systemConfigService;
@@ -49,24 +58,24 @@ class LogCleanupTaskHandlerTest extends TestCase
 
     public function testCleanupWithNoLimits(): void
     {
-        $this->runWithOptions(-1, -1, ['test1', 'test2', 'test3']);
+        $this->runWithOptions(-1, -1, [1, 2, 3]);
     }
 
     public function testCleanupWithEntryLimit(): void
     {
-        $this->runWithOptions(-1, 1, ['test1']);
+        $this->runWithOptions(-1, 2, [1, 2]);
     }
 
     public function testCleanupWithAgeLimit(): void
     {
         $year = 60 * 60 * 24 * 31 * 12;
-        $this->runWithOptions((int) ($year * 1.5), -1, ['test1']);
+        $this->runWithOptions((int) ($year * 1.5), -1, [1]);
     }
 
     public function testCleanupWithBothLimits(): void
     {
         $year = 60 * 60 * 24 * 31 * 12;
-        $this->runWithOptions((int) ($year * 1.5), 2, ['test1']);
+        $this->runWithOptions((int) ($year * 1.5), 2, [1]);
     }
 
     public function testIsRegistered(): void
@@ -74,21 +83,18 @@ class LogCleanupTaskHandlerTest extends TestCase
         $registry = static::getContainer()->get(TaskRegistry::class);
         $registry->registerTasks();
 
-        $scheduledTaskRepository = static::getContainer()->get('scheduled_task.repository');
-
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', LogCleanupTask::getTaskName()));
-        /** @var ScheduledTaskEntity|null $task */
-        $task = $scheduledTaskRepository->search($criteria, Context::createDefaultContext())->first();
+        $task = $this->scheduledTaskRepository->search($criteria, Context::createDefaultContext())->first();
 
         static::assertNotNull($task);
         static::assertSame(LogCleanupTask::getDefaultInterval(), $task->getRunInterval());
     }
 
     /**
-     * @param list<string> $expectedMessages
+     * @param list<int> $logEntryNumbers
      */
-    private function runWithOptions(int $age, int $maxEntries, array $expectedMessages): void
+    private function runWithOptions(int $age, int $maxEntries, array $logEntryNumbers): void
     {
         $this->systemConfigService->set('core.logging.entryLifetimeSeconds', $age);
         $this->systemConfigService->set('core.logging.entryLimit', $maxEntries);
@@ -104,7 +110,7 @@ class LogCleanupTaskHandlerTest extends TestCase
         $handler->run();
 
         $results = $this->logEntryRepository->search(new Criteria(), $this->context);
-        static::assertEquals(\count($expectedMessages), $results->getTotal());
+        static::assertSame(\count($logEntryNumbers), $results->getTotal());
 
         $entries = $results->getEntities();
         $entriesJson = [];
@@ -113,8 +119,14 @@ class LogCleanupTaskHandlerTest extends TestCase
         }
 
         $entryMessages = array_column($entriesJson, 'message');
-        foreach ($expectedMessages as $message) {
-            static::assertContains($message, $entryMessages);
+        $entryContexts = array_column($entriesJson, 'context');
+        static::assertContainsOnlyArray($entryContexts);
+        $entryExtras = array_column($entriesJson, 'extra');
+        static::assertContainsOnlyArray($entryExtras);
+        foreach ($logEntryNumbers as $logEntryNumber) {
+            static::assertContains('test' . $logEntryNumber, $entryMessages);
+            static::assertContains(['contextTest' . $logEntryNumber => 'test' . $logEntryNumber], $entryContexts);
+            static::assertContains(['extraTest' . $logEntryNumber => 'test' . $logEntryNumber], $entryExtras);
         }
     }
 
@@ -126,18 +138,24 @@ class LogCleanupTaskHandlerTest extends TestCase
                     'message' => 'test1',
                     'level' => 12,
                     'channel' => 'test',
+                    'context' => ['contextTest1' => 'test1'],
+                    'extra' => ['extraTest1' => 'test1'],
                     'createdAt' => (new \DateTime('- 1 year'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ],
                 [
                     'message' => 'test2',
                     'level' => 42,
                     'channel' => 'test',
+                    'context' => ['contextTest2' => 'test2'],
+                    'extra' => ['extraTest2' => 'test2'],
                     'createdAt' => (new \DateTime('- 2 years'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ],
                 [
                     'message' => 'test3',
                     'level' => 1337,
                     'channel' => 'test',
+                    'context' => ['contextTest3' => 'test3'],
+                    'extra' => ['extraTest3' => 'test3'],
                     'createdAt' => (new \DateTime('- 3 years'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ],
             ],

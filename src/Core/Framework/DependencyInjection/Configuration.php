@@ -124,6 +124,10 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue('php')
                     ->values(['php', DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY, DownloadResponseGenerator::X_ACCEL_DOWNLOAD_STRATEGY])
                 ->end()
+                ->scalarNode('private_local_path_prefix')
+                    ->defaultValue('')
+                    ->info('Path prefix to be prepended to the path when using a local download strategy')
+                ->end()
             ->end();
 
         return $rootNode;

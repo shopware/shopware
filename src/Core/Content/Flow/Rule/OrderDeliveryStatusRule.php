@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class OrderDeliveryStatusRule extends FlowRule
@@ -26,6 +26,8 @@ class OrderDeliveryStatusRule extends FlowRule
 
     /**
      * @param list<string> $stateIds
+     *
+     * @internal
      */
     public function __construct(
         public string $operator = Rule::OPERATOR_EQ,

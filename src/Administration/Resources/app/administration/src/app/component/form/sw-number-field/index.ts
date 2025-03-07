@@ -30,7 +30,6 @@ Component.register('sw-number-field', {
     },
 
     computed: {
-
         currentValue: {
             get(): number | undefined {
                 if (this.value !== null) {

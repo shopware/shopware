@@ -101,7 +101,9 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
         jest.advanceTimersByTime(1000);
 
         expect(wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__prefix').props('modelValue')).toBe('PREFIX_');
-        expect(wrapper.findByLabel('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCodeLength').element.value).toBe('4');
+        expect(
+            wrapper.findByLabel('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCodeLength').element.value,
+        ).toBe('4');
         expect(wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__suffix').props('modelValue')).toBe('_SUFFIX');
 
         await wrapper.vm.$nextTick();

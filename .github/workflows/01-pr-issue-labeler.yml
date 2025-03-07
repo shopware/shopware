@@ -5,16 +5,16 @@ on:
 - issues
 
 jobs:
-  # build:
-  #   runs-on: ubuntu-24.04
-  #   steps:
-  #   - uses: srvaroa/labeler@v1.13.0
-  #     env:
-  #       GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+  label:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: srvaroa/labeler@v1.13.0
+      env:
+        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
   apply-team-label:
     runs-on: ubuntu-24.04
-    # if: github.event_name == 'issues' && ( github.event.action == 'opened' || github.event.action == 'reopened' )
+    if: github.event_name == 'issues' && ( github.event.action == 'opened' || github.event.action == 'reopened' )
     env:
       TEAM_NAME: "customer-support"
       TEAM_LABEL: "domain/customer-support"
@@ -29,29 +29,26 @@ jobs:
           scope: shopware
           identity: ReadCollaborators
       -  uses: tspascoal/get-user-teams-membership@v3
-         id: checkUserMember
+         id: actorTeams
          with:
             username: ${{ github.actor }}
             GITHUB_TOKEN: ${{ steps.sts.outputs.token }}
       - name: debug
+        if: runner.debug
         run: |
-          echo "${{ steps.actorTeams.outputs.teams }}"
+          echo "${{ github.actor }} is member of teams: ${{ steps.actorTeams.outputs.teams }}"
       - if: ${{ contains(steps.actorTeams.outputs.teams, github.env.TEAM_NAME) }}
         uses: actions/github-script@v7
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         with:
-          script: |-
-            # const issueNumber = context.payload.issue.number;
-            const issueNumber = '7356';
-            const team = process.env.TEAM_NAME;
+          script: |
+            const issueNumber = context.payload.issue.number;
             const teamLabel = process.env.TEAM_LABEL;
 
             const response = await github.rest.issues.addLabels({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issueNumber,
-              labels: [teamLabel]
+              labels: [teamLabel],
             });
           
             if (response.status !== 200) {

@@ -64,9 +64,7 @@ export default class OffcanvasMenuPlugin extends Plugin {
             window.PluginManager.initializePlugins();
         }
         // re-open the menu if the url parameter is set
-        window.addEventListener('load', () => {
-            this._openMenuViaUrlParameter();
-        });
+        this._openMenuViaUrlParameter();
     }
 
     /**
@@ -80,8 +78,6 @@ export default class OffcanvasMenuPlugin extends Plugin {
         OffCanvas.open(this._content, this._registerEvents.bind(this), this.options.position);
         OffCanvas.setAdditionalClassName(this.options.additionalOffcanvasClass);
 
-        this._removeNotNeededBackdrops();
-
         this.$emitter.publish('openMenu');
     }
 
@@ -89,15 +85,10 @@ export default class OffcanvasMenuPlugin extends Plugin {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('offcanvas') && urlParams.get('offcanvas') === 'menu') {
             document.querySelector('[data-off-canvas-menu="true"]')?.click();
-        }
-    }
-
-    _removeNotNeededBackdrops() {
-        const backdrops = document.querySelectorAll('.offcanvas-backdrop');
-        for (let index = 0; index < backdrops.length; index++) {
-            const backdrop = backdrops[index];
-            if (index !== backdrops.length - 1) { // last added backdrop should stay
-                backdrop.remove();
+            if (window.history.replaceState) {
+                const url = new URL(window.location);
+                url.searchParams.delete('offcanvas');
+                window.history.replaceState({}, document.title, url);
             }
         }
     }

@@ -123,7 +123,8 @@ async function findIssueInProject(github, core, projectNumber, issueNumber) {
           id
           number
         }
-      }`,
+      }
+    }`,
     {
       projectNumber,
       issueNumber,

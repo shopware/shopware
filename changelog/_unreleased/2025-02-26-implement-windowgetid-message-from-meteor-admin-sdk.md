@@ -5,5 +5,5 @@ author: Sebastian Franze
 author_email: s.franze@shopware.com
 ---
 # Administration
-* Added `windotId` to `contextStore.app`
+* Added `windowId` to `contextStore.app`
 * Added handler for `windowGetId` message from Admin SDK

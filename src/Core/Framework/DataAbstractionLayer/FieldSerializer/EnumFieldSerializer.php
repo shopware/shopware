@@ -51,7 +51,11 @@ class EnumFieldSerializer extends AbstractFieldSerializer
         $field = $this->checkFieldTypeOrThrowInvalidFieldException($field);
         $fieldValue = $this->castValueToFieldTypeValue($field, $value);
 
-        return ($value !== null) ? $field->getEnum()::tryFrom($fieldValue) : null;
+        if ($fieldValue === null) {
+            return null;
+        }
+
+        return $field->getEnum()::tryFrom($fieldValue);
     }
 
     /**
@@ -85,7 +89,7 @@ class EnumFieldSerializer extends AbstractFieldSerializer
         return $field;
     }
 
-    private function castValueToFieldTypeValue(EnumField $field, mixed $value): string|int|null
+    private function castValueToFieldTypeValue(EnumField $field, string|int|null $value): string|int|null
     {
         if ($value === null) {
             return null;

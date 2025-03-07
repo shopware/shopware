@@ -82,6 +82,9 @@ describe('OffCanvasMenuPlugin tests', () => {
 
         const el = document.querySelector('[data-offcanvas-menu]');
 
+        window.PluginManager.register = jest.fn();
+        window.PluginManager.initializePlugins = jest.fn(() => Promise.resolve());
+
         window.focusHandler = {
             saveFocusState: jest.fn(),
             resumeFocusState: jest.fn(),

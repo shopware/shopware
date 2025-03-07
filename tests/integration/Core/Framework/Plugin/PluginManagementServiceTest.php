@@ -28,7 +28,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  * @internal
  */
 #[Group('slow')]
-#[Group('skip-paratest')]
 class PluginManagementServiceTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -80,7 +80,7 @@ Once a Bug features the `domain/` label, it will automatically appear in the cor
 
 The task of adding descriptions to every [label](https://github.com/shopware/shopware/labels) is a work-in-progress. Here is an overview of label families and good-to-know one-offs:
 * `area/`: for cross-cutting, recurring attributes or themes.
-* `backport/`: overseen by Product Operations, these trigger workflows to backport changes.
+* `backport-`: overseen by Product Operations, these trigger workflows to backport changes.
 * `component/`: our extensive list of component offerings replicates what Shopware delivery teams have historically used in Jira to organize their backlogs. In time, they may choose to remove these labels.
 * `Default (Platform)`: applies to all newly created GitHub issues and drives Jira syncing. Will deprecate when all Shopware delivery teams have migrated to GitHub.
 * `Domain:` or `domain/`: used by Shopware delivery teams to push items to their backlogs. The domain names refer to the different product areas for which these teams are responsible.

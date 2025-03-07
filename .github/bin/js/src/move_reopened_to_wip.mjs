@@ -149,6 +149,11 @@ export const main = async (github, core, context) => {
   const issueResult = await findIssueInProject(github, core, 22, 7160);
   console.debug(issueResult);
 
+  // only handle issues that are already assinged to the project
+  if (!issueResult.project) {
+    return;
+  }
+
   // const issue = context.payload.issue;
   // core.debug(`Issue node ID: ${issue.node_id}`)
 
@@ -159,9 +164,8 @@ export const main = async (github, core, context) => {
     throw new Error(`Option "${IN_PROGRESS_OPTION_NAME}" not found`)
   }
 
-  // core.info(`Adding card for issue ${issue.number}`)
-
-  // const cardId = (await addCard(github, core, projectInfo.node_id, issue.node_id)).node_id
+  core.info(`get card for issue ${issue.number}`)
+  const cardId = (await addCard(github, core, projectInfo.node_id, issue.node_id)).node_id
 
   await setFieldValue(github, core, projectInfo.node_id, cardId, projectInfo.status_field_id, inProgressOption.id)
 }

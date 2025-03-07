@@ -279,7 +279,7 @@
                     {% block sw_cms_element_product_slider_config_settings_rotate %}
                     {# @todo NEXT-40267 - Re-implement after tiny-slider has been replaced, due to accessibility issues #}
                     <sw-switch-field
-                        :value="true"
+                        :value="false"
                         class="sw-cms-el-config-product-slider__tab-settings-rotate-switch"
                         :label="$tc('sw-cms.elements.general.config.label.autoSlide')"
                         :help-text="$tc('sw-cms.elements.general.config.helpText.autoSlide')"
@@ -311,7 +311,6 @@
                         number-type="int"
                         :min="0"
                         :max="3600000"
-                        :disabled="true"
                         :label="$tc('sw-cms.elements.general.config.label.speed')"
                         :placeholder="$tc('sw-cms.elements.general.config.label.speed')"
                         :help-text="$tc('sw-cms.elements.general.config.helpText.speed')"

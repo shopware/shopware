@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @deprecated tag:v6.7.0 - reason:becomes-final - Will become final in v6.7.0
  */
 #[Package('fundamentals@after-sales')]
 class ShippingCityRule extends Rule

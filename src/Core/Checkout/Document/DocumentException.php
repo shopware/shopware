@@ -181,18 +181,12 @@ class DocumentException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return GuestNotAuthenticatedException
-     */
-    public static function guestNotAuthenticated(): self|GuestNotAuthenticatedException
+    public static function guestNotAuthenticated(): GuestNotAuthenticatedException
     {
         return new GuestNotAuthenticatedException();
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return WrongGuestCredentialsException
-     */
-    public static function wrongGuestCredentials(): self|WrongGuestCredentialsException
+    public static function wrongGuestCredentials(): WrongGuestCredentialsException
     {
         return new WrongGuestCredentialsException();
     }

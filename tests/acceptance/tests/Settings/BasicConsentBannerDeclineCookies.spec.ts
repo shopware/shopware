@@ -8,8 +8,6 @@ test(
     InstanceMeta,
 }) => {
     test.skip(InstanceMeta.isSaaS, 'Cache invalidation does not happen immediately on SaaS');
-    // test.skip(InstanceMeta.features['ACCESSIBILITY_TWEAKS'], 'Blocked by https://shopware.atlassian.net/browse/NEXT-40635, ' +
-    //     'https://shopware.atlassian.net/browse/NEXT-40156');
 
     await TestDataService.setSystemConfig({'core.basicInformation.acceptAllCookies': true});
     const product = await TestDataService.createBasicProduct();

@@ -37,15 +37,7 @@ export default function viteAssetPlugin(isProd: boolean, adminDir: string): Plug
             const staticMappings = [
                 {
                     directory: path.resolve(adminDir, 'static'),
-                    publicPath: '/static',
-                },
-                {
-                    directory: path.resolve(adminDir, 'static'),
-                    publicPath: '/administration/static',
-                },
-                {
-                    directory: path.resolve(adminDir, 'static'),
-                    publicPath: '/bundles/administration/static',
+                    publicPath: '/bundles/administration/administration/static',
                 },
             ];
 

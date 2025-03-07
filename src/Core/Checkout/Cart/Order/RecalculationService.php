@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
+use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\Transformer\AddressTransformer;
@@ -361,7 +362,7 @@ class RecalculationService
 
             // validate cart against the context rules
             $validatedCart = $this->cartRuleLoader->loadByCart($live, $cart, $behavior)->getCart();
-            $validatedCart->addErrors(...$cart->getErrors()->filter(fn ($error) => !$error->isPersistent()));
+            $validatedCart->addErrors(...$cart->getErrors()->filter(fn (Error $error) => !$error->isPersistent()));
 
             return $validatedCart;
         });

@@ -12,7 +12,7 @@ body:
       attributes:
         label: User story
         description: |
-        Tell us about your desired technical feature/functionality, filling in the elements in brackets with your own content: As a [user persona], I would like to [goal], So that I can [benefit in some way].
+        Tell us about your desired technical feature/functionality, filling in the elements in brackets with your own content: As a [user persona], I would like to [goal], so that I can [benefit in some way].
       validations:
         required: true
     - type: textarea

@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Api;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -15,7 +14,6 @@ use Shopware\Core\Kernel;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 class ApiAliasTest extends TestCase
 {
     use KernelTestBehaviour;

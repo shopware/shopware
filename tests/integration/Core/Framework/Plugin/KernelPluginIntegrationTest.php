@@ -39,7 +39,6 @@ use Symfony\Component\Cache\Adapter\ArrayAdapter;
  * @internal
  */
 #[Group('slow')]
-#[Group('skip-paratest')]
 class KernelPluginIntegrationTest extends TestCase
 {
     use PluginIntegrationTestBehaviour;

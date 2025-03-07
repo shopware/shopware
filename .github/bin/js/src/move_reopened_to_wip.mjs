@@ -1,5 +1,5 @@
 /** @type number */
-const FRAMEWORK_GROUP_PROJECT_NUMBER = 22;
+const FRAMEWORK_GROUP_PROJECT_NUMBER = 27;
 const IN_PROGRESS_OPTION_NAME = 'In Progress';
 
 /**
@@ -146,14 +146,9 @@ async function findIssueInProject(github, core, projectNumber, issueNumber) {
  * @param context {import('@actions/github').context} info about the current event
  */
 export const main = async (github, core, context) => {
-  // const issue = context.payload.issue;
-  // core.debug(`Issue node ID: ${issue.node_id}`)
-
-  const issue = await findIssueInProject(github, core, 22, 7160);
-  console.debug(issue);
-
-  // only handle issues that are already assinged to the project
+  const issue = await findIssueInProject(github, core, FRAMEWORK_GROUP_PROJECT_NUMBER, context.payload.issue.number);
   if (!issue.project) {
+    core.debug(`skipping: issue ${issue.number} is not associated with project ${FRAMEWORK_GROUP_PROJECT_NUMBER}`)
     return;
   }
 

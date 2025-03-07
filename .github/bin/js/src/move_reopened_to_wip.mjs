@@ -146,16 +146,16 @@ async function findIssueInProject(github, core, projectNumber, issueNumber) {
  * @param context {import('@actions/github').context} info about the current event
  */
 export const main = async (github, core, context) => {
-  const issueResult = await findIssueInProject(github, core, 22, 7160);
-  console.debug(issueResult);
-
-  // only handle issues that are already assinged to the project
-  if (!issueResult.project) {
-    return;
-  }
-
   // const issue = context.payload.issue;
   // core.debug(`Issue node ID: ${issue.node_id}`)
+
+  const issue = await findIssueInProject(github, core, 22, 7160);
+  console.debug(issue);
+
+  // only handle issues that are already assinged to the project
+  if (!issue.project) {
+    return;
+  }
 
   const projectInfo = await getProjectInfo(github, core, FRAMEWORK_GROUP_PROJECT_NUMBER)
   const inProgressOption = projectInfo.status_options.find(x => x.name == IN_PROGRESS_OPTION_NAME)

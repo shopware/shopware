@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\FeatureFlag;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Extension\FeatureFlagExtension;
 use Shopware\Core\Framework\Feature;
@@ -17,7 +16,6 @@ use Twig\Loader\FilesystemLoader;
  *
  * @phpstan-import-type FeatureFlagConfig from Feature
  */
-#[Group('skip-paratest')]
 class FeatureTest extends TestCase
 {
     use KernelTestBehaviour;

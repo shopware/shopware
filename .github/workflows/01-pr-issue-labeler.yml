@@ -61,7 +61,10 @@ jobs:
     permissions:
       id-token: write
       issues: write
+      contents: read
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - id: sts
         continue-on-error: true
         uses: octo-sts/action@v1.0.0

@@ -77,3 +77,47 @@ jobs:
       with:
         allowed-skips: rufus, commercial
         jobs: ${{ toJSON(needs) }}
+
+
+  apply-team-label:
+    runs-on: ubuntu-24.04
+    # if: github.event_name == 'issues' && ( github.event.action == 'opened' || github.event.action == 'reopened' )
+    env:
+      TEAM_LABEL: "domain/customer-support"
+    permissions:
+      id-token: write
+      issues: write
+    steps:
+      - id: sts
+        continue-on-error: true
+        uses: octo-sts/action@v1.0.0
+        with:
+          scope: shopware
+          identity: ReadCollaborators
+      -  uses: tspascoal/get-user-teams-membership@v3
+         id: checkUserMember
+         with:
+            username: ${{ github.actor }}
+            GITHUB_TOKEN: ${{ steps.sts.outputs.token }}
+      - name: debug
+        run: |
+          echo "${{ steps.actorTeams.outputs.teams }}"
+      - if: ${{ contains(steps.actorTeams.outputs.teams, 'customer-support') }}
+        uses: actions/github-script@v7
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        with:
+          script: |-
+            # const issueNumber = context.payload.issue.number;
+            const issueNumber = '7356';
+
+            const response = await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              labels: [teamLabel]
+            });
+          
+            if (response.status !== 200) {
+              throw new Error(`Failed to add label ${teamLabel} to issue #${issueNumber}`);
+            }

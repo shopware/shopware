@@ -174,7 +174,7 @@ async function findInProject(github, core, context, projectNumber) {
  * @param context {import('@actions/github').context} info about the current event
  */
 export const main = async (github, core, context) => {
-  const issue = await findIssueInProject(github, core, context, FRAMEWORK_GROUP_PROJECT_NUMBER, context.payload.issue.number);
+  const issue = await findInProject(github, core, context, FRAMEWORK_GROUP_PROJECT_NUMBER, context.payload.issue.number);
   if (!issue.project) {
     core.debug(`skipping: issue/pr ${issue.number} is not associated with project ${FRAMEWORK_GROUP_PROJECT_NUMBER}`)
     return;

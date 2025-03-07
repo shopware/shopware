@@ -112,12 +112,22 @@
                                 {% block buy_widget_tax_link %}
                                     {% set cmsPath = path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) %}
 
-                                    <button class="btn btn-link-inline"
-                                            type="button"
-                                            data-ajax-modal="true"
-                                            data-url="{{ cmsPath }}">
-                                        {{ taxText }}
-                                    </button>
+                                    {% if feature('ACCESSIBILITY_TWEAKS') %}
+                                        <button class="btn btn-link-inline product-detail-tax-link"
+                                                type="button"
+                                                data-ajax-modal="true"
+                                                data-url="{{ cmsPath }}">
+                                            {{ taxText }}
+                                        </button>
+                                    {% else %}
+                                        <a class="product-detail-tax-link"
+                                           href="{{ cmsPath }}"
+                                           title="{{ taxText }}"
+                                           data-ajax-modal="true"
+                                           data-url="{{ cmsPath }}">
+                                            {{ taxText }}
+                                        </a>
+                                    {% endif %}
                                 {% endblock %}
                             </p>
                         </div>
@@ -145,7 +155,6 @@
                                     style: 'text-primary'
                                 } %}
                                 <a
-                                    data-bs-toggle="tab"
                                     class="product-detail-reviews-link"
                                     data-off-canvas-tabs="true"
                                     data-remote-click="true"

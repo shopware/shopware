@@ -18,18 +18,8 @@ export default class OffcanvasMenuPlugin extends Plugin {
         loadingIconSelector: '.js-navigation-offcanvas-loading-icon',
         linkLoadingClass: 'is-loading',
         menuSelector: '.navigation-offcanvas-container',
-        rootSelector: '.navigation-offcanvas-root',
-        overlayHeadlineSelector: '.navigation-offcanvas-headline',
         initialContentSelector: '.js-navigation-offcanvas-initial-content',
-
-        homeBtnClass: 'is-home-link',
-        backBtnClass: 'is-back-link',
-        transitionClass: 'has-transition',
-        overlayClass: '.navigation-offcanvas-overlay',
-        placeholderClass: '.navigation-offcanvas-placeholder',
-
-        forwardAnimationType: 'forwards',
-        backwardAnimationType: 'backwards',
+        currentCategorySelector: 'a.is-current-category',
     };
 
     init() {
@@ -87,11 +77,9 @@ export default class OffcanvasMenuPlugin extends Plugin {
      */
     _getLinkEventHandler(event, link) {
 
-        // Initial root navigation
+        // Initial navigation
         if (!link) {
             const initialContentElement = document.querySelector(this.options.initialContentSelector);
-            this._content = initialContentElement.innerHTML;
-
             const url = `${this.options.navigationUrl}?navigationId=${window.activeNavigationId}`;
 
             return this._fetchMenu(url, (htmlResponse) => {
@@ -117,21 +105,9 @@ export default class OffcanvasMenuPlugin extends Plugin {
             return;
         }
 
-        let showOverlay = true;
-
-        if (link.classList.contains(this.options.homeBtnClass) ||
-            link.classList.contains(this.options.backBtnClass) && !url.includes('navigationId')) {
-            showOverlay = false;
-        }
-
-        // Save the focus of the root menu link
-        if (showOverlay && this._overlay?.classList.contains('d-none')) {
-            window.focusHandler.saveFocusState('offcanvas-menu', link);
-        }
-
         this.$emitter.publish('getLinkEventHandler');
 
-        this._fetchMenu(url, this._updateOverlay.bind(this, showOverlay));
+        this._fetchMenu(url, this._updateContent.bind(this));
     }
 
     /**
@@ -165,72 +141,27 @@ export default class OffcanvasMenuPlugin extends Plugin {
     }
 
     /**
-     * update the overlay content with the
-     * subcategory navigation
+     * Update the content with the current navigation.
      *
-     * @param {boolean} showOverlay
      * @param {string} content
      * @private
      */
-    _updateOverlay(showOverlay, content) {
+    _updateContent(content) {
         this._content = content;
 
         if (OffCanvas.exists()) {
-            this._overlay = this._createOverlay(content);
+            const container = OffcanvasMenuPlugin._getOffcanvasMenu();
 
-            if (showOverlay) {
-                this._showOverlay(this._overlay);
-            } else {
-                this._hideOverlay(this._overlay);
-            }
+            container.innerHTML = content;
+
+            // Focus the current category
+            const currentCategory = container.querySelector(this.options.currentCategorySelector);
+            window.focusHandler.setFocus(currentCategory, { focusVisible: true });
 
             this._registerEvents();
         }
 
-        this.$emitter.publish('updateOverlay');
-    }
-
-    _createOverlay(content) {
-        const offCanvasMenu = OffcanvasMenuPlugin._getOffcanvasMenu();
-
-        let overlay = offCanvasMenu.querySelector(this.options.overlayClass);
-
-        if (!overlay) {
-            overlay = document.createElement('div');
-            overlay.classList.add(this.options.overlayClass.substr(1));
-            overlay.style.minHeight = `${offCanvasMenu.clientHeight}px`;
-            offCanvasMenu.appendChild(overlay);
-        }
-
-        overlay.innerHTML = content;
-
-        return overlay;
-    }
-
-    _showOverlay(overlay) {
-        const offcanvasContainer = OffcanvasMenuPlugin._getOffcanvasMenu();
-        const rootMenu = offcanvasContainer.querySelector(this.options.rootSelector);
-
-        rootMenu.classList.add('d-none');
-        overlay.classList.remove('d-none');
-
-        // Focus the headline with the main category to which the sub-menu belongs.
-        const headline = overlay.querySelector(this.options.overlayHeadlineSelector);
-        window.focusHandler.setFocus(headline);
-
-        this.$emitter.publish('showOverlay');
-    }
-
-    _hideOverlay(overlay) {
-        const offcanvasContainer = OffcanvasMenuPlugin._getOffcanvasMenu();
-        const rootMenu = offcanvasContainer.querySelector(this.options.rootSelector);
-
-        rootMenu.classList.remove('d-none');
-        overlay.classList.add('d-none');
-
-        window.focusHandler.resumeFocusState('offcanvas-menu', { focusVisible: true });
-
-        this.$emitter.publish('hideOverlay');
+        this.$emitter.publish('updateContent');
     }
 
     /**

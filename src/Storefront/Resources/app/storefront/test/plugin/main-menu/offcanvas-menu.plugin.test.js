@@ -123,7 +123,7 @@ describe('OffCanvasMenuPlugin tests', () => {
 
         jest.runAllTimers();
 
-        const subCategoryLinks = document.querySelectorAll('.navigation-offcanvas-overlay .navigation-offcanvas-link');
+        const subCategoryLinks = document.querySelectorAll('.navigation-offcanvas .navigation-offcanvas-link');
 
         // Ensure sub-categories are rendered
         expect(subCategoryLinks[0].textContent).toContain('Cars');

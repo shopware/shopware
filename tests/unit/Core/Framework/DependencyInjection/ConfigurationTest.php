@@ -191,12 +191,6 @@ class ConfigurationTest extends TestCase
         static::assertArrayHasKey('dispatch_enabled', $nodes);
         static::assertInstanceOf(ScalarNodeDefinition::class, $nodes['dispatch_enabled']);
 
-        static::assertArrayHasKey('entity_dispatch_enabled', $nodes);
-        static::assertInstanceOf(ScalarNodeDefinition::class, $nodes['entity_dispatch_enabled']);
-
-        static::assertArrayHasKey('consent_dispatch_enabled', $nodes);
-        static::assertInstanceOf(ScalarNodeDefinition::class, $nodes['consent_dispatch_enabled']);
-
         static::assertArrayHasKey('base_uri', $nodes);
         static::assertInstanceOf(ScalarNodeDefinition::class, $nodes['base_uri']);
 

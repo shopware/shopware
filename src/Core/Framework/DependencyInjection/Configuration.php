@@ -772,8 +772,6 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('gateway')
                     ->children()
                         ->scalarNode('dispatch_enabled')->end()
-                        ->scalarNode('entity_dispatch_enabled')->end()
-                        ->scalarNode('consent_dispatch_enabled')->end()
                         ->scalarNode('base_uri')->end()
                         ->scalarNode('batch_size')->end()
                     ->end()

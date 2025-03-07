@@ -94,7 +94,7 @@ class EntityDispatchServiceTest extends TestCase
         static::assertEquals(new CollectEntityDataMessage('current-shop-id'), $messages[0]->getMessage());
     }
 
-    public function testItDoesNotDispatchesCollectEntityDataMessageIsCollectionIsDisabled(): void
+    public function testItDoesNotDispatchesCollectEntityDataMessageIfCollectionIsDisabled(): void
     {
         $messageBus = new CollectingMessageBus();
 

@@ -11,8 +11,7 @@ shopware:
         integrations: ['Symfony']
 
     usage_data:
+        collection_enabled: true
         gateway:
-            dispatch_enabled: true
-            entity_dispatch_enabled: false
-            consent_dispatch_enabled: false
+            dispatch_enabled: false
             base_uri: 'http://localhost:8888'

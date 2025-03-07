@@ -51,8 +51,6 @@ class ConsentReporterTest extends TestCase
             new StaticSystemConfigService(),
             $this->createMock(InstanceService::class),
             'APP_URL',
-            true,
-            true,
         );
 
         $reporter->reportConsent(new ConsentStateChangedEvent(ConsentState::REQUESTED));
@@ -78,8 +76,6 @@ class ConsentReporterTest extends TestCase
             new StaticSystemConfigService(),
             $this->createMock(InstanceService::class),
             'APP_URL',
-            true,
-            true,
         );
 
         $reporter->reportConsent(new ConsentStateChangedEvent(ConsentState::REQUESTED));
@@ -101,8 +97,6 @@ class ConsentReporterTest extends TestCase
             new StaticSystemConfigService(),
             $this->createMock(InstanceService::class),
             'APP_URL',
-            true,
-            true,
         );
 
         $reporter->reportConsent(new ConsentStateChangedEvent(ConsentState::REQUESTED));
@@ -128,8 +122,6 @@ class ConsentReporterTest extends TestCase
             new StaticSystemConfigService(),
             $instanceService,
             'APP_URL',
-            true,
-            true,
         );
 
         $reporter->reportConsent(new ConsentStateChangedEvent(ConsentState::REQUESTED));
@@ -153,49 +145,7 @@ class ConsentReporterTest extends TestCase
             ]),
             $this->createMock(InstanceService::class),
             'APP_URL',
-            true,
-            true,
         );
-
-        $reporter->reportConsent(new ConsentStateChangedEvent(ConsentState::REQUESTED));
-    }
-
-    public function testReportConsentDoesNotSendRequestInDevEnvironment(): void
-    {
-        $httpClient = $this->createMock(HttpClientInterface::class);
-
-        $reporter = new ConsentReporter(
-            $httpClient,
-            $this->createMock(ShopIdProvider::class),
-            new StaticSystemConfigService(),
-            $this->createMock(InstanceService::class),
-            'APP_URL',
-            false,
-            false,
-        );
-
-        $httpClient->expects(static::never())
-            ->method('request');
-
-        $reporter->reportConsent(new ConsentStateChangedEvent(ConsentState::REQUESTED));
-    }
-
-    public function testReportConsentDoesNotSendRequestIfConsentDispatchIsDisabled(): void
-    {
-        $httpClient = $this->createMock(HttpClientInterface::class);
-
-        $reporter = new ConsentReporter(
-            $httpClient,
-            $this->createMock(ShopIdProvider::class),
-            new StaticSystemConfigService(),
-            $this->createMock(InstanceService::class),
-            'APP_URL',
-            true, // deprecated and will be replaced by consentDispatchEnabled
-            false,
-        );
-
-        $httpClient->expects(static::never())
-            ->method('request');
 
         $reporter->reportConsent(new ConsentStateChangedEvent(ConsentState::REQUESTED));
     }
@@ -217,8 +167,6 @@ class ConsentReporterTest extends TestCase
             new StaticSystemConfigService(),
             $this->createMock(InstanceService::class),
             'APP_URL',
-            true,
-            true,
         );
 
         $reporter->reportConsent(new ConsentStateChangedEvent(ConsentState::REQUESTED));

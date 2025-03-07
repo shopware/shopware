@@ -4,23 +4,24 @@
     display: grid;
 
     &__card {
-        display: grid;
+        display: flex;
+        flex-flow: column nowrap;
         height: 100%;
-        grid-template-rows: auto 1fr;
+        width: 100%;
 
-        &.sw-card {
+        &.mt-card {
             border: 1px solid $color-gray-300;
             filter: none;
 
-            .sw-card__toolbar {
+            .mt-card__toolbar {
                 border: 0;
             }
 
-            .sw-card__content {
+            .mt-card__content {
                 grid-template-rows: auto 1fr;
             }
 
-            .sw-card__content,
+            .mt-card__content,
             .sw-card-section {
                 position: relative;
                 padding: 0;
@@ -142,5 +143,9 @@
             font-size: $font-size-xxs;
             color: $color-gray-500;
         }
+    }
+
+    .mt-switch {
+        margin-bottom: 0;
     }
 }

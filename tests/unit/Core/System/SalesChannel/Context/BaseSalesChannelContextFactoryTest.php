@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\System\SalesChannel\Context;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -36,7 +35,8 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
-use Shopware\Core\System\SalesChannel\Context\BaseContextFactory;
+use Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\ContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -44,14 +44,15 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(BaseContextFactory::class)]
-class BaseContextFactoryTest extends TestCase
+#[CoversClass(BaseSalesChannelContextFactory::class)]
+class BaseSalesChannelContextFactoryTest extends TestCase
 {
     /**
      * @param array<string, mixed> $options
@@ -90,7 +91,6 @@ class BaseContextFactoryTest extends TestCase
         $currencyCountryRepository = new StaticEntityRepository([new CurrencyCountryRoundingCollection($entitySearchResult[CurrencyCountryRoundingDefinition::ENTITY_NAME] ?? [])]);
 
         $connection = $this->createMock(Connection::class);
-        $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
         $connection->expects(static::once())->method('fetchAssociative')->willReturn($fetchDataResult);
 
         if ($fetchDataResult === false) {
@@ -109,7 +109,9 @@ class BaseContextFactoryTest extends TestCase
             $connection->expects(static::atMost(1))->method('createQueryBuilder')->willReturn(new QueryBuilder($connection));
         }
 
-        $factory = new BaseContextFactory(
+        $contextProvider = new ContextFactory($connection, new CollectingEventDispatcher());
+
+        $factory = new BaseSalesChannelContextFactory(
             $salesChannelRepository,
             $currencyRepository,
             $customerGroupRepository,
@@ -117,9 +119,9 @@ class BaseContextFactoryTest extends TestCase
             $taxRepository,
             $paymentMethodRepository,
             $shippingMethodRepository,
-            $connection,
             $countryStateRepository,
-            $currencyCountryRepository
+            $currencyCountryRepository,
+            $contextProvider
         );
 
         $factory->create(TestDefaults::SALES_CHANNEL, $options);

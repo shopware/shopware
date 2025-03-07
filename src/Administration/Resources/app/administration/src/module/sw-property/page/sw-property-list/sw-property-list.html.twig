@@ -49,6 +49,7 @@
             class="sw-property-list__button-create"
             :disabled="!acl.can('property.creator')"
             variant="primary"
+            size="default"
             @click="$router.push({ name: 'sw.property.create' })"
         >
             {{ $tc('sw-property.list.buttonAddProperty') }}

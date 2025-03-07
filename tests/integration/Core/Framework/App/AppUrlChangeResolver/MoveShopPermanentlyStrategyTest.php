@@ -64,7 +64,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
             ->with(
                 static::callback(static fn (Manifest $manifest): bool => $manifest->getPath() === $appDir),
                 $app->getId(),
-                static::isType('string'),
+                static::isString(),
                 static::isInstanceOf(Context::class)
             );
 

@@ -65,10 +65,10 @@
             <argument type="tagged_iterator" tag="tax.rule_type_filter"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="currency_country_rounding.repository"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\BaseContextFactory"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory"/>
         </service>
 
-        <service id="Shopware\Core\System\SalesChannel\Context\BaseContextFactory">
+        <service id="Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory">
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="currency.repository"/>
             <argument type="service" id="customer_group.repository"/>
@@ -76,18 +76,26 @@
             <argument type="service" id="tax.repository"/>
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="shipping_method.repository"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="country_state.repository"/>
             <argument type="service" id="currency_country_rounding.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\ContextFactory"/>
         </service>
 
-        <service id="Shopware\Core\System\SalesChannel\Context\CachedBaseContextFactory" decorates="Shopware\Core\System\SalesChannel\Context\BaseContextFactory">
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\CachedBaseContextFactory.inner"/>
+        <service id="Shopware\Core\System\SalesChannel\Context\ContextFactory">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\Context\CachedBaseSalesChannelContextFactory"
+                 decorates="Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory">
+            <argument type="service" id=".inner"/>
             <argument type="service" id="cache.object"/>
         </service>
 
-        <service id="Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory" decorates="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory" decoration-priority="-1000">
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory.inner"/>
+        <service id="Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory"
+                 decorates="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"
+                 decoration-priority="-1000">
+            <argument type="service" id=".inner"/>
             <argument type="service" id="cache.object"/>
         </service>
 

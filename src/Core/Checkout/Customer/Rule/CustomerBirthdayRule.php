@@ -12,13 +12,16 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class CustomerBirthdayRule extends Rule
 {
     final public const RULE_NAME = 'customerBirthday';
 
+    /**
+     * @internal
+     */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
         protected ?string $birthday = null
@@ -29,14 +32,14 @@ class CustomerBirthdayRule extends Rule
     public function getConstraints(): array
     {
         $constraints = [
-            'operator' => RuleConstraints::datetimeOperators(),
+            'operator' => RuleConstraints::dateOperators(),
         ];
 
         if ($this->operator === self::OPERATOR_EMPTY) {
             return $constraints;
         }
 
-        $constraints['birthday'] = RuleConstraints::datetime();
+        $constraints['birthday'] = RuleConstraints::date();
 
         return $constraints;
     }
@@ -74,13 +77,13 @@ class CustomerBirthdayRule extends Rule
 
         $birthdayValue = new \DateTime($this->birthday);
 
-        return RuleComparison::datetime($customerBirthday, $birthdayValue, $this->operator);
+        return RuleComparison::date($customerBirthday, $birthdayValue, $this->operator);
     }
 
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
             ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, true)
-            ->dateTimeField('birthday');
+            ->dateField('birthday');
     }
 }

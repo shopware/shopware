@@ -228,7 +228,7 @@ class AdministrationController extends AbstractController
 
         if ($customer->getBoundSalesChannel()) {
             $message .= ' in the Sales Channel {{ salesChannel }}';
-            $params['{{ salesChannel }}'] = $customer->getBoundSalesChannel()->getName();
+            $params['{{ salesChannel }}'] = (string) $customer->getBoundSalesChannel()->getName();
         }
 
         $violations = new ConstraintViolationList();

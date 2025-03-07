@@ -31,4 +31,16 @@
     &__default-value-switch {
         margin-right: 12px;
     }
+
+    .sw-data-grid__cell-content .mt-switch,
+    .sw-data-grid__cell-content .mt-field {
+        margin-bottom: 0;
+    }
+
+    &__position-buttons {
+        .mt-icon {
+            display: flex;
+            margin: 0 auto;
+        }
+    }
 }

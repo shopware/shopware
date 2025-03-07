@@ -52,6 +52,7 @@
             class="sw-settings-salutation-list__create"
             variant="primary"
             :disabled="!acl.can('salutation.creator') || undefined"
+            size="default"
             @click="$router.push({ name: 'sw.settings.salutation.create' })"
         >
             {{ $tc('sw-settings-salutation.general.buttonCreate') }}

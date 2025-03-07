@@ -110,7 +110,7 @@
         <template #column-position="{ item, itemIndex }">
 
             {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group %}
-            <sw-button-group>
+            <sw-button-group class="sw-import-export-edit-profile-modal-mapping__position-buttons">
                 {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_up %}
                 <mt-button
                     size="x-small"
@@ -122,7 +122,7 @@
                     {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_up_icon %}
                     <mt-icon
                         name="regular-chevron-up-xxs"
-                        size="14px"
+                        size="12px"
                     />
                     {% endblock %}
                 </mt-button>
@@ -139,7 +139,7 @@
                     {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_down_icon %}
                     <mt-icon
                         name="regular-chevron-down-xxs"
-                        size="14px"
+                        size="12px"
                     />
                     {% endblock %}
                 </mt-button>

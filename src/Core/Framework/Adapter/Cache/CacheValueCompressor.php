@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 
@@ -33,7 +34,7 @@ class CacheValueCompressor
         }
 
         if ($compressed === false) {
-            throw new \RuntimeException('Failed to compress cache value');
+            throw AdapterException::cacheCompressionError('Failed to compress cache value');
         }
 
         return $compressed;
@@ -63,7 +64,7 @@ class CacheValueCompressor
         }
 
         if ($uncompressed === false) {
-            throw new \RuntimeException(\sprintf('Could not uncompress "%s"', $value));
+            throw AdapterException::cacheCompressionError('Could not uncompress value');
         }
 
         return unserialize($uncompressed);

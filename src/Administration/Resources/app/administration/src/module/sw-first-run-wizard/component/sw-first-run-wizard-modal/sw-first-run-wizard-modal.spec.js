@@ -34,7 +34,6 @@ async function createWrapper(routerViewComponent = 'sw-first-run-wizard-welcome'
                         };
                     },
                 },
-                'sw-password-field': true,
                 'sw-step-display': true,
                 'sw-step-item': true,
                 'sw-plugin-card': true,

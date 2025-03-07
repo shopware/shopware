@@ -9,8 +9,8 @@
 
     <div class="sw-condition-goods-count__value">
         {% block sw_condition_goods_count_field_count %}
-        <sw-number-field
-            v-model:value="count"
+        <mt-number-field
+            v-model="count"
             name="sw-field--count"
             class="sw-contidion-goods-count__numfield"
             size="medium"
@@ -25,6 +25,7 @@
             <mt-button
                 v-tooltip="{ message: $tc('sw-settings-rule.conditionFilter.infoText') }"
                 :disabled="disabled || undefined"
+                variant="secondary"
                 @click="showFilterModal = true"
             >
                 <mt-icon

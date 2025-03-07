@@ -63,8 +63,6 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
                     'sw-entity-single-select': true,
                     'sw-inheritance-switch': true,
                     'sw-field-error': true,
-                    'sw-number-field': await wrapTestComponent('sw-number-field'),
-                    'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
 

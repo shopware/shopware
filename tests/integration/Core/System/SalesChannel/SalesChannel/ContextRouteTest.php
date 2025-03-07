@@ -69,6 +69,7 @@ class ContextRouteTest extends TestCase
         static::assertArrayHasKey('salesChannel', $response);
         static::assertSame($response['salesChannel']['id'], $this->ids->get('sales-channel'));
 
+        static::assertIsArray($response);
         static::assertArrayHasKey('customer', $response);
         static::assertArrayHasKey('activeBillingAddress', $response['customer']);
         static::assertArrayHasKey('activeShippingAddress', $response['customer']);

@@ -32,7 +32,7 @@ async function createWrapper() {
                 'sw-order-customer-address-select': true,
                 'sw-entity-single-select': true,
                 'sw-container': true,
-                'sw-number-field': true,
+                'mt-number-field': true,
                 'sw-datepicker': true,
                 'sw-text-field': true,
                 'sw-order-promotion-tag-field': true,

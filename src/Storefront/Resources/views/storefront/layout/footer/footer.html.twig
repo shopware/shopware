@@ -10,27 +10,29 @@
                 {% block layout_footer_navigation_hotline %}
                     <div class="col-md-4 footer-column js-footer-column">
                         {% block layout_footer_navigation_hotline_headline %}
-                            <div class="footer-column-headline footer-headline js-footer-column-headline js-collapse-footer-column-trigger"
+                            <div class="footer-column-headline footer-headline js-footer-column-headline"
                                  id="collapseFooterHotlineTitle"
-                                 data-bs-target="#collapseFooterHotline"
-                                 aria-expanded="true"
-                                 aria-controls="collapseFooterHotline"
                                  role="listitem">
                                 {{ 'footer.serviceHotlineHeadline'|trans|sw_sanitize }}
 
                                 {% block layout_footer_navigation_hotline_icons %}
-                                    <div class="footer-column-toggle">
-                                        <span class="footer-plus-icon">
-                                            {% sw_icon 'plus' style {
-                                                ariaLabel: 'general.expand'|trans
-                                            } %}
-                                        </span>
-                                        <span class="footer-minus-icon">
-                                            {% sw_icon 'minus' style {
-                                                ariaLabel: 'general.collapse'|trans
-                                            } %}
-                                        </span>
-                                    </div>
+                                    <button class="footer-column-toggle btn btn-link btn-link-inline js-collapse-footer-column-trigger"
+                                            data-bs-target="#collapseFooterHotline"
+                                            data-bs-toggle="collapse"
+                                            aria-controls="collapseFooterHotline"
+                                            aria-labelledby="collapseFooterHotlineTitle"
+                                            aria-expanded="true">
+
+                                        {% sw_icon 'plus' style {
+                                            ariaLabel: 'general.expand'|trans,
+                                            class: 'footer-plus'
+                                        } %}
+
+                                        {% sw_icon 'minus' style {
+                                            ariaLabel: 'general.collapse'|trans,
+                                            class: 'footer-minus'
+                                        } %}
+                                    </button>
                                 {% endblock %}
                             </div>
                         {% endblock %}
@@ -39,14 +41,16 @@
                             {% set cmsPath = 'frontend.cms.page.full' %}
 
                             <div id="collapseFooterHotline"
-                                 class="footer-column-content collapse js-footer-column-content footer-contact"
+                                 class="footer-column-content collapse js-footer-column-content footer-contact mb-4 mb-md-0"
                                  aria-labelledby="collapseFooterHotlineTitle"
                                  role="listitem">
+
                                 <div class="footer-column-content-inner">
                                     <p class="footer-contact-hotline">
                                         {{ 'footer.serviceHotline'|trans|sw_sanitize }}
                                     </p>
                                 </div>
+
                                 <div class="footer-contact-form">
                                     {% set contactSnippetKey = 'footer.serviceContactTextPage' %}
 
@@ -64,10 +68,9 @@
                         {% block layout_footer_navigation_column %}
                             <div class="col-md-4 footer-column js-footer-column">
                                 {% block layout_footer_navigation_information_headline %}
-                                    <div class="footer-column-headline footer-headline js-collapse-footer-column-trigger"
-                                         data-bs-target="#collapseFooterTitle{{ loop.index }}"
-                                         aria-expanded="true"
-                                         aria-controls="collapseFooter{{ loop.index }}">
+                                    <div class="footer-column-headline footer-headline js-footer-column-headline"
+                                         id="collapseFooterTitle{{ loop.index }}"
+                                         role="listitem">
 
                                         {% if root.category.type == 'folder' %}
                                             {{ root.category.translated.name }}
@@ -80,18 +83,25 @@
                                         {% endif %}
 
                                         {% block layout_footer_navigation_information_icons %}
-                                            <div class="footer-column-toggle">
-                                                <span class="footer-plus-icon">
+                                            {% if root.children|length > 0 %}
+                                                <button class="footer-column-toggle btn btn-link btn-link-inline js-collapse-footer-column-trigger"
+                                                        data-bs-target="#collapseFooter{{ loop.index }}"
+                                                        data-bs-toggle="collapse"
+                                                        aria-controls="collapseFooter{{ loop.index }}"
+                                                        aria-labelledby="collapseFooterTitle{{ loop.index }}"
+                                                        aria-expanded="true">
+
                                                     {% sw_icon 'plus' style {
-                                                        ariaLabel: 'general.expand'|trans
+                                                        ariaLabel: 'general.expand'|trans,
+                                                        class: 'footer-plus'
                                                     } %}
-                                                </span>
-                                                <span class="footer-minus-icon">
+
                                                     {% sw_icon 'minus' style {
-                                                        ariaLabel: 'general.collapse'|trans
+                                                        ariaLabel: 'general.collapse'|trans,
+                                                        class: 'footer-minus'
                                                     } %}
-                                                </span>
-                                            </div>
+                                                </button>
+                                            {% endif %}
                                         {% endblock %}
                                     </div>
                                 {% endblock %}
@@ -99,7 +109,9 @@
                                 {% block layout_footer_navigation_information_content %}
                                     <div id="collapseFooter{{ loop.index }}"
                                          class="footer-column-content collapse js-footer-column-content"
-                                         aria-labelledby="collapseFooterTitle{{ loop.index }}">
+                                         aria-labelledby="collapseFooterTitle{{ loop.index }}"
+                                         role="listitem">
+
                                         <div class="footer-column-content-inner">
                                             {% block layout_footer_navigation_information_links %}
                                                 <ul class="list-unstyled">

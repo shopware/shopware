@@ -6,8 +6,8 @@
 >
 
     {% block sw_settings_user_detail_content_confirm_password_modal_input__confirm_password %}
-    <sw-password-field
-        v-model:value="confirmPassword"
+    <mt-password-field
+        v-model="confirmPassword"
         class="sw-settings-user-detail__confirm-password"
         name="sw-field--confirm-password"
         :password-toggle-able="true"
@@ -23,6 +23,7 @@
         {% block sw_settings_user_detail_content_confirm_password_modal_actions_cancel %}
         <mt-button
             size="small"
+            variant="secondary"
             @click="onCloseConfirmPasswordModal"
         >
             {{ $tc('global.default.cancel') }}

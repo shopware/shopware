@@ -46,6 +46,7 @@
             class="sw-promotion-v2-list__smart-bar-button-add"
             variant="primary"
             :disabled="!acl.can('promotion.creator') || undefined"
+            size="default"
             @click="$router.push({ name: 'sw.promotion.v2.create' })"
         >
             {{ $tc('sw-promotion-v2.list.buttonAddPromotion') }}

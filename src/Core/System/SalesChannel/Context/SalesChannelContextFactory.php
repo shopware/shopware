@@ -21,7 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingCollection;
-use Shopware\Core\System\SalesChannel\BaseContext;
+use Shopware\Core\System\SalesChannel\BaseSalesChannelContext;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextPermissionsChangedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
@@ -52,7 +52,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         private readonly iterable $taxRuleTypeFilter,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly EntityRepository $currencyCountryRepository,
-        private readonly AbstractBaseContextFactory $baseContextFactory
+        private readonly AbstractBaseSalesChannelContextFactory $baseSalesChannelContextFactory,
     ) {
     }
 
@@ -64,7 +64,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
     public function create(string $token, string $salesChannelId, array $options = []): SalesChannelContext
     {
         // we split the context generation to allow caching of the base context
-        $base = $this->baseContextFactory->create($salesChannelId, $options);
+        $base = $this->baseSalesChannelContextFactory->create($salesChannelId, $options);
 
         // customer
         $customer = null;
@@ -143,7 +143,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         return $salesChannelContext;
     }
 
-    private function getTaxRules(BaseContext $context, ?CustomerEntity $customer, ShippingLocation $shippingLocation): TaxCollection
+    private function getTaxRules(BaseSalesChannelContext $context, ?CustomerEntity $customer, ShippingLocation $shippingLocation): TaxCollection
     {
         $taxes = $context->getTaxRules()->getElements();
 
@@ -189,7 +189,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
      *
      * @param array<string, mixed> $options
      */
-    private function getPaymentMethod(array $options, BaseContext $context, ?CustomerEntity $customer): PaymentMethodEntity
+    private function getPaymentMethod(array $options, BaseSalesChannelContext $context, ?CustomerEntity $customer): PaymentMethodEntity
     {
         if ($customer === null || isset($options[SalesChannelContextService::PAYMENT_METHOD_ID])) {
             return $context->getPaymentMethod();
@@ -278,7 +278,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
      *
      * @return array{CashRoundingConfig, CashRoundingConfig}
      */
-    private function getCashRounding(BaseContext $context, ShippingLocation $shippingLocation): array
+    private function getCashRounding(BaseSalesChannelContext $context, ShippingLocation $shippingLocation): array
     {
         if ($context->getShippingLocation()->getCountry()->getId() === $shippingLocation->getCountry()->getId()) {
             return [$context->getItemRounding(), $context->getTotalRounding()];

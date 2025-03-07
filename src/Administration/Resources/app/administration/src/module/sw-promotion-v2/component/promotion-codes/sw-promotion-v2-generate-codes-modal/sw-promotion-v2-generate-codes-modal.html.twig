@@ -44,8 +44,8 @@
             {% endblock %}
 
             {% block sw_promotion_v2_generate_codes_modal_replacement %}
-            <sw-number-field
-                v-model:value="pattern.codeLength"
+            <mt-number-field
+                v-model="pattern.codeLength"
                 class="sw-promotion-v2-generate-codes-modal__replacement"
                 :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCodeLength')"
                 :min="1"
@@ -107,8 +107,8 @@
             {% endblock %}
 
             {% block sw_promotion_v2_generate_codes_modal_code_amount %}
-            <sw-number-field
-                v-model:value="codeAmount"
+            <mt-number-field
+                v-model="codeAmount"
                 class="sw-promotion-v2-generate-codes-modal__code-amount"
                 :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCodeAmount')"
                 :min="1"
@@ -128,6 +128,7 @@
         <mt-button
             class="sw-promotion-v2-generate-codes-modal__button-cancel"
             size="small"
+            variant="secondary"
             @click="onClose"
         >
             {{ $tc('global.default.cancel') }}

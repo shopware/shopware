@@ -1,7 +1,7 @@
 {% block cms_form_privacy_opt_in %}
     {% set identifierTemplate = 'form-privacy-opt-in-%s' %}
-    {% set generalPrivacyNoticeSnippet = 'general.privacyNoticeText' %}
-    {% set contactPrivacyNoticeSnippet = 'contact.privacyNoticeText' %}
+    {% set generalPrivacyNoticeSnippet = 'general.privacyNoticeTextModal' %}
+    {% set contactPrivacyNoticeSnippet = 'contact.privacyNoticeTextModal' %}
     {% set cmsPath = 'frontend.cms.page' %}
 
     {# The previous url can be set if the privacy notice link is opened from within an already opened AjaxModal. #}
@@ -20,12 +20,15 @@
 
     {% if requiresTermsOfService == true %}
         {% set dataProtectionLabel = generalPrivacyNoticeSnippet|trans({
-            '%privacyUrl%': path(cmsPath, { id: config('core.basicInformation.privacyPage') }),
-            '%tosUrl%': path(cmsPath, { id: config('core.basicInformation.tosPage') })
+            '%privacyModalTagOpen%': '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.privacyPage') }) ~ '">',
+            '%privacyModalTagClose%': '</button>',
+            '%tosModalTagOpen%': '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.tosPage') }) ~ '">',
+            '%tosModalTagClose%': '</button>',
         })|raw %}
     {% else %}
         {% set dataProtectionLabel = contactPrivacyNoticeSnippet|trans({
-            '%privacyUrl%': path(cmsPath, { id: config('core.basicInformation.privacyPage') }),
+            '%privacyModalTagOpen%': '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.privacyPage') }) ~ '" data-prev-url="' ~ prevUrl ~ '">',
+            '%privacyModalTagClose%': '</button>',
             '%prevUrl%': prevUrl
         })|raw %}
     {% endif %}

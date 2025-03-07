@@ -8,8 +8,10 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\TransactionFailedException;
+use Shopware\Core\Content\Flow\Exception\CustomTriggerByNameNotFoundException;
 use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -19,6 +21,26 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(FlowException::class)]
 class FlowExceptionTest extends TestCase
 {
+    public function testCustomTriggerByNameNotFound(): void
+    {
+        $e = FlowException::customTriggerByNameNotFound('myEvent');
+
+        static::assertEquals(Response::HTTP_NOT_FOUND, $e->getStatusCode());
+        static::assertEquals(FlowException::CUSTOM_TRIGGER_BY_NAME_NOT_FOUND, $e->getErrorCode());
+        static::assertEquals('The provided event name myEvent is invalid or uninstalled and no custom trigger could be found.', $e->getMessage());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testCustomTriggerByNameNotFoundDeprecated(): void
+    {
+        $e = FlowException::customTriggerByNameNotFound('myEvent');
+
+        static::assertInstanceOf(CustomTriggerByNameNotFoundException::class, $e);
+        static::assertEquals(Response::HTTP_NOT_FOUND, $e->getStatusCode());
+        static::assertEquals('ADMINISTRATION__CUSTOM_TRIGGER_BY_NAME_NOT_FOUND', $e->getErrorCode());
+        static::assertEquals('The provided event name myEvent is invalid or uninstalled and no custom trigger could be found.', $e->getMessage());
+    }
+
     public function testMethodNotCompatible(): void
     {
         $e = FlowException::methodNotCompatible('myMethod', 'myClass');

@@ -31,6 +31,7 @@ Component.register('sw-select-rule-create', {
     emits: [
         'save-rule',
         'dismiss-rule',
+        'update:rules',
     ],
 
     props: {
@@ -130,6 +131,10 @@ Component.register('sw-select-rule-create', {
             if (event !== this.ruleId) {
                 this.onSaveRule(event);
             }
+        },
+
+        onUpdateCollection(collection) {
+            this.$emit('update:rules', collection);
         },
 
         openCreateRuleModal() {

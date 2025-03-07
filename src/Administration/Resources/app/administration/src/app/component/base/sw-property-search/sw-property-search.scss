@@ -52,6 +52,10 @@
         .sw-grid-row:first-child.is--selected {
             box-shadow: none;
         }
+
+        .mt-field--checkbox {
+            margin-bottom: 0;
+        }
     }
 
     .sw-property-search__tree-selection,
@@ -67,12 +71,14 @@
             cursor: pointer;
         }
 
-        .mt-icon {
-            margin-right: 10px;
-        }
-
         .sw-grid__pagination {
             background-color: $color-white;
+        }
+    }
+
+    .sw-property-search__tree-selection__group_grid {
+        .mt-icon {
+            margin-right: 10px;
         }
     }
 

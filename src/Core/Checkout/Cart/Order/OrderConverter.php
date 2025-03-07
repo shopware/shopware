@@ -292,7 +292,6 @@ class OrderConverter
                 ->addAssociation('addresses');
 
             $customer = $this->customerRepository->search($customerCriteria, $context)->getEntities()->first();
-            \assert($customer?->getAddresses() !== null);
         }
 
         $orderBillingAddressId = $order->getBillingAddressId();

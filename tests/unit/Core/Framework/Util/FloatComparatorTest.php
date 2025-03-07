@@ -8,6 +8,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Util\Exception\ComparatorException;
 use Shopware\Core\Framework\Util\FloatComparator;
+use Shopware\Core\Framework\Util\UtilException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -21,10 +23,22 @@ class FloatComparatorTest extends TestCase
         static::assertSame($expected, FloatComparator::compare($a, $b, $operator));
     }
 
-    public function testCompareThrowException(): void
+    /**
+     * @deprecated tag:v6.8.0 - reason: see UtilException::operatorNotSupported - to be removed
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testCompareThrowExceptionDeprecated(): void
     {
         static::expectException(ComparatorException::class);
         $this->expectExceptionMessage(ComparatorException::operatorNotSupported('empty')->getMessage());
+
+        FloatComparator::compare(1, 2, 'empty');
+    }
+
+    public function testCompareThrowException(): void
+    {
+        static::expectException(UtilException::class);
+        $this->expectExceptionMessage(UtilException::operatorNotSupported('empty')->getMessage());
 
         FloatComparator::compare(1, 2, 'empty');
     }

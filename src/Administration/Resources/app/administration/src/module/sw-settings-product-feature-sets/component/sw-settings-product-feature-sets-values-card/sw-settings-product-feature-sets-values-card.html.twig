@@ -34,6 +34,7 @@
                         square
                         size="small"
                         class="sw-product-feature-set__delete-button"
+                        variant="secondary"
                         @click="onDeleteFields"
                     >
                         <mt-icon
@@ -50,6 +51,7 @@
                             ghost
                             size="small"
                             class="sw-product-feature-set__add-button"
+                            variant="secondary"
                             @click="onAddField"
                         >
                             {{ $tc('sw-settings-product-feature-sets.valuesCard.labelCreateNew') }}
@@ -132,6 +134,7 @@
                 ghost
                 size="small"
                 :disabled="disabled || undefined"
+                variant="secondary"
                 @click="showModal = true"
             >
                 {{ $tc('sw-settings-product-feature-sets.valuesCard.labelCreateNew') }}

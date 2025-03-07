@@ -124,14 +124,14 @@ async function createWrapper() {
                 'sw-media-compact-upload-v2': {
                     template: '<div></div>',
                 },
-                'sw-number-field': {
+                'mt-number-field': {
                     template: `
-                        <input class="sw-number-field-stub"
-                            :value="value" type="number"
-                            @input="$emit(\'update:value\', $event.target.value)"/>
+                        <input class="mt-number-field-stub"
+                            :value="modelValue" type="number"
+                            @input="$emit(\'update:modelValue\', $event.target.value)"/>
                     `,
-                    props: ['value'],
-                    emits: ['update:value'],
+                    props: ['modelValue'],
+                    emits: ['update:modelValue'],
                 },
                 'sw-contextual-field': {
                     template: '<div></div>',
@@ -170,7 +170,7 @@ describe('module/sw-property/component/sw-property-option-list', () => {
 
         // clear color value
         await modal.get('.mt-text-field input').setValue('new name');
-        await modal.get('.sw-number-field-stub').setValue(0);
+        await modal.get('.mt-number-field-stub').setValue(0);
         await modal.getComponent('.mt-colorpicker').setValue('#000000');
 
         await findByText(modal, 'button', 'global.default.apply').trigger('click');

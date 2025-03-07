@@ -23,6 +23,7 @@
                 :is-loading="updaterIsRunning"
                 variant="primary"
                 class="sw-settings-shopware-updates-wizard__start-update"
+                size="default"
                 @click="updateModalShown = true"
             >
                 {{ $t('sw-settings-shopware-updates.infos.startUpdate') }}
@@ -118,6 +119,7 @@
                 <div class="sw-settings-shopware-updates-check__start-update-actions">
                     <mt-button
                         size="small"
+                        variant="secondary"
                         @click="updateModalShown = false"
                     >
                         {{ $tc('global.default.cancel') }}

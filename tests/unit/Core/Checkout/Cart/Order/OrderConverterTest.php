@@ -25,6 +25,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
@@ -585,6 +586,7 @@ class OrderConverterTest extends TestCase
         $address = new OrderAddressEntity();
         $address->setId('order-address-id');
         $address->setUniqueIdentifier('order-address-id');
+        $address->setHash('order-address-hash');
 
         $addresses = new OrderAddressCollection([$address]);
 
@@ -604,8 +606,11 @@ class OrderConverterTest extends TestCase
         /** @var StaticEntityRepository<RuleCollection> $ruleRepository */
         $ruleRepository = new StaticEntityRepository([new RuleCollection()]);
 
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
+        $customerRepository = new StaticEntityRepository([new CustomerCollection([$this->getCustomer(false)])]);
+
         $converter = new OrderConverter(
-            $this->createMock(EntityRepository::class),
+            $customerRepository,
             $this->createMock(SalesChannelContextFactory::class),
             $dispatcher,
             $this->createMock(NumberRangeValueGeneratorInterface::class),
@@ -928,6 +933,7 @@ class OrderConverterTest extends TestCase
         $customer->setLastName('customer-last-name');
         $customer->setCustomerNumber('customer-number');
         $customer->setGroupId('customer-group-id');
+        $customer->setAddresses(new CustomerAddressCollection([$this->getCustomerAddress()]));
 
         if (!$withoutBillingAddress) {
             $customer->setDefaultBillingAddress($this->getCustomerAddress());
@@ -947,6 +953,7 @@ class OrderConverterTest extends TestCase
         $address->setZipcode('billing-address-zipcode');
         $address->setCity('billing-address-city');
         $address->setCountryId('billing-address-country-id');
+        $address->setHash('billing-address-hash');
 
         return $address;
     }
@@ -998,6 +1005,7 @@ class OrderConverterTest extends TestCase
         $address->setCountryStateId($countryState->getId());
         $address->setCountry($country);
         $address->setCountryState($countryState);
+        $address->setHash('order-address-hash');
 
         return $address;
     }

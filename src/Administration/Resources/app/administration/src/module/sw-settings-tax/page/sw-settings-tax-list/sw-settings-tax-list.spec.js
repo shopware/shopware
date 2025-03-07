@@ -104,7 +104,6 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                     </div>
                 `,
                     },
-                    'sw-number-field': true,
                     'sw-entity-listing': {
                         props: ['items'],
                         template: `
@@ -132,6 +131,7 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                         template: '<div class="sw-empty-state"></div>',
                     },
                     'sw-checkbox-field': true,
+                    'mt-number-field': true,
                 },
             },
         },
@@ -338,7 +338,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
 
         const entityListing = wrapper.find('.sw-settings-tax-list-grid');
 
-        const taxRateField = entityListing.find('sw-number-field-stub');
+        const taxRateField = entityListing.find('mt-number-field-stub');
 
         expect(taxRateField.attributes('digits')).toBe('3');
     });

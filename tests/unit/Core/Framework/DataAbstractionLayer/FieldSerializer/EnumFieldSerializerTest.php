@@ -167,7 +167,7 @@ class EnumFieldSerializerTest extends TestCase
 
         if ($expectedException !== null) {
             static::assertInstanceOf($expectedException::class, $exception);
-            static::assertSame($expectedException->getMessage(), $exception?->getMessage());
+            static::assertSame($expectedException->getMessage(), $exception->getMessage());
 
             return;
         }

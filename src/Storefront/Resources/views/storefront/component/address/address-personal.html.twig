@@ -237,47 +237,15 @@
                         {% set violationPath = "/title" %}
                     {% endif %}
 
-                    {% if feature('ACCESSIBILITY_TWEAKS') %}
-                        {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
-                            label: 'account.personalTitleLabel'|trans|sw_sanitize,
-                            id: idPrefix ~ prefix ~ 'personalTitle',
-                            name: prefix ? prefix ~ '[title]' : 'title',
-                            value: data.get('title'),
-                            autocomplete: 'section-personal title',
-                            violationPath: violationPath,
-                            additionalClass: 'col-md-3 col-sm-6',
-                        } %}
-
-                    {% else %}
-                    <div class="form-group col-md-3 col-sm-6">
-
-                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-                        {% block component_address_personal_fields_title_label %}
-                            <label class="form-label"
-                                   for="{{ idPrefix ~ prefix }}personalTitle">
-                                {{ "account.personalTitleLabel"|trans|sw_sanitize }}
-                            </label>
-                        {% endblock %}
-
-                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-                        {% block component_address_personal_fields_title_input %}
-                            <input type="text"
-                                   class="form-control{% if violationPath is not empty %} is-invalid{% endif %}"
-                                   autocomplete="section-personal title"
-                                   id="{{ idPrefix ~ prefix }}personalTitle"
-                                   placeholder="{{ "account.personalTitlePlaceholder"|trans|striptags }}"
-                                   name="{% if prefix %}{{ prefix }}[title]{% else %}title{% endif %}"
-                                   value="{{ data.get('title') }}">
-                        {% endblock %}
-
-                        {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-                        {% block component_address_personal_fields_title_input_error %}
-                            {% if violationPath %}
-                                {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
-                            {% endif %}
-                        {% endblock %}
-                    </div>
-                    {% endif %}
+                    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                        label: 'account.personalTitleLabel'|trans|sw_sanitize,
+                        id: idPrefix ~ prefix ~ 'personalTitle',
+                        name: prefix ? prefix ~ '[title]' : 'title',
+                        value: data.get('title'),
+                        autocomplete: 'section-personal honorific-prefix',
+                        violationPath: violationPath,
+                        additionalClass: 'col-md-3 col-sm-6',
+                    } %}
                 {% endif %}
             {% endblock %}
         </div>

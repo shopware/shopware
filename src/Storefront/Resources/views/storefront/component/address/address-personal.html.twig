@@ -243,7 +243,7 @@
                             id: idPrefix ~ prefix ~ 'personalTitle',
                             name: prefix ? prefix ~ '[title]' : 'title',
                             value: data.get('title'),
-                            autocomplete: 'section-personal title',
+                            autocomplete: 'section-personal honorific-prefix',
                             violationPath: violationPath,
                             additionalClass: 'col-md-3 col-sm-6',
                         } %}
@@ -263,7 +263,7 @@
                         {% block component_address_personal_fields_title_input %}
                             <input type="text"
                                    class="form-control{% if violationPath is not empty %} is-invalid{% endif %}"
-                                   autocomplete="section-personal title"
+                                   autocomplete="section-personal honorific-prefix"
                                    id="{{ idPrefix ~ prefix }}personalTitle"
                                    placeholder="{{ "account.personalTitlePlaceholder"|trans|striptags }}"
                                    name="{% if prefix %}{{ prefix }}[title]{% else %}title{% endif %}"

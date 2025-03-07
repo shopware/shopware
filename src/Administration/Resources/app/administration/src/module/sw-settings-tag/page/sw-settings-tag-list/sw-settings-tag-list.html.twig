@@ -49,6 +49,7 @@
             class="sw-settings-tag-list__button-create"
             variant="primary"
             :disabled="!acl.can('tag.creator') || undefined"
+            size="default"
             @click="onDetail(null)"
         >
             {{ $tc('sw-settings-tag.list.buttonAddTag') }}

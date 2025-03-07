@@ -101,6 +101,7 @@
             {% block sw_product_stream_value_entity_multi_value_custom_field %}
             <sw-entity-multi-id-select
                 v-else-if="isMultiSelectValue"
+                ref="product-stream-value-select-entity-multi-id-select"
                 v-model:value="multiValue"
                 size="medium"
                 :repository="entityCustomFieldRepository"

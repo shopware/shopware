@@ -369,6 +369,67 @@ The hidden radio input will no longer be in the HTML. The current page value wil
     </a>
 {% endblock %}
 ```
+
+## Use `<button>` elements instead of `<a>` to open modal windows
+
+Modal triggers that were previously using anchor `<a>` elements are now using `<button>` elements.
+Anchor `<a>` elements are recognized as native links by the screen-reader and should not open a dialog/modal window instead of redirecting to a new page.
+A modal window should be opened via `<button>` and is mainly driven by JavaScript. `<a href="#">` elements should only be native hyperlinks and not trigger additional modals. This can confuse screen-reader users.
+
+To maintain the link appearance, the classes `btn btn-link-inline` are used. The "link" looks like a regular link but is semantically a `<button>` when it triggers a modal.
+
+### Ajax modal trigger before:
+```html
+<a data-ajax-modal="true" data-url="/some-route" href="/some-route">Open ajax modal</a>
+```
+
+### Ajax modal trigger after:
+```html
+<button data-ajax-modal="true" data-url="/some-route" class="btn btn-link-inline">Open ajax modal</button>
+```
+
+### New translation keys with button modal triggers
+
+Some modal triggers are inside translation texts. With 6.7 new translation keys are used that have buttons instead of links.
+There are also new translation parameters to avoid too much HTML and modal logic inside the translation strings.
+
+| Old key                             | Old params                   | New key                                  | New params                                                                                   |
+|-------------------------------------|------------------------------|------------------------------------------|----------------------------------------------------------------------------------------------|
+| `general.privacyNoticeText`         | `%privacyUrl%`, `%tosUrl%`   | `general.privacyNoticeTextModal`         | `%privacyModalTagOpen%`, `%privacyModalTagClose%`, `%tosModalTagOpen%`, `%tosModalTagClose%` |
+| `contact.privacyNoticeText`         | `%privacyUrl%`, `%prevUrl%`  | `contact.privacyNoticeTextModal`         | `%privacyModalTagOpen%`, `%privacyModalTagClose%`                                            |
+| `checkout.confirmRevocationNotice`  | `%url%`                      | `checkout.confirmRevocationNoticeModal`  | `%revocationModalTagOpen%`, `%revocationModalTagClose%`                                      |
+| `checkout.confirmTermsText`         | `%url%`                      | `checkout.confirmTermsTextModal`         | `%tosModalTagOpen%`, `%tosModalTagClose%`                                                    |
+| `checkout.confirmTermsReminderText` | `%url%`                      | `checkout.confirmTermsReminderTextModal` | `%tosModalTagOpen%`, `'%tosModalTagClose%`                                                   |
+
+### Old translation string structure
+The HTML of the modal trigger was part of the translation.
+
+```twig
+{{ 'checkout.confirmTermsReminderText')|trans({
+    '%url%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') }),
+})|raw }}
+```
+```json
+{
+  "confirmTermsReminderText": "You have already accepted the <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"general terms and conditions\">general terms and conditions</a>."
+}
+```
+
+### New translation string structure
+The HTML of the modal trigger is now inside the twig template instead.
+
+```twig
+{{ 'checkout.confirmTermsReminderTextModal')|trans({
+    '%tosModalTagOpen%': '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.tosPage') }) ~ '">',
+    '%tosModalTagClose%': '</button>'
+})|raw }}
+```
+```json
+{
+  "confirmTermsReminderTextModal": "You have already accepted the %tosModalTagOpen%general terms and conditions%tosModalTagClose%."
+}
+```
+
 </details>
 
 # Further Changes

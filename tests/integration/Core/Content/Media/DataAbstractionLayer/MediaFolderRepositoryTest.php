@@ -18,7 +18,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal
  */
 #[Group('slow')]
-#[Group('skip-paratest')]
 class MediaFolderRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

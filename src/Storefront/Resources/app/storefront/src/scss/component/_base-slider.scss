@@ -20,7 +20,7 @@ based on: https://github.com/ganlanyuan/tiny-slider
 
         .base-slider-dot,
         button {
-            background-color: $gray-300;
+            background-color: $gray-800;
             border: 0;
             height: 8px;
             width: 8px;
@@ -76,30 +76,26 @@ based on: https://github.com/ganlanyuan/tiny-slider
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    color: $gray-600;
-    background: rgba($white, 0.5);
-    border: 1px solid rgba($white, 0.5);
     line-height: 68px;
-    opacity: 0.5;
     transition: opacity 0.15s ease;
     cursor: pointer;
     padding: 0;
+    color: $body-color;
+    background: $body-bg;
+    border: 1px solid $body-bg;
 
-    &:hover {
-        border-color: rgba($primary, 0.5);
-        color: $primary;
-        opacity: 1;
+    .icon {
+        color: currentColor;
     }
 
-    &.is-nav-prev-outside,
-    &.is-nav-next-outside {
-        border: 0;
-        background-color: rgba($white, 0.8);
+    &:hover {
+        border-color: $primary;
+        color: $primary;
     }
 
     &[disabled] {
-        opacity: 0.2;
-        cursor: default;
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 }
 

@@ -43,6 +43,7 @@
         <mt-button
             :disabled="!acl.can('shipping.creator') || undefined"
             variant="primary"
+            size="default"
             @click="$router.push({ name: 'sw.settings.shipping.create' })"
         >
             {{ $tc('sw-settings-shipping.list.buttonAddShippingMethod') }}

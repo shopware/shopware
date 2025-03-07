@@ -47,13 +47,13 @@ export default {
     methods: {
         createdComponent() {
             if (!this.currentCustomField.config.hasOwnProperty('dateType')) {
-                this.$set(this.currentCustomField.config, 'dateType', 'datetime');
+                this.currentCustomField.config.dateType = 'datetime';
             }
 
             if (!this.currentCustomField.config.hasOwnProperty('config')) {
-                this.$set(this.currentCustomField.config, 'config', {
+                this.currentCustomField.config.config = {
                     time_24hr: true,
-                });
+                };
             }
         },
     },

@@ -38,6 +38,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="clock"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Consent\ConsentService"/>
+            <argument>%shopware.usage_data.collection_enabled%</argument>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -102,6 +103,7 @@
             <argument type="service" id="Shopware\Core\System\UsageData\Services\GatewayStatusService"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Services\ShopIdProvider"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument>%shopware.usage_data.collection_enabled%</argument>
         </service>
 
         <service id="Shopware\Core\System\UsageData\Services\ManyToManyAssociationService">
@@ -119,7 +121,6 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
             <argument type="string">%env(APP_URL)%</argument>
-            <argument>%shopware.usage_data.gateway.dispatch_enabled%</argument>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -138,7 +139,6 @@
         <service id="Shopware\Core\System\UsageData\Client\GatewayClient">
             <argument type="service" id="shopware.usage_data.gateway.client"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Services\ShopIdProvider"/>
-            <argument>%shopware.usage_data.gateway.dispatch_enabled%</argument>
         </service>
 
         <!-- Scheduled tasks -->

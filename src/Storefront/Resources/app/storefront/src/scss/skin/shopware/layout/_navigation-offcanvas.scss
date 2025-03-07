@@ -8,6 +8,10 @@ Based on custom offcanvas component.
 .navigation-offcanvas-headline {
     font-weight: $font-weight-bold;
     color: $secondary;
+
+    &:focus-visible {
+        box-shadow: inset 0 0 $focus-ring-blur 0.125rem $focus-ring-color;
+    }
 }
 
 .navigation-offcanvas-list-item {
@@ -21,6 +25,10 @@ Based on custom offcanvas component.
 
 .navigation-offcanvas-link {
     color: $body-color;
+
+    &:focus-visible {
+        box-shadow: inset 0 0 $focus-ring-blur 0.125rem $focus-ring-color;
+    }
 
     &.is-home-link {
         &,

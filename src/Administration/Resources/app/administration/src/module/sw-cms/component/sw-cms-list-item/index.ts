@@ -74,7 +74,9 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         defaultLayoutAsset() {
-            return `url(${this.assetFilter(`administration/administration/static/img/cms/default_preview_${this.page.type}.jpg`)})`;
+            return `url(${this.assetFilter(
+                `administration/administration/static/img/cms/default_preview_${this.page.type}.jpg`,
+            )})`;
         },
 
         defaultItemLayoutAssetBackground() {

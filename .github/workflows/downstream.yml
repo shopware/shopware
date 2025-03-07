@@ -83,6 +83,7 @@ jobs:
     runs-on: ubuntu-24.04
     # if: github.event_name == 'issues' && ( github.event.action == 'opened' || github.event.action == 'reopened' )
     env:
+      TEAM_NAME: "customer-support"
       TEAM_LABEL: "domain/customer-support"
     permissions:
       id-token: write
@@ -100,13 +101,15 @@ jobs:
             username: ${{ github.actor }}
             GITHUB_TOKEN: ${{ steps.sts.outputs.token }}
       - name: debug
+        if: runner.debug
         run: |
-          echo "${{ steps.actorTeams.outputs.teams }}"
-      - if: ${{ contains(steps.actorTeams.outputs.teams, 'customer-support') }}
+          echo "${{ github.actor }} is member of teams: ${{ steps.actorTeams.outputs.teams }}"
+      - if: ${{ contains(steps.actorTeams.outputs.teams, github.env.TEAM_NAME) }}
         uses: actions/github-script@v7
         with:
           script: |
             const issueNumber = '7356';
+            const teamLabel = process.env.TEAM_LABEL;
 
             const response = await github.rest.issues.addLabels({
               owner: context.repo.owner,

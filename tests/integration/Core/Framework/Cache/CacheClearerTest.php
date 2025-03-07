@@ -27,7 +27,6 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 #[Group('slow')]
 class CacheClearerTest extends TestCase
 {

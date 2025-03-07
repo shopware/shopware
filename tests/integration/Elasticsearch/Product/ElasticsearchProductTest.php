@@ -8,7 +8,6 @@ use PHPUnit\Framework\Attributes\AfterClass;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -96,7 +95,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 class ElasticsearchProductTest extends TestCase
 {
     use CacheTestBehaviour;

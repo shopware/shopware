@@ -3,8 +3,9 @@ import Feature from 'src/helper/feature.helper.js';
 
 jest.mock('src/service/http-client.service', () => {
     const offCanvasMenuSubCategory = `
-        <div class="navigation-offcanvas-container js-navigation-offcanvas">
-            <div class="navigation-offcanvas-overlay-content js-navigation-offcanvas-overlay-content">
+        <div class="navigation-offcanvas-container">
+            <div class="navigation-offcanvas-content">
+                <div class="navigation-offcanvas-headline">Categories</div>
                 <ul class="list-unstyled navigation-offcanvas-list">
                     <li class="navigation-offcanvas-list-item">
                         <a href="#"
@@ -18,6 +19,30 @@ jest.mock('src/service/http-client.service', () => {
                            class="navigation-offcanvas-link nav-item nav-link js-navigation-offcanvas-link"
                            data-href="/widgets/menu/offcanvas?navigationId=0188fd3e4ffb7079959622b2785167eb">
                             Smartphones
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    `;
+
+    const offCanvasMenuInitialContent = `
+        <div class="navigation-offcanvas-container navigation-offcanvas-root">
+            <div class="navigation-offcanvas-content">
+                <div class="navigation-offcanvas-headline">Categories</div>
+                <ul class="list-unstyled navigation-offcanvas-list">
+                    <li class="navigation-offcanvas-list-item">
+                        <a href="#"
+                           class="navigation-offcanvas-link nav-item nav-link js-navigation-offcanvas-link"
+                           data-href="/widgets/menu/offcanvas?navigationId=0188fd3e4ffb7079959622b2785167eb">
+                            Outdoors
+                        </a>
+                    </li>
+                    <li class="navigation-offcanvas-list-item">
+                        <a href="#"
+                           class="navigation-offcanvas-link nav-item nav-link js-navigation-offcanvas-link"
+                           data-href="/widgets/menu/offcanvas?navigationId=0188fd3e4ffb7079959622b2785167eb">
+                            Automotive
                         </a>
                     </li>
                 </ul>
@@ -47,26 +72,7 @@ describe('OffCanvasMenuPlugin tests', () => {
                 <div class="offcanvas-body">
                     <p>Initial content</p>
 
-                    <div class="navigation-offcanvas-container js-navigation-offcanvas">
-                        <div class="navigation-offcanvas-overlay-content js-navigation-offcanvas-overlay-content">
-                            <ul class="list-unstyled navigation-offcanvas-list">
-                                <li class="navigation-offcanvas-list-item">
-                                    <a href="#"
-                                       class="navigation-offcanvas-link nav-item nav-link js-navigation-offcanvas-link"
-                                       data-href="/widgets/menu/offcanvas?navigationId=0188fd3e4ffb7079959622b2785167eb">
-                                        Outdoors
-                                    </a>
-                                </li>
-                                <li class="navigation-offcanvas-list-item">
-                                    <a href="#"
-                                       class="navigation-offcanvas-link nav-item nav-link js-navigation-offcanvas-link"
-                                       data-href="/widgets/menu/offcanvas?navigationId=0188fd3e4ffb7079959622b2785167eb">
-                                        Automotive
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
+                    <div class="navigation-offcanvas-container"></div>
                 </div>
             </div>
         `;
@@ -76,6 +82,7 @@ describe('OffCanvasMenuPlugin tests', () => {
         window.focusHandler = {
             saveFocusState: jest.fn(),
             resumeFocusState: jest.fn(),
+            setFocus: jest.fn(),
         };
 
         /** @deprecated tag:v6.7.0 - Feature flag mock will be removed. */
@@ -116,7 +123,7 @@ describe('OffCanvasMenuPlugin tests', () => {
 
         jest.runAllTimers();
 
-        const subCategoryLinks = document.querySelectorAll('.navigation-offcanvas-overlay.has-transition .navigation-offcanvas-link')
+        const subCategoryLinks = document.querySelectorAll('.navigation-offcanvas .navigation-offcanvas-link');
 
         // Ensure sub-categories are rendered
         expect(subCategoryLinks[0].textContent).toContain('Cars');

@@ -50,6 +50,7 @@
             class="sw-settings-country-list__button-create"
             variant="primary"
             :disabled="!acl.can('country.creator') || undefined"
+            size="default"
             @click="$router.push({ name: 'sw.settings.country.create' })"
         >
             {{ $tc('sw-settings-country.list.buttonAddCountry') }}

@@ -33,7 +33,7 @@
             @ends-with-decimal-separator="onEndsWithDecimalSeparator"
         >
             <template
-                v-if="!disableSuffix"
+                v-if="!disableSuffix && !compact"
                 #suffix
             >
                 {{ currency.symbol }}
@@ -87,7 +87,7 @@
             @ends-with-decimal-separator="onEndsWithDecimalSeparator"
         >
             <template
-                v-if="!disableSuffix"
+                v-if="!disableSuffix && !compact"
                 #suffix
             >
                 {{ currency.symbol }}

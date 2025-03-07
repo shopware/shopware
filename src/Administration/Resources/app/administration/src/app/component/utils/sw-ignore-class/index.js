@@ -11,7 +11,7 @@
  *
  * // add attrs classes to main card
  * staticClasses.forEach((className) => {
- *     this.$set(classes, className, true);
+ *     classes[className] = true;
  * });
  * ```
  *

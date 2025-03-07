@@ -104,18 +104,15 @@ jobs:
           echo "${{ steps.actorTeams.outputs.teams }}"
       - if: ${{ contains(steps.actorTeams.outputs.teams, 'customer-support') }}
         uses: actions/github-script@v7
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         with:
-          script: |-
-            # const issueNumber = context.payload.issue.number;
+          script: |
             const issueNumber = '7356';
 
             const response = await github.rest.issues.addLabels({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issueNumber,
-              labels: [teamLabel]
+              labels: [teamLabel],
             });
           
             if (response.status !== 200) {

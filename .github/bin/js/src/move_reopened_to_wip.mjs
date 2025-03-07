@@ -114,7 +114,7 @@ async function setFieldValue(github, core, projectId, cardId, fieldId, valueId) 
 
 async function findIssueInProject(github, core, projectNumber, issueNumber) {
   const res = await github.graphql(
-    `query findIssue($projectNumber: Int!, $issueNumber: Int!) {
+    `query findIssueInProject($projectNumber: Int!, $issueNumber: Int!) {
       repository(owner: "shopware", name: "shopware") {
         issue(number: $issueNumber) {
           projectV2(number: $projectNumber) {
@@ -131,7 +131,13 @@ async function findIssueInProject(github, core, projectNumber, issueNumber) {
     }
   )
 
-  core.debug(`setFieldValue response: ${JSON.stringify(res)}`)
+  core.debug(`findIssueInProject response: ${JSON.stringify(res)}`)
+
+  return {
+    node_id: res.repository.issue.id,
+    number: res.repository.issue.number,
+    project: res.repository.issue.projectV2,
+  }
 }
 
 /**
@@ -140,14 +146,11 @@ async function findIssueInProject(github, core, projectNumber, issueNumber) {
  * @param context {import('@actions/github').context} info about the current event
  */
 export const main = async (github, core, context) => {
-
-  const issueResult = await findIssueInProject(github, core, 22, 7259);
+  const issueResult = await findIssueInProject(github, core, 22, 7160);
   console.debug(issueResult);
 
-  throw new Error('test');
-
-  const issue = context.payload.issue;
-  core.debug(`Issue node ID: ${issue.node_id}`)
+  // const issue = context.payload.issue;
+  // core.debug(`Issue node ID: ${issue.node_id}`)
 
   const projectInfo = await getProjectInfo(github, core, FRAMEWORK_GROUP_PROJECT_NUMBER)
   const inProgressOption = projectInfo.status_options.find(x => x.name == IN_PROGRESS_OPTION_NAME)
@@ -156,9 +159,9 @@ export const main = async (github, core, context) => {
     throw new Error(`Option "${IN_PROGRESS_OPTION_NAME}" not found`)
   }
 
-  core.info(`Adding card for issue ${issue.number}`)
+  // core.info(`Adding card for issue ${issue.number}`)
 
-  const cardId = (await addCard(github, core, projectInfo.node_id, issue.node_id)).node_id
+  // const cardId = (await addCard(github, core, projectInfo.node_id, issue.node_id)).node_id
 
   await setFieldValue(github, core, projectInfo.node_id, cardId, projectInfo.status_field_id, inProgressOption.id)
 }

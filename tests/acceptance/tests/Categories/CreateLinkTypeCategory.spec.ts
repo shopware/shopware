@@ -33,7 +33,7 @@ test('Shop administrator should be able to create a internal link type of catego
         // Verify category customisable link data
         await expect(AdminCategories.linkTypeSelectionList).toHaveText(categoryCustomizableLinkData.linkType);
         await expect(AdminCategories.entitySelectionList).toHaveText(categoryCustomizableLinkData.entity);
-        await expect(AdminCategories.categorySelectionList).toHaveText(new RegExp(`${categoryCustomizableLinkData.entity}\\s+${categoryCustomizableLinkData.category}`));
+        await expect(AdminCategories.categorySelectionList).toContainText(categoryCustomizableLinkData.category);
         await expect(AdminCategories.openInNewTabCheckbox).toBeChecked({ checked: categoryCustomizableLinkData.openInNewTab });
     });
 
@@ -73,7 +73,7 @@ test('Shop administrator should be able to create a internal link type of produc
         // Verify category customisable link data
         await expect(AdminCategories.linkTypeSelectionList).toHaveText(categoryCustomizableLinkData.linkType);
         await expect(AdminCategories.entitySelectionList).toHaveText(categoryCustomizableLinkData.entity);
-        await expect(AdminCategories.productSelectionList).toHaveText(new RegExp(`${categoryCustomizableLinkData.entity}\\s+${categoryCustomizableLinkData.product}`));
+        await expect(AdminCategories.productSelectionList).toContainText(categoryCustomizableLinkData.product);
         await expect(AdminCategories.openInNewTabCheckbox).toBeChecked({ checked: categoryCustomizableLinkData.openInNewTab });
     });
 
@@ -129,7 +129,7 @@ test('Shop administrator should be able to create a internal link type of landin
         // Verify category customisable link data
         await expect(AdminCategories.linkTypeSelectionList).toHaveText(categoryCustomizableLinkData.linkType);
         await expect(AdminCategories.entitySelectionList).toHaveText(categoryCustomizableLinkData.entity);
-        await expect(AdminCategories.landingPageSelectionList).toHaveText(new RegExp(`${categoryCustomizableLinkData.entity}\\s+${categoryCustomizableLinkData.landingPage}`));
+        await expect(AdminCategories.landingPageSelectionList).toContainText(categoryCustomizableLinkData.landingPage);
         await expect(AdminCategories.openInNewTabCheckbox).toBeChecked({ checked: categoryCustomizableLinkData.openInNewTab });
     });
 

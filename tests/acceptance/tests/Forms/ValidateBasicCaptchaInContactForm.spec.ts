@@ -7,7 +7,7 @@ test(
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
 
-        await TestDataService.setSystemConfig({'core.basicInformation.activeCaptchasV2': {'basicCaptcha': { 'name': 'basicCaptcha', 'isActive': true }} });
+        await TestDataService.setSystemConfig({ 'core.basicInformation.activeCaptchasV2': { 'basicCaptcha': { 'name': 'basicCaptcha', 'isActive': true } } });
 
         await test.step('Open the contact form modal on home page.', async () => {
             await ShopCustomer.goesTo(StorefrontHome.url());
@@ -42,8 +42,8 @@ test(
             expect(contactFormResponse.ok()).toBeTruthy();
 
             await ShopCustomer.expects(StorefrontContactForm.basicCaptchaInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
-            await ShopCustomer.expects(StorefrontContactForm.formAlert).toBeVisible();
-            await ShopCustomer.expects(StorefrontContactForm.formAlert).toContainText('Incorrect input. Please try again.');
+            await ShopCustomer.expects(StorefrontContactForm.formAlert.last()).toBeVisible();
+            await ShopCustomer.expects(StorefrontContactForm.formAlert.last()).toContainText('Incorrect input. Please try again.');
         });
     }
 );

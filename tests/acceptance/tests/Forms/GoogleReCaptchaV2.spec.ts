@@ -1,4 +1,5 @@
 import { expect, test } from '@fixtures/AcceptanceTest';
+import { satisfies } from 'compare-versions';
 
 const reCaptcha_V2_site_key = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
 const reCaptcha_V2_secret_key = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
@@ -12,7 +13,7 @@ test('As a customer, I can perform a registration by validating to be not a robo
         TestDataService,
         IdProvider,
         Register,
-        InstanceMeta ,
+        InstanceMeta,
     }) => {
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
@@ -44,7 +45,13 @@ test('As a customer, I can perform a registration by validating to be not a robo
             await ShopCustomer.attemptsTo(Register(customer));
 
             // Registration is prevented and the captcha is shown as invalid.
-            await ShopCustomer.expects(reCaptchaInput).toHaveClass(/(^|\s)is-invalid(\s|$)/);
+            // eslint-disable-next-line playwright/no-conditional-in-test
+            if (!InstanceMeta.features['ACCESSIBILITY_TWEAKS'] && satisfies(InstanceMeta.version, '<6.7')) {
+                await ShopCustomer.expects(reCaptchaInput).toHaveClass('d-none grecaptcha-v2-input');
+            } else {
+                await ShopCustomer.expects(reCaptchaInput).toHaveClass(/(^|\s)is-invalid(\s|$)/);
+            }
+
             await ShopCustomer.expects(reCaptchaFrame).toHaveClass(/(^|\s)has-error(\s|$)/);
         });
 
@@ -69,7 +76,7 @@ test('As a customer, I can perform a registration by validating to be not a robo
         TestDataService,
         IdProvider,
         Register,
-        InstanceMeta ,
+        InstanceMeta,
     }) => {
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
@@ -111,7 +118,7 @@ test('As a customer, I can perform a registration that is validated by the invis
         StorefrontAccount,
         TestDataService,
         IdProvider,
-        InstanceMeta ,
+        InstanceMeta,
     }) => {
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
@@ -170,10 +177,15 @@ test('As a customer, I can perform a registration that is validated by the invis
              */
             await StorefrontAccountLogin.page.waitForResponse(resp => resp.url().includes('google.com/recaptcha/api2/clr'));
 
-            await ShopCustomer.expects(StorefrontAccountLogin.lastNameInput).toHaveClass(/(^|\s)is-invalid(\s|$)/);
+            // eslint-disable-next-line playwright/no-conditional-in-test
+            if (!InstanceMeta.features['ACCESSIBILITY_TWEAKS'] && satisfies(InstanceMeta.version, '<6.7')) {
+                await ShopCustomer.expects(StorefrontAccountLogin.lastNameInput).toHaveClass('form-control');
+            } else {
+                await ShopCustomer.expects(StorefrontAccountLogin.lastNameInput).toHaveClass(/(^|\s)is-invalid(\s|$)/);
+            }
         });
 
-        await test.step('Customer fills out the missing field and re-attempts the registration', async() => {
+        await test.step('Customer fills out the missing field and re-attempts the registration', async () => {
             await StorefrontAccountLogin.lastNameInput.fill(customer.lastName);
 
             await StorefrontAccountLogin.registerButton.click();
@@ -191,7 +203,7 @@ test('As a customer, I want to fill out and submit the contact form that is vali
         StorefrontContactForm,
         DefaultSalesChannel,
         TestDataService,
-        InstanceMeta ,
+        InstanceMeta,
     }) => {
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');

@@ -1,4 +1,5 @@
 import { expect, test } from '@fixtures/AcceptanceTest';
+import { satisfies } from 'compare-versions';
 
 const reCaptcha_V3_site_key = '6LeNJ-UqAAAAAPmLzX0ekQuuv7f4HR8FVyaF4FrR';
 const reCaptcha_V3_secret_key = '6LeNJ-UqAAAAAGIxrxNBjVvQwPUZ6_DJxWlqXC9u';
@@ -12,7 +13,7 @@ test('As a customer, I can perform a registration by validating to be not a robo
         TestDataService,
         IdProvider,
         Register,
-        InstanceMeta ,
+        InstanceMeta,
     }) => {
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
@@ -54,7 +55,7 @@ test('As a customer, I can perform a registration that is validated by the invis
         StorefrontAccount,
         TestDataService,
         IdProvider,
-        InstanceMeta ,
+        InstanceMeta,
     }) => {
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
@@ -113,10 +114,16 @@ test('As a customer, I can perform a registration that is validated by the invis
              */
             await StorefrontAccountLogin.page.waitForResponse(resp => resp.url().includes('google.com/recaptcha/api2/clr'));
 
-            await ShopCustomer.expects(StorefrontAccountLogin.lastNameInput).toHaveClass(/(^|\s)is-invalid(\s|$)/);
+
+            // eslint-disable-next-line playwright/no-conditional-in-test
+            if (!InstanceMeta.features['ACCESSIBILITY_TWEAKS'] && satisfies(InstanceMeta.version, '<6.7')) {
+                await ShopCustomer.expects(StorefrontAccountLogin.lastNameInput).toHaveClass('form-control');
+            } else {
+                await ShopCustomer.expects(StorefrontAccountLogin.lastNameInput).toHaveClass(/(^|\s)is-invalid(\s|$)/);
+            }
         });
 
-        await test.step('Customer fills out the missing field and re-attempts the registration', async() => {
+        await test.step('Customer fills out the missing field and re-attempts the registration', async () => {
             await StorefrontAccountLogin.lastNameInput.fill(customer.lastName);
 
             await StorefrontAccountLogin.registerButton.click();
@@ -134,7 +141,7 @@ test('As a customer, I want to fill out and submit the contact form that is vali
         StorefrontContactForm,
         DefaultSalesChannel,
         TestDataService,
-        InstanceMeta ,
+        InstanceMeta,
     }) => {
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');

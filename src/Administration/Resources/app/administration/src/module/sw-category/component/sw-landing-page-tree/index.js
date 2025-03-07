@@ -135,7 +135,7 @@ export default {
             // reload after save
             if (oldVal && this.landingPageId !== 'create' && newVal.id === oldVal.id) {
                 this.landingPageRepository.get(newVal.id).then((newLandingPage) => {
-                    this.$set(this.loadedLandingPages, newLandingPage.id, newLandingPage);
+                    this.loadedLandingPages[newLandingPage.id] = newLandingPage;
                 });
             }
         },

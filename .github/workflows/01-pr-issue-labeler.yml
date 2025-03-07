@@ -11,3 +11,43 @@ jobs:
     - uses: srvaroa/labeler@v1.13.0
       env:
         GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+  apply-team-label:
+    runs-on: ubuntu-24.04
+    if: github.event_name == 'issues' && ( github.event.action == 'opened' || github.event.action == 'reopened' )
+    env:
+      TEAM_NAME: "customer-support"
+      TEAM_LABEL: "domain/customer-support"
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |-
+            const issueNumber = context.payload.issue.number;
+            const team = process.env.TEAM_NAME;
+            const teamLabel = process.env.TEAM_LABEL;
+            
+            const query = `
+              query getTeam($user: String!, $team: String!) {
+                organization(login: "shopware") {
+                  teams(userLogins: [$user], query: $team) {
+                    totalCount
+                  }
+                }
+              }
+            `;
+
+            const result = await github.graphql(query, { user: context.actor, team });
+            const isMemberOfTeam = result.organization.teams.totalCount > 0;
+          
+            if (isMemberOfTeam) {
+              const response = await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                labels: [teamLabel]
+              });
+            
+              if (response.status !== 200) {
+                throw new Error(`Failed to add label ${teamLabel} to issue #${issueNumber}`);
+              }
+            }

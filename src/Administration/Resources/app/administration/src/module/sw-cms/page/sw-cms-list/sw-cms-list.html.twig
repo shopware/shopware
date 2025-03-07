@@ -28,6 +28,7 @@
             }"
             variant="primary"
             :disabled="!acl.can('cms.creator') || undefined"
+            size="default"
             @click="onCreateNewLayout"
         >
             {{ $tc('sw-cms.general.createNewLayout') }}

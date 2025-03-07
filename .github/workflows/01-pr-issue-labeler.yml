@@ -57,7 +57,7 @@ jobs:
 
   move-to-wip:
     runs-on: ubuntu-24.04
-    if: github.event_name == 'issues' && github.event.action == 'reopened'
+    if: github.event.action == 'reopened'
     permissions:
       id-token: write
       issues: write

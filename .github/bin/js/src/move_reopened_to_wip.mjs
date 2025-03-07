@@ -112,31 +112,59 @@ async function setFieldValue(github, core, projectId, cardId, fieldId, valueId) 
   core.debug(`setFieldValue response: ${JSON.stringify(res)}`)
 }
 
-async function findIssueInProject(github, core, projectNumber, issueNumber) {
-  const res = await github.graphql(
-    `query findIssueInProject($projectNumber: Int!, $issueNumber: Int!) {
-      repository(owner: "shopware", name: "shopware") {
-        issue(number: $issueNumber) {
-          projectV2(number: $projectNumber) {
-            url
+async function findInProject(github, core, context, projectNumber) {
+  if (context.payload.issue) {
+    const res = await github.graphql(
+      `query findIssueInProject($projectNumber: Int!, $number: Int!) {
+        repository(owner: "shopware", name: "shopware") {
+          issue(number: $number) {
+            projectV2(number: $projectNumber) {
+              url
+            }
+            id
+            number
           }
-          id
-          number
         }
+      }`,
+      {
+        projectNumber,
+        number: context.payload.issue.number,
       }
-    }`,
-    {
-      projectNumber,
-      issueNumber,
+    )
+
+    core.debug(`findIssueInProject response: ${JSON.stringify(res)}`)
+
+    return {
+      node_id: res.repository.issue.id,
+      number: res.repository.issue.number,
+      project: res.repository.issue.projectV2,
     }
-  )
+  } else {
+    const res = await github.graphql(
+      `query findPRInProject($projectNumber: Int!, $number: Int!) {
+        repository(owner: "shopware", name: "shopware") {
+          pullRequest(number: $number) {
+            projectV2(number: $projectNumber) {
+              url
+            }
+            id
+            number
+          }
+        }
+      }`,
+      {
+        projectNumber,
+        number: context.payload.pull_request.number,
+      }
+    )
 
-  core.debug(`findIssueInProject response: ${JSON.stringify(res)}`)
+    core.debug(`findPRInProject response: ${JSON.stringify(res)}`)
 
-  return {
-    node_id: res.repository.issue.id,
-    number: res.repository.issue.number,
-    project: res.repository.issue.projectV2,
+    return {
+      node_id: res.repository.issue.id,
+      number: res.repository.issue.number,
+      project: res.repository.issue.projectV2,
+    }
   }
 }
 
@@ -146,9 +174,9 @@ async function findIssueInProject(github, core, projectNumber, issueNumber) {
  * @param context {import('@actions/github').context} info about the current event
  */
 export const main = async (github, core, context) => {
-  const issue = await findIssueInProject(github, core, FRAMEWORK_GROUP_PROJECT_NUMBER, context.payload.issue.number);
+  const issue = await findIssueInProject(github, core, context, FRAMEWORK_GROUP_PROJECT_NUMBER, context.payload.issue.number);
   if (!issue.project) {
-    core.debug(`skipping: issue ${issue.number} is not associated with project ${FRAMEWORK_GROUP_PROJECT_NUMBER}`)
+    core.debug(`skipping: issue/pr ${issue.number} is not associated with project ${FRAMEWORK_GROUP_PROJECT_NUMBER}`)
     return;
   }
 
@@ -159,7 +187,7 @@ export const main = async (github, core, context) => {
     throw new Error(`Option "${IN_PROGRESS_OPTION_NAME}" not found`)
   }
 
-  core.info(`get card for issue ${issue.number}`)
+  core.info(`get card for issue/pr ${issue.number}`)
   const cardId = (await addCard(github, core, projectInfo.node_id, issue.node_id)).node_id
 
   await setFieldValue(github, core, projectInfo.node_id, cardId, projectInfo.status_field_id, inProgressOption.id)

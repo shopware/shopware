@@ -95,7 +95,7 @@ jobs:
           scope: shopware
           identity: ReadCollaborators
       -  uses: tspascoal/get-user-teams-membership@v3
-         id: checkUserMember
+         id: actorTeams
          with:
             username: ${{ github.actor }}
             GITHUB_TOKEN: ${{ steps.sts.outputs.token }}

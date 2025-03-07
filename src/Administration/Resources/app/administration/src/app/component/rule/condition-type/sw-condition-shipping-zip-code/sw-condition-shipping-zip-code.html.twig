@@ -26,7 +26,7 @@
         v-model:value="zipCodes"
         name="sw-field--zipCodes"
         size="medium"
-        :placeholder="taggedFieldPlaceholder"
+        :placeholder="getPlaceholder('alphanumericZipCodes')"
         :disabled="disabled || undefined"
     />
     <mt-number-field
@@ -34,6 +34,7 @@
         v-model="zipCodes"
         name="sw-field--zipCodes"
         size="small"
+        :placeholder="getPlaceholder('numericZipCodes')"
         :disabled="disabled || undefined"
         :min="0"
         :digits="20"

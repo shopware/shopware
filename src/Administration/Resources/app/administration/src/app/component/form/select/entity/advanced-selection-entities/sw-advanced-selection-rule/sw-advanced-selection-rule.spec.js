@@ -65,7 +65,7 @@ async function createWrapper() {
                             return [];
                         },
                         getConditions: () => {
-                            return [];
+                            return [{ type: 'foo', label: 'bar' }, { type: 'bar', snippets: { label: 'foo' } }];
                         },
                         getRestrictedRuleTooltipConfig: () => {
                             return {
@@ -179,5 +179,12 @@ describe('components/sw-advanced-selection-rule', () => {
         await flushPromises();
 
         expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+    });
+
+    it('should map condition labels correctly', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.conditionFilterOptions).toStrictEqual([{ label: 'bar', value: 'foo' }, { label: 'foo', value: 'bar' }]);
     });
 });

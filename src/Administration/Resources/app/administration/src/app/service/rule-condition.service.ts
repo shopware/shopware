@@ -8,11 +8,31 @@ type appScriptCondition = {
 type condition = {
     type: string;
     component: string;
-    label: string;
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use snippets.label instead
+     */
+    label: string
     scopes: string[];
     group: string;
     scriptId: string;
     appScriptCondition: appScriptCondition;
+    /**
+     * @deprecated tag:v6.8.0 - Will be made required
+     */
+    snippets?: {
+        /**
+         * @deprecated tag:v6.8.0 - Will be made required
+         */
+        label?: string;
+        fields?: {
+            [index: string]: {
+                options?: {
+                    [index: string]: string;
+                };
+                placeholder?: string | string[];
+            };
+        };
+    };
 };
 
 type script = {

@@ -7,7 +7,7 @@
         size="medium"
         :options="selectValues"
         :disabled="disabled || undefined"
-        :placeholder="$tc('global.sw-condition.condition.withTime')"
+        :placeholder="getPlaceholder('withTime')"
         show-clearable-button
     />
     {% endblock %}
@@ -20,7 +20,7 @@
         required
         :date-type="isDateTime"
         :disabled="disabled || undefined"
-        :placeholder="$tc('sw-datepicker.date.placeholder')"
+        :placeholder="getPlaceholder('fromDate')"
     />
     {% endblock %}
 
@@ -32,7 +32,7 @@
         required
         :date-type="isDateTime"
         :disabled="disabled || undefined"
-        :placeholder="$tc('sw-datepicker.date.placeholder')"
+        :placeholder="getPlaceholder('toDate')"
     />
     {% endblock %}
 </div>

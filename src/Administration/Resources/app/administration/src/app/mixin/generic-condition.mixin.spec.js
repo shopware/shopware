@@ -51,6 +51,9 @@ describe('app/mixin/generic-condition', () => {
                     ensureValueExist: () => {},
                     $tc: (snippetKey) => snippetKey,
                 },
+                provide: {
+                    conditionDataProviderService: {},
+                }
             },
         });
 

@@ -7,7 +7,7 @@
         name="sw-field--selectedField"
         entity="custom_field"
         :criteria="customFieldCriteria"
-        :placeholder="$tc('global.sw-condition.condition.lineItemCustomField.field.customFieldSelect.placeholder')"
+        :placeholder="getPlaceholder('customField')"
         :disabled="disabled || undefined"
         size="medium"
         show-clearable-button
@@ -52,6 +52,7 @@
         size="medium"
         :value="renderedFieldValue"
         :config="renderedField.config"
+        :placeholder="getPlaceholder(renderedField.type)"
         :disabled="disabled || undefined"
         @update:value="renderedFieldValue = $event"
     />

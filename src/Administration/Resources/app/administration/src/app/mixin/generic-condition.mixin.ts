@@ -33,6 +33,10 @@ interface Config {
 export default Mixin.register(
     'generic-condition',
     defineComponent({
+        inject: [
+            'conditionDataProviderService',
+        ],
+
         data(): {
             visibleValue: null | number;
             baseUnit: unknown;
@@ -178,17 +182,6 @@ export default Mixin.register(
         methods: {
             getBind(field: Field) {
                 const fieldClone = Shopware.Utils.object.cloneDeep(field);
-                const snippetBasePath = [
-                    'global',
-                    'sw-condition-generic',
-                    // @ts-expect-error
-                    this.condition.type,
-                    fieldClone.name,
-                ];
-                const placeholderPath = [
-                    ...snippetBasePath,
-                    'placeholder',
-                ].join('.');
 
                 if (
                     [
@@ -202,14 +195,13 @@ export default Mixin.register(
 
                 if (fieldClone.type === 'single-select' && fieldClone.config.options) {
                     fieldClone.config.options = fieldClone.config.options.map((value) => {
+                        const labelSnippet = (this.conditionDataProviderService as RuleConditionService)
+                            // @ts-expect-error - condition is available in base component
+                            .getByType(this.condition.type as string)?.
+                            snippets?.fields?.[fieldClone.name]?.options?.[value as string];
+
                         return {
-                            label: this.$tc(
-                                [
-                                    ...snippetBasePath,
-                                    'options',
-                                    value,
-                                ].join('.'),
-                            ),
+                            label: this.$tc(labelSnippet ?? value as string),
                             value,
                         };
                     });
@@ -218,10 +210,6 @@ export default Mixin.register(
                 if (fieldClone.type === 'bool') {
                     fieldClone.type = 'single-select';
                     fieldClone.config.options = this.boolOptions;
-                }
-
-                if (this.$te(placeholderPath)) {
-                    fieldClone.config.placeholder = this.$tc(placeholderPath);
                 }
 
                 fieldClone.config.name = `sw-field--${fieldClone.name}`;

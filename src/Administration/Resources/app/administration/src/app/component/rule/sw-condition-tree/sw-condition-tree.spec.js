@@ -204,11 +204,13 @@ describe('src/app/component/rule/sw-condition-tree', () => {
 
             conditionDataProviderService.addCondition('cart', {
                 component: 'sw-condition-component',
-                label: 'test condition',
                 scopes: ['cart'],
                 group: 'customer',
                 appId: null,
                 appScriptCondition: null,
+                snippets: {
+                    label: 'test condition',
+                }
             });
 
             it('returns unordered conditions if no groups are available', async () => {
@@ -291,6 +293,27 @@ describe('src/app/component/rule/sw-condition-tree', () => {
                         type: 'checkout',
                         group: 'misc',
                         scopes: ['checkout'],
+                    }),
+                ]);
+            });
+
+            it('should find labels to translate', async () => {
+                const wrapper = await createWrapper({
+                    initialConditions: createInitialOrContainer(),
+                    conditionDataProviderService,
+                });
+
+                const node = wrapper.getComponent(swConditionTreeNode);
+
+                expect(node.vm.availableTypes).toBeDefined();
+                expect(node.vm.availableTypes).toEqual([
+                    expect.objectContaining({
+                        type: 'cart',
+                        translatedLabel: 'test condition',
+                    }),
+                    expect.objectContaining({
+                        type: 'checkout',
+                        translatedLabel: 'test condition',
                     }),
                 ]);
             });

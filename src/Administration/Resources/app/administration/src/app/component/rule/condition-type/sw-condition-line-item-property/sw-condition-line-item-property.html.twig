@@ -15,6 +15,7 @@
         :disabled="disabled || undefined"
         :entity-collection="options"
         :criteria="optionCriteria"
+        :placeholder="getPlaceholder('properties')"
         @select-collapsed="onSelectCollapsed"
         @search-term-change="setSearchTerm"
         @update:entity-collection="setOptions"

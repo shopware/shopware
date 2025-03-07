@@ -156,6 +156,9 @@ export default {
     moveItem,
     VueHelper,
     EventBus,
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
     genericRuleCondition,
 };
 

@@ -120,7 +120,7 @@ Component.register('sw-condition-tree', {
             }
 
             conditions.forEach((condition) => {
-                condition.translatedLabel = this.$tc(condition.label);
+                condition.translatedLabel = this.$tc(condition.snippets?.label ?? condition.label);
             });
 
             conditions.sort((a, b) => a.translatedLabel.localeCompare(b.translatedLabel));

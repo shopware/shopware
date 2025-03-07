@@ -180,7 +180,7 @@ Component.register('sw-advanced-selection-rule', {
             const conditions = this.ruleConditionDataProviderService.getConditions().map((condition) => {
                 return {
                     value: condition.type,
-                    label: this.$tc(condition.label),
+                    label: this.$tc(condition.snippets?.label ?? condition.label),
                 };
             });
             conditions.sort((a, b) => a.label.localeCompare(b.label));

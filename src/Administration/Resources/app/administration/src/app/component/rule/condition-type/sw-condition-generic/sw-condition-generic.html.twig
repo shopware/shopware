@@ -28,7 +28,7 @@
                     :value="getVisibleValue(field.name)"
                     size="small"
                     show-clearable-button
-                    :placeholder="getPlaceholder(field.type)"
+                    :placeholder="getPlaceholder(field.name)"
                     @update:value="updateFieldValue(field.name, $event, baseUnit, selectedUnit)"
                 />
 

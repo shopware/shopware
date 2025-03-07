@@ -16,6 +16,7 @@
         entity="category"
         :entity-collection="categories"
         description-position="bottom"
+        :placeholder="getPlaceholder('categories')"
         @update:entity-collection="setCategoryIds"
     >
         <template #result-item="{ item, index, isSelected, addItem, displayLabelProperty, isSelectionDisabled, descriptionPosition, highlightSearchTerm, searchTerm }">

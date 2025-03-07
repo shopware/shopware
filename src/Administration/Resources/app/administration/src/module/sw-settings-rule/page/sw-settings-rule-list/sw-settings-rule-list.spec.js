@@ -54,7 +54,7 @@ async function createWrapper(privileges = []) {
                 }),
                 ruleConditionDataProviderService: {
                     getConditions: () => {
-                        return [{ type: 'foo', label: 'bar' }];
+                        return [{ type: 'foo', label: 'bar' }, { type: 'bar', snippets: { label: 'foo' } }];
                     },
                     getGroups: () => {
                         return [{ id: 'foo', name: 'bar' }];
@@ -176,8 +176,9 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         await flushPromises();
         const conditionFilterOptions = wrapper.vm.conditionFilterOptions;
 
-        expect(conditionFilterOptions).toEqual([
+        expect(conditionFilterOptions).toStrictEqual([
             { label: 'bar', value: 'foo' },
+            { label: 'foo', value: 'bar' },
         ]);
     });
 

@@ -117,5 +117,21 @@ Component.register('sw-condition-base', {
                 this.condition.value = {};
             }
         },
+
+        getPlaceholder(fieldName) {
+            const placeholderPath =
+                this.conditionDataProviderService
+                    .getByType(this.condition.type)?.snippets?.fields?.[fieldName]?.placeholder;
+
+            if (!placeholderPath) {
+                return '';
+            }
+
+            if (Array.isArray(placeholderPath)) {
+                return placeholderPath.filter(placeholder => placeholder).map(placeholder => this.$tc(placeholder)).join('');
+            }
+
+            return this.$tc(placeholderPath);
+        },
     },
 });

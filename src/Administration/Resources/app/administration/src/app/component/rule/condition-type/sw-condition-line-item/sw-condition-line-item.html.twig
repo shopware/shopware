@@ -16,6 +16,7 @@
         :entity-collection="products"
         :criteria="productCriteria"
         :context="productContext"
+        :placeholder="getPlaceholder('products')"
         advanced-selection-component="sw-advanced-selection-product"
         @update:entity-collection="setIds"
     >

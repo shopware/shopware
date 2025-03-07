@@ -18,6 +18,12 @@ describe('entity-collection.data.ts', () => {
         expect(condition.scopes).toEqual(['global']);
     });
 
+    it('should register conditions with correct label path', async () => {
+        const conditions = Shopware.Service('ruleConditionDataProviderService').getConditions();
+
+        conditions.forEach(condition => expect(condition.snippets.label).toBeDefined());
+    });
+
     it('should add app script conditions', async () => {
         Shopware.Service('ruleConditionDataProviderService').addScriptConditions([
             {

@@ -47,7 +47,6 @@ jobs:
   twig-lint-storefront:
     name: Twig Lint (Storefront)
     runs-on: ubuntu-latest
-    container: maltejanz/ludtwig:0.10.0
 
     steps:
       - name: Checkout repository
@@ -64,13 +63,19 @@ jobs:
 
       - name: Run ludtwig linter
         if: steps.changed-files.outputs.any_changed == 'true'
-        run: |
-          cd ./src/Storefront/Resources/views
-          ludtwig .
-          ludtwig --version
-          echo "If you want to run this locally install https://github.com/MalteJanz/ludtwig in the version above"
-          echo "And then composer run ludtwig:storefront or ludtwig:storefront:fix"
-          echo "Alternatively you also can run these in the DevEnv shell"
+        uses: addnab/docker-run-action@v3
+        with:
+          image: maltejanz/ludtwig:0.10.0
+          options: --rm
+          shell: bash
+          run: |
+            cd ./src/Storefront/Resources/views
+            ludtwig .
+            ludtwig --version
+            echo "If you want to run this locally install https://github.com/MalteJanz/ludtwig in the version above"
+            echo "And then composer run ludtwig:storefront or ludtwig:storefront:fix"
+            echo "Alternatively you also can run these in the DevEnv shell"
+
 
   jest:
     name: "Jest Storefront"
@@ -143,6 +148,7 @@ jobs:
       - lint
       - jest
       - license-check
+      - twig-lint-storefront
 
       runs-on: Ubuntu-latest
       steps:

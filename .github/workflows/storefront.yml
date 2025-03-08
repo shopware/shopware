@@ -66,12 +66,11 @@ jobs:
         uses: addnab/docker-run-action@v3
         with:
           image: maltejanz/ludtwig:0.10.0
-          options: --rm
+          options: -v ${{ github.workspace }}:/ludtwig
           run: |
             pwd
             ls -lah
-            ls -lah /github/workspace
-            cd /github/workspace/src/Storefront/Resources/views
+            cd ./src/Storefront/Resources/views
             ludtwig .
             ludtwig --version
             echo "If you want to run this locally install https://github.com/MalteJanz/ludtwig in the version above"

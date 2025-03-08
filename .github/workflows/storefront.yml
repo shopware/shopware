@@ -68,7 +68,7 @@ jobs:
           image: maltejanz/ludtwig:0.10.0
           options: --rm
           run: |
-            cd ./src/Storefront/Resources/views
+            cd /github/workspace/src/Storefront/Resources/views
             ludtwig .
             ludtwig --version
             echo "If you want to run this locally install https://github.com/MalteJanz/ludtwig in the version above"

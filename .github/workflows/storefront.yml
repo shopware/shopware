@@ -68,6 +68,9 @@ jobs:
           image: maltejanz/ludtwig:0.10.0
           options: --rm
           run: |
+            pwd
+            ls -lah
+            ls -lah /github/workspace
             cd /github/workspace/src/Storefront/Resources/views
             ludtwig .
             ludtwig --version

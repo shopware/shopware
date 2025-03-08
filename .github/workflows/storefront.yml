@@ -67,7 +67,6 @@ jobs:
         with:
           image: maltejanz/ludtwig:0.10.0
           options: --rm
-          shell: bash
           run: |
             cd ./src/Storefront/Resources/views
             ludtwig .

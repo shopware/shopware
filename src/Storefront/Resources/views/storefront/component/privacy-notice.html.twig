@@ -10,12 +10,14 @@
 
         {% block component_privacy_dpi %}
             {% set cmsPath = 'frontend.cms.page' %}
-            {% set privacyNoticeSnippet = 'general.privacyNoticeText' %}
+            {% set privacyNoticeSnippet = 'general.privacyNoticeTextModal' %}
             {% if config('core.loginRegistration.requireDataProtectionCheckbox') == 1 %}
 
                 {% set dataProtectionLabel = privacyNoticeSnippet|trans({
-                    '%privacyUrl%': path(cmsPath, { id: config('core.basicInformation.privacyPage') }),
-                    '%tosUrl%': path(cmsPath, { id: config('core.basicInformation.tosPage') })
+                    '%privacyModalTagOpen%': '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.privacyPage') }) ~ '">',
+                    '%privacyModalTagClose%': '</button>',
+                    '%tosModalTagOpen%': '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.tosPage') }) ~ '">',
+                    '%tosModalTagClose%': '</button>',
                 })|raw %}
 
                 {% sw_include '@Storefront/storefront/component/form/form-checkbox.html.twig' with {
@@ -29,8 +31,10 @@
                     {% block component_privacy_label %}
                         <div>
                             {{ privacyNoticeSnippet|trans({
-                                '%privacyUrl%': path(cmsPath, { id: config('core.basicInformation.privacyPage') }),
-                                '%tosUrl%': path(cmsPath, { id: config('core.basicInformation.tosPage') })
+                                '%privacyModalTagOpen%': '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.privacyPage') }) ~ '">',
+                                '%privacyModalTagClose%': '</button>',
+                                '%tosModalTagOpen%': '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.tosPage') }) ~ '">',
+                                '%tosModalTagClose%': '</button>',
                             })|raw }}
                         </div>
                     {% endblock %}

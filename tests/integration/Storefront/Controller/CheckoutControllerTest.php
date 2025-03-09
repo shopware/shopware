@@ -494,6 +494,7 @@ class CheckoutControllerTest extends TestCase
 
         $content = json_decode((string) $response->getContent(), true);
 
+        static::assertIsArray($content);
         static::assertArrayHasKey('price', $content);
         static::assertArrayHasKey('lineItems', $content);
         static::assertArrayHasKey('deliveries', $content);

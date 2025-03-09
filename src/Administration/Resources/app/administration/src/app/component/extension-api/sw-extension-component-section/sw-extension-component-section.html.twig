@@ -43,5 +43,12 @@
             :location-id="componentSection.props.locationId"
         />
     </mt-card>
+    <div v-else-if="componentSection.component === 'div'">
+        <sw-iframe-renderer
+            v-if="componentSection.props?.locationId"
+            :src="componentSection.src"
+            :location-id="componentSection.props.locationId"
+        />
+    </div>
 </template>
 {% endblock %}

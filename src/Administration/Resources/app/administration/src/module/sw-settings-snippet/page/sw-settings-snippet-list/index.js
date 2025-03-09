@@ -568,7 +568,7 @@ export default {
         },
 
         onChange(field) {
-            this.$set(this.filterSettings, [field.name], field.value);
+            this.filterSettings[[field.name]] = field.value;
 
             this.page = 1;
             if (field.group === 'editedSnippets') {

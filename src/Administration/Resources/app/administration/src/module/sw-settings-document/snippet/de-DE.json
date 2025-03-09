@@ -72,6 +72,7 @@
       "helpTextDisplayDocumentInCustomerAccount": "Das Dokument wird dem Shopkunden unter Bestellungen im Kundenkonto angezeigt. Nur Dokumente die an den Kunden gesendet wurden, werden im Kundenkonto angezeigt.",
       "helpTextDisplayDeliveryCountries": "Alle ausgewählten Länder erhalten einen Hinweis zur \"innergemeinschaftlichen Lieferung\" auf den Rechnungsdokumenten.",
       "helpTextPaymentDueDate": "Bsp.: +30 days, +4 weeks, +1 week 2 days",
+      "helpTextDisplayAdditionalNoteDelivery": "Nur für EU-Mitgliedsstaaten, siehe auch \"Einstellungen > Länder\".",
       "labelFileTypes": "Dateiformate"
     }
   },

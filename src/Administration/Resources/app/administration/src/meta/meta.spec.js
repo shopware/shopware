@@ -122,7 +122,9 @@ describe('Administration meta tests', () => {
                 [...fileContent.matchAll(/position-identifier="(.*)"/gm)]
                     .map((match) => match[1])
                     .forEach((match) => {
-                        result.push(match);
+                        if (match !== '' && match !== 'null') {
+                            result.push(match);
+                        }
                     });
             });
 

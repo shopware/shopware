@@ -75,6 +75,10 @@
 .is--collapsed .sw-sales-channel-menu {
     .sw-sales-channel-menu__collapsed-context-menu {
         opacity: 1;
+
+        .mt-icon {
+            margin-right: 4px;
+        }
     }
 
     .sw-loader {

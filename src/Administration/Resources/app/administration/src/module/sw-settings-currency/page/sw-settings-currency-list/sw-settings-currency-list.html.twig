@@ -51,6 +51,7 @@
             class="sw-settings-currency-list__button-create"
             :disabled="!acl.can('currencies.creator') || undefined"
             variant="primary"
+            size="default"
             @click="$router.push({ name: 'sw.settings.currency.create' })"
         >
             {{ $tc('sw-settings-currency.list.buttonAddCurrency') }}

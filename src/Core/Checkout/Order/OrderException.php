@@ -259,20 +259,4 @@ class OrderException extends HttpException
             ]
         );
     }
-
-    /**
-     * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed, use OrderException::wrongGuestCredentials() instead
-     */
-    public static function wrongGuestCredentialsException(): WrongGuestCredentialsException
-    {
-        return new WrongGuestCredentialsException();
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed, use OrderException::guestNotAuthenticated() instead
-     */
-    public static function guestNotAuthenticatedException(): GuestNotAuthenticatedException
-    {
-        return new GuestNotAuthenticatedException();
-    }
 }

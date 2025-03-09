@@ -232,10 +232,6 @@ class OrderRoute extends AbstractOrderRoute
             if ($billingAddress === null
                 || $request->get('email') !== $orderCustomer->getEmail()
                 || $request->get('zipcode') !== $billingAddress->getZipcode()) {
-                // @deprecated tag:v6.8.0 - remove this if block
-                if (!Feature::isActive('v6.8.0.0')) {
-                    throw OrderException::wrongGuestCredentialsException();
-                }
                 throw OrderException::wrongGuestCredentials();
             }
         } else {

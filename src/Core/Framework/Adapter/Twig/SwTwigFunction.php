@@ -14,7 +14,7 @@ use Twig\Runtime\EscaperRuntime;
 use Twig\Source;
 use Twig\Template;
 
-#[Package('framework')]
+#[Package('core')]
 /**
  * @internal
  */

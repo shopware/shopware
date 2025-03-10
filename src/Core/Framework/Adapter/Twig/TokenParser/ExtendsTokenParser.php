@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Twig\TokenParser;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Node\EmptyNode;
 use Twig\Node\Expression\AbstractExpression;

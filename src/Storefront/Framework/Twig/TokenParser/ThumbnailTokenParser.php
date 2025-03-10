@@ -39,7 +39,7 @@ final class ThumbnailTokenParser extends AbstractTokenParser
             new ConstantExpression('name', $token->getLine())
         );
 
-        return new SwInclude($expr, $variables, false, false, $token->getLine(), $this->getTag());
+        return new SwInclude($expr, $variables, false, false, $token->getLine());
     }
 
     public function getTag(): string

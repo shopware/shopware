@@ -15,6 +15,7 @@ class MediaExtension extends AbstractExtension
 {
     /**
      * @internal
+     *
      * @param EntityRepository<MediaCollection> $mediaRepository
      */
     public function __construct(private readonly EntityRepository $mediaRepository)

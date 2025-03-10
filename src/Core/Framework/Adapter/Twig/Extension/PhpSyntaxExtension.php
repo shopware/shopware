@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
+use Shopware\Core\Framework\Adapter\Twig\TokenParser\MacroOverrideTokenParserMacro;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ReturnNodeTokenParser;
+use Shopware\Core\Framework\Adapter\Twig\TokenParser\SwMacroFunctionTokenParser;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Facade\ArrayFacade;
@@ -39,6 +41,8 @@ class PhpSyntaxExtension extends AbstractExtension
             new BreakTokenParser(),
             new ContinueTokenParser(),
             new ReturnNodeTokenParser(),
+            new SwMacroFunctionTokenParser(),
+            new MacroOverrideTokenParserMacro(), /** @deprecated tag:v6.8.0 - Will be removed use `sw_macro_function` instead of macro in app scripts */
         ];
     }
 

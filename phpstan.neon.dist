@@ -32,7 +32,6 @@ parameters:
 
     excludePaths:
         - src/WebInstaller/Resources/
-        - src/WebInstaller/vendor(?)
         - src/WebInstaller/Tests/_fixtures
         - tests/e2e/cypress
 
@@ -285,6 +284,10 @@ parameters:
             #^Call to deprecated method resetQueryPart\\(\\) of class Doctrine\\\\DBAL\\\\Query\\\\QueryBuilder\\:
             Use the dedicated reset\\*\\(\\) methods instead\\.$#
         """
+
+        - ##
+            message: '#Property Shopware\\Core\\Content\\Test\\Product\\SalesChannel\\ProductListingFeaturesSubscriberTest.* is never written, only read.#'
+            path: src/Core/Content/Test/Product/SalesChannel/ProductListingFeaturesSubscriberTest.php
 
 services:
     - # register the class, so we can decorate it, but don't tag it as a rule, so only our decorator is used by PHPStan

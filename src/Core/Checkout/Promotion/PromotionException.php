@@ -2,11 +2,15 @@
 
 namespace Shopware\Core\Checkout\Promotion;
 
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Exception\FilterPickerNotFoundException;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Exception\FilterSorterNotFoundException;
 use Shopware\Core\Checkout\Promotion\Exception\DiscountCalculatorNotFoundException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidCodePatternException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidScopeDefinitionException;
 use Shopware\Core\Checkout\Promotion\Exception\PatternNotComplexEnoughException;
+use Shopware\Core\Checkout\Promotion\Exception\PriceNotFoundException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -16,28 +20,21 @@ use Symfony\Component\HttpFoundation\Response;
 class PromotionException extends HttpException
 {
     public const PROMOTION_CODE_ALREADY_REDEEMED = 'CHECKOUT__CODE_ALREADY_REDEEMED';
-
     public const DISCOUNT_CALCULATOR_NOT_FOUND = 'CHECKOUT__PROMOTION_DISCOUNT_CALCULATOR_NOT_FOUND';
-
     public const INVALID_CODE_PATTERN = 'CHECKOUT__INVALID_CODE_PATTERN';
-
     public const INVALID_DISCOUNT_SCOPE_DEFINITION = 'CHECKOUT__PROMOTION_INVALID_DISCOUNT_SCOPE_DEFINITION';
-
     public const PATTERN_NOT_COMPLEX_ENOUGH = 'PROMOTION__INDIVIDUAL_CODES_PATTERN_INSUFFICIENTLY_COMPLEX';
-
     public const PATTERN_ALREADY_IN_USE = 'PROMOTION__INDIVIDUAL_CODES_PATTERN_ALREADY_IN_USE';
-
     public const PROMOTION_NOT_FOUND = 'CHECKOUT__PROMOTION__NOT_FOUND';
-
     public const PROMOTION_DISCOUNT_NOT_FOUND = 'CHECKOUT__PROMOTION_DISCOUNT_NOT_FOUND';
-
     public const PROMOTION_CODE_NOT_FOUND = 'CHECKOUT__PROMOTION_CODE_NOT_FOUND';
-
     public const PROMOTION_INVALID_PRICE_DEFINITION = 'CHECKOUT__INVALID_DISCOUNT_PRICE_DEFINITION';
-
     public const CHECKOUT_UNKNOWN_PROMOTION_DISCOUNT_TYPE = 'CHECKOUT__UNKNOWN_PROMOTION_DISCOUNT_TYPE';
-
     public const PROMOTION_SET_GROUP_NOT_FOUND = 'CHECKOUT__PROMOTION_SETGROUP_NOT_FOUND';
+    public const MISSING_REQUEST_PARAMETER_CODE = 'CHECKOUT__MISSING_REQUEST_PARAMETER';
+    public const PRICE_NOT_FOUND_FOR_ITEM = 'CHECKOUT__PRICE_NOT_FOUND_FOR_ITEM';
+    public const FILTER_SORTER_NOT_FOUND = 'CHECKOUT__FILTER_SORTER_NOT_FOUND';
+    public const FILTER_PICKER_NOT_FOUND = 'CHECKOUT__FILTER_PICKER_NOT_FOUND';
 
     public static function codeAlreadyRedeemed(string $code): self
     {
@@ -198,6 +195,58 @@ class PromotionException extends HttpException
             self::PROMOTION_SET_GROUP_NOT_FOUND,
             'Promotion SetGroup "{{ id }}" has not been found!',
             ['id' => $groupId],
+        );
+    }
+
+    public static function missingRequestParameter(string $name): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_REQUEST_PARAMETER_CODE,
+            'Parameter "{{ parameterName }}" is missing.',
+            ['parameterName' => $name]
+        );
+    }
+
+    public static function priceNotFound(LineItem $lineItem): self
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new PriceNotFoundException($lineItem);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PRICE_NOT_FOUND_FOR_ITEM,
+            'No calculated price found for item {{ id }}',
+            ['id' => $lineItem->getId()]
+        );
+    }
+
+    public static function filterSorterNotFound(string $key): self
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new FilterSorterNotFoundException($key);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::FILTER_SORTER_NOT_FOUND,
+            'Sorter "{{ key }}" has not been found!',
+            ['key' => $key]
+        );
+    }
+
+    public static function filterPickerNotFoundException(string $key): self
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new FilterPickerNotFoundException($key);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::FILTER_PICKER_NOT_FOUND,
+            'Picker "{{ key }}" has not been found!',
+            ['key' => $key]
         );
     }
 }

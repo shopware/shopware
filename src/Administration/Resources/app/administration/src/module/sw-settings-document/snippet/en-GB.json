@@ -72,6 +72,7 @@
       "helpTextDisplayDocumentInCustomerAccount": "The document is displayed under \"Orders\" in the respective customer account. Note that only documents that have actually been sent to the customer are displayed in the customer account.",
       "helpTextDisplayDeliveryCountries": "Displays indication of \"intra community delivery\" on invoice documents for selected countries.",
       "helpTextPaymentDueDate": "E.g.: +30 days, +4 weeks, +1 week 2 days",
+      "helpTextDisplayAdditionalNoteDelivery": "Eligible only for EU member states, see also \"Settings > Countries\".",
       "labelFileTypes": "File formats"
     }
   },

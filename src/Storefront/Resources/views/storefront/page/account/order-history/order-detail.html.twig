@@ -174,7 +174,7 @@
                                                 {% endblock %}
 
                                                 {% block page_account_order_item_detail_vat %}
-                                                    {% if not order.isTaxFree %}
+                                                    {% if order.taxStatus !== constant('Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\CartPrice::TAX_STATE_FREE') %}
                                                         {% for calculatedTax in order.price.calculatedTaxes %}
                                                             {% block page_account_order_item_detail_vat_label %}
                                                                 <dt class="col-6 col-md-8">
@@ -196,7 +196,7 @@
                                                 {% block page_account_order_item_detail_amount %}
                                                     {% block page_account_order_item_detail_amount_label %}
                                                         <dt class="col-6 col-md-8">
-                                                            {% if order.isTaxFree %}
+                                                            {% if order.taxStatus === constant('Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\CartPrice::TAX_STATE_FREE') %}
                                                                 {{ 'account.orderItemNetTotal'|trans|sw_sanitize }}
                                                             {% else %}
                                                                 {{ 'account.orderItemTotal'|trans|sw_sanitize }}
@@ -206,7 +206,7 @@
 
                                                     {% block page_account_order_item_detail_amount_value %}
                                                         <dd class="col-6 col-md-4">
-                                                            {% if order.isTaxFree %}
+                                                            {% if order.taxStatus === constant('Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\CartPrice::TAX_STATE_FREE') %}
                                                                 {{ order.amountNet|currency(order.currency.isoCode) }}
                                                             {% else %}
                                                                 {{ order.amountTotal|currency(order.currency.isoCode) }}

@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidLimitQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPageQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryException;
@@ -23,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -186,7 +186,7 @@ class RequestCriteriaBuilder
                 $field = $definition->getFields()->get($propertyName);
 
                 if (!$field instanceof AssociationField) {
-                    throw new AssociationNotFoundException((string) $propertyName);
+                    throw FrameworkException::associationNotFound((string) $propertyName);
                 }
 
                 $ref = $field->getReferenceDefinition();

@@ -31,6 +31,9 @@ Based on custom offcanvas component.
 }
 
 .navigation-offcanvas-actions {
+    padding-top: 1rem;
+    margin-bottom: 0.5rem;
+
     .top-bar-nav-item {
         padding: 0 $spacer;
     }

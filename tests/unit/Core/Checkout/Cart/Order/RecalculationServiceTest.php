@@ -8,6 +8,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderConversionContext;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
@@ -454,6 +456,67 @@ class RecalculationServiceTest extends TestCase
         );
 
         $recalculationService->recalculateOrder($orderEntity->getId(), $this->context);
+    }
+
+    public function testSetCartErrorToValidatedCart(): void
+    {
+        $order = $this->orderEntity();
+
+        $entityRepository = $this->createMock(EntityRepository::class);
+        $entityRepository->method('search')->willReturnOnConsecutiveCalls(
+            new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(), $this->salesChannelContext->getContext()),
+        );
+
+        $persistentError = $this->createMock(Error::class);
+        $persistentError
+            ->expects(static::once())
+            ->method('isPersistent')
+            ->willReturn(true);
+
+        $nonPersistentError = $this->createMock(Error::class);
+        $nonPersistentError
+            ->expects(static::once())
+            ->method('isPersistent')
+            ->willReturn(false);
+
+        $cart = new Cart('some-token');
+        $cart->setErrors(new ErrorCollection([$persistentError, $nonPersistentError]));
+
+        $processorMock = $this->createMock(Processor::class);
+        $processorMock
+            ->expects(static::once())
+            ->method('process')
+            ->willReturn($cart);
+
+        $this->cartRuleLoader
+            ->expects(static::once())
+            ->method('loadByCart')
+            ->willReturn(new RuleLoaderResult(new Cart('reloaded-cart'), new RuleCollection()));
+
+        $this->orderConverter
+            ->expects(static::once())
+            ->method('convertToOrder')
+            ->willReturnCallback(static function (Cart $validatedCart) {
+                static::assertCount(1, $validatedCart->getErrors());
+                static::assertInstanceOf(Error::class, $validatedCart->getErrors()->first());
+
+                return [];
+            });
+
+        $recalculationService = new RecalculationService(
+            $entityRepository,
+            $this->orderConverter,
+            $this->createMock(CartService::class),
+            $entityRepository,
+            $entityRepository,
+            $entityRepository,
+            $entityRepository,
+            $processorMock,
+            $this->cartRuleLoader,
+            $this->createMock(PromotionItemBuilder::class)
+        );
+
+        $recalculationService->addCustomLineItem($order->getId(), new LineItem(Uuid::randomHex(), LineItem::CUSTOM_LINE_ITEM_TYPE), $this->context);
     }
 
     private function orderEntity(): OrderEntity

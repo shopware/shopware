@@ -54,16 +54,51 @@ class ViteFileAccessorDecorator extends FileAccessor
         $bundle = $this->getBundleForConfig($configName);
         // plain symfony bundles don't bring JS assets
         if (!$bundle instanceof ShopwareBundle) {
-            return $this->content[$configName][$fileType] = [];
+            return [];
         }
 
+        return $this->getContent($fileType, $bundle);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getBundleData(ShopwareBundle $bundle): array
+    {
+        return $this->getContent(self::ENTRYPOINTS, $bundle);
+    }
+
+    private function getRelativeFileLocation(string $fileType): string
+    {
+        return '/Resources/public/administration/.vite/' . self::FILES[$fileType];
+    }
+
+    private function getBundleForConfig(string $configName): BundleInterface
+    {
+        if ($configName === '_default') {
+            $configName = 'Administration';
+        }
+
+        return $this->kernel->getBundle($configName);
+    }
+
+    private function getTechnicalBundleName(ShopwareBundle $bundle): string
+    {
+        return str_replace('_', '-', $bundle->getContainerPrefix());
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getContent(string $fileType, ShopwareBundle $bundle): array
+    {
         // Depending on how many script tags are rendered, this method is called multiple times
         // Cache the content to avoid reading the file multiple times
-        if (!isset($this->content[$configName][$fileType])) {
+        if (!isset($this->content[$bundle->getName()][$fileType])) {
             $viteEntryPointsPath = $bundle->getPath() . $this->getRelativeFileLocation($fileType);
 
             if (!$this->filesystem->exists($viteEntryPointsPath)) {
-                return $this->content[$configName][$fileType] = [];
+                return $this->content[$bundle->getName()][$fileType] = [];
             }
 
             $content = json_decode(
@@ -90,28 +125,9 @@ class ViteFileAccessorDecorator extends FileAccessor
                 }
             }
 
-            $this->content[$configName][$fileType] = $content;
+            $this->content[$bundle->getName()][$fileType] = $content;
         }
 
-        return $this->content[$configName][$fileType];
-    }
-
-    private function getRelativeFileLocation(string $fileType): string
-    {
-        return '/Resources/public/administration/.vite/' . self::FILES[$fileType];
-    }
-
-    private function getBundleForConfig(string $configName): BundleInterface
-    {
-        if ($configName === '_default') {
-            $configName = 'Administration';
-        }
-
-        return $this->kernel->getBundle($configName);
-    }
-
-    private function getTechnicalBundleName(ShopwareBundle $bundle): string
-    {
-        return str_replace('_', '-', $bundle->getContainerPrefix());
+        return $this->content[$bundle->getName()][$fileType];
     }
 }

@@ -239,7 +239,7 @@ class InfoController extends AbstractController
                 continue;
             }
 
-            $viteEntryPoints = $this->viteFileAccessorDecorator->getData($bundle->getName(), ViteFileAccessorDecorator::ENTRYPOINTS);
+            $viteEntryPoints = $this->viteFileAccessorDecorator->getBundleData($bundle);
 
             $technicalBundleName = $this->getTechnicalBundleName($bundle);
             $styles = $viteEntryPoints['entryPoints'][$technicalBundleName]['css'] ?? [];

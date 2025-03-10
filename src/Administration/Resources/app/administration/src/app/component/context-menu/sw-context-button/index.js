@@ -72,6 +72,12 @@ Component.register('sw-context-button', {
             default: 'solid-ellipsis-h-s',
         },
 
+        iconSize: {
+            type: String,
+            required: false,
+            default: '16px',
+        },
+
         disabled: {
             type: Boolean,
             required: false,

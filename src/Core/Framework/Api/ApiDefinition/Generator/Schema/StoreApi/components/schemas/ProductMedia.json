@@ -6,11 +6,7 @@
         "schemas": {
             "ProductMedia": {
                 "type": "object",
-                "properties": {
-                    "thumbnails": {
-                        "$ref": "#/components/schemas/MediaThumbnail"
-                    }
-                }
+                "required": ["media"]
             }
         }
     }

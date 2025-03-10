@@ -7,7 +7,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class TimeRangeRule extends Rule

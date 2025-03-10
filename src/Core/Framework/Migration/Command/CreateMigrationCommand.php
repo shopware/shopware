@@ -161,6 +161,8 @@ class CreateMigrationCommand extends Command
             return;
         }
 
+        $params['%%timestamp%%'] = (string) $params['%%timestamp%%'];
+
         fwrite($file, str_replace(array_keys($params), array_values($params), $template));
         fclose($file);
 

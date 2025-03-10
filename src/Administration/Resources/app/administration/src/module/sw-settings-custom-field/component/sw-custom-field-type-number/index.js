@@ -40,7 +40,7 @@ export default {
     methods: {
         createdComponent() {
             if (!this.currentCustomField.config.numberType) {
-                this.$set(this.currentCustomField.config, 'numberType', 'int');
+                this.currentCustomField.config.numberType = 'int';
             }
         },
     },

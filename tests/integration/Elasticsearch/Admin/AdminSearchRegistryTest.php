@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Elasticsearch\Admin;
 
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
@@ -28,7 +27,6 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 class AdminSearchRegistryTest extends TestCase
 {
     use AdminApiTestBehaviour;

@@ -19,5 +19,8 @@ return [
         'An enum expression .* is not supported in .*', // Can not be inspected through reflection https://github.com/Roave/BetterReflection/issues/1376
         // major
         'Value of constant Shopware\\\\Core\\\\Kernel::SHOPWARE_FALLBACK_VERSION changed from \'6.6.9999999-dev\' to \'6.7.9999999-dev\'',
+
+        // Can be removed before RC release
+        'Shopware\\\\Core\\\\Framework\\\\Log\\\\LogEntryEntity.* array|null',
     ],
 ];

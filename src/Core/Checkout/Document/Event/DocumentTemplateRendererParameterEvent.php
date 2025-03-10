@@ -11,10 +11,16 @@ class DocumentTemplateRendererParameterEvent extends Event
 {
     use ExtendableTrait;
 
+    /**
+     * @param array<string, mixed> $parameters
+     */
     public function __construct(private readonly array $parameters)
     {
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getParameters(): array
     {
         return $this->parameters;

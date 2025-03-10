@@ -48,11 +48,8 @@
                         }
                     },
                     "query": {
-                        "type": "array",
-                        "description": "List of queries to restrict the search result. For more information, see [Search Queries > Query](https://shopware.stoplight.io/docs/store-api/docs/concepts/search-queries.md#query)",
-                        "items": {
-                            "$ref": "#/components/schemas/Query"
-                        }
+                        "type": "string",
+                        "description": "The query string to search for"
                     },
                     "associations": {
                         "$ref": "#/components/schemas/Associations"

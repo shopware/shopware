@@ -45,6 +45,7 @@ $focus-ring-opacity: 1 !default;
 $focus-ring-color: rgba($primary, $focus-ring-opacity) !default;
 $focus-ring-blur: 0 !default;
 $focus-ring-box-shadow: (0 0 0 0.125rem $body-bg, 0 0 $focus-ring-blur $focus-ring-width $focus-ring-color) !default;
+$focus-ring-box-shadow-inset: (inset 0 0 0 0.125rem $focus-ring-color, inset 0 0 0 0.25rem $body-bg) !default;
 
 $border-radius: 0 !default;
 $border-radius-lg: 0 !default;

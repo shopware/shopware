@@ -27,6 +27,7 @@
         margin-bottom: 0;
     }
 
+    .mt-block-field__block,
     .sw-block-field .sw-block-field__block {
         border: 0;
     }
@@ -37,6 +38,21 @@
 
     .sw-contextual-field:not(.sw-product-stream-value__time-input) .sw-field__addition {
         display: none;
+    }
+
+    .mt-field {
+        margin-bottom: 0;
+        height: 34px;
+
+        .mt-block-field__block,
+        input {
+            max-height: 100%;
+        }
+
+        .mt-number-field__controls > * {
+            flex: 1 1 0;
+            min-height: 0;
+        }
     }
 
     & > * {

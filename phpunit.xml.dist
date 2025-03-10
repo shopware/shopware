@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.4/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
          bootstrap="src/Core/TestBootstrap.php"
          cacheResult="false"
          executionOrder="random"
@@ -115,12 +115,6 @@
         </testsuite>
         <testsuite name="migration">
             <directory>tests/migration</directory>
-        </testsuite>
-        <!-- Paratest -->
-        <testsuite name="paratest">
-            <directory>src/Core/*/Test</directory>
-            <directory>src/*/Test</directory>
-            <directory>tests/unit</directory>
         </testsuite>
     </testsuites>
     <extensions>

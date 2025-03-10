@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @internal
+ * @final
  *
  * MatchAllLineItemsRule returns true, if all rules are true for all line items
  */
@@ -19,6 +19,9 @@ class MatchAllLineItemsRule extends Container
 {
     final public const RULE_NAME = 'allLineItemsContainer';
 
+    /**
+     * @internal
+     */
     public function __construct(
         array $rules = [],
         protected ?int $minimumShouldMatch = null,

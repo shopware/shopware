@@ -14,23 +14,29 @@ Contains custom styles for the footer located at the bottom of the page.
     justify-content: space-between;
 
     // control icon visibility via collapse show state
-    .footer-minus-icon {
+    .icon-footer-minus {
         display: none;
     }
 
-    &.show {
-        .footer-plus-icon {
+    .icon-footer-plus > svg,
+    .icon-footer-minus > svg {
+        top: 0.25em;
+    }
+
+    .footer-column-toggle[aria-expanded="true"] {
+        .icon-footer-plus {
             display: none;
         }
 
-        .footer-minus-icon {
-            display: block;
+        .icon-footer-minus {
+            display: inline-flex;
         }
     }
 }
 
 .footer-column-toggle {
-    pointer-events: none;
+    padding: 0;
+    --#{$prefix}btn-line-height: 1.375;
 }
 
 .footer-link-item {

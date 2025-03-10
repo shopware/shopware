@@ -28,6 +28,9 @@ class OrderCustomerEntity extends Entity
 
     protected ?string $title = null;
 
+    /**
+     * @var list<string>|null
+     */
     protected ?array $vatIds = null;
 
     protected ?string $company = null;
@@ -96,13 +99,16 @@ class OrderCustomerEntity extends Entity
         $this->title = $title;
     }
 
+    /**
+     * @return list<string>|null
+     */
     public function getVatIds(): ?array
     {
         return $this->vatIds;
     }
 
     /**
-     * @param array<string> $vatIds
+     * @param list<string> $vatIds
      */
     public function setVatIds(array $vatIds): void
     {

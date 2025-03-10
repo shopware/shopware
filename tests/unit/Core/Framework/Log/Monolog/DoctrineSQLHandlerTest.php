@@ -51,8 +51,7 @@ class DoctrineSQLHandlerTest extends TestCase
                 static::assertEquals('log_entry', $table);
                 static::assertNotEmpty($data['id']);
                 static::assertNotEmpty($data['created_at']);
-                unset($data['id']);
-                unset($data['created_at']);
+                unset($data['id'], $data['created_at']);
 
                 if (!$exceptionThrown instanceof \Exception) {
                     $exceptionThrown = new \Exception('some exception');

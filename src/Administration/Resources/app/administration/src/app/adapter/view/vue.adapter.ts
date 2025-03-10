@@ -272,6 +272,7 @@ export default class VueAdapter extends ViewAdapter {
             'MtModal',
             'MtModalRoot',
             'MtModalClose',
+            'MtUrlField',
         ];
 
         meteorComponents.forEach((componentName) => {

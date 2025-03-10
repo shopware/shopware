@@ -49,6 +49,7 @@
             :disabled="!acl.can('document.creator') || undefined"
             class="sw-settings-document-list__add-document"
             variant="primary"
+            size="default"
             @click="$router.push({ name: 'sw.settings.document.create' })"
         >
             {{ $tc('sw-settings-document.list.buttonAddDocument') }}

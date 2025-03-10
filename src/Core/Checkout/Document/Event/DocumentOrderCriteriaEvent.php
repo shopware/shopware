@@ -17,11 +17,6 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('after-sales')]
 final class DocumentOrderCriteriaEvent extends Event implements GenericEvent
 {
-    public const CREDIT_NOTE_ORDER_CRITERIA_EVENT = CreditNoteRenderer::TYPE . '.document.criteria';
-    public const DELIVERY_ORDER_CRITERIA_EVENT = DeliveryNoteRenderer::TYPE . '.document.criteria';
-    public const INVOICE_ORDER_CRITERIA_EVENT = InvoiceRenderer::TYPE . '.document.criteria';
-    public const STORNO_ORDER_CRITERIA_EVENT = StornoRenderer::TYPE . '.document.criteria';
-
     private readonly string $name;
 
     /**

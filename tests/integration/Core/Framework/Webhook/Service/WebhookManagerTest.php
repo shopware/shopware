@@ -44,6 +44,7 @@ use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\App\GuzzleHistoryCollector;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\Messenger\Envelope;
@@ -73,6 +74,8 @@ class WebhookManagerTest extends TestCase
      */
     private EntityRepository $appRepository;
 
+    private IdsCollection $ids;
+
     protected function setUp(): void
     {
         $this->shopUrl = $_SERVER['APP_URL'];
@@ -85,6 +88,7 @@ class WebhookManagerTest extends TestCase
         $this->guzzleHistory = $guzzleHistory;
 
         $this->appRepository = static::getContainer()->get('app.repository');
+        $this->ids = new IdsCollection();
     }
 
     public function testDoesNotDispatchBusinessEventIfAppIsInactive(): void
@@ -720,7 +724,7 @@ class WebhookManagerTest extends TestCase
             ],
         ]);
 
-        $permissionPersister->updatePrivileges($permissions, $aclRoleId);
+        $permissionPersister->updatePrivileges($permissions, $appId);
 
         $this->appendNewResponse(new Response(200));
 
@@ -892,6 +896,47 @@ class WebhookManagerTest extends TestCase
         $this->getManager($client, false)->dispatch($event);
     }
 
+    public function testWebhookGrouping(): void
+    {
+        $this->createApp(
+            appId: $this->ids->create('app1'),
+            name: 'App1',
+            aclRoleId: $this->ids->create('app1-role'),
+            webhooks: [
+                [
+                    'name' => 'hook1',
+                    'event_name' => ProductEvents::PRODUCT_WRITTEN_EVENT,
+                    'url' => 'https://test.com',
+                ],
+            ],
+            permissions: ['product' => ['read']]
+        );
+
+        $this->createApp(
+            appId: $this->ids->create('app2'),
+            name: 'App',
+            aclRoleId: $this->ids->create('app1-role'),
+            webhooks: [
+                [
+                    'name' => 'hook1',
+                    'event_name' => ProductEvents::PRODUCT_WRITTEN_EVENT,
+                    'url' => 'https://test.com',
+                ],
+            ],
+            permissions: ['product' => ['read']]
+        );
+
+        $this->appendNewResponse(new Response(200));
+        $this->appendNewResponse(new Response(200));
+
+        $entityId = Uuid::randomHex();
+        $event = $this->getEntityWrittenEvent($entityId);
+
+        $this->getManager()->dispatch($event);
+
+        $request = $this->getLastRequest();
+    }
+
     public function testItDoesDispatchWebhookMessageQueueWithoutApp(): void
     {
         $webhookId = Uuid::randomHex();
@@ -962,10 +1007,10 @@ class WebhookManagerTest extends TestCase
      * @param list<array{id?: string, name: string, event_name: string, url: string}>|null $webhooks
      * @param array<string, list<string>>|null $permissions
      */
-    private function createApp(?string $appId = null, bool $active = true, ?string $aclRoleId = null, ?array $webhooks = null, ?array $permissions = null): void
+    private function createApp(?string $appId = null, ?string $name = null, bool $active = true, ?string $aclRoleId = null, ?array $webhooks = null, ?array $permissions = null): void
     {
         $app = [
-            'name' => 'SwagApp',
+            'name' => $name ?? 'SwagApp',
             'active' => $active,
             'path' => __DIR__ . '/../Manifest/_fixtures/test',
             'version' => '0.0.1',
@@ -1016,7 +1061,7 @@ class WebhookManagerTest extends TestCase
                 'permissions' => $permissions,
             ]);
 
-            $permissionPersister->updatePrivileges($permissions, $aclRoleId);
+            $permissionPersister->updatePrivileges($permissions, $app->getId());
         }
     }
 
@@ -1058,6 +1103,7 @@ class WebhookManagerTest extends TestCase
     ): WebhookManager {
         return new WebhookManager(
             static::getContainer()->get(WebhookLoader::class),
+            static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get(Connection::class),
             static::getContainer()->get(HookableEventFactory::class),
             static::getContainer()->get(AppLocaleProvider::class),

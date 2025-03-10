@@ -90,23 +90,14 @@ export default class OffcanvasMenuPlugin extends Plugin {
             const initialContentElement = document.querySelector(this.options.initialContentSelector);
             const url = `${this.options.navigationUrl}?navigationId=${window.activeNavigationId}`;
 
-                return this._fetchMenu(url, (htmlResponse) => {
-                    const navigationContainer = DomAccess.querySelector(initialContentElement, this.options.menuSelector);
-                    navigationContainer.innerHTML = htmlResponse;
+            return this._fetchMenu(url, (htmlResponse) => {
+                const navigationContainer = DomAccess.querySelector(initialContentElement, this.options.menuSelector);
+                navigationContainer.innerHTML = htmlResponse;
 
-                    this._content = initialContentElement.innerHTML;
+                this._content = initialContentElement.innerHTML;
 
-                    return this._openMenu(event);
-                });
-            } else {
-                if (initialContentElement.classList.contains('is-root')) {
-                    this._cache[this.options.navigationUrl] = this._content;
-                } else {
-                    // fetch home menu to warm the cache
-                    this._fetchMenu(this.options.navigationUrl);
-                }
                 return this._openMenu(event);
-            }
+            });
         }
 
         OffcanvasMenuPlugin._stopEvent(event);

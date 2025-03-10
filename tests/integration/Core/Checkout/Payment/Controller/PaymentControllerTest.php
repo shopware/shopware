@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -79,7 +80,12 @@ class PaymentControllerTest extends TestCase
         static::assertIsString($client->getResponse()->getContent());
         $response = json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('errors', $response);
-        static::assertSame('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code']);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertSame('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code']);
+        } else {
+            static::assertSame('CHECKOUT__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code']);
+        }
     }
 
     public function testCallWithInvalidToken(): void

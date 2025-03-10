@@ -15,7 +15,6 @@ use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -266,7 +265,7 @@ class PaymentControllerTest extends TestCase
             ->expects(static::never())
             ->method('finalize');
 
-        $this->expectException(RoutingException::class);
+        $this->expectException(PaymentException::class);
         $this->expectExceptionMessage('Parameter "_sw_payment_token" is missing.');
         $this->controller->finalizeTransaction(new Request());
     }

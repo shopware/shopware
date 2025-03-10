@@ -88,6 +88,10 @@ describe('OffCanvasMenuPlugin tests', () => {
             setFocus: jest.fn(),
         };
 
+        window.PluginManager.register = jest.fn();
+        window.PluginManager.initializePlugins = jest.fn(() => Promise.resolve());
+        window.history.replaceState = jest.fn(() => Promise.resolve());
+
         plugin = new OffCanvasMenuPlugin(el);
 
         jest.useFakeTimers();
@@ -128,5 +132,23 @@ describe('OffCanvasMenuPlugin tests', () => {
         // Ensure sub-categories are rendered
         expect(subCategoryLinks[0].textContent).toContain('Cars');
         expect(subCategoryLinks[1].textContent).toContain('Smartphones');
+    });
+
+    test('Open the OffCanvas menu via URL parameter', () => {
+        // Simulate URL parameter
+        window.history.pushState({}, '', '?offcanvas=menu');
+
+        // Open OffCanvas menu
+        plugin._openMenuViaUrlParameter();
+
+        const offCanvasMenuButton = document.querySelector('[data-offcanvas-menu="true"]');
+        offCanvasMenuButton.click();
+
+        jest.runAllTimers();
+
+        // Ensure JS events are registered
+        expect(window.PluginManager.initializePlugins).toHaveBeenCalled();
+        // Ensure the parameter is removed from the URL
+        expect(window.history.replaceState).toHaveBeenCalled();
     });
 });

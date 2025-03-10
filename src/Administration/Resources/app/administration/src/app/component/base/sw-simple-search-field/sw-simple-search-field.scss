@@ -9,7 +9,7 @@
     }
 
     .sw-simple-search-field__input.sw-simple-search-field--default {
-        .sw-block-field__block {
+        .mt-block-field__block {
             border: none;
             box-shadow: none;
         }
@@ -19,19 +19,19 @@
             background-color: $color-gray-100;
         }
 
-        &.sw-field--default {
+        &.mt-field--default {
             input {
                 padding: 13px 17px;
             }
         }
 
-        &.sw-field--medium {
+        &.mt-field--medium {
             input {
                 padding: 9px 17px;
             }
         }
 
-        &.sw-field--small {
+        &.mt-field--small {
             input {
                 padding: 5px 17px;
             }
@@ -39,7 +39,7 @@
     }
 
     .sw-simple-search-field__input.sw-simple-search-field--inverted {
-        .sw-block-field__block {
+        .mt-block-field__block {
             border: 1px solid $color-gray-300;
             box-shadow: 0 0 4px $color-gray-50;
         }
@@ -66,5 +66,11 @@
         position: absolute;
         right: 18px;
         top: 50%;
+    }
+
+    .mt-field--small {
+        input {
+            padding: 6px 17px 7px;
+        }
     }
 }

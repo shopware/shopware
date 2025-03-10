@@ -39,7 +39,6 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[Group('slow')]
-#[Group('skip-paratest')]
 class MediaRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

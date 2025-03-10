@@ -2,8 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Filter;
 
-use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Exception\FilterPickerNotFoundException;
-use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Exception\FilterSorterNotFoundException;
+use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
@@ -33,11 +32,6 @@ class FilterServiceRegistry
         }
     }
 
-    /**
-     * Gets the sorter for the provided key, if registered.
-     *
-     * @throws FilterSorterNotFoundException
-     */
     public function getSorter(string $key): FilterSorterInterface
     {
         /** @var FilterSorterInterface $sorter */
@@ -47,7 +41,7 @@ class FilterServiceRegistry
             }
         }
 
-        throw new FilterSorterNotFoundException($key);
+        throw PromotionException::filterSorterNotFound($key);
     }
 
     /**
@@ -62,11 +56,6 @@ class FilterServiceRegistry
         }
     }
 
-    /**
-     * Gets the picker for the provided key, if registered.
-     *
-     * @throws FilterPickerNotFoundException
-     */
     public function getPicker(string $key): FilterPickerInterface
     {
         foreach ($this->pickers as $picker) {
@@ -75,6 +64,6 @@ class FilterServiceRegistry
             }
         }
 
-        throw new FilterPickerNotFoundException($key);
+        throw PromotionException::filterPickerNotFoundException($key);
     }
 }

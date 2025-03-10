@@ -53,7 +53,11 @@ jest.mock('src/service/http-client.service', () => {
     return function () {
         return {
             get: (url, callback) => {
-                return callback(offCanvasMenuSubCategory);
+                if (url.endsWith('navigationId=0188fd3e4ffb7079959622b2785167eb')) {
+                    return callback(offCanvasMenuSubCategory);
+                } else {
+                    return callback(offCanvasMenuInitialContent);
+                }
             },
         };
     };

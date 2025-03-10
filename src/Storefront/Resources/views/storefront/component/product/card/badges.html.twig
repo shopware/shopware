@@ -16,7 +16,8 @@
 
             {% if listPrice and not hasRange and not displayFromVariants %}
                 <div class="badge bg-danger badge-discount">
-                    <span>&#37;</span>
+                    <span class="visually-hidden">{{ 'listing.boxLabelDiscount'|trans|sw_sanitize }}</span>
+                    <span aria-hidden="true">&#37;</span>
                 </div>
             {% endif %}
         {% endblock %}

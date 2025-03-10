@@ -556,6 +556,7 @@
     "boxUnitLabel": "Inhalt:",
     "boxLabelTopseller": "Tipp",
     "boxLabelNew": "Neu",
+    "boxLabelDiscount": "Rabatt",
     "listingTextSite": "Seite",
     "listingTextFrom": "Ab",
     "boxAddProduct": "In den Warenkorb",
@@ -597,6 +598,8 @@
     "beforeListPrice": "",
     "afterListPrice": "",
     "cheapestPriceLabel": "Varianten ab",
+    "regularPriceLabel": "Regulärer Preis:",
+    "listPriceLabel": "Verkaufspreis:",
     "addToWishlist": "Zum Merkzettel hinzufügen",
     "removeFromWishlist": "Vom Merkzettel entfernen"
   },

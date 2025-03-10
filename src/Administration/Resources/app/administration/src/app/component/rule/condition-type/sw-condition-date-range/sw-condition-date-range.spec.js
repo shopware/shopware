@@ -84,6 +84,6 @@ describe('component/rule/sw-condition-date-range', () => {
         expect(getToDate).toBe('2020-01-01T00:00:00');
 
         wrapper.vm.toDate = '2020-01-01T00:00:00';
-        expect(wrapper.vm.toDate).toBe('2020-01-01T00:00:00+00:00');
+        expect(wrapper.vm.toDate).toBe('2020-01-01');
     });
 });

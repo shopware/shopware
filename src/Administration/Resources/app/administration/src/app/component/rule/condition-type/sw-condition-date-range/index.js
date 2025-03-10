@@ -59,7 +59,8 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
 
                 // eslint-disable-next-line max-len
                 const date =
-                    this.isDateTime === 'datetime' ? fromDate.replace('.000Z', '+00:00') : fromDate.concat('+00:00');
+                    this.isDateTime === 'datetime' ? fromDate.replace('.000Z', '+00:00') : fromDate.split("T")[0];
+
                 this.condition.value = {
                     ...this.condition.value,
                     fromDate: date,
@@ -75,7 +76,9 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
             set(toDate) {
                 this.ensureValueExist();
 
-                const date = this.isDateTime === 'datetime' ? toDate.replace('.000Z', '+00:00') : toDate.concat('+00:00');
+                const date =
+                    this.isDateTime === 'datetime' ? toDate.replace('.000Z', '+00:00') : toDate.split("T")[0];
+
                 this.condition.value = {
                     ...this.condition.value,
                     toDate: date,

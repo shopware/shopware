@@ -1,0 +1,10 @@
+{% macro arrayCase() %}
+    {% return [1, 2] %}
+{% endmacro %}
+
+{% set foo = _self.arrayCase() %}
+
+{% if foo is empty %}
+    should not be empty
+{% endif %}
+{{ foo[1] }}

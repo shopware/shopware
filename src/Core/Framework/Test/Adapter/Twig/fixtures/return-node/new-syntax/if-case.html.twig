@@ -1,0 +1,8 @@
+{%- macro ifCaseNewSyntax(x) -%}
+    {%- if x == 1 -%}
+        1
+    {%- else -%}
+        2
+    {%- endif -%}
+{%- endmacro -%}
+{{- _self.ifCaseNewSyntax(x) -}}

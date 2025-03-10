@@ -14,7 +14,7 @@ use Twig\Runtime\EscaperRuntime;
  *
  * @see Twig\Tests\Twig_Tests_Extension_EscaperTest
  *
- * @covers \Shopware\Core\Framework\Adapter\Twig\sw_escape_filter
+ * @covers \Shopware\Core\Framework\Adapter\Twig\SwTwigFunction
  */
 class SwEscapeFilterTest extends TestCase
 {

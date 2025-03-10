@@ -68,14 +68,12 @@ class ScriptRule extends Rule
         $script = new Script(
             $name,
             sprintf('
-                {%% apply spaceless %%}
-                    {%% macro evaluate(%1$s) %%}
-                        %2$s
-                    {%% endmacro %%}
+                {%%- macro evaluate(%1$s) -%%}
+                    %2$s
+                {%%- endmacro -%%}
 
-                    {%% set var = _self.evaluate(%1$s) %%}
-                    {{ var }}
-                {%% endapply  %%}
+                {%%- set var = _self.evaluate(%1$s) -%%}
+                {{- var -}}
             ', implode(', ', array_keys($context)), $this->script),
             $lastModified,
             null,

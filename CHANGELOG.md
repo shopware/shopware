@@ -1,6 +1,13 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.2
+*  [#6964 - Fix updates for Composer plugins](./changelog/release-6-6-10-2/2025-03-03-fix-updates-for-composer-plugins.md)
+*  [#7153 - Put ajax modal buttons behind accessibility flag](./changelog/release-6-6-10-2/2025-03-03-put-ajax-modal-buttons-behind-accessibility-flag.md)
+*  [#7132 - fix: Only change mailer transport definition if it is present in container](https://github.com/shopware/shopware/issues/7087)
+*  [#7121 - fix(form-validator): Escape snippets to prevent symbols like apostrophes to break the storefront](https://github.com/shopware/shopware/issues/7102)
+*  [#7190 - Fixed double form submit with reCaptcha plugin](./changelog/release-6-6-10-2/2025-02-28-fix-google-recaptcha-with-guest-orders.md)
+
 ## 6.6.10.1
 *  [#6911 - Fix MessengerMiddlewareCompilerPass](./changelog/release-6-6-10-1/2025-02-19-fix-messenger-middleware-compiler-path.md)
 *  [#6912 - fix: require with minimum-stability stable (fixes: #6912) (#6929)](https://github.com/shopware/shopware/issues/6912)

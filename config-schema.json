@@ -151,6 +151,9 @@
         "usage_data": {
             "type": "object",
             "additionalProperties": false,
+            "collection_enabled": {
+                "type": "boolean"
+            },
             "properties": {
                 "gateway": {
                     "type": "object",

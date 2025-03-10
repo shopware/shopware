@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\ShopwareException;
@@ -45,7 +46,11 @@ class PaymentController extends AbstractController
         $paymentToken = $request->get('_sw_payment_token');
 
         if ($paymentToken === null) {
-            throw RoutingException::missingRequestParameter('_sw_payment_token');
+            // @deprecated tag:v6.8.0 - remove this if block
+            if (!Feature::isActive('v6.8.0.0')) {
+                throw RoutingException::missingRequestParameter('_sw_payment_token'); // @phpstan-ignore-line shopware.domainException
+            }
+            throw PaymentException::missingRequestParameter('_sw_payment_token');
         }
 
         $token = $this->tokenFactory->parseToken($paymentToken);

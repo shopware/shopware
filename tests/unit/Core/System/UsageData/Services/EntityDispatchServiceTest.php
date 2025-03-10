@@ -84,6 +84,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
 
         $entityDispatchService->dispatchCollectEntityDataMessage();
@@ -91,6 +92,33 @@ class EntityDispatchServiceTest extends TestCase
         $messages = $messageBus->getMessages();
         static::assertCount(1, $messages);
         static::assertEquals(new CollectEntityDataMessage('current-shop-id'), $messages[0]->getMessage());
+    }
+
+    public function testItDoesNotDispatchesCollectEntityDataMessageIfCollectionIsDisabled(): void
+    {
+        $messageBus = new CollectingMessageBus();
+
+        $entityDispatchService = new EntityDispatchService(
+            new EntityDefinitionService(
+                [
+                    $this->registry->get(ProductDefinition::class),
+                    $this->registry->get(SalesChannelDefinition::class),
+                ],
+                new UsageDataAllowListService(),
+            ),
+            new ArrayKeyValueStorage(),
+            $messageBus,
+            $this->createConsentService(true, null),
+            $this->createGatewayStatusService(true),
+            $this->shopIdProvider,
+            new StaticSystemConfigService([]),
+            false,
+        );
+
+        $entityDispatchService->dispatchCollectEntityDataMessage();
+
+        $messages = $messageBus->getMessages();
+        static::assertCount(0, $messages);
     }
 
     public function testItStoresTheCorrectLastRunDateForEachEntity(): void
@@ -113,6 +141,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
 
         static::assertNull($appConfig->get('usageData-entitySync-lastRun-product'));
@@ -163,6 +192,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             $systemConfigService,
+            true,
         );
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('current-shop-id'));
@@ -194,6 +224,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
 
         // first run
@@ -237,6 +268,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
 
         // first run
@@ -280,6 +312,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('current-shop-id'));
@@ -324,6 +357,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
         $storedScLastRunDatetime = new \DateTimeImmutable($lastScRunDatetime->format(Defaults::STORAGE_DATE_TIME_FORMAT));
 
@@ -366,6 +400,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(false),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('current-shop-id'));
@@ -384,6 +419,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('current-shop-id'));
@@ -408,6 +444,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('current-shop-id'));
@@ -432,6 +469,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(false),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('old-shop-id'));
@@ -455,6 +493,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('current-shop-id'));
@@ -489,6 +528,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('current-shop-id'));
@@ -527,6 +567,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('current-shop-id'));
@@ -605,6 +646,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createGatewayStatusService(true),
             $this->shopIdProvider,
             new StaticSystemConfigService([]),
+            true,
         );
 
         $entityDispatchService->resetLastRunDateForAllEntities();

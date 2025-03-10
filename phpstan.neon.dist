@@ -44,9 +44,6 @@ parameters:
         - src/Core/Test/Stub/Redis/RedisCompatibility.php
         - src/Core/Test/Stub/Redis/RedisMultiCompatibility.php
 
-        # @deprecated tag:v6.7.0 - Can be removed. PHPStan does not fully understand overwrite multiple definitions of DefaultPayment
-        - src/Core/Checkout/Payment/Cart/PaymentHandler/DebitPayment.php
-
     ignoreErrors:
         # The symfony extension checks against the "normal" container, not the test container
         # Therefore some services in the tests are not found and the extension can not infer that all private services are public during test execution
@@ -230,3 +227,8 @@ parameters:
             message: '#Call to an undefined method TElement of Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity::.*CustomFields.*\(\)#'
             count: 4
             path: src/Core/Framework/DataAbstractionLayer/EntityCollection.php
+
+        - # The AnnotatePackageProcessorTest sets not allowed package names on purpose for easier understanding the tests
+            message: '#Parameter \#1 \$package of attribute class Shopware\\Core\\Framework\\Log\\Package constructor#'
+            identifier: argument.type
+            path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php

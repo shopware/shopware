@@ -1,6 +1,11 @@
 @import "~scss/variables";
 
 .sw-product-detail-cross-selling {
+
+    & > * {
+        margin-inline: auto;
+    }
+
     &__restore-inheritance-btn {
         display: block;
         margin: 0 auto 40px;
@@ -76,5 +81,9 @@
 
     &__inheritance-icon {
         margin-right: 8px;
+    }
+
+    .sw-tooltip--wrapper {
+        width: fit-content;
     }
 }

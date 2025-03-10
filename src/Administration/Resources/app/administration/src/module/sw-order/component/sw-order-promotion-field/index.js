@@ -275,7 +275,7 @@ export default {
             Object.values(response.data.errors).forEach((value) => {
                 switch (value.level) {
                     case 0: {
-                        this.createNotificationSuccess({
+                        this.createNotificationInfo({
                             message: value.message,
                         });
                         break;

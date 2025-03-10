@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -82,6 +83,10 @@ class CartOrderRoute extends AbstractCartOrderRoute
 
         $orderId = Profiler::trace('checkout-order::order-persist', fn () => $this->orderPersister->persist($calculatedCart, $context));
 
+        if (Feature::isActive('v6.8.0.0')) {
+            $this->cartPersister->delete($context->getToken(), $context);
+        }
+
         $criteria = new Criteria([$orderId]);
         $criteria
             ->setTitle('order-route::order-loading')
@@ -117,7 +122,10 @@ class CartOrderRoute extends AbstractCartOrderRoute
             $this->eventDispatcher->dispatch($event);
         });
 
-        $this->cartPersister->delete($context->getToken(), $context);
+        if (!Feature::isActive('v6.8.0.0')) {
+            // cart will delete immediately after order is created to avoid inconsistencies.
+            $this->cartPersister->delete($context->getToken(), $context);
+        }
 
         return new CartOrderRouteResponse($orderEntity);
     }

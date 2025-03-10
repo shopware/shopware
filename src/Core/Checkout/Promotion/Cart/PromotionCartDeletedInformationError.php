@@ -17,7 +17,7 @@ class PromotionCartDeletedInformationError extends Error
 
     public function __construct(LineItem $discountLineItem)
     {
-        $this->name = $discountLineItem->getLabel();
+        $this->name = $discountLineItem->getLabel() ?? '';
         $this->discountLineItemId = $discountLineItem->getId();
         $this->message = \sprintf(
             'Discount %s has been added',

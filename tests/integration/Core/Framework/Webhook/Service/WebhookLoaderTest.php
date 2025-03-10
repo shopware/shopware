@@ -153,47 +153,6 @@ class WebhookLoaderTest extends TestCase
         $this->removeApp(__DIR__ . '/../../App/Manifest/_fixtures/minimal');
     }
 
-    //    public function testDuplicateWebhooksAreFilteredOut(): void
-    //    {
-    //        $this->connection->insert('webhook', [
-    //            'id' => $this->ids->getBytes('wh-1'),
-    //            'name' => 'hook1',
-    //            'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
-    //            'url' => 'https://test.com',
-    //            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-    //        ]);
-    //
-    //        $this->connection->insert('webhook', [
-    //            'id' => $this->ids->getBytes('wh-2'),
-    //            'name' => 'hook2',
-    //            'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
-    //            'url' => 'https://test.com',
-    //            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-    //        ]);
-    //
-    //        $this->connection->insert('webhook', [
-    //            'id' => $this->ids->getBytes('wh-3'),
-    //            'name' => 'hook3',
-    //            'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
-    //            'url' => 'https://test.com',
-    //            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-    //        ]);
-    //
-    //        $this->connection->insert('webhook', [
-    //            'id' => $this->ids->getBytes('wh-4'),
-    //            'name' => 'hook4',
-    //            'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
-    //            'url' => 'https://test2.com',
-    //            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-    //        ]);
-    //
-    //        $webhookLoader = static::getContainer()->get(WebhookLoader::class);
-    //
-    //        $webhooks = $webhookLoader->getWebhooks();
-    //
-    //        static::assertCount(2, $webhooks);
-    //    }
-
     public function testGetPrivilegesForRoles(): void
     {
         $aclRoleId = Uuid::randomHex();

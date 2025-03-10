@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Webhook\Webhook;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class PreWebhooksDispatch

@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Log\Package;
  * Simple DTO for internal use
  *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 final readonly class Webhook

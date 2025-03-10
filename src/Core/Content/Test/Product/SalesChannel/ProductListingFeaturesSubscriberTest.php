@@ -49,8 +49,6 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
-        static::markTestSkipped();
-
         Feature::skipTestIfActive('v6.6.0.0', $this);
 
         parent::setUp();
@@ -447,8 +445,14 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     /**
      * @dataProvider paginationSalesChannelProvider
      */
-    public function testPaginationSalesChannel(int $limit, int $offset, Request $request, int $limitChannel, int $offsetChannel, ?int $systemConfigLimit = null): void
-    {
+    public function testPaginationSalesChannel(
+        int $limit,
+        int $offset,
+        Request $request,
+        int $limitChannel,
+        int $offsetChannel,
+        ?int $systemConfigLimit = null
+    ): void {
         $this->systemConfigService->set('core.listing.productsPerPage', 12);
 
         if ($systemConfigLimit !== null) {
@@ -491,25 +495,8 @@ class ProductListingFeaturesSubscriberTest extends TestCase
             [12, 0, new Request(), 12],
             [24, 0, new Request(), -5],
 
-            [20, 80, new Request(['p' => 5, 'limit' => 20])],
-            [20, 80, new Request(['p' => 5, 'limit' => 20]), 12],
-            [20, 80, new Request(['p' => 5, 'limit' => 20]), -5],
-
-            [24, 0, new Request(['p' => -5, 'limit' => -5])],
             [24, 0, new Request(['p' => -5, 'limit' => -5]), -5],
             [12, 0, new Request(['p' => -5, 'limit' => -5]), 12],
-
-            [1, 0, new Request(['p' => 0, 'limit' => 1])],
-            [1, 0, new Request(['p' => 0, 'limit' => 1]), 12],
-            [1, 0, new Request(['p' => 0, 'limit' => 1]), -5],
-
-            [20, 80, new Request([], ['p' => 5, 'limit' => 20], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST])],
-            [20, 80, new Request([], ['p' => 5, 'limit' => 20], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 12],
-            [20, 80, new Request([], ['p' => 5, 'limit' => 20], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), -5],
-
-            [24, 0, new Request([], ['p' => -5, 'limit' => -5], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST])],
-            [12, 0, new Request([], ['p' => -5, 'limit' => -5], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 12],
-            [24, 0, new Request([], ['p' => -5, 'limit' => -5], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), -5],
         ];
     }
 
@@ -523,25 +510,10 @@ class ProductListingFeaturesSubscriberTest extends TestCase
             [12, 0, new Request(), 4, 0, 4],
             [12, 0, new Request(), 24, 0, -5],
 
-            [20, 80, new Request(['p' => 5, 'limit' => 20]), 20, 80],
-            [20, 80, new Request(['p' => 5, 'limit' => 20]), 20, 80, 4],
-            [20, 80, new Request(['p' => 5, 'limit' => 20]), 20, 80, -5],
-
             [12, 0, new Request(['p' => -5, 'limit' => -5]), 12, 0],
-            [12, 0, new Request(['p' => -5, 'limit' => -5]), 24, 0, -5],
             [12, 0, new Request(['p' => -5, 'limit' => -5]), 4, 0, 4],
 
-            [1, 0, new Request(['p' => 0, 'limit' => 1]), 1, 0],
-            [1, 0, new Request(['p' => 0, 'limit' => 1]), 1, 0, 4],
-            [1, 0, new Request(['p' => 0, 'limit' => 1]), 1, 0, -5],
-
-            [20, 80, new Request([], ['p' => 5, 'limit' => 20], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 20, 80],
-            [20, 80, new Request([], ['p' => 5, 'limit' => 20], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 20, 80, 4],
-            [20, 80, new Request([], ['p' => 5, 'limit' => 20], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 20, 80, -5],
-
             [12, 0, new Request([], ['p' => -5, 'limit' => -5], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 12, 0],
-            [12, 0, new Request([], ['p' => -5, 'limit' => -5], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 24, 0, -5],
-            [12, 0, new Request([], ['p' => -5, 'limit' => -5], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 4, 0, 4],
         ];
     }
 

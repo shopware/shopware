@@ -54,3 +54,26 @@ jobs:
             if (response.status !== 200) {
               throw new Error(`Failed to add label ${teamLabel} to issue #${issueNumber}`);
             }
+
+  move-to-wip:
+    runs-on: ubuntu-24.04
+    if: github.event.action == 'reopened'
+    permissions:
+      id-token: write
+      issues: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - id: sts
+        continue-on-error: true
+        uses: octo-sts/action@v1.0.0
+        with:
+          scope: shopware
+          identity: ManageProjects
+      - uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.sts.outputs.token }}
+          script: |
+            const { main } = await import('${{ github.workspace }}/.github/bin/js/src/move_reopened_to_wip.mjs')
+            await main(github, core, context)

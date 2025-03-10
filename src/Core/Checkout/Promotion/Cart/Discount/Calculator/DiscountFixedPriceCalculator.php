@@ -64,7 +64,7 @@ class DiscountFixedPriceCalculator
     }
 
     /**
-     * @return array<DiscountCompositionItem>
+     * @return list<DiscountCompositionItem>
      */
     private function getCompositionItems(float $discountValue, DiscountPackageCollection $packages, PriceCollection $affectedPrices): array
     {

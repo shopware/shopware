@@ -39,6 +39,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\Symfony\StubKernel;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -403,7 +404,9 @@ class InfoControllerTest extends TestCase
                 [],
                 static::getContainer()->get('shopware.asset.asset'),
                 $kernel,
-            )
+                new Filesystem(),
+            ),
+            new Filesystem(),
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -471,7 +474,9 @@ class InfoControllerTest extends TestCase
                 [],
                 static::getContainer()->get('shopware.asset.asset'),
                 $kernel,
-            )
+                new Filesystem(),
+            ),
+            new Filesystem(),
         );
 
         $infoController->setContainer($this->createMock(Container::class));

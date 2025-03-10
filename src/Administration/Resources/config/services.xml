@@ -184,6 +184,7 @@
             <argument>%pentatrion_vite.configs%</argument>
             <argument type="service" id="shopware.asset.asset"/>
             <argument type="service" id="kernel"/>
+            <argument type="service" id="filesystem"/>
         </service>
     </services>
 </container>

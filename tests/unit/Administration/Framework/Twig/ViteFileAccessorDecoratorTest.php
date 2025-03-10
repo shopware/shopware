@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\Framework\BundleFixture;
 use Shopware\Core\Test\Stub\Symfony\StubKernel;
 use Symfony\Component\Asset\UrlPackage;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -46,14 +47,15 @@ class ViteFileAccessorDecoratorTest extends TestCase
         $this->decorator = new ViteFileAccessorDecorator(
             $this->configs,
             $this->packageMock,
-            $kernel
+            $kernel,
+            new Filesystem(),
         );
     }
 
     #[DataProvider('hasFileProvider')]
     public function testHasFile(string $configName, string $fileType, bool $fileExists): void
     {
-        static::assertEquals($fileExists, $this->decorator->hasFile($configName, $fileType));
+        static::assertSame($fileExists, $this->decorator->hasFile($configName, $fileType));
     }
 
     #[DataProvider('getDataProvider')]
@@ -67,7 +69,7 @@ class ViteFileAccessorDecoratorTest extends TestCase
         static::assertArrayHasKey('entryPoints', $result);
         static::assertArrayHasKey('administration', $result['entryPoints']);
         static::assertArrayHasKey('app', $result['entryPoints']['administration']);
-        static::assertEquals('https:://shopware.com/bundles/administration/app.js', $result['entryPoints']['administration']['app'][0]);
+        static::assertSame('https:://shopware.com/bundles/administration/app.js', $result['entryPoints']['administration']['app'][0]);
     }
 
     /**

@@ -23,6 +23,7 @@ use Shopware\Core\Test\Stub\Symfony\StubKernel;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -158,7 +159,9 @@ class InfoControllerTest extends TestCase
                 [],
                 $this->createMock(UrlPackage::class),
                 $kernel,
+                new Filesystem(),
             ),
+            new Filesystem(),
         );
     }
 }

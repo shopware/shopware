@@ -3,9 +3,10 @@
 namespace Shopware\Administration\Framework\Twig;
 
 use Pentatrion\ViteBundle\Service\FileAccessor;
-use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Bundle as ShopwareBundle;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Asset\Package as AssetPackage;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -26,6 +27,7 @@ class ViteFileAccessorDecorator extends FileAccessor
         array $configs,
         private readonly AssetPackage $package,
         private readonly KernelInterface $kernel,
+        private readonly Filesystem $filesystem,
     ) {
         $this->assetPath = $this->package->getUrl('');
 
@@ -41,7 +43,7 @@ class ViteFileAccessorDecorator extends FileAccessor
             return false;
         }
 
-        return file_exists($bundle->getPath() . $this->getRelativeFileLocation($fileType));
+        return $this->filesystem->exists($bundle->getPath() . $this->getRelativeFileLocation($fileType));
     }
 
     /**
@@ -51,7 +53,7 @@ class ViteFileAccessorDecorator extends FileAccessor
     {
         $bundle = $this->getBundleForConfig($configName);
         // plain symfony bundles don't bring JS assets
-        if (!$bundle instanceof Bundle) {
+        if (!$bundle instanceof ShopwareBundle) {
             return $this->content[$configName][$fileType] = [];
         }
 
@@ -60,12 +62,12 @@ class ViteFileAccessorDecorator extends FileAccessor
         if (!isset($this->content[$configName][$fileType])) {
             $viteEntryPointsPath = $bundle->getPath() . $this->getRelativeFileLocation($fileType);
 
-            if (!file_exists($viteEntryPointsPath)) {
+            if (!$this->filesystem->exists($viteEntryPointsPath)) {
                 return $this->content[$configName][$fileType] = [];
             }
 
             $content = json_decode(
-                file_get_contents($viteEntryPointsPath) ?: '',
+                $this->filesystem->readFile($viteEntryPointsPath),
                 true,
                 flags: \JSON_THROW_ON_ERROR
             );
@@ -108,7 +110,7 @@ class ViteFileAccessorDecorator extends FileAccessor
         return $this->kernel->getBundle($configName);
     }
 
-    private function getTechnicalBundleName(Bundle $bundle): string
+    private function getTechnicalBundleName(ShopwareBundle $bundle): string
     {
         return str_replace('_', '-', $bundle->getContainerPrefix());
     }

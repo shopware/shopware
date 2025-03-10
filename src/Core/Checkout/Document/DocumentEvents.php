@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\StornoRenderer;
+use Shopware\Core\Framework\Log\Package;
 
 #[Package('after-sales')]
 class DocumentEvents

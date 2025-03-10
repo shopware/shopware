@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderConversionContext;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
@@ -465,7 +464,6 @@ class RecalculationServiceTest extends TestCase
         $order->setSalesChannelId(Uuid::randomHex());
         $order->setTaxStatus(CartPrice::TAX_STATE_FREE);
         $order->setStateId(Uuid::randomHex());
-
 
         if (Feature::isActive('v6.8.0.0')) {
             $deliveryId = Uuid::randomHex();

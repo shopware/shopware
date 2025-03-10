@@ -150,8 +150,16 @@ class Migration1728040169AddPrimaryOrderDeliveryAndTransactionTest extends TestC
             $this->connection->executeStatement('ALTER TABLE `order` DROP COLUMN `primary_order_delivery_id`');
         }
 
+        if ($this->columnExists($this->connection, 'order', 'primary_order_delivery_version_id')) {
+            $this->connection->executeStatement('ALTER TABLE `order` DROP COLUMN `primary_order_delivery_version_id`');
+        }
+
         if ($this->columnExists($this->connection, 'order', 'primary_order_transaction_id')) {
             $this->connection->executeStatement('ALTER TABLE `order` DROP COLUMN `primary_order_transaction_id`');
+        }
+
+        if ($this->columnExists($this->connection, 'order', 'primary_order_transaction_version_id')) {
+            $this->connection->executeStatement('ALTER TABLE `order` DROP COLUMN `primary_order_transaction_version_id`');
         }
     }
 

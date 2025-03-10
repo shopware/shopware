@@ -91,7 +91,7 @@ class OrderDefinition extends EntityDefinition
             (new FkField('primary_order_delivery_id', 'primaryOrderDeliveryId', OrderDeliveryDefinition::class))->addFlags(new ApiAware(), new NoConstraint()),
             (new ReferenceVersionField(OrderDeliveryDefinition::class, 'primary_order_delivery_version_id'))->addFlags(new ApiAware(), new Required()),
             (new FkField('primary_order_transaction_id', 'primaryOrderTransactionId', OrderTransactionDefinition::class))->addFlags(new ApiAware(), new NoConstraint()),
-            (new ReferenceVersionField(OrderDeliveryDefinition::class, 'primary_order_transaction_version_id'))->addFlags(new ApiAware(), new Required()),
+            (new ReferenceVersionField(OrderTransactionDefinition::class, 'primary_order_transaction_version_id'))->addFlags(new ApiAware(), new Required()),
 
             (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->addFlags(new ApiAware(), new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new ApiAware(), new Required()),

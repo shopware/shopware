@@ -93,9 +93,13 @@ class OrderEntity extends Entity
 
     protected ?string $primaryOrderDeliveryId = null;
 
+    protected ?string $primaryOrderDeliveryVersionId = null;
+
     protected ?OrderTransactionEntity $primaryOrderTransaction = null;
 
     protected ?string $primaryOrderTransactionId;
+
+    protected ?string $primaryOrderTransactionVersionId = null;
 
     protected ?DocumentCollection $documents = null;
 
@@ -606,6 +610,26 @@ class OrderEntity extends Entity
     public function setBillingAddressVersionId(string $billingAddressVersionId): void
     {
         $this->billingAddressVersionId = $billingAddressVersionId;
+    }
+
+    public function getPrimaryOrderDeliveryVersionId(): ?string
+    {
+        return $this->primaryOrderDeliveryVersionId;
+    }
+
+    public function setPrimaryOrderDeliveryVersionId(?string $primaryOrderDeliveryVersionId): void
+    {
+        $this->primaryOrderDeliveryVersionId = $primaryOrderDeliveryVersionId;
+    }
+
+    public function getPrimaryOrderTransactionVersionId(): ?string
+    {
+        return $this->primaryOrderTransactionVersionId;
+    }
+
+    public function setPrimaryOrderTransactionVersionId(?string $primaryOrderTransactionVersionId): void
+    {
+        $this->primaryOrderTransactionVersionId = $primaryOrderTransactionVersionId;
     }
 
     private function addChildren(OrderLineItemCollection $lineItems, OrderLineItemCollection $parents): void

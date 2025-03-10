@@ -20,6 +20,8 @@ class FlowException extends HttpException
     final public const FLOW_ACTION_TRANSACTION_UNCAUGHT_EXCEPTION = 'FLOW_ACTION_TRANSACTION_UNCAUGHT_EXCEPTION';
     final public const CUSTOM_TRIGGER_BY_NAME_NOT_FOUND = 'FLOW_ACTION_CUSTOM_TRIGGER_BY_NAME_NOT_FOUND';
 
+    final public const FLOW_ACTION_STATE_MACHINE_NOT_FOUND = 'FLOW_ACTION_STATE_MACHINE_NOT_FOUND';
+
     /**
      * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
      */
@@ -36,8 +38,6 @@ class FlowException extends HttpException
             ['eventName' => $eventName]
         );
     }
-
-    final public const FLOW_ACTION_STATE_MACHINE_NOT_FOUND = 'FLOW_ACTION_STATE_MACHINE_NOT_FOUND';
 
     public static function methodNotCompatible(string $method, string $class): FlowException
     {

@@ -3,8 +3,8 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
@@ -14,13 +14,16 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class ShippingCityRule extends Rule
 {
     final public const RULE_NAME = 'customerShippingCity';
 
+    /**
+     * @internal
+     */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
         protected ?string $cityName = null
@@ -39,7 +42,7 @@ class ShippingCityRule extends Rule
         }
 
         if (!\is_string($this->cityName) && $this->operator !== self::OPERATOR_EMPTY) {
-            throw new UnsupportedValueException(\gettype($this->cityName), self::class);
+            throw CustomerException::unsupportedValue(\gettype($this->cityName), self::class);
         }
 
         return RuleComparison::string($address->getCity(), $this->cityName ?? '', $this->operator);

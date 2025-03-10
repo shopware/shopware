@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test ('As a merchant, I can perform bulk edits on customer information', { tag: '@BulkEdits' }, async ({
+test('As a merchant, I can perform bulk edits on customer information', { tag: '@BulkEdits' }, async ({
     TestDataService,
     ShopAdmin,
     AdminCustomerListing,
@@ -9,10 +9,10 @@ test ('As a merchant, I can perform bulk edits on customer information', { tag: 
     IdProvider,
     DefaultSalesChannel,
 }) => {
-
-    const customer1 = await TestDataService.createCustomer();
-    const customer2 = await TestDataService.createCustomer();
-    const customer3 = await TestDataService.createCustomer();
+    let i = 1;
+    const customer1 = await TestDataService.createCustomer({ firstName: `Bulk edit ${i++}` });
+    const customer2 = await TestDataService.createCustomer({ firstName: `Bulk edit ${i++}` });
+    const customer3 = await TestDataService.createCustomer({ firstName: `Bulk edit ${i++}` });
     const currentCustomerGroup = (await TestDataService.getCustomerGroupById(customer3.groupId));
     const customerGroupToUpdate = await TestDataService.createCustomerGroup();
     const currentLanguage = await TestDataService.getLanguageById(customer3.languageId);
@@ -43,11 +43,13 @@ test ('As a merchant, I can perform bulk edits on customer information', { tag: 
 
     await test.step('Prepares a custom field set', async () => {
         await TestDataService.createCustomFieldSet({ id: customFieldSetId, name: customFieldSetName });
-        await TestDataService.createCustomField(customFieldSetId, { name: customFieldTextName, config: {
-            label: {
-                'en-GB': customFieldTextName,
-            },
-        }});
+        await TestDataService.createCustomField(customFieldSetId, {
+            name: customFieldTextName, config: {
+                label: {
+                    'en-GB': customFieldTextName,
+                },
+            }
+        });
     });
 
     await test.step('Merchant bulk edits two customers', async () => {
@@ -63,7 +65,7 @@ test ('As a merchant, I can perform bulk edits on customer information', { tag: 
             const userCustomerGroup = await AdminCustomerDetail.getCustomerGroup();
             await ShopAdmin.expects(userCustomerGroup).toHaveText(accountData.customerGroup, { timeout: 10000 });
             const accountStatus = await AdminCustomerDetail.getAccountStatus();
-            await ShopAdmin.expects(accountStatus).toHaveText(accountData.accountStatus? 'Active': 'Inactive');
+            await ShopAdmin.expects(accountStatus).toHaveText(accountData.accountStatus ? 'Active' : 'Inactive');
             const language = await AdminCustomerDetail.getLanguage();
             await ShopAdmin.expects(language).toHaveText(accountData.language);
             //verify tags
@@ -78,16 +80,16 @@ test ('As a merchant, I can perform bulk edits on customer information', { tag: 
             await customFieldSetTabContent.customFieldSetTab.click();
             await ShopAdmin.expects(customFieldSetTabContent.customFieldSetTabCustomContent).toBeVisible();
             await ShopAdmin.expects(customFieldSetTabContent.customFieldSetTabCustomContent.getByText(customFieldTextName)).toBeVisible();
-            await ShopAdmin.expects(customFieldSetTabContent.customFieldSetTabCustomContent.locator(`#${customFieldTextName}`)).toHaveValue(customFieldValue);
+            await ShopAdmin.expects(customFieldSetTabContent.customFieldSetTabCustomContent.locator(`#${customFieldTextName}`)).toHaveValue(customFieldValue, { timeout: 15_000 });
         }
     });
 
     await test.step('Verify that changes are not applied to other customers', async () => {
-        await ShopAdmin.goesTo(AdminCustomerDetail.url(customer3.id));
+        await ShopAdmin.goesTo(AdminCustomerDetail.url(customer3.id), true);
         const userCustomerGroup = await AdminCustomerDetail.getCustomerGroup();
-        await ShopAdmin.expects(userCustomerGroup).toHaveText(currentCustomerGroup.name);
+        await ShopAdmin.expects(userCustomerGroup).toHaveText(currentCustomerGroup.name, { timeout: 15_000 });
         const accountStatus = await AdminCustomerDetail.getAccountStatus();
-        await ShopAdmin.expects(accountStatus).toHaveText(customer3.active? 'Active': 'Inactive');
+        await ShopAdmin.expects(accountStatus).toHaveText(customer3.active ? 'Active' : 'Inactive');
         const language = await AdminCustomerDetail.getLanguage();
         await ShopAdmin.expects(language).toHaveText(currentLanguage.name);
         ShopAdmin.expects(await AdminCustomerDetail.tagItems.all()).toHaveLength(0);
@@ -97,7 +99,7 @@ test ('As a merchant, I can perform bulk edits on customer information', { tag: 
         await customFieldSetTabContent.customFieldSetTab.click();
         await ShopAdmin.expects(customFieldSetTabContent.customFieldSetTabCustomContent).toBeVisible();
         await ShopAdmin.expects(customFieldSetTabContent.customFieldSetTabCustomContent.getByText(customFieldTextName)).toBeVisible();
-        await ShopAdmin.expects(customFieldSetTabContent.customFieldSetTabCustomContent.locator(`#${customFieldTextName}`)).toHaveValue('');
+        await ShopAdmin.expects(customFieldSetTabContent.customFieldSetTabCustomContent.locator(`#${customFieldTextName}`)).toHaveValue('', { timeout: 15_000 });
     });
 
 });

@@ -25,7 +25,9 @@ async function createWrapper(canBeHidden = false, isPrivileged = true) {
                     'sw-internal-link': true,
                     'sw-help-text': true,
                     i18n: true,
-                    'i18n-t': true,
+                    'i18n-t': {
+                        template: '<div class="i18n-stub"><slot></slot></div>',
+                    },
                     'router-link': true,
                     'sw-loader': true,
                 },

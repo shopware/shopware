@@ -3,7 +3,6 @@
 namespace Shopware\Core\Profiling\Subscriber;
 
 use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
-use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheStoreEvent;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Bundle\FrameworkBundle\DataCollector\AbstractDataCollector;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -11,7 +10,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\LateDataCollectorInterface;
-use Symfony\Component\VarDumper\Cloner\Data;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -21,12 +19,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class HttpCacheTagDataCollectorSubscriber extends AbstractDataCollector implements EventSubscriberInterface, LateDataCollectorInterface
 {
     /**
-     * @var array<string, mixed>
+     * [uri => [tag => [caller => count]]]
+     *
+     * @var array<string, array<string, array<string, int>>>
      */
     public static array $tags = [];
 
-    public function __construct(private readonly RequestStack $stack)
-    {
+    public function __construct(
+        private readonly RequestStack $stack,
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -36,29 +37,23 @@ class HttpCacheTagDataCollectorSubscriber extends AbstractDataCollector implemen
         ];
     }
 
-    public function store(HttpCacheStoreEvent $event): void
-    {
-        $uri = $this->uri($event->request);
-
-        self::$tags[$uri] = $event->tags;
-    }
-
     public function reset(): void
     {
     }
 
     /**
-     * @return array<string, mixed>|Data
+     * @return array<string, array<string, array<string, int>>>
      */
-    public function getData(): array|Data
+    public function getData(): array
     {
+        \assert(\is_array($this->data));
+
         return $this->data;
     }
 
     public function getTotal(): int
     {
-        // @phpstan-ignore-next-line
-        return array_sum(array_map('count', $this->data));
+        return array_sum(array_map('count', $this->getData()));
     }
 
     public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
@@ -116,8 +111,8 @@ class HttpCacheTagDataCollectorSubscriber extends AbstractDataCollector implemen
         array_shift($source);
         array_shift($source);
         foreach ($source as $index => $element) {
-            /** @var class-string $class */
             $class = $element['class'] ?? '';
+            \assert(class_exists($class));
 
             $instance = new \ReflectionClass($class);
             // skip dispatcher chain
@@ -151,7 +146,7 @@ class HttpCacheTagDataCollectorSubscriber extends AbstractDataCollector implemen
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<string, array<string, array<string, int>>>
      */
     private function buildTags(): array
     {
@@ -161,23 +156,25 @@ class HttpCacheTagDataCollectorSubscriber extends AbstractDataCollector implemen
             return $tags;
         }
 
-        $keys = array_keys($tags);
+        $uris = array_keys($tags);
 
-        if (\count($keys) <= 1) {
+        if (\count($uris) <= 1) {
             return $tags;
         }
 
-        $na = $tags['n/a'];
+        $tagsWithoutValidUri = $tags['n/a'];
         unset($tags['n/a']);
 
-        $second = $keys[1];
+        $firstValidUri = $uris[1];
 
-        foreach ($na as $caller => $count) {
-            if (!isset($tags[$second][$caller])) {
-                $tags[$second][$caller] = 0;
+        foreach ($tagsWithoutValidUri as $tag => $callerCountArray) {
+            foreach ($callerCountArray as $caller => $count) {
+                if (!isset($tags[$firstValidUri][$tag][$caller])) {
+                    $tags[$firstValidUri][$tag][$caller] = 0;
+                }
+
+                $tags[$firstValidUri][$tag][$caller] += $count;
             }
-
-            $tags[$second][$caller] += $count;
         }
 
         return $tags;

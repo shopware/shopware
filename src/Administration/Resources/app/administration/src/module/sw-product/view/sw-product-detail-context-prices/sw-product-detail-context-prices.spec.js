@@ -25,8 +25,6 @@ const createWrapper = async () => {
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                     'sw-data-grid-settings': true,
                     'sw-field': true,
-                    'sw-number-field': await wrapTestComponent('sw-number-field'),
-                    'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                     'sw-context-button': true,
                     'sw-context-menu-item': true,
@@ -168,7 +166,7 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
 
         // check if input field has a value of 1 and is disabled
         expect(firstQuantityField.element.value).toBe('1');
-        expect(firstQuantityField.attributes('disabled')).toBe('');
+        expect(firstQuantityField.attributes('disabled')).toBeDefined();
     });
 
     it('second start quantity input should not be disabled', async () => {

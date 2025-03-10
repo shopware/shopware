@@ -1,13 +1,10 @@
 {
-    "openapi": "3.0.0",
+    "openapi": "3.1.0",
     "info": [],
     "paths": {
         "/currency": {
             "post": {
-                "tags": [
-                    "System & Context",
-                    "Endpoints supporting Criteria "
-                ],
+                "tags": ["System & Context", "Endpoints supporting Criteria "],
                 "summary": "Fetch currencies",
                 "description": "Perform a filtered search for currencies.",
                 "operationId": "readCurrency",
@@ -43,22 +40,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "allOf": [
-                                        {
-                                            "properties": {
-                                                "elements": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/Currency"
-                                                    }
-                                                }
-                                            },
-                                            "type": "object"
-                                        },
-                                        {
-                                            "$ref": "#/components/schemas/EntitySearchResult"
-                                        }
-                                    ]
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Currency"
+                                    }
                                 }
                             }
                         }

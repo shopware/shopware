@@ -7,14 +7,11 @@
         {{ formSettings.title.value }}
     </h3>
 
-    <sw-select-field :label="$tc('sw-cms.elements.form.element.label.action')">
-        <option
-            value=""
-            selected
-        >
-            {{ $tc('sw-cms.elements.form.element.label.subscribeToNewsletter') }}
-        </option>
-    </sw-select-field>
+    <mt-select
+        :label="$tc('sw-cms.elements.form.element.label.action')"
+        :model-value="''"
+        :options="[{ value: '', label: $tc('sw-cms.elements.form.element.label.subscribeToNewsletter') }]"
+    />
 
     <mt-text-field
         :label="$tc('sw-cms.elements.form.element.label.email')"
@@ -22,14 +19,10 @@
     />
 
     <div class="sw-cms-el-form-contact-form-group three-items">
-        <sw-select-field :label="$tc('sw-cms.elements.form.element.newsletter.label.salutation')">
-            <option
-                value=""
-                selected
-            >
-                {{ $tc('sw-cms.elements.form.element.label.salutationUndisclosed') }}
-            </option>
-        </sw-select-field>
+        <mt-select
+            :label="$tc('sw-cms.elements.form.element.newsletter.label.salutation')"
+            :options="[{ value: '', label: $tc('sw-cms.elements.form.element.label.salutationUndisclosed') }]"
+        />
 
         <mt-text-field
             :label="$tc('sw-cms.elements.form.element.newsletter.label.firstName')"
@@ -44,7 +37,7 @@
 
     <h4>{{ $tc('sw-cms.elements.form.element.label.privacy') }}</h4>
 
-    <sw-checkbox-field :label="$tc('sw-cms.elements.form.element.helpText.privacy')" />
+    <mt-checkbox :label="$tc('sw-cms.elements.form.element.helpText.privacy')" />
 
     <p class="sw-cms-el-form-note">
         {{ $tc('sw-cms.elements.form.element.helpText.requiredFields') }}

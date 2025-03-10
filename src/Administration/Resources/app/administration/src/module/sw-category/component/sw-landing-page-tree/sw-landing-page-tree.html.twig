@@ -131,6 +131,7 @@
             size="small"
             ghost
             :disabled="disableContextMenu || !acl.can('landing_page.creator') || undefined"
+            variant="secondary"
             @click="$router.push(newLandingPageUrl())"
         >
             {{ $tc('sw-landing-page.general.buttonCreate') }}

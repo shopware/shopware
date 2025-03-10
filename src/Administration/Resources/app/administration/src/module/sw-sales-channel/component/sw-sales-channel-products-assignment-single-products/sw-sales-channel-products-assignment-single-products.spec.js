@@ -141,7 +141,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        await wrapper.find('.sw-data-grid__select-all .sw-field__checkbox input').trigger('click');
+        await wrapper.find('.sw-data-grid__select-all.mt-field--checkbox__container input').trigger('click');
         expect(wrapper.emitted('selection-change').at(-1)).toEqual([
             [
                 {

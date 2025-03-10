@@ -33,8 +33,8 @@
         gap="0px 30px"
     >
         {% block sw_settings_price_rounding_container_items_decimals %}
-        <sw-number-field
-            v-model:value="itemRounding.decimals"
+        <mt-number-field
+            v-model="itemRounding.decimals"
             :label="$tc('sw-settings-currency.price-rounding.labelDecimals')"
             :help-text="$tc('sw-settings-currency.price-rounding.helpTextDecimals')"
             required
@@ -42,7 +42,7 @@
             :step="1"
             :min="0"
             :max="20"
-            @update:value="onChangeDecimals($event, 'itemRounding')"
+            @update:model-value="onChangeDecimals($event, 'itemRounding')"
         />
         {% endblock %}
 
@@ -112,8 +112,8 @@
         gap="0px 30px"
     >
         {% block sw_settings_price_rounding_container_grand_decimals %}
-        <sw-number-field
-            v-model:value="totalRounding.decimals"
+        <mt-number-field
+            v-model="totalRounding.decimals"
             :label="$tc('sw-settings-currency.price-rounding.labelDecimals')"
             :help-text="$tc('sw-settings-currency.price-rounding.helpTextDecimals')"
             required
@@ -121,7 +121,7 @@
             :step="1"
             :min="0"
             :max="20"
-            @update:value="onChangeDecimals($event, 'totalRounding')"
+            @update:model-value="onChangeDecimals($event, 'totalRounding')"
         />
         {% endblock %}
 

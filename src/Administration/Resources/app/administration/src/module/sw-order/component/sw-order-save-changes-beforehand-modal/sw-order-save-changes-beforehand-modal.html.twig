@@ -15,9 +15,10 @@
         {% block sw_order_save_changes_beforehand_modal_action_cancel %}
         <mt-button
             size="small"
+            variant="secondary"
             @click="onCancel"
         >
-            {{ $tc('sw-order.saveChangesBeforehandModal.cancelButton') }}
+            {{ $tc('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 

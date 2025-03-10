@@ -23,6 +23,7 @@
                 :is-loading="updaterIsRunning"
                 variant="primary"
                 class="sw-settings-shopware-updates-wizard__start-update"
+                size="default"
                 @click="updateModalShown = true"
             >
                 {{ $t('sw-settings-shopware-updates.infos.startUpdate') }}
@@ -62,8 +63,8 @@
             class="sw-shopware-updates-progressbar"
         >
             <div class="progress-wrapper">
-                <sw-progress-bar
-                    :value="progressbarValue"
+                <mt-progress-bar
+                    :model-value="progressbarValue"
                     :max-value="100"
                 />
                 <span class="progress-title">
@@ -109,8 +110,8 @@
             </template>
 
             <template #modal-footer>
-                <sw-checkbox-field
-                    v-model:value="checkedBackupCheckbox"
+                <mt-checkbox
+                    v-model:checked="checkedBackupCheckbox"
                     class="sw-settings-shopware-updates-check__start-update-backup-checkbox"
                     :label="$tc('sw-settings-shopware-updates.updateModal.backupLabel')"
                 />
@@ -118,6 +119,7 @@
                 <div class="sw-settings-shopware-updates-check__start-update-actions">
                     <mt-button
                         size="small"
+                        variant="secondary"
                         @click="updateModalShown = false"
                     >
                         {{ $tc('global.default.cancel') }}

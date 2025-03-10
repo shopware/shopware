@@ -200,9 +200,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         $criteria = OrderDocumentCriteriaFactory::create([$orderId], $deepLinkCode, self::TYPE)
             ->addFilter(new EqualsFilter('lineItems.type', LineItem::CREDIT_LINE_ITEM_TYPE));
 
-        /** @var ?OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $versionContext)->get($orderId);
-
+        $order = $this->orderRepository->search($criteria, $versionContext)->getEntities()->first();
         if ($order) {
             return $order;
         }
@@ -213,10 +211,8 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
 
         $criteria = OrderDocumentCriteriaFactory::create([$orderId], $deepLinkCode, self::TYPE);
 
-        /** @var ?OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $versionContext)->get($orderId);
-
-        if ($order === null) {
+        $order = $this->orderRepository->search($criteria, $versionContext)->getEntities()->first();
+        if (!$order) {
             throw DocumentException::orderNotFound($orderId);
         }
 

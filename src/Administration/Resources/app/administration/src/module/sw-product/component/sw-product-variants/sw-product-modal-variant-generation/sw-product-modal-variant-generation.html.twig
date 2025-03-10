@@ -119,6 +119,7 @@
         {% block sw_product_modal_variant_generation_footer_cancel %}
         <mt-button
             size="small"
+            variant="secondary"
             @click="onModalCancel"
         >
             {{ $tc('global.default.cancel') }}
@@ -275,6 +276,7 @@
     <template #modal-footer>
         <mt-button
             size="small"
+            variant="secondary"
             @click="showUploadModal = false"
         >
             {{ $tc('sw-product.variations.backVariationsButton') }}
@@ -297,9 +299,9 @@
                 v-if="isLoading"
                 class="generate-variant-progress-bar__wrapper"
             >
-                <sw-progress-bar
+                <mt-progress-bar
                     class="generate-variant-progress-bar"
-                    :value="progressInPercentage"
+                    :model-value="progressInPercentage"
                 />
 
                 <span class="generate-variant-progress-bar__description">

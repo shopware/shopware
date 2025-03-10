@@ -4,9 +4,11 @@ namespace Shopware\Tests\Integration\Core\Checkout\Order;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\OrderAddressService;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -26,8 +28,14 @@ class OrderAddressServiceTest extends TestCase
     use IntegrationTestBehaviour;
     use OrderFixture;
 
+    /**
+     * @var EntityRepository<OrderCollection>
+     */
     private EntityRepository $orderRepository;
 
+    /**
+     * @var EntityRepository<CustomerAddressCollection>
+     */
     private EntityRepository $customerAddressRepository;
 
     private OrderAddressService $orderAddressService;

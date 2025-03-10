@@ -1,3 +1,4 @@
+import { computed } from 'vue';
 import template from './sw-grid.html.twig';
 import './sw-grid.scss';
 
@@ -40,7 +41,7 @@ Component.register('sw-grid', {
             swRegisterGridDisableInlineEditListener: this.registerGridDisableInlineEditListener,
             swUnregisterGridDisableInlineEditListener: this.unregisterGridDisableInlineEditListener,
             swGridSetColumns: this.setColumns,
-            swGridColumns: this.columns,
+            swGridColumns: computed(() => this.columns),
         };
     },
 
@@ -113,6 +114,8 @@ Component.register('sw-grid', {
         },
     },
 
+    expose: ['startInlineEditing', 'selectAll', 'selectItem'],
+
     data() {
         return {
             columns: [],
@@ -121,6 +124,7 @@ Component.register('sw-grid', {
             editing: null,
             allSelectedChecked: false,
             swGridDisableInlineEditListener: [],
+            rowRefs: [],
         };
     },
 
@@ -324,6 +328,10 @@ Component.register('sw-grid', {
             }
 
             return item.id;
+        },
+
+        startInlineEditing() {
+            this.$refs.rowRefs.at(-1).startInlineEditing();
         },
     },
 });

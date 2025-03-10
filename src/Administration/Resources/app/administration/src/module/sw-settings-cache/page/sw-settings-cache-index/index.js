@@ -123,6 +123,19 @@ export default {
 
             return this.cacheInfo.cacheAdapter;
         },
+
+        indexingMethodOptions() {
+            return [
+                {
+                    label: this.$tc('sw-settings-cache.section.indexingModeOptionSkipLabel'),
+                    value: 'skip',
+                },
+                {
+                    label: this.$tc('sw-settings-cache.section.indexingModeOptionOnlyLabel'),
+                    value: 'only',
+                },
+            ];
+        },
     },
 
     created() {

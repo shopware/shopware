@@ -11,11 +11,11 @@ use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCodeValidat
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Context\ExecutionContext;
-use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Violation\ConstraintViolationBuilder;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -48,7 +48,7 @@ class CustomerZipcodeValidatorTest extends TestCase
         try {
             $mock->validate(['zipcode' => '1235468'], $this->createMock(Constraint::class));
         } catch (\Throwable $exception) {
-            static::assertInstanceOf(UnexpectedTypeException::class, $exception);
+            static::assertInstanceOf(CustomerException::class, $exception);
         }
     }
 
@@ -76,7 +76,7 @@ class CustomerZipcodeValidatorTest extends TestCase
         $country->setDefaultPostalCodePattern('\\d{5}');
         $country->setAdvancedPostalCodePattern(null);
 
-        $result->method('get')->with($countryId)->willReturn($country);
+        $result->method('getEntities')->willReturn(new CountryCollection([$country]));
 
         $this->countryRepository->expects(static::once())->method('search')->willReturn($result);
 
@@ -111,7 +111,7 @@ class CustomerZipcodeValidatorTest extends TestCase
         static::expectException(CustomerException::class);
 
         $result = $this->createMock(EntitySearchResult::class);
-        $result->expects(static::once())->method('get')->with($this->constraint->countryId)->willReturn(null);
+        $result->expects(static::once())->method('getEntities')->willReturn(new CountryCollection([]));
 
         $this->countryRepository->expects(static::once())->method('search')->willReturn($result);
 
@@ -138,7 +138,7 @@ class CustomerZipcodeValidatorTest extends TestCase
         $country->setDefaultPostalCodePattern('\\d{5}');
         $country->setAdvancedPostalCodePattern(null);
 
-        $result->method('get')->with($countryId)->willReturn($country);
+        $result->method('getEntities')->willReturn(new CountryCollection([$country]));
         $this->countryRepository->expects(static::once())->method('search')->willReturn($result);
 
         $executionContext = $this->createMock(ExecutionContext::class);
@@ -164,7 +164,7 @@ class CustomerZipcodeValidatorTest extends TestCase
         $country->setDefaultPostalCodePattern('\\d{6}');
         $country->setAdvancedPostalCodePattern(null);
 
-        $result->method('get')->with($countryId)->willReturn($country);
+        $result->method('getEntities')->willReturn(new CountryCollection([$country]));
         $this->countryRepository->expects(static::once())->method('search')->willReturn($result);
 
         $executionContext = $this->createMock(ExecutionContext::class);
@@ -192,7 +192,7 @@ class CustomerZipcodeValidatorTest extends TestCase
         $country->setDefaultPostalCodePattern(null);
         $country->setAdvancedPostalCodePattern('\\d{5}');
 
-        $result->method('get')->with($countryId)->willReturn($country);
+        $result->method('getEntities')->willReturn(new CountryCollection([$country]));
         $this->countryRepository->expects(static::once())->method('search')->willReturn($result);
 
         $executionContext = $this->createMock(ExecutionContext::class);
@@ -236,7 +236,7 @@ class CustomerZipcodeValidatorTest extends TestCase
         $country->setDefaultPostalCodePattern('\\d{5}');
         $country->setAdvancedPostalCodePattern(null);
 
-        $result->method('get')->with($countryId)->willReturn($country);
+        $result->method('getEntities')->willReturn(new CountryCollection([$country]));
         $this->countryRepository->expects(static::once())->method('search')->willReturn($result);
 
         $executionContext = $this->createMock(ExecutionContext::class);
@@ -264,7 +264,7 @@ class CustomerZipcodeValidatorTest extends TestCase
         $country->setDefaultPostalCodePattern('\\d{5}');
         $country->setAdvancedPostalCodePattern(null);
 
-        $result->method('get')->with($countryId)->willReturn($country);
+        $result->method('getEntities')->willReturn(new CountryCollection([$country]));
         $this->countryRepository->expects(static::once())->method('search')->willReturn($result);
 
         $executionContext = $this->createMock(ExecutionContext::class);

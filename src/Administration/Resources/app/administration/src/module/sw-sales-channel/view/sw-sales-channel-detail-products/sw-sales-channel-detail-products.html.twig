@@ -37,6 +37,7 @@
                         ghost
                         size="small"
                         :disabled="!acl.can('sales_channel.editor')"
+                        variant="secondary"
                         @click="openAddProductsModal"
                     >
                         {{ $tc('sw-sales-channel.detail.products.buttonAddProducts', 0) }}
@@ -73,15 +74,15 @@
                         <slot v-bind="{ item, isSelected, isRecordSelectable, selectItem, itemIdentifierProperty }">
                             <div class="sw-data-grid__cell-content">
                                 {% block sw_sales_channel_detail_products_listing_select_item_checkbox %}
-                                <sw-checkbox-field
+                                <mt-checkbox
                                     v-tooltip="{
                                         message: $tc('sw-sales-channel.detail.products.inheritVariantNotRemovableTooltip'),
                                         disabled: isRecordSelectable(item),
                                         showOnDisabledElements: true
                                     }"
                                     :disabled="!isRecordSelectable(item)"
-                                    :value="isSelected(item[itemIdentifierProperty])"
-                                    @update:value="selectItem($event, item)"
+                                    :checked="isSelected(item[itemIdentifierProperty])"
+                                    @update:checked="selectItem($event, item)"
                                 />
                                 {% endblock %}
                             </div>
@@ -199,6 +200,7 @@
                 }"
                 ghost
                 :disabled="!acl.can('sales_channel.editor')"
+                variant="secondary"
                 @click="openAddProductsModal"
             >
                 {{ $tc('sw-sales-channel.detail.products.buttonAddProducts', 0) }}

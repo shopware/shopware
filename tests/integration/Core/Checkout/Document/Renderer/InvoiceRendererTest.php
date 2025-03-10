@@ -24,6 +24,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -54,6 +55,9 @@ class InvoiceRendererTest extends TestCase
 
     private Context $context;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     private InvoiceRenderer $invoiceRenderer;

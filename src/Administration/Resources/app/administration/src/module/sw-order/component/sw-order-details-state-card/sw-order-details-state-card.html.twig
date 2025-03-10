@@ -1,7 +1,7 @@
 {% block sw_order_detail_state_card %}
 <mt-card
     class="sw-order-detail-state-card"
-    position-identifier="sw-order-details-state"
+    :position-identifier="cardPosition"
     :title="title"
     :is-loading="isLoading"
 >
@@ -40,6 +40,7 @@
             >
                 <i18n-t
                     keypath="sw-order.stateCard.labelHistory"
+                    scope="local"
                 >
                     <template #time>
                         <sw-time-ago :date="lastStateChange.createdAt" />

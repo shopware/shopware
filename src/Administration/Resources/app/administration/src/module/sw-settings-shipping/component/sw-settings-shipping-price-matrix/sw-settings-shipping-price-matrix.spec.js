@@ -19,7 +19,7 @@ const createWrapper = async () => {
                     'sw-context-menu-item': true,
 
                     'sw-price-rule-modal': true,
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-inheritance-switch': true,
                     'sw-inherit-wrapper': true,
                     'sw-single-select': true,

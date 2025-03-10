@@ -42,9 +42,9 @@ final class DocumentMerger
             return null;
         }
 
-        $criteria = new Criteria($documentIds);
-        $criteria->addAssociation('documentType');
-        $criteria->addSorting(new FieldSorting('order.orderNumber'));
+        $criteria = (new Criteria($documentIds))
+            ->addAssociation('documentType')
+            ->addSorting(new FieldSorting('order.orderNumber'));
 
         /** @var DocumentCollection $documents */
         $documents = $this->documentRepository->search($criteria, $context)->getEntities();
@@ -140,12 +140,11 @@ final class DocumentMerger
             return null;
         }
 
-        $criteria = new Criteria([$document->getId()]);
-        $criteria->addAssociation('documentType')
-            ->addAssociation('documentMediaFile');
+        $criteria = (new Criteria([$document->getId()]))
+            ->addAssociations(['documentType', 'documentMediaFile']);
 
-        /** @var DocumentEntity $document */
-        $document = $this->documentRepository->search($criteria, $context)->get($document->getId());
+        $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
+        \assert($document !== null);
 
         return $document->getDocumentMediaFileId();
     }

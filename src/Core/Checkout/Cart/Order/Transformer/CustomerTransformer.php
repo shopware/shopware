@@ -6,9 +6,15 @@ use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @phpstan-type TransformedCustomerArray array{customerId: string, email: string, firstName: string, lastName: string, salutationId: string|null, title: string|null, vatIds: array<string>|null, customerNumber: string, remoteAddress: string|null, customFields: array<string, mixed>|null}
+ */
 #[Package('checkout')]
 class CustomerTransformer
 {
+    /**
+     * @return list<TransformedCustomerArray>|array<string, TransformedCustomerArray>
+     */
     public static function transformCollection(CustomerCollection $customers, bool $useIdAsKey = false): array
     {
         $output = [];
@@ -17,12 +23,15 @@ class CustomerTransformer
         }
 
         if (!$useIdAsKey) {
-            $output = array_values($output);
+            return array_values($output);
         }
 
         return $output;
     }
 
+    /**
+     * @return TransformedCustomerArray
+     */
     public static function transform(CustomerEntity $customer): array
     {
         return [

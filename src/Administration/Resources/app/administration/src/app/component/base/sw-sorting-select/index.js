@@ -69,6 +69,16 @@ Component.register('sw-sorting-select', {
         sortingConditionConcatenation() {
             return `${this.sortBy}:${this.sortDirection}`;
         },
+
+        sortingConditionOptions() {
+            return this.sortOptions.map((option) => {
+                return {
+                    id: option.value,
+                    value: option.value,
+                    label: option.name,
+                };
+            });
+        },
     },
 
     methods: {

@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class DateRangeRule extends Rule
@@ -22,6 +22,9 @@ class DateRangeRule extends Rule
 
     protected bool $useTime;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ?\DateTimeInterface $fromDate = null,
         ?\DateTimeInterface $toDate = null,

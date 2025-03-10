@@ -112,7 +112,7 @@
                                 {% block buy_widget_tax_link %}
                                     {% set cmsPath = path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) %}
 
-                                    <button class="btn btn-link-inline"
+                                    <button class="btn btn-link-inline product-detail-tax-link"
                                             type="button"
                                             data-ajax-modal="true"
                                             data-url="{{ cmsPath }}">
@@ -145,7 +145,6 @@
                                     style: 'text-primary'
                                 } %}
                                 <a
-                                    data-bs-toggle="tab"
                                     class="product-detail-reviews-link"
                                     data-off-canvas-tabs="true"
                                     data-remote-click="true"

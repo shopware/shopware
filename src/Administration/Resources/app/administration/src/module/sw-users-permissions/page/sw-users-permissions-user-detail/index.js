@@ -183,6 +183,16 @@ export default {
                 appearance: 'light',
             };
         },
+
+        localeOptions() {
+            return this.languages.map((language) => {
+                return {
+                    id: language.locale.id,
+                    value: language.locale.id,
+                    label: language.customLabel,
+                };
+            });
+        },
     },
 
     watch: {

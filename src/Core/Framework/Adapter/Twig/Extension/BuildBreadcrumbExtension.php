@@ -18,6 +18,8 @@ class BuildBreadcrumbExtension extends AbstractExtension
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CategoryCollection> $categoryRepository
      */
     public function __construct(
         private readonly CategoryBreadcrumbBuilder $categoryBreadcrumbBuilder,
@@ -45,12 +47,10 @@ class BuildBreadcrumbExtension extends AbstractExtension
         }
 
         $seoBreadcrumb = $this->categoryBreadcrumbBuilder->build($category, $salesChannel);
-
         if ($seoBreadcrumb === null) {
             return [];
         }
 
-        /** @var list<string> $categoryIds */
         $categoryIds = array_keys($seoBreadcrumb);
         if (empty($categoryIds)) {
             return [];
@@ -58,7 +58,6 @@ class BuildBreadcrumbExtension extends AbstractExtension
 
         $criteria = new Criteria($categoryIds);
         $criteria->setTitle('breadcrumb-extension');
-        /** @var CategoryCollection $categories */
         $categories = $this->categoryRepository->search($criteria, $context)->getEntities();
 
         $breadcrumb = [];

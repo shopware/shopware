@@ -14,9 +14,9 @@ use Twig\Loader\LoaderInterface;
 class TemplateFinder implements TemplateFinderInterface, ResetInterface
 {
     /**
-     * @var string[]
+     * @var string[]|null
      */
-    private array $namespaceHierarchy = [];
+    private ?array $namespaceHierarchy = null;
 
     /**
      * @internal
@@ -108,7 +108,7 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
 
     public function reset(): void
     {
-        $this->namespaceHierarchy = [];
+        $this->namespaceHierarchy = null;
     }
 
     private function getSourceBundleName(string $source): ?string
@@ -129,7 +129,7 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
      */
     private function getNamespaceHierarchy(): array
     {
-        if ($this->namespaceHierarchy) {
+        if ($this->namespaceHierarchy !== null) {
             return $this->namespaceHierarchy;
         }
 

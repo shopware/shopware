@@ -116,7 +116,7 @@ export default {
         },
 
         requestedPermissions() {
-            return Object.keys(this.extension.permissions).length ? this.extension.permissions : null;
+            return Object.keys(this.extension.requestedPermissions).length ? this.extension.requestedPermissions : null;
         },
 
         newPermissionRequests() {
@@ -403,7 +403,7 @@ export default {
             this.permissionsAccepted = true;
             this.closePermissionsReviewModal();
 
-            console.log('accepting permissions')
+            await this.acceptRequestedPermissions(this.extension);
         },
 
         /*
@@ -430,6 +430,24 @@ export default {
                 this.extension.active = false;
             } catch (e) {
                 this.showStoreError(e);
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        async acceptRequestedPermissions(extension) {
+            try {
+                this.isLoading = true;
+
+                await this.shopwareExtensionService.acceptRequestedPermissionsForExtension(
+                    extension.name,
+                    extension.type,
+                    extension.requestedPermissions,
+                );
+
+                await this.shopwareExtensionService.updateExtensionData();
+            } catch (e) {
+                this.showExtensionErrors(e);
             } finally {
                 this.isLoading = false;
             }

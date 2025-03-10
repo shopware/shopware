@@ -45,7 +45,7 @@
         {% block sw_extension_card_base_info_content %}
         <section>
                 <div class="">
-                    <span class="sw-extension-card-base__meta-info-permission-review">
+                    <span v-if="newPermissionRequests" class="sw-extension-card-base__meta-info-permission-review">
                         {{ $tc('sw-extension.my-extensions.listing.permission-review') }}
                     </span>
 
@@ -84,14 +84,8 @@
         >
             {{ $tc('sw-extension-store.component.sw-extension-card-base.installExtensionLabel') }}
         </span>
-        <router-link
-{#            v-else-if="extension.configurable"#}
-            :to="{ name: 'sw.extension.config', params: { namespace: extension.name } }"
-        >
-            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.config') }}
-        </router-link>
         <span
-            v-if="!newPermissionRequests"
+            v-if="newPermissionRequests"
             class="sw-extension-card-base__open-extension"
             role="button"
             @click="openPermissionsReviewModal"
@@ -99,6 +93,12 @@
         >
             {{ $tc('sw-extension-store.component.sw-extension-card-base.reviewNewPermissionsLabel') }}
         </span>
+        <router-link
+            v-if="isInstalled"
+            :to="{ name: 'sw.extension.config', params: { namespace: extension.name } }"
+        >
+            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.config') }}
+        </router-link>
     </div>
 
     <sw-context-button

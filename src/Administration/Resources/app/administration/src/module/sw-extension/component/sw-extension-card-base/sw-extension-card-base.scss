@@ -94,11 +94,12 @@
         }
 
         &-permission-review {
+            font-size: 10px;
             font-weight: $font-weight-semi-bold;
             border-radius: $border-radius-pill;
             background-color: var(--color-background-attention-default);
             color: $color-black;
-            padding: 4px 8px
+            padding: 2px 4px
         }
     }
 

@@ -55,7 +55,6 @@
                     {{ $tc('sw-app.component.sw-app-permission-request-banner.explanation', extensionListWithRequestedPermissions.length) }}
                 </div>
 
-                {{ extensionToReview }}
                 <mt-button
                     variant="secondary"
                     size="x-small"
@@ -159,7 +158,7 @@
     <sw-extension-permissions-modal
         v-if="showExtensionReviewModal"
         :extension-label="extensionToReview.label"
-        :permissions="extensionToReview.permissions"
+        :permissions="extensionToReview.requestedPermissions"
         :domains="extensionToReview.domains"
         :action-label="permissionModalActionLabel"
         @modal-close="closePermissionsReviewModal"

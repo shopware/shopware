@@ -1,5 +1,6 @@
 import type { RouteLocationNamedRaw, RouteLocation } from 'vue-router';
 import type { AppModulesService, AppModuleDefinition } from 'src/core/service/api/app-modules.service';
+import type { AppPermissionsService } from 'src/core/service/api/app-permissions.service';
 import type StoreApiService from 'src/core/service/api/store.api.service';
 import type { ShopwareDiscountCampaignService } from 'src/app/service/discount-campaign.service';
 import type {
@@ -22,6 +23,9 @@ interface LabeledLocation extends RouteLocation {
     label: string | null;
 }
 
+type PermissionEntry = { entity: string; operation: string };
+type PermissionsMap = Record<string, PermissionEntry[]>;
+
 /**
  * @sw-package checkout
  * @private
@@ -36,6 +40,8 @@ export default class ShopwareExtensionService {
         private readonly extensionStoreActionService: ExtensionStoreActionService,
         private readonly discountCampaignService: ShopwareDiscountCampaignService,
         private readonly storeApiService: StoreApiService,
+        private readonly appPermissionsService: AppPermissionsService,
+
     ) {
         this.EXTENSION_VARIANT_TYPES = Object.freeze({
             RENT: 'rent',
@@ -93,6 +99,27 @@ export default class ShopwareExtensionService {
         await this.extensionStoreActionService.deactivateExtension(extensionId, type);
 
         await this.updateModules();
+    }
+
+    public async acceptRequestedPermissionsForExtension(
+        extensionName: string,
+        type: ExtensionType,
+        permissions: PermissionsMap,
+    ): Promise<void> {
+        if (type !== this.EXTENSION_TYPES.APP) {
+            return;
+        }
+
+        await this.appPermissionsService.acceptPermissions(
+            extensionName,
+            this.flattenPermissions(permissions),
+        );
+    }
+
+    private flattenPermissions(permissions: PermissionsMap): string[] {
+        return Object.values(permissions)
+            .flat()
+            .map(({ entity, operation }) => `${entity}:${operation}`);
     }
 
     public async updateExtensionData(): Promise<void> {

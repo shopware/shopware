@@ -158,6 +158,17 @@ export default class ExtensionStoreActionService extends ApiService {
         );
     }
 
+    public acceptRequestedPermissionsForExtension(technicalName: string, type: ExtensionType): Promise<AxiosResponse<void>> {
+        return this.httpClient.put(
+            `_action/${this.getApiBasePath()}/deactivate/${type}/${technicalName}`,
+            {},
+            {
+                headers: this.storeHeaders(),
+                version: 3,
+            },
+        );
+    }
+
     public uninstallExtension(
         technicalName: string,
         type: ExtensionType,

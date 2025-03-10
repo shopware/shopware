@@ -31,6 +31,7 @@ Application.addServiceProvider('shopwareExtensionService', () => {
         Shopware.Service('extensionStoreActionService'),
         Shopware.Service('shopwareDiscountCampaignService'),
         Shopware.Service('storeService'),
+        Shopware.Service('appPermissionsService'),
     );
 });
 

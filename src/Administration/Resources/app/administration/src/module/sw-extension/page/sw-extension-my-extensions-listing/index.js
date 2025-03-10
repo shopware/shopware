@@ -10,11 +10,12 @@ export default {
 
     inject: ['shopwareExtensionService'],
 
+    mixins: ['sw-extension-error'],
+
     data() {
         return {
             filterByActiveState: false,
             sortingOption: 'updated-at',
-            hasPermissionRequests: true,
             extensionToReview: null,
             showExtensionReviewModal: false,
             permissionModalActionLabel: null,
@@ -69,8 +70,12 @@ export default {
 
         extensionListWithRequestedPermissions() {
             return this.extensionList.filter((extension) => {
-                return Object.keys(extension.permissions).length;
+                return Object.keys(extension.requestedPermissions).length;
             })
+        },
+
+        hasPermissionRequests() {
+            return this.extensionListWithRequestedPermissions.length > 0;
         },
 
         isAppRoute() {
@@ -276,6 +281,8 @@ export default {
             if (this.extensionListWithRequestedPermissions.length) {
                 this.extensionToReview = this.extensionListWithRequestedPermissions[0];
                 this.showExtensionReviewModal = true;
+            } else {
+                this.shopwareExtensionService.updateExtensionData();
             }
         },
 
@@ -288,12 +295,23 @@ export default {
         async acceptAndCheckNext() {
             const extension = this.extensionToReview;
             this.closePermissionsReviewModal();
-            extension.permissions = {};
 
-            //if there are more extensions with requested permissions, show the next one
-            if (this.extensionListWithRequestedPermissions.length) {
-                this.extensionToReview = this.extensionListWithRequestedPermissions[0];
-                this.showExtensionReviewModal = true;
+            await this.acceptRequestedPermissions(extension);
+
+            this.reviewPermissionRequests();
+        },
+
+        async acceptRequestedPermissions(extension) {
+            try {
+                await this.shopwareExtensionService.acceptRequestedPermissionsForExtension(
+                    extension.name,
+                    extension.type,
+                    extension.requestedPermissions,
+                );
+
+                extension.requestedPermissions = {};
+            } catch (e) {
+                this.showExtensionErrors(e);
             }
         },
     },

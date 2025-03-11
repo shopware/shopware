@@ -114,9 +114,6 @@ async function setFieldValue(github, core, projectId, cardId, fieldId, valueId) 
 }
 
 async function findInProject(github, core, context, projectNumber) {
-
-  context.payload.issue = { number: 7409 }; // test issue
-
   const getProjectItem = (projectItems) => {
     const r = projectItems.nodes.find((x) => x.project.number === projectNumber);
     if (r) {
@@ -130,28 +127,27 @@ async function findInProject(github, core, context, projectNumber) {
   };
 
   if (context.payload.issue) {
-    core.debug(`context response: ${JSON.stringify(context)}`)
     const res = github.graphql(
       `query findIssueInProject($number: Int!) {
-          repository(owner: "shopware", name: "shopware") {
-            issue(number: $number) {
-              projectItems(first: 20) {
-                nodes {
-                  project {
-                    number
-                  }
-                  fieldValueByName(name: "Status") {
-                    ... on ProjectV2ItemFieldSingleSelectValue {
-                      name
-                    }
+        repository(owner: "shopware", name: "shopware") {
+          issue(number: $number) {
+            projectItems(first: 20) {
+              nodes {
+                project {
+                  number
+                }
+                fieldValueByName(name: "Status") {
+                  ... on ProjectV2ItemFieldSingleSelectValue {
+                    name
                   }
                 }
               }
-              id
-              number
             }
+            id
+            number
           }
-        }`,
+        }
+      }`,
       {
         number: context.payload.issue.number,
       }

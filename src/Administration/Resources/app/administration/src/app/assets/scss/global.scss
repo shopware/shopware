@@ -134,3 +134,7 @@ a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .mt-button) {
 .mt-field--checkbox__container .mt-field--checkbox.mt-field--checkbox {
     margin-bottom: 0;
 }
+
+.mt-switch.mt-switch--not-bordered {
+    min-height: 0;
+}

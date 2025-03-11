@@ -283,6 +283,7 @@ class OrderStateChangeEventListenerTest extends TestCase
 /**
  * @internal
  */
+#[Package('checkout')]
 class RuleValidator extends CallableClass
 {
     public ?OrderStateMachineStateChangeEvent $event;

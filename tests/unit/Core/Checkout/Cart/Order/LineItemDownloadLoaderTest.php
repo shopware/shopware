@@ -13,12 +13,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
 #[CoversClass(LineItemDownloadLoader::class)]
+#[Package('checkout')]
 class LineItemDownloadLoaderTest extends TestCase
 {
     private MockObject&EntityRepository $productDownloadRepository;

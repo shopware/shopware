@@ -11,12 +11,14 @@ use Shopware\Core\Checkout\Customer\Subscriber\CustomerSalutationSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
 #[CoversClass(CustomerSalutationSubscriber::class)]
+#[Package('checkout')]
 class CustomerSalutationSubscriberTest extends TestCase
 {
     private MockObject&Connection $connection;

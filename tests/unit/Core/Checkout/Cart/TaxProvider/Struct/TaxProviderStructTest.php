@@ -8,11 +8,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\TaxProvider\Struct\TaxProviderResult;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(TaxProviderResult::class)]
+#[Package('checkout')]
 class TaxProviderStructTest extends TestCase
 {
     public function testEmpty(): void

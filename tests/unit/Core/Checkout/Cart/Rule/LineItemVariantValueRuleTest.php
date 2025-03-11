@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemVariantValueRule;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
@@ -24,6 +25,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 #[CoversClass(LineItemVariantValueRule::class)]
 #[Group('rules')]
+#[Package('checkout')]
 class LineItemVariantValueRuleTest extends TestCase
 {
     private LineItemVariantValueRule $rule;

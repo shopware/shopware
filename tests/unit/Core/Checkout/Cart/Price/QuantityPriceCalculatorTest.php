@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 
@@ -25,6 +26,7 @@ use Shopware\Core\Test\Generator;
  * @internal
  */
 #[CoversClass(QuantityPriceCalculator::class)]
+#[Package('checkout')]
 class QuantityPriceCalculatorTest extends TestCase
 {
     #[DataProvider('priceCalculationWithGrossPricesProvider')]

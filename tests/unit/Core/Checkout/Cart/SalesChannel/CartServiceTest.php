@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartItemUpdateRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartLoadRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartOrderRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -25,6 +26,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  */
 #[CoversClass(CartService::class)]
+#[Package('checkout')]
 class CartServiceTest extends TestCase
 {
     private AbstractCartDeleteRoute&MockObject $cartDeleteRoute;

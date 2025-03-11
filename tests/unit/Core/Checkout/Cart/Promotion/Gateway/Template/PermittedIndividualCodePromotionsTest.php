@@ -10,12 +10,14 @@ use Shopware\Core\Checkout\Promotion\Gateway\Template\PermittedIndividualCodePro
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 /**
  * @internal
  */
 #[CoversClass(PermittedIndividualCodePromotions::class)]
+#[Package('checkout')]
 class PermittedIndividualCodePromotionsTest extends TestCase
 {
     private SalesChannelEntity $salesChannel;

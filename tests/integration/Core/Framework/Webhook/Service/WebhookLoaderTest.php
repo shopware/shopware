@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
+use Shopware\Core\Framework\Webhook\Webhook;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -53,34 +54,34 @@ class WebhookLoaderTest extends TestCase
 
         $webhooks = $webhookLoader->getWebhooks();
 
-        static::assertSame(
+        static::assertEquals(
             [
-                [
-                    'webhookId' => $this->ids->get('wh-1'),
-                    'webhookName' => 'hook1',
-                    'eventName' => 'checkout.customer.before.login',
-                    'webhookUrl' => 'https://test.com',
-                    'onlyLiveVersion' => false,
-                    'appId' => null,
-                    'appName' => null,
-                    'appActive' => false,
-                    'appVersion' => null,
-                    'appSecret' => null,
-                    'appAclRoleId' => null,
-                ],
-                [
-                    'webhookId' => $this->ids->get('wh-2'),
-                    'webhookName' => 'hook2',
-                    'eventName' => 'checkout.customer.before.login',
-                    'webhookUrl' => 'https://test2.com',
-                    'onlyLiveVersion' => false,
-                    'appId' => null,
-                    'appName' => null,
-                    'appActive' => false,
-                    'appVersion' => null,
-                    'appSecret' => null,
-                    'appAclRoleId' => null,
-                ],
+                new Webhook(
+                    $this->ids->get('wh-1'),
+                    'hook1',
+                    'checkout.customer.before.login',
+                    'https://test.com',
+                    false,
+                    null,
+                    null,
+                    false,
+                    null,
+                    null,
+                    null,
+                ),
+                new Webhook(
+                    $this->ids->get('wh-2'),
+                    'hook2',
+                    'checkout.customer.before.login',
+                    'https://test2.com',
+                    false,
+                    null,
+                    null,
+                    false,
+                    null,
+                    null,
+                    null,
+                ),
             ],
             $webhooks
         );
@@ -118,34 +119,34 @@ class WebhookLoaderTest extends TestCase
 
         $webhooks = $webhookLoader->getWebhooks();
 
-        static::assertSame(
+        static::assertEquals(
             [
-                [
-                    'webhookId' => $this->ids->get('wh-1'),
-                    'webhookName' => 'hook1',
-                    'eventName' => 'checkout.customer.before.login',
-                    'webhookUrl' => 'https://test.com',
-                    'onlyLiveVersion' => false,
-                    'appId' => Uuid::fromBytesToHex($appId),
-                    'appName' => 'minimal',
-                    'appActive' => false,
-                    'appVersion' => '1.0.0',
-                    'appSecret' => 'dont_tell',
-                    'appAclRoleId' => Uuid::fromBytesToHex($aclRoleId),
-                ],
-                [
-                    'webhookId' => $this->ids->get('wh-2'),
-                    'webhookName' => 'hook2',
-                    'eventName' => 'checkout.customer.before.login',
-                    'webhookUrl' => 'https://test2.com',
-                    'onlyLiveVersion' => false,
-                    'appId' => Uuid::fromBytesToHex($appId),
-                    'appName' => 'minimal',
-                    'appActive' => false,
-                    'appVersion' => '1.0.0',
-                    'appSecret' => 'dont_tell',
-                    'appAclRoleId' => Uuid::fromBytesToHex($aclRoleId),
-                ],
+                new Webhook(
+                    $this->ids->get('wh-1'),
+                    'hook1',
+                    'checkout.customer.before.login',
+                    'https://test.com',
+                    false,
+                    Uuid::fromBytesToHex($appId),
+                    'minimal',
+                    false,
+                    '1.0.0',
+                    'dont_tell',
+                    Uuid::fromBytesToHex($aclRoleId),
+                ),
+                new Webhook(
+                    $this->ids->get('wh-2'),
+                    'hook2',
+                    'checkout.customer.before.login',
+                    'https://test2.com',
+                    false,
+                    Uuid::fromBytesToHex($appId),
+                    'minimal',
+                    false,
+                    '1.0.0',
+                    'dont_tell',
+                    Uuid::fromBytesToHex($aclRoleId),
+                ),
             ],
             $webhooks
         );

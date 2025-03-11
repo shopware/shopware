@@ -103,14 +103,6 @@ async function createWrapper() {
                 },
                 'sw-order-address-selection': true,
                 'sw-entity-single-select': true,
-                'mt-number-field': {
-                    template:
-                        '<input class="mt-number-field" type="number" @input="$emit(\'input\', Number($event.target.value))" />',
-                    props: {
-                        value: 0,
-                    },
-                },
-                'mt-textarea': true,
                 'sw-datepicker': true,
                 'sw-multi-tag-select': true,
                 'sw-textarea-field': true,
@@ -238,7 +230,7 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         global.activeAclRoles = ['order.editor'];
         wrapper = await createWrapper();
         const shippingCostField = wrapper.findComponent('.sw-order-detail-details__shipping-cost');
-        await shippingCostField.vm.$emit('update:modelValue', 20);
+        await shippingCostField.setValue(20);
 
         expect(wrapper.vm.delivery.shippingCosts.unitPrice).toBe(20);
         expect(wrapper.vm.delivery.shippingCosts.totalPrice).toBe(20);
@@ -249,7 +241,7 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         global.activeAclRoles = ['order.editor'];
         wrapper = await createWrapper();
         const internalCommentField = wrapper.findComponent('.sw-order-detail-details__internal-comment');
-        await internalCommentField.vm.$emit('update:modelValue', 'This is a longtext');
+        await internalCommentField.setValue('This is a longtext');
 
         expect(wrapper.vm.order.internalComment).toBe('This is a longtext');
         expect(wrapper.emitted('save-and-recalculate')).toBeFalsy();

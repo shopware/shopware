@@ -43,7 +43,7 @@ $sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
         }
 
         &::placeholder {
-            color: lighten($color-darkgray-200, 25%);
+            color: var(--color-text-secondary-default);
         }
     }
 

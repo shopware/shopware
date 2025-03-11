@@ -32,6 +32,7 @@
                                       data-form-handler="true">
                                     {% block page_account_profile_personal_fields %}
                                         {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
+                                            prefix: '',
                                             showBirthdayField: config('core.loginRegistration.showBirthdayField'),
                                             showVatIdField: true,
                                             data: context.customer,

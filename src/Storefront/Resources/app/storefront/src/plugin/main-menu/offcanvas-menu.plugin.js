@@ -51,7 +51,11 @@ export default class OffcanvasMenuPlugin extends Plugin {
                     });
                 });
             });
+            // initialize the plugins again, after Off-Canvas init, otherwise you will miss the JS event listener
+            window.PluginManager.initializePlugins();
         }
+        // re-open the menu if the url parameter is set
+        this._openMenuViaUrlParameter();
     }
 
     /**
@@ -66,6 +70,22 @@ export default class OffcanvasMenuPlugin extends Plugin {
         OffCanvas.setAdditionalClassName(this.options.additionalOffcanvasClass);
 
         this.$emitter.publish('openMenu');
+    }
+
+    /**
+     * opens the menu via url parameter (offcanvas=menu)
+     * @private
+     */
+    _openMenuViaUrlParameter() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('offcanvas') && urlParams.get('offcanvas') === 'menu') {
+            document.querySelector('[data-off-canvas-menu="true"]')?.click();
+            if (window.history.replaceState) {
+                const url = new URL(window.location);
+                url.searchParams.delete('offcanvas');
+                window.history.replaceState({}, document.title, url);
+            }
+        }
     }
 
     /**

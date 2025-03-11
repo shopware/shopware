@@ -288,6 +288,7 @@ describe('components/sw-entity-single-select', () => {
         const activeIconProps = {
             color: '#37d046',
             decorative: false,
+            mode: 'regular',
             name: 'solid-circle',
             size: '6',
         };
@@ -295,6 +296,7 @@ describe('components/sw-entity-single-select', () => {
         const inActiveIconProps = {
             color: '#d1d9e0',
             decorative: false,
+            mode: 'regular',
             name: 'solid-circle',
             size: '6',
         };

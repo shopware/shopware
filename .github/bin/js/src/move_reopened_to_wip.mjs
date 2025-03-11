@@ -130,6 +130,7 @@ async function findInProject(github, core, context, projectNumber) {
   };
 
   if (context.payload.issue) {
+    core.debug(`context response: ${JSON.stringify(context)}`)
     const res = github.graphql(
       github,
       `query findIssueInProject($number: Int!) {
@@ -194,8 +195,8 @@ async function findInProject(github, core, context, projectNumber) {
     core.debug(`findPRInProject response: ${JSON.stringify(res)}`)
 
     return {
-      node_id: res.repository.issue.id,
-      number: res.repository.issue.number,
+      node_id: res.repository.pull_request.id,
+      number: res.repository.pull_request.number,
       project: getProjectItem(res.payload.pull_request.projectItems),
     }
   }

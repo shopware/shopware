@@ -50,7 +50,7 @@ export default {
         },
 
         defaultThemeAsset() {
-            return this.assetFilter('administration/static/img/theme/default_theme_preview.jpg');
+            return this.assetFilter('administration/administration/static/img/theme/default_theme_preview.jpg');
         },
 
         extensionCardClasses() {

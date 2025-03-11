@@ -63,7 +63,7 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
 
         plugins: [
             TwigPlugin(),
-            AssetPlugin(!isDev, __dirname),
+            AssetPlugin(!isDev, path.resolve(extension.basePath, 'Resources/app/administration')),
             AssetPathPlugin(extension.technicalFolderName),
             svgLoader(),
             OverrideComponentRegisterPlugin({

@@ -35,7 +35,8 @@ export default {
 
     computed: {
         imagePath() {
-            return this.assetPath || '/administration/static/img/empty-states/promotion-v2-empty-state-hero.svg';
+            return this.assetPath ||
+                '/administration/administration/static/img/empty-states/promotion-v2-empty-state-hero.svg';
         },
 
         showDescription() {

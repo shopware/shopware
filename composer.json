@@ -97,7 +97,7 @@
         "setasign/tfpdf": "^1.33",
         "shopware/conflicts": "dev-fix/twig",
         "shyim/opensearch-php-dsl": "^1.0.1",
-        "squirrelphp/twig-php-syntax": "^1.7.0",
+        "squirrelphp/twig-php-syntax": "^1.10.0",
         "symfony/asset": "~6.4.0",
         "symfony/cache": "~6.4.4",
         "symfony/cache-contracts": "~3.1.0",

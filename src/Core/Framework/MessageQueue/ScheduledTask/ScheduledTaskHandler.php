@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 abstract class ScheduledTaskHandler
 {
+    /**
+     * @param EntityRepository<ScheduledTaskCollection> $scheduledTaskRepository
+     */
     public function __construct(
         protected EntityRepository $scheduledTaskRepository,
         protected readonly LoggerInterface $exceptionLogger,
@@ -29,9 +32,8 @@ abstract class ScheduledTaskHandler
             return;
         }
 
-        /** @var ScheduledTaskEntity|null $taskEntity */
         $taskEntity = $this->scheduledTaskRepository
-            ->search(new Criteria([$taskId]), Context::createDefaultContext())
+            ->search(new Criteria([$taskId]), Context::createCLIContext())
             ->get($taskId);
 
         if ($taskEntity === null || !$taskEntity->isExecutionAllowed()) {
@@ -74,7 +76,7 @@ abstract class ScheduledTaskHandler
                 'id' => $task->getTaskId(),
                 'status' => ScheduledTaskDefinition::STATUS_RUNNING,
             ],
-        ], Context::createDefaultContext());
+        ], Context::createCLIContext());
     }
 
     protected function markTaskFailed(ScheduledTask $task): void
@@ -84,7 +86,7 @@ abstract class ScheduledTaskHandler
                 'id' => $task->getTaskId(),
                 'status' => ScheduledTaskDefinition::STATUS_FAILED,
             ],
-        ], Context::createDefaultContext());
+        ], Context::createCLIContext());
     }
 
     protected function rescheduleTask(ScheduledTask $task, ScheduledTaskEntity $taskEntity): void
@@ -92,8 +94,7 @@ abstract class ScheduledTaskHandler
         $now = new \DateTimeImmutable();
 
         $nextExecutionTimeString = $taskEntity->getNextExecutionTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        $nextExecutionTime = new \DateTimeImmutable($nextExecutionTimeString);
-        $newNextExecutionTime = $nextExecutionTime->modify(\sprintf('+%d seconds', $taskEntity->getRunInterval()));
+        $newNextExecutionTime = (new \DateTimeImmutable($nextExecutionTimeString))->modify(\sprintf('+%d seconds', $taskEntity->getRunInterval()));
 
         if ($newNextExecutionTime < $now) {
             $newNextExecutionTime = $now;
@@ -106,6 +107,6 @@ abstract class ScheduledTaskHandler
                 'lastExecutionTime' => $now,
                 'nextExecutionTime' => $newNextExecutionTime,
             ],
-        ], Context::createDefaultContext());
+        ], Context::createCLIContext());
     }
 }

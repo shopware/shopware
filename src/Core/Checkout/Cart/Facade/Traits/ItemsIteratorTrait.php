@@ -36,9 +36,4 @@ trait ItemsIteratorTrait
 
         return new \ArrayIterator($items);
     }
-
-    private function getItems(): LineItemCollection
-    {
-        return $this->items;
-    }
 }

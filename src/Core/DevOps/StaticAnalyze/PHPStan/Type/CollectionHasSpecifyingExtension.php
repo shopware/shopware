@@ -8,7 +8,9 @@ use PHPStan\Analyser\SpecifiedTypes;
 use PHPStan\Analyser\TypeSpecifier;
 use PHPStan\Analyser\TypeSpecifierAwareExtension;
 use PHPStan\Analyser\TypeSpecifierContext;
+use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\MethodReflection;
+use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Type\MethodTypeSpecifyingExtension;
 use PHPStan\Type\NullType;
 use PHPStan\Type\TypeCombinator;
@@ -34,7 +36,7 @@ class CollectionHasSpecifyingExtension implements MethodTypeSpecifyingExtension,
 
         return (
             $declaringClass->getName() === Collection::class
-            || $declaringClass->isSubclassOf(Collection::class)
+            || $declaringClass->is(Collection::class)
         )
             && $methodReflection->getName() === 'has' && !$context->null();
     }

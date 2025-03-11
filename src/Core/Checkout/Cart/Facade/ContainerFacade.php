@@ -32,25 +32,16 @@ class ContainerFacade extends ItemFacade
     use ItemsRemoveTrait;
     use SurchargeTrait;
 
-    private LineItem $item;
-
-    private ScriptPriceStubs $priceStubs;
-
     /**
      * @internal
      */
     public function __construct(
-        LineItem $item,
-        ScriptPriceStubs $priceStubs,
+        private LineItem $item,
+        private ScriptPriceStubs $priceStubs,
         CartFacadeHelper $helper,
         SalesChannelContext $context
     ) {
         parent::__construct($item, $priceStubs, $helper, $context);
-
-        $this->item = $item;
-        $this->helper = $helper;
-        $this->priceStubs = $priceStubs;
-        $this->context = $context;
     }
 
     /**

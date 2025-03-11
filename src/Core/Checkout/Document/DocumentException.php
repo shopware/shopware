@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Document\Exception\InvalidDocumentGeneratorTypeExcept
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentRendererException;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
-use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -182,35 +181,13 @@ class DocumentException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return self
-     */
-    public static function guestNotAuthenticated(): self|GuestNotAuthenticatedException
+    public static function guestNotAuthenticated(): GuestNotAuthenticatedException
     {
-        if (Feature::isActive('v6.7.0.0')) {
-            return new self(
-                Response::HTTP_FORBIDDEN,
-                OrderException::CHECKOUT_GUEST_NOT_AUTHENTICATED,
-                'Guest not authenticated.'
-            );
-        }
-
         return new GuestNotAuthenticatedException();
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return self
-     */
-    public static function wrongGuestCredentials(): self|WrongGuestCredentialsException
+    public static function wrongGuestCredentials(): WrongGuestCredentialsException
     {
-        if (Feature::isActive('v6.7.0.0')) {
-            return new self(
-                Response::HTTP_FORBIDDEN,
-                OrderException::CHECKOUT_GUEST_WRONG_CREDENTIALS,
-                'Wrong credentials for guest authentication.'
-            );
-        }
-
         return new WrongGuestCredentialsException();
     }
 

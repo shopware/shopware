@@ -132,7 +132,6 @@ async function findInProject(github, core, context, projectNumber) {
   if (context.payload.issue) {
     core.debug(`context response: ${JSON.stringify(context)}`)
     const res = github.graphql(
-      github,
       `query findIssueInProject($number: Int!) {
           repository(owner: "shopware", name: "shopware") {
             issue(number: $number) {
@@ -166,7 +165,6 @@ async function findInProject(github, core, context, projectNumber) {
     }
   } else {
     const res = github.graphql(
-      github,
       `query findPRInProject($number: Int!) {
         repository(owner: "shopware", name: "shopware") {
           pullRequest(number: $number) {

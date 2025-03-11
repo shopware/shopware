@@ -1,0 +1,6 @@
+{
+    "require-dev": {
+        "maglnet/composer-require-checker": "^4.16.1"
+    },
+    "sort-packages": true
+}

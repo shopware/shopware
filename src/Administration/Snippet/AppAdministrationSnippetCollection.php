@@ -7,14 +7,6 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<AppAdministrationSnippetEntity>
- *
- * @method void add(AppAdministrationSnippetEntity $entity)
- * @method void set(string $key, AppAdministrationSnippetEntity $entity)
- * @method AppAdministrationSnippetEntity[] getIterator()
- * @method AppAdministrationSnippetEntity[] getElements()
- * @method AppAdministrationSnippetEntity|null get(string $key)
- * @method AppAdministrationSnippetEntity|null first()
- * @method AppAdministrationSnippetEntity|null last()
  */
 #[Package('discovery')]
 class AppAdministrationSnippetCollection extends EntityCollection

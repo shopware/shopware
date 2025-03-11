@@ -314,6 +314,9 @@
             "@php vendor-bin/roave-backward-compatibility-check/bin/verify-version.php",
             "roave-backward-compatibility-check --install-development-dependencies --from=$(git tag -l --sort -version:refname | head -n 1)"
         ],
+        "require-check": [
+            "php vendor-bin/composer-require-checker/vendor/bin/composer-require-checker check composer.json"
+        ],
         "build:js": [
             "@build:js:admin",
             "@build:js:storefront"

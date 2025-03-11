@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Webhook\Webhook;
  * @codeCoverageIgnore
  */
 #[Package('framework')]
-class PreWebhooksDispatch
+class PreWebhooksDispatchEvent
 {
     /**
      * @param list<Webhook> $webhooks

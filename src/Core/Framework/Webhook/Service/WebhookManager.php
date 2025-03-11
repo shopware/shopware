@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
-use Shopware\Core\Framework\Webhook\Event\PreWebhooksDispatch;
+use Shopware\Core\Framework\Webhook\Event\PreWebhooksDispatchEvent;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
@@ -99,7 +99,7 @@ class WebhookManager implements ResetInterface
             return;
         }
 
-        $this->eventDispatcher->dispatch($e = new PreWebhooksDispatch($webhooksForEvent));
+        $this->eventDispatcher->dispatch($e = new PreWebhooksDispatchEvent($webhooksForEvent));
         $webhooksForEvent = $e->webhooks;
 
         $languageId = $context->getLanguageId();

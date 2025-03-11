@@ -44,7 +44,6 @@ use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\App\GuzzleHistoryCollector;
-use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\Messenger\Envelope;
@@ -74,8 +73,6 @@ class WebhookManagerTest extends TestCase
      */
     private EntityRepository $appRepository;
 
-    private IdsCollection $ids;
-
     protected function setUp(): void
     {
         $this->shopUrl = $_SERVER['APP_URL'];
@@ -88,7 +85,6 @@ class WebhookManagerTest extends TestCase
         $this->guzzleHistory = $guzzleHistory;
 
         $this->appRepository = static::getContainer()->get('app.repository');
-        $this->ids = new IdsCollection();
     }
 
     public function testDoesNotDispatchBusinessEventIfAppIsInactive(): void
@@ -894,47 +890,6 @@ class WebhookManagerTest extends TestCase
             ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB')));
 
         $this->getManager($client, false)->dispatch($event);
-    }
-
-    public function testWebhookGrouping(): void
-    {
-        $this->createApp(
-            appId: $this->ids->create('app1'),
-            name: 'App1',
-            aclRoleId: $this->ids->create('app1-role'),
-            webhooks: [
-                [
-                    'name' => 'hook1',
-                    'event_name' => ProductEvents::PRODUCT_WRITTEN_EVENT,
-                    'url' => 'https://test.com',
-                ],
-            ],
-            permissions: ['product' => ['read']]
-        );
-
-        $this->createApp(
-            appId: $this->ids->create('app2'),
-            name: 'App',
-            aclRoleId: $this->ids->create('app1-role'),
-            webhooks: [
-                [
-                    'name' => 'hook1',
-                    'event_name' => ProductEvents::PRODUCT_WRITTEN_EVENT,
-                    'url' => 'https://test.com',
-                ],
-            ],
-            permissions: ['product' => ['read']]
-        );
-
-        $this->appendNewResponse(new Response(200));
-        $this->appendNewResponse(new Response(200));
-
-        $entityId = Uuid::randomHex();
-        $event = $this->getEntityWrittenEvent($entityId);
-
-        $this->getManager()->dispatch($event);
-
-        $request = $this->getLastRequest();
     }
 
     public function testItDoesDispatchWebhookMessageQueueWithoutApp(): void

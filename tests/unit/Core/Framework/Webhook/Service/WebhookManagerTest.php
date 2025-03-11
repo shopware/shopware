@@ -394,6 +394,7 @@ class WebhookManagerTest extends TestCase
             $onlyLiveVersion,
             Uuid::randomHex(),
             'Cool App',
+            'local',
             true,
             '0.0.0',
             'verysecret',

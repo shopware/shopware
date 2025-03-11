@@ -4,8 +4,9 @@ namespace Shopware\Core\Service\Subscriber;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
-use Shopware\Core\Framework\Webhook\Event\PreWebhooksDispatch;
+use Shopware\Core\Framework\Webhook\Event\PreWebhooksDispatchEvent;
 use Shopware\Core\Framework\Webhook\Webhook;
+use Shopware\Core\Service\ServiceSourceResolver;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -17,18 +18,18 @@ class WebhookManagerSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            PreWebhooksDispatch::class => 'filterDuplicates',
+            PreWebhooksDispatchEvent::class => 'filterDuplicates',
         ];
     }
 
-    public function filterDuplicates(PreWebhooksDispatch $event): void
+    public function filterDuplicates(PreWebhooksDispatchEvent $event): void
     {
-        [$webhooks, $systemUpdates] = $this->partitionArray($event->webhooks, function (Webhook $webhook) {
-            return $webhook->eventName === UpdatePostFinishEvent::EVENT_NAME ? 1 : 0;
+        [$webhooks, $serviceSystemUpdates] = $this->partitionArray($event->webhooks, function (Webhook $webhook) {
+            return $webhook->eventName === UpdatePostFinishEvent::EVENT_NAME && $webhook->appSourceType === ServiceSourceResolver::name() ? 1 : 0;
         });
 
         $deduplicatedUpdates = [];
-        foreach ($systemUpdates as $webhook) {
+        foreach ($serviceSystemUpdates as $webhook) {
             $deduplicatedUpdates[$webhook->url . '-' . $webhook->onlyLiveVersion] = $webhook;
         }
 

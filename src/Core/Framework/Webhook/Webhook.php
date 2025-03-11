@@ -22,6 +22,7 @@ final readonly class Webhook
         public bool $onlyLiveVersion,
         public ?string $appId,
         public ?string $appName,
+        public ?string $appSourceType,
         public bool $appActive,
         public ?string $appVersion,
         public ?string $appSecret,

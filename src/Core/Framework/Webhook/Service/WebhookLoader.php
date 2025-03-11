@@ -66,6 +66,7 @@ class WebhookLoader
                 LOWER(HEX(a.id)) AS appId,
                 a.name AS appName,
                 a.active AS appActive,
+                a.source_type AS appSourceType,
                 a.version AS appVersion,
                 a.app_secret AS appSecret,
                 LOWER(HEX(a.acl_role_id)) as appAclRoleId
@@ -85,6 +86,7 @@ class WebhookLoader
                 (bool) $webhook['onlyLiveVersion'],
                 $webhook['appId'],
                 $webhook['appName'],
+                $webhook['appSourceType'],
                 (bool) $webhook['appActive'],
                 $webhook['appVersion'],
                 $webhook['appSecret'],

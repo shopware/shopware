@@ -14,7 +14,6 @@ return [
         '**/src/Core/Framework/App/Source/AbstractTemporaryDirectoryFactory.php', // dropped (not released yet)
         '**/src/Core/Framework/App/Source/TemporaryDirectoryFactory.php', // dropped decorator (not released yet)
         '**/src/Storefront/Framework/Twig/NavigationInfo.php', // new class (not released yet)
-        '**/src/Core/Checkout/Document/DocumentException.php', // incorrectly deprecated methods
     ],
     'errors' => [
         // ProductReviewLoader moved to core, the entire classes is deprecated, can be removed after 6.7.0.0 release
@@ -68,6 +67,9 @@ return [
         'The parameter \\$previous of Shopware\\\\Core\\\\Framework\\\\Migration\\\\Exception\\\\MigrateException\\#__construct\(\) changed',
 
         // changing constructor in a safe way as long as you don't extend the hook
-        'Parameter salesChannelId was added to Method __construct\(\) of class Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Event\\\\SystemConfigChangedHook'
+        'Parameter salesChannelId was added to Method __construct\(\) of class Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Event\\\\SystemConfigChangedHook',
+
+        // Incorrectly deprecated
+        'The return type of Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentException.* changed from self',
     ],
 ];

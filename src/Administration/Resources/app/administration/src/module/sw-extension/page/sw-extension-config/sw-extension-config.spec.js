@@ -125,7 +125,7 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
         const wrapper = await createWrapper();
 
         const iconComponent = wrapper.get('.sw-extension-config__extension-icon img');
-        expect(iconComponent.attributes().src).toBe('administration/static/img/theme/default_theme_preview.jpg');
+        expect(iconComponent.attributes().src).toBe('administration/administration/static/img/theme/default_theme_preview.jpg');
         expect(iconComponent.attributes().alt).toBe('sw-extension-store.component.sw-extension-config.imageDescription');
 
         const title = wrapper.get('.sw-meteor-page__smart-bar-title');

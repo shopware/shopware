@@ -215,13 +215,14 @@ describe('components/form/sw-price-field', () => {
     });
 
     it('should pass down gross and net helptext', async () => {
-        const wrapper = await setup({
+        await setup({
             grossHelpText: 'help for gross price',
             netHelpText: 'help for net price',
         });
 
-        expect(wrapper.findByText('div', 'help for gross price').exists()).toBe(true);
-        expect(wrapper.findByText('div', 'help for net price').exists()).toBe(true);
+        // New help-text has teleported to document.body
+        expect(document.body.innerHTML).toContain('help for gross price');
+        expect(document.body.innerHTML).toContain('help for net price');
     });
 
     it('should set gross value when the net value is updated', async () => {

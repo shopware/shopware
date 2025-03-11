@@ -12,6 +12,7 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -83,7 +84,12 @@ class CartRuleLoader implements ResetInterface
         return Profiler::trace('cart-rule-loader', function () use ($context, $cart, $behaviorContext, $new) {
             // If the processing starts with deferred errors already in the cart, the cart MUST be persisted
             // to remove the errors from the stored cart
-            $hasDeferredErrors = $cart->getErrors()->count() > 0;
+            if (Feature::isActive('DEFERRED_CART_ERRORS')) {
+                $hasDeferredErrors = $cart->getErrors()->count() > 0;
+            } else {
+                $hasDeferredErrors = false;
+            }
+
 
             $rules = $this->loadRules($context->getContext());
 

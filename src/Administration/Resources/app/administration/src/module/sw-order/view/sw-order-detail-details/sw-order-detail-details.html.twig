@@ -209,7 +209,14 @@
             class="sw-order-detail-details__customer-comment"
             :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.detailBase.labelCustomerComment')"
-        />
+        >
+            <template #hint>
+                <div class="field-hint">
+                    <mt-icon size="12" name="solid-info-circle" class="field-hint-icon" />
+                    <p>{{ $tc('sw-order.detailBase.helpTextCustomerComment') }}</p>
+                </div>
+            </template>
+        </mt-textarea>
         {% endblock %}
 
         {% block sw_order_detail_details_order_internal_comment %}
@@ -218,8 +225,14 @@
             class="sw-order-detail-details__internal-comment"
             :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.detailBase.labelInternalComment')"
-            :help-text="$tc('sw-order.detailBase.helpTextInternalComment')"
-        />
+        >
+            <template #hint>
+                <div class="field-hint">
+                    <mt-icon size="12" name="solid-info-circle" class="field-hint-icon" />
+                    <p>{{ $tc('sw-order.detailBase.helpTextInternalComment') }}</p>
+                </div>
+            </template>
+        </mt-textarea>
         {% endblock %}
 
         {% block sw_order_detail_details_order_promotion %}

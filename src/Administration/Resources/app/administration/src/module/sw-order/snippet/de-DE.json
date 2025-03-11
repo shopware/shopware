@@ -262,6 +262,7 @@
       "textConvertedProductLineItems": "Die folgenden Positionen waren mit Produkten assoziiert, die gelöscht wurden:",
       "textConvertedProductLineItemsDescription": "Preise dieser Produkte können nicht neu berechnet werden. Bitte sei besonders vorsichtig beim Bearbeiten der Bestellung.",
       "textDeleteLineItemConfirm": "Möchten Sie die Position ({label}) wirklich löschen?",
+      "helpTextCustomerComment": "Dieser Kommentar wird von Kunden hinterlassen und Änderungen sind für sie sichtbar.",
       "helpTextInternalComment": "Dieser Kommentar ist nur für interne Zwecke und wird Kunden nicht angezeigt."
     },
     "nestedLineItemsModal": {

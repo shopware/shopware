@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
-use function PHPStan\dumpType;
 
 /**
  * @internal

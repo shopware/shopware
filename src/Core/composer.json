@@ -130,9 +130,9 @@
         "symfony/validator": "~6.4.0",
         "symfony/var-exporter": "~6.4.1",
         "symfony/yaml": "~6.4.0",
-        "twig/intl-extra": "^3.4",
-        "twig/string-extra": "^3.4",
-        "twig/twig": "^3.4.3",
+        "twig/intl-extra": "^3.20",
+        "twig/string-extra": "^3.20",
+        "twig/twig": "^3.20",
         "zircote/swagger-php": "^4.5.1",
         "squirrelphp/twig-php-syntax": "^1.7.0"
     },

@@ -35,6 +35,7 @@
         "padaliyajay/php-autoprefixer": "^1.4",
         "scssphp/scssphp": "^v1.11.0",
         "shopware/core": "*",
+        "squirrelphp/twig-php-syntax": "^1.10.0",
         "symfony/cache": "~6.4.4",
         "symfony/cache-contracts": "~3.1.0",
         "symfony/console": "~6.4.0",
@@ -50,9 +51,9 @@
         "symfony/validator": "~6.4.0",
         "symfony/security-core": "~6.4.0",
         "symfony/mime": "~6.4.0",
-        "twig/intl-extra": "^3.4",
-        "twig/string-extra": "^3.4",
-        "twig/twig": "^3.4.3"
+        "twig/intl-extra": "^3.20",
+        "twig/string-extra": "^3.20",
+        "twig/twig": "^3.20"
     },
     "require-dev": {
         "symfony/css-selector": "~6.4.0",

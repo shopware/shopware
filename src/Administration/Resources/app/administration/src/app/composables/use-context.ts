@@ -48,6 +48,7 @@ export interface ContextState {
         firstRunWizard: null | boolean;
         systemCurrencyISOCode: null | string;
         systemCurrencyId: null | string;
+        windowId: null | string;
     };
     api: {
         apiPath: null | string;
@@ -87,6 +88,7 @@ const state: ContextState = reactive({
         firstRunWizard: null,
         systemCurrencyId: null,
         systemCurrencyISOCode: null,
+        windowId: null,
     },
     api: {
         apiPath: null,

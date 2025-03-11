@@ -159,8 +159,8 @@ async function findInProject(github, core, context, projectNumber) {
     core.debug(`findIssueInProject response: ${JSON.stringify(res)}`)
 
     return {
-      node_id: result.repository.issue.id,
-      number: result.repository.issue.number,
+      node_id: res.repository.issue.id,
+      number: res.repository.issue.number,
       project: getProjectItem(res.payload.issue.projectItems),
     }
   } else {

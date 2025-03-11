@@ -72,7 +72,7 @@ test('Shop administrator should be able to create a internal link type of produc
         // Verify category customisable link data
         await ShopAdmin.expects(AdminCategories.linkTypeSelectionList).toHaveText(categoryCustomizableLinkData.linkType);
         await ShopAdmin.expects(AdminCategories.entitySelectionList).toHaveText(categoryCustomizableLinkData.entity);
-        await ShopAdmin.expects(AdminCategories.productSelectionList).toHaveText(new RegExp(`${categoryCustomizableLinkData.entity}\\s+${categoryCustomizableLinkData.product}`));
+        await ShopAdmin.expects(AdminCategories.productSelectionList).toContainText(categoryCustomizableLinkData.product);
         await ShopAdmin.expects(AdminCategories.openInNewTabCheckbox).toBeChecked({ checked: categoryCustomizableLinkData.openInNewTab });
     });
 

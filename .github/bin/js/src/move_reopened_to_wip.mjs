@@ -127,7 +127,7 @@ async function findInProject(github, core, context, projectNumber) {
   };
 
   if (context.payload.issue) {
-    const res = github.graphql(
+    const res = await github.graphql(
       `query findIssueInProject($number: Int!) {
         repository(owner: "shopware", name: "shopware") {
           issue(number: $number) {
@@ -160,7 +160,7 @@ async function findInProject(github, core, context, projectNumber) {
       project: getProjectItem(res.payload.issue.projectItems),
     }
   } else {
-    const res = github.graphql(
+    const res = await github.graphql(
       `query findPRInProject($number: Int!) {
         repository(owner: "shopware", name: "shopware") {
           pullRequest(number: $number) {

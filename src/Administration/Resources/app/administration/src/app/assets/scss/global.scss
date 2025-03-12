@@ -129,3 +129,8 @@ a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .mt-button) {
         height: 45px;
     }
 }
+
+// TODO: remove when the bottom margin issue is fixed in checkbox field
+.mt-field--checkbox__container .mt-field--checkbox.mt-field--checkbox {
+    margin-bottom: 0;
+}

@@ -44,6 +44,7 @@
             v-tooltip.bottom="getNoPermissionsTooltip('snippet.creator')"
             :disabled="isLoading || !acl.can('snippet.creator') || undefined"
             variant="primary"
+            size="default"
             @click="$router.push({ name: 'sw.settings.snippet.create', query: { ids: queryIds, limit, page } })"
         >
             {{ $tc('sw-settings-snippet.list.buttonAdd') }}

@@ -272,12 +272,11 @@ export default class VueAdapter extends ViewAdapter {
             'MtModal',
             'MtModalRoot',
             'MtModalClose',
+            'MtUrlField',
         ];
 
         meteorComponents.forEach((componentName) => {
             const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
-            // @ts-expect-error - component exists
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this.app.component(componentNameAsKebabCase, MeteorImport[componentName]);
         });
 

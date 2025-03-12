@@ -16,7 +16,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
@@ -32,6 +34,22 @@ class MailServiceTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
+    public function testThrowSalesChannelNotFound(): void
+    {
+        static::expectException(ConstraintViolationException::class);
+
+        $data = [
+            'recipients' => ['foo@bar.de'],
+            'salesChannelId' => Uuid::randomHex(),
+            'subject' => 'test',
+            'senderName' => 'test',
+            'contentHtml' => 'test',
+            'contentPlain' => 'test',
+        ];
+
+        $this->getContainer()->get(MailService::class)->send($data, Context::createDefaultContext());
+    }
+
     public function testPluginsCanExtendMailData(): void
     {
         $renderer = clone static::getContainer()->get(StringTemplateRenderer::class);
@@ -43,7 +61,7 @@ class MailServiceTest extends TestCase
         $property->setValue($renderer, $environment);
 
         $mailService = new MailService(
-            $this->createMock(DataValidator::class),
+            static::getContainer()->get(DataValidator::class),
             $renderer,
             static::getContainer()->get(MailFactory::class),
             $this->createMock(AbstractMailSender::class),
@@ -113,7 +131,7 @@ class MailServiceTest extends TestCase
 
         $mailSender = $this->createMock(AbstractMailSender::class);
         $mailService = new MailService(
-            $this->createMock(DataValidator::class),
+            static::getContainer()->get(DataValidator::class),
             static::getContainer()->get(StringTemplateRenderer::class),
             static::getContainer()->get(MailFactory::class),
             $mailSender,
@@ -164,7 +182,7 @@ class MailServiceTest extends TestCase
         });
         $mailSender = $this->createMock(AbstractMailSender::class);
         $mailService = new MailService(
-            $this->createMock(DataValidator::class),
+            static::getContainer()->get(DataValidator::class),
             $this->createMock(StringTemplateRenderer::class),
             static::getContainer()->get(MailFactory::class),
             $mailSender,
@@ -204,7 +222,7 @@ class MailServiceTest extends TestCase
         $mailSender = $this->createMock(AbstractMailSender::class);
         $templateRenderer = $this->createMock(StringTemplateRenderer::class);
         $mailService = new MailService(
-            $this->createMock(DataValidator::class),
+            $this->getContainer()->get(DataValidator::class),
             $templateRenderer,
             static::getContainer()->get(MailFactory::class),
             $mailSender,
@@ -262,7 +280,7 @@ class MailServiceTest extends TestCase
     {
         $mailSender = $this->createMock(AbstractMailSender::class);
         $mailService = new MailService(
-            $this->createMock(DataValidator::class),
+            static::getContainer()->get(DataValidator::class),
             static::getContainer()->get(StringTemplateRenderer::class),
             static::getContainer()->get(MailFactory::class),
             $mailSender,

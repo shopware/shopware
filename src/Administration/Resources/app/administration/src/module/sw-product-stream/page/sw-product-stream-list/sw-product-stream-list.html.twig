@@ -41,6 +41,7 @@
             class="sw-product-stream-list__create-action"
             :disabled="!acl.can('product_stream.creator')"
             variant="primary"
+            size="default"
             @click="$router.push({ name: 'sw.product.stream.create' })"
         >
             {{ $tc('sw-product-stream.list.buttonAddProductStream') }}

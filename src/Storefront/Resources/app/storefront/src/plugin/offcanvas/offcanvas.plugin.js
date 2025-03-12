@@ -51,11 +51,11 @@ class OffCanvasSingleton {
 
         // register events again
         this._registerEvents(delay);
+        this._setAriaAttrs();
     }
 
     /**
-     * adds an additional class to the offcanvas
-     *
+     * Method to add additional class to the first OffCanvas
      * @param {string} className
      */
     setAdditionalClassName(className) {
@@ -158,6 +158,17 @@ class OffCanvasSingleton {
         window.addEventListener('popstate', this.close.bind(this, delay), { once: true });
         const closeTriggers = document.querySelectorAll(`.${OFF_CANVAS_CLOSE_TRIGGER_CLASS}`);
         closeTriggers.forEach(trigger => trigger.addEventListener(event, this.close.bind(this, delay)));
+    }
+
+    _setAriaAttrs() {
+        const offCanvas = this.getOffCanvas()[0];
+        const headlineId = 'off-canvas-headline';
+        const headline = offCanvas.querySelector(`[data-id="${headlineId}"]`);
+
+        if (headline && !offCanvas.hasAttribute('aria-labelledby')) {
+            headline.setAttribute('id', headlineId);
+            offCanvas.setAttribute('aria-labelledby', headlineId);
+        }
     }
 
     /**

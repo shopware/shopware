@@ -125,7 +125,7 @@
                         id: idPrefix ~ prefix ~ 'personalTitle',
                         name: prefix ? prefix ~ '[title]' : 'title',
                         value: data.get('title'),
-                        autocomplete: 'section-personal title',
+                        autocomplete: 'section-personal honorific-prefix',
                         violationPath: violationPath,
                         additionalClass: 'col-md-3 col-sm-6',
                     } %}
@@ -137,7 +137,7 @@
     {% block component_address_personal_fields_name %}
         <div class="row g-2">
             {% block component_address_personal_fields_first_name %}
-                {% if prefix != 'address' %}
+                {% if prefix !== '' and prefix != 'address' %}
                     {% set prefix = prefix != 'shippingAddress' ? 'billingAddress' : 'shippingAddress' %}
                 {% endif %}
 
@@ -163,7 +163,7 @@
             {% endblock %}
 
             {% block component_address_personal_fields_last_name %}
-                {% if prefix != 'address' %}
+                {% if prefix !== '' and prefix != 'address' %}
                     {% set prefix = prefix != 'shippingAddress' ? 'billingAddress' : 'shippingAddress' %}
                 {% endif %}
 

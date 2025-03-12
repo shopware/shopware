@@ -1,0 +1,24 @@
+{
+  "base": "/bundles/some-functionality-bundle/administration/",
+  "entryPoints": {
+    "some-functionality-bundle": {
+      "css": [
+      ],
+      "dynamic": [],
+      "js": [
+        "/bundles/some-functionality-bundle/administration/js/some-functionality-bundle.js"
+      ],
+      "legacy": false,
+      "preload": []
+    }
+  },
+  "legacy": false,
+  "metadatas": {},
+  "version": [
+    "7.1.0",
+    7,
+    1,
+    0
+  ],
+  "viteServer": null
+}

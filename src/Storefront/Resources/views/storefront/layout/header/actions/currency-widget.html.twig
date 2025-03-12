@@ -48,6 +48,9 @@
                             {% endblock %}
                         </div>
                     {% endblock %}
+                    {% if position == 'offcanvas' %}
+                        <input name="redirectParameters[offcanvas]" type="hidden" value="menu">
+                    {% endif %}
                 </form>
             {% endblock %}
         </div>

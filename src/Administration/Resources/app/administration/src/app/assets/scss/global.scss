@@ -110,3 +110,22 @@ a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .mt-button) {
         min-height: 45px !important;
     }
 }
+
+// TODO: remove when the issue is fixed https://github.com/shopware/meteor/issues/563
+.mt-url-field {
+    &__protocol-toggle * {
+        white-space: nowrap;
+    }
+}
+
+// TODO: remove when the issue is fixed https://github.com/shopware/meteor/issues/587
+.wrapper {
+    & > .mt-field-label.mt-field-label {
+        line-height: 16px;
+        margin-bottom: 1.6px;
+    }
+
+    .dp__input {
+        height: 45px;
+    }
+}

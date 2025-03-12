@@ -42,6 +42,10 @@ class ContainerFacade extends ItemFacade implements \Countable
         SalesChannelContext $context
     ) {
         parent::__construct($item, $priceStubs, $helper, $context);
+
+        // Setting the properties of ItemsGetTrait and ItemsIteratorTrait
+        $this->helper = $helper;
+        $this->context = $context;
     }
 
     /**

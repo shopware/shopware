@@ -45,7 +45,7 @@ class ProductEntity extends Entity implements \Stringable
 
     protected ?string $parentId = null;
 
-    protected int $childCount = 0;
+    protected int $childCount;
 
     protected int $autoIncrement;
 

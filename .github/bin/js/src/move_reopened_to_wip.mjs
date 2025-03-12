@@ -191,7 +191,7 @@ async function findInProject(github, core, context, projectNumber) {
     return {
       node_id: res.repository.pullRequest.id,
       number: res.repository.pullRequest.number,
-      project: getProjectItem(res.payload.pullRequest.projectItems),
+      project: getProjectItem(res.repository.pullRequest.projectItems),
     }
   }
 }

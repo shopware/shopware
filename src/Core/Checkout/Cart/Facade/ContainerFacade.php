@@ -22,7 +22,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @final
  */
 #[Package('checkout')]
-class ContainerFacade extends ItemFacade
+class ContainerFacade extends ItemFacade implements \Countable
 {
     use DiscountTrait;
     use ItemsCountTrait;
@@ -68,10 +68,10 @@ class ContainerFacade extends ItemFacade
     {
         $this->item->getChildren()->add($item->getItem());
 
-        /** @var ItemFacade $item */
-        $item = $this->get($item->getId());
+        $addedItem = $this->get($item->getId());
+        \assert($addedItem instanceof ItemFacade, 'Item was just added, so it should be available');
 
-        return $item;
+        return $addedItem;
     }
 
     protected function getItems(): LineItemCollection

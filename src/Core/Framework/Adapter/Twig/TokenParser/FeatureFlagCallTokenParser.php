@@ -27,7 +27,7 @@ class FeatureFlagCallTokenParser extends AbstractTokenParser
         // We read until the string of the end of the block. But we need to parse the end tag as well, so the parser is on clean state again.
         $stream->next();
 
-        return new FeatureCallSilentToken($flagName, $body, $flagToken->getLine(), $this->getTag());
+        return new FeatureCallSilentToken($flagName, $body, $flagToken->getLine());
     }
 
     public function getTag(): string

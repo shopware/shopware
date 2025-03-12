@@ -95,9 +95,9 @@
         "scssphp/scssphp": "^v1.11.0",
         "setasign/fpdi": "^2.3.7",
         "setasign/tfpdf": "^1.33",
-        "shopware/conflicts": ">=0.1.7",
+        "shopware/conflicts": ">=0.1.23",
         "shyim/opensearch-php-dsl": "^1.0.1",
-        "squirrelphp/twig-php-syntax": "^1.7.0",
+        "squirrelphp/twig-php-syntax": "^1.10.0",
         "symfony/asset": "~6.4.0",
         "symfony/cache": "~6.4.4",
         "symfony/cache-contracts": "~3.1.0",
@@ -141,15 +141,15 @@
         "symfony/stopwatch": "~6.4.0",
         "symfony/translation": "~6.4.0",
         "symfony/translation-contracts": "~3.1.0",
-        "symfony/twig-bridge": "~6.3.5",
-        "symfony/twig-bundle": "~6.3.0",
+        "symfony/twig-bridge": "~6.4.0",
+        "symfony/twig-bundle": "~6.4.0",
         "symfony/validator": "~6.4.0",
         "symfony/var-exporter": "~6.4.1",
         "symfony/yaml": "~6.4.0",
         "tecnickcom/tcpdf": "^6.6.1",
-        "twig/intl-extra": "^3.4",
-        "twig/string-extra": "^3.4",
-        "twig/twig": "^3.4.3",
+        "twig/intl-extra": "^3.20",
+        "twig/string-extra": "^3.20",
+        "twig/twig": "^3.20",
         "zircote/swagger-php": "^4.5.1"
     },
     "require-dev": {
@@ -545,8 +545,7 @@
     },
     "autoload": {
         "files": [
-            "src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php",
-            "src/Core/Framework/Adapter/Twig/functions.php"
+            "src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php"
         ],
         "psr-4": {
             "Shopware\\": "src/"

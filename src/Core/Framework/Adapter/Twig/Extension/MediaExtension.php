@@ -15,6 +15,8 @@ class MediaExtension extends AbstractExtension
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaCollection> $mediaRepository
      */
     public function __construct(private readonly EntityRepository $mediaRepository)
     {
@@ -27,6 +29,9 @@ class MediaExtension extends AbstractExtension
         ];
     }
 
+    /**
+     * @param array<string> $ids
+     */
     public function searchMedia(array $ids, Context $context): MediaCollection
     {
         if (empty($ids)) {
@@ -35,11 +40,6 @@ class MediaExtension extends AbstractExtension
 
         $criteria = new Criteria($ids);
 
-        /** @var MediaCollection $media */
-        $media = $this->mediaRepository
-            ->search($criteria, $context)
-            ->getEntities();
-
-        return $media;
+        return $this->mediaRepository->search($criteria, $context)->getEntities();
     }
 }

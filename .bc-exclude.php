@@ -61,6 +61,8 @@ return [
         'These ancestors of Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\ComposerPluginLoader have been removed\: \["Symfony\\\\\\\\Component\\\\\\\\DependencyInjection\\\\\\\\ContainerAwareInterface"\]',
         'These ancestors of Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Filesystem have been removed\: \["Symfony\\\\\\\\Component\\\\\\\\DependencyInjection\\\\\\\\ContainerAwareInterface"\]',
 
-        'An enum expression .* is not supported in .*' // Can not be inspected through reflection https://github.com/Roave/BetterReflection/issues/1376
+        'An enum expression .* is not supported in .*', // Can not be inspected through reflection https://github.com/Roave/BetterReflection/issues/1376
+
+        'The return type of Twig\\\\Node\\\\Node#__toString\(\) changed from no type to string',
     ],
 ];

@@ -4,10 +4,12 @@ namespace Shopware\Core\Framework\Adapter\Twig\Node;
 
 use Shopware\Core\Framework\Adapter\Twig\Extension\NodeExtension;
 use Shopware\Core\Framework\Log\Package;
+use Twig\Attribute\YieldReady;
 use Twig\Compiler;
 use Twig\Node\IncludeNode;
 
 #[Package('core')]
+#[YieldReady]
 class SwInclude extends IncludeNode
 {
     protected function addGetTemplate(Compiler $compiler): void

@@ -7,11 +7,11 @@ use Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Twig\Node\EmptyNode;
 use Twig\Node\Expression\AbstractExpression;
 use Twig\Node\Expression\ArrayExpression;
 use Twig\Node\Expression\ConstantExpression;
 use Twig\Node\Node;
-use Twig\Parser;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 use Twig\TokenStream;
@@ -19,11 +19,6 @@ use Twig\TokenStream;
 #[Package('core')]
 final class ExtendsTokenParser extends AbstractTokenParser
 {
-    /**
-     * @var Parser
-     */
-    protected $parser;
-
     /**
      * @deprecated tag:v6.6.0 - Parameter $templateScopeDetector will be required
      */
@@ -70,7 +65,7 @@ final class ExtendsTokenParser extends AbstractTokenParser
 
         $stream->injectTokens($tokens);
 
-        return new Node();
+        return new EmptyNode($token->getLine());
     }
 
     public function getTag(): string

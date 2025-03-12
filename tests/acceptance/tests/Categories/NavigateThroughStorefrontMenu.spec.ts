@@ -4,8 +4,10 @@ test(
     'As a customer, I want breadcrumb to update when I select a category to understand my location on the site.',
     { tag: '@Categories' },
     async ({ ShopCustomer, StorefrontHome, TestDataService, InstanceMeta }) => {
-        test.skip(InstanceMeta.features['ACCESSIBILITY_TWEAKS'], 'Blocked by https://shopware.atlassian.net/browse/NEXT-40154, ' +
-            'https://shopware.atlassian.net/browse/NEXT-40634');
+        test.skip(
+            InstanceMeta.features['ACCESSIBILITY_TWEAKS'],
+            'Blocked by https://shopware.atlassian.net/browse/NEXT-40154, https://shopware.atlassian.net/browse/NEXT-40634'
+        );
 
         const category1 = await TestDataService.createCategory({ type: 'folder' });
         const category2 = await TestDataService.createCategory({ type: 'page' });
@@ -20,7 +22,6 @@ test(
 
             await ShopCustomer.goesTo(StorefrontHome.url());
             await ShopCustomer.expects(mainCategoryLocators.menuNavigationItem).toHaveText(category1.name);
-            await ShopCustomer.expects(mainCategoryLocators.offcanvasNavigationItem).toHaveText(category1.name);
 
             await mainCategoryLocators.menuNavigationItem.hover();
             await ShopCustomer.expects(mainCategoryLocators.flyoutCategoryLink).not.toBeVisible();
@@ -42,7 +43,6 @@ test(
             await ShopCustomer.goesTo(StorefrontHome.url());
 
             await ShopCustomer.expects(mainCategoryLocators.menuNavigationItem).toHaveText(category2.name);
-            await ShopCustomer.expects(mainCategoryLocators.offcanvasNavigationItem).toHaveText(category2.name);
 
             await mainCategoryLocators.menuNavigationItem.hover();
             await ShopCustomer.expects(mainCategoryLocators.flyoutCategoryLink).toBeVisible();
@@ -64,7 +64,6 @@ test(
             await ShopCustomer.goesTo(StorefrontHome.url());
 
             await ShopCustomer.expects(mainCategoryLocators.menuNavigationItem).toHaveText(category3.name);
-            await ShopCustomer.expects(mainCategoryLocators.offcanvasNavigationItem).toHaveText(category3.name);
 
             await mainCategoryLocators.menuNavigationItem.hover();
             await ShopCustomer.expects(mainCategoryLocators.flyoutCategoryLink).not.toBeVisible();

@@ -793,6 +793,7 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
+                ->scalarNode('collection_enabled')->end()
                 ->arrayNode('gateway')
                     ->children()
                         ->scalarNode('dispatch_enabled')->end()

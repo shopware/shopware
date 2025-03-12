@@ -76,7 +76,6 @@
 
         <service id="Shopware\Core\Framework\Webhook\Subscriber\RetryWebhookMessageFailedSubscriber">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="webhook_event_log.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\RelatedWebhooks"/>
 
             <tag name="kernel.event_subscriber"/>

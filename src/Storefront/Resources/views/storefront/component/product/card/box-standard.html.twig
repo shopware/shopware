@@ -7,7 +7,6 @@
         {% set displayParent = product.variantListingConfig.displayParent and product.parentId === null %}
         {% set headlineLevel = element.config.boxHeadlineLevel.value %}
         {% set headlineClasses = "product-name-headline mb-0" %}
-        {% set headlineId = "product-name-#{product.id}" %}
 
         <div class="card product-box box-{{ layout }}" data-product-information="{{ {id, name}|json_encode }}">
             {% block component_product_box_content %}
@@ -111,14 +110,12 @@
                                 {% if headlineLevel is not empty %}
                                     {{ "<h#{headlineLevel} class=\"#{headlineClasses}\">"|raw }}
                                         <a href="{{ seoUrl('frontend.detail.page', { productId: id }) }}"
-                                           id="{{ headlineId }}"
                                            class="product-name stretched-link">
                                             {{ name }}
                                         </a>
                                     {{ "</h#{headlineLevel}>"|raw }}
                                 {% else %}
                                     <a href="{{ seoUrl('frontend.detail.page', { productId: id }) }}"
-                                       id="{{ headlineId }}"
                                        class="product-name stretched-link">
                                         {{ name }}
                                     </a>

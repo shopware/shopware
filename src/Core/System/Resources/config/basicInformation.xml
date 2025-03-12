@@ -154,6 +154,16 @@
             <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
         </component>
 
+        <component name="sw-cms-page-select">
+            <name>ageVerificationPage</name>
+            <entity>cms_page</entity>
+            <pageType>page</pageType>
+            <label>Shop page layout for age verification</label>
+            <label lang="de-DE">Shopseiten-Layout für Altersverifikation</label>
+            <placeholder>Assign layout...</placeholder>
+            <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
+        </component>
+
     </card>
 
     <card>

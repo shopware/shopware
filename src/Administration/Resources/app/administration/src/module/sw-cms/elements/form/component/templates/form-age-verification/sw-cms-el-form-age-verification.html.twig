@@ -1,0 +1,36 @@
+{% block sw_cms_el_form_age_verification %}
+<div class="sw-cms-el-form-age-verification">
+    <h3 v-if="formSettings.title.value.length > 0" class="sw-cms-el-form-headline">
+        {{ formSettings.title.value }}
+    </h3>
+
+    <mt-text-field
+        :label="$tc('sw-cms.elements.form.element.ageVerification.placeholder.age')"
+        :model-value="$tc('sw-cms.elements.form.element.placeholder.age')"
+    />
+
+    <div class="sw-cms-el-form-contact-form-group three-items">
+        <mt-text-field
+            :label="$tc('sw-cms.elements.form.element.ageVerification.placeholder.firstName')"
+            :model-value="$tc('sw-cms.elements.form.element.placeholder.firstName')"
+        />
+
+        <mt-text-field
+            :label="$tc('sw-cms.elements.form.element.ageVerification.placeholder.lastName')"
+            :model-value="$tc('sw-cms.elements.form.element.placeholder.lastName')"
+        />
+    </div>
+
+    <h4>{{ $tc('sw-cms.elements.form.element.label.privacy') }}</h4>
+
+    <mt-checkbox :label="$tc('sw-cms.elements.form.element.helpText.privacy')" />
+
+    <p class="sw-cms-el-form-note">
+        {{ $tc('sw-cms.elements.form.element.helpText.requiredFields') }}
+    </p>
+
+    <div class="sw-cms-el-form__action">
+        {{ $tc('sw-cms.elements.form.element.label.submit') }}
+    </div>
+</div>
+{% endblock %}

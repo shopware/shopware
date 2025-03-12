@@ -157,7 +157,7 @@ async function findInProject(github, core, context, projectNumber) {
     return {
       node_id: res.repository.issue.id,
       number: res.repository.issue.number,
-      project: getProjectItem(res.payload.issue.projectItems),
+      project: getProjectItem(res.repository.issue.projectItems),
     }
   } else {
     const res = await github.graphql(

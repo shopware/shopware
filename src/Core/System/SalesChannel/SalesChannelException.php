@@ -89,17 +89,12 @@ class SalesChannelException extends HttpException
         );
     }
 
-    /*
-     * @deprecated tag:v6.8.0 - OrderException::orderNotFound will be replaced with SalesChannelException::missingAssociation
-    */
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
     public static function orderNotFound(string $orderId): self|OrderException
     {
         if (!Feature::isActive('v6.8.0.0')) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.8.0.0',
-                Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', 'SalesChannelException::orderNotFound')
-            );
-
             return OrderException::orderNotFound($orderId);
         }
 

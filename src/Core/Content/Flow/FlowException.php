@@ -76,9 +76,9 @@ class FlowException extends HttpException
         };
     }
 
-    /*
-    * @deprecated tag:v6.8.0 - StateMachineException::stateMachineNotFound will be replaced with FlowException::stateMachineNotFound
-    */
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
     public static function stateMachineNotFound(string $stateMachineName): self|StateMachineException
     {
         if (!Feature::isActive('v6.8.0.0')) {

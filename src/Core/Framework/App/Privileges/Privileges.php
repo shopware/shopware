@@ -25,7 +25,9 @@ class Privileges
     }
 
     /**
-     * @param array<string> $accept
+     * Accept the given list of permissions for an app
+     *
+     * @param list<string> $accept
      */
     public function acceptOnly(string $appId, array $accept, Context $context): void
     {
@@ -39,6 +41,8 @@ class Privileges
     }
 
     /**
+     * Accept all requested permissions for the given list of apps
+     *
      * @param list<string> $appIds
      */
     public function acceptAllForApps(array $appIds, Context $context): void
@@ -55,7 +59,7 @@ class Privileges
     }
 
     /**
-     * @param array<string> $appIds
+     * @param list<string> $appIds
      */
     public function revokeAllForApps(array $appIds, Context $context): void
     {
@@ -65,9 +69,11 @@ class Privileges
     }
 
     /**
+     * Get the requested privileges for all active apps
+     *
      * @return array<string, list<string>>
      */
-    public function getPendingPrivilegesForAllApps(): array
+    public function getRequestedPrivilegesForAllApps(): array
     {
         /** @var array<string, string> $privileges */
         $privileges = $this->connection->fetchAllKeyValue(
@@ -82,11 +88,28 @@ class Privileges
     }
 
     /**
-     * @param array<string> $appIds
+     * Get the current privileges for the given list of apps
+     *
+     * @param list<string> $appIds
      *
      * @return array<string, list<string>>
      */
-    public function getPendingPrivileges(array $appIds = []): array
+    public function getPrivileges(array $appIds = []): array
+    {
+        return array_map(
+            fn (array $privileges): array => $privileges[0],
+            $this->fetchPrivileges($appIds)
+        );
+    }
+
+    /**
+     *  Get the requested privileges for the given list of apps
+     *
+     * @param list<string> $appIds
+     *
+     * @return array<string, list<string>>
+     */
+    public function getRequestedPrivileges(array $appIds = []): array
     {
         /** @var array<string, string> $privileges */
         $privileges = $this->connection->fetchAllKeyValue(
@@ -103,7 +126,7 @@ class Privileges
     }
 
     /**
-     * @param array<string> $privileges
+     * @param list<string> $privileges
      */
     public function setPrivileges(string $appId, array $privileges, Context $context): void
     {
@@ -119,7 +142,7 @@ class Privileges
     }
 
     /**
-     * @param array<string> $privileges
+     * @param list<string> $privileges
      */
     public function requestPrivileges(string $appId, array $privileges, Context $context): void
     {

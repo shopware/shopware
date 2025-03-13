@@ -159,7 +159,7 @@ class PrivilegesTest extends TestCase
         );
     }
 
-    public function testGetPendingPrivilegesSingleApp(): void
+    public function testGetRequestedPrivilegesSingleApp(): void
     {
         $appId = $this->createApp();
         $context = Context::createDefaultContext();
@@ -170,11 +170,11 @@ class PrivilegesTest extends TestCase
             [
                 $appId => ['customer:read', 'customer:update'],
             ],
-            $this->privileges->getPendingPrivileges([$appId])
+            $this->privileges->getRequestedPrivileges([$appId])
         );
     }
 
-    public function testGetPendingPrivilegesMultiApp(): void
+    public function testGetRequestedPrivilegesMultiApp(): void
     {
         $appId1 = $this->createApp();
         $appId2 = $this->createApp('App2');
@@ -188,11 +188,44 @@ class PrivilegesTest extends TestCase
                 $appId1 => ['customer:read', 'customer:update'],
                 $appId2 => ['product:read', 'product:update'],
             ],
-            $this->privileges->getPendingPrivileges([$appId1, $appId2])
+            $this->privileges->getRequestedPrivileges([$appId1, $appId2])
         );
     }
 
-    public function testGetPendingPrivilegesForAllApps(): void
+    public function testGetPrivilegesSingleApp(): void
+    {
+        $appId = $this->createApp();
+        $context = Context::createDefaultContext();
+
+        $this->privileges->setPrivileges($appId, ['customer:read', 'customer:update'], $context);
+
+        static::assertSame(
+            [
+                $appId => ['customer:read', 'customer:update'],
+            ],
+            $this->privileges->getPrivileges([$appId])
+        );
+    }
+
+    public function testGetPrivilegesMultiApp(): void
+    {
+        $appId1 = $this->createApp();
+        $appId2 = $this->createApp('App2');
+        $context = Context::createDefaultContext();
+
+        $this->privileges->setPrivileges($appId1, ['customer:read', 'customer:update'], $context);
+        $this->privileges->setPrivileges($appId2, ['product:read', 'product:update'], $context);
+
+        static::assertSame(
+            [
+                $appId1 => ['customer:read', 'customer:update'],
+                $appId2 => ['product:read', 'product:update'],
+            ],
+            $this->privileges->getPrivileges([$appId1, $appId2])
+        );
+    }
+
+    public function testGetRequestedPrivilegesForAllApps(): void
     {
         $appId1 = $this->createApp();
         $appId2 = $this->createApp('App2');
@@ -206,7 +239,7 @@ class PrivilegesTest extends TestCase
                 'TestApp' => ['customer:read', 'customer:update'],
                 'App2' => ['product:read', 'product:update'],
             ],
-            $this->privileges->getPendingPrivilegesForAllApps()
+            $this->privileges->getRequestedPrivilegesForAllApps()
         );
     }
 

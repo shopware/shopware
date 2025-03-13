@@ -40,6 +40,34 @@ describe('NavbarPlugin', () => {
         expect(mockLink.addEventListener).toHaveBeenCalledTimes(3);
     });
 
+    test('init should omit click event for elements without a reference', () => {
+        // Create a new instance of NavbarPlugin inside the test
+        navbarPlugin = new NavbarPlugin(mockElement, {}, false);
+        mockLink.dataset.flyoutMenuWithoutTarget = 'yes';
+        navbarPlugin._topLevelLinks = [mockLink];
+
+        // Clear the mock history of addEventListener
+        mockLink.addEventListener.mockClear();
+
+        navbarPlugin.init();
+
+        const addedEvents = {};
+        mockLink.addEventListener.mock.calls.forEach(call => {
+            addedEvents[call[0]] = call[1];
+        });
+
+        expect(navbarPlugin._topLevelLinks).not.toBeNull();
+        expect(mockLink.addEventListener).toHaveBeenCalledTimes(2);
+
+        expect(addedEvents['mouseenter']).toBeDefined();
+        expect(typeof addedEvents['mouseenter']).toBe('function');
+
+        expect(addedEvents['mouseleave']).toBeDefined();
+        expect(typeof addedEvents['mouseleave']).toBe('function');
+
+        expect(addedEvents).not.toContain('click');
+    });
+
     test('_toggleNavbar should handle mouseenter and mouseleave events', () => {
         const mockEventEnter = {type: 'mouseenter'};
         const mockEventLeave = {type: 'mouseleave'};

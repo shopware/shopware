@@ -14,7 +14,7 @@ class SearchFieldConfigTest extends TestCase
 {
     public function testInit(): void
     {
-        $searchConfig = new SearchFieldConfig('fooField', 1000.0, true, true);
+        $searchConfig = new SearchFieldConfig('fooField', 1000.0, true, true, false);
 
         static::assertSame('fooField', $searchConfig->getField());
         static::assertSame(1000.0, $searchConfig->getRanking());

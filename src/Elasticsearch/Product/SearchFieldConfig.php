@@ -11,7 +11,8 @@ class SearchFieldConfig
         private readonly string $field,
         private float $ranking,
         private readonly bool $tokenize,
-        private readonly bool $andLogic = false
+        private readonly bool $andLogic = false,
+        private readonly bool $prefixMatch = true
     ) {
     }
 

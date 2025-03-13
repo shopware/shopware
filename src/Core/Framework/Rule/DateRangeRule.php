@@ -29,8 +29,9 @@ class DateRangeRule extends Rule
     public function __construct(
         ?\DateTimeInterface $fromDate = null,
         ?\DateTimeInterface $toDate = null,
-        bool $useTime = false
-    ) {
+        bool                $useTime = false
+    )
+    {
         parent::__construct();
         $this->useTime = $useTime;
         $this->fromDate = $fromDate;
@@ -82,20 +83,18 @@ class DateRangeRule extends Rule
 
     public function getConstraints(): array
     {
-        if($this->useTime===true){
+        if ($this->useTime === true) {
             return [
                 'fromDate' => [new NotBlank(), new DateTimeConstraint(['format' => \DateTime::ATOM])],
                 'toDate' => [new NotBlank(), new DateTimeConstraint(['format' => \DateTime::ATOM])],
                 'useTime' => [new NotNull(), new Type('bool')],
             ];
         }
-        else {
-            return [
-                'fromDate' => [new NotBlank(), new DateConstraint()],
-                'toDate' => [new NotBlank(), new DateConstraint()],
-                'useTime' => [new NotNull(), new Type('bool')],
-            ];
-        }
+        return [
+            'fromDate' => [new NotBlank(), new DateConstraint()],
+            'toDate' => [new NotBlank(), new DateConstraint()],
+            'useTime' => [new NotNull(), new Type('bool')],
+        ];
 
     }
 }

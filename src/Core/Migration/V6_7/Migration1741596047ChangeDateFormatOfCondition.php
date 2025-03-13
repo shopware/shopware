@@ -9,8 +9,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('core')]
-class Migration1741596047 extends MigrationStep
+#[Package('fundamentals@after-sales')]
+class Migration1741596047ChangeDateFormatOfCondition extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
@@ -19,15 +19,15 @@ class Migration1741596047 extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery("
+        $connection->executeQuery('
             UPDATE rule_condition
             SET value = JSON_SET(
                 value,
-                '$.fromDate', DATE(JSON_UNQUOTE(JSON_EXTRACT(value, '$.fromDate'))),
-                '$.toDate', DATE(JSON_UNQUOTE(JSON_EXTRACT(value, '$.toDate')))
+                \'$.fromDate\', DATE(JSON_UNQUOTE(JSON_EXTRACT(value, \'$.fromDate\'))),
+                \'$.toDate\', DATE(JSON_UNQUOTE(JSON_EXTRACT(value, \'$.toDate\')))
             )
-            WHERE JSON_UNQUOTE(JSON_EXTRACT(value, '$.useTime')) = 'false'
-        ");
+            WHERE JSON_UNQUOTE(JSON_EXTRACT(value, \'$.useTime\')) = \'false\'
+        ');
 
     }
 }

@@ -32,11 +32,11 @@ class ContainerFacadeTest extends TestCase
     {
         $facade = $this->rampUpFacade();
 
-        static::assertEquals('container', $facade->getType());
-        static::assertEquals('container', $facade->getId());
-        static::assertEquals('container', $facade->getReferencedId());
+        static::assertSame('container', $facade->getType());
+        static::assertSame('container', $facade->getId());
+        static::assertSame('container', $facade->getReferencedId());
 
-        static::assertEquals(1, $facade->getQuantity());
+        static::assertSame(1, $facade->getQuantity());
         static::assertTrue($facade->has('foo'));
 
         $facade->remove('foo');
@@ -48,40 +48,40 @@ class ContainerFacadeTest extends TestCase
     {
         $facade = $this->rampUpFacade();
 
-        static::assertEquals(1, $facade->getQuantity());
+        static::assertSame(1, $facade->getQuantity());
         static::assertTrue($facade->has('foo'));
 
         $absolute = new PriceCollection([new Price(Defaults::CURRENCY, 5, 5, false)]);
         $facade->discount('absolute', 'absolute', $absolute, 'my-discount');
 
-        static::assertEquals(1, $facade->getQuantity());
+        static::assertSame(1, $facade->getQuantity());
         static::assertTrue($facade->has('absolute'));
 
         $discount = $facade->get('absolute');
         static::assertInstanceOf(ItemFacade::class, $discount);
-        static::assertEquals('discount', $discount->getType());
+        static::assertSame('discount', $discount->getType());
         static::assertNull($discount->getPrice());
 
         $definition = $discount->getItem()->getPriceDefinition();
         static::assertInstanceOf(CurrencyPriceDefinition::class, $definition);
-        static::assertEquals($absolute, $definition->getPrice());
+        static::assertSame($absolute, $definition->getPrice());
     }
 
     public function testPercentageDiscount(): void
     {
         $facade = $this->rampUpFacade();
 
-        static::assertEquals(1, $facade->getQuantity());
+        static::assertSame(1, $facade->getQuantity());
         static::assertTrue($facade->has('foo'));
 
         $facade->discount('percentage', 'percentage', 10, 'my-discount');
 
-        static::assertEquals(1, $facade->getQuantity());
+        static::assertSame(1, $facade->getQuantity());
         static::assertTrue($facade->has('percentage'));
 
         $discount = $facade->get('percentage');
         static::assertInstanceOf(ItemFacade::class, $discount);
-        static::assertEquals('discount', $discount->getType());
+        static::assertSame('discount', $discount->getType());
         static::assertNull($discount->getPrice());
 
         $definition = $discount->getItem()->getPriceDefinition();
@@ -112,40 +112,40 @@ class ContainerFacadeTest extends TestCase
     {
         $facade = $this->rampUpFacade();
 
-        static::assertEquals(1, $facade->getQuantity());
+        static::assertSame(1, $facade->getQuantity());
         static::assertTrue($facade->has('foo'));
 
         $absolute = new PriceCollection([new Price(Defaults::CURRENCY, 5, 5, false)]);
         $facade->surcharge('absolute', 'absolute', $absolute, 'my-surcharge');
 
-        static::assertEquals(1, $facade->getQuantity());
+        static::assertSame(1, $facade->getQuantity());
         static::assertTrue($facade->has('absolute'));
 
         $surcharge = $facade->get('absolute');
         static::assertInstanceOf(ItemFacade::class, $surcharge);
-        static::assertEquals('discount', $surcharge->getType());
+        static::assertSame('discount', $surcharge->getType());
         static::assertNull($surcharge->getPrice());
 
         $definition = $surcharge->getItem()->getPriceDefinition();
         static::assertInstanceOf(CurrencyPriceDefinition::class, $definition);
-        static::assertEquals($absolute, $definition->getPrice());
+        static::assertSame($absolute, $definition->getPrice());
     }
 
     public function testPercentageSurcharge(): void
     {
         $facade = $this->rampUpFacade();
 
-        static::assertEquals(1, $facade->getQuantity());
+        static::assertSame(1, $facade->getQuantity());
         static::assertTrue($facade->has('foo'));
 
         $facade->surcharge('percentage', 'percentage', 10, 'my-surcharge');
 
-        static::assertEquals(1, $facade->getQuantity());
+        static::assertSame(1, $facade->getQuantity());
         static::assertTrue($facade->has('percentage'));
 
         $surcharge = $facade->get('percentage');
         static::assertInstanceOf(ItemFacade::class, $surcharge);
-        static::assertEquals('discount', $surcharge->getType());
+        static::assertSame('discount', $surcharge->getType());
         static::assertNull($surcharge->getPrice());
 
         $definition = $surcharge->getItem()->getPriceDefinition();

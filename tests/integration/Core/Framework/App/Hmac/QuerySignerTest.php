@@ -34,6 +34,7 @@ class QuerySignerTest extends TestCase
         $this->app->setName('TestApp');
         $this->app->setId('app-id');
         $this->app->setAppSecret('lksf#$osck$FSFDSF#$#F43jjidjsfisj-333');
+        $this->app->setVersion('1.0.0');
 
         $this->querySigner = static::getContainer()->get(QuerySigner::class);
         $this->systemConfigService = static::getContainer()->get(SystemConfigService::class);
@@ -68,6 +69,9 @@ class QuerySignerTest extends TestCase
 
         static::assertArrayHasKey('sw-user-language', $signedQuery);
         static::assertSame('en-GB', $signedQuery['sw-user-language']);
+
+        static::assertArrayHasKey('app-version', $signedQuery);
+        static::assertSame('1.0.0', $signedQuery['app-version']);
 
         static::assertNotNull($this->app->getAppSecret());
 

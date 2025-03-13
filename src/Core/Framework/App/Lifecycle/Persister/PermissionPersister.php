@@ -25,11 +25,11 @@ class PermissionPersister
     /**
      * @internal only for use by the app-system
      */
-    public function updatePrivileges(?Permissions $permissions, string $roleId): void
+    public function updatePrivileges(?Permissions $permissions, string $appId): void
     {
         $privileges = $permissions ? $permissions->asParsedPrivileges() : [];
 
-        $this->privileges->setPrivileges($roleId, $privileges, Context::createDefaultContext());
+        $this->privileges->setPrivileges($appId, $privileges, Context::createDefaultContext());
     }
 
     /**

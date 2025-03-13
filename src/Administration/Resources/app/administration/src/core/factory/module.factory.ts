@@ -65,7 +65,7 @@ interface Navigation {
 }
 
 interface SettingsItem {
-    group: 'shop' | 'system' | 'plugins';
+    group: 'general' | 'localization' | 'customer' | 'commerce' | 'content' | 'automation' | 'system' | 'account' | 'plugins';
     to: string;
     icon?: string;
     iconComponent?: unknown;

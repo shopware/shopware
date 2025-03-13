@@ -1,7 +1,7 @@
 {
   "sw-settings-state-machine": {
     "general": {
-      "mainMenuItemGeneral": "Statusmaschinen"
+      "mainMenuItemGeneral": "Statusverwaltung"
     },
     "list": {
       "grid": {

@@ -1010,13 +1010,13 @@ class WebhookManagerTest extends TestCase
             $this->createWebhook($webhook['name'], $webhook['event_name'], $webhook['url'], $app->getId(), $webhook['id'] ?? null);
         }
 
-        if ($permissions !== null && $aclRoleId !== null) {
+        if ($permissions !== null && $appId !== null) {
             $permissionPersister = static::getContainer()->get(PermissionPersister::class);
             $permissions = Permissions::fromArray([
                 'permissions' => $permissions,
             ]);
 
-            $permissionPersister->updatePrivileges($permissions, $aclRoleId);
+            $permissionPersister->updatePrivileges($permissions, $appId);
         }
     }
 

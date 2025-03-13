@@ -3,33 +3,24 @@ Main navigation
 ==============================================
 Custom styling for main navigation on larger screens.
 
+Active styling is handled by views/storefront/layout/navigation/active-styling.html.twig
+
 Based on bootstrap nav:
 https://getbootstrap.com/docs/5.2/components/navs-tabs
 */
 
 @include media-breakpoint-up(md) {
-    .main-navigation-link {
-        color: $body-color;
-        padding-left: 0;
-        padding-right: 32px;
+    .main-navigation-menu {
+        --#{$prefix}navbar-color: #{$body-color};
+        --#{$prefix}navbar-nav-link-padding-x: 0;
 
-        .main-navigation-link-text {
-            border-bottom: 2px solid transparent;
-            padding-bottom: 3px;
+        .nav-item:not(:last-child) {
+            padding-right: 1rem;
         }
+    }
 
-        &:hover,
-        &.is-open {
-            color: $primary;
-        }
-
-        &.active {
-            color: $gray-800;
-            font-weight: $font-weight-bold;
-
-            .main-navigation-link-text {
-                border-color: $primary;
-            }
-        }
+    .main-navigation-link-text {
+        border-bottom: 2px solid transparent;
+        padding-bottom: 3px;
     }
 }

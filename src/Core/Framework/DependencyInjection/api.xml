@@ -238,22 +238,62 @@
                      method="createJWTConfiguration"/>
         </service>
 
-
         <service id="Shopware\Core\Framework\Api\OAuth\FakeCryptKey">
             <argument type="service" id="shopware.jwt_config"/>
         </service>
 
-        <service class="League\OAuth2\Server\AuthorizationServer" id="shopware.api.authorization_server">
+        <service id="shopware.api.access_token_interval" class="DateInterval">
+            <argument>%shopware.api.access_token_ttl%</argument>
+        </service>
+
+        <service id="shopware.api.refresh_token_interval" class="DateInterval">
+            <argument>%shopware.api.refresh_token_ttl%</argument>
+        </service>
+
+        <service id="shopware.api.grant.password" class="League\OAuth2\Server\Grant\PasswordGrant">
+            <argument type="service" id="Shopware\Core\Framework\Api\OAuth\UserRepository"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository"/>
+
+            <call method="setRefreshTokenTTL">
+                <argument type="service" id="shopware.api.refresh_token_interval"/>
+            </call>
+        </service>
+
+        <service id="shopware.api.grant.refresh_token" class="League\OAuth2\Server\Grant\RefreshTokenGrant">
+            <argument type="service" id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository"/>
+            <call method="setRefreshTokenTTL">
+                <argument type="service" id="shopware.api.refresh_token_interval"/>
+            </call>
+        </service>
+
+        <service id="shopware.api.grant.client_credentials" class="League\OAuth2\Server\Grant\ClientCredentialsGrant"/>
+
+        <service id="shopware.api.authorization_server" class="League\OAuth2\Server\AuthorizationServer">
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\ClientRepository"/>
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\AccessTokenRepository"/>
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\ScopeRepository"/>
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\FakeCryptKey"/>
             <argument>%env(APP_SECRET)%</argument>
+
+            <call method="enableGrantType">
+                <argument type="service" id="shopware.api.grant.password"/>
+                <argument type="service" id="shopware.api.access_token_interval"/>
+            </call>
+
+            <call method="enableGrantType">
+                <argument type="service" id="shopware.api.grant.refresh_token"/>
+                <argument type="service" id="shopware.api.access_token_interval"/>
+            </call>
+
+            <call method="enableGrantType">
+                <argument type="service" id="shopware.api.grant.refresh_token"/>
+                <argument type="service" id="shopware.api.access_token_interval"/>
+            </call>
         </service>
 
         <service id="Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory"/>
 
-        <service id="Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator">
+        <service id="Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator" lazy="true">
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\AccessTokenRepository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="shopware.jwt_config"/>
@@ -279,12 +319,7 @@
 
         <service id="Shopware\Core\Framework\Api\EventListener\Authentication\ApiAuthenticationListener">
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator"/>
-            <argument type="service" id="shopware.api.authorization_server"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\OAuth\UserRepository"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
-            <argument type="string">%shopware.api.access_token_ttl%</argument>
-            <argument type="string">%shopware.api.refresh_token_ttl%</argument>
 
             <tag name="kernel.event_subscriber"/>
         </service>

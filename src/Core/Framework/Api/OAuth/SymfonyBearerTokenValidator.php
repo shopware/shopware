@@ -18,15 +18,15 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  */
 #[Package('framework')]
-readonly class SymfonyBearerTokenValidator
+class SymfonyBearerTokenValidator
 {
     /**
      * @internal
      */
     public function __construct(
-        private AccessTokenRepositoryInterface $accessTokenRepository,
-        private Connection $connection,
-        private Configuration $jwtConfiguration
+        private readonly AccessTokenRepositoryInterface $accessTokenRepository,
+        private readonly Connection $connection,
+        private readonly Configuration $jwtConfiguration
     ) {
     }
 

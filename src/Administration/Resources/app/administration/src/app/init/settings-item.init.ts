@@ -47,6 +47,7 @@ export default function initializeSettingItems(): void {
                 }
 
                 Shopware.Store.get('settingsItems').addItem({
+                    // eslint-disable-next-line max-len
                     group: group as 'general' | 'localization' | 'customer' | 'commerce' | 'content' | 'automation' | 'system' | 'account' | 'plugins',
                     icon: settingsItemConfig.icon,
                     id: settingsItemConfig.locationId,

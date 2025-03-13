@@ -41,7 +41,8 @@
         <mt-button
             size="x-small"
             class="sw-settings-shipping-price-matrix__top-container-add-new-rule"
-            :variant="!showDataGrid ? '': 'ghost'"
+            variant="primary"
+            :ghost="showDataGrid"
             :disabled="!showDataGrid || disabled"
             @click="onAddNewShippingPrice"
         >

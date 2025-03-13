@@ -78,12 +78,12 @@ export default {
         },
 
         delivery() {
-            if (!this.currentOrder.primaryOrderDelivery) {
-                // @deprecated tag:v6.8.0 this fallback is only kept for backwards compatibility
-                return this.currentOrder.deliveries[0];
+            /** @deprecated tag:v6.8.0 use primaryOrderDelivery */
+            if (Shopware.Feature.isActive('v6.8.0.0')) {
+                return this.currentOrder.primaryOrderDelivery;
             }
 
-            return this.currentOrder.primaryOrderDelivery;
+            return this.currentOrder.deliveries[0];
         },
 
         orderDate() {

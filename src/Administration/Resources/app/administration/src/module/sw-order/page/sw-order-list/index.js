@@ -464,11 +464,11 @@ export default {
         getVariantFromPaymentState(order) {
             let technicalName;
 
-            // @deprecated tag:v6.8.0 this fallback is only kept for backwards compatibility
-            if (!order.primaryOrderTransaction) {
-                technicalName = order.transactions.last().stateMachineState.technicalName;
-            } else {
+            /** @deprecated tag:v6.8.0 use primaryOrderTransaction */
+            if (Shopware.Feature.isActive('v6.8.0.0')) {
                 technicalName = order.transactions.primaryOrderTransaction.stateMachineState.technicalName;
+            } else {
+                technicalName = order.transactions.last().stateMachineState.technicalName;
             }
 
             // set the payment status to the first transaction that is not cancelled
@@ -533,12 +533,12 @@ export default {
             await this.$nextTick();
 
             const ordersExcludeDelivery = Object.values(this.$refs.orderGrid.selection).filter((order) => {
-                // @deprecated tag:v6.8.0 this fallback is only kept for backwards compatibility
-                if (!order.primaryOrderDelivery) {
-                    return !order.deliveries[0];
+                /** @deprecated tag:v6.8.0 use primaryOrderDelivery */
+                if (Shopware.Feature.isActive('v6.8.0.0')) {
+                    return !order.primaryOrderDelivery;
                 }
 
-                return !order.primaryOrderDelivery;
+                return !order.deliveries[0];
             });
             const excludeDelivery = ordersExcludeDelivery.length > 0 ? '1' : '0';
 
@@ -557,21 +557,21 @@ export default {
                 }
             }
 
-            // @deprecated tag:v6.8.0 this fallback is only kept for backwards compatibility
-            if (!item.primaryOrderTransaction) {
-                return item.transactions.last();
+            /** @deprecated tag:v6.8.0 use primaryOrderTransaction */
+            if (Shopware.Feature.isActive('v6.8.0.0')) {
+                return item.primaryOrderTransaction;
             }
 
-            return item.primaryOrderTransaction;
+            return item.transactions.last();
         },
 
         getDelivery(order) {
-            if (!order.primaryOrderDelivery) {
-                // @deprecated tag:v6.8.0 this fallback is only kept for backwards compatibility
-                return order.deliveries ? order.deliveries[0] : null;
+            /** @deprecated tag:v6.8.0 use primaryOrderDelivery */
+            if (Shopware.Feature.isActive('v6.8.0.0')) {
+                return order.primaryOrderDelivery;
             }
 
-            return order.primaryOrderDelivery;
+            return order.deliveries ? order.deliveries[0] : null;
         },
     },
 };

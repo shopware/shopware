@@ -71,23 +71,23 @@ export default {
         versionContext: () => Store.get('swOrderDetail').versionContext,
 
         delivery() {
-            if (!this.order.primaryOrderDelivery) {
-                // @deprecated tag:v6.8.0 this fallback is only kept for backwards compatibility
-                return this.order.deliveries[0];
+            /** @deprecated tag:v6.8.0 use primaryOrderDelivery */
+            if (Shopware.Feature.isActive('v6.8.0.0')) {
+                return this.order.primaryOrderDelivery;
             }
 
-            return this.order.primaryOrderDelivery;
+            return this.order.deliveries[0];
         },
 
         deliveryDiscounts() {
-            const primaryOrderDeliveryId = this.delivery?.id;
+            /** @deprecated tag:v6.8.0 use primaryOrderDelivery */
+            if (Shopware.Feature.isActive('v6.8.0.0')) {
+                const primaryOrderDeliveryId = this.delivery?.id;
 
-            if (!primaryOrderDeliveryId) {
-                // @deprecated tag:v6.8.0 this fallback is only kept for backwards compatibility
-                return array.slice(this.order.deliveries, 1) || [];
+                return this.order.deliveries.filter(delivery => delivery.id !== primaryOrderDeliveryId);
             }
 
-            return this.order.deliveries.filter(delivery => delivery.id !== primaryOrderDeliveryId);
+            return array.slice(this.order.deliveries, 1) || [];
         },
 
         shippingCostsDetail() {

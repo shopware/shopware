@@ -116,14 +116,14 @@ export default {
         },
 
         deliveryDiscounts() {
-            const primaryOrderDeliveryId = this.order.primaryOrderDelivery?.id;
+            /** @deprecated tag:v6.8.0 use primaryOrderDelivery */
+            if (Shopware.Feature.isActive('v6.8.0.0')) {
+                const primaryOrderDeliveryId = this.order.primaryOrderDelivery?.id;
 
-            if (!primaryOrderDeliveryId) {
-                // @deprecated tag:v6.8.0 this fallback is only kept for backwards compatibility
-                return array.slice(this.order.deliveries, 1) || [];
+                return this.order.deliveries.filter(delivery => delivery.id !== primaryOrderDeliveryId);
             }
 
-            return this.order.deliveries.filter(delivery => delivery.id !== primaryOrderDeliveryId);
+            return array.slice(this.order.deliveries, 1) || [];
         },
 
         orderCriteria() {
@@ -316,12 +316,12 @@ export default {
                 };
 
                 if (addressMapping.type === 'shipping') {
-                    if (!this.order.primaryOrderDelivery) {
-                        // @deprecated tag:v6.8.0 this fallback is only kept for backwards compatibility
+                    /** @deprecated tag:v6.8.0 use primaryOrderDelivery */
+                    if (Shopware.Feature.isActive('v6.8.0.0')) {
+                        mapping.deliveryId = this.order.primaryOrderDelivery?.id;
+                    } else {
                         mapping.deliveryId = this.order.deliveries[0].id;
                     }
-
-                    mapping.deliveryId = this.order.primaryOrderDelivery?.id;
                 }
 
                 mappings.push(mapping);

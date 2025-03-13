@@ -109,7 +109,11 @@ class RecalculationServiceTest extends TestCase
                 static::assertSame($data[0]['stateId'], $orderEntity->getStateId());
                 static::assertNotNull($data[0]['deliveries']);
                 static::assertNotNull($data[0]['deliveries'][0]);
-                static::assertSame($data[0]['deliveries'][0]['stateId'], $orderEntity->getDeliveries()?->first()?->getStateId());
+                if (Feature::isActive('v6.8.0.0')) {
+                    static::assertSame($data[0]['deliveries'][0]['stateId'], $orderEntity->getPrimaryOrderDelivery()?->getStateId());
+                } else {
+                    static::assertSame($data[0]['deliveries'][0]['stateId'], $orderEntity->getDeliveries()?->first()?->getStateId());
+                }
 
                 static::assertSame($context->getTaxState(), CartPrice::TAX_STATE_FREE);
 
@@ -522,11 +526,13 @@ class RecalculationServiceTest extends TestCase
 
     private function orderEntity(): OrderEntity
     {
+        $stateId = Uuid::randomHex();
+
         $order = new OrderEntity();
         $order->setId(Uuid::randomHex());
         $order->setSalesChannelId(Uuid::randomHex());
         $order->setTaxStatus(CartPrice::TAX_STATE_FREE);
-        $order->setStateId(Uuid::randomHex());
+        $order->setStateId($stateId);
 
         if (Feature::isActive('v6.8.0.0')) {
             $deliveryId = Uuid::randomHex();

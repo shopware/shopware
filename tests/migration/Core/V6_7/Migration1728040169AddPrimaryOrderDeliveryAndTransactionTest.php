@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Migration\Core\V6_7;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception\TableNotFoundException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -163,25 +162,13 @@ class Migration1728040169AddPrimaryOrderDeliveryAndTransactionTest extends TestC
         }
     }
 
-    private function dropIndexIfExists(Connection $connection, string $table, string $indexName): bool
+    private function dropIndexIfExists(Connection $connection, string $table, string $indexName): void
     {
         $sql = \sprintf('ALTER TABLE `%s` DROP INDEX `%s`', $table, $indexName);
 
         try {
             $connection->executeStatement($sql);
         } catch (\Throwable $e) {
-            if ($e instanceof TableNotFoundException) {
-                return false;
-            }
-
-            // index does not exist
-            if (str_contains($e->getMessage(), 'SQLSTATE[42000]')) {
-                return false;
-            }
-
-            throw $e;
         }
-
-        return true;
     }
 }

@@ -706,6 +706,7 @@
     "pointToQrCode": "Richten Sie das mobile Gerät auf den QR-Code, um das Produkt im Modus \"Augmented Reality\" anzuzeigen",
     "arSupportInFollowingDevices": "Das \"Augmented-Reality-Erlebnis\" wird von den folgenden Geräten unterstützt:",
     "arSupportDevices": "iOS11+, Android 8.0+ mit ARCore 1.9 Unterstützung",
+    "arSupportMobileHint": "Möglicherweise wird Ihr Browser oder Gerät nicht unterstützt. Bitte versuchen Sie es mit Google Chrome oder einem anderen Gerät.",
     "moveTheDeviceToStart": "Bewegen Sie das Gerät, um zu beginnen",
     "tapToPlaceTheObject": "Tippen Sie, um das Objekt zu platzieren",
     "openAugmentedRealityView": "Augmented-Reality-Ansicht öffnen",

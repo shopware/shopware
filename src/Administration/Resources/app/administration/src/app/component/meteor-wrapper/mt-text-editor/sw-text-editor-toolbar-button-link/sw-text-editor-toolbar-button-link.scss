@@ -4,7 +4,7 @@
     gap: 8px;
 }
 
-.sw-text-editor-toolbar-button-link__modal {
+.mt-modal:has(.sw-text-editor__link-modal) {
     z-index: 1050 !important;
 }
 

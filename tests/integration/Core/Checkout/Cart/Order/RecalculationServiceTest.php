@@ -69,7 +69,6 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[Group('slow')]
-#[Group('skip-paratest')]
 class RecalculationServiceTest extends TestCase
 {
     use AdminApiTestBehaviour;

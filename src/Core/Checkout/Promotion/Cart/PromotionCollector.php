@@ -33,8 +33,34 @@ class PromotionCollector implements CartDataCollectorInterface
 {
     use PromotionCartInformationTrait;
 
+    /**
+     * Existing set of promotions will not be changed.
+     * Promotions may **not** be recalculated based on their price definition.
+     *
+     * Takes precedence over {@see PIN_MANUAL_PROMOTIONS} and {@see PIN_MANUAL_PROMOTIONS}.
+     */
     final public const SKIP_PROMOTION = 'skipPromotion';
+
+    /**
+     * Skips the addition of automatic promotion.
+     * If {@see PIN_AUTOMATIC_PROMOTIONS} is not set, all existing automatic promotions will be deleted.
+     */
     final public const SKIP_AUTOMATIC_PROMOTIONS = 'skipAutomaticPromotions';
+
+    /**
+     * Existing set of manual/fixed promotions will not be changed,
+     * but new manual/fixed promotions can be added.
+     * Promotions may be recalculated based on their price definition.
+     */
+    final public const PIN_MANUAL_PROMOTIONS = 'pinManualPromotions';
+
+    /**
+     * Existing set of automatic promotions will not be changed.
+     * Promotions may be recalculated based on their price definition.
+     *
+     * Takes precedence over {@see SKIP_AUTOMATIC_PROMOTIONS}.
+     */
+    final public const PIN_AUTOMATIC_PROMOTIONS = 'pinAutomaticPromotions';
 
     private const REQUIRED_DAL_ASSOCIATIONS = [
         'personaRules',
@@ -88,6 +114,9 @@ class PromotionCollector implements CartDataCollectorInterface
                 return;
             }
 
+            // preload our collected lineItems with pinned ones
+            $discountLineItems = $this->getPinnedPromotions($original, $behavior);
+
             // now get the codes from our configuration
             // and also from our line items (that already exist)
             // and merge them both into a flat list
@@ -97,7 +126,7 @@ class PromotionCollector implements CartDataCollectorInterface
 
             $allPromotions = $this->searchPromotionsByCodes($data, $allCodes, $context);
 
-            if (!$behavior->hasPermission(self::SKIP_AUTOMATIC_PROMOTIONS)) {
+            if (!$behavior->hasPermission(self::SKIP_AUTOMATIC_PROMOTIONS) && !$behavior->hasPermission(self::PIN_AUTOMATIC_PROMOTIONS)) {
                 // add auto promotions
                 $allPromotions->addAutomaticPromotions($this->searchPromotionsAuto($data, $context));
             }
@@ -107,9 +136,6 @@ class PromotionCollector implements CartDataCollectorInterface
             // check if max allowed redemption of promotion have been reached or not
             // if max redemption has been reached promotion will not be added
             $allPromotions = $this->getEligiblePromotionsWithDiscounts($allPromotions, $context->getCustomerId(), $currentOrderId);
-
-            $discountLineItems = [];
-            $foundCodes = [];
 
             /** @var PromotionCodeTuple $tuple */
             foreach ($allPromotions->getPromotionCodeTuples() as $tuple) {
@@ -126,22 +152,20 @@ class PromotionCollector implements CartDataCollectorInterface
                 // add to our list of all line items
                 /** @var LineItem $nested */
                 foreach ($lineItems as $nested) {
-                    $discountLineItems[] = $nested;
+                    // do not override pinned promotions
+                    if (!$discountLineItems->has($nested->getId())) {
+                        $discountLineItems->add($nested);
+                    }
                 }
-
-                // we need the list of found codes
-                // for our NotFound errors below
-                $foundCodes[] = $tuple->getCode();
             }
 
             // now iterate through all codes that have been added
             // and add errors, if a promotion for that code couldn't be found
-            foreach ($allCodes as $code) {
-                if (!\in_array($code, $foundCodes, true)) {
-                    $cartExtension->removeCode((string) $code);
+            $appliedCodes = $discountLineItems->fmap(static fn (LineItem $item) => $item->getPayloadValue('code'));
+            foreach (\array_diff($allCodes, $appliedCodes) as $code) {
+                $cartExtension->removeCode((string) $code);
 
-                    $this->addPromotionNotFoundError($this->htmlSanitizer->sanitize((string) $code, null, true), $original);
-                }
+                $this->addPromotionNotFoundError($this->htmlSanitizer->sanitize((string) $code, null, true), $original);
             }
 
             // if we do have promotions, set them to be processed
@@ -153,6 +177,29 @@ class PromotionCollector implements CartDataCollectorInterface
                 $data->remove(PromotionProcessor::DATA_KEY);
             }
         }, 'cart');
+    }
+
+    /**
+     * Get a collection of all promotions that should be taken over from the original cart
+     */
+    private function getPinnedPromotions(Cart $original, CartBehavior $behavior): LineItemCollection
+    {
+        $promotionLineItems = $original->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE);
+
+        $discountLineItems = new LineItemCollection();
+
+        if ($behavior->hasPermission(self::PIN_MANUAL_PROMOTIONS)) {
+            foreach ($promotionLineItems->filter(static fn (LineItem $item) => (bool) $item->getReferencedId()) as $lineItem) {
+                $discountLineItems->add($lineItem);
+            }
+        }
+        if ($behavior->hasPermission(self::PIN_AUTOMATIC_PROMOTIONS)) {
+            foreach ($promotionLineItems->filter(static fn (LineItem $item) => !$item->getReferencedId()) as $lineItem) {
+                $discountLineItems->add($lineItem);
+            }
+        }
+
+        return $discountLineItems;
     }
 
     /**

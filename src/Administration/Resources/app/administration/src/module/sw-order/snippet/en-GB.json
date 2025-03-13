@@ -304,6 +304,7 @@
     "saveChangesBeforehandModal": {
       "headline": "Warning",
       "statusDescription": "Before changing the status, your changes need to be saved. Do you want to save the changes now?",
+      "promotionDescription": "Before changing promotions, your changes need to be saved. Do you want to save the changes now?",
       "confirmButton": "Save changes"
     },
     "stateCard": {
@@ -386,7 +387,8 @@
         "labelPromotions": "Promotions",
         "placeholderPromotions": "Enter promotion code ...",
         "automaticPromotion":  "automatically applied",
-        "labelToggleAutomaticPromotions": "Disable automatically applied promotions"
+        "labelToggleAutomaticPromotions": "Disable automatically applied promotions",
+        "labelButtonAutomaticPromotions": "Reevaluate automatically applied promotions"
       }
     },
     "documentTab": {

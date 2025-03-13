@@ -13,12 +13,15 @@
     {% endblock %}
 
     {% block sw_order_promotion_field_switch %}
-
-    <mt-switch
-        v-model="disabledAutoPromotions"
+    <mt-button
         :disabled="isLoading || !acl.can('order.editor') || undefined"
-        :label="$tc('sw-order.detailsTab.promotionsField.labelToggleAutomaticPromotions')"
-    />
+        class="sw-order-promotion-field__apply_auto_promotions"
+        variant="secondary"
+        size="default"
+        @click="applyAutomaticPromotions"
+    >
+        {{ $tc('sw-order.detailsTab.promotionsField.labelButtonAutomaticPromotions') }}
+    </mt-button>
     {% endblock %}
 </div>
 {% endblock %}

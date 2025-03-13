@@ -148,26 +148,26 @@ export default {
         },
 
         saveAndRecalculate() {
-            this.$emit('save-and-recalculate');
-
             if (this.swOrderDetailOnSaveAndRecalculate) {
                 this.swOrderDetailOnSaveAndRecalculate();
+            } else {
+                this.$emit('save-and-recalculate');
             }
         },
 
         onSaveEdits() {
-            this.$emit('save-edits');
-
             if (this.swOrderDetailOnSaveEdits) {
                 this.swOrderDetailOnSaveEdits();
+            } else {
+                this.$emit('save-edits');
             }
         },
 
         recalculateAndReload() {
-            this.$emit('recalculate-and-reload');
-
             if (this.swOrderDetailOnRecalculateAndReload) {
                 this.swOrderDetailOnRecalculateAndReload();
+            } else {
+                this.$emit('recalculate-and-reload');
             }
         },
     },

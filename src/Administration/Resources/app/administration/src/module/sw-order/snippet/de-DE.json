@@ -304,6 +304,7 @@
     "saveChangesBeforehandModal": {
       "headline": "Warnung",
       "statusDescription": "Bevor der Status geändert werden kann, müssen die Änderungen der Bestellung gespeichert werden. Möchtest Du jetzt deine Änderungen speichern?",
+      "promotionDescription": "Bevor Rabattaktionen geändert werden können, müssen die Änderungen der Bestellung gespeichert werden. Möchtest du jetzt deine Änderungen speichern?",
       "confirmButton": "Änderungen speichern"
     },
     "stateCard": {
@@ -386,7 +387,8 @@
         "labelPromotions": "Rabattaktionen",
         "placeholderPromotions": "Rabattcode eingeben ...",
         "automaticPromotion":  "automatisch hinzugefügt",
-        "labelToggleAutomaticPromotions": "Automatische hinzugefügte Werbeaktionen deaktivieren"
+        "labelToggleAutomaticPromotions": "Automatische hinzugefügte Werbeaktionen deaktivieren",
+        "labelButtonAutomaticPromotions": "Automatische Rabattaktionen neu evaluieren"
       }
     },
     "documentTab": {

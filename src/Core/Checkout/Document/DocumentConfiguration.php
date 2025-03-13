@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document;
 
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Country\CountryEntity;
@@ -22,10 +23,7 @@ class DocumentConfiguration extends Struct
 
     protected ?bool $displayPrices = null;
 
-    /**
-     * @var array<string, mixed>|null
-     */
-    protected ?array $logo = null;
+    protected ?MediaEntity $logo = null;
 
     protected ?string $filenamePrefix = null;
 

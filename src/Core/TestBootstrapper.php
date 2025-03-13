@@ -158,6 +158,9 @@ class TestBootstrapper
 
         $testToken = getenv('TEST_TOKEN');
         $dbUrlParts['path'] ??= 'root';
+        if (!str_ends_with($dbUrlParts['path'], '_test')) {
+            $dbUrlParts['path'] .= '_test';
+        }
 
         // allows using the same database during development, by setting TEST_TOKEN=none
         if ($testToken !== 'none' && !str_ends_with($dbUrlParts['path'], 'test')) {

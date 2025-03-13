@@ -10,6 +10,7 @@ describe('NavbarPlugin', () => {
         mockElement = document.createElement('div');
         mockLink = document.createElement('a');
         mockLink.classList.add('main-navigation-link');
+        mockLink.href = '#';
         mockElement.appendChild(mockLink);
 
         // Spy on addEventListener method and window open method
@@ -43,7 +44,7 @@ describe('NavbarPlugin', () => {
     test('init should omit click event for elements without a reference', () => {
         // Create a new instance of NavbarPlugin inside the test
         navbarPlugin = new NavbarPlugin(mockElement, {}, false);
-        mockLink.dataset.flyoutMenuWithoutTarget = 'yes';
+        mockLink.removeAttribute('href');
         navbarPlugin._topLevelLinks = [mockLink];
 
         // Clear the mock history of addEventListener

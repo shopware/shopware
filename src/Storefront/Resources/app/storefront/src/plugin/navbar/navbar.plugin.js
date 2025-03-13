@@ -31,7 +31,7 @@ export default class NavbarPlugin extends Plugin {
         this._topLevelLinks.forEach(el => {
             el.addEventListener(openEvent, this._toggleNavbar.bind(this, el));
             el.addEventListener(closeEvent, this._toggleNavbar.bind(this, el));
-            if (el.dataset?.flyoutMenuWithoutTarget !== 'yes') {
+            if (el.getAttribute('href') !== null) {
                 el.addEventListener(clickEvent, this._navigateToLinkOnClick.bind(this, el));
             }
         });

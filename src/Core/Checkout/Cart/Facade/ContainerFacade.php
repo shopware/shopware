@@ -72,10 +72,7 @@ class ContainerFacade extends ItemFacade implements \Countable
     {
         $this->item->getChildren()->add($item->getItem());
 
-        $addedItem = $this->get($item->getId());
-        \assert($addedItem instanceof ItemFacade, 'Item was just added, so it should be available');
-
-        return $addedItem;
+        return $item;
     }
 
     protected function getItems(): LineItemCollection

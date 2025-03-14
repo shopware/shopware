@@ -23,9 +23,6 @@ trait ItemsAddTrait
     {
         $this->items->add($item->getItem());
 
-        $addedItem = $this->get($item->getId());
-        \assert($addedItem instanceof ItemFacade, 'Item was just added, so it should be available');
-
-        return $addedItem;
+        return $item;
     }
 }

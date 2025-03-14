@@ -82,22 +82,12 @@ class ProductsFacade implements \IteratorAggregate, \Countable
         if ($product instanceof ItemFacade) {
             $this->items->add($product->getItem());
 
-            $addedProduct = $this->get($product->getId());
-            \assert($addedProduct instanceof ItemFacade, 'Item was just added, so it should be available');
-
-            return $addedProduct;
+            return $product;
         }
 
-        if ($product instanceof LineItem) {
-            $this->items->add($product);
-
-            $addedProduct = $this->get($product->getId());
-            \assert($addedProduct instanceof ItemFacade, 'Item was just added, so it should be available');
-
-            return $addedProduct;
+        if (\is_string($product)) {
+            $product = $this->helper->product($product, $quantity, $this->context);
         }
-
-        $product = $this->helper->product($product, $quantity, $this->context);
 
         $this->items->add($product);
 

@@ -43,6 +43,8 @@ describe('module/sw-cms/component/sw-cms-block', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
+        expect(wrapper.vm.block.backgroundMediaMode).toBe('cover');
+        expect(wrapper.vm.block.backgroundColor).toBe('');
     });
 
     it('should have the overlay by default', async () => {

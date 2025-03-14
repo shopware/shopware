@@ -83,8 +83,8 @@ export default Component.wrapComponentConfig({
 
         addressRepository(): Repository<'customer_address'> {
             return this.repositoryFactory.create(
-                this.customer.addresses?.entity ?? 'customer_address',
-                this.customer.addresses?.source,
+                this.customer?.addresses?.entity ?? 'customer_address',
+                this.customer?.addresses?.source,
             );
         },
 

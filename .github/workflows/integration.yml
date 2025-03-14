@@ -402,7 +402,7 @@ jobs:
 
       - name: Run integration tests
         if: inputs.nightly == 'true'
-        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --exclude-group=needsWebserver,skip-paratest,not-deterministic --stop-on-error --stop-on-failure
+        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --exclude-group=needsWebserver,not-deterministic --stop-on-error --stop-on-failure
 
       - name: Install Shopware in previous major version
         if: inputs.nightly != 'true'
@@ -485,7 +485,7 @@ jobs:
 
       - name: Run integration tests in previous major version
         if: inputs.nightly == 'true'
-        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --exclude-group=needsWebserver,skip-paratest,not-deterministic --stop-on-error --stop-on-failure
+        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --exclude-group=needsWebserver,not-deterministic --stop-on-error --stop-on-failure
 
       - name: Run blue-green check
         if: inputs.nightly != 'true'

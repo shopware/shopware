@@ -167,7 +167,6 @@
         "symfony/phpunit-bridge": "~7.2.0",
         "symfony/var-dumper": "~7.2.0",
         "symfony/dom-crawler": "~7.2.0",
-        "brianium/paratest": "^7.3",
         "shopware/dev-tools": "^1.3"
     },
     "suggest": {

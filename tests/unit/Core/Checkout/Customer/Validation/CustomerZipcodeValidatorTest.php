@@ -16,7 +16,6 @@ use Shopware\Core\System\Country\CountryEntity;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Context\ExecutionContext;
-use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Violation\ConstraintViolationBuilder;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -49,7 +48,7 @@ class CustomerZipcodeValidatorTest extends TestCase
         try {
             $mock->validate(['zipcode' => '1235468'], $this->createMock(Constraint::class));
         } catch (\Throwable $exception) {
-            static::assertInstanceOf(UnexpectedTypeException::class, $exception);
+            static::assertInstanceOf(CustomerException::class, $exception);
         }
     }
 

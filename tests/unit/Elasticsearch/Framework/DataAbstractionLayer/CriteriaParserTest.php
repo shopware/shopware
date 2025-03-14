@@ -448,6 +448,84 @@ EOT,
                 ],
             ],
         ];
+        yield 'EqualsAnyFilter field with null' => [
+            new EqualsAnyFilter('productNumber', ['foo', 'bar', null]),
+            [
+                'bool' => [
+                    'should' => [
+                        [
+                            'terms' => [
+                                'productNumber' => ['foo', 'bar'],
+                            ],
+                        ],
+                        [
+                            'bool' => [
+                                'must_not' => [
+                                    [
+                                        'exists' => [
+                                            'field' => 'productNumber',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+        yield 'EqualsAnyFilter translated field with null' => [
+            new EqualsAnyFilter('name', ['foo', 'bar', null]),
+            [
+                'dis_max' => [
+                    'queries' => [
+                        [
+                            'bool' => [
+                                'should' => [
+                                    [
+                                        'terms' => [
+                                            'name.' . self::SECOND_LANGUAGE => ['foo', 'bar'],
+                                        ],
+                                    ],
+                                    [
+                                        'bool' => [
+                                            'must_not' => [
+                                                [
+                                                    'exists' => [
+                                                        'field' => 'name.' . self::SECOND_LANGUAGE,
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                        [
+                            'bool' => [
+                                'should' => [
+                                    [
+                                        'terms' => [
+                                            'name.' . Defaults::LANGUAGE_SYSTEM => ['foo', 'bar'],
+                                        ],
+                                    ],
+                                    [
+                                        'bool' => [
+                                            'must_not' => [
+                                                [
+                                                    'exists' => [
+                                                        'field' => 'name.' . Defaults::LANGUAGE_SYSTEM,
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
         yield 'ContainsFilter field' => [
             new ContainsFilter('productNumber', 'foo'),
             [

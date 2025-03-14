@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Script\Execution\FunctionHook;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\InterfaceHook;
 use Shopware\Core\Framework\Script\Execution\OptionalFunctionHook;
+use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Script\Execution\TraceHook;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Twig\Environment;
@@ -22,6 +23,8 @@ use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
+ *
+ * @phpstan-type ServiceList list<array{name: string, returnType: class-string<object>, link: string, deprecated: ?string}>
  */
 #[Package('framework')]
 class HooksReferenceGenerator implements ScriptReferenceGenerator
@@ -45,6 +48,11 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
 
     private readonly DocBlockFactoryInterface $docFactory;
 
+    /**
+     * @var ServiceList
+     */
+    private array $defaultServices = [];
+
     public function __construct(
         private readonly ContainerInterface $container,
         private readonly Environment $twig,
@@ -54,6 +62,11 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
             'hook-use-case' => Generic::class,
             'script-service' => Generic::class,
         ]);
+
+        $this->defaultServices = $this->buildAvailableServices(
+            (new \ReflectionProperty(ScriptExecutor::class, 'defaultServices'))->getValue(),
+            []
+        );
     }
 
     public function generate(): array
@@ -201,14 +214,31 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
     /**
      * @param \ReflectionClass<Hook> $reflection
      *
-     * @return list<array<string, ?string>>
+     * @return ServiceList
      */
     private function getAvailableServices(\ReflectionClass $reflection): array
     {
         $serviceIds = $reflection->getMethod('getServiceIds')->invoke(null);
         $deprecatedServices = $reflection->getMethod('getDeprecatedServices')->invoke(null);
-        $services = [];
 
+        return [
+            ...$this->buildAvailableServices(
+                $serviceIds,
+                $deprecatedServices
+            ),
+            ...$this->defaultServices,
+        ];
+    }
+
+    /**
+     * @param list<class-string> $serviceIds
+     * @param list<class-string> $deprecatedServices
+     *
+     * @return ServiceList
+     */
+    private function buildAvailableServices(array $serviceIds, array $deprecatedServices): array
+    {
+        $services = [];
         foreach ($serviceIds as $serviceId) {
             $reflection = new \ReflectionClass($serviceId);
             $method = $reflection->getMethod('factory');

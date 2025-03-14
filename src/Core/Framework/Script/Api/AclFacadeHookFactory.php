@@ -21,7 +21,7 @@ class AclFacadeHookFactory extends HookServiceFactory
     {
     }
 
-    public function factory(Hook $hook, Script $script): object
+    public function factory(Hook $hook, Script $script): AclFacade
     {
         return new AclFacade(
             $this->appContextCreator->getAppContext($hook, $script)

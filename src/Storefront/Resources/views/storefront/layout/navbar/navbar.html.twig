@@ -40,6 +40,17 @@
                                             {% endif %}
                                             title="{{ name }}">
                                             <span itemprop="name" class="main-navigation-link-text">{{ name }}</span>
+                                            {% if hasChildren %}
+                                                <div class="dropdown-menu w-100 p-4" role="menu">
+                                                    {% sw_include '@Storefront/storefront/layout/navbar/content.html.twig' with {
+                                                        themeIconConfig: themeIconConfig,
+                                                        navigationTree: treeItem,
+                                                        level: level+1,
+                                                        page: page
+                                                    } only %}
+                                                </div>
+                                            {% endif %}
+                                        </li>
                                     {% else %}
                                         <li class="nav-item nav-item-{{ id }} {% if hasChildren %}dropdown position-static pe-2{% endif %}">
                                             <a class="nav-link nav-item-{{ id }}-link root dropdown-toggle main-navigation-link p-2"
@@ -50,18 +61,18 @@
                                                title="{{ name }}">
                                                 <span itemprop="name" class="main-navigation-link-text">{{ name }}</span>
                                             </a>
+                                            {% if hasChildren %}
+                                                <div class="dropdown-menu w-100 p-4" role="menu">
+                                                    {% sw_include '@Storefront/storefront/layout/navbar/content.html.twig' with {
+                                                        themeIconConfig: themeIconConfig,
+                                                        navigationTree: treeItem,
+                                                        level: level+1,
+                                                        page: page
+                                                    } only %}
+                                                </div>
+                                            {% endif %}
+                                        </li>
                                     {% endif %}
-                                    {% if hasChildren %}
-                                        <div class="dropdown-menu w-100 p-4" role="menu">
-                                            {% sw_include '@Storefront/storefront/layout/navbar/content.html.twig' with {
-                                                themeIconConfig: themeIconConfig,
-                                                navigationTree: treeItem,
-                                                level: level+1,
-                                                page: page
-                                            } only %}
-                                        </div>
-                                    {% endif %}
-                                    </li>
                                 {% endblock %}
                             {% endfor %}
                         {% endblock %}

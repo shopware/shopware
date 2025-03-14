@@ -14,6 +14,8 @@ use Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
+use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
+use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -105,7 +107,7 @@ class DocumentRouteTest extends TestCase
 
     public function testThrowExceptionWrongCredentialsForGuestAuthentication(): void
     {
-        static::expectException(DocumentException::class);
+        static::expectException(WrongGuestCredentialsException::class);
         static::expectExceptionMessage('Wrong credentials for guest authentication');
 
         $billingAddress = new OrderAddressEntity();
@@ -151,7 +153,7 @@ class DocumentRouteTest extends TestCase
 
     public function testThrowExceptionGuestNotAuthenticated(): void
     {
-        static::expectException(DocumentException::class);
+        static::expectException(GuestNotAuthenticatedException::class);
         static::expectExceptionMessage('Guest not authenticated.');
 
         $customer = new CustomerEntity();

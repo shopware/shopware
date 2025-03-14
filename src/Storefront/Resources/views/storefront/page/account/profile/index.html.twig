@@ -30,7 +30,6 @@
                                       method="post"
                                       action="{{ path('frontend.account.profile.save') }}"
                                       data-form-handler="true">
-
                                     {% block page_account_profile_personal_fields %}
                                         {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
                                             prefix: '',
@@ -126,7 +125,6 @@
                                               method="post"
                                               action="{{ path('frontend.account.profile.email.save') }}"
                                               data-form-handler="true">
-
                                             {% block page_account_profile_mail_title %}
                                                 <div class="card-title">
                                                     {{ 'account.profileMailTitle'|trans|sw_sanitize }}
@@ -212,7 +210,6 @@
                                               method="post"
                                               action="{{ path('frontend.account.profile.password.save') }}"
                                               data-form-handler="true">
-
                                             {% block page_account_profile_password_title %}
                                                 <div class="card-title">
                                                     {{ 'account.profilePasswordTitle'|trans|sw_sanitize }}

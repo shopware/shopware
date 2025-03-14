@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\EnumField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\EnumFieldSerializer;
@@ -60,6 +62,15 @@ class EnumFieldSerializerTest extends TestCase
         );
     }
 
+    /**
+     * @return \Generator<string, array{
+     *     0: Field,
+     *     1: string|int|bool|null,
+     *     2: string|int|null,
+     *     3: bool,
+     *     4: EntityExistence
+     * }>
+     */
     public static function serializerProvider(): \Generator
     {
         $update = new EntityExistence('product', [], true, false, false, []);
@@ -101,9 +112,15 @@ class EnumFieldSerializerTest extends TestCase
 
     public static function decoderProvider(): \Generator
     {
-        yield 'String enum' => [new EnumField('name', 'name', TestStringEnum::Regular), 'string', TestStringEnum::Regular];
-        yield 'Int enum' => [new EnumField('name', 'name', TestIntegerEnum::One), 1, TestIntegerEnum::One];
-        yield 'Null' => [new EnumField('name', 'name', TestIntegerEnum::One), null, null];
+        $intEnumFieldOne = new EnumField('name', 'name', TestIntegerEnum::One);
+        yield 'Valid string enum' => [new EnumField('name', 'name', TestStringEnum::Regular), 'string', TestStringEnum::Regular];
+        yield 'Null from string enum' => [new EnumField('name', 'name', TestStringEnum::Regular), null, null];
+        yield 'Invalid string enum is null' => [new EnumField('name', 'name', TestStringEnum::Regular), 'invalid value', null];
+        yield 'Valid int enum' => [new EnumField('name', 'name', TestIntegerEnum::One), 1, TestIntegerEnum::One];
+        yield 'Int enum from db string' => [new EnumField('name', 'name', TestIntegerEnum::One), '1', TestIntegerEnum::One];
+        yield 'Exception from non-numeric string ' => [$intEnumFieldOne, '1 error', TestIntegerEnum::One, DataAbstractionLayerException::expectedFieldValueOfTypeWithValue($intEnumFieldOne, Types::INTEGER, '1 error')];
+        yield 'Null from int enum' => [new EnumField('name', 'name', TestIntegerEnum::One), null, null];
+        yield 'Invalid int enum is null' => [new EnumField('name', 'name', TestIntegerEnum::One), '-99', null];
     }
 
     #[DataProvider('serializerProvider')]
@@ -137,9 +154,24 @@ class EnumFieldSerializerTest extends TestCase
     }
 
     #[DataProvider('decoderProvider')]
-    public function testDecode(EnumField $field, string|int|null $value, ?\BackedEnum $expected): void
+    public function testDecode(EnumField $field, string|int|null $value, ?\BackedEnum $expected, ?\Throwable $expectedException = null): void
     {
-        $actual = $this->enumFieldSerializer->decode($field, $value);
+        $exception = null;
+        $actual = null;
+
+        try {
+            $actual = $this->enumFieldSerializer->decode($field, $value);
+        } catch (\Throwable $e) {
+            $exception = $e;
+        }
+
+        if ($expectedException !== null) {
+            static::assertInstanceOf($expectedException::class, $exception);
+            static::assertSame($expectedException->getMessage(), $exception->getMessage());
+
+            return;
+        }
+
         static::assertSame($expected, $actual);
     }
 

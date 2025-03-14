@@ -105,7 +105,9 @@
         {% endblock %}
 
         {% block layout_head_title %}
-            <title itemprop="name">{% block layout_head_title_inner %}{{- metaTitle -}}{% endblock %}</title>
+            <title itemprop="name">
+                {% block layout_head_title_inner %}{{- metaTitle -}}{% endblock %}
+            </title>
         {% endblock %}
 
         {% block layout_head_stylesheet %}

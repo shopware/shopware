@@ -28,7 +28,6 @@
                               method="post"
                               action="{{ path('frontend.account.address.create') }}"
                               data-form-handler="true">
-
                             {% block page_account_address_form_create_personal %}
                                 {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
                                     data: data.get('address'),

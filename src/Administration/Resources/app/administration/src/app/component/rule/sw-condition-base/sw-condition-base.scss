@@ -123,20 +123,6 @@ $sw-condition-color-border-default: $color-gray-500;
         display: flex;
         gap: 4px;
 
-        .sw-condition-date-range .wrapper {
-            row-gap: 0;
-        }
-
-        .sw-condition-time-range {
-            .wrapper {
-                row-gap: 0;
-            }
-
-            .field-hint {
-                display: none;
-            }
-        }
-
         .mt-field {
             margin: 0;
         }

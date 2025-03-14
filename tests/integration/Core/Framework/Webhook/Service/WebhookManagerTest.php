@@ -720,7 +720,7 @@ class WebhookManagerTest extends TestCase
             ],
         ]);
 
-        $permissionPersister->updatePrivileges($permissions, $aclRoleId);
+        $permissionPersister->updatePrivileges($permissions, $appId);
 
         $this->appendNewResponse(new Response(200));
 

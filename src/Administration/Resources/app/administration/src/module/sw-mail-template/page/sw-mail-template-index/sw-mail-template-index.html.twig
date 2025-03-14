@@ -41,12 +41,16 @@
                     class="sw-mail-template__button-create"
                     variant="primary"
                     :disabled="!acl.can('mail_templates.creator') || undefined"
+                    size="default"
                 >
                     {{ $tc('global.default.add') }}
-                    <mt-icon
-                        name="regular-chevron-down-xs"
-                        size="16"
-                    />
+
+                    <template #iconBack>
+                        <mt-icon
+                            name="regular-chevron-down-xs"
+                            size="16"
+                        />
+                    </template>
                 </mt-button>
             </template>
 

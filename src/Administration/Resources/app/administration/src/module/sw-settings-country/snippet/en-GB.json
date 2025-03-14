@@ -62,7 +62,7 @@
       "taxFreeFromHelpText": "If the shopping cart total is higher than the value set in \"min. cart value (net)\", the whole shopping cart will be free of tax.",
       "labelVatIdRequired": "VAT Reg.No. required",
       "labelIsEu": "Member state of the European Union",
-      "helpTextIsEu": "Is used for e.g for credit notes and refunds.",
+      "helpTextIsEu": "Switch on to enable the display of the \"intra-community\" delivery.",
       "helpTextLabelVatIdRequired": "Please keep in mind the global switch in \"Settings > Login/registration\".",
       "titleOptions": "Options",
       "currencyDependentValues": "Currency dependent values",

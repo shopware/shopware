@@ -20,7 +20,7 @@ class SalesChannelAnalyticsEntity extends Entity
 
     protected bool $anonymizeIp;
 
-    protected SalesChannelEntity $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
     public function getTrackingId(): string
     {
@@ -62,7 +62,7 @@ class SalesChannelAnalyticsEntity extends Entity
         $this->anonymizeIp = $anonymizeIp;
     }
 
-    public function getSalesChannel(): SalesChannelEntity
+    public function getSalesChannel(): ?SalesChannelEntity
     {
         return $this->salesChannel;
     }

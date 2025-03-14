@@ -32,21 +32,14 @@
 
                                     {% block sw_theme_list_listing_actions_sorting %}
                                         <div class="sw-theme-list__actions-sorting">
-                                            <sw-select-field
+                                            <mt-select
                                                 name="sortType"
                                                 :label="$tc('sw-theme-manager.sorting.labelSort')"
-                                                :value="sortingConCat"
-                                                @update:value="onSortingChanged"
-                                                aside
-                                            >
-
-                                                {% block sw_theme_list_listing_actions_sorting_options %}
-                                                <option v-for="sortOption in sortOptions"
-                                                        :value="sortOption.value">
-                                                    {{ sortOption.name }}
-                                                </option>
-                                                {% endblock %}
-                                            </sw-select-field>
+                                                :options="sortOptions"
+                                                :modelValue="sortingConCat"
+                                                @update:modelValue="onSortingChanged"
+                                                small
+                                            />
                                         </div>
                                     {% endblock %}
 

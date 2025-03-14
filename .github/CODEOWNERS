@@ -22,7 +22,7 @@
 
 
 # ctrl-alt-elite
-src/Core/System/UsageData/usage-data-allow-list.json @product/engineering/solution-teams/ctrl-alt-elite
+src/Core/System/UsageData/usage-data-allow-list.json @shopware/st-ctrl-alt-elite
 
 
 # core

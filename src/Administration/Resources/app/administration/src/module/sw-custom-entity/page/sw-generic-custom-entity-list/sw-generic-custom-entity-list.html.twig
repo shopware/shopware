@@ -27,6 +27,7 @@
         <mt-button
             class="sw-generic-custom-entity-list__button-add"
             variant="primary"
+            size="default"
             @click="$router.push({ name: 'sw.custom.entity.create' })"
         >
             {{ $tc('global.default.add') }}
@@ -66,7 +67,7 @@
             >
                 <template #icon>
                     <img
-                        :src="assetFilter('/administration/static/img/empty-states/custom-entity-empty-state.svg')"
+                        :src="assetFilter('/administration/administration/static/img/empty-states/custom-entity-empty-state.svg')"
                         :alt="emptyStateTitle"
                     >
                 </template>

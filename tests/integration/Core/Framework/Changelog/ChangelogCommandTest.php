@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Changelog;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Changelog\Command\ChangelogChangeCommand;
 use Shopware\Core\Framework\Changelog\Command\ChangelogCheckCommand;
@@ -20,7 +19,6 @@ use Symfony\Component\Console\Output\NullOutput;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 class ChangelogCommandTest extends TestCase
 {
     use ChangelogTestBehaviour;

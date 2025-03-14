@@ -522,6 +522,7 @@ shopware:
         enable_stock_management: true
 
     usage_data:
+        collection_enabled: true
         gateway:
             dispatch_enabled: true
             base_uri: 'https://data.shopware.io'

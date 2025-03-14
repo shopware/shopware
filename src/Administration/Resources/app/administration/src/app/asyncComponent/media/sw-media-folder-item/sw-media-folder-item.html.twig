@@ -11,7 +11,7 @@
         {% block sw_media_folder_parent_icon%}
         <img
             v-if="isParent"
-            :src="assetFilter('/administration/static/img/media/folder--back.svg')"
+            :src="assetFilter('/administration/administration/static/img/media/folder--back.svg')"
             class="sw-media-folder-item__folder-thumbnails"
             alt="Folder back"
         >
@@ -22,7 +22,7 @@
             v-else-if="!!item.defaultFolderId"
         >
             <img
-                :src="assetFilter('/administration/static/img/media/' + iconName + '.svg')"
+                :src="assetFilter('/administration/administration/static/img/media/' + iconName + '.svg')"
                 class="sw-media-folder-item__folder-thumbnails"
                 :alt="iconName"
             >
@@ -37,7 +37,7 @@
         {% block sw_media_folder_folder_icon%}
         <img
             v-else
-            :src="assetFilter('/administration/static/img/media/folder-thumbnail--large.svg')"
+            :src="assetFilter('/administration/administration/static/img/media/folder-thumbnail--large.svg')"
             class="sw-media-folder-item__folder-thumbnails"
             alt="Folder thumbnail"
         >

@@ -12,6 +12,7 @@ import {
     getUserInformation,
     getUserTimezone,
 } from '@shopware-ag/meteor-admin-sdk/es/context';
+import { getId } from '@shopware-ag/meteor-admin-sdk/es/window';
 
 describe('src/app/init/context.init.ts', () => {
     beforeAll(() => {
@@ -20,6 +21,7 @@ describe('src/app/init/context.init.ts', () => {
 
     beforeEach(() => {
         Shopware.Store.get('extensions').extensionsState = {};
+        Shopware.Store.get('context').app.windowId = null;
     });
 
     it('should handle currency', async () => {
@@ -209,4 +211,21 @@ describe('src/app/init/context.init.ts', () => {
 
         await expect(getUserInformation()).rejects.toThrow('Could not find a extension with the given event origin ""');
     });
+
+    it('returns windowId from store', async () => {
+        Shopware.Store.get('context').app.windowId = '123';
+
+        const windowId = await getId();
+
+        expect(windowId).toBe('123');
+    });
+
+    it('should initialize windowId if not set', async () => {
+        expect(Shopware.Store.get('context').app.windowId).toBeNull();
+
+        const windowId = await getId();
+
+        expect(Shopware.Store.get('context').windowId).not.toBeNull();
+        expect(windowId).toBe(Shopware.Store.get('context').app.windowId);
+    })
 });

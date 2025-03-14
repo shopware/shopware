@@ -13,7 +13,7 @@
 
                 {% block page_account_address_form_welcome_headline %}
                     <h1 class="mx-2 mb-0">
-                        {{ 'account.addressCreateWelcome'|trans|sw_sanitize }}
+                        {{ 'account.addressEditMetaTitle'|trans|sw_sanitize }}
                     </h1>
                 {% endblock %}
             </div>
@@ -26,7 +26,6 @@
                         <form method="post"
                               action="{{ path('frontend.account.address.edit.save', { addressId: page.address.id }) }}"
                               data-form-handler="true">
-
                             {% block page_account_address_form_edit_personal %}
                                 {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
                                     data: page.address,

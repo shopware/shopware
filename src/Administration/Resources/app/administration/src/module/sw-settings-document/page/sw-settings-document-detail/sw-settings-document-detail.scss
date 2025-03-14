@@ -23,9 +23,13 @@
     }
 
     .sw-settings-document-detail__company-address-checkbox {
+        display: flex;
+        box-sizing: border-box;
+        align-items: center;
         grid-column-start: 1;
-        grid-column-end: 3;
+        grid-column-end: 2;
         height: 100%;
+        margin: 0;
     }
 
     .sw-settings-document-detail__field_delivery_countries {

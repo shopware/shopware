@@ -150,6 +150,9 @@ class TestBootstrapper
         $dbUrlParts = parse_url($_SERVER['DATABASE_URL'] ?? '') ?: [];
 
         $dbUrlParts['path'] ??= 'root';
+        if (!str_ends_with($dbUrlParts['path'], '_test')) {
+            $dbUrlParts['path'] .= '_test';
+        }
 
         $auth = isset($dbUrlParts['user']) ? ($dbUrlParts['user'] . (isset($dbUrlParts['pass']) ? (':' . $dbUrlParts['pass']) : '') . '@') : '';
 

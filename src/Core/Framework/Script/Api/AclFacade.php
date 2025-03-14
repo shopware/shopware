@@ -8,12 +8,12 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class AclFacade
 {
-    public function __construct(private readonly Context $context)
+    public function __construct(private readonly Context $appContext)
     {
     }
 
     public function can(string $privilege): bool
     {
-        return $this->context->isAllowed($privilege);
+        return $this->appContext->isAllowed($privilege);
     }
 }

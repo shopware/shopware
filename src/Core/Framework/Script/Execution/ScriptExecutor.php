@@ -159,7 +159,7 @@ class ScriptExecutor
     {
         $services = new ServiceStubs($hook->getName());
         $deprecatedServices = $hook->getDeprecatedServices();
-        foreach (self::$defaultServices + $hook->getServiceIds() as $serviceId) {
+        foreach ([...self::$defaultServices, ...$hook->getServiceIds()] as $serviceId) {
             $service = $this->getService($serviceId, $hook);
             $services->add(
                 $service->getName(),

@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\Script\Api;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Facade\AppContextCreator;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Script\AppContextCreator;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;

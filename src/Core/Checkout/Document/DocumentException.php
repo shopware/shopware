@@ -94,19 +94,8 @@ class DocumentException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return self
-     */
-    public static function customerNotLoggedIn(): self|CustomerNotLoggedInException
+    public static function customerNotLoggedIn(): CustomerNotLoggedInException
     {
-        if (Feature::isActive('v6.7.0.0')) {
-            return new self(
-                Response::HTTP_FORBIDDEN,
-                CartException::CUSTOMER_NOT_LOGGED_IN_CODE,
-                'Customer is not logged in.'
-            );
-        }
-
         return new CustomerNotLoggedInException(
             Response::HTTP_FORBIDDEN,
             CartException::CUSTOMER_NOT_LOGGED_IN_CODE,

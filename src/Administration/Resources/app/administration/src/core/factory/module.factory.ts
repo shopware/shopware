@@ -65,8 +65,16 @@ interface Navigation {
 }
 
 interface SettingsItem {
-    // eslint-disable-next-line max-len
-    group: 'general' | 'localization' | 'customer' | 'commerce' | 'content' | 'automation' | 'system' | 'account' | 'plugins';
+    group:
+        | 'general'
+        | 'localization'
+        | 'customer'
+        | 'commerce'
+        | 'content'
+        | 'automation'
+        | 'system'
+        | 'account'
+        | 'plugins';
     to: string;
     icon?: string;
     iconComponent?: unknown;

@@ -40,3 +40,8 @@ shopware:
         major: false
         toggleable: true
         description: "Experimental! Execute flows after the main unit of work has concluded"
+      - name: SHOPWARE_ANALYTICS_IN_SAAS
+        default: false
+        major: false
+        toggleable: true
+        description: "Enable Shopware Analytics in SaaS"

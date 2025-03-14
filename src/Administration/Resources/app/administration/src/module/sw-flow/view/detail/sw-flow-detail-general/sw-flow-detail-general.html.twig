@@ -58,6 +58,9 @@
                 class="sw-flow-detail-general__general-priority"
                 :disabled="!acl.can('flow.editor') || undefined"
                 :label="$tc('sw-flow.detail.labelGeneralInformationPriority')"
+                :step="1"
+                :min="0"
+                number-type="int"
                 name="sw-field--flow-priority"
             />
             {% endblock %}

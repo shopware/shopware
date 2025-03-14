@@ -659,6 +659,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         notEquals: [
             'cartCartAmount',
             'cartShippingCost',
+            ...ruleConditionService.getRestrictionsByGroup('order'),
         ],
         snippet: 'sw-restricted-rules.restrictedAssignment.orderPromotions',
     });
@@ -667,6 +668,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         notEquals: [
             'cartCartAmount',
             'cartShippingCost',
+            ...ruleConditionService.getRestrictionsByGroup('order'),
         ],
         snippet: 'sw-restricted-rules.restrictedAssignment.cartPromotions',
     });

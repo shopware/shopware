@@ -1,6 +1,7 @@
 /** @type number */
 const FRAMEWORK_GROUP_PROJECT_NUMBER = 27;
 const IN_PROGRESS_OPTION_NAME = 'In Progress';
+const DONE_OPTION_NAME = 'Done';
 
 /**
  * @param github {import('@octokit/rest').Octokit} Github Octokit instance
@@ -113,13 +114,34 @@ async function setFieldValue(github, core, projectId, cardId, fieldId, valueId) 
 }
 
 async function findInProject(github, core, context, projectNumber) {
+  const getProjectItem = (projectItems) => {
+    const r = projectItems.nodes.find((x) => x.project.number === projectNumber);
+    if (r) {
+      return {
+        number: r.project.number,
+        status: r.fieldValueByName.name,
+      };
+    } else {
+      return null;
+    }
+  };
+
   if (context.payload.issue) {
     const res = await github.graphql(
-      `query findIssueInProject($projectNumber: Int!, $number: Int!) {
+      `query findIssueInProject($number: Int!) {
         repository(owner: "shopware", name: "shopware") {
           issue(number: $number) {
-            projectV2(number: $projectNumber) {
-              url
+            projectItems(first: 20) {
+              nodes {
+                project {
+                  number
+                }
+                fieldValueByName(name: "Status") {
+                  ... on ProjectV2ItemFieldSingleSelectValue {
+                    name
+                  }
+                }
+              }
             }
             id
             number
@@ -127,25 +149,32 @@ async function findInProject(github, core, context, projectNumber) {
         }
       }`,
       {
-        projectNumber,
         number: context.payload.issue.number,
       }
     )
-
     core.debug(`findIssueInProject response: ${JSON.stringify(res)}`)
 
     return {
       node_id: res.repository.issue.id,
       number: res.repository.issue.number,
-      project: res.repository.issue.projectV2,
+      project: getProjectItem(res.repository.issue.projectItems),
     }
   } else {
     const res = await github.graphql(
-      `query findPRInProject($projectNumber: Int!, $number: Int!) {
+      `query findPRInProject($number: Int!) {
         repository(owner: "shopware", name: "shopware") {
           pullRequest(number: $number) {
-            projectV2(number: $projectNumber) {
-              url
+            projectItems(first: 20) {
+              nodes {
+                project {
+                  number
+                }
+                fieldValueByName(name: "Status") {
+                  ... on ProjectV2ItemFieldSingleSelectValue {
+                    name
+                  }
+                }
+              }
             }
             id
             number
@@ -153,7 +182,6 @@ async function findInProject(github, core, context, projectNumber) {
         }
       }`,
       {
-        projectNumber,
         number: context.payload.pull_request.number,
       }
     )
@@ -161,9 +189,9 @@ async function findInProject(github, core, context, projectNumber) {
     core.debug(`findPRInProject response: ${JSON.stringify(res)}`)
 
     return {
-      node_id: res.repository.issue.id,
-      number: res.repository.issue.number,
-      project: res.repository.issue.projectV2,
+      node_id: res.repository.pullRequest.id,
+      number: res.repository.pullRequest.number,
+      project: getProjectItem(res.repository.pullRequest.projectItems),
     }
   }
 }
@@ -174,15 +202,19 @@ async function findInProject(github, core, context, projectNumber) {
  * @param context {import('@actions/github').context} info about the current event
  */
 export const main = async (github, core, context) => {
-  const issue = await findInProject(github, core, context, FRAMEWORK_GROUP_PROJECT_NUMBER, context.payload.issue.number);
+  const issue = await findInProject(github, core, context, FRAMEWORK_GROUP_PROJECT_NUMBER);
   if (!issue.project) {
     core.debug(`skipping: issue/pr ${issue.number} is not associated with project ${FRAMEWORK_GROUP_PROJECT_NUMBER}`)
     return;
   }
 
+  if (issue.project.status !== DONE_OPTION_NAME) {
+    core.debug(`skipping: issue/pr ${issue.number} status != ${DONE_OPTION_NAME}`)
+    return;
+  }
+
   const projectInfo = await getProjectInfo(github, core, FRAMEWORK_GROUP_PROJECT_NUMBER)
   const inProgressOption = projectInfo.status_options.find(x => x.name == IN_PROGRESS_OPTION_NAME)
-
   if (!inProgressOption) {
     throw new Error(`Option "${IN_PROGRESS_OPTION_NAME}" not found`)
   }

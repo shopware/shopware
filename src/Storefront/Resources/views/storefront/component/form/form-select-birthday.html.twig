@@ -25,24 +25,21 @@
     {% endif %}
 
     <div class="form-group{% if additionalClass is not empty %} {{ additionalClass }}{% endif %}">
-
         {% block component_form_select_birthday_label %}
             {% if label %}
                 <label class="form-label" for="{{ idPrefix ~ prefix }}-personalBirthday">
                     {{ label }}
 
                     {% if 'required' in validationRules %}
-                        <span class="form-required-label" aria-hidden="true">{{ "general.required"|trans|sw_sanitize }}</span>
+                        <span class="form-required-label" aria-hidden="true">{{ 'general.required'|trans|sw_sanitize }}</span>
                     {% endif %}
                 </label>
             {% endif %}
         {% endblock %}
 
         <div class="row g-2">
-
             {% block component_form_select_birthday_day %}
                 <div class="col-4">
-
                     {% block component_form_select_birthday_day_select %}
                         <select class="form-select{% if formViolations.getViolations('/birthdayDay') is not empty %} is-invalid{% endif %}"
                                 id="{{ idPrefix ~ prefix }}personalBirthday"
@@ -50,11 +47,10 @@
                                 aria-describedby="{{ idPrefix ~ prefix }}-personalBirthday-feedback"
                                 {% if validationRules is not empty %}data-validation="{{ validationRules }}"{% endif %}
                                 {% if 'required' in validationRules %}aria-required="true"{% endif %}>
-
                             {% block component_form_select_birthday_day_select_options %}
                                 {% if not birthday %}
                                     <option selected="selected" value="">
-                                        {{ "account.personalBirthdaySelectDay"|trans|sw_sanitize }}
+                                        {{ 'account.personalBirthdaySelectDay'|trans|sw_sanitize }}
                                     </option>
                                 {% endif %}
                                 {% for day in range(1, 31) %}
@@ -70,7 +66,6 @@
                     {% block component_form_select_birthday_day_feedback %}
                         <div id="{{ idPrefix ~ prefix }}personalBirthday-feedback"
                              class="form-field-feedback">
-
                             {% block component_form_select_birthday_day_feedback_violations %}
                                 {% if formViolations.getViolations('/birthdayDay') is not empty %}
                                     {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
@@ -85,7 +80,6 @@
 
             {% block component_form_select_birthday_month %}
                 <div class="col-4">
-
                     {% block component_form_select_birthday_month_select %}
                         <select class="form-select{% if formViolations.getViolations('/birthdayMonth') is not empty %} is-invalid{% endif %}"
                                 id="{{ idPrefix ~ prefix }}personalBirthdayMonth"
@@ -93,12 +87,11 @@
                                 aria-describedby="{{ idPrefix ~ prefix }}-personalBirthdayMonth-feedback"
                                 {% if validationRules is not empty %}data-validation="{{ validationRules }}"{% endif %}
                                 {% if 'required' in validationRules %}aria-required="true"{% endif %}>
-
                             {% block component_form_select_birthday_month_select_options %}
                                 {% if not birthmonth %}
                                     <option selected="selected"
                                             value="">
-                                        {{ "account.personalBirthdaySelectMonth"|trans|sw_sanitize }}
+                                        {{ 'account.personalBirthdaySelectMonth'|trans|sw_sanitize }}
                                     </option>
                                 {% endif %}
                                 {% for month in range(1, 12) %}
@@ -114,7 +107,6 @@
                     {% block component_form_select_birthday_month_feedback %}
                         <div id="{{ idPrefix ~ prefix }}personalBirthdayMonth-feedback"
                              class="form-field-feedback">
-
                             {% block component_form_select_birthday_month_feedback_violations %}
                                 {% if formViolations.getViolations('/birthdayMonth') is not empty %}
                                     {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
@@ -129,9 +121,8 @@
 
             {% block component_form_select_birthday_year %}
                 <div class="col-4">
-
                     {% block component_form_select_birthday_year_select %}
-                        {% set currentYear = "now"|date('Y') %}
+                        {% set currentYear = 'now'|date('Y') %}
                         {% set startYear = currentYear - 120 %}
 
                         <select class="form-select{% if formViolations.getViolations('/birthdayYear') is not empty %} is-invalid{% endif %}"
@@ -140,12 +131,11 @@
                                 aria-describedby="{{ idPrefix ~ prefix }}-personalBirthdayYear-feedback"
                                 {% if validationRules is not empty %}data-validation="{{ validationRules }}"{% endif %}
                                 {% if 'required' in validationRules %}aria-required="true"{% endif %}>
-
                             {% block component_form_select_birthday_year_select_options %}
                                 {% if not birthyear %}
                                     <option selected="selected"
                                             value="">
-                                        {{ "account.personalBirthdaySelectYear"|trans|sw_sanitize }}
+                                        {{ 'account.personalBirthdaySelectYear'|trans|sw_sanitize }}
                                     </option>
                                 {% endif %}
                                 {% for year in range(currentYear, startYear) %}
@@ -161,7 +151,6 @@
                     {% block component_form_select_birthday_year_feedback %}
                         <div id="{{ idPrefix ~ prefix }}personalBirthdayYear-feedback"
                              class="form-field-feedback">
-
                             {% block component_form_select_birthday_year_feedback_violations %}
                                 {% if formViolations.getViolations('/birthdayYear') is not empty %}
                                     {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {

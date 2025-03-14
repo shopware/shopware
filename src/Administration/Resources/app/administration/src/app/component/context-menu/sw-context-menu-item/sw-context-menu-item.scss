@@ -12,6 +12,8 @@ $sw-context-menu-color-warning: $color-pumpkin-spice-500;
     position: relative;
     border-radius: $border-radius-default;
     margin: 0;
+    width: 100%;
+    text-align: start;
     line-height: $line-height-xs;
     padding: 4px 14px;
     text-decoration: none;

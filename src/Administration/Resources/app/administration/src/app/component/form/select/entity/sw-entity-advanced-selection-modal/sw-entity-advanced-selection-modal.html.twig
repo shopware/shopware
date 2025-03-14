@@ -6,7 +6,6 @@
     :title="modalTitle"
     @modal-close="$emit('modal-close')"
 >
-
     {% block sw_entity_advanced_selection_modal_content_card %}
     <mt-card
         class="sw-entity-advanced-selection-modal__content"
@@ -30,14 +29,20 @@
                             variant="secondary"
                             @click="filterWindowOpen = !filterWindowOpen"
                         >
-                            <mt-icon
-                                name="regular-filter-s"
-                                size="16px"
-                            />
+                            <template #iconFront>
+                                <mt-icon
+                                    name="regular-filter-s"
+                                    size="16px"
+                                />
+                            </template>
+
                             <i
                                 v-if="activeFilterNumber > 0"
                                 class="sw-entity-advanced-selection-modal__filter-badge"
-                            >{{ activeFilterNumber }}</i>
+                            >
+                                {{ activeFilterNumber }}
+                            </i>
+
                             {{ $tc('global.sw-entity-advanced-selection-modal.filter') }}
                         </mt-button>
                         {% endblock %}
@@ -52,7 +57,6 @@
 
                             {% block sw_entity_advanced_selection_modal_toolbar_filter_panel_filters %}
                             <div class="sw-entity-advanced-selection-modal__filter-panel">
-                                {# TODO - NEXT-20791 : remove store-key property. Filters should not be stored somewhere #}
                                 <sw-filter-panel
                                     ref="filterPanel"
                                     class="sw-entity-advanced-selection-modal__filter-panel"

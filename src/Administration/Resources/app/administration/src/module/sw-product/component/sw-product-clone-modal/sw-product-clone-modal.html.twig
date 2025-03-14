@@ -15,7 +15,8 @@
     {% block sw_product_clone_modal_progress_bar %}
     <mt-progress-bar
         class="clone-variant-progress-bar"
-        :model-value="progressInPercentage"
+        :max-value="cloneMaxProgress"
+        :model-value="cloneProgress"
     />
     {% endblock %}
 

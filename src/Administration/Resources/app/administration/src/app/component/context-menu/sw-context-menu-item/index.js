@@ -63,4 +63,13 @@ Component.register('sw-context-menu-item', {
             };
         },
     },
+
+    methods: {
+        // the listener has the `capture` modifier in the template to prevent parent listeners from being called
+        handleClick(event) {
+            if (this.disabled) {
+                event.stopPropagation();
+            }
+        },
+    },
 });

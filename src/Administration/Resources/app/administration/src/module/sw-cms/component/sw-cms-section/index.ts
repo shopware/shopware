@@ -216,9 +216,8 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         createdComponent() {
-            if (!this.section.backgroundMediaMode) {
-                this.section.backgroundMediaMode = 'cover';
-            }
+            this.section.backgroundMediaMode ??= 'cover';
+            this.section.backgroundColor ??= '';
         },
 
         openBlockBar() {

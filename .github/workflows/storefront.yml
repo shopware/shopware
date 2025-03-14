@@ -44,6 +44,40 @@ jobs:
           npm run lint:js
           npm run lint:scss
 
+  twig-lint-storefront:
+    name: Twig Lint (Storefront)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for relevant changes
+        id: changed-files
+        uses: tj-actions/changed-files@v45
+        with:
+          files: |
+            src/Storefront/Resources/views/ludtwig-config.toml
+            src/Storefront/Resources/views/.ludtwig-ignore
+            src/Storefront/Resources/views/**/*.twig
+
+      - name: Run ludtwig linter
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: addnab/docker-run-action@v3
+        with:
+          image: maltejanz/ludtwig:0.10.0
+          options: -v ${{ github.workspace }}:/ludtwig
+          run: |
+            cd ./src/Storefront/Resources/views
+            ludtwig .
+            status=$?  # Capture the exit code of ludtwig
+            ludtwig --version
+            echo "If you want to run this locally install https://github.com/MalteJanz/ludtwig in the version above"
+            echo "And then composer run ludtwig:storefront or ludtwig:storefront:fix"
+            echo "Alternatively you also can run these in the DevEnv shell"
+            exit $status  # Fail the job if ludtwig . failed
+
+
   jest:
     name: "Jest Storefront"
     runs-on: ubuntu-24.04
@@ -115,6 +149,7 @@ jobs:
       - lint
       - jest
       - license-check
+      - twig-lint-storefront
 
       runs-on: Ubuntu-latest
       steps:

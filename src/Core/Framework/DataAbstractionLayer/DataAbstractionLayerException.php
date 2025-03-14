@@ -427,8 +427,8 @@ class DataAbstractionLayerException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::EXPECTED_FIELD_VALUE_TYPE_WITH_VALUE,
-            'Expected value of {{ fieldClass }} to be of type "{{ expectedType }}", got "{{ actualType }}".',
-            ['fieldClass' => $field::class, 'expectedType' => $expectedType, 'actualType' => $actualValue]
+            'Expected value of {{ fieldClass }} to be of type "{{ expectedType }}", got "{{ actualValue }}".',
+            ['fieldClass' => $field::class, 'expectedType' => $expectedType, 'actualValue' => $actualValue]
         );
     }
 

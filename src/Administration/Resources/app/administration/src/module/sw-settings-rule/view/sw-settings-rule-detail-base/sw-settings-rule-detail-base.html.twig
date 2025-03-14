@@ -30,6 +30,9 @@
                     :placeholder="$tc('sw-settings-rule.detail.placeholderPriority')"
                     :error="rulePriorityError"
                     :disabled="!acl.can('rule.editor') || undefined"
+                    :step="1"
+                    :min="0"
+                    number-type="int"
                     required
                 />
                 {% endblock %}

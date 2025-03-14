@@ -9,7 +9,8 @@
              id="main-navigation-menu"
              itemscope="itemscope"
              itemtype="https://schema.org/SiteNavigationElement"
-             data-navbar="true">
+             data-navbar="true"
+             aria-label="{{ 'header.navigationAriaLabel'|trans|striptags }}">
             <div class="">
                 <div class="collapse navbar-collapse" id="main_nav">
                     <ul class="navbar-nav d-flex flex-wrap">
@@ -51,16 +52,16 @@
                                         </li>
                                     {% else %}
                                         <li class="nav-item nav-item-{{ id }} {% if hasChildren %}dropdown position-static pe-2{% endif %}">
-                                            <a class="nav-link nav-item-{{ id }}-link root dropdown-toggle main-navigation-link p-2"
+                                            <a class="nav-link nav-item-{{ id }}-link root main-navigation-link p-2{% if hasChildren %} dropdown-toggle{% endif %}"
                                                href="{{ category_url(category) }}"
-                                               data-bs-toggle="dropdown"
+                                               {% if hasChildren %}data-bs-toggle="dropdown"{% endif %}
                                                itemprop="url"
                                                {% if category_linknewtab(category) %}target="_blank"{% endif %}
                                                title="{{ name }}">
                                                 <span itemprop="name" class="main-navigation-link-text">{{ name }}</span>
                                             </a>
                                             {% if hasChildren %}
-                                                <div class="dropdown-menu w-100 p-4" role="menu">
+                                                <div class="dropdown-menu w-100 p-4">
                                                     {% sw_include '@Storefront/storefront/layout/navbar/content.html.twig' with {
                                                         themeIconConfig: themeIconConfig,
                                                         navigationTree: treeItem,

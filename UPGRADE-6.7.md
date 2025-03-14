@@ -433,9 +433,12 @@ The HTML of the modal trigger is now inside the twig template instead.
 ## Storefront `{% sw_icon %}` are `aria-hidden="true"` by default
 Storefront icons that are rendered via `{% sw_icon 'icon-name' %}` will apply `aria-hidden="true"` by default so they are hidden for screen readers.
 In most scenarios icons are of decorative nature and should therefore not by read as "graphic" by the screen reader. **This change does not affect the actual rendering or appearance of the icons.**
-In many areas the icons were already set to `ariaHidden: true` manually. For things like "icon only" buttons there should always be an alternative text available that described the action.
+In many areas the icons were already set to `ariaHidden: true` manually. For things like "icon only" buttons there should always be an alternative text available that describes the action.
 
-It is still possible to disable `aria-hidden` by applying `ariaHidden: true` on the icon: `{% sw_icon 'plus' style { ariaHidden: false } %}`.
+It is still possible to disable `aria-hidden` by applying `ariaHidden: true` on the icon: 
+```twig
+{% sw_icon 'plus' style { ariaHidden: false } %}
+```
 
 ```twig
 {# 
@@ -475,7 +478,7 @@ It is still possible to disable `aria-hidden` by applying `ariaHidden: true` on 
     ======================================================
 #}
 
-{# In rare occasions, you can optionally disable aria-hidden. It is also possible to apply an aria-label to the SVG #}
+{# In rare occasions, you can optionally disable aria-hidden. It is also possible to apply an aria-label to the SVG. #}
 {% sw_icon 'plus' style { ariaHidden: false, ariaLabel: 'My label' } %}
 
 {# Will render: #}

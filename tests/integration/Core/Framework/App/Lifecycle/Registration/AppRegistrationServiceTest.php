@@ -316,7 +316,7 @@ class AppRegistrationServiceTest extends TestCase
             ],
         ]);
 
-        $permissionPersister->updatePrivileges($permissions, $roleId, true, $context);
+        $permissionPersister->updatePrivileges($permissions, $id, true, $context);
     }
 
     private function buildAppResponse(Manifest $manifest, string $appSecret, ?string $shopId = null): string

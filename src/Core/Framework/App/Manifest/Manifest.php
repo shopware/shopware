@@ -40,6 +40,7 @@ class Manifest
 
     private function __construct(
         private string $path,
+        private readonly bool $validatesPermissions,
         private readonly Metadata $metadata,
         private readonly ?Setup $setup,
         private readonly ?Admin $admin,
@@ -98,6 +99,14 @@ class Manifest
     public function setPath(string $path): void
     {
         $this->path = $path;
+    }
+
+    /**
+     * This app has indicated that it validates it has permissions before using particular features. Because it has, we can request permission review separately from the app install/update process.
+     */
+    public function validatesPermissions(): bool
+    {
+        return $this->validatesPermissions;
     }
 
     public function getMetadata(): Metadata
@@ -256,6 +265,12 @@ class Manifest
     private static function create(\DOMDocument $doc, string $xmlFile): self
     {
         try {
+            $manifest = $doc->getElementsByTagName('manifest')->item(0);
+            \assert($manifest !== null);
+
+            $values = ['true' => true, 'false' => false];
+            $validatesPermissions = $manifest->hasAttribute('validates-permissions') ? $values[$manifest->getAttribute('validates-permissions')] : false;
+
             $meta = $doc->getElementsByTagName('meta')->item(0);
             \assert($meta !== null);
             $metadata = Metadata::fromXml($meta);
@@ -291,6 +306,7 @@ class Manifest
 
         return new self(
             \dirname($xmlFile),
+            $validatesPermissions,
             $metadata,
             $setup,
             $admin,

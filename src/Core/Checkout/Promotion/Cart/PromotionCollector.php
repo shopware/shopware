@@ -316,7 +316,10 @@ class PromotionCollector implements CartDataCollectorInterface
         return $promotionsList;
     }
 
-    // check if max allowed redemption of promotion have been reached or not. if max redemption has been reached promotion will not be added
+    /**
+     * Check if max allowed redemption of promotion have been reached or not.
+     * If max redemption has been reached promotion will not be added
+     */
     private function isEligible(PromotionEntity $promotion, ?string $customerId, ?string $currentOrderId): bool
     {
         // code is already applied to this order, so it's should be valid

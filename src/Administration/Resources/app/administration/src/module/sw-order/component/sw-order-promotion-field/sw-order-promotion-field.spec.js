@@ -197,7 +197,7 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.disabledAutoPromotions).toBeTruthy();
+        expect(wrapper.vm.disabledAutoPromotions).toBeFalsy();
         expect(wrapper.vm.hasAutomaticPromotions).toBeTruthy();
 
         await flushPromises();

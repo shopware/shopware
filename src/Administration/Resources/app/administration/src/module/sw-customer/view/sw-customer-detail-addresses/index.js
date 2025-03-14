@@ -230,13 +230,11 @@ export default {
 
             Object.assign(address, this.currentAddress);
 
-            if (this.customer.addresses.has(address.id)) {
-                this.customer.addresses.remove(address.id);
-            }
+            this.customerAddressRepository.save(address).then(() => {
+                this.currentAddress = null;
 
-            this.customer.addresses.push(address);
-
-            this.currentAddress = null;
+                this.refreshList();
+            });
         },
 
         isValidAddress(address) {
@@ -279,12 +277,7 @@ export default {
         },
 
         onEditAddress(id) {
-            const currentAddress = this.addressRepository.create(Shopware.Context.api, id);
-
-            // assign values and id to new address
-            Object.assign(currentAddress, this.activeCustomer.addresses.get(id));
-
-            this.currentAddress = currentAddress;
+            this.currentAddress = this.activeCustomer.addresses.get(id);
             this.showEditAddressModal = id;
         },
 

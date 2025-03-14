@@ -435,7 +435,7 @@ Storefront icons that are rendered via `{% sw_icon 'icon-name' %}` will apply `a
 In most scenarios icons are of decorative nature and should therefore not by read as "graphic" by the screen reader. **This change does not affect the actual rendering or appearance of the icons.**
 In many areas the icons were already set to `ariaHidden: true` manually. For things like "icon only" buttons there should always be an alternative text available that describes the action.
 
-It is still possible to disable `aria-hidden` by applying `ariaHidden: true` on the icon: 
+It is still possible to disable `aria-hidden` by applying `ariaHidden: false` on the icon: 
 ```twig
 {% sw_icon 'plus' style { ariaHidden: false } %}
 ```

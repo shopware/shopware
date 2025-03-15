@@ -84,12 +84,11 @@ class CartRuleLoader implements ResetInterface
         return Profiler::trace('cart-rule-loader', function () use ($context, $cart, $behaviorContext, $new) {
             // If the processing starts with deferred errors already in the cart, the cart MUST be persisted
             // to remove the errors from the stored cart
-            if (Feature::isActive('DEFERRED_CART_ERRORS')) {
-                $hasDeferredErrors = $cart->getErrors()->count() > 0;
-            } else {
+            $hasDeferredErrors = $cart->getErrors()->count() > 0;
+
+            if (!Feature::isActive('DEFERRED_CART_ERRORS')) {
                 $hasDeferredErrors = false;
             }
-
 
             $rules = $this->loadRules($context->getContext());
 

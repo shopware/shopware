@@ -46,7 +46,6 @@ class SalesChannelContextServiceTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('withPermissions')->willReturn($this->createMock(RuleLoaderResult::class));
 
-
         $factory->expects($this->once())
             ->method('create')
             ->with(

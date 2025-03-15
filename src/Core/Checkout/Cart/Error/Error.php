@@ -28,7 +28,8 @@ abstract class Error extends \Exception implements \JsonSerializable
     /**
      * @return array<string, mixed>
      */
-    public function __serialize(): array {
+    public function __serialize(): array
+    {
         return get_object_vars($this);
     }
 

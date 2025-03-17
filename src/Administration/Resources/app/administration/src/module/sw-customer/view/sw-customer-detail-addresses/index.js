@@ -277,7 +277,14 @@ export default {
         },
 
         onEditAddress(id) {
-            this.currentAddress = this.activeCustomer.addresses.get(id);
+            const currentAddress = this.addressRepository.create(Shopware.Context.api, id);
+            // Otherwise repository save will do a POST call instead of PATCH
+            currentAddress._isNew = false;
+
+            // assign values and id to new address
+            Object.assign(currentAddress, this.activeCustomer.addresses.get(id));
+
+            this.currentAddress = currentAddress;
             this.showEditAddressModal = id;
         },
 

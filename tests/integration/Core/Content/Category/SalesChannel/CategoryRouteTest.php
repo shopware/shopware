@@ -97,13 +97,12 @@ class CategoryRouteTest extends TestCase
         $manufacturers = $listing['aggregations']['manufacturer'];
 
         foreach ($manufacturers['entities'] as $manufacturer) {
-            static::assertEquals(['name', 'id', 'apiAlias'], array_keys($manufacturer));
+            static::assertSame(['name', 'id', 'apiAlias'], array_keys($manufacturer));
         }
 
-        $products = $listing['elements'];
-        foreach ($products as $product) {
-            static::assertEquals(['name', 'tax', 'manufacturer', 'id', 'apiAlias'], array_keys($product));
-            static::assertEquals(['name', 'id', 'apiAlias'], array_keys($product['tax']));
+        foreach ($listing['elements'] as $product) {
+            static::assertSame(['name', 'tax', 'manufacturer', 'id', 'apiAlias'], array_keys($product));
+            static::assertSame(['name', 'id', 'apiAlias'], array_keys($product['tax']));
         }
     }
 
@@ -113,8 +112,7 @@ class CategoryRouteTest extends TestCase
 
         $this->browser->request(
             'POST',
-            '/store-api/category/home',
-            []
+            '/store-api/category/home'
         );
 
         $this->assertListingCmsPage($this->ids->get('home-category'), $this->ids->get('home-cms-page'));
@@ -127,8 +125,7 @@ class CategoryRouteTest extends TestCase
         $id = $this->ids->get('folder');
         $this->browser->request(
             'POST',
-            '/store-api/category/' . $id,
-            []
+            '/store-api/category/' . $id
         );
 
         $this->assertError($id);
@@ -141,8 +138,7 @@ class CategoryRouteTest extends TestCase
         $id = $this->ids->get('link');
         $this->browser->request(
             'POST',
-            '/store-api/category/' . $id,
-            []
+            '/store-api/category/' . $id
         );
 
         $this->assertError($id);
@@ -161,8 +157,7 @@ class CategoryRouteTest extends TestCase
 
         $this->browser->request(
             'POST',
-            '/store-api/category/home',
-            []
+            '/store-api/category/home'
         );
 
         $this->assertListingCmsPage($this->ids->get('home-category'), $this->ids->get('cms-page'));
@@ -185,7 +180,7 @@ class CategoryRouteTest extends TestCase
     /**
      *  Testing CMS slot inheritance with category overrides.
      *  - EN is System Default language
-     *  - DE is parentless
+     *  - DE is without parent
      *  - AT inherits from DE
      *  Expected hierarchy: Overrides of categories (AT > DE > EN) > Templates of categories (AT > DE > EN)
      *
@@ -202,7 +197,6 @@ class CategoryRouteTest extends TestCase
         $this->browser->request(
             'POST',
             '/store-api/category/' . $this->ids->get('category'),
-            [],
         );
 
         $this->assertLandingPageCmsPage(
@@ -224,7 +218,7 @@ class CategoryRouteTest extends TestCase
     }
 
     /**
-     *  Testing CMS slot inheritance with category overrides, with multiple EN occurances in language chain.
+     *  Testing CMS slot inheritance with category overrides, with multiple EN occurrences in language chain.
      *  - EN is System Default language
      *  - DE inherits from EN
      *  Expected hierarchy: Overrides of categories (DE > EN) > Templates of categories (DE > EN)
@@ -243,7 +237,6 @@ class CategoryRouteTest extends TestCase
         $this->browser->request(
             'POST',
             '/store-api/category/' . $this->ids->get('category'),
-            [],
         );
 
         $this->assertLandingPageCmsPage(
@@ -384,23 +377,23 @@ class CategoryRouteTest extends TestCase
         static::assertIsString($this->browser->getResponse()->getContent());
         $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals($categoryId, $response['id'], 'CategoryId does not match');
+        static::assertSame($categoryId, $response['id'], 'CategoryId does not match');
         static::assertIsArray($response['cmsPage']);
-        static::assertEquals('product_list', $response['cmsPage']['type']);
+        static::assertSame('product_list', $response['cmsPage']['type']);
 
-        static::assertEquals($cmsPageId, $response['cmsPage']['id'], 'CmsPage.id does not match');
-        static::assertEquals($cmsPageId, $response['cmsPageId'], 'CmsPageId does not match');
+        static::assertSame($cmsPageId, $response['cmsPage']['id'], 'CmsPage.id does not match');
+        static::assertSame($cmsPageId, $response['cmsPageId'], 'CmsPageId does not match');
         static::assertCount(1, $response['cmsPage']['sections']);
 
         static::assertCount(1, $response['cmsPage']['sections'][0]['blocks']);
 
         $block = $response['cmsPage']['sections'][0]['blocks'][0];
 
-        static::assertEquals('product-listing', $block['type']);
+        static::assertSame('product-listing', $block['type']);
         static::assertCount(1, $block['slots']);
 
         $slot = $block['slots'][0];
-        static::assertEquals('product-listing', $slot['type']);
+        static::assertSame('product-listing', $slot['type']);
         static::assertArrayHasKey('listing', $slot['data']);
 
         $listing = $slot['data']['listing'];
@@ -413,27 +406,27 @@ class CategoryRouteTest extends TestCase
         static::assertIsString($this->browser->getResponse()->getContent());
         $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals($categoryId, $response['id'], 'CategoryId does not match');
+        static::assertSame($categoryId, $response['id'], 'CategoryId does not match');
         static::assertIsArray($response['cmsPage']);
-        static::assertEquals('landingpage', $response['cmsPage']['type']);
+        static::assertSame('landingpage', $response['cmsPage']['type']);
 
-        static::assertEquals($cmsPageId, $response['cmsPage']['id'], 'CmsPage.id does not match');
-        static::assertEquals($cmsPageId, $response['cmsPageId'], 'CmsPageId does not match');
+        static::assertSame($cmsPageId, $response['cmsPage']['id'], 'CmsPage.id does not match');
+        static::assertSame($cmsPageId, $response['cmsPageId'], 'CmsPageId does not match');
         static::assertCount(1, $response['cmsPage']['sections']);
 
         static::assertCount(1, $response['cmsPage']['sections'][0]['blocks']);
 
         $block = $response['cmsPage']['sections'][0]['blocks'][0];
 
-        static::assertEquals('text-teaser', $block['type']);
+        static::assertSame('text-teaser', $block['type']);
         static::assertCount(1, $block['slots']);
 
         $slot = $block['slots'][0];
-        static::assertEquals('text', $slot['type']);
+        static::assertSame('text', $slot['type']);
 
         $config = $slot['config']['content'];
-        static::assertEquals('static', $config['source']);
-        static::assertEquals($expected, $config['value']);
+        static::assertSame('static', $config['source']);
+        static::assertSame($expected, $config['value']);
     }
 
     /**
@@ -501,7 +494,7 @@ class CategoryRouteTest extends TestCase
                     ]],
                 ]],
             ],
-            'slotConfig' => $overrides['en'] ? $overrides['en']['slotConfig'] : null,
+            'slotConfig' => $overrides['en']['slotConfig'] ?? null,
             'translations' => \array_values($overrides) ?: null,
         ];
 

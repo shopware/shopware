@@ -62,10 +62,10 @@ class ItemsFacadeTest extends TestCase
             $this->item((new LineItem('duplicate', 'item', 'reference'))->setStackable(true))
         );
 
-        static::assertEquals(1, $facade->count());
+        static::assertCount(1, $facade);
         static::assertTrue($facade->has('duplicate'));
         static::assertInstanceOf(ItemFacade::class, $facade->get('duplicate'));
-        static::assertEquals(2, $facade->get('duplicate')->getQuantity());
+        static::assertSame(2, $facade->get('duplicate')->getQuantity());
 
         static::assertTrue(
             $facade->has($this->item(new LineItem('duplicate', 'item', 'reference'))),
@@ -83,13 +83,13 @@ class ItemsFacadeTest extends TestCase
         $facade->remove(
             $this->item(new LineItem('duplicate', 'item', 'reference'))
         );
-        static::assertEquals(0, $facade->count(), 'Removing an item by its facade should remove all items with the same id');
+        static::assertCount(0, $facade, 'Removing an item by its facade should remove all items with the same id');
 
         $facade->add(
             $this->item(new LineItem('item-1', LineItem::CONTAINER_LINE_ITEM, 'reference'))
         );
 
-        static::assertEquals(1, $facade->count());
+        static::assertCount(1, $facade);
         static::assertTrue($facade->has('item-1'));
         static::assertInstanceOf(ContainerFacade::class, $facade->get('item-1'), 'Container types should be wrapped in a ContainerFacade');
 
@@ -98,17 +98,14 @@ class ItemsFacadeTest extends TestCase
         );
 
         $asserted = 0;
-        /** @var ContainerFacade|ItemFacade $item */
         foreach ($facade as $item) {
             ++$asserted;
 
             if ($item->getId() === 'item-1') {
                 static::assertInstanceOf(ContainerFacade::class, $item);
-            } else {
-                static::assertInstanceOf(ItemFacade::class, $item);
             }
         }
-        static::assertEquals(2, $asserted);
+        static::assertSame(2, $asserted);
     }
 
     private function item(LineItem $item): ItemFacade

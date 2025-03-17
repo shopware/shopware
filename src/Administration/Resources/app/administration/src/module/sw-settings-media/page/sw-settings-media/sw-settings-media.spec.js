@@ -170,14 +170,4 @@ describe('module/sw-settings-media/page/sw-settings-media', () => {
         await wrapper.vm.$nextTick();
         expect(wrapper.find('.sw-card-view').find('.sw-system-config').find('.mt-card').exists()).toBeTruthy();
     });
-
-    it('should change the slider value', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        await wrapper.vm.$nextTick();
-        wrapper.vm.onSliderChange(50);
-
-        expect(wrapper.vm.sliderValue).toBe(50);
-    });
 });

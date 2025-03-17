@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
@@ -86,7 +87,9 @@ class KernelPluginIntegrationTest extends TestCase
     {
         $this->insertPlugin($this->getActivePlugin());
 
-        $this->connection->executeStatement('UPDATE plugin SET active = 1, installed_at = date(now())');
+        static::getContainer()
+            ->get(Connection::class)
+            ->executeStatement('UPDATE plugin SET active = 1, installed_at = date(now())');
 
         $loader = new DbalKernelPluginLoader($this->classLoader, null, $this->connection);
         $this->kernel = $this->makeKernel($loader);

@@ -17,7 +17,7 @@
             <template #icon>
                 {% block sw_settings_search_excluded_search_terms_empty_state_image %}
                 <img
-                    :src="assetFilter('administration/static/img/empty-states/settings-empty-state.svg')"
+                    :src="assetFilter('administration/administration/static/img/empty-states/settings-empty-state.svg')"
                     :alt="$tc('sw-settings-search.generalTab.textEmptyStateExcludedSearchTerms')"
                 >
                 {% endblock %}
@@ -30,6 +30,7 @@
                     ghost
                     size="small"
                     :disabled="!acl.can('product_search_config.creator')"
+                    variant="secondary"
                     @click="addExcludedSearchTerms"
                 >
                     {{ $tc('sw-settings-search.generalTab.buttonAddExcludedSearch') }}
@@ -64,6 +65,7 @@
                         ghost
                         size="small"
                         :disabled="!acl.can('product_search_config.creator')"
+                        variant="secondary"
                         @click="onInsertTerm"
                     >
                         {{ $tc('sw-settings-search.generalTab.buttonAddExcludedSearchTerms') }}
@@ -76,6 +78,7 @@
                         size="small"
                         :disabled="!acl.can('product_search_config.creator')"
                         :is-loading="isLoading"
+                        variant="secondary"
                         @click="onResetExcludedSearchTermDefault"
                     >
                         {{ $tc('sw-settings-search.generalTab.buttonResetDefault') }}

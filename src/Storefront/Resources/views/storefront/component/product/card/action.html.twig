@@ -54,8 +54,7 @@
 
                         {% block component_product_box_action_buy_button %}
                             <div class="d-grid">
-                                <button class="btn btn-buy"
-                                        title="{{ 'listing.boxAddProduct'|trans|striptags }}">
+                                <button class="btn btn-buy">
                                     {% block page_product_detail_product_buy_button_label %}
                                         {{ 'listing.boxAddProduct'|trans|sw_sanitize }}
                                     {% endblock %}
@@ -69,8 +68,7 @@
             {% block component_product_box_action_detail %}
                 <div class="d-grid">
                     <a href="{{ seoUrl('frontend.detail.page', {productId: id}) }}"
-                       class="btn btn-light btn-detail"
-                       title="{{ 'listing.boxProductDetails'|trans|striptags }}">
+                       class="btn btn-light btn-detail">
                         {% block component_product_box_action_detail_label %}
                             {{ 'listing.boxProductDetails'|trans|sw_sanitize }}
                         {% endblock %}

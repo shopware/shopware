@@ -32,22 +32,6 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        useMeteorComponent() {
-            // Use new meteor component in major
-            if (Shopware.Feature.isActive('ENABLE_METEOR_COMPONENTS')) {
-                return true;
-            }
-
-            // Throw warning when deprecated component is used
-            Shopware.Utils.debug.warn(
-                'sw-datepicker',
-                // eslint-disable-next-line max-len
-                'The old usage of "sw-datepicker" is deprecated and will be removed in v6.7.0.0. Please use "mt-datepicker" instead.',
-            );
-
-            return false;
-        },
-
         realValue: {
             get() {
                 return this.modelValue || this.value;

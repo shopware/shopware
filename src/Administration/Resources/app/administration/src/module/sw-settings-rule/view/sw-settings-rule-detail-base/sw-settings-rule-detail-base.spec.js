@@ -44,7 +44,7 @@ async function createWrapper(props = defaultProps, privileges = ['rule.editor'])
                     template: '<div class="sw-popover"><slot></slot></div>',
                 },
                 'sw-text-field': true,
-                'sw-number-field': true,
+                'mt-number-field': true,
                 'mt-textarea': true,
                 'sw-entity-tag-select': true,
                 'sw-loader': true,
@@ -96,7 +96,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             await flushPromises();
 
             const ruleNameField = wrapper.find('input[name=sw-field--rule-name]');
-            const rulePriorityField = wrapper.find('sw-number-field-stub[name=sw-field--rule-priority]');
+            const rulePriorityField = wrapper.find('mt-number-field-stub[name=sw-field--rule-priority]');
             const ruleDescriptionField = wrapper.find('mt-textarea-stub[name=sw-field--rule-description]');
 
             expect(ruleNameField.attributes().disabled).toBeDefined();
@@ -111,7 +111,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             await flushPromises();
 
             const ruleNameField = wrapper.find('input[name=sw-field--rule-name]');
-            const rulePriorityField = wrapper.find('sw-number-field-stub[name=sw-field--rule-priority]');
+            const rulePriorityField = wrapper.find('mt-number-field-stub[name=sw-field--rule-priority]');
             const ruleDescriptionField = wrapper.find('mt-textarea-stub[name=sw-field--rule-description]');
 
             expect(ruleNameField.attributes().disabled).toBeUndefined();

@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Rule\ShippingStreetRule;
+use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -33,8 +35,14 @@ class ShippingStreetRuleTest extends TestCase
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
+    /**
+     * @var EntityRepository<RuleCollection>
+     */
     private EntityRepository $ruleRepository;
 
+    /**
+     * @var EntityRepository<RuleConditionCollection>
+     */
     private EntityRepository $conditionRepository;
 
     private Context $context;

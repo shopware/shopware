@@ -29,10 +29,10 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                             sync: true,
                         }),
                         'sw-data-grid': await wrapTestComponent('sw-data-grid'),
-                        'sw-number-field': {
-                            template: '<input type="number" v-model="value" />',
+                        'mt-number-field': {
+                            template: '<input type="number" v-model="modelValue" v-bind="$attrs" />',
                             props: [
-                                'value',
+                                'modelValue',
                                 'size',
                             ],
                         },

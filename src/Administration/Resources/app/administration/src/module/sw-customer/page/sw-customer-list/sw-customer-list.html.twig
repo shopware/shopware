@@ -44,6 +44,7 @@
             class="sw-customer-list__button-create"
             variant="primary"
             :disabled="!acl.can('customer.creator') || undefined"
+            size="default"
             @click="$router.push({ name: 'sw.customer.create' })"
         >
             {{ $tc('sw-customer.list.buttonAddCustomer') }}
@@ -191,8 +192,8 @@
                 <template #column-active="{ item, isInlineEdit }">
                     {% block sw_customer_list_grid_columns_active_inline_edit %}
                     <template v-if="isInlineEdit">
-                        <sw-checkbox-field
-                            v-model:value="item.active"
+                        <mt-checkbox
+                            v-model:checked="item.active"
                             name="sw-field--item-active"
                         />
                     </template>
@@ -274,6 +275,7 @@
                             {% block sw_customer_list_delete_modal_cancel %}
                             <mt-button
                                 size="small"
+                                variant="secondary"
                                 @click="onCloseDeleteModal"
                             >
                                 {{ $tc('global.default.cancel') }}
@@ -366,7 +368,7 @@
                 >
                     <template #icon>
                         <img
-                            :src="assetFilter('/administration/static/img/empty-states/customer-empty-state.svg')"
+                            :src="assetFilter('/administration/administration/static/img/empty-states/customer-empty-state.svg')"
                             :alt="$tc('sw-empty-state.messageNoResultTitle')"
                         >
                     </template>
@@ -388,7 +390,7 @@
                 >
                     <template #icon>
                         <img
-                            :src="assetFilter('/administration/static/img/empty-states/customer-empty-state.svg')"
+                            :src="assetFilter('/administration/administration/static/img/empty-states/customer-empty-state.svg')"
                             :alt="$tc('sw-customer.list.messageEmpty')"
                         >
                     </template>

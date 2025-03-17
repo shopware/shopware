@@ -35,6 +35,7 @@
                 square
                 size="small"
                 class="sw-property-option-list__delete-button"
+                variant="secondary"
                 @click="onDeleteOptions"
             >
                 <mt-icon
@@ -55,6 +56,7 @@
                     :disabled="disableAddButton"
                     size="small"
                     class="sw-property-option-list__add-button"
+                    variant="secondary"
                     @click="onAddOption(propertyGroup)"
                 >
                     {{ $tc('sw-property.detail.addOption') }}

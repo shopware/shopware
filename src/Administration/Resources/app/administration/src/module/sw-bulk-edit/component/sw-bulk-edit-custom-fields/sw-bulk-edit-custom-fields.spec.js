@@ -22,9 +22,6 @@ async function createWrapper(customProps = {}) {
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-
-                'sw-number-field': await wrapTestComponent('sw-number-field'),
-                'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-entity-multi-select': true,
@@ -120,7 +117,7 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields', () => {
         await flushPromises();
 
         const changeToggle = wrapper.find('.sw-bulk-edit-custom-fields__change');
-        await changeToggle.find('.sw-field__checkbox input').setChecked();
+        await changeToggle.find('.mt-field--checkbox__container input').setChecked();
         await flushPromises();
 
         expect(Object.keys(wrapper.vm.selectedCustomFields)).toHaveLength(1);
@@ -132,13 +129,13 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields', () => {
         await flushPromises();
 
         const changeToggle = wrapper.find('.sw-bulk-edit-custom-fields__change');
-        await changeToggle.find('.sw-field__checkbox input').setChecked(true);
+        await changeToggle.find('.mt-field--checkbox__container input').setChecked(true);
         await flushPromises();
 
         expect(wrapper.emitted().change[0]).toBeTruthy();
         expect(Object.keys(wrapper.emitted().change[0])).toHaveLength(1);
 
-        await changeToggle.find('.sw-field__checkbox input').setChecked(false);
+        await changeToggle.find('.mt-field--checkbox__container input').setChecked(false);
         await flushPromises();
 
         expect(Object.keys(wrapper.vm.selectedCustomFields)).toHaveLength(0);
@@ -165,7 +162,7 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields', () => {
         expect(wrapper.vm.selectedCustomFields.field1).toBeUndefined();
 
         const changeToggle = wrapper.find('.sw-bulk-edit-custom-fields__change');
-        await changeToggle.find('.sw-field__checkbox input').setChecked();
+        await changeToggle.find('.mt-field--checkbox__container input').setChecked();
         await flushPromises();
 
         expect(wrapper.vm.entity.customFields.field1).toBe('this is a text field');

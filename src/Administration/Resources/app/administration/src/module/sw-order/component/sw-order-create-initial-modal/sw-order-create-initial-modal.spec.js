@@ -130,23 +130,23 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
             'display: none;',
         );
 
-        expect(wrapper.find('sw-order-create-options-stub').exists()).toBeFalsy();
+        expect(wrapper.find('sw-order-create-options-stub').isVisible()).toBeFalsy();
 
         await wrapper.findComponent(stubs['sw-tabs']).setData({
             active: 'products',
         });
 
-        expect(wrapper.find('sw-order-customer-grid-stub').attributes('style')).toBe('display: none;');
+        expect(wrapper.find('sw-order-customer-grid-stub').isVisible()).toBeFalsy();
 
         expect(wrapper.findComponent('sw-order-line-items-grid-sales-channel-stub').attributes('style')).toBeFalsy();
 
-        expect(wrapper.find('sw-order-create-options-stub').exists()).toBeFalsy();
+        expect(wrapper.find('sw-order-create-options-stub').isVisible()).toBeFalsy();
 
         await wrapper.findComponent(stubs['sw-tabs']).setData({
             active: 'options',
         });
 
-        expect(wrapper.find('sw-order-customer-grid-stub').attributes('style')).toBe('display: none;');
+        expect(wrapper.find('sw-order-customer-grid-stub').isVisible()).toBeFalsy();
 
         expect(wrapper.findComponent('sw-order-line-items-grid-sales-channel-stub').attributes('style')).toBe(
             'display: none;',
@@ -169,8 +169,12 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
         const wrapper = await createWrapper();
         const spyCancelCart = jest.spyOn(wrapper.vm, 'cancelCart');
 
+        expect(Shopware.Store.get('swOrder').customer).not.toBeNull();
+
         const buttonCancel = wrapper.find('.sw-order-create-initial-modal__button-cancel');
         await buttonCancel.trigger('click');
+
+        expect(Shopware.Store.get('swOrder').customer).toBeNull();
 
         expect(spyCancelCart).toHaveBeenCalled();
     });
@@ -249,6 +253,9 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
     });
 
     it('should able to preview order', async () => {
+        Shopware.Store.get('swOrder').setCustomer({
+            id: '1234',
+        });
         Shopware.Store.get('swOrder').setCart({
             token: cartToken,
             lineItems: [],

@@ -7,6 +7,7 @@
             class="sw-extension-file-upload__button"
             :is-loading="isLoading"
             variant="primary"
+            size="default"
             @click="showConfirmModal"
         >
             {{ $tc('sw-extension.my-extensions.fileUpload.buttonFileUpload') }}
@@ -49,15 +50,10 @@
         <template #modal-footer>
             {% block sw_extension_file_upload_confirm_modal_footer %}
             {% block sw_extension_file_upload_confirm_modal_footer_checkbox %}
-            <sw-checkbox-field
-                v-model:value="shouldHideConfirmModal"
-            >
-                {% block sw_extension_file_upload_confirm_modal_footer_checkbox_label %}
-                <template #label>
-                    {{ $tc('sw-extension.my-extensions.fileUpload.textHideWarning') }}
-                </template>
-                {% endblock %}
-            </sw-checkbox-field>
+            <mt-checkbox
+                v-model:checked="shouldHideConfirmModal"
+                :label="$tc('sw-extension.my-extensions.fileUpload.textHideWarning')"
+            />
             {% endblock %}
 
             {% block sw_extension_file_upload_confirm_modal_footer_buttons %}
@@ -66,6 +62,7 @@
                 <mt-button
                     size="small"
                     :disabled="isLoading"
+                    variant="secondary"
                     @click="closeConfirmModal"
                 >
                     {{ $tc('global.default.cancel') }}

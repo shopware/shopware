@@ -95,7 +95,6 @@ async function createWrapper(privileges = [], resetError = false) {
                     'sw-data-grid-settings': true,
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-inline-edit': true,
-                    'mt-checkbox': true,
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,
                     'sw-help-text': true,
@@ -190,7 +189,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
         const firstRowAfterDelete = wrapper.find('.sw-data-grid__row.sw-data-grid__row--0');
         expect(firstRowAfterDelete.text()).not.toEqual(firstRowContext.text());
 
-        const checkBox = firstRowAfterDelete.find('.sw-field__checkbox input');
+        const checkBox = firstRowAfterDelete.find('.mt-field--checkbox__container input');
         await checkBox.setChecked();
         await flushPromises();
         expect(wrapper.find('.sw-data-grid__bulk-selected.sw-data-grid__bulk-selected-count').text()).toBe('1');

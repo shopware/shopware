@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Gateway\CheckoutGatewayException;
 use Shopware\Core\Checkout\Gateway\CheckoutGatewayResponse;
 use Shopware\Core\Checkout\Gateway\Command\AbstractCheckoutGatewayCommand;
 use Shopware\Core\Checkout\Gateway\Command\AddShippingMethodCommand;
-use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -19,6 +19,8 @@ class AddShippingMethodCommandHandler extends AbstractCheckoutGatewayCommandHand
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ShippingMethodCollection> $shippingMethodRepository
      */
     public function __construct(
         private readonly EntityRepository $shippingMethodRepository,
@@ -41,13 +43,11 @@ class AddShippingMethodCommandHandler extends AbstractCheckoutGatewayCommandHand
         $technicalName = $command->shippingMethodTechnicalName;
         $methods = $response->getAvailableShippingMethods();
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('technicalName', $technicalName));
-        $criteria->addAssociation('appShippingMethod.app');
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('technicalName', $technicalName))
+            ->addAssociation('appShippingMethod.app');
 
-        /** @var ShippingMethodEntity|null $shippingMethod */
-        $shippingMethod = $this->shippingMethodRepository->search($criteria, $context->getContext())->first();
-
+        $shippingMethod = $this->shippingMethodRepository->search($criteria, $context->getContext())->getEntities()->first();
         if (!$shippingMethod) {
             $this->logger->logOrThrowException(
                 CheckoutGatewayException::handlerException('Shipping method "{{ technicalName }}" not found', ['technicalName' => $technicalName])

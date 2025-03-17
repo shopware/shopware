@@ -22,20 +22,20 @@ async function createWrapper(props = { type: 'string' }) {
                         'helpText',
                     ],
                 },
-                'sw-number-field': {
+                'mt-number-field': {
                     template: '<input/>',
                     props: [
-                        'value',
+                        'modelValue',
                         'label',
                         'placeholder',
                         'helpText',
                         'numberType',
                     ],
                 },
-                'sw-datepicker': {
+                'mt-datepicker': {
                     template: '<input/>',
                     props: [
-                        'value',
+                        'modelValue',
                         'label',
                         'placeholder',
                         'helpText',
@@ -80,6 +80,7 @@ describe('module/sw-custom-entity/component/sw-custom-entity-input-field', () =>
             const modelValueTypes = [
                 'text',
                 'string',
+                'date',
             ];
             let propType = modelValueTypes.includes(type) ? 'modelValue' : 'value';
 
@@ -87,6 +88,10 @@ describe('module/sw-custom-entity/component/sw-custom-entity-input-field', () =>
                 propType = 'checked';
                 mockData.value = true;
                 mockData.placeholder = undefined;
+            }
+
+            if (type === 'int' || type === 'float') {
+                propType = 'modelValue';
             }
 
             expect(inputField.props(propType)).toBe(mockData.value);

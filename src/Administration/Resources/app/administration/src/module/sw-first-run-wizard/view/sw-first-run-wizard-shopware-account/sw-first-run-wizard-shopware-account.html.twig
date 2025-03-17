@@ -3,7 +3,7 @@
     <sw-container columns="1fr 1fr">
         <img
             class="sw-first-run-wizard-shopware-account__illustration"
-            :src="assetFilter('/administration/static/img/first-run-wizard/shopware-account.svg')"
+            :src="assetFilter('/administration/administration/static/img/first-run-wizard/shopware-account.svg')"
             alt=""
         >
         <div>
@@ -37,8 +37,8 @@
             </div>
 
             <div class="input-fields">
-                <sw-password-field
-                    v-model:value="password"
+                <mt-password-field
+                    v-model="password"
                     :label="$tc('sw-first-run-wizard.shopwareAccount.passwordLabel')"
                     :placeholder="$tc('sw-first-run-wizard.shopwareAccount.passwordPlaceholder')"
                 />

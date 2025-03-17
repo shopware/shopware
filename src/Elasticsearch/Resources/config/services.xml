@@ -287,7 +287,7 @@
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchAdminResetCommand">
-            <argument type="service" id="OpenSearch\Client"/>
+            <argument type="service" id="admin.openSearch.client"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="shopware.increment.gateway.registry"/>
             <argument type="service" id="Shopware\Elasticsearch\Admin\AdminElasticsearchHelper"/>

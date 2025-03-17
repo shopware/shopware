@@ -38,25 +38,11 @@
         >
 
             {% block sw_cms_el_form_config_content_form_type %}
-            <sw-select-field
-                v-model:value="element.config.type.value"
+            <mt-select
+                v-model="element.config.type.value"
                 :label="$tc('sw-cms.elements.form.config.label.type')"
-            >
-                {% block sw_cms_el_form_config_content_form_type_options %}
-                <option
-                    value=""
-                    disabled
-                >
-                    {{ $tc('sw-cms.elements.form.config.label.type') }}
-                </option>
-                <option value="contact">
-                    {{ $tc('sw-cms.elements.form.config.label.typeContact') }}
-                </option>
-                <option value="newsletter">
-                    {{ $tc('sw-cms.elements.form.config.label.typeNewsletter') }}
-                </option>
-                {% endblock %}
-            </sw-select-field>
+                :options="formTypeOptions"
+            />
             {% endblock %}
 
             {% block sw_cms_el_form_config_content_form_title %}

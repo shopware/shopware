@@ -10,6 +10,7 @@
         class="sw-text-preview__expand-button"
         ghost
         size="x-small"
+        variant="secondary"
         @click.prevent="openModal"
     >
         {{ $tc('global.sw-text-preview.showMoreButton') }}
@@ -30,6 +31,7 @@
             {% block sw_text_preview_modal_footer %}
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="closeModal"
             >
                 {{ $tc('global.sw-modal.labelClose') }}

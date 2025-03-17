@@ -6,7 +6,7 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
     beforeEach(() => {
         window.grecaptcha = {
             ready: () => {},
-            execute: () => {}
+            execute: () => {},
         };
 
         const mockElement = document.createElement('form');
@@ -15,7 +15,7 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
         mockElement.appendChild(inputField);
 
         googleReCaptchaBasePlugin = new GoogleReCaptchaBasePlugin(mockElement, {
-            grecaptchaInputSelector: '.grecaptcha-input'
+            grecaptchaInputSelector: '.grecaptcha-input',
         });
     });
 
@@ -37,7 +37,7 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
         mockForm.appendChild(inputField);
 
         googleReCaptchaBasePlugin = new GoogleReCaptchaBasePlugin(mockForm, {
-            grecaptchaInputSelector: '.grecaptcha-input'
+            grecaptchaInputSelector: '.grecaptcha-input',
         });
 
         expect(typeof googleReCaptchaBasePlugin).toBe('object');
@@ -48,26 +48,28 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
 
         googleReCaptchaBasePlugin._formSubmitting = true;
 
-        googleReCaptchaBasePlugin._onFormSubmitCallback();
+        const submitEvent = new Event('submit');
+
+        googleReCaptchaBasePlugin._onFormSubmitCallback(submitEvent);
 
         expect(googleReCaptchaBasePlugin.onFormSubmit).not.toHaveBeenCalled();
         expect(googleReCaptchaBasePlugin._formSubmitting).toEqual(true);
 
         googleReCaptchaBasePlugin._formSubmitting = false;
 
-        googleReCaptchaBasePlugin._onFormSubmitCallback();
+        googleReCaptchaBasePlugin._onFormSubmitCallback(submitEvent);
         expect(googleReCaptchaBasePlugin.onFormSubmit).toHaveBeenCalled();
     });
 
     test('form is not submitted is not validated', () => {
         googleReCaptchaBasePlugin._form.submit = jest.fn();
-        googleReCaptchaBasePlugin._form.checkValidity = () => { return false };
+        googleReCaptchaBasePlugin._form.checkValidity = () => { return false; };
 
         googleReCaptchaBasePlugin._submitInvisibleForm();
 
         expect(googleReCaptchaBasePlugin._form.submit).not.toHaveBeenCalled();
 
-        googleReCaptchaBasePlugin._form.checkValidity = () => { return true };
+        googleReCaptchaBasePlugin._form.checkValidity = () => { return true; };
 
         googleReCaptchaBasePlugin._submitInvisibleForm();
 

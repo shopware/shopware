@@ -13,8 +13,8 @@
     {% endblock %}
 
     {% block sw_condition_date_range_field_from_date %}
-    <sw-datepicker
-        v-model:value="fromDate"
+    <mt-datepicker
+        v-model="fromDate"
         name="sw-field--fromDate"
         size="medium"
         required
@@ -25,8 +25,8 @@
     {% endblock %}
 
     {% block sw_condiiton_date_range_field_to_date %}
-    <sw-datepicker
-        v-model:value="toDate"
+    <mt-datepicker
+        v-model="toDate"
         name="sw-field--toDate"
         size="medium"
         required

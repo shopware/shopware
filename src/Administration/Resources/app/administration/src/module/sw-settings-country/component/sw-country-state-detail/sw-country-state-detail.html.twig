@@ -32,8 +32,8 @@
         {% endblock %}
 
         {% block sw_country_state_detail_modal_position %}
-        <sw-number-field
-            v-model:value="countryState.position"
+        <mt-number-field
+            v-model="countryState.position"
             name="sw-field--countryState-position"
             :disabled="!acl.can('country.editor') || undefined"
             :tooltip-text="$tc('sw-country-state-detail.tooltipPosition')"
@@ -49,6 +49,7 @@
         <mt-button
             size="small"
             @click="onCancel"
+            variant="secondary"
         >
             {{ $tc('global.default.cancel') }}
         </mt-button>

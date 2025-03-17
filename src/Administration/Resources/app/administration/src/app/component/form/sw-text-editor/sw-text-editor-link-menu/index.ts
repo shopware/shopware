@@ -105,6 +105,41 @@ Component.register('sw-text-editor-link-menu', {
         categoryRepository(): RepositoryType<'category'> {
             return this.repositoryFactory.create('category');
         },
+
+        linkCategoryOptions() {
+            return [
+                {
+                    id: 1,
+                    value: 'link',
+                    label: this.$tc('sw-text-editor-toolbar.link.labelUrl'),
+                },
+                {
+                    id: 2,
+                    value: 'detail',
+                    label: this.$tc('sw-text-editor-toolbar.link.labelProduct'),
+                },
+                {
+                    id: 3,
+                    value: 'navigation',
+                    label: this.$tc('sw-text-editor-toolbar.link.labelCategory'),
+                },
+                {
+                    id: 4,
+                    value: 'media',
+                    label: this.$tc('sw-text-editor-toolbar.link.labelMedia'),
+                },
+                {
+                    id: 5,
+                    value: 'email',
+                    label: this.$tc('sw-text-editor-toolbar.link.labelEmail'),
+                },
+                {
+                    id: 6,
+                    value: 'phone',
+                    label: this.$tc('sw-text-editor-toolbar.link.labelPhoneNumber'),
+                },
+            ];
+        },
     },
 
     watch: {

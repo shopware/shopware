@@ -37,23 +37,20 @@
             <template v-if="active === 'content'">
 
                 {% block sw_cms_element_product_listing_config_layout_select %}
-                <sw-select-field
-                    v-model:value="element.config.boxLayout.value"
+                <mt-select
+                    v-model="element.config.boxLayout.value"
                     :label="$tc('sw-cms.elements.productBox.config.label.layoutType')"
-                >
-                    {% block sw_cms_element_product_listing_config_layout_select_options %}
-                    <option value="standard">
-                        {{ $tc('sw-cms.elements.productBox.config.label.layoutTypeStandard') }}
-                    </option>
-                    <option value="image">
-                        {{ $tc('sw-cms.elements.productBox.config.label.layoutTypeImage') }}
-                    </option>
-                    <option value="minimal">
-                        {{ $tc('sw-cms.elements.productBox.config.label.layoutTypeMinimal') }}
-                    </option>
-                    {% endblock %}
-                </sw-select-field>
+                    :options="boxLayoutOptions"
+                />
                 {% endblock %}
+
+                <mt-select
+                    v-model="element.config.boxHeadlineLevel.value"
+                    :label="$tc('sw-cms.elements.productBox.config.label.headlineLevel')"
+                    :help-text="$tc('sw-cms.elements.productBox.config.label.headlineLevelHelp')"
+                    :options="boxHeadlineLevel"
+                    :hide-clearable-button="true"
+                />
 
                 {% block sw_cms_element_product_listing_config_info %}
                 <mt-banner variant="info">
@@ -288,7 +285,7 @@
                     >
                         <template #icon>
                             <img
-                                :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
+                                :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
                                 alt="$tc('sw-cms.elements.productListing.config.filter.gridEmptyStateLabel')"
                             >
                         </template>

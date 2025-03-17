@@ -14,6 +14,7 @@
             class="sw-settings-payment-overview__button-create"
             :disabled="!acl.can('payment.creator') || undefined"
             variant="primary"
+            size="default"
             @click="$router.push({ name: 'sw.settings.payment.create' })"
         >
             {{ $tc('sw-settings-payment.list.buttonAddPaymentMethod') }}
@@ -56,7 +57,8 @@
                     :disabled="isLoading || undefined"
                     :is-loading="isLoading"
                     :process-success="false"
-                    variant="ghost"
+                    variant="primary"
+                    ghost
                     @click="showSortingModal = true"
                 >
                     {{ $tc('sw-settings-payment.overview.openSortingModalButton') }}

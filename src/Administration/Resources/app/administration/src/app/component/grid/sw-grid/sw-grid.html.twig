@@ -25,9 +25,9 @@
                         class="sw-grid-column"
                     >
                         <div class="sw-grid__cell-content">
-                            <sw-checkbox-field
-                                v-model:value="allSelectedChecked"
-                                @update:value="selectAll"
+                            <mt-checkbox
+                                v-model:checked="allSelectedChecked"
+                                @update:checked="selectAll"
                             />
                         </div>
                     </div>
@@ -104,6 +104,7 @@
                     >
                         {% block sw_grid_body_slot_items %}
                         <sw-grid-row
+                            ref="rowRefs"
                             :style="columnFlex"
                             :item="item"
                             :index="index"
@@ -119,10 +120,9 @@
                                 class="sw-grid-column"
                             >
                                 <div class="sw-grid__cell-content">
-                                    <sw-checkbox-field
-                                        :id="item.id"
-                                        :value="isSelected(item.id)"
-                                        @update:value="selectItem($event, item)"
+                                    <mt-checkbox
+                                        :checked="isSelected(item.id)"
+                                        @update:checked="selectItem($event, item)"
                                     />
                                 </div>
                             </div>

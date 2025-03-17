@@ -339,7 +339,7 @@ async function createWrapper() {
                     'sw-button-group': true,
                     'sw-text-field': true,
                     'sw-label': true,
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-bulk-edit-modal': true,
                     'sw-product-clone-modal': true,
                     'sw-product-variant-modal': true,

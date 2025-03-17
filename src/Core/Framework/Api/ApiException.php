@@ -62,6 +62,8 @@ class ApiException extends HttpException
 
     public const API_NOTIFICATION_THROTTLED = 'FRAMEWORK__NOTIFICATION_THROTTLED';
 
+    public const API_DIRECTORY_NOT_CREATED = 'FRAMEWORK__API_DIRECTORY_NOT_CREATED';
+
     /**
      * @param array<array{pointer: string, entity: string}> $exceptions
      */
@@ -408,6 +410,16 @@ class ApiException extends HttpException
             'Notification throttled for {{ seconds }} seconds.',
             ['seconds' => $waitTime],
             $e
+        );
+    }
+
+    public static function directoryWasNotCreated(string $directory): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::API_DIRECTORY_NOT_CREATED,
+            'Directory "{{ directory }}" was not created.',
+            ['directory' => $directory]
         );
     }
 }

@@ -24,6 +24,8 @@
                 appearance: 'light'
             }"
             :disabled="isLoading"
+            variant="secondary"
+            size="default"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
@@ -281,6 +283,7 @@
                         {% block sw_mail_template_detail_preview_modal_footer_cancel %}
                         <mt-button
                             size="small"
+                            variant="secondary"
                             @click="onCancelShowPreview"
                         >
                             {{ $tc('global.default.close') }}
@@ -341,6 +344,7 @@
                     <mt-button
                         :disabled="isSendButtonDisabled"
                         class="sw-mail-template-detail__send-test-mail"
+                        variant="secondary"
                         @click="onClickTestMailTemplate"
                     >
                         {{ $tc('sw-mail-template.detail.sidebar.buttonTestMail') }}

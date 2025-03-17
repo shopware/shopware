@@ -130,7 +130,7 @@ export default {
 
         cmsPageId() {
             if (this.landingPage) {
-                return this.landingPage.cmsPageId;
+                return this.landingPage.cmsPageId ?? null;
             }
 
             return this.category ? this.category.cmsPageId : null;

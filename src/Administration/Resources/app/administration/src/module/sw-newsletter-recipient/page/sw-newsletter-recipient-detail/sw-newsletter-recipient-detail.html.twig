@@ -15,6 +15,7 @@
             class="sw-newsletter-recipient-detail__open-edit-mode-action"
             variant="primary"
             :disabled="isLoading || !acl.can('newsletter_recipient.editor')"
+            size="default"
             @click="onClickSave"
         >
             {{ $tc('sw-newsletter-recipient.general.buttonSave') }}

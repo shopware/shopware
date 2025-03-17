@@ -122,6 +122,26 @@ export default {
         showMaxValueAdvancedPrices() {
             return this.discount.type === 'percentage' && this.discount.maxValue !== null;
         },
+
+        discountTypeOptions() {
+            return this.getApplyDiscountToSelection().map((discountType) => {
+                return {
+                    id: discountType.value,
+                    value: discountType.value,
+                    label: discountType.display,
+                };
+            });
+        },
+
+        applierOptions() {
+            return this.getApplyDiscountToSelection().map((discountType) => {
+                return {
+                    id: discountType.value,
+                    value: discountType.value,
+                    label: discountType.display,
+                };
+            });
+        },
     },
 
     watch: {

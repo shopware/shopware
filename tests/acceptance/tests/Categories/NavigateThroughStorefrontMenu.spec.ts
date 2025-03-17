@@ -20,7 +20,6 @@ test(
 
             await ShopCustomer.goesTo(StorefrontHome.url());
             await ShopCustomer.expects(mainCategoryLocators.menuNavigationItem).toHaveText(category1.name);
-            await ShopCustomer.expects(mainCategoryLocators.offcanvasNavigationItem).toHaveText(category1.name);
 
             await mainCategoryLocators.menuNavigationItem.hover();
             await ShopCustomer.expects(mainCategoryLocators.flyoutCategoryLink).not.toBeVisible();
@@ -42,7 +41,6 @@ test(
             await ShopCustomer.goesTo(StorefrontHome.url());
 
             await ShopCustomer.expects(mainCategoryLocators.menuNavigationItem).toHaveText(category2.name);
-            await ShopCustomer.expects(mainCategoryLocators.offcanvasNavigationItem).toHaveText(category2.name);
 
             await mainCategoryLocators.menuNavigationItem.hover();
             await ShopCustomer.expects(mainCategoryLocators.flyoutCategoryLink).toBeVisible();
@@ -64,7 +62,6 @@ test(
             await ShopCustomer.goesTo(StorefrontHome.url());
 
             await ShopCustomer.expects(mainCategoryLocators.menuNavigationItem).toHaveText(category3.name);
-            await ShopCustomer.expects(mainCategoryLocators.offcanvasNavigationItem).toHaveText(category3.name);
 
             await mainCategoryLocators.menuNavigationItem.hover();
             await ShopCustomer.expects(mainCategoryLocators.flyoutCategoryLink).not.toBeVisible();

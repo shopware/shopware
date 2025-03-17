@@ -163,6 +163,7 @@ class EntityDispatcherTest extends TestCase
             static::assertSame(Request::METHOD_POST, $method);
             static::assertStringEndsWith('/v1/entities', $url);
 
+            static::assertIsArray($payload);
             static::assertArrayHasKey('operation', $payload);
             static::assertSame(Operation::CREATE->value, $payload['operation']);
 

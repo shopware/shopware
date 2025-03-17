@@ -305,7 +305,12 @@
             "layoutType": "Layout-Typ",
             "layoutTypeStandard": "Standard",
             "layoutTypeImage": "Großes Bild",
-            "layoutTypeMinimal": "Minimaler Inhalt"
+            "layoutTypeMinimal": "Minimaler Inhalt",
+            "headlineLevel": "Überschrift-Ebene für Produkt-Boxen",
+            "headlineLevelHelp": "Wähle eine Überschrift-Ebene für die Produkt-Box Titel in diesem Produkt-Listing. Wenn \"Keine Überschrift\" ausgewählt wird, wird keine Überschrift-Ebene angewendet.",
+            "headlineLevelOption": "Überschrift {level}",
+            "headlineLevelDefaultOption": "Überschrift 2 (empfohlener Standard)",
+            "headlineLevelEmptyOption": "Keine Überschrift (nicht empfohlen)"
           },
           "placeholder": {
             "selection": "Wähle ein Produkt ..."

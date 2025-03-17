@@ -38,6 +38,7 @@
                 class="sw-app-app-url-changed-modal__content-migration-strategy"
                 :class="getActiveStyle(strategy)"
                 block
+                variant="secondary"
                 @click="setSelectedStrategy(strategy)"
             >
 
@@ -74,7 +75,10 @@
     </template>
 
     <template #modal-footer>
-        <mt-button @click="closeModal">
+        <mt-button
+            variant="secondary"
+            @click="closeModal"
+        >
             {{ $tc('global.default.cancel') }}
         </mt-button>
 

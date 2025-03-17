@@ -10,6 +10,7 @@ $sw-price-field-suffix-font-weight: $font-weight-regular;
         display: grid;
         grid-template-columns: 1fr 30px 1fr;
         min-width: 120px;
+        align-items: end;
     }
 
     .sw-price-field__lock {
@@ -42,7 +43,7 @@ $sw-price-field-suffix-font-weight: $font-weight-regular;
     }
 
     &.sw-price-field--label .sw-price-field__lock {
-        margin-top: 24px;
+        margin-bottom: var(--scale-size-32);
     }
 
     &.sw-price-field--compact .sw-price-field__lock {

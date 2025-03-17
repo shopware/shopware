@@ -46,8 +46,10 @@ import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
 import flushPromises from '../_helper_/flushPromises';
 import wrapTestComponent from '../_helper_/componentWrapper';
 import 'blob-polyfill';
-import { sendTimeoutExpired } from '../_helper_/allowedErrors';
+import { sendTimeoutExpired, deprecatedTabComponent, deprecatedPopoverComponent } from '../_helper_/allowedErrors';
 import findByText from '../_helper_/find-by-text';
+import findByLabel from '../_helper_/find-by-label';
+import findByPlaceholder from '../_helper_/find-by-placeholder';
 
 // initialize the Stores
 import '../../src/module/sw-cms/store/cms-page.store';
@@ -102,6 +104,10 @@ config.plugins.VueWrapper.install((wrapper) => {
     wrapper.findByText = (selector, text) => findByText(wrapper, selector, text);
     // add `findByAriaLabel` to the global config
     wrapper.findByAriaLabel = (selector, text) => findByAriaLabel(wrapper, selector, text);
+    // add `findByLabel` to the global config
+    wrapper.findByLabel = (text) => findByLabel(wrapper, text);
+    // add `findByPlaceholder` to the global config
+    wrapper.findByPlaceholder = (text) => findByPlaceholder(wrapper, text);
 });
 
 // enable autoUnmount for wrapper after each test
@@ -210,6 +216,9 @@ config.global.stubs = {
             </slot>
         </div>
     `,
+    },
+    'mt-popover-deprecated': {
+        template: `<div class="mt-popover-deprecated"><slot/></div>`
     },
     'mt-banner': MtBanner,
     'mt-button': MtButton,
@@ -398,6 +407,8 @@ global.allowedErrors = [
     },
 
     sendTimeoutExpired,
+    deprecatedTabComponent,
+    deprecatedPopoverComponent,
 ];
 
 global.flushPromises = flushPromises;

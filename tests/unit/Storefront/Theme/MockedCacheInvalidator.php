@@ -16,12 +16,23 @@ class MockedCacheInvalidator extends CacheInvalidator
      */
     private array $invalidatedTags = [];
 
+    /**
+     * @var array<string>
+     */
+    private array $forceInvalidatedTags = [];
+
     public function __construct()
     {
     }
 
     public function invalidate(array $tags, bool $force = false): void
     {
+        if ($force) {
+            $this->forceInvalidatedTags = array_merge($this->forceInvalidatedTags, $tags);
+
+            return;
+        }
+
         $this->invalidatedTags = array_merge($this->invalidatedTags, $tags);
     }
 
@@ -31,5 +42,13 @@ class MockedCacheInvalidator extends CacheInvalidator
     public function getInvalidatedTags(): array
     {
         return $this->invalidatedTags;
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getForceInvalidatedTags(): array
+    {
+        return $this->forceInvalidatedTags;
     }
 }

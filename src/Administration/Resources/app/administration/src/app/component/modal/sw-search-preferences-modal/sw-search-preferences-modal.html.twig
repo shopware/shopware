@@ -24,9 +24,9 @@
     >
         <template #column-active="{ item }">
             {% block sw_search_preferences_modal_grid_column_active %}
-            <sw-checkbox-field
-                v-model:value="item._searchable"
-                @update:value="onChangeSearchPreference(item)"
+            <mt-checkbox
+                v-model:checked="item._searchable"
+                @update:checked="onChangeSearchPreference(item)"
             />
             {% endblock %}
         </template>
@@ -44,6 +44,7 @@
         <mt-button
             size="small"
             class="sw-search-preferences-modal__button-cancel"
+            variant="secondary"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}

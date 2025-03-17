@@ -117,6 +117,7 @@
                         {% block sw_flow_list_grid_action_modal_buttons %}
                         <mt-button
                             size="small"
+                            variant="secondary"
                             @click="onCloseDeleteModal"
                         >
                             {{ $tc('global.default.cancel') }}
@@ -147,6 +148,7 @@
         <sw-empty-state
             v-if="!total && !isLoading"
             class="sw-flow-list__empty-state"
+            :absolute="false"
             :title="$tc('sw-flow.list.emptyStateTitle')"
             :subline="$tc('sw-flow.list.emptyStateSubTitle')"
         >
@@ -154,7 +156,7 @@
             <template #icon>
                 <img
                     :alt="$tc('sw-flow.list.emptyStateTitle')"
-                    :src="assetFilter('/administration/static/img/empty-states/settings-empty-state.svg')"
+                    :src="assetFilter('/administration/administration/static/img/empty-states/settings-empty-state.svg')"
                 >
             </template>
             {% endblock %}

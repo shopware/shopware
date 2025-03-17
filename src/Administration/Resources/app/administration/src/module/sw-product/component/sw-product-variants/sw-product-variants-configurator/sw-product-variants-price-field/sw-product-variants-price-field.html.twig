@@ -5,14 +5,14 @@
 >
     {% block sw_product_variants_price_field_gross %}
     <div class="sw-field">
-        <sw-number-field
-            v-model:value="price.gross"
+        <mt-number-field
+            v-model="price.gross"
             size="small"
             class="sw-product-variants-price-field__input"
             :disabled="readonly"
             :digits="currency.decimalPrecision"
             v-bind="$attrs"
-            @update:value="onPriceGrossChange"
+            @update:model-value="onPriceGrossChange"
         />
     </div>
     {% endblock %}
@@ -38,14 +38,14 @@
 
     {% block sw_product_variants_price_field_net %}
     <div class="sw-field">
-        <sw-number-field
-            v-model:value="price.net"
+        <mt-number-field
+            v-model="price.net"
             size="small"
             class="sw-field sw-product-variants-price-field__input"
             :disabled="readonly"
             :digits="currency.decimalPrecision"
             v-bind="$attrs"
-            @update:value="onPriceNetChange"
+            @update:model-value="onPriceNetChange"
         />
     </div>
     {% endblock %}

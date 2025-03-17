@@ -18,6 +18,8 @@
             v-tooltip.bottom="tooltipCancel"
             class="sw-property-detail__back-action"
             :disabled="isLoading || undefined"
+            variant="secondary"
+            size="default"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}

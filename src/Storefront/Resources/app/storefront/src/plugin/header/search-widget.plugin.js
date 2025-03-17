@@ -72,6 +72,10 @@ export default class SearchWidgetPlugin extends Plugin {
         // add click event listener to close button
         this._closeButton.addEventListener('click', this._onCloseButtonClick.bind(this));
 
+        // add focus event listener to close button
+        this._closeButton.addEventListener('focus', () => {
+            document.querySelector(this.options.searchWidgetResultSelector).classList.add('d-none');
+        });
     }
 
     _handleSearchEvent(event) {
@@ -174,8 +178,7 @@ export default class SearchWidgetPlugin extends Plugin {
      * @private
      */
     _onCloseButtonClick() {
-        this._clearSuggestResults();
-
+        this._inputField.value = '';
         this._inputField.focus();
     }
 

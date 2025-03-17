@@ -17,6 +17,8 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterEntity;
+use Shopware\Core\Content\MeasurementSystem\Entity\MeasurementDisplayUnitEntity;
+use Shopware\Core\Content\MeasurementSystem\Entity\MeasurementSystemEntity;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
@@ -205,6 +207,18 @@ class SalesChannelEntity extends Entity
     protected ?CustomerWishlistCollection $wishlists = null;
 
     protected ?LandingPageCollection $landingPages = null;
+
+    protected ?string $defaultMeasurementSystemId = null;
+
+    protected ?MeasurementSystemEntity $defaultMeasurementSystem = null;
+
+    protected ?string $defaultWeightUnitId = null;
+
+    protected ?MeasurementDisplayUnitEntity $defaultWeightUnit = null;
+
+    protected ?string $defaultLengthUnitId = null;
+
+    protected ?MeasurementDisplayUnitEntity $defaultLengthUnit = null;
 
     public function getMailHeaderFooter(): ?MailHeaderFooterEntity
     {
@@ -958,5 +972,45 @@ class SalesChannelEntity extends Entity
     public function setServiceCategoryVersionId(?string $serviceCategoryVersionId): void
     {
         $this->serviceCategoryVersionId = $serviceCategoryVersionId;
+    }
+
+    public function getDefaultWeightUnitId(): ?string
+    {
+        return $this->defaultWeightUnitId;
+    }
+
+    public function setDefaultWeightUnitId(?string $defaultWeightUnitId): void
+    {
+        $this->defaultWeightUnitId = $defaultWeightUnitId;
+    }
+
+    public function getDefaultWeightUnit(): ?MeasurementDisplayUnitEntity
+    {
+        return $this->defaultWeightUnit;
+    }
+
+    public function setDefaultWeightUnit(?MeasurementDisplayUnitEntity $defaultWeightUnit): void
+    {
+        $this->defaultWeightUnit = $defaultWeightUnit;
+    }
+
+    public function getDefaultLengthUnitId(): ?string
+    {
+        return $this->defaultLengthUnitId;
+    }
+
+    public function setDefaultLengthUnitId(?string $defaultLengthUnitId): void
+    {
+        $this->defaultLengthUnitId = $defaultLengthUnitId;
+    }
+
+    public function getDefaultLengthUnit(): ?MeasurementDisplayUnitEntity
+    {
+        return $this->defaultLengthUnit;
+    }
+
+    public function setDefaultLengthUnit(?MeasurementDisplayUnitEntity $defaultLengthUnit): void
+    {
+        $this->defaultLengthUnit = $defaultLengthUnit;
     }
 }

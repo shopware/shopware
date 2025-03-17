@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\ScaleUnit\Entity;
+namespace Shopware\Core\Content\MeasurementSystem\Entity;
 
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -13,26 +13,28 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToOne;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity as EntityStruct;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 
 /**
  * @internal
  */
 #[Package('inventory')]
-#[Entity('measuring_display_unit')]
-class MeasuringDisplayUnitEntity extends EntityStruct
+#[Entity('measurement_display_unit')]
+class MeasurementDisplayUnitEntity extends EntityStruct
 {
     #[PrimaryKey]
     #[Field(type: FieldType::UUID, api: true)]
     public string $id;
 
     #[Required]
-    #[ForeignKey(entity: 'measuring_system', api: true)]
-    public string $measuringSystemId;
+    #[ForeignKey(entity: 'measurement_system', api: true)]
+    public string $measurementSystemId;
 
-    #[ManyToOne(entity: 'measuring_system', onDelete: OnDelete::CASCADE, api: true)]
-    public ?MeasuringSystemEntity $measuringSystem = null;
+    #[ManyToOne(entity: 'measurement_system', onDelete: OnDelete::CASCADE, api: true)]
+    public ?MeasurementSystemEntity $measurementSystem = null;
 
     #[Field(type: FieldType::BOOL, api: true)]
     public bool $default;
@@ -46,11 +48,8 @@ class MeasuringDisplayUnitEntity extends EntityStruct
     #[Field(type: FieldType::FLOAT, api: true)]
     public float $factor;
 
-    #[Field(type: FieldType::STRING, translated: true)]
+    #[Field(type: FieldType::STRING, translated: true, api: true)]
     public ?string $name = null;
-
-    #[Field(type: FieldType::STRING, translated: true)]
-    public ?string $pluralName = null;
 
     /**
      * @var array<string, ProductEntity>|null
@@ -63,4 +62,10 @@ class MeasuringDisplayUnitEntity extends EntityStruct
      */
     #[ManyToMany(entity: ProductDefinition::ENTITY_NAME, onDelete: OnDelete::CASCADE, api: true)]
     public ?array $lengthProducts = null;
+
+    /**
+     * @var array<string, ArrayEntity>|null
+     */
+    #[Translations]
+    public ?array $translations = null;
 }

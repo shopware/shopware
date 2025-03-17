@@ -50,16 +50,43 @@
                 {% set isListPrice = price.listPrice.percentage > 0 %}
                 {% set isRegulationPrice = price.regulationPrice != null %}
 
+                {#
+                    Cheapest price display for variants. Used when the product is a single variant that is directly buy-able from the listing.
+                    Example: "Variants from $120.00"
+                #}
                 <div class="product-cheapest-price{% if isListPrice and isRegulationPrice and not displayFrom and not displayFromVariants %} with-list-price{% endif %}{% if isRegulationPrice and not displayFrom and displayFromVariants %} with-regulation-price{% endif %}{% if displayFrom and isRegulationPrice %} with-from-price{% endif %}">
                     {% if cheapest.unitPrice != real.unitPrice and cheapest.variantId != product.id %}
-                        <div>{{ 'listing.cheapestPriceLabel'|trans|sw_sanitize }}<span class="product-cheapest-price-price"> {{ cheapest.unitPrice|currency }}</span></div>
+                        {{ 'listing.cheapestPriceLabel'|trans|sw_sanitize }}<span class="product-cheapest-price-price"> {{ cheapest.unitPrice|currency }}</span>
                     {% endif %}
                 </div>
 
+                {#
+                    Price label for screen readers.
+                    Example with regular price: "Regular price:"
+                    Example with list price: "Sale price:"
+                #}
+                <span class="visually-hidden product-price-label">
+                    {% if isListPrice and not displayFrom and not displayFromVariants %}
+                        {{ 'listing.listPriceLabel'|trans|sw_sanitize }}
+                    {% else %}
+                        {{ 'listing.regularPriceLabel'|trans|sw_sanitize }}
+                    {% endif %}
+                </span>
+
+                {#
+                    "From" price display. Used for advanced pricing tables or variants when the storefront presentation is set to "main variant".
+                    The product is not directly buy-able from the listing.
+                    Example: "From $120.00"
+                #}
                 {% if displayFrom or (displayParent and hasDifferentPrice and totalVariants|length > 1) %}
                     {{ 'listing.listingTextFrom'|trans|sw_sanitize }}
                 {% endif %}
 
+                {#
+                    Main price display. Always used, can also include list prices.
+                    Example: $150.00"
+                    Example with list price: €400.00 <s>€500.00</s> (20% saved)"
+                #}
                 <span class="product-price{% if isListPrice and not displayFrom and not displayFromVariants %} with-list-price{% endif %}">
                     {{ price.unitPrice|currency }}
 
@@ -71,6 +98,8 @@
                         <span class="list-price{% if hideStrikeTrough %} list-price-no-line-through{% endif %}">
                             {% if beforeListPriceSnippetExists %}{{ 'listing.beforeListPrice'|trans|trim|sw_sanitize }}{% endif %}
 
+                            <span class="visually-hidden list-price-label">{{ 'listing.regularPriceLabel'|trans|sw_sanitize }}</span>
+
                             <span class="list-price-price">{{ price.listPrice.price|currency }}</span>
 
                             {% if afterListPriceSnippetExists %}{{ 'listing.afterListPrice'|trans|trim|sw_sanitize }}{% endif %}
@@ -79,9 +108,14 @@
                         </span>
                     {% endif %}
                 </span>
+
+                {#
+                    Display for previous price
+                    Example: "previously €300.00"
+                #}
                 {% if isRegulationPrice %}
                     <span class="product-price with-regulation-price">
-                        {% if isListPrice %}<br>{% endif %}<span class="regulation-price">{{ 'general.listPricePreviously'|trans({'%price%': price.regulationPrice.price|currency }) }}</span>
+                        {% if isListPrice %}<br aria-hidden="true">{% endif %}<span class="regulation-price">{{ 'general.listPricePreviously'|trans({'%price%': price.regulationPrice.price|currency }) }}</span>
                     </span>
                 {% endif %}
             </div>

@@ -44,6 +44,14 @@
                 />
                 {% endblock %}
 
+                <mt-select
+                    v-model="element.config.boxHeadlineLevel.value"
+                    :label="$tc('sw-cms.elements.productBox.config.label.headlineLevel')"
+                    :help-text="$tc('sw-cms.elements.productBox.config.label.headlineLevelHelp')"
+                    :options="boxHeadlineLevel"
+                    :hide-clearable-button="true"
+                />
+
                 {% block sw_cms_element_product_listing_config_info %}
                 <mt-banner variant="info">
                     {{ $tc('sw-cms.elements.general.config.infoText.listingElement') }}

@@ -64,13 +64,13 @@ class CartFacadeTest extends TestCase
         static::assertCount(3, $items);
 
         $price = $facade->price();
-        static::assertEquals(100, $price->getTotal());
+        static::assertSame(100.0, $price->getTotal());
 
         $errors = $facade->errors()->getIterator();
-        static::assertCount(1, iterator_to_array($errors));
+        static::assertCount(1, iterator_to_array($errors, false));
 
         static::assertSame('my-container', $facade->container('my-container')->getId());
-        static::assertEquals(3, $facade->count());
+        static::assertCount(3, $facade);
         static::assertTrue($cart->has('item'));
         static::assertInstanceOf(LineItem::class, $cart->get('item'));
 

@@ -19,7 +19,7 @@ class DiscountFacadeTest extends TestCase
         $item->setLabel('foo');
         $facade = new DiscountFacade($item);
 
-        static::assertEquals('foo', $facade->getId());
-        static::assertEquals('foo', $facade->getLabel());
+        static::assertSame('foo', $facade->getId());
+        static::assertSame('foo', $facade->getLabel());
     }
 }

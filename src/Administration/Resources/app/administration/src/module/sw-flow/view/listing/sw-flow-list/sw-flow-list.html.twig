@@ -148,6 +148,7 @@
         <sw-empty-state
             v-if="!total && !isLoading"
             class="sw-flow-list__empty-state"
+            :absolute="false"
             :title="$tc('sw-flow.list.emptyStateTitle')"
             :subline="$tc('sw-flow.list.emptyStateSubTitle')"
         >

@@ -36,11 +36,11 @@ class CartPriceFacadeTest extends TestCase
 
         $facade = new CartPriceFacade($original, $stubs);
 
-        static::assertEquals(100, $facade->getNet());
-        static::assertEquals(200, $facade->getTotal());
-        static::assertEquals(200, $facade->getRounded());
-        static::assertEquals(300, $facade->getPosition());
-        static::assertEquals(99.99, $facade->getRaw());
+        static::assertSame(100.0, $facade->getNet());
+        static::assertSame(200.0, $facade->getTotal());
+        static::assertSame(200.0, $facade->getRounded());
+        static::assertSame(300.0, $facade->getPosition());
+        static::assertSame(99.99, $facade->getRaw());
 
         static::assertSame($price, $facade->create([]));
     }

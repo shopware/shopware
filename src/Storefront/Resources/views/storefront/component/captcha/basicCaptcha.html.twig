@@ -30,14 +30,13 @@
             {% endblock %}
 
             {% block component_basic_captcha_fields %}
-
                 {% block component_basic_captcha_input %}
                     <div id="{{ formId }}-basic-captcha-field">
                         {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
                             label: 'captcha.basicCaptchaLabel'|trans|sw_sanitize|replace({'*': ''}),
                             id: formId ~ '-basic-captcha-input',
                             name: constant('Shopware\\Storefront\\Framework\\Captcha\\BasicCaptcha::CAPTCHA_REQUEST_PARAMETER'),
-                            violationPath: '/' ~ constant("Shopware\\Storefront\\Framework\\Captcha\\BasicCaptcha::CAPTCHA_REQUEST_PARAMETER"),
+                            violationPath: '/' ~ constant('Shopware\\Storefront\\Framework\\Captcha\\BasicCaptcha::CAPTCHA_REQUEST_PARAMETER'),
                             validationRules: 'required,basicCaptcha',
                         } %}
                     </div>

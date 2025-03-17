@@ -82,7 +82,7 @@
         margin-right: 8px;
     }
 
-    .sw-tooltip--wrapper {
+    &__cross-selling-list + .sw-tooltip--wrapper {
         width: fit-content;
     }
 }

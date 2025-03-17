@@ -99,6 +99,31 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(shippingRuleFilterCriteria.hasAssociation('conditions')).toBeFalsy();
     });
 
+    it('should have price and deprecated shipping filter option', async () => {
+        global.activeFeatureFlags = [];
+
+        const wrapper = await createWrapper();
+        const shippingRuleFilterCriteria = wrapper.vm.shippingRuleFilterCriteria;
+
+        expect(shippingRuleFilterCriteria.filters[0].queries).toHaveLength(3);
+        expect(shippingRuleFilterCriteria.filters[0].queries[0].value).toBe('shipping');
+        expect(shippingRuleFilterCriteria.filters[0].queries[1].value).toBe('price');
+        expect(shippingRuleFilterCriteria.filters[0].queries[2].value).toBeNull();
+    });
+
+    it('should have price filter option', async () => {
+        global.activeFeatureFlags = ['v6.8.0.0'];
+
+        const wrapper = await createWrapper();
+
+        // shippingRuleFilterCriteria is deprecated and will be removed. Use ruleFilterCriteria instead
+        const shippingRuleFilterCriteria = wrapper.vm.shippingRuleFilterCriteria;
+
+        expect(shippingRuleFilterCriteria.filters[0].queries).toHaveLength(2);
+        expect(shippingRuleFilterCriteria.filters[0].queries[0].value).toBe('price');
+        expect(shippingRuleFilterCriteria.filters[0].queries[1].value).toBeNull();
+    });
+
     it('should show all prices', async () => {
         const wrapper = await createWrapper();
 

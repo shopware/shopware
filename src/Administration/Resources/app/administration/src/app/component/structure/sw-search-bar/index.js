@@ -706,6 +706,12 @@ Component.register('sw-search-bar', {
                 index: this.activeResultIndex,
                 column: this.activeResultColumn,
             });
+            this.activeItemIndexSelectHandler.forEach((callback) =>
+                callback({
+                    index: this.activeResultIndex,
+                    column: this.activeResultColumn,
+                }),
+            );
         },
 
         navigateUpResults() {
@@ -789,6 +795,8 @@ Component.register('sw-search-bar', {
 
         onKeyUpEnter() {
             this.$emit('keyup-enter', this.activeResultIndex, this.activeResultColumn);
+
+            this.keyupEnterHandler.forEach((callback) => callback(this.activeResultIndex, this.activeResultColumn));
 
             if (this.showTypeSelectContainer) {
                 if (this.typeSelectResults.length > 0) {

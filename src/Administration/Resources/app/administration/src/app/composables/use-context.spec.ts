@@ -28,6 +28,7 @@ describe('use-context', () => {
                 firstRunWizard: null,
                 systemCurrencyId: null,
                 systemCurrencyISOCode: null,
+                windowId: null,
             }),
         );
 

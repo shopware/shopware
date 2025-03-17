@@ -110,6 +110,7 @@
             </div>
         {% endblock %}
     </div>
+
     {% block address_manager_modal_footer %}
         <div class="modal-footer">
             {% block address_manager_modal_footer_close_button %}
@@ -117,6 +118,7 @@
                     {{ 'account.addressModalFooterClose'|trans|sw_sanitize }}
                 </button>
             {% endblock %}
+
             {% block address_manager_modal_footer_form %}
                 <form
                     action="{{ path('frontend.account.addressmanager.switch')}}"

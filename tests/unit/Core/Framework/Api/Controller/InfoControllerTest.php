@@ -3,10 +3,10 @@
 namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
-use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
@@ -18,11 +18,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
-use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
+use Shopware\Core\Test\Stub\Symfony\StubKernel;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -37,11 +38,7 @@ class InfoControllerTest extends TestCase
 
     private ParameterBagInterface&MockObject $parameterBagMock;
 
-    private Kernel&MockObject $kernelMock;
-
     private RouterInterface&MockObject $routerMock;
-
-    private FilesystemOperator&MockObject $fileSystemOperator;
 
     private InAppPurchase $inAppPurchase;
 
@@ -62,11 +59,6 @@ class InfoControllerTest extends TestCase
                 ['shopware.media.enable_url_upload_feature', true],
             ]);
 
-        $this->kernelMock->method('getBundles')
-            ->willReturn([
-                new AdminExtensionApiPluginWithLocalEntryPoint(true, __DIR__ . '/Fixtures/AdminExtensionApiPluginWithLocalEntryPoint'),
-            ]);
-
         $this->routerMock->method('generate')
             ->with(
                 'administration.plugin.index',
@@ -75,9 +67,6 @@ class InfoControllerTest extends TestCase
                 ]
             )
             ->willReturn('/admin/adminextensionapipluginwithlocalentrypoint/index.html');
-
-        $this->fileSystemOperator->method('fileExists')
-            ->willReturn(true);
 
         $response = $this->infoController->config(Context::createDefaultContext(), Request::create('http://localhost'));
         $content = $response->getContent();
@@ -145,16 +134,18 @@ class InfoControllerTest extends TestCase
 
     private function createInstance(): void
     {
+        $kernel = new StubKernel([
+            new AdminExtensionApiPluginWithLocalEntryPoint(true, __DIR__ . '/Fixtures/AdminExtensionApiPluginWithLocalEntryPoint'),
+        ]);
+
         $this->parameterBagMock = $this->createMock(ParameterBagInterface::class);
-        $this->kernelMock = $this->createMock(Kernel::class);
         $this->routerMock = $this->createMock(RouterInterface::class);
-        $this->fileSystemOperator = $this->createMock(FilesystemOperator::class);
         $this->inAppPurchase = StaticInAppPurchaseFactory::createWithFeatures(['SwagApp' => ['SwagApp_premium']]);
 
         $this->infoController = new InfoController(
             $this->createMock(DefinitionService::class),
             $this->parameterBagMock,
-            $this->kernelMock,
+            $kernel,
             $this->createMock(BusinessEventCollector::class),
             $this->createMock(IncrementGatewayRegistry::class),
             $this->createMock(Connection::class),
@@ -164,7 +155,13 @@ class InfoControllerTest extends TestCase
             new StaticSystemConfigService(),
             $this->createMock(ApiRouteInfoResolver::class),
             $this->inAppPurchase,
-            $this->fileSystemOperator,
+            new ViteFileAccessorDecorator(
+                [],
+                $this->createMock(UrlPackage::class),
+                $kernel,
+                new Filesystem(),
+            ),
+            new Filesystem(),
         );
     }
 }
@@ -176,6 +173,6 @@ class AdminExtensionApiPluginWithLocalEntryPoint extends Plugin
 {
     public function getPath(): string
     {
-        return \dirname(ReflectionHelper::getFileName(static::class) ?: '') . '/Fixtures/AdminExtensionApiPluginWithLocalEntryPoint';
+        return __DIR__ . '/Fixtures/AdminExtensionApiPluginWithLocalEntryPoint';
     }
 }

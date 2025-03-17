@@ -2,7 +2,7 @@
     {% block component_filter_panel_header %}
         <div class="filter-panel-offcanvas-header">
             <h2 data-id="off-canvas-headline" class="filter-panel-offcanvas-only filter-panel-offcanvas-title">
-                {{ "listing.filterTitleText"|trans }}
+                {{ 'listing.filterTitleText'|trans }}
             </h2>
 
             <button type="button" class="btn-close filter-panel-offcanvas-only filter-panel-offcanvas-close js-offcanvas-close" aria-label="{{ 'listing.filterClose'|trans|striptags }}">
@@ -16,7 +16,6 @@
             {% block component_filter_panel_items_container %}
                 <div class="filter-panel-items-container" role="list">
                     {% block component_filter_panel_items %}
-
                         {% block component_filter_panel_item_manufacturer %}
                             {# @var manufacturers \Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult #}
                             {% set manufacturers = listing.aggregations.get('manufacturer') %}

@@ -22,7 +22,7 @@ class StatesFacadeTest extends TestCase
 
         $facade->add('foo');
         static::assertTrue($facade->has('foo'));
-        static::assertEquals(['foo'], $facade->get());
+        static::assertSame(['foo'], $facade->get());
 
         $facade->remove('foo');
         static::assertFalse($facade->has('foo'));

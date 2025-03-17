@@ -56,7 +56,7 @@ test('Customer gets a special product price depending on the amount of products 
         ).toContainText('From €70.00');
         await ShopCustomer.expects(StorefrontHome.productListItems
             .filter({ hasText: product.name })
-            .getByTitle('Details')
+            .getByText('Details')
         ).toBeVisible();
     });
 });

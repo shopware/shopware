@@ -104,6 +104,6 @@ class InternalMethodRule implements Rule
             return false;
         }
 
-        return $class->isSubclassOf(Event::class);
+        return $class->is(Event::class);
     }
 }

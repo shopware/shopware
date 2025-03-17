@@ -305,7 +305,12 @@
             "layoutType": "Layout type",
             "layoutTypeStandard": "Standard",
             "layoutTypeImage": "Big image",
-            "layoutTypeMinimal": "Minimal content"
+            "layoutTypeMinimal": "Minimal content",
+            "headlineLevel": "Headline level for product boxes",
+            "headlineLevelHelp": "Choose a headline level for the product box titles in this product listing. If \"No headline\" is selected, no headline level will be applied.",
+            "headlineLevelOption": "Headline {level}",
+            "headlineLevelDefaultOption": "Headline 2 (recommended default)",
+            "headlineLevelEmptyOption": "No headline (not recommended)"
           },
           "placeholder": {
             "selection": "Select a product..."

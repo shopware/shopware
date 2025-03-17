@@ -227,5 +227,5 @@ describe('src/app/init/context.init.ts', () => {
 
         expect(Shopware.Store.get('context').windowId).not.toBeNull();
         expect(windowId).toBe(Shopware.Store.get('context').app.windowId);
-    })
+    });
 });

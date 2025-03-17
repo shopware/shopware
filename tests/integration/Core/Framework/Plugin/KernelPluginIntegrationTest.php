@@ -400,7 +400,13 @@ class KernelPluginIntegrationTest extends TestCase
 
     private function makeKernel(KernelPluginLoader $loader): Kernel
     {
-        $kernel = KernelFactory::create('test', true, KernelLifecycleManager::getClassLoader(), $loader);
+        $kernel = KernelFactory::create(
+            'test',
+            true,
+            KernelLifecycleManager::getClassLoader(),
+            $loader,
+            static::getContainer()->get(Connection::class)
+        );
         static::assertInstanceOf(Kernel::class, $kernel);
         $this->kernel = $kernel;
 

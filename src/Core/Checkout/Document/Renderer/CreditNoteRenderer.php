@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\CreditNoteOrdersEvent;
+use Shopware\Core\Checkout\Document\Event\DocumentOrderCriteriaEvent;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
@@ -20,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -66,20 +66,19 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
 
         $orders = new OrderCollection();
 
-        /** @var DocumentGenerateOperation $operation */
         foreach ($operations as $operation) {
             try {
                 $orderId = $operation->getOrderId();
                 $invoice = $this->referenceInvoiceLoader->load($orderId, $operation->getReferencedDocumentId(), $rendererConfig->deepLinkCode);
 
                 if (empty($invoice)) {
-                    throw DocumentException::generationError('Can not generate credit note document because no invoice document exists. OrderId: ' . $operation->getOrderId());
+                    throw DocumentException::generationError('Can not generate credit note document because no invoice document exists. OrderId: ' . $orderId);
                 }
 
                 $documentRefer = json_decode($invoice['config'], true, 512, \JSON_THROW_ON_ERROR);
                 $referenceInvoiceNumbers[$orderId] = $invoice['documentNumber'] ?? $documentRefer['documentNumber'];
 
-                $order = $this->getOrder($orderId, $invoice['orderVersionId'], $context, $rendererConfig->deepLinkCode);
+                $order = $this->getOrder($operation, $invoice['orderVersionId'], $context, $rendererConfig);
 
                 $orders->add($order);
                 $operation->setReferencedDocumentId($invoice['id']);
@@ -151,7 +150,6 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
 
                 $price = $this->calculatePrice($creditItems, $order);
 
-                /** @var LanguageEntity|null $language */
                 $language = $order->getLanguage();
                 if ($language === null) {
                     throw DocumentException::generationError('Can not generate credit note document because no language exists. OrderId: ' . $operation->getOrderId());
@@ -189,35 +187,54 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         throw new DecorationPatternException(self::class);
     }
 
-    private function getOrder(string $orderId, string $versionId, Context $context, string $deepLinkCode = ''): OrderEntity
+    private function getOrder(DocumentGenerateOperation $operation, string $versionId, Context $context, DocumentRendererConfig $rendererConfig): OrderEntity
     {
-        ['language_id' => $languageId] = $this->getOrdersLanguageId([$orderId], $versionId, $this->connection)[0];
+        ['language_id' => $languageId] = $this->getOrdersLanguageId([$operation->getOrderId()], $versionId, $this->connection)[0];
+        $languageIdChain = array_values(
+            array_unique(
+                array_filter([$languageId, ...$context->getLanguageIdChain()])
+            )
+        );
 
-        // Get the correct order with versioning from reference invoice
-        $versionContext = $context->createWithVersionId($versionId)->assign([
-            'languageIdChain' => \array_values(\array_unique(\array_filter([$languageId, ...$context->getLanguageIdChain()]))),
-        ]);
+        // First try to load the order with the version from the reference invoice
+        $order = $this->loadOrder($operation, $versionId, $context, $languageIdChain, $rendererConfig)
+            ?? $this->loadOrder($operation, Defaults::LIVE_VERSION, $context, $languageIdChain, $rendererConfig);
 
-        $criteria = OrderDocumentCriteriaFactory::create([$orderId], $deepLinkCode, self::TYPE)
-            ->addFilter(new EqualsFilter('lineItems.type', LineItem::CREDIT_LINE_ITEM_TYPE));
-
-        $order = $this->orderRepository->search($criteria, $versionContext)->getEntities()->first();
-        if ($order) {
-            return $order;
-        }
-
-        $versionContext = $context->createWithVersionId(Defaults::LIVE_VERSION)->assign([
-            'languageIdChain' => \array_values(\array_unique(\array_filter([$languageId, ...$context->getLanguageIdChain()]))),
-        ]);
-
-        $criteria = OrderDocumentCriteriaFactory::create([$orderId], $deepLinkCode, self::TYPE);
-
-        $order = $this->orderRepository->search($criteria, $versionContext)->getEntities()->first();
-        if (!$order) {
-            throw DocumentException::orderNotFound($orderId);
+        if ($order === null) {
+            throw DocumentException::orderNotFound($operation->getOrderId());
         }
 
         return $order;
+    }
+
+    /**
+     * @param list<string> $languageIdChain
+     */
+    private function loadOrder(
+        DocumentGenerateOperation $operation,
+        string $versionId,
+        Context $context,
+        array $languageIdChain,
+        DocumentRendererConfig $rendererConfig,
+    ): ?OrderEntity {
+        $versionContext = $context->createWithVersionId($versionId)->assign([
+            'languageIdChain' => $languageIdChain,
+        ]);
+
+        $criteria = OrderDocumentCriteriaFactory::create([$operation->getOrderId()], $rendererConfig->deepLinkCode, self::TYPE);
+        $criteria->getAssociation('lineItems')->addFilter(
+            new EqualsFilter('type', LineItem::CREDIT_LINE_ITEM_TYPE)
+        );
+
+        $this->eventDispatcher->dispatch(new DocumentOrderCriteriaEvent(
+            $criteria,
+            $context,
+            [$operation->getOrderId() => $operation],
+            $rendererConfig,
+            self::TYPE
+        ));
+
+        return $this->orderRepository->search($criteria, $versionContext)->getEntities()->first();
     }
 
     private function getNumber(Context $context, OrderEntity $order, DocumentGenerateOperation $operation): string

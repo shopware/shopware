@@ -21,6 +21,7 @@ class SearchFieldConfigTest extends TestCase
         static::assertTrue($searchConfig->tokenize());
         static::assertFalse($searchConfig->isCustomField());
         static::assertTrue($searchConfig->isAndLogic());
+        static::assertFalse($searchConfig->usePrefixMatch());
 
         $customFieldSearchConfig = new SearchFieldConfig('customFields.foo', 1000.0, true);
 

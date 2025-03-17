@@ -44,4 +44,9 @@ class SearchFieldConfig
     {
         $this->ranking = $ranking;
     }
+
+    public function usePrefixMatch(): bool
+    {
+        return $this->prefixMatch;
+    }
 }

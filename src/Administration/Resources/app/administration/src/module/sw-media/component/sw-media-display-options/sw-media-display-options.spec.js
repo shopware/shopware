@@ -3,11 +3,11 @@ import { mount } from '@vue/test-utils';
 const createWrapper = async (customOptions) => {
     return mount(await wrapTestComponent('sw-media-display-options', { sync: true }), {
         global: {
-            stubs: {}
+            stubs: {},
         },
         ...customOptions,
     });
-}
+};
 
 describe('src/module/sw-media/component/sw-media-display-options', () => {
     it('should be a Vue.JS component', async () => {
@@ -32,4 +32,4 @@ describe('src/module/sw-media/component/sw-media-display-options', () => {
         expect(selectResults[2].text()).toBe('sw-media.presentation.labelPresentationLarge');
         expect(selectResults[3].text()).toBe('sw-media.presentation.labelPresentationList');
     });
-})
+});

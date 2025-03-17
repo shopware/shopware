@@ -38,7 +38,7 @@
                                         <a href="{{ path('frontend.account.edit-order.page', { orderId: order.id }) }}"
                                            class="badge badge-lg order-item-status-badge bg-danger">
                                             {{ 'account.orderStatusActionCompletePayment'|trans|sw_sanitize }}
-                                            {% sw_icon 'arrow-medium-right' style { size: 'sm', pack: 'solid', ariaHidden: true } %}
+                                            {% sw_icon 'arrow-medium-right' style { size: 'sm', pack: 'solid' } %}
                                         </a>
                                     {% endblock %}
                                 {% else %}
@@ -69,7 +69,7 @@
                                         aria-haspopup="true"
                                         aria-expanded="false"
                                         aria-label="{{ 'account.orderActions'|trans|sw_sanitize }}">
-                                    {% sw_icon 'more-horizontal' style { ariaHidden: true } %}
+                                    {% sw_icon 'more-horizontal' %}
                                 </button>
                             {% endblock %}
 

@@ -63,7 +63,7 @@
                             {% block page_account_sidebar_logout %}
                                 <a href="{{ path('frontend.account.logout.page') }}"
                                    class="btn btn-link account-aside-btn">
-                                    {% sw_icon 'log-out' style { ariaHidden: true } %}
+                                    {% sw_icon 'log-out' %}
                                     {{ 'account.logout'|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}
@@ -74,7 +74,7 @@
                                 <a href="{{ path('frontend.account.logout.page') }}"
                                    data-account-guest-abort-button="true"
                                    class="btn btn-link account-aside-btn">
-                                    {% sw_icon 'log-out' style { ariaHidden: true } %}
+                                    {% sw_icon 'log-out' %}
                                     {{ 'account.guestAbort'|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}

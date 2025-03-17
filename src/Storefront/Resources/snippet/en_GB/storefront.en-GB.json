@@ -556,6 +556,7 @@
     "boxUnitLabel": "Content:",
     "boxLabelTopseller": "Tip",
     "boxLabelNew": "New",
+    "boxLabelDiscount": "Discount",
     "listingTextSite": "Page",
     "listingTextFrom": "From",
     "boxAddProduct": "Add to shopping cart",
@@ -597,6 +598,8 @@
     "beforeListPrice": "",
     "afterListPrice": "",
     "cheapestPriceLabel": "Variants from",
+    "regularPriceLabel": "Regular price:",
+    "listPriceLabel": "Sale price:",
     "addToWishlist": "Add to wishlist",
     "removeFromWishlist": "Remove from wishlist"
   },

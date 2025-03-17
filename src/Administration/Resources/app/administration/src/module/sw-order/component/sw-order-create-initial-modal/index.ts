@@ -245,7 +245,7 @@ export default Component.wrapComponentConfig({
                     contextToken: this.cart.token,
                 })
                 .then(() => {
-                    this.$emit('modal-close');
+                    Store.get('swOrder').setCustomer(null);
                 });
         },
     },

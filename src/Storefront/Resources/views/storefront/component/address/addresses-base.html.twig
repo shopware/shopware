@@ -8,7 +8,7 @@
     <div class="address-manager-list-base mb-3" data-address-search="true">
         {% block address_base_list_title %}
             <h2 class="mt-4">
-                {{ "account.addressListHeader"|trans|sw_sanitize }}
+                {{ 'account.addressListHeader'|trans|sw_sanitize }}
             </h2>
         {% endblock %}
 
@@ -17,7 +17,7 @@
                 <input
                     type="search"
                     class="form-control address-manager-list-search"
-                    placeholder="{{ "account.addressSearchPlaceholder"|trans|sw_sanitize }}"
+                    placeholder="{{ 'account.addressSearchPlaceholder'|trans|sw_sanitize }}"
                     name="search"
                     value=""
                 >
@@ -36,11 +36,11 @@
 
         {% block address_base_list_address_empty_state %}
             <p class="address-manager-no-address d-none">
-                {{ "account.addressNotFound"|trans|sw_sanitize }}
+                {{ 'account.addressNotFound'|trans|sw_sanitize }}
             </p>
 
             <p class="address-manager-empty-address d-none">
-                {{ "account.noAvailableAddresses"|trans|sw_sanitize }}
+                {{ 'account.noAvailableAddresses'|trans|sw_sanitize }}
             </p>
         {% endblock %}
     </div>

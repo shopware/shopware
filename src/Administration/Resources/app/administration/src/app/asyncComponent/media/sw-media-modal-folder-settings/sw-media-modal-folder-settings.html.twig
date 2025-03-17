@@ -106,19 +106,17 @@
                 {% block sw_media_modal_folder_settings_tab_content_thumbnails_left_container %}
                 <div class="sw-media-modal-folder-settings__thumbnails-left-container">
                     {% block sw_media_modal_folder_settings_inherit_settings_field %}
-                    <sw-field
-                        v-model:value="mediaFolder.useParentConfiguration"
-                        type="switch"
+                    <mt-switch
+                        v-model="mediaFolder.useParentConfiguration"
                         :label="$tc('global.sw-media-modal-folder-settings.labelInheritSettings')"
                         :disabled="mediaFolder.parentId === null"
-                        @update:value="onChangeInheritance"
+                        @update:model-value="onChangeInheritance"
                     />
                     {% endblock %}
 
                     {% block sw_media_modal_folder_settings_generate_thumbnails_field %}
-                    <sw-field
-                        v-model:value="configuration.createThumbnails"
-                        type="switch"
+                    <mt-switch
+                        v-model="configuration.createThumbnails"
                         :label="$tc('global.sw-media-modal-folder-settings.labelGenerateThumbnails')"
                         :disabled="mediaFolder.useParentConfiguration || disabled"
                     />

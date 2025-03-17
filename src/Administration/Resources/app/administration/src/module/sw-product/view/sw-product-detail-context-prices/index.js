@@ -522,7 +522,7 @@ export default {
             newPriceRule.price = [];
 
             referencePrice.price.forEach((price, index) => {
-                newPriceRule.price[index] = { ...price }
+                newPriceRule.price[index] = { ...price };
             });
 
             this.product.prices.add(newPriceRule);

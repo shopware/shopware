@@ -115,7 +115,7 @@ class TokenQueryBuilder
                 'operator' => $operator,
             ]);
 
-            if ($config->isPrefixMatch()) {
+            if ($config->usePrefixMatch()) {
                 // Prefix match
                 $queries[] = new MatchPhrasePrefixQuery($searchField, $token, [
                     'boost' => 0.6 * $config->getRanking(),
@@ -168,7 +168,7 @@ class TokenQueryBuilder
                 $ranking,
                 $config->tokenize(),
                 $config->isAndLogic(),
-                $config->isPrefixMatch(),
+                $config->usePrefixMatch(),
             );
 
             $languageQuery = $this->matchQuery($field, $token, $languageConfig);

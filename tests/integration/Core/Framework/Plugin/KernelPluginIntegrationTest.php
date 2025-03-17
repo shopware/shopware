@@ -403,9 +403,6 @@ class KernelPluginIntegrationTest extends TestCase
         $kernel = KernelFactory::create('test', true, KernelLifecycleManager::getClassLoader(), $loader);
         static::assertInstanceOf(Kernel::class, $kernel);
         $this->kernel = $kernel;
-//        $connection = (new \ReflectionClass(KernelFactory::$kernelClass))->getProperty('connection');
-//        $connection->setAccessible(true);
-//        $connection->setValue($this->kernel, static::getContainer()->get(Connection::class));
 
         return $this->kernel;
     }

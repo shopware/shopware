@@ -41,7 +41,9 @@ export default class CartWidgetPlugin extends Plugin {
      * and persist the response to the browser's session storage
      */
     fetch() {
-        fetch(window.router['frontend.checkout.info'])
+        fetch(window.router['frontend.checkout.info'], {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
             .then(response => {
                 if (response.status >= 500) {
                     return;

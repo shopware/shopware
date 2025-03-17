@@ -207,7 +207,9 @@ export default class OffcanvasMenuPlugin extends Plugin {
 
         this.$emitter.publish('beforeFetchMenu');
 
-        fetch(link)
+        fetch(link, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
             .then(res => res.text())
             .then(content => {
                 this._cache[link] = content;

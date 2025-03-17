@@ -415,7 +415,9 @@ export default class ListingPlugin extends Plugin {
             this.sendDisabledFiltersRequest();
         }
 
-        fetch(`${this.options.dataUrl}?${filterParams}`)
+        fetch(`${this.options.dataUrl}?${filterParams}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
             .then((response) => response.text())
             .then((response) => {
                 this.renderResponse(response);
@@ -449,7 +451,9 @@ export default class ListingPlugin extends Plugin {
         const filterParams = this._getDisabledFiltersParamsFromParams(mapped);
         const paramsString = new URLSearchParams(filterParams).toString();
 
-        fetch(`${this.options.filterUrl}?${paramsString}`)
+        fetch(`${this.options.filterUrl}?${paramsString}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
             .then(response => response.json())
             .then(filter => {
                 this._registry.forEach((item) => {

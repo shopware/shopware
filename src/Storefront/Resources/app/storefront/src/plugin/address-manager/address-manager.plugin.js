@@ -98,7 +98,9 @@ export default class AddressManagerPlugin extends Plugin {
         this._btnLoader = new ButtonLoadingIndicatorUtil(event.currentTarget);
         this._btnLoader.create();
 
-        fetch(this.options.addressManagerUrl)
+        fetch(this.options.addressManagerUrl, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
             .then(response => response.text())
             .then(response => {
                 this._renderModal(response);
@@ -157,6 +159,7 @@ export default class AddressManagerPlugin extends Plugin {
         fetch(event.currentTarget.action, {
             method: 'POST',
             body: new FormData(event.target),
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
         })
             .then(response => {
                 if (response.status === 204) {
@@ -209,7 +212,10 @@ export default class AddressManagerPlugin extends Plugin {
         fetch(this.options.addressSwitchUrl, {
             method: 'POST',
             body: JSON.stringify({ id, type }),
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
         })
             .then(response => response.text())
             .then(data => this._replaceModalContent(data, type));
@@ -229,6 +235,7 @@ export default class AddressManagerPlugin extends Plugin {
 
         fetch(`${this.options.addressManagerUrl}${id ? `/${id}` : ''}?type=${type}`, {
             method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
         })
             .then(response => response.text())
             .then(data => this._replaceModalContent(data));
@@ -240,7 +247,9 @@ export default class AddressManagerPlugin extends Plugin {
     _onEditAddressCancel(event) {
         const type = event.currentTarget?.dataset?.addressType;
 
-        fetch(this.options.addressManagerUrl)
+        fetch(this.options.addressManagerUrl, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
             .then(response => response.text())
             .then(data => this._replaceModalContent(data, type));
     }

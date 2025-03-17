@@ -106,7 +106,9 @@ export default class AjaxModalPlugin extends Plugin {
 
         modalBodyEl.classList.add(this.options.centerLoadingIndicatorClass);
 
-        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }})
+        fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
             .then(response => response.text())
             .then(response => this._processResponse(response, loadingIndicatorUtil, pseudoModalUtil, modalBodyEl));
     }

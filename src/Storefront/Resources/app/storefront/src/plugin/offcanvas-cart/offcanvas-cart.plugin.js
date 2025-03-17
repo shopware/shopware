@@ -210,7 +210,11 @@ export default class OffCanvasCartPlugin extends Plugin {
 
         this.$emitter.publish('beforeFireRequest');
 
-        fetch(requestUrl, { method: 'POST', body: data, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        fetch(requestUrl, {
+            method: 'POST',
+            body: data,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
             .then(response => response.text())
             .then(response => cb(response));
     }
@@ -305,7 +309,9 @@ export default class OffCanvasCartPlugin extends Plugin {
         const url = window.router['frontend.cart.offcanvas'];
 
         const _callback = () => {
-            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }})
+            fetch(url, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            })
                 .then(response => response.text())
                 .then(response => {
                     this._updateOffCanvasContent(response);

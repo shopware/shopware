@@ -119,7 +119,9 @@ export default class SearchWidgetPlugin extends Plugin {
 
         this.$emitter.publish('beforeSearch');
 
-        fetch(url)
+        fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
             .then(response => response.text())
             .then(content => {
                 // remove existing search results popover first

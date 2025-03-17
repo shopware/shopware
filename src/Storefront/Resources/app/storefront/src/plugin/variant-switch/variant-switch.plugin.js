@@ -186,7 +186,9 @@ export default class VariantSwitchPlugin extends Plugin {
 
         const url = `${this.options.url}?${new URLSearchParams(data).toString()}`;
 
-        fetch(url)
+        fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
             .then(response => response.json())
             .then(data => window.location.replace(data.url));
     }

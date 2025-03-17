@@ -120,6 +120,10 @@ SQL;
             return;
         }
 
+        if ($event->getContext()->getVersionId() !== Defaults::LIVE_VERSION) {
+            return;
+        }
+
         $criteria = new Criteria($event->getIds());
         $criteria->addAssociations(['lineItems', 'orderCustomer']);
 
@@ -351,10 +355,6 @@ SQL;
 
         $promotionIds = [];
         foreach ($promotions as $promotion) {
-            if ($promotion->getType() !== PromotionProcessor::LINE_ITEM_TYPE) {
-                continue;
-            }
-
             $promotionId = $promotion->getPromotionId();
             if ($promotionId === null) {
                 continue;

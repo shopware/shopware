@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Changelog\ChangelogFile;
 use Shopware\Core\Framework\Changelog\ChangelogFileCollection;
 use Shopware\Core\Framework\Changelog\ChangelogParser;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -36,6 +37,7 @@ class ChangelogProcessor
         protected Filesystem $filesystem,
         private readonly string $projectDir,
         protected array $featureFlags,
+        private readonly string $env,
     ) {
     }
 
@@ -59,12 +61,16 @@ class ChangelogProcessor
 
     public function findLastestTag(): ?string
     {
+        if ($this->env === 'test') {
+            return null;
+        }
+
         $result = shell_exec('gh release list -R shopware/shopware --exclude-drafts --exclude-pre-releases --json tagName,isLatest');
         if (!$result) {
             return null;
         }
 
-        $releases = json_decode($result, true) ?: [];
+        $releases = json_decode($result, true, 512, \JSON_THROW_ON_ERROR) ?: [];
         foreach ($releases as $release) {
             if ($release['isLatest']) {
                 return $release['tagName'];
@@ -152,7 +158,7 @@ class ChangelogProcessor
         [$superVersion, $majorVersion] = explode('.', $version);
 
         if (!is_numeric($superVersion) || !is_numeric($majorVersion)) {
-            throw new \InvalidArgumentException('Unable to generate next version number, supplied version seems invalid (' . $version . ')');
+            FrameworkException::invalidArgumentException(\sprintf('Unable to generate next version number, supplied version seems invalid (%s)', $version));
         }
 
         $superVersion = (int) $superVersion;
@@ -181,8 +187,6 @@ class ChangelogProcessor
     {
         $entries = new ChangelogFileCollection();
 
-        $issueKeys = [];
-
         $finder = new Finder();
         $rootDir = $version ? $this->getTargetReleaseDir($version) : $this->getUnreleasedDir();
         $finder->in($rootDir)->files()->sortByName()->depth('0')->name('*.md');
@@ -194,7 +198,9 @@ class ChangelogProcessor
                 if ($violations->count()) {
                     $messages = \array_map(static fn (ConstraintViolationInterface $violation) => $violation->getMessage(), \iterator_to_array($violations));
 
-                    throw new \InvalidArgumentException(\sprintf('Invalid file at path: %s, errors: %s', $file->getRealPath(), \implode(', ', $messages)));
+                    throw FrameworkException::invalidArgumentException(
+                        \sprintf('Invalid file at path: %s, errors: %s', $file->getRealPath(), \implode(', ', $messages))
+                    );
                 }
 
                 $featureFlagDefaultOn = false;
@@ -213,8 +219,6 @@ class ChangelogProcessor
                     ->setDefinition($definition);
 
                 $entries->add($changelog);
-
-                $issueKeys[$definition->getIssue()] = $definition->getIssue();
             }
         }
 
@@ -222,14 +226,14 @@ class ChangelogProcessor
     }
 
     /**
-     * @return array{login: string}
+     * @return array{login: string}|null
      */
     private function findAuthor(string $issueId): ?array
     {
         $result = shell_exec(\sprintf('gh pr view https://github.com/shopware/shopware/pull/%s --json author', escapeshellarg(ltrim($issueId, '#'))));
 
         if ($result) {
-            return json_decode($result, true)['author'] ?? null;
+            return json_decode($result, true, 512, \JSON_THROW_ON_ERROR)['author'] ?? null;
         }
 
         return null;
@@ -241,10 +245,7 @@ class ChangelogProcessor
             $this->users = [];
             $result = shell_exec('gh api --paginate -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /orgs/shopware/members');
             if ($result) {
-                /** @var array<array{login: string}> */
-                $data = json_decode($result, true);
-
-                foreach ($data as $member) {
+                foreach (json_decode($result, true, 512, \JSON_THROW_ON_ERROR) as $member) {
                     $this->users[$member['login']] = $member;
                 }
             }

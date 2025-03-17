@@ -68,6 +68,7 @@
 
             {% block sw_promotion_v2_list_grid %}
             <sw-entity-listing
+                v-if="entitySearchable"
                 ref="listing"
                 :repository="promotionRepository"
                 :columns="promotionColumns"

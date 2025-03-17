@@ -259,6 +259,10 @@ class ProductDefinition extends EntityDefinition
 
             (new ManyToManyAssociationField('customFieldSets', CustomFieldSetDefinition::class, ProductCustomFieldSetDefinition::class, 'product_id', 'custom_field_set_id'))->addFlags(new CascadeDelete(), new Inherited()),
 
+            (new ManyToManyAssociationField('weightUnits', 'measuring_display_unit.definition', 'product_measuring_display_unit.definition', 'product_id', 'weight_unit_id'))->addFlags(new CascadeDelete()),
+
+            (new ManyToManyAssociationField('lengthUnits', 'measuring_display_unit.definition', 'product_measuring_display_unit.definition', 'product_id', 'length_unit_id'))->addFlags(new CascadeDelete()),
+
             (new TranslationsAssociationField(ProductTranslationDefinition::class, 'product_id'))->addFlags(new ApiAware(), new Inherited(), new Required()),
         ]);
     }

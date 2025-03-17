@@ -15,12 +15,7 @@ class MediaFolderConfigurationEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var MediaFolderCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $mediaFolders;
+    protected ?MediaFolderCollection $mediaFolders = null;
 
     /**
      * @var bool

@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\Before;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use SwagTestPlugin\SwagTestPlugin;
 use SwagTestSkipRebuild\SwagTestSkipRebuild;
@@ -16,6 +17,8 @@ use SwagTestWithBundle\SwagTestWithBundle;
 
 trait PluginIntegrationTestBehaviour
 {
+    use KernelTestBehaviour;
+
     protected ClassLoader $classLoader;
 
     #[Before]

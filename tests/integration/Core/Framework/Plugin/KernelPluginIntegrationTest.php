@@ -70,7 +70,11 @@ class KernelPluginIntegrationTest extends TestCase
     {
         $this->insertPlugin($this->getInstalledInactivePlugin());
 
-        $loader = new DbalKernelPluginLoader($this->classLoader, null, $this->connection);
+        $loader = new DbalKernelPluginLoader(
+            $this->classLoader,
+            null,
+            static::getContainer()->get(Connection::class)
+        );
         $this->kernel = $this->makeKernel($loader);
         $this->kernel->boot();
 
@@ -91,7 +95,11 @@ class KernelPluginIntegrationTest extends TestCase
             ->get(Connection::class)
             ->executeStatement('UPDATE plugin SET active = 1, installed_at = date(now())');
 
-        $loader = new DbalKernelPluginLoader($this->classLoader, null, $this->connection);
+        $loader = new DbalKernelPluginLoader(
+            $this->classLoader,
+            null,
+            static::getContainer()->get(Connection::class)
+        );
         $this->kernel = $this->makeKernel($loader);
         $this->kernel->boot();
 
@@ -105,7 +113,11 @@ class KernelPluginIntegrationTest extends TestCase
     {
         $this->insertPlugin($this->getInstalledInactivePlugin());
 
-        $loader = new DbalKernelPluginLoader($this->classLoader, null, $this->connection);
+        $loader = new DbalKernelPluginLoader(
+            $this->classLoader,
+            null,
+            static::getContainer()->get(Connection::class)
+        );
         $this->kernel = $this->makeKernel($loader);
         $this->kernel->boot();
 
@@ -116,7 +128,11 @@ class KernelPluginIntegrationTest extends TestCase
     {
         $this->insertPlugin($this->getActivePlugin());
 
-        $loader = new DbalKernelPluginLoader($this->classLoader, null, $this->connection);
+        $loader = new DbalKernelPluginLoader(
+            $this->classLoader,
+            null,
+            static::getContainer()->get(Connection::class)
+        );
         $this->kernel = $this->makeKernel($loader);
         $this->kernel->boot();
 
@@ -135,7 +151,11 @@ class KernelPluginIntegrationTest extends TestCase
         $inactive = $this->getInstalledInactivePlugin();
         $this->insertPlugin($inactive);
 
-        $loader = new DbalKernelPluginLoader($this->classLoader, null, $this->connection);
+        $loader = new DbalKernelPluginLoader(
+            $this->classLoader,
+            null,
+            static::getContainer()->get(Connection::class)
+        );
         $this->kernel = $this->makeKernel($loader);
         $this->kernel->boot();
 
@@ -163,7 +183,11 @@ class KernelPluginIntegrationTest extends TestCase
         $inactive = $this->getInstalledInactivePluginRebuildDisabled();
         $this->insertPlugin($inactive);
 
-        $loader = new DbalKernelPluginLoader($this->classLoader, null, $this->connection);
+        $loader = new DbalKernelPluginLoader(
+            $this->classLoader,
+            null,
+            static::getContainer()->get(Connection::class)
+        );
         $this->kernel = $this->makeKernel($loader);
         $this->kernel->boot();
 
@@ -191,7 +215,11 @@ class KernelPluginIntegrationTest extends TestCase
         $inactive = $this->getInstalledInactivePluginRebuildDisabled();
         $this->insertPlugin($inactive);
 
-        $loader = new DbalKernelPluginLoader($this->classLoader, null, $this->connection);
+        $loader = new DbalKernelPluginLoader(
+            $this->classLoader,
+            null,
+            static::getContainer()->get(Connection::class)
+        );
         $this->kernel = $this->makeKernel($loader);
         $this->kernel->boot();
 
@@ -219,7 +247,11 @@ class KernelPluginIntegrationTest extends TestCase
         $active = $this->getActivePlugin();
         $this->insertPlugin($active);
 
-        $loader = new DbalKernelPluginLoader($this->classLoader, null, $this->connection);
+        $loader = new DbalKernelPluginLoader(
+            $this->classLoader,
+            null,
+            static::getContainer()->get(Connection::class)
+        );
         $this->kernel = $this->makeKernel($loader);
         $this->kernel->boot();
 
@@ -254,7 +286,11 @@ class KernelPluginIntegrationTest extends TestCase
         $plugin = $this->getInstalledInactivePlugin();
         $this->insertPlugin($plugin);
 
-        $loader = new DbalKernelPluginLoader($this->classLoader, null, $this->connection);
+        $loader = new DbalKernelPluginLoader(
+            $this->classLoader,
+            null,
+            static::getContainer()->get(Connection::class)
+        );
         $this->kernel = $this->makeKernel($loader);
         $this->kernel->boot();
 
@@ -296,7 +332,11 @@ class KernelPluginIntegrationTest extends TestCase
         $plugin = $this->getInstalledInactivePlugin();
         $this->insertPlugin($plugin);
 
-        $loader = new DbalKernelPluginLoader($this->classLoader, null, $this->connection);
+        $loader = new DbalKernelPluginLoader(
+            $this->classLoader,
+            null,
+            static::getContainer()->get(Connection::class)
+        );
         $this->makeKernel($loader);
         $kernel = $this->kernel;
         static::assertNotNull($kernel);
@@ -365,7 +405,7 @@ class KernelPluginIntegrationTest extends TestCase
         $this->kernel = $kernel;
         $connection = (new \ReflectionClass(KernelFactory::$kernelClass))->getProperty('connection');
         $connection->setAccessible(true);
-        $connection->setValue($this->kernel, $this->connection);
+        $connection->setValue($this->kernel, static::getContainer()->get(Connection::class));
 
         return $this->kernel;
     }

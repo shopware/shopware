@@ -262,7 +262,7 @@
       "textConvertedProductLineItems": "The following items were associated to products that have been deleted:",
       "textConvertedProductLineItemsDescription": "Prices of these products cannot be recalculated. Please take extra care when editing the order.",
       "textDeleteLineItemConfirm": "Are you sure you want to delete the position ({label})?",
-      "helpTextCustomerComment": "Customers may submit this comment, any changes are visible to them.",
+      "helpTextCustomerComment": "Customers can submit this comment, and any changes will be visible to them.",
       "helpTextInternalComment": "This comment is for internal use only and will not be presented to customers."
     },
     "nestedLineItemsModal": {

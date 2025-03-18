@@ -2,7 +2,7 @@
     "openapi": "3.1.0",
     "info": [],
     "paths": {
-        "/api/app-system/privileges/requested": {
+        "/app-system/privileges/requested": {
             "get": {
                 "tags": ["App System"],
                 "summary": "Get requested privileges",
@@ -64,7 +64,7 @@
                 }
             }
         },
-        "/api/app-system/privileges/accepted" : {
+        "/app-system/privileges/accepted" : {
             "get": {
                 "tags": ["App System"],
                 "summary": "Get the accepted privileges for the current app integration",
@@ -121,7 +121,7 @@
                 }
             }
         },
-        "/api/app-system/{appName}/privileges/accept": {
+        "/app-system/{appName}/privileges/accept": {
             "post": {
                 "tags": ["App System"],
                 "summary": "Accept privileges for an app",

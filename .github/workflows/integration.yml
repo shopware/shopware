@@ -228,7 +228,7 @@ jobs:
       - name: Login into Github Docker Registery
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Build and push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         if: ${{ !github.ref_protected }}
         with:
           context: .
@@ -236,7 +236,7 @@ jobs:
           tags: ghcr.io/${{ github.repository }}/ci-e2e:${{ github.run_id }}
           file: .gitlab/docker/dev/Dockerfile
       - name: Build and push trunk
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         if: ${{ github.ref_protected }}
         with:
           context: .

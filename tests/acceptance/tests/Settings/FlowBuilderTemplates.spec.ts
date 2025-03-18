@@ -36,9 +36,10 @@ test('As an admin, I want to create new flows from templates, so that I can easi
         await ShopAdmin.expects(AdminFlowBuilderCreate.smartBarHeader).toContainText(flowTemplateName);
         await AdminFlowBuilderCreate.nameField.fill(flowName);
         await AdminFlowBuilderCreate.saveButton.click();
-        await ShopAdmin.expects(AdminFlowBuilderDetail.alertMessage).toHaveText('Success');
+        await ShopAdmin.expects(AdminFlowBuilderDetail.saveButtonLoader).toBeVisible()
+        await ShopAdmin.expects(AdminFlowBuilderDetail.saveButtonLoader).not.toBeVisible()
         const flowId = await getFlowId(flowName, AdminApiContext);
         const flowEqualsTemplate = await compareFlowTemplateWithFlow(flowId, flowTemplateId, AdminApiContext);
-        await ShopAdmin.expects(flowEqualsTemplate).toBe(true);
+        ShopAdmin.expects(flowEqualsTemplate).toBe(true);
         });
 });

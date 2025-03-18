@@ -73,7 +73,7 @@ jobs:
     steps:
       - name: Delay
         run: sleep 20m
-      - uses: octo-sts/action@v1.0.0
+      - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
         id: sts
         with:
           scope: shopware

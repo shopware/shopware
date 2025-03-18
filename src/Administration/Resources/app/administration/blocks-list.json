@@ -3725,6 +3725,7 @@
  "sw_order_detail_details_order_campaign",
  "sw_order_detail_details_order_customer_comment",
  "sw_order_detail_details_order_email",
+ "sw_order_detail_details_order_internal_comment",
  "sw_order_detail_details_order_language",
  "sw_order_detail_details_order_phone_number",
  "sw_order_detail_details_order_promotion",

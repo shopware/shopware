@@ -7,7 +7,7 @@ updates:
     commit-message:
       prefix: "ci(deps): "
     labels:
-      - "domain/product-operations"
+      - "domain/product-ops"
     groups:
       all:
         patterns:

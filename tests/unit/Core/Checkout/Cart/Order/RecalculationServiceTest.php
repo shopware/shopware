@@ -38,6 +38,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -48,6 +49,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
  * @internal
  */
 #[CoversClass(RecalculationService::class)]
+#[Package('checkout')]
 class RecalculationServiceTest extends TestCase
 {
     private SalesChannelContext $salesChannelContext;
@@ -550,6 +552,7 @@ class RecalculationServiceTest extends TestCase
 /**
  * @internal
  */
+#[Package('checkout')]
 class LiveProcessorValidator extends Processor
 {
     public ?string $versionId = null;

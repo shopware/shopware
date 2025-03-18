@@ -154,11 +154,11 @@ class PaymentRefundProcessorTest extends TestCase
     {
         $handlerMock = $this->createMock(AbstractPaymentHandler::class);
         $handlerMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('refund');
 
         $handlerMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('supports')
             ->with(PaymentHandlerType::REFUND, $this->ids->get('payment_method'), Context::createDefaultContext())
             ->willReturn(true);

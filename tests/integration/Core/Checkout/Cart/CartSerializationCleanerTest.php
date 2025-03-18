@@ -46,12 +46,12 @@ class CartSerializationCleanerTest extends TestCase
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
 
         $this->addEventListener($dispatcher, CartBeforeSerializationEvent::class, $listener);
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())->method('fetchFirstColumn')->willReturn($allowed);
+        $connection->expects($this->once())->method('fetchFirstColumn')->willReturn($allowed);
 
         $cleaner = new CartSerializationCleaner($connection, $dispatcher);
         $cleaner->cleanupCart($cart);
@@ -76,7 +76,7 @@ class CartSerializationCleanerTest extends TestCase
     {
         $dispatcher = $this->createMock(EventDispatcher::class);
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())->method('fetchFirstColumn');
+        $connection->expects($this->once())->method('fetchFirstColumn');
 
         $cleaner = new CartSerializationCleaner($connection, $dispatcher);
         $cleaner->cleanupCart($cart);

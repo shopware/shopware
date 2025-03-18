@@ -384,7 +384,7 @@ class EntityDispatchServiceTest extends TestCase
     public function testReturnsEarlyIfGatewayDoesNotAllowPush(): void
     {
         $messageBusMock = $this->createMock(MessageBusInterface::class);
-        $messageBusMock->expects(static::never())->method('dispatch');
+        $messageBusMock->expects($this->never())->method('dispatch');
 
         $entityDispatchService = new EntityDispatchService(
             new EntityDefinitionService(
@@ -409,7 +409,7 @@ class EntityDispatchServiceTest extends TestCase
     public function testReturnsEarlyIfNoEntitiesAreRegistered(): void
     {
         $messageBusMock = $this->createMock(MessageBusInterface::class);
-        $messageBusMock->expects(static::never())->method('dispatch');
+        $messageBusMock->expects($this->never())->method('dispatch');
 
         $entityDispatchService = new EntityDispatchService(
             new EntityDefinitionService([], new UsageDataAllowListService()),
@@ -428,7 +428,7 @@ class EntityDispatchServiceTest extends TestCase
     public function testReturnsEarlyIfNoConsentIsGiven(): void
     {
         $messageBusMock = $this->createMock(MessageBusInterface::class);
-        $messageBusMock->expects(static::never())->method('dispatch');
+        $messageBusMock->expects($this->never())->method('dispatch');
 
         $entityDispatchService = new EntityDispatchService(
             new EntityDefinitionService(
@@ -453,7 +453,7 @@ class EntityDispatchServiceTest extends TestCase
     public function testItReturnsEarlyIfCollectEntityMessageHasDifferentShopId(): void
     {
         $messageBusMock = $this->createMock(MessageBusInterface::class);
-        $messageBusMock->expects(static::never())->method('dispatch');
+        $messageBusMock->expects($this->never())->method('dispatch');
 
         $entityDispatchService = new EntityDispatchService(
             new EntityDefinitionService(
@@ -729,7 +729,7 @@ class EntityDispatchServiceTest extends TestCase
     private function createGatewayStatusService(bool $isAcceptingEntities): GatewayStatusService&MockObject
     {
         $service = $this->createMock(GatewayStatusService::class);
-        $service->expects(static::any())->method('isGatewayAllowsPush')->willReturn($isAcceptingEntities);
+        $service->expects($this->any())->method('isGatewayAllowsPush')->willReturn($isAcceptingEntities);
 
         return $service;
     }

@@ -77,7 +77,7 @@ class OrderPersisterTest extends TestCase
         ];
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->expects(static::once())
+        $repository->expects($this->once())
             ->method('create')
             ->with(
                 static::callback(function (array $payload) use ($positionByIdentifier) {

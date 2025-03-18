@@ -57,11 +57,11 @@ class BufferedFlowExecutionTriggersListenerTest extends TestCase
 
     public function testDoesNotLoadServicesIfNoFlowsAreQueued(): void
     {
-        $this->bufferedFlowQueueMock->expects(static::once())
+        $this->bufferedFlowQueueMock->expects($this->once())
             ->method('isEmpty')
             ->willReturn(true);
 
-        $this->containerMock->expects(static::never())
+        $this->containerMock->expects($this->never())
             ->method('get');
 
         $this->bufferedFlowExecutionTriggersListener->triggerBufferedFlowExecution();
@@ -72,12 +72,12 @@ class BufferedFlowExecutionTriggersListenerTest extends TestCase
         $this->bufferedFlowQueueMock->method('isEmpty')
             ->willReturn(false);
 
-        $this->containerMock->expects(static::once())
+        $this->containerMock->expects($this->once())
             ->method('get')
             ->with(BufferedFlowExecutor::class)
             ->willReturn($this->bufferedFlowExecutorMock);
 
-        $this->bufferedFlowExecutorMock->expects(static::once())
+        $this->bufferedFlowExecutorMock->expects($this->once())
             ->method('executeBufferedFlows');
 
         $this->bufferedFlowExecutionTriggersListener->triggerBufferedFlowExecution();

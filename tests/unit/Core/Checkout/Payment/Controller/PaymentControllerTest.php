@@ -61,7 +61,7 @@ class PaymentControllerTest extends TestCase
             expires: \PHP_INT_MAX,
         );
         $this->tokenFactory
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('parseToken')
             ->with('test-token')
             ->willReturn($tokenStruct);
@@ -71,13 +71,13 @@ class PaymentControllerTest extends TestCase
         $order->setId('order-id');
         $this->orderRepository->addSearch(new OrderCollection([$order]));
         $this->orderConverter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('assembleSalesChannelContext')
             ->with($order, Context::createDefaultContext())
             ->willReturn($salesChannelContext);
 
         $this->paymentProcessor
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('finalize')
             ->with($tokenStruct, $request, $salesChannelContext)
             ->willReturn($tokenStruct);
@@ -98,7 +98,7 @@ class PaymentControllerTest extends TestCase
             expires: \PHP_INT_MAX,
         );
         $this->tokenFactory
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('parseToken')
             ->with('test-token')
             ->willReturn($tokenStruct);
@@ -108,13 +108,13 @@ class PaymentControllerTest extends TestCase
         $order->setId('order-id');
         $this->orderRepository->addSearch(new OrderCollection([$order]));
         $this->orderConverter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('assembleSalesChannelContext')
             ->with($order, Context::createDefaultContext())
             ->willReturn($salesChannelContext);
 
         $this->paymentProcessor
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('finalize')
             ->with($tokenStruct, $request, $salesChannelContext)
             ->willReturn($tokenStruct);
@@ -136,7 +136,7 @@ class PaymentControllerTest extends TestCase
             expires: \PHP_INT_MAX,
         );
         $this->tokenFactory
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('parseToken')
             ->with('test-token')
             ->willReturn($tokenStruct);
@@ -146,13 +146,13 @@ class PaymentControllerTest extends TestCase
         $order->setId('order-id');
         $this->orderRepository->addSearch(new OrderCollection([$order]));
         $this->orderConverter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('assembleSalesChannelContext')
             ->with($order, Context::createDefaultContext())
             ->willReturn($salesChannelContext);
 
         $this->paymentProcessor
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('finalize')
             ->with($tokenStruct, $request, $salesChannelContext)
             ->willReturn($tokenStruct);
@@ -174,17 +174,17 @@ class PaymentControllerTest extends TestCase
             expires: \PHP_INT_MAX,
         );
         $this->tokenFactory
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('parseToken')
             ->with('test-token')
             ->willReturn($tokenStruct);
 
         $this->orderConverter
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('assembleSalesChannelContext');
 
         $this->paymentProcessor
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('finalize');
 
         $this->expectException(PaymentException::class);
@@ -204,7 +204,7 @@ class PaymentControllerTest extends TestCase
             expires: \PHP_INT_MAX,
         );
         $this->tokenFactory
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('parseToken')
             ->with('test-token')
             ->willReturn($tokenStruct);
@@ -212,11 +212,11 @@ class PaymentControllerTest extends TestCase
         $this->orderRepository->addSearch(new OrderCollection([]));
 
         $this->orderConverter
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('assembleSalesChannelContext');
 
         $this->paymentProcessor
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('finalize');
 
         $this->expectException(PaymentException::class);
@@ -236,18 +236,18 @@ class PaymentControllerTest extends TestCase
             expires: 0,
         );
         $this->tokenFactory
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('parseToken')
             ->with('test-token')
             ->willReturn($tokenStruct);
 
         $this->tokenFactory
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('invalidateToken')
             ->with('test-token');
 
         $this->paymentProcessor
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('finalize');
 
         $response = $this->controller->finalizeTransaction($request);
@@ -258,11 +258,11 @@ class PaymentControllerTest extends TestCase
     public function testFinalizeTransactionNoToken(): void
     {
         $this->tokenFactory
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('parseToken');
 
         $this->paymentProcessor
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('finalize');
 
         $this->expectException(PaymentException::class);

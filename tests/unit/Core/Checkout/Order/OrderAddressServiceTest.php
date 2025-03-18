@@ -160,7 +160,7 @@ class OrderAddressServiceTest extends TestCase
 
         $orderDeliveryRepository = $this->createMock(EntityRepository::class);
         $orderDeliveryRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('update');
 
         $order = $this->createOrderEntity();

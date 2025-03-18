@@ -67,11 +67,11 @@ class DeliveryCalculatorTest extends TestCase
             ->getMock();
         $costs = new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection());
         $delivery
-            ->expects(static::atLeastOnce())
+            ->expects($this->atLeastOnce())
             ->method('getShippingCosts')->willReturn($costs);
         $newCosts = null;
         $delivery
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('setShippingCosts')
             ->willReturnCallback(function ($costsParameter) use (&$newCosts): void {
                 $newCosts = $costsParameter;
@@ -92,7 +92,7 @@ class DeliveryCalculatorTest extends TestCase
         static::assertNotNull($price);
 
         $delivery
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getPositions')
             ->willReturn(
                 new DeliveryPositionCollection(
@@ -118,7 +118,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $quantityPriceCalculatorMock = $this->createMock(QuantityPriceCalculator::class);
         $quantityPriceCalculatorMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('calculate')
             ->willReturn($costs);
 
@@ -146,12 +146,12 @@ class DeliveryCalculatorTest extends TestCase
             ->getMock();
         $costs = new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection());
         $delivery
-            ->expects(static::atLeastOnce())
+            ->expects($this->atLeastOnce())
             ->method('getShippingCosts')
             ->willReturn($costs);
         $newCosts = null;
         $delivery
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('setShippingCosts')
             ->willReturnCallback(function ($costsParameter) use (&$newCosts): void {
                 $newCosts = $costsParameter;
@@ -174,7 +174,7 @@ class DeliveryCalculatorTest extends TestCase
         static::assertNotNull($price);
 
         $delivery
-            ->expects(static::atLeastOnce())
+            ->expects($this->atLeastOnce())
             ->method('getPositions')
             ->willReturn(
                 new DeliveryPositionCollection(
@@ -192,7 +192,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $quantityPriceCalculatorMock = $this->createMock(QuantityPriceCalculator::class);
         $quantityPriceCalculatorMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('calculate')
             ->willReturn($costs);
 
@@ -212,7 +212,7 @@ class DeliveryCalculatorTest extends TestCase
     {
         $context = $this->createMock(SalesChannelContext::class);
         $context
-            ->expects(static::atLeastOnce())
+            ->expects($this->atLeastOnce())
             ->method('buildTaxRules')
             ->willReturn(new TaxRuleCollection());
 
@@ -227,17 +227,17 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setTaxId(Uuid::randomHex());
 
         $delivery
-            ->expects(static::atLeastOnce())
+            ->expects($this->atLeastOnce())
             ->method('getShippingCosts')
             ->willReturn($costs);
         $delivery
-            ->expects(static::atLeastOnce())
+            ->expects($this->atLeastOnce())
             ->method('getShippingMethod')
             ->willReturn($shippingMethod);
 
         $newCosts = null;
         $delivery
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('setShippingCosts')
             ->willReturnCallback(function ($costsParameter) use (&$newCosts): void {
                 $newCosts = $costsParameter;
@@ -245,7 +245,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $quantityPriceCalculatorMock = $this->createMock(QuantityPriceCalculator::class);
         $quantityPriceCalculatorMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('calculate')
             ->willReturn($costs);
 

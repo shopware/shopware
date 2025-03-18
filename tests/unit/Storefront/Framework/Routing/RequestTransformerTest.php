@@ -31,7 +31,7 @@ class RequestTransformerTest extends TestCase
         $domainLoader = $this->createMock(AbstractDomainLoader::class);
 
         // should not be called as the sales channel is not required
-        $domainLoader->expects(static::never())->method('load');
+        $domainLoader->expects($this->never())->method('load');
 
         $requestTransformer = new RequestTransformer($decorated, $resolver, $registeredApiPrefixes, $domainLoader);
 
@@ -48,7 +48,7 @@ class RequestTransformerTest extends TestCase
 
         $resolver = $this->createMock(AbstractSeoResolver::class);
         $domainLoader = $this->createMock(AbstractDomainLoader::class);
-        $domainLoader->expects(static::once())->method('load')->willReturn([]);
+        $domainLoader->expects($this->once())->method('load')->willReturn([]);
 
         // no registered api prefixes ==> sales channel is always required
         $registeredApiPrefixes = [];

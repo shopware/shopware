@@ -308,22 +308,24 @@ export default {
         async getDetailFlow() {
             this.isLoading = true;
 
-            try {
-                const [, data] = await Promise.all([
-                    Shopware.State.dispatch('swFlowState/fetchTriggerActions'),
-                    this.flowRepository.get(this.flowId, Context.api, this.flowCriteria),
-                ]);
+            const triggerActionsPromise = Shopware.State.dispatch('swFlowState/fetchTriggerActions');
+            await triggerActionsPromise;
 
-                State.commit('swFlowState/setFlow', data);
-                State.commit('swFlowState/setOriginFlow', cloneDeep(data));
-                await this.getDataForActionDescription();
-            } catch (error) {
-                this.createNotificationError({
-                    message: this.$tc('sw-flow.flowNotification.messageError'),
+            return this.flowRepository
+                .get(this.flowId, Context.api, this.flowCriteria)
+                .then((data) => {
+                    State.commit('swFlowState/setFlow', data);
+                    State.commit('swFlowState/setOriginFlow', cloneDeep(data));
+                    this.getDataForActionDescription();
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-flow.flowNotification.messageError'),
+                    });
+                })
+                .finally(() => {
+                    this.isLoading = false;
                 });
-            } finally {
-                this.isLoading = false;
-            }
         },
 
         getAppFlowAction() {

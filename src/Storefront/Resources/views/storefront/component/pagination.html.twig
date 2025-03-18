@@ -32,7 +32,7 @@
                         {% block component_pagination_first_link_element %}
                             <a href="{{ href ? '?' ~ pageParameter ~ '=1' ~ searchQuery : '#' }}" class="page-link" data-page="1" aria-label="{{ 'general.first'|trans|striptags }}" data-focus-id="first"{% if currentPage == 1 %} tabindex="-1" aria-disabled="true"{% endif %}>
                                 {% block component_pagination_first_link_icon %}
-                                    {% sw_icon 'arrow-medium-double-left' style { size: 'fluid', pack: 'solid', ariaHidden: true } %}
+                                    {% sw_icon 'arrow-medium-double-left' style { size: 'fluid', pack: 'solid' } %}
                                 {% endblock %}
                             </a>
                         {% endblock %}
@@ -44,7 +44,7 @@
                         {% block component_pagination_prev_link_element %}
                             <a href="{{ href ? '?' ~ pageParameter ~ '=' ~ (currentPage - 1) ~ searchQuery : '#' }}" class="page-link" data-page="{{ currentPage - 1 }}" aria-label="{{ 'general.pagination.prev'|trans|striptags }}" data-focus-id="prev"{% if currentPage == 1 %} tabindex="-1" aria-disabled="true"{% endif %}>
                                 {% block component_pagination_prev_link_icon %}
-                                    {% sw_icon 'arrow-medium-left' style { size: 'fluid', pack: 'solid', ariaHidden: true } %}
+                                    {% sw_icon 'arrow-medium-left' style { size: 'fluid', pack: 'solid' } %}
                                 {% endblock %}
                             </a>
                         {% endblock %}
@@ -89,7 +89,7 @@
                         {% block component_pagination_next_link_element %}
                             <a href="{{ href ? '?' ~ pageParameter ~ '=' ~ (currentPage + 1) ~ searchQuery : '#' }}" class="page-link" data-page="{{ currentPage + 1 }}" aria-label="{{ 'general.pagination.next'|trans|striptags }}" data-focus-id="next"{% if currentPage == totalPages %} tabindex="-1" aria-disabled="true"{% endif %}>
                                 {% block component_pagination_next_link_icon %}
-                                    {% sw_icon 'arrow-medium-right' style { size: 'fluid', pack: 'solid', ariaHidden: true } %}
+                                    {% sw_icon 'arrow-medium-right' style { size: 'fluid', pack: 'solid' } %}
                                 {% endblock %}
                             </a>
                         {% endblock %}
@@ -101,7 +101,7 @@
                         {% block component_pagination_last_link_element %}
                             <a href="{{ href ? '?' ~ pageParameter ~ '=' ~ totalPages ~ searchQuery : '#' }}" class="page-link" data-page="{{ totalPages }}" aria-label="{{ 'general.pagination.last'|trans|striptags }}" data-focus-id="last"{% if currentPage == totalPages %} tabindex="-1" aria-disabled="true"{% endif %}>
                                 {% block component_pagination_last_link_icon %}
-                                    {% sw_icon 'arrow-medium-double-right' style { size: 'fluid', pack: 'solid', ariaHidden: true } %}
+                                    {% sw_icon 'arrow-medium-double-right' style { size: 'fluid', pack: 'solid' } %}
                                 {% endblock %}
                             </a>
                         {% endblock %}

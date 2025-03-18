@@ -41,9 +41,9 @@ class ScriptPriceStubsTest extends TestCase
             $actualPrice = $actual->getCurrencyPrice($expectedPrice->getCurrencyId());
 
             static::assertInstanceOf(Price::class, $actualPrice);
-            static::assertEquals($expectedPrice->getNet(), $actualPrice->getNet());
-            static::assertEquals($expectedPrice->getGross(), $actualPrice->getGross());
-            static::assertEquals($expectedPrice->getLinked(), $actualPrice->getLinked());
+            static::assertSame($expectedPrice->getNet(), $actualPrice->getNet());
+            static::assertSame($expectedPrice->getGross(), $actualPrice->getGross());
+            static::assertSame($expectedPrice->getLinked(), $actualPrice->getLinked());
         }
     }
 

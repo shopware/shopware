@@ -1,6 +1,6 @@
 name: Story 
 description: Use this template to draft user stories.
-labels: [Story]
+type: Story
 body:
     - type: markdown
       attributes:

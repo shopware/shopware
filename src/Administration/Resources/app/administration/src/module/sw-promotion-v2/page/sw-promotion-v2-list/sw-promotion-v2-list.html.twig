@@ -69,6 +69,7 @@
             {% block sw_promotion_v2_list_grid %}
             <sw-entity-listing
                 v-if="entitySearchable"
+                ref="listing"
                 :repository="promotionRepository"
                 :columns="promotionColumns"
                 :items="promotions"
@@ -128,6 +129,7 @@
                 {% block sw_promotion_v2_list_grid_columns_actions_delete %}
                 <template #delete-action="{ item, showDelete }">
                     <sw-context-menu-item
+                        v-tooltip="deleteDisabledTooltip(item)"
                         variant="danger"
                         :disabled="(item && item.orderCount > 0) || !acl.can('promotion.deleter') || undefined"
                         @click="showDelete(item.id)"

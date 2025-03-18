@@ -430,6 +430,63 @@ The HTML of the modal trigger is now inside the twig template instead.
 }
 ```
 
+## Storefront `{% sw_icon %}` are `aria-hidden="true"` by default
+Storefront icons that are rendered via `{% sw_icon 'icon-name' %}` will apply `aria-hidden="true"` by default so they are hidden for screen readers.
+In most scenarios icons are of decorative nature and should therefore not be read as "graphic" by the screen reader. **This change does not affect the actual rendering or appearance of the icons.**
+In many areas the icons were already set to `ariaHidden: true` manually. For things like "icon only" buttons there should always be an alternative text available that describes the action.
+
+It is still possible to disable `aria-hidden` by applying `ariaHidden: false` on the icon: 
+```twig
+{% sw_icon 'plus' style { ariaHidden: false } %}
+```
+
+```twig
+{# 
+    Icon only button 
+    ======================================================
+#}
+<button class="btn btn-primary my-action" aria-label="Label for icon only button">
+    {% sw_icon 'plus' %} {# Icon is hidden for screen reader. #}
+</button>
+
+{# Will render: #}
+<button class="btn btn-primary my-action" aria-label="Label for icon only button">
+    <span class="icon icon-plus" aria-hidden="true">
+        <svg ...></svg>
+    </div>
+</button>
+
+{# 
+    Additional icon button 
+    ======================================================
+#}
+<button class="btn btn-primary my-action">
+    {% sw_icon 'plus' %} {# Icon is hidden for screen reader. #}
+    Label for the button {# Button is labelled by the actual text. #}
+</button>
+
+{# Will render: #}
+<button class="btn btn-primary my-action">
+    <span class="icon icon-plus" aria-hidden="true">
+        <svg ...></svg>
+    </div>
+    Label for the button {# Button is labelled by the actual text. #}
+</button>
+
+{# 
+    Label for icon SVG
+    ======================================================
+#}
+
+{# In rare occasions, you can optionally disable aria-hidden. It is also possible to apply an aria-label to the SVG. #}
+{% sw_icon 'plus' style { ariaHidden: false, ariaLabel: 'My label' } %}
+
+{# Will render: #}
+<span class="icon icon-plus">
+    <svg aria-label="My label"...></svg>
+</div>
+```
+
 </details>
 
 # Further Changes
@@ -2433,7 +2490,8 @@ We made some changes in the Storefront, which might affect your plugins and them
 * The following blocks were moved from `src/Storefront/Resources/views/storefront/base.html.twig` to `src/Storefront/Resources/views/storefront/layout/footer.html.twig`.
   * `base_footer`
   * `base_footer_inner`
-* The template variable `page` in following templates was removed. Provide `header` or `footer` directly.
+* The template variable `page` in following templates was removed. The data is now available in the `header` or `footer` variables.
+  If you need to access custom data in the footer or header, use the `HeaderPageletLoadedEvent` or `FooterPageletLoadedEvent` to extend those variables.
   * `src/Storefront/Resources/views/storefront/layout/footer/footer.html.twig`
   * `src/Storefront/Resources/views/storefront/layout/header/actions/currency-widget.html.twig`
   * `src/Storefront/Resources/views/storefront/layout/header/actions/language-widget.html.twig`

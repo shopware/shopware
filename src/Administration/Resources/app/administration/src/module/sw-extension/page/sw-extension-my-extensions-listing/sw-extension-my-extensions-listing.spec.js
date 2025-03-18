@@ -362,7 +362,11 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         await wrapper.vm.$nextTick();
 
-        await selectMtSelectOptionByText(wrapper, 'sw-extension.my-extensions.listing.controls.filterOptions.name-desc', '.mt-select__selection');
+        await selectMtSelectOptionByText(
+            wrapper,
+            'sw-extension.my-extensions.listing.controls.filterOptions.name-desc',
+            '.mt-select__selection',
+        );
 
         const correctOrder = [
             'very smart plugin',
@@ -397,7 +401,11 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         Shopware.Store.get('shopwareExtensions').setMyExtensions(extensions);
 
-        await selectMtSelectOptionByText(wrapper, 'sw-extension.my-extensions.listing.controls.filterOptions.name-asc', '.mt-select__selection');
+        await selectMtSelectOptionByText(
+            wrapper,
+            'sw-extension.my-extensions.listing.controls.filterOptions.name-asc',
+            '.mt-select__selection',
+        );
 
         const correctOrder = [
             '#1 best plugin',

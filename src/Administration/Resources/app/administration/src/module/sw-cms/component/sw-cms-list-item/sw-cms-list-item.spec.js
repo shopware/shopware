@@ -104,7 +104,8 @@ describe('module/sw-cms/component/sw-cms-list-item', () => {
                 ],
             },
             {
-                'background-image': 'url(administration/administration/static/img/cms/preview_product_list_product_listing.png)',
+                'background-image':
+                    'url(administration/administration/static/img/cms/preview_product_list_product_listing.png)',
                 'background-size': 'cover',
             },
         ],

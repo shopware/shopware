@@ -255,13 +255,7 @@ jobs:
         with:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
-      - name: composer.json changed
-        id: changed-composer-json
-        uses: tj-actions/changed-files@v45
-        with:
-          files: composer.json
       - name: Check license
-        if: steps.changed-composer-json.outputs.any_changed == 'true'
         run: vendor/bin/composer-license-checker check $(xargs -n1 echo -a < .allowed-licenses)
 
   composer-audit:

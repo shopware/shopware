@@ -81,22 +81,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: package*.json changed
-        id: changed-package-json
-        uses: tj-actions/changed-files@v45
-        with:
-          files: src/Administration/Resources/app/administration/package*.json
       - uses: actions/setup-node@v4
-        if: steps.changed-package-json.outputs.any_changed == 'true'
         with:
           node-version: 20
       - name: install packages
-        if: steps.changed-package-json.outputs.any_changed == 'true'
         working-directory: src/Storefront/Resources/app/storefront
         run: |
           npm ci
       - name: Check license
-        if: steps.changed-package-json.outputs.any_changed == 'true'
         working-directory: src/Administration/Resources/app/administration
         run: |
           npx license-checker-rseidelsohn \

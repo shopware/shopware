@@ -7,11 +7,13 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsDataDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(CartPromotionsDataDefinition::class)]
+#[Package('checkout')]
 class CartPromotionsDataDefinitionTest extends TestCase
 {
     /**

@@ -9,12 +9,14 @@ use Shopware\Core\Checkout\Cart\CartValidatorInterface;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Validator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
 #[CoversClass(Validator::class)]
+#[Package('checkout')]
 class ValidatorTest extends TestCase
 {
     public function testValidate(): void

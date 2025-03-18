@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilderResult;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemGroupRule;
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -18,6 +19,7 @@ use Symfony\Component\Validator\Constraints\Type;
  * @internal
  */
 #[CoversClass(LineItemGroupRule::class)]
+#[Package('checkout')]
 class LineItemGroupRuleTest extends TestCase
 {
     public function testMatchReturnsFalseBecauseOfWrongScope(): void

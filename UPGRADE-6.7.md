@@ -2490,7 +2490,8 @@ We made some changes in the Storefront, which might affect your plugins and them
 * The following blocks were moved from `src/Storefront/Resources/views/storefront/base.html.twig` to `src/Storefront/Resources/views/storefront/layout/footer.html.twig`.
   * `base_footer`
   * `base_footer_inner`
-* The template variable `page` in following templates was removed. Provide `header` or `footer` directly.
+* The template variable `page` in following templates was removed. The data is now available in the `header` or `footer` variables.
+  If you need to access custom data in the footer or header, use the `HeaderPageletLoadedEvent` or `FooterPageletLoadedEvent` to extend those variables.
   * `src/Storefront/Resources/views/storefront/layout/footer/footer.html.twig`
   * `src/Storefront/Resources/views/storefront/layout/header/actions/currency-widget.html.twig`
   * `src/Storefront/Resources/views/storefront/layout/header/actions/language-widget.html.twig`

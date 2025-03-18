@@ -6,6 +6,8 @@ updates:
       interval: "weekly"
     commit-message:
       prefix: "ci(deps): "
+    labels:
+      - "domain/product-operations"
     groups:
       all:
         patterns:

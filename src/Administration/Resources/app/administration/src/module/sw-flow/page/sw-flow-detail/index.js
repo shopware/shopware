@@ -312,9 +312,9 @@ export default {
             return Store.get('swFlow').setFlow(flow);
         },
 
-        getDetailFlow() {
+        async getDetailFlow() {
             this.isLoading = true;
-            Shopware.Store.get('swFlow').fetchTriggerActions();
+            await Shopware.Store.get('swFlow').fetchTriggerActions();
 
             return this.flowRepository
                 .get(this.flowId, Context.api, this.flowCriteria)

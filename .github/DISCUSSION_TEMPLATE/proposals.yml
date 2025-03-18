@@ -6,7 +6,7 @@ body:
       label: Change description
       description: |
         Please describe your proposed change in detail.
-      value: |
+      placeholder: |
         <!-- How much effort do you expect is required to make the change? -->
         # Effort
 

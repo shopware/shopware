@@ -19,6 +19,10 @@ $sw-products-variants-generated-variants-toolbar-border: $color-gray-300;
                 height: 15px;
             }
         }
+
+        .sw-product-variants__generate-action {
+            width: 100%;
+        }
     }
 
     .sw-product-variants-overview__data-grid {

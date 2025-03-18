@@ -5,8 +5,6 @@ issue: NEXT-40000
 
 # Core
 
-* Added migration `Shopware\Core\Migration\V6_7\Migration1734604008RemoveDuplicateTransitionsForActionPay` to remove duplicate transitions for action_name = `pay`/`paid` resp. `pay_partially`/`paid_partially`
-* Added migration `Shopware\Core\Migration\V6_7\Migration1734607798RenameTransitionActionPay` to rename transition actions `pay` and `pay_partially` to `paid` resp. `paid_partially`
+* Added migration `Shopware\Core\Migration\V6_7\Migration1742302302RenamePaidTransitionActions` to add duplicate transition names `paid/paid_partially/process` for respective `pay`, `pay_partially` and `do_pay`. The migration will remove the old transition names `pay/pay_partially/do_pay` destructively, according to the version selection mode in the future.
 * Added new method `Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler::paidPartially` to fulfill the new action name `paid_partially`
-* Marked method `Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler::payPartially` as deprecated, as the transition action `pay_partially` does not exist anymore
-* Added test cases for the state transitions, mentioned above
+* Deprecated method `Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler::payPartially` as deprecated, as the transition action `pay_partially` does not exist anymore

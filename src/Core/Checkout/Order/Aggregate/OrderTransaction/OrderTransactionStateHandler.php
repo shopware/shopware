@@ -69,7 +69,7 @@ class OrderTransactionStateHandler
             new Transition(
                 OrderTransactionDefinition::ENTITY_NAME,
                 $transactionId,
-                StateMachineTransitionActions::ACTION_DO_PAY,
+                Feature::isActive('v6.8.0.0') ? StateMachineTransitionActions::ACTION_PROCESS : StateMachineTransitionActions::ACTION_DO_PAY,
                 'stateId'
             ),
             $context
@@ -126,15 +126,7 @@ class OrderTransactionStateHandler
             Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', 'OrderTransactionStateHandler::payPartially')
         );
 
-        $this->stateMachineRegistry->transition(
-            new Transition(
-                OrderTransactionDefinition::ENTITY_NAME,
-                $transactionId,
-                StateMachineTransitionActions::ACTION_PAID_PARTIALLY,
-                'stateId'
-            ),
-            $context
-        );
+        $this->paidPartially($transactionId, $context);
     }
 
     /**

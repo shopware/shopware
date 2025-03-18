@@ -77,3 +77,4 @@ jobs:
           github-token: ${{ steps.sts.outputs.token }}
           script: |
             const { setStatusInProjects } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
+            await setStatusInProjects({github, core, context}, { fromStatus: "Done", toStatus: "in progress" })

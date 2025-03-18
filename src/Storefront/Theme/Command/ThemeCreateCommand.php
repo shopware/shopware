@@ -61,8 +61,7 @@ class ThemeCreateCommand extends Command
 
         $pluginName = ucfirst((string) $themeName);
 
-        $directory = $this->projectDir . '/custom/plugins/' . $pluginName;
-
+        $directory = str_replace(' ', '', $this->projectDir . '/custom/plugins/' . $pluginName);
         if (file_exists($directory)) {
             $io->error(sprintf('Plugin directory %s already exists', $directory));
 

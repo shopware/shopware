@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
@@ -112,7 +113,7 @@ class OrderTransactionStateHandler
     }
 
     /**
-     * @deprecated tag:v6.7.0 - Will be removed. Use OrderTransactionStateHandler::paidPartially instead
+     * @deprecated tag:v6.8.0 - Will be removed. Use OrderTransactionStateHandler::paidPartially instead
      *
      * @throws InconsistentCriteriaIdsException
      * @throws StateMachineException
@@ -120,6 +121,11 @@ class OrderTransactionStateHandler
      */
     public function payPartially(string $transactionId, Context $context): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', 'OrderTransactionStateHandler::payPartially')
+        );
+
         $this->stateMachineRegistry->transition(
             new Transition(
                 OrderTransactionDefinition::ENTITY_NAME,

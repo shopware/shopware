@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\V6_6;
+namespace Shopware\Core\Migration\V6_8;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('checkout')]
 class Migration1734607798RenameTransitionActionPay extends MigrationStep
 {
     public function getCreationTimestamp(): int

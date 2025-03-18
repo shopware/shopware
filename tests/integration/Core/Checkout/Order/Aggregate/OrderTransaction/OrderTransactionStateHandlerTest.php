@@ -109,12 +109,12 @@ class OrderTransactionStateHandlerTest extends TestCase
             ]],
             'Partially Pay & Pay' => [[
                 'payPartially' => OrderTransactionStates::STATE_PARTIALLY_PAID,
-                'pay' => OrderTransactionStates::STATE_PAID
+                'pay' => OrderTransactionStates::STATE_PAID,
             ]],
             'Remind & Pay' => [[
                 'remind' => OrderTransactionStates::STATE_REMINDED,
-                'pay' => OrderTransactionStates::STATE_PAID
-            ]]
+                'pay' => OrderTransactionStates::STATE_PAID,
+            ]],
         ];
     }
 

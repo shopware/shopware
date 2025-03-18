@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\V6_7;
+namespace Shopware\Core\Migration\V6_8;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('checkout')]
 class Migration1734604008RemoveDuplicateTransitionsForActionPay extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -27,6 +27,9 @@ class Migration1734604008RemoveDuplicateTransitionsForActionPay extends Migratio
         }
     }
 
+    /**
+     * @return string[]|null
+     */
     protected function findDuplicateTransitions(Connection $connection): ?array
     {
         $sql = <<<SQL
@@ -73,9 +76,13 @@ SQL;
         return $result ?: null;
     }
 
+    /**
+     * @param string[] $duplicateTransitionIds
+     */
     protected function removeDuplicateTransitions(Connection $connection, array $duplicateTransitionIds): void
     {
-        $connection->executeStatement('DELETE FROM state_machine_transition WHERE id IN (:duplicateTransitionIds)',
+        $connection->executeStatement(
+            'DELETE FROM state_machine_transition WHERE id IN (:duplicateTransitionIds)',
             ['duplicateTransitionIds' => $duplicateTransitionIds],
             ['duplicateTransitionIds' => ArrayParameterType::BINARY]
         );

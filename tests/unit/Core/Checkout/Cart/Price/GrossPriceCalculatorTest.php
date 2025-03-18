@@ -16,11 +16,13 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(GrossPriceCalculator::class)]
+#[Package('checkout')]
 class GrossPriceCalculatorTest extends TestCase
 {
     #[DataProvider('referencePriceCalculationProvider')]

@@ -16,10 +16,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * @script-service cart_manipulation
  *
- * @implements \IteratorAggregate<array-key, ItemFacade>
+ * @implements \IteratorAggregate<array-key, ItemFacade|ContainerFacade>
  */
 #[Package('checkout')]
-class ItemsFacade implements \IteratorAggregate
+class ItemsFacade implements \IteratorAggregate, \Countable
 {
     use ItemsAddTrait;
     use ItemsCountTrait;

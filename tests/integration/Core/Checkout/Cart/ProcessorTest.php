@@ -402,6 +402,7 @@ class ProcessorTest extends TestCase
 /**
  * @internal
  */
+#[Package('checkout')]
 class PersistentError extends Error
 {
     public function getId(): string
@@ -441,6 +442,7 @@ class PersistentError extends Error
 /**
  * @internal
  */
+#[Package('checkout')]
 class NonePersistentError extends PersistentError
 {
     public function getId(): string

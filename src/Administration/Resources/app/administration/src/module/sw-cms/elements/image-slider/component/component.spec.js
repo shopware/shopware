@@ -98,7 +98,9 @@ describe('src/module/sw-cms/elements/image-slider/component', () => {
 
         const image = wrapper.get('.sw-cms-el-image-slider__image');
 
-        expect(image.attributes('src')).toBe(`${MOCK_ASSET_PATH}administration/administration/static/img/cms/preview_mountain_large.jpg`);
+        expect(image.attributes('src')).toBe(
+            `${MOCK_ASSET_PATH}administration/administration/static/img/cms/preview_mountain_large.jpg`,
+        );
     });
 
     it('setSliderArrowItem should work correctly', async () => {

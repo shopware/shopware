@@ -538,6 +538,7 @@ frame-ancestors 'none';
             <argument type="service" id="filesystem"/>
             <argument>%kernel.project_dir%</argument>
             <argument>%shopware.feature.flags%</argument>
+            <argument>%kernel.environment%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseCreator">
@@ -546,6 +547,7 @@ frame-ancestors 'none';
             <argument type="service" id="filesystem"/>
             <argument>%kernel.project_dir%</argument>
             <argument>%shopware.feature.flags%</argument>
+            <argument>%kernel.environment%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseExporter">
@@ -554,6 +556,7 @@ frame-ancestors 'none';
             <argument type="service" id="filesystem"/>
             <argument>%kernel.project_dir%</argument>
             <argument>%shopware.feature.flags%</argument>
+            <argument>%kernel.environment%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogValidator">
@@ -562,6 +565,7 @@ frame-ancestors 'none';
             <argument type="service" id="filesystem"/>
             <argument>%kernel.project_dir%</argument>
             <argument>%shopware.feature.flags%</argument>
+            <argument>%kernel.environment%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Changelog\ChangelogParser" public="false" />

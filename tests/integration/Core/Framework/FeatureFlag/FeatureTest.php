@@ -175,9 +175,12 @@ class FeatureTest extends TestCase
 
         $this->expectExceptionMessageMatches('/.*RANDOMFLAGTHATISNOTREGISTERDE471112.*/');
 
-        $template->render([]);
-
-        restore_error_handler();
+        try {
+            $template->render([]);
+        } catch (\Exception $e) {
+            restore_error_handler();
+            throw $e;
+        }
     }
 
     public function testTwigFeatureFlagNotRegisteredInProd(): void

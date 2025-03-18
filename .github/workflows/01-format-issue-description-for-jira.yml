@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Replace multiple strings using regex in issue description
-        uses: actions/github-script@v7
+        uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
         with:
           script: |
             const issue = context.payload.issue;
@@ -42,4 +42,3 @@ jobs:
               console.log(`Updated issue #${issue.number} with multiple regex replacements`);
             } else {
               console.log(`No replacements found in issue #${issue.number}`);
-            }

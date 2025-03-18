@@ -114,7 +114,11 @@ Component.register('sw-grid', {
         },
     },
 
-    expose: ['startInlineEditing', 'selectAll', 'selectItem'],
+    expose: [
+        'startInlineEditing',
+        'selectAll',
+        'selectItem',
+    ],
 
     data() {
         return {

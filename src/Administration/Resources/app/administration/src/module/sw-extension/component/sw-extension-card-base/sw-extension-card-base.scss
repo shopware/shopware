@@ -17,11 +17,11 @@
     }
 
     &.deactivate-prevented {
-        .sw-field--switch .sw-field--switch__input input[type="checkbox"]:checked:disabled ~ .sw-field__switch-state {
+        .mt-switch .mt-switch__switch {
             background: $color-shopware-brand-500;
             opacity: 0.5;
 
-            .sw-field__switch-state-knob {
+            &::after {
                 background: $color-white;
             }
         }
@@ -41,6 +41,10 @@
         .mt-switch {
             margin: 0;
             min-height: auto;
+
+            label {
+                display: none;
+            }
         }
     }
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/prefer-promise-reject-errors */
 /**
  * @sw-package framework
  */
@@ -34,7 +35,6 @@ function getRepository(
 }
 
 function rejectRepositoryCreation(entityName: string): unknown {
-    // eslint-disable-next-line prefer-promise-reject-errors
     return Promise.reject(`Could not create repository for entity "${entityName}"`);
 }
 

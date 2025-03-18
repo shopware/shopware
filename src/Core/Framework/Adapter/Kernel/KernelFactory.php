@@ -57,7 +57,7 @@ class KernelFactory
 
         $pluginLoader = $pluginLoader ?? new DbalKernelPluginLoader($classLoader, null, $connection);
 
-        $cacheId = EnvironmentHelper::getVariable('SHOPWARE_CACHE_ID', '');
+        $cacheId = (string) EnvironmentHelper::getVariable('SHOPWARE_CACHE_ID', '');
 
         /** @var KernelInterface $kernel */
         $kernel = new static::$kernelClass(

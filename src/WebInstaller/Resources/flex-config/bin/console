@@ -4,13 +4,14 @@
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
+use Shopware\Core\HttpKernel;
 use Shopware\Core\Kernel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
 
 $envFile = __DIR__ . '/../.env';
 
-if (!file_exists(__DIR__ . '/../.env')) {
+if (!file_exists(__DIR__ . '/../.env') && !file_exists(__DIR__ . '/../.env.dist') && !file_exists(__DIR__ . '/../.env.local.php')) {
     $_SERVER['APP_RUNTIME_OPTIONS']['disable_dotenv'] = true;
 }
 
@@ -41,18 +42,29 @@ return static function (array &$context) {
 
     if (trim($context['DATABASE_URL'] ?? '') === '') {
         // fake DATABASE_URL
-        $_SERVER['DATABASE_URL'] = Kernel::PLACEHOLDER_DATABASE_URL;
+        $_SERVER['DATABASE_URL'] = 'mysql://_placeholder.test';
     } else if (!isset($context['INSTALL'])) {
         $pluginLoader = new DbalKernelPluginLoader($classLoader, null, \Shopware\Core\Kernel::getConnection());
     }
 
-    $kernel = KernelFactory::create($env, $debug, $classLoader, $pluginLoader);
+    if (method_exists(KernelFactory::class, "create")) {
+        $kernel = KernelFactory::create(
+            environment: $env,
+            debug: $debug,
+            classLoader: $classLoader,
+            pluginLoader: $pluginLoader
+        );
+    } else {
+        $kernel = new HttpKernel($env, $debug, $classLoader);
+        $kernel->setPluginLoader($pluginLoader);
+        $kernel = $kernel->getKernel();
+    }
 
-    $application = new Application($kernel->getKernel());
-    $kernel->getKernel()->boot();
+    $application = new Application($kernel);
+    $kernel->boot();
 
     $application->setName('Shopware');
-    $application->setVersion($kernel->getKernel()->getContainer()->getParameter('kernel.shopware_version'));
+    $application->setVersion($kernel->getContainer()->getParameter('kernel.shopware_version'));
 
     return $application;
 };

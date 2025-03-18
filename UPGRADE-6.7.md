@@ -609,6 +609,10 @@ If you have extended entities via an implementation of `\Shopware\Core\Framework
 The method `EntityExtension::getEntityName()` is now abstract and required to be implemented.
 Return the entity name of the entity you are extending, e.g. `product_media`.
 
+## Logger is required for ScheduledTaskHandler
+The abstract class `\Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler` now requires an implementation of `Psr\Log\LoggerInterface` as second argument.
+If you have implemented a custom `ScheduledTaskHandler`, you need to adjust the constructor accordingly.
+
 ## Elasticsearch: Return type of AbstractElasticsearchDefinition::buildTermQuery changed to BuilderInterface
 The return type of `\Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition::buildTermQuery()` and `\Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder::build()` changed from BoolQuery to BuilderInterface.
 It is not necessary to wrap the return value in a BoolQuery anymore.

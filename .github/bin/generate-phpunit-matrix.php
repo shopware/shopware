@@ -16,10 +16,9 @@ echo \json_encode([
         'test' => [
             ['path' => 'Core/Checkout'],
             ['path' => 'Core/Content'],
-            ['path' => '{Core/Framework/Adapter,Core/Framework/Api,Core/Framework/App,Core/Framework/Cache,Core/Framework/Changelog,Core/Framework/CustomField}'],
-            ['path' => '{Core/Framework/DataAbstractionLayer,Core/Framework/Demodata,Core/Framework/DependencyInjection,Core/Framework/FeatureFlag,Core/Framework/Increment,Core/Framework/Language,Core/Framework/Log,Core/Framework/MessageQueue}'],
-            ['path' => '{Core/Framework/Migration,Core/Framework/Plugin,Core/Framework/RateLimiter,Core/Framework/Routing,Core/Framework/Rule,Core/Framework/Script,Core/Framework/Seo,Core/Framework/Store,Core/Framework/Telemetry,Core/Framework/TestCaseBase}'],
-            ['path' => '{Core/Framework/Translation,Core/Framework/Update,Core/Framework/Util,Core/Framework/Webhook,Core/Framework/AdditionalPermissionValidationTest.php,Core/Framework/ApiRoutesHaveASchemaTest.php,Core/Framework/KernelTest.php,Core/Framework/ServiceDefinitionTest.php}'],
+            ['testsuite' => 'core-framework-batch1'],
+            ['testsuite' => 'core-framework-batch2'],
+            ['testsuite' => 'core-framework-batch3'],
             ['path' => 'Storefront'],
             ['path' => '{Administration,Elasticsearch}'],
             ['path' => '{Core/Installer,Core/Maintenance,Core/System}'],

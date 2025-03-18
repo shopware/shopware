@@ -371,7 +371,7 @@
             "export PROJECT_ROOT=\"$PWD\"; \"$PROJECT_ROOT\"/bin/install-extension-npm"
         ],
         "init:testdb": [
-            "FORCE_INSTALL=true vendor/bin/phpunit --group=none"
+            "FORCE_INSTALL=true vendor/bin/phpunit --group=none --testsuite migration,unit,integration,devops"
         ],
         "lint": [
             "@stylelint",

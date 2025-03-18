@@ -54,7 +54,7 @@ class AppPrivilegeControllerTest extends TestCase
     {
         $context = Context::createDefaultContext(new AdminApiSource('user-id'));
 
-        $this->privileges->expects(static::once())
+        $this->privileges->expects($this->once())
             ->method('getRequestedPrivilegesForAllApps')
             ->with()
             ->willReturn([
@@ -128,7 +128,7 @@ class AppPrivilegeControllerTest extends TestCase
     {
         $context = Context::createDefaultContext(new AdminApiSource('user-id'));
 
-        $this->privileges->expects(static::never())->method('acceptOnly');
+        $this->privileges->expects($this->never())->method('acceptOnly');
 
         $request = new Request(content: (string) json_encode([]));
 
@@ -144,7 +144,7 @@ class AppPrivilegeControllerTest extends TestCase
     {
         $context = Context::createDefaultContext(new AdminApiSource('user-id'));
 
-        $this->privileges->expects(static::never())->method('acceptOnly');
+        $this->privileges->expects($this->never())->method('acceptOnly');
 
         $request = new Request(content: (string) json_encode(['id1', 'not-id' => []]));
 
@@ -160,12 +160,12 @@ class AppPrivilegeControllerTest extends TestCase
     {
         $context = Context::createDefaultContext(new AdminApiSource('user-id'));
 
-        $this->connection->expects(static::once())
+        $this->connection->expects($this->once())
             ->method('fetchOne')
             ->with('SELECT LOWER(HEX(id)) FROM app WHERE name = ?', ['appName'])
             ->willReturn(false);
 
-        $this->privileges->expects(static::never())->method('acceptOnly');
+        $this->privileges->expects($this->never())->method('acceptOnly');
 
         static::expectException(AppException::class);
         static::expectExceptionMessage('Could not find app with name "appName"');
@@ -180,12 +180,12 @@ class AppPrivilegeControllerTest extends TestCase
     {
         $context = Context::createDefaultContext(new AdminApiSource('user-id'));
 
-        $this->connection->expects(static::once())
+        $this->connection->expects($this->once())
             ->method('fetchOne')
             ->with('SELECT LOWER(HEX(id)) FROM app WHERE name = ?', ['appName'])
             ->willReturn('app-id-1');
 
-        $this->privileges->expects(static::once())
+        $this->privileges->expects($this->once())
             ->method('acceptOnly')
             ->with('app-id-1', ['customer:read', 'customer:update'], $context);
 

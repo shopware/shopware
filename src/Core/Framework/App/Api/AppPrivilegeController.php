@@ -30,40 +30,27 @@ class AppPrivilegeController
     #[Route(
         path: '/api/app-system/privileges/requested',
         name: 'api.app_system.privileges.requested',
-        defaults: ['_acl' => ['acl_role:read']],
+        defaults: ['_acl' => ['system.plugin_maintain']],
         methods: [Request::METHOD_GET]
     )]
     public function getRequestedPrivileges(Context $context): JsonResponse
     {
         $this->assertHasUserId($context);
 
-        return new JsonResponse([
-            'requestedPrivileges' => array_map(
-                fn (array $privileges) => Utils::makeCategorizedPermissions($privileges),
-                $this->privileges->getRequestedPrivilegesForAllApps()
-            ),
-        ]);
-    }
-
-    #[Route(
-        path: '/api/app-system/privileges/accepted',
-        name: 'api.app_system.privileges.accepted',
-        //        defaults: ['_acl' => ['acl_role:read']],
-        methods: [Request::METHOD_GET]
-    )]
-    public function getAcceptedPrivileges(Context $context): JsonResponse
-    {
-        $source = $this->getSourceWithIntegration($context);
-
-        return new JsonResponse([
-            'acceptedPrivileges' => Utils::makeCategorizedPermissions($source->getPermissions()),
-        ]);
+        return $context->scope(Context::SYSTEM_SCOPE, function () {
+            return new JsonResponse([
+                'requestedPrivileges' => array_map(
+                    fn (array $privileges) => Utils::makeCategorizedPermissions($privileges),
+                    $this->privileges->getRequestedPrivilegesForAllApps()
+                ),
+            ]);
+        });
     }
 
     #[Route(
         path: '/api/app-system/{appName}/privileges/accept',
         name: 'api.app_system.privileges.accept',
-        defaults: ['_acl' => ['acl_role:update']],
+        defaults: ['_acl' => ['system.plugin_maintain']],
         methods: [Request::METHOD_POST]
     )]
     public function acceptPrivileges(Request $request, Context $context, string $appName): Response
@@ -77,15 +64,31 @@ class AppPrivilegeController
             throw AppException::invalidPrivileges();
         }
 
-        $id = $this->fetchAppId($appName);
+        $context->scope(Context::SYSTEM_SCOPE, function () use ($appName, $privilegesToAccept, $context): void {
+            $id = $this->fetchAppId($appName);
 
-        try {
-            $this->privileges->acceptOnly($id, $privilegesToAccept, $context);
-        } catch (\Throwable) {
-            // no-op
-        }
+            try {
+                $this->privileges->acceptOnly($id, $privilegesToAccept, $context);
+            } catch (\Throwable) {
+                // no-op
+            }
+        });
 
         return new Response(status: Response::HTTP_NO_CONTENT);
+    }
+
+    #[Route(
+        path: '/api/app-system/privileges/accepted',
+        name: 'api.app_system.privileges.accepted',
+        methods: [Request::METHOD_GET]
+    )]
+    public function getAcceptedPrivileges(Context $context): JsonResponse
+    {
+        $source = $this->getSourceWithIntegration($context);
+
+        return new JsonResponse([
+            'acceptedPrivileges' => Utils::makeCategorizedPermissions($source->getPermissions()),
+        ]);
     }
 
     private function fetchAppId(string $appName): string

@@ -30,7 +30,7 @@ jobs:
           fetch-tags: "true"
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@6c489b2fc701c5f9ed70ccebe221b567bee578c0 # 2
+        uses: shivammathur/setup-php@9e72090525849c5e82e596468b86eb55e9cc5401 # 2
         with:
           php-version: 8.2
           coverage: none

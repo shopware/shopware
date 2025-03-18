@@ -25,9 +25,5 @@ return [
 
         // Expected to be appended when new event is added
         'Value of constant Shopware\\\\Core\\\\Framework\\\\Webhook\\\\Hookable',
-
-        // Wrong types, can be removed with the release of Shopware 6.8
-        'The parameter \\$cmsPages of Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity#setCmsPages\(\) changed from Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsBlock\\\\CmsBlockCollection to a non-contravariant Shopware\\\\Core\\\\Content\\\\Cms\\\\CmsPageCollection',
-        'The parameter \\$cmsPages of Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity#setCmsPages\(\) changed from Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsBlock\\\\CmsBlockCollection to Shopware\\\\Core\\\\Content\\\\Cms\\\\CmsPageCollection'
     ],
 ];

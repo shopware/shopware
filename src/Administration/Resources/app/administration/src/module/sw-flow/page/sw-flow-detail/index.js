@@ -308,8 +308,7 @@ export default {
         async getDetailFlow() {
             this.isLoading = true;
 
-            const triggerActionsPromise = Shopware.State.dispatch('swFlowState/fetchTriggerActions');
-            await triggerActionsPromise;
+            await Shopware.State.dispatch('swFlowState/fetchTriggerActions');
 
             return this.flowRepository
                 .get(this.flowId, Context.api, this.flowCriteria)

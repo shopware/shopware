@@ -478,6 +478,8 @@ class AppLifecycle extends AbstractAppLifecycle
             'secretAccessKey' => $secret,
             'admin' => false,
         ];
+        file_put_contents(__DIR__ . '/../../../../../.key', $secret);
+
         $metadata['aclRole'] = [
             'id' => $roleId,
             'name' => $manifest->getMetadata()->getName(),

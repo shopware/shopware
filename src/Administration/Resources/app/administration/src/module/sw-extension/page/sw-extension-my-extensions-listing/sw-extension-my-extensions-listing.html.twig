@@ -115,7 +115,7 @@
                     position-identifier="sw-extension-my-extensions-listing__before-content"
                 />
 
-                <sw-meteor-card :ref="(card) => { extensionCardRefs[ext.name] = card }"
+                <sw-meteor-card
                     v-if="!extensionListPaginated.length && filterByActiveState"
                     class="sw-extension-my-extensions-listing__empty-state"
                 >

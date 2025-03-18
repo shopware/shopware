@@ -27,7 +27,7 @@
                                                         "properties": {
                                                             "extensions": {
                                                                 "type": "array",
-                                                                "items": {}
+                                                                "items": { "type": "object" }
                                                             },
                                                             "entity": {
                                                                 "type": "string"
@@ -87,7 +87,7 @@
                                                     "properties": {
                                                         "extensions": {
                                                             "type": "array",
-                                                            "items": {}
+                                                            "items": { "type": "object" }
                                                         },
                                                         "entity": {
                                                             "type": "string"

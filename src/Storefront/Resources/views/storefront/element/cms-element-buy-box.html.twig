@@ -6,7 +6,9 @@
     } %}
 
     {% if element.data.product %}
-        <div class="cms-element-{{ element.type }}{% if config.alignment.value %} has-vertical-alignment{% endif %}">
+        <div class="cms-element-{{ element.type }}{% if config.alignment.value %} has-vertical-alignment{% endif %}"
+             data-buy-box="true"
+             data-buy-box-options='{{ buyBoxOptions|json_encode }}'>
 
             {% block element_buy_box_inner %}
                 {% if config.alignment.value %}

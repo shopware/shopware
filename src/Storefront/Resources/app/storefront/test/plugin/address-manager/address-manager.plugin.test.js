@@ -3,6 +3,8 @@ import AddressManagerPlugin from 'src/plugin/address-manager/address-manager.plu
 /**
  * @package checkout
  */
+
+// TODO: Fix
 describe('AddressManagerPlugin test', () => {
     afterEach(() => {
         document.body.innerHTML = '';

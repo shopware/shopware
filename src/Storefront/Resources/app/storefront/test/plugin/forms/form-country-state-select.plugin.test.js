@@ -212,7 +212,7 @@ describe('Form country state select plugin', () => {
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="shippingAddressAddressCountryState"> Bundesland </label>
-                            <select class="country-state-select form-select" data-initial-country-state-id="">
+                            <select class="country-state-select form-select" data-initial-country-state-id="" id="shippingAddressAddressCountryState">
                                 <option value="" selected="selected" data-placeholder-option="true">Bundesland auswählen ...</option>
                                 <option value="0490081418be4255b87731afc953e901">Hamburg</option>
                             </select>
@@ -259,7 +259,7 @@ describe('Form country state select plugin', () => {
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="shippingAddressAddressCountryState"> Bundesland </label>
-                            <select class="country-state-select form-select" data-initial-country-state-id="">
+                            <select class="country-state-select form-select" data-initial-country-state-id="" id="shippingAddressAddressCountryState">
                                 <option value="" selected="selected" data-placeholder-option="true">Bundesland auswählen ...</option>
                                 <option value="0490081418be4255b87731afc953e901">Hamburg</option>
                             </select>

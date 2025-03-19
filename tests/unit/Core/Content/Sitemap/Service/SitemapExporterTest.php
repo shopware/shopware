@@ -6,6 +6,7 @@ use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemPoolInterface;
+use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Content\Sitemap\Provider\CustomUrlProvider;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporter;
 use Shopware\Core\Content\Sitemap\Service\SitemapHandleFactoryInterface;
@@ -74,7 +75,8 @@ class SitemapExporterTest extends TestCase
             10,
             $this->createMock(FilesystemOperator::class),
             $sitemapHandlerFactory,
-            $this->createMock(EventDispatcher::class)
+            $this->createMock(EventDispatcher::class),
+            $this->createMock(CartRuleLoader::class)
         );
 
         $languageId = Uuid::randomHex();

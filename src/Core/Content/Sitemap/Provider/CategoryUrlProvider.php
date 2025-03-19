@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Sitemap\Provider;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
@@ -12,9 +13,12 @@ use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -25,13 +29,16 @@ class CategoryUrlProvider extends AbstractUrlProvider
 
     /**
      * @internal
+     *
+     * @param SalesChannelRepository<CategoryCollection> $categoryRepository
      */
     public function __construct(
         private readonly ConfigHandler $configHandler,
         private readonly Connection $connection,
         private readonly CategoryDefinition $definition,
         private readonly IteratorFactory $iteratorFactory,
-        private readonly RouterInterface $router
+        private readonly RouterInterface $router,
+        private readonly SalesChannelRepository $categoryRepository,
     ) {
     }
 
@@ -57,9 +64,19 @@ class CategoryUrlProvider extends AbstractUrlProvider
         if (empty($categories)) {
             return new UrlResult([], null);
         }
+
         $keys = FetchModeHelper::keyPair($categories);
 
-        $seoUrls = $this->getSeoUrls(array_values($keys), 'frontend.navigation.page', $context, $this->connection);
+        // Load categories from the repository to allow decorators and event listeners to modify the result.
+        /** @var EntityCollection<CategoryEntity> $categoryEntities */
+        $categoryEntities = $this->categoryRepository->search(new Criteria(array_values($keys)), $context);
+        $activeCategories = array_filter(
+            $categories,
+            fn (array $category) => $categoryEntities->get($category['id'])?->getActive() ?? true
+        );
+        $activeCategoryIds = array_column($activeCategories, 'id');
+
+        $seoUrls = $this->getSeoUrls($activeCategoryIds, 'frontend.navigation.page', $context, $this->connection);
 
         /** @var array<string, array{seo_path_info: string}> $seoUrls */
         $seoUrls = FetchModeHelper::groupUnique($seoUrls);
@@ -67,7 +84,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
         $urls = [];
         $url = new Url();
 
-        foreach ($categories as $category) {
+        foreach ($activeCategories as $category) {
             $lastMod = $category['updated_at'] ?: $category['created_at'];
 
             $lastMod = (new \DateTime($lastMod))->format(Defaults::STORAGE_DATE_TIME_FORMAT);

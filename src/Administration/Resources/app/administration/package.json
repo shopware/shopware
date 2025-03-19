@@ -49,7 +49,7 @@
   ],
   "dependencies": {
     "@shopware-ag/meteor-admin-sdk": "5.7.7",
-    "@shopware-ag/meteor-component-library": "4.7.1",
+    "@shopware-ag/meteor-component-library": "4.8.0",
     "@shopware-ag/meteor-icon-kit": "5.4.0",
     "@swc/core": "1.10.7",
     "@types/fs-extra": "^11.0.4",

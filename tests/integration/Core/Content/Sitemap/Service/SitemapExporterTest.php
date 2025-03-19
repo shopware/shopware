@@ -215,7 +215,7 @@ class SitemapExporterTest extends TestCase
         $cache = $this->createMock(CacheItemPoolInterface::class);
         $cache->method('getItem')->willReturn($this->createCacheItem('', true, false));
 
-        $exporter = $this->sitemapExporter($cache,[$handler], $factory);
+        $exporter = $this->sitemapExporter($cache, [$handler], $factory);
 
         $salesChannel = Generator::generateSalesChannelContext();
         $salesChannel->getSalesChannel()->setDomains(new SalesChannelDomainCollection([

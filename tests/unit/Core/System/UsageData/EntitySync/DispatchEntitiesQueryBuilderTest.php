@@ -47,9 +47,9 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
         $this->connection = $this->createMock(Connection::class);
         $this->connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
 
-        $this->connection->expects(static::never())
+        $this->connection->expects($this->never())
             ->method('createQueryBuilder');
-        $this->connection->expects(static::any())
+        $this->connection->expects($this->any())
             ->method('createExpressionBuilder')
             ->willReturn(new ExpressionBuilder($this->connection));
 
@@ -159,9 +159,9 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
     {
         // can't call execute with empty query
         $this->queryHelper->getQueryBuilder()->select('1');
-        $this->connection->expects(static::once())
+        $this->connection->expects($this->once())
             ->method('executeQuery')
-            ->willReturn($this->createStub(Result::class));
+            ->willReturn(static::createStub(Result::class));
 
         $this->queryHelper->execute();
     }

@@ -20,7 +20,7 @@ class CleanupCartTaskHandlerTest extends TestCase
     public function testHandle(): void
     {
         $cartPersister = $this->createMock(AbstractCartPersister::class);
-        $cartPersister->expects(static::once())
+        $cartPersister->expects($this->once())
             ->method('prune')
             ->with(30);
 

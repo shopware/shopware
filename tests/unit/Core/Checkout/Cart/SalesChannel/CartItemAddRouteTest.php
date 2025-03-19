@@ -83,7 +83,7 @@ class CartItemAddRouteTest extends TestCase
     {
         $rateLimiter = $this->createMock(RateLimiter::class);
         $rateLimiter
-            ->expects(static::exactly($expectedCacheKey === null ? 0 : 1))
+            ->expects($this->exactly($expectedCacheKey === null ? 0 : 1))
             ->method('ensureAccepted')
             ->willReturnCallback(function (string $route, string $key) use ($expectedCacheKey): void {
                 static::assertSame($route, RateLimiter::CART_ADD_LINE_ITEM);
@@ -92,7 +92,7 @@ class CartItemAddRouteTest extends TestCase
 
         $lineItemFactory = $this->createMock(LineItemFactoryRegistry::class);
         $lineItemFactory
-            ->expects(static::atLeastOnce())
+            ->expects($this->atLeastOnce())
             ->method('create')
             ->willReturnCallback(
                 fn ($dataBag): LineItem => new LineItem($dataBag['id'], $dataBag['type'], $dataBag['referencedId'] ?? null, $dataBag['quantity'])

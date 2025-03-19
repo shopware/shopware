@@ -59,14 +59,14 @@ class DeactivateExtensionsStepTest extends TestCase
         $systemConfigService = $this->createMock(SystemConfigService::class);
 
         $systemConfigService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('set')
             ->with(DeactivateExtensionsStep::UPDATE_DEACTIVATED_PLUGINS, [1]);
 
         $extensionLifecycleService = $this->createMock(ExtensionLifecycleService::class);
 
         $extensionLifecycleService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('deactivate')
             ->with('app', 'TestApp');
 
@@ -104,14 +104,14 @@ class DeactivateExtensionsStepTest extends TestCase
         $systemConfigService = $this->createMock(SystemConfigService::class);
 
         $systemConfigService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('set')
             ->with(DeactivateExtensionsStep::UPDATE_DEACTIVATED_PLUGINS, [1]);
 
         $extensionLifecycleService = $this->createMock(ExtensionLifecycleService::class);
 
         $extensionLifecycleService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('deactivate')
             ->with('app', 'TestApp');
 

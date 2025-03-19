@@ -59,7 +59,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
 
         $entityDispatcher = $this->createMock(EntityDispatcher::class);
-        $entityDispatcher->expects(static::never())
+        $entityDispatcher->expects($this->never())
             ->method('dispatch');
 
         static::expectException(UnrecoverableMessageHandlingException::class);
@@ -95,11 +95,11 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
 
         $entityDispatcher = $this->createMock(EntityDispatcher::class);
-        $entityDispatcher->expects(static::never())
+        $entityDispatcher->expects($this->never())
             ->method('dispatch');
 
         $consentService = $this->createMock(ConsentService::class);
-        $consentService->expects(static::once())
+        $consentService->expects($this->once())
             ->method('getLastConsentIsAcceptedDate')
             ->willReturn(null);
 
@@ -151,11 +151,11 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
 
         $entityDispatcher = $this->createMock(EntityDispatcher::class);
-        $entityDispatcher->expects(static::never())
+        $entityDispatcher->expects($this->never())
             ->method('dispatch');
 
         $consentService = $this->createMock(ConsentService::class);
-        $consentService->expects(static::never())
+        $consentService->expects($this->never())
             ->method('getLastConsentIsAcceptedDate');
 
         $definition = new SyncEntityDefinition();
@@ -232,7 +232,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         );
 
         $entityDispatcher = $this->createMock(EntityDispatcher::class);
-        $entityDispatcher->expects(static::once())
+        $entityDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(
                 (new SyncEntityDefinition())->getEntityName(),
@@ -240,10 +240,10 @@ class DispatchEntityMessageHandlerTest extends TestCase
             );
 
         $connectionMock = $this->createConnectionMock();
-        $connectionMock->expects(static::once())
+        $connectionMock->expects($this->once())
             ->method('executeQuery') // SELECT
             ->willReturn(FakeResultFactory::createResult($queryResult, $connectionMock));
-        $connectionMock->expects(static::once())
+        $connectionMock->expects($this->once())
             ->method('executeStatement') // DELETE
             ->willReturn(\count($primaryKeys));
 
@@ -301,7 +301,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         );
 
         $doctrineResult = $this->createMock(Result::class);
-        $doctrineResult->expects(static::once())
+        $doctrineResult->expects($this->once())
             ->method('iterateAssociative')
             ->willReturn(new \ArrayIterator([
                 [
@@ -325,12 +325,12 @@ class DispatchEntityMessageHandlerTest extends TestCase
             ]));
 
         $connectionMock = $this->createConnectionMock();
-        $connectionMock->expects(static::once())
+        $connectionMock->expects($this->once())
             ->method('executeQuery')
             ->willReturn($doctrineResult);
 
         $entityDispatcher = $this->createMock(EntityDispatcher::class);
-        $entityDispatcher->expects(static::once())
+        $entityDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(
                 SyncEntityDefinition::ENTITY_NAME,
@@ -430,7 +430,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             }));
 
         $consentService = $this->createMock(ConsentService::class);
-        $consentService->expects(static::once())
+        $consentService->expects($this->once())
             ->method('getLastConsentIsAcceptedDate')
             ->willReturn(new \DateTimeImmutable());
 
@@ -485,7 +485,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             ]);
 
         $consentService = $this->createMock(ConsentService::class);
-        $consentService->expects(static::once())
+        $consentService->expects($this->once())
             ->method('getLastConsentIsAcceptedDate')
             ->willReturn(new \DateTimeImmutable());
 
@@ -535,7 +535,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             ]);
 
         $manyToManyAssociationService = $this->createMock(ManyToManyAssociationService::class);
-        $manyToManyAssociationService->expects(static::once())
+        $manyToManyAssociationService->expects($this->once())
             ->method('getMappingIdsForAssociationFields')
             ->with(static::callback(function (array $associationFields) {
                 return $associationFields[0] === 'missing';
@@ -565,7 +565,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
         $runDate = new \DateTimeImmutable();
         $entityDispatcher = $this->createMock(EntityDispatcher::class);
-        $entityDispatcher->expects(static::once())
+        $entityDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(
                 $definition->getEntityName(),
@@ -581,7 +581,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             );
 
         $consentService = $this->createMock(ConsentService::class);
-        $consentService->expects(static::once())
+        $consentService->expects($this->once())
             ->method('getLastConsentIsAcceptedDate')
             ->willReturn($createdAndUpdatedAt);
 
@@ -679,17 +679,17 @@ class DispatchEntityMessageHandlerTest extends TestCase
         );
 
         $doctrineResult = $this->createMock(Result::class);
-        $doctrineResult->expects(static::once())
+        $doctrineResult->expects($this->once())
             ->method('iterateAssociative')
             ->willReturn(new \ArrayIterator([])); // could be empty if the entities were deleted in the meantime
 
         $connectionMock = $this->createConnectionMock();
-        $connectionMock->expects(static::once())
+        $connectionMock->expects($this->once())
             ->method('executeQuery')
             ->willReturn($doctrineResult);
 
         $entityDispatcher = $this->createMock(EntityDispatcher::class);
-        $entityDispatcher->expects(static::never())
+        $entityDispatcher->expects($this->never())
             ->method('dispatch');
 
         $consentService = $this->createMock(ConsentService::class);
@@ -745,9 +745,9 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
 
-        $connection->expects(static::never())
+        $connection->expects($this->never())
             ->method('createQueryBuilder');
-        $connection->expects(static::any())
+        $connection->expects($this->any())
             ->method('createExpressionBuilder')
             ->willReturn(new ExpressionBuilder($connection));
 

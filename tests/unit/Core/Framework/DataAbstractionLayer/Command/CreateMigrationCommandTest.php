@@ -52,17 +52,17 @@ class CreateMigrationCommandTest extends TestCase
         $commandTester = new CommandTester($command);
 
         $definition = $this->createMock(EntityDefinition::class);
-        $registry->expects(static::exactly(\count($entities)))->method('getByEntityName')->willReturn($definition);
+        $registry->expects($this->exactly(\count($entities)))->method('getByEntityName')->willReturn($definition);
 
         $queries = ['CREATE TABLE test_entity (id INT);'];
 
-        $queryGenerator->expects(static::exactly(\count($entities)))->method('generateQueries')->willReturn($queries);
+        $queryGenerator->expects($this->exactly(\count($entities)))->method('generateQueries')->willReturn($queries);
 
         if ($bundle !== null) {
             $kernel->method('getBundle')->with($bundle)->willReturn($this->getBundle());
         }
 
-        $fileRendererInvocation = static::exactly(\count($entities));
+        $fileRendererInvocation = $this->exactly(\count($entities));
 
         $migrationFileRenderer
             ->expects($fileRendererInvocation)
@@ -74,7 +74,7 @@ class CreateMigrationCommandTest extends TestCase
                 return 'Migration file content';
             });
 
-        $filesystemInvocation = static::exactly(\count($entities));
+        $filesystemInvocation = $this->exactly(\count($entities));
 
         $filesystem
             ->expects($filesystemInvocation)

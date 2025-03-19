@@ -40,10 +40,10 @@ class ResolverTest extends TestCase
 
     public function testItCallsRightStrategy(): void
     {
-        $this->firstStrategy->expects(static::once())
+        $this->firstStrategy->expects($this->once())
             ->method('resolve');
 
-        $this->secondStrategy->expects(static::never())
+        $this->secondStrategy->expects($this->never())
             ->method('resolve');
 
         $this->appUrlChangedResolverStrategy->resolve('FirstStrategy', Context::createDefaultContext());
@@ -51,10 +51,10 @@ class ResolverTest extends TestCase
 
     public function testItThrowsOnUnknownStrategy(): void
     {
-        $this->firstStrategy->expects(static::never())
+        $this->firstStrategy->expects($this->never())
             ->method('resolve');
 
-        $this->secondStrategy->expects(static::never())
+        $this->secondStrategy->expects($this->never())
             ->method('resolve');
 
         $this->expectException(AppUrlChangeStrategyNotFoundException::class);
@@ -64,11 +64,11 @@ class ResolverTest extends TestCase
 
     public function testGetAvailableStrategies(): void
     {
-        $this->firstStrategy->expects(static::once())
+        $this->firstStrategy->expects($this->once())
             ->method('getDescription')
             ->willReturn('first description');
 
-        $this->secondStrategy->expects(static::once())
+        $this->secondStrategy->expects($this->once())
             ->method('getDescription')
             ->willReturn('second description');
 

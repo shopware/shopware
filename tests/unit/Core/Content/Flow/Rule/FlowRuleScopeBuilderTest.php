@@ -48,7 +48,7 @@ class FlowRuleScopeBuilderTest extends TestCase
         $this->orderConverter->method('assembleSalesChannelContext')->willReturn($mockContext);
         $this->orderConverter->method('convertToCart')->willReturn($cart);
         $this->deliveryBuilder->method('build')->willReturn(new DeliveryCollection());
-        $this->cartDataCollector->expects(static::exactly(2))->method('collect');
+        $this->cartDataCollector->expects($this->exactly(2))->method('collect');
 
         $order = new OrderEntity();
         $order->setId(Uuid::randomHex());

@@ -64,7 +64,7 @@ class OrderServiceTest extends TestCase
         $cart->add((new LineItem('a', 'test'))->setStates([State::IS_PHYSICAL]));
 
         $this->cartService->method('getCart')->willReturn($cart);
-        $this->cartService->expects(static::exactly(2))->method('order');
+        $this->cartService->expects($this->exactly(2))->method('order');
 
         $idSearchResult = new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext());
         $this->paymentMethodRepository->method('searchIds')->willReturn($idSearchResult);

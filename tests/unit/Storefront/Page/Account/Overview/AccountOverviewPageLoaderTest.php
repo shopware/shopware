@@ -83,7 +83,7 @@ class AccountOverviewPageLoaderTest extends TestCase
         );
 
         $this->orderRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn($orderResponse);
 
@@ -92,12 +92,12 @@ class AccountOverviewPageLoaderTest extends TestCase
         $page->getMetaInformation()?->setMetaTitle('testshop');
 
         $this->genericPageLoader
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn($page);
 
         $this->translator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('trans')
             ->willReturn('translated');
 

@@ -102,7 +102,7 @@ class CategoryRouteTest extends TestCase
 
         $categoryRepositoryMock = $this->createMock(SalesChannelRepository::class);
         $categoryRepositoryMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 'category',
@@ -117,7 +117,7 @@ class CategoryRouteTest extends TestCase
 
         // Passively asserts, that the call of the cmsPageLoader mock using the slotConfig has been successful
         $cmsPageLoader
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->with(
                 $request,

@@ -110,6 +110,49 @@
         <testsuite name="integration">
             <directory>tests/integration</directory>
         </testsuite>
+
+        <!-- Framework is split in sub suites to improve the pipeline efficiency -->
+        <testsuite name="core-framework-batch1">
+            <file>tests/integration/Core/Framework/AdditionalPermissionValidationTest.php</file>
+            <file>tests/integration/Core/Framework/ApiRoutesHaveASchemaTest.php</file>
+            <file>tests/integration/Core/Framework/KernelTest.php</file>
+            <file>tests/integration/Core/Framework/ServiceDefinitionTest.php</file>
+            <directory>tests/integration/Core/Framework/Adapter</directory>
+            <directory>tests/integration/Core/Framework/Api</directory>
+            <directory>tests/integration/Core/Framework/App</directory>
+            <directory>tests/integration/Core/Framework/Cache</directory>
+            <directory>tests/integration/Core/Framework/Changelog</directory>
+            <directory>tests/integration/Core/Framework/CustomField</directory>
+        </testsuite>
+
+        <testsuite name="core-framework-batch2">
+            <directory>tests/integration/Core/Framework/DataAbstractionLayer</directory>
+            <directory>tests/integration/Core/Framework/Demodata</directory>
+            <directory>tests/integration/Core/Framework/DependencyInjection</directory>
+            <directory>tests/integration/Core/Framework/FeatureFlag</directory>
+            <directory>tests/integration/Core/Framework/Increment</directory>
+            <directory>tests/integration/Core/Framework/Language</directory>
+            <directory>tests/integration/Core/Framework/Log</directory>
+            <directory>tests/integration/Core/Framework/MessageQueue</directory>
+            <directory>tests/integration/Core/Framework/Migration</directory>
+        </testsuite>
+
+        <testsuite name="core-framework-batch3">
+            <directory>tests/integration/Core/Framework/Plugin</directory>
+            <directory>tests/integration/Core/Framework/RateLimiter</directory>
+            <directory>tests/integration/Core/Framework/Routing</directory>
+            <directory>tests/integration/Core/Framework/Rule</directory>
+            <directory>tests/integration/Core/Framework/Script</directory>
+            <directory>tests/integration/Core/Framework/Seo</directory>
+            <directory>tests/integration/Core/Framework/Store</directory>
+            <directory>tests/integration/Core/Framework/Telemetry</directory>
+            <directory>tests/integration/Core/Framework/TestCaseBase</directory>
+            <directory>tests/integration/Core/Framework/Translation</directory>
+            <directory>tests/integration/Core/Framework/Update</directory>
+            <directory>tests/integration/Core/Framework/Util</directory>
+            <directory>tests/integration/Core/Framework/Webhook</directory>
+        </testsuite>
+
         <testsuite name="devops">
             <directory>tests/devops</directory>
         </testsuite>

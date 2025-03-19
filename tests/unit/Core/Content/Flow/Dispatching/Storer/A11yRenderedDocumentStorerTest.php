@@ -139,7 +139,7 @@ class A11yRenderedDocumentStorerTest extends TestCase
     public function testDispatchBeforeLoadStorableFlowDataEvent(): void
     {
         $this->dispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->with(
                 static::isInstanceOf(BeforeLoadStorableFlowDataEvent::class),

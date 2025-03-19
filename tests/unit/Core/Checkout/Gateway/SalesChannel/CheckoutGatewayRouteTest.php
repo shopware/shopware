@@ -99,14 +99,14 @@ class CheckoutGatewayRouteTest extends TestCase
 
         $paymentMethodRoute = $this->createMock(AbstractPaymentMethodRoute::class);
         $paymentMethodRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->with($request, $context, static::equalTo((new Criteria())->addAssociation('appPaymentMethod.app')))
             ->willReturn($paymentMethods);
 
         $shippingMethodRoute = $this->createMock(AbstractShippingMethodRoute::class);
         $shippingMethodRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->with($request, $context, static::equalTo((new Criteria())->addAssociation('appShippingMethod.app')))
             ->willReturn($shippingMethods);
@@ -121,14 +121,14 @@ class CheckoutGatewayRouteTest extends TestCase
 
         $checkoutGateway = $this->createMock(CheckoutGatewayInterface::class);
         $checkoutGateway
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('process')
             ->with(static::equalTo($payload))
             ->willReturn($response);
 
         $ruleIdMatcher = $this->createMock(RuleIdMatcher::class);
         $ruleIdMatcher
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('filterCollection')
             ->willReturnArgument(0);
 
@@ -190,14 +190,14 @@ class CheckoutGatewayRouteTest extends TestCase
 
         $paymentMethodRoute = $this->createMock(AbstractPaymentMethodRoute::class);
         $paymentMethodRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->with($request, $context, static::equalTo((new Criteria())->addAssociation('appPaymentMethod.app')))
             ->willReturn($paymentMethods);
 
         $shippingMethodRoute = $this->createMock(AbstractShippingMethodRoute::class);
         $shippingMethodRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->with($request, $context, static::equalTo((new Criteria())->addAssociation('appShippingMethod.app')))
             ->willReturn($shippingMethods);
@@ -212,14 +212,14 @@ class CheckoutGatewayRouteTest extends TestCase
 
         $checkoutGateway = $this->createMock(CheckoutGatewayInterface::class);
         $checkoutGateway
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('process')
             ->with(static::equalTo($payload))
             ->willReturn($response);
 
         $ruleIdMatcher = $this->createMock(RuleIdMatcher::class);
         $ruleIdMatcher
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('filterCollection')
             ->willReturnArgument(0);
 
@@ -254,13 +254,13 @@ class CheckoutGatewayRouteTest extends TestCase
 
         $paymentMethodRoute = $this->createMock(AbstractPaymentMethodRoute::class);
         $paymentMethodRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->with($request, $context, static::isInstanceOf(Criteria::class));
 
         $shippingMethodRoute = $this->createMock(AbstractShippingMethodRoute::class);
         $shippingMethodRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->with($request, $context, static::isInstanceOf(Criteria::class));
 

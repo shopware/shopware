@@ -34,7 +34,7 @@ jobs:
           shopware-repository: ${{ github.repository }}
       - name: Run PHPUnit
         run: |
-          ./vendor/bin/phpunit --group=redis
+          ./vendor/bin/phpunit --group=redis --testsuite migration,unit,integration,devops
 
   admin:
     uses: ./.github/workflows/admin.yml

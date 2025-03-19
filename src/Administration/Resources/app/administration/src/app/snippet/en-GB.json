@@ -826,6 +826,14 @@
       }
     },
     "sw-condition-generic": {
+      "cartLineItemOfType": {
+        "lineItemType": {
+          "options": {
+            "product": "@:{'global.sw-condition.condition.lineItemOfTypeRule.product'}",
+            "promotion": "@:{'global.sw-condition.condition.lineItemOfTypeRule.discount_surcharge'}"
+          }
+        }
+      },
       "units": {
         "dimension": "mm",
         "weight": "kg",

@@ -47,7 +47,7 @@ class FirstRunWizardControllerTest extends TestCase
 
     public function testStartFrw(): void
     {
-        $this->firstRunWizardService->expects(static::once())
+        $this->firstRunWizardService->expects($this->once())
             ->method('startFrw');
 
         $frwController = new FirstRunWizardController(
@@ -64,7 +64,7 @@ class FirstRunWizardControllerTest extends TestCase
     public function testTryingToStartFrwFails(): void
     {
         $exceptionMessage = 'frwService::frwStart failed';
-        $this->firstRunWizardService->expects(static::once())
+        $this->firstRunWizardService->expects($this->once())
             ->method('startFrw')
             ->willThrowException($this->createClientException($exceptionMessage));
 
@@ -101,7 +101,7 @@ class FirstRunWizardControllerTest extends TestCase
             ),
         ]);
 
-        $this->firstRunWizardService->expects(static::once())
+        $this->firstRunWizardService->expects($this->once())
             ->method('getLanguagePlugins')
             ->willReturn([
                 (new StorePluginStruct())->assign(['name' => $plugin1Name]),
@@ -148,7 +148,7 @@ class FirstRunWizardControllerTest extends TestCase
         );
 
         $exceptionMessage = 'frwService::getLanguagePlugins failed';
-        $this->firstRunWizardService->expects(static::once())
+        $this->firstRunWizardService->expects($this->once())
             ->method('getLanguagePlugins')
             ->willThrowException($this->createClientException($exceptionMessage));
 
@@ -179,7 +179,7 @@ class FirstRunWizardControllerTest extends TestCase
             ),
         ]);
 
-        $this->firstRunWizardService->expects(static::once())
+        $this->firstRunWizardService->expects($this->once())
             ->method('getDemoDataPlugins')
             ->willReturn([
                 (new StorePluginStruct())->assign(['name' => $plugin1Name]),
@@ -220,7 +220,7 @@ class FirstRunWizardControllerTest extends TestCase
         ]);
 
         $exceptionMessage = 'frwService::getDemoDataPlugins failed';
-        $this->firstRunWizardService->expects(static::once())
+        $this->firstRunWizardService->expects($this->once())
             ->method('getDemoDataPlugins')
             ->willThrowException($this->createClientException($exceptionMessage));
 
@@ -237,7 +237,7 @@ class FirstRunWizardControllerTest extends TestCase
 
     public function testGetRecommendationRegions(): void
     {
-        $this->firstRunWizardService->expects(static::once())
+        $this->firstRunWizardService->expects($this->once())
             ->method('getRecommendationRegions')
             ->willReturn(new PluginRegionCollection([]));
 
@@ -257,7 +257,7 @@ class FirstRunWizardControllerTest extends TestCase
     public function testTryingToGetRecommendationRegionsFails(): void
     {
         $exceptionMessage = 'frwService::getRecommendationRegions failed';
-        $this->firstRunWizardService->expects(static::once())
+        $this->firstRunWizardService->expects($this->once())
             ->method('getRecommendationRegions')
             ->willThrowException($this->createClientException($exceptionMessage));
 
@@ -294,7 +294,7 @@ class FirstRunWizardControllerTest extends TestCase
             ),
         ]);
 
-        $this->firstRunWizardService->expects(static::once())
+        $this->firstRunWizardService->expects($this->once())
             ->method('getRecommendations')
             ->willReturn(new PluginRecommendationCollection([
                 (new StorePluginStruct())->assign(['name' => $plugin1Name]),
@@ -335,7 +335,7 @@ class FirstRunWizardControllerTest extends TestCase
         ]);
 
         $exceptionMessage = 'frwService::getRecommendations failed';
-        $this->firstRunWizardService->expects(static::once())
+        $this->firstRunWizardService->expects($this->once())
             ->method('getRecommendations')
             ->willThrowException($this->createClientException($exceptionMessage));
 
@@ -357,7 +357,7 @@ class FirstRunWizardControllerTest extends TestCase
             'password' => 'testPassword',
         ]);
 
-        $this->firstRunWizardService->expects(static::once())
+        $this->firstRunWizardService->expects($this->once())
             ->method('frwLogin');
 
         $frwController = new FirstRunWizardController(
@@ -377,7 +377,7 @@ class FirstRunWizardControllerTest extends TestCase
             'password' => 'testPassword',
         ]);
 
-        $this->firstRunWizardService->expects(static::never())
+        $this->firstRunWizardService->expects($this->never())
             ->method('frwLogin');
 
         $frwController = new FirstRunWizardController(
@@ -396,7 +396,7 @@ class FirstRunWizardControllerTest extends TestCase
             'shopwareId' => 'testShopwareId',
         ]);
 
-        $this->firstRunWizardService->expects(static::never())
+        $this->firstRunWizardService->expects($this->never())
             ->method('frwLogin');
 
         $frwController = new FirstRunWizardController(
@@ -417,7 +417,7 @@ class FirstRunWizardControllerTest extends TestCase
         ]);
 
         $exceptionMessage = 'frwService::frwLogin failed';
-        $this->firstRunWizardService->expects(static::once())
+        $this->firstRunWizardService->expects($this->once())
             ->method('frwLogin')
             ->willThrowException($this->createClientException($exceptionMessage));
 
@@ -434,7 +434,7 @@ class FirstRunWizardControllerTest extends TestCase
 
     public function testGetDomainList(): void
     {
-        $this->firstRunWizardService->expects(static::once())
+        $this->firstRunWizardService->expects($this->once())
             ->method('getLicenseDomains');
 
         $frwController = new FirstRunWizardController(
@@ -453,7 +453,7 @@ class FirstRunWizardControllerTest extends TestCase
     public function testTryingToGetDomainListFails(): void
     {
         $exceptionMessage = 'frwService::getLicenseDomains failed';
-        $this->firstRunWizardService->expects(static::once())
+        $this->firstRunWizardService->expects($this->once())
             ->method('getLicenseDomains')
             ->willThrowException($this->createClientException($exceptionMessage));
 
@@ -470,7 +470,7 @@ class FirstRunWizardControllerTest extends TestCase
 
     public function testVerifyDomain(): void
     {
-        $this->firstRunWizardService->expects(static::once())
+        $this->firstRunWizardService->expects($this->once())
             ->method('verifyLicenseDomain');
 
         $frwController = new FirstRunWizardController(
@@ -490,7 +490,7 @@ class FirstRunWizardControllerTest extends TestCase
 
     public function testVerifyDomainWithoutDomain(): void
     {
-        $this->firstRunWizardService->expects(static::once())
+        $this->firstRunWizardService->expects($this->once())
             ->method('verifyLicenseDomain');
 
         $frwController = new FirstRunWizardController(
@@ -510,7 +510,7 @@ class FirstRunWizardControllerTest extends TestCase
 
     public function testVerifyDomainWithoutTestEnvironment(): void
     {
-        $this->firstRunWizardService->expects(static::once())
+        $this->firstRunWizardService->expects($this->once())
             ->method('verifyLicenseDomain');
 
         $frwController = new FirstRunWizardController(
@@ -530,7 +530,7 @@ class FirstRunWizardControllerTest extends TestCase
 
     public function testVerifyDomainInTestEnvironment(): void
     {
-        $this->firstRunWizardService->expects(static::once())
+        $this->firstRunWizardService->expects($this->once())
             ->method('verifyLicenseDomain');
 
         $frwController = new FirstRunWizardController(
@@ -551,7 +551,7 @@ class FirstRunWizardControllerTest extends TestCase
     public function testTryingToVerifyDomainFails(): void
     {
         $exceptionMessage = 'frwService::getLicenseDomains failed';
-        $this->firstRunWizardService->expects(static::once())
+        $this->firstRunWizardService->expects($this->once())
             ->method('verifyLicenseDomain')
             ->willThrowException($this->createClientException($exceptionMessage));
 
@@ -571,9 +571,9 @@ class FirstRunWizardControllerTest extends TestCase
 
     public function testFinishFrw(): void
     {
-        $this->firstRunWizardService->expects(static::once())
+        $this->firstRunWizardService->expects($this->once())
             ->method('finishFrw');
-        $this->firstRunWizardService->expects(static::once())
+        $this->firstRunWizardService->expects($this->once())
             ->method('upgradeAccessToken');
 
         $frwController = new FirstRunWizardController(
@@ -589,9 +589,9 @@ class FirstRunWizardControllerTest extends TestCase
 
     public function testFinishFrwWithoutFailedParam(): void
     {
-        $this->firstRunWizardService->expects(static::once())
+        $this->firstRunWizardService->expects($this->once())
             ->method('finishFrw');
-        $this->firstRunWizardService->expects(static::once())
+        $this->firstRunWizardService->expects($this->once())
             ->method('upgradeAccessToken');
 
         $frwController = new FirstRunWizardController(
@@ -607,10 +607,10 @@ class FirstRunWizardControllerTest extends TestCase
 
     public function testFinishFrwButUpgradingAccessTokenFails(): void
     {
-        $this->firstRunWizardService->expects(static::once())
+        $this->firstRunWizardService->expects($this->once())
             ->method('finishFrw');
         $exceptionMessage = 'frwService::upgradeAccessToken failed';
-        $this->firstRunWizardService->expects(static::once())
+        $this->firstRunWizardService->expects($this->once())
             ->method('upgradeAccessToken')
             ->willThrowException(new \Exception($exceptionMessage));
 

@@ -53,11 +53,11 @@ class HtmlRendererTest extends TestCase
         $rendered->setContext(Context::createDefaultContext());
 
         $pre = $this->createMock(CallableClass::class);
-        $pre->expects(static::once())->method('__invoke');
+        $pre->expects($this->once())->method('__invoke');
         $dispatcher->addListener(HtmlRendererExtension::NAME . '.pre', $pre);
 
         $post = $this->createMock(CallableClass::class);
-        $post->expects(static::once())->method('__invoke');
+        $post->expects($this->once())->method('__invoke');
         $dispatcher->addListener(HtmlRendererExtension::NAME . '.post', $post);
 
         $renderer->render($rendered);
@@ -95,7 +95,7 @@ class HtmlRendererTest extends TestCase
 
         $documentTemplateRenderer = $this->createMock(DocumentTemplateRenderer::class);
         $documentTemplateRenderer
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('render')
             ->willReturn($html);
 
@@ -125,7 +125,7 @@ class HtmlRendererTest extends TestCase
         );
 
         $documentTemplateRenderer = $this->createMock(DocumentTemplateRenderer::class);
-        $documentTemplateRenderer->expects(static::never())
+        $documentTemplateRenderer->expects($this->never())
             ->method('render');
 
         $htmlRenderer = new HtmlRenderer(

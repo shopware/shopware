@@ -40,7 +40,7 @@ class CopyBatchTest extends TestCase
     public function testCopyWithBatchCopyInterface(): void
     {
         $adapter = $this->createMock(AsyncAwsS3WriteBatchAdapter::class);
-        $adapter->expects(static::once())->method('writeBatch');
+        $adapter->expects($this->once())->method('writeBatch');
 
         static::assertInstanceOf(WriteBatchInterface::class, $adapter);
 

@@ -69,13 +69,13 @@ class DocumentConfigLoaderTest extends TestCase
         );
 
         $repo = $this->createMock(EntityRepository::class);
-        $repo->expects(static::once())
+        $repo->expects($this->once())
             ->method('search')
             ->with(static::equalTo($expectedCriteria), $context)
             ->willReturn($result);
 
         $countryRepo = $this->createMock(EntityRepository::class);
-        $countryRepo->expects(static::once())
+        $countryRepo->expects($this->once())
             ->method('search')
             ->with(static::equalTo(new Criteria([$countryId])), $context);
 

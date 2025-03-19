@@ -108,7 +108,7 @@ class AdminExtensionApiControllerTest extends TestCase
             $this->expectException(AppException::class);
             $this->expectExceptionMessage(\sprintf('The host "%s" you tried to call is not listed in the allowed hosts in the manifest file for app "%s".', $targetUrl, $appName));
         } else {
-            $this->executor->expects(static::once())->method('execute')->with(static::callback(static fn (AppAction $action) => $action->getTargetUrl() === $targetUrl))->willReturn(new Response());
+            $this->executor->expects($this->once())->method('execute')->with(static::callback(static fn (AppAction $action) => $action->getTargetUrl() === $targetUrl))->willReturn(new Response());
         }
 
         $response = $this->adminExtensionApiController->runAction($requestDataBag, $this->context);

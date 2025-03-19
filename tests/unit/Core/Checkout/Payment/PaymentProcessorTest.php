@@ -85,36 +85,36 @@ class PaymentProcessorTest extends TestCase
 
         $struct = new PaymentTransactionStruct('order-transaction-id', 'return-url');
         $this->structFactory
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('build')
             ->with('order-transaction-id', $salesChannelContext->getContext(), 'return-url')
             ->willReturn($struct);
 
         $handler = $this->createMock(AbstractPaymentHandler::class);
         $handler
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('pay')
             ->with($request, $struct, $salesChannelContext->getContext(), null)
             ->willReturn(null);
 
-        $this->paymentHandlerRegistry->expects(static::once())
+        $this->paymentHandlerRegistry->expects($this->once())
             ->method('getPaymentMethodHandler')
             ->with('payment-method-id')
             ->willReturn($handler);
 
         $this->tokenGenerator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('generateToken')
             ->willReturn('token');
 
         $this->router
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('generate')
             ->with('payment.finalize.transaction', ['_sw_payment_token' => 'token'])
             ->willReturn('return-url');
 
         $this->tokenGenerator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('invalidateToken')
             ->with('token');
 
@@ -141,36 +141,36 @@ class PaymentProcessorTest extends TestCase
 
         $struct = new PaymentTransactionStruct('order-transaction-id', 'return-url');
         $this->structFactory
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('build')
             ->with('order-transaction-id', $salesChannelContext->getContext(), 'return-url')
             ->willReturn($struct);
 
         $handler = $this->createMock(AbstractPaymentHandler::class);
         $handler
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('pay')
             ->with($request, $struct, $salesChannelContext->getContext(), null)
             ->willReturn(new RedirectResponse('redirect-url'));
 
-        $this->paymentHandlerRegistry->expects(static::once())
+        $this->paymentHandlerRegistry->expects($this->once())
             ->method('getPaymentMethodHandler')
             ->with('payment-method-id')
             ->willReturn($handler);
 
         $this->tokenGenerator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('generateToken')
             ->willReturn('token');
 
         $this->router
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('generate')
             ->with('payment.finalize.transaction', ['_sw_payment_token' => 'token'])
             ->willReturn('return-url');
 
         $this->tokenGenerator
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('invalidateToken');
 
         $response = $this->processor->pay(
@@ -233,18 +233,18 @@ class PaymentProcessorTest extends TestCase
         $request = new Request();
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $this->paymentHandlerRegistry->expects(static::once())
+        $this->paymentHandlerRegistry->expects($this->once())
             ->method('getPaymentMethodHandler')
             ->with('payment-method-id')
             ->willReturn(null);
 
         $this->tokenGenerator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('generateToken')
             ->willReturn('token');
 
         $this->tokenGenerator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('invalidateToken')
             ->with('token');
 
@@ -269,18 +269,18 @@ class PaymentProcessorTest extends TestCase
         $request = new Request();
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $this->paymentHandlerRegistry->expects(static::once())
+        $this->paymentHandlerRegistry->expects($this->once())
             ->method('getPaymentMethodHandler')
             ->with('payment-method-id')
             ->willReturn(null);
 
         $this->tokenGenerator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('generateToken')
             ->willReturn('token');
 
         $this->tokenGenerator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('invalidateToken')
             ->with('token');
 
@@ -306,18 +306,18 @@ class PaymentProcessorTest extends TestCase
 
         $struct = new PaymentTransactionStruct('order-transaction-id', 'return-url');
         $this->structFactory
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('build')
             ->with('order-transaction-id', $salesChannelContext->getContext())
             ->willReturn($struct);
 
         $handler = $this->createMock(AbstractPaymentHandler::class);
         $handler
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('finalize')
             ->with($request, $struct, $salesChannelContext->getContext());
 
-        $this->paymentHandlerRegistry->expects(static::once())
+        $this->paymentHandlerRegistry->expects($this->once())
             ->method('getPaymentMethodHandler')
             ->with('payment-method-id')
             ->willReturn($handler);
@@ -359,7 +359,7 @@ class PaymentProcessorTest extends TestCase
         $request = new Request();
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $this->paymentHandlerRegistry->expects(static::once())
+        $this->paymentHandlerRegistry->expects($this->once())
             ->method('getPaymentMethodHandler')
             ->with('payment-method-id')
             ->willReturn(null);
@@ -393,19 +393,19 @@ class PaymentProcessorTest extends TestCase
 
         $struct = new PaymentTransactionStruct('order-transaction-id', 'return-url');
         $this->structFactory
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('build')
             ->with('order-transaction-id', $salesChannelContext->getContext())
             ->willReturn($struct);
 
         $handler = $this->createMock(AbstractPaymentHandler::class);
         $handler
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('finalize')
             ->with($request, $struct, $salesChannelContext->getContext())
             ->willThrowException(PaymentException::customerCanceled('order-transaction-id', 'cancelled'));
 
-        $this->paymentHandlerRegistry->expects(static::once())
+        $this->paymentHandlerRegistry->expects($this->once())
             ->method('getPaymentMethodHandler')
             ->with('payment-method-id')
             ->willReturn($handler);
@@ -417,7 +417,7 @@ class PaymentProcessorTest extends TestCase
         );
 
         $this->stateHandler
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('cancel')
             ->with('order-transaction-id', $salesChannelContext->getContext());
 
@@ -442,19 +442,19 @@ class PaymentProcessorTest extends TestCase
 
         $struct = new PaymentTransactionStruct('order-transaction-id', 'return-url');
         $this->structFactory
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('build')
             ->with('order-transaction-id', $salesChannelContext->getContext())
             ->willReturn($struct);
 
         $handler = $this->createMock(AbstractPaymentHandler::class);
         $handler
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('finalize')
             ->with($request, $struct, $salesChannelContext->getContext())
             ->willThrowException(PaymentException::asyncFinalizeInterrupted('order-transaction-id', 'failed'));
 
-        $this->paymentHandlerRegistry->expects(static::once())
+        $this->paymentHandlerRegistry->expects($this->once())
             ->method('getPaymentMethodHandler')
             ->with('payment-method-id')
             ->willReturn($handler);
@@ -466,7 +466,7 @@ class PaymentProcessorTest extends TestCase
         );
 
         $this->stateHandler
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fail')
             ->with('order-transaction-id', $salesChannelContext->getContext());
 
@@ -488,12 +488,12 @@ class PaymentProcessorTest extends TestCase
 
         $handler = $this->createMock(AbstractPaymentHandler::class);
         $handler
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('validate')
             ->with($cart, $requestDataBag, $salesChannelContext)
             ->willReturn(new ArrayStruct(['validationData']));
 
-        $this->paymentHandlerRegistry->expects(static::once())
+        $this->paymentHandlerRegistry->expects($this->once())
             ->method('getPaymentMethodHandler')
             ->with($salesChannelContext->getPaymentMethod()->getId())
             ->willReturn($handler);
@@ -516,7 +516,7 @@ class PaymentProcessorTest extends TestCase
         $cart = new Cart(Uuid::randomHex());
         $cart->getTransactions()->add(new Transaction(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()), 'payment-method-id'));
 
-        $this->paymentHandlerRegistry->expects(static::once())
+        $this->paymentHandlerRegistry->expects($this->once())
             ->method('getPaymentMethodHandler')
             ->with($salesChannelContext->getPaymentMethod()->getId())
             ->willReturn(null);
@@ -540,12 +540,12 @@ class PaymentProcessorTest extends TestCase
 
         $handler = $this->createMock(AbstractPaymentHandler::class);
         $handler
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('validate')
             ->with($cart, $requestDataBag, $salesChannelContext)
             ->willThrowException(PaymentException::validatePreparedPaymentInterrupted('failed'));
 
-        $this->paymentHandlerRegistry->expects(static::once())
+        $this->paymentHandlerRegistry->expects($this->once())
             ->method('getPaymentMethodHandler')
             ->with($salesChannelContext->getPaymentMethod()->getId())
             ->willReturn($handler);

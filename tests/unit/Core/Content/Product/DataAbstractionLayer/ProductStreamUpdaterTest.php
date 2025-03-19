@@ -38,7 +38,7 @@ class ProductStreamUpdaterTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn($filters);
 
@@ -79,18 +79,18 @@ class ProductStreamUpdaterTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchOne')
             ->willReturn(current(array_column($filters, 'api_filter')));
 
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchFirstColumn')
             ->willReturn($ids);
 
         // 1 time to insert the new mapping, 1 time to update the product table with the new stream ids
         $connection
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('transactional')
             ->withAnyParameters();
 
@@ -108,7 +108,7 @@ class ProductStreamUpdaterTest extends TestCase
 
         $manyToManyFieldUpdater = $this->createMock(ManyToManyIdFieldUpdater::class);
         $manyToManyFieldUpdater
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('update')
             ->with($definition->getEntityName(), $ids, Context::createDefaultContext(), 'streamIds');
 

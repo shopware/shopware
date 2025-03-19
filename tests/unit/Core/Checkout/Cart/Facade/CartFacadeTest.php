@@ -17,12 +17,14 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
 #[CoversClass(CartFacade::class)]
+#[Package('checkout')]
 class CartFacadeTest extends TestCase
 {
     public function testPublicApiAvailable(): void
@@ -105,7 +107,7 @@ class CartFacadeTest extends TestCase
         $cart->setBehavior(new CartBehavior());
 
         $helper = $this->createMock(CartFacadeHelper::class);
-        $helper->expects(static::once())->method('calculate');
+        $helper->expects($this->once())->method('calculate');
 
         $facade = new CartFacade(
             $helper,

@@ -84,7 +84,7 @@ class AddPaymentMethodExtensionsCommandHandlerTest extends TestCase
 
         $logger = $this->createMock(ExceptionLogger::class);
         $logger
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('logOrThrowException')
             ->with(
                 static::callback(

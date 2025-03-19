@@ -22,7 +22,7 @@ class ExceptionLoggerTest extends TestCase
     {
         $psrLogger = $this->createMock(LoggerInterface::class);
         $psrLogger
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('log')
             ->with(LogLevel::ERROR, 'test');
 
@@ -39,7 +39,7 @@ class ExceptionLoggerTest extends TestCase
     {
         $psrLogger = $this->createMock(LoggerInterface::class);
         $psrLogger
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('log')
             ->with(LogLevel::WARNING, 'test');
 

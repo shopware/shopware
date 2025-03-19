@@ -49,7 +49,7 @@ class SaleChannelsReadinessCheckTest extends TestCase
     {
         $this->createSalesChannels();
         $kernel = $this->createMock(Kernel::class);
-        $kernel->expects(static::exactly(2))
+        $kernel->expects($this->exactly(2))
             ->method('handle')
             ->willReturnOnConsecutiveCalls(
                 new Response(),
@@ -67,7 +67,7 @@ class SaleChannelsReadinessCheckTest extends TestCase
     {
         $this->createSalesChannels();
         $kernel = $this->createMock(Kernel::class);
-        $kernel->expects(static::exactly(2))
+        $kernel->expects($this->exactly(2))
             ->method('handle')
             ->willReturnOnConsecutiveCalls(
                 new Response(null, Response::HTTP_BAD_REQUEST),

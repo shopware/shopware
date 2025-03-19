@@ -24,7 +24,7 @@ class SearchKeywordReplacementTest extends TestCase
 
         $replacement = new SearchKeywordReplacement($decorated, $helper);
         $replacement->update([], Context::createDefaultContext());
-        $decorated->expects(static::never())->method('update');
+        $decorated->expects($this->never())->method('update');
     }
 
     public function testSearchKeywordReplacementDisabled(): void
@@ -35,14 +35,14 @@ class SearchKeywordReplacementTest extends TestCase
         $helper->method('allowIndexing')->willReturn(false);
 
         $replacement = new SearchKeywordReplacement($decorated, $helper);
-        $decorated->expects(static::once())->method('update');
+        $decorated->expects($this->once())->method('update');
         $replacement->update([], Context::createDefaultContext());
     }
 
     public function testReset(): void
     {
         $decorated = $this->createMock(SearchKeywordUpdater::class);
-        $decorated->expects(static::once())->method('reset');
+        $decorated->expects($this->once())->method('reset');
         $replacement = new SearchKeywordReplacement($decorated, $this->createMock(ElasticsearchHelper::class));
         $replacement->reset();
     }

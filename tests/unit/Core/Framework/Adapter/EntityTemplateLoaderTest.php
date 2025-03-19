@@ -37,7 +37,7 @@ class EntityTemplateLoaderTest extends TestCase
     {
         $entityTemplateLoader = new EntityTemplateLoader($this->connectionMock, 'dev');
 
-        $this->connectionMock->expects(static::never())->method('fetchAllAssociative');
+        $this->connectionMock->expects($this->never())->method('fetchAllAssociative');
 
         $result = $entityTemplateLoader->exists('@test/test');
 
@@ -57,7 +57,7 @@ class EntityTemplateLoaderTest extends TestCase
     {
         $entityTemplateLoader = new EntityTemplateLoader($this->connectionMock, 'prod');
 
-        $this->connectionMock->expects(static::once())->method('fetchAllAssociative')->willReturn([]);
+        $this->connectionMock->expects($this->once())->method('fetchAllAssociative')->willReturn([]);
 
         $result = $entityTemplateLoader->exists('@test/test');
 
@@ -77,7 +77,7 @@ class EntityTemplateLoaderTest extends TestCase
     {
         $entityTemplateLoader = new EntityTemplateLoader($this->connectionMock, 'prod');
 
-        $this->connectionMock->expects(static::once())->method('fetchAllAssociative')->willReturn(
+        $this->connectionMock->expects($this->once())->method('fetchAllAssociative')->willReturn(
             [
                 [
                     'template' => '<html></html>',
@@ -102,7 +102,7 @@ class EntityTemplateLoaderTest extends TestCase
     {
         $entityTemplateLoader = new EntityTemplateLoader($this->connectionMock, 'prod');
 
-        $this->connectionMock->expects(static::once())->method('fetchAllAssociative')->willReturn(
+        $this->connectionMock->expects($this->once())->method('fetchAllAssociative')->willReturn(
             [
                 [
                     'template' => '<html></html>',
@@ -127,7 +127,7 @@ class EntityTemplateLoaderTest extends TestCase
     {
         $entityTemplateLoader = new EntityTemplateLoader($this->connectionMock, 'prod');
 
-        $this->connectionMock->expects(static::exactly(2))->method('fetchAllAssociative')->willReturn(
+        $this->connectionMock->expects($this->exactly(2))->method('fetchAllAssociative')->willReturn(
             [
                 [
                     'template' => '<html></html>',

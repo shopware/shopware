@@ -93,7 +93,7 @@ class RegisterControllerTest extends TestCase
         $dataBag = new RequestDataBag();
         $page = new AccountLoginPage();
 
-        $this->accountLoginPageLoader->expects(static::once())
+        $this->accountLoginPageLoader->expects($this->once())
             ->method('load')
             ->with($request, $context)
             ->willReturn($page);
@@ -119,12 +119,12 @@ class RegisterControllerTest extends TestCase
         $cart = new Cart(Uuid::randomHex());
         $cart->add(new LineItem('test', 'test'));
 
-        $this->checkoutRegisterPageLoader->expects(static::once())
+        $this->checkoutRegisterPageLoader->expects($this->once())
             ->method('load')
             ->with($request, $context)
             ->willReturn($page);
 
-        $this->cartService->expects(static::once())
+        $this->cartService->expects($this->once())
             ->method('getCart')
             ->with($context->getToken(), $context)
             ->willReturn($cart);
@@ -149,7 +149,7 @@ class RegisterControllerTest extends TestCase
         $page->setGroup(new CustomerGroupEntity());
         $customerGroupId = Uuid::randomHex();
 
-        $this->customerGroupRegistrationPageLoader->expects(static::once())
+        $this->customerGroupRegistrationPageLoader->expects($this->once())
             ->method('load')
             ->with($request, $context)
             ->willReturn($page);
@@ -172,7 +172,7 @@ class RegisterControllerTest extends TestCase
         $request = $this->createRegisterRequest();
         $dataBag = new RequestDataBag();
         $this->registerRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('register')
             ->with($dataBag, $context, false, new DataValidationDefinition('storefront.confirmation'));
 
@@ -199,7 +199,7 @@ class RegisterControllerTest extends TestCase
         $expectedDefinition->add('emailConfirmation', new NotBlank(), new EqualTo(['value' => 'foo@bar.de']));
         $expectedDefinition->add('passwordConfirmation', new NotBlank(), new EqualTo(['value' => 'password']));
         $this->registerRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('register')
             ->with($dataBag, $context, false, $expectedDefinition);
 
@@ -220,7 +220,7 @@ class RegisterControllerTest extends TestCase
         $this->systemConfigService->set('core.loginRegistration.doubleOptInRegistration', true, $context->getSalesChannelId());
 
         $this->registerRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('register')
             ->with($dataBag, $context, false, new DataValidationDefinition('storefront.confirmation'));
 
@@ -244,7 +244,7 @@ class RegisterControllerTest extends TestCase
         $this->systemConfigService->set('core.loginRegistration.doubleOptInGuestOrder', true, $context->getSalesChannelId());
 
         $this->registerRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('register')
             ->with($dataBag, $context, false, new DataValidationDefinition('storefront.confirmation'));
 
@@ -266,7 +266,7 @@ class RegisterControllerTest extends TestCase
         $request = $this->createRegisterRequest();
         $dataBag = new RequestDataBag();
 
-        $this->registerRoute->expects(static::once())
+        $this->registerRoute->expects($this->once())
             ->method('register')
             ->willThrowException(new ConstraintViolationException(new ConstraintViolationList(), []));
 
@@ -283,7 +283,7 @@ class RegisterControllerTest extends TestCase
 
         $dataBag = new RequestDataBag();
 
-        $this->registerRoute->expects(static::once())
+        $this->registerRoute->expects($this->once())
             ->method('register')
             ->willThrowException(new ConstraintViolationException(new ConstraintViolationList(), []));
 
@@ -303,7 +303,7 @@ class RegisterControllerTest extends TestCase
 
         $dataBag = new RequestDataBag();
 
-        $this->registerRoute->expects(static::once())
+        $this->registerRoute->expects($this->once())
             ->method('register')
             ->willThrowException(new ConstraintViolationException(new ConstraintViolationList(), []));
 

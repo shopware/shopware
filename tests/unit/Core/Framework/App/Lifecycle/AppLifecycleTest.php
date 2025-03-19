@@ -73,7 +73,7 @@ class AppLifecycleTest extends TestCase
         $manifest->getMetadata()->assign(['compatibility' => '~7.0.0']);
 
         $appRepository = $this->createMock(EntityRepository::class);
-        $appRepository->expects(static::never())->method('upsert');
+        $appRepository->expects($this->never())->method('upsert');
 
         $appLifecycle = $this->getAppLifecycle($appRepository, new StaticEntityRepository([]), null, new StaticSourceResolver());
 
@@ -88,7 +88,7 @@ class AppLifecycleTest extends TestCase
         $manifest->getMetadata()->assign(['compatibility' => '~7.0.0']);
 
         $appRepository = $this->createMock(EntityRepository::class);
-        $appRepository->expects(static::never())->method('upsert');
+        $appRepository->expects($this->never())->method('upsert');
 
         $appLifecycle = $this->getAppLifecycle($appRepository, new StaticEntityRepository([]), null, new StaticSourceResolver());
 
@@ -467,7 +467,7 @@ class AppLifecycleTest extends TestCase
         $persister = $this->createMock(AppAdministrationSnippetPersister::class);
 
         $persister
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('updateSnippets')
             ->with($appEntities, $expectedSnippets, Context::createDefaultContext());
 

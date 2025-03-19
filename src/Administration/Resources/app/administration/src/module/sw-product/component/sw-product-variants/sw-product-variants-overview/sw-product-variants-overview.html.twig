@@ -28,7 +28,10 @@
                     @click="filterWindowOpen = !filterWindowOpen"
                 >
                     {{ $tc('sw-product.variations.generatedFilterList') }}
-                    <mt-icon name="regular-filter" />
+                    <mt-icon
+                        name="regular-filter"
+                        size="12px"
+                    />
                 </mt-button>
                 {% endblock %}
 
@@ -98,20 +101,18 @@
                     disabled: acl.can('product.creator'),
                     showOnDisabledElements: true
                 }"
-                ghost
                 :disabled="!acl.can('product.creator')"
                 class="sw-product-variants__generate-action"
-                variant="secondary"
+                variant="primary"
                 @click="$emit('generator-open')"
             >
                 {{ $tc('sw-product.variations.overview.generateVariants') }}
             </mt-button>
 
             <mt-button
-                ghost
                 class="sw-product-variants__configure-storefront-action"
                 :disabled="!acl.can('product.editor')"
-                variant="secondary"
+                variant="primary"
                 @click="$emit('delivery-open')"
             >
                 {{ $tc('sw-product.variations.overview.storefrontDelivery') }}

@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartItemUpdateRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartLoadRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartOrderRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -25,6 +26,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  */
 #[CoversClass(CartService::class)]
+#[Package('checkout')]
 class CartServiceTest extends TestCase
 {
     private AbstractCartDeleteRoute&MockObject $cartDeleteRoute;
@@ -62,7 +64,7 @@ class CartServiceTest extends TestCase
     {
         $context = $this->createMock(SalesChannelContext::class);
 
-        $this->cartDeleteRoute->expects(static::once())
+        $this->cartDeleteRoute->expects($this->once())
             ->method('delete')
             ->with($context)
         ;
@@ -79,7 +81,7 @@ class CartServiceTest extends TestCase
         $id2 = Uuid::randomHex();
         $ids = [$id1, $id2];
 
-        $this->cartItemRemoveRoute->expects(static::once())
+        $this->cartItemRemoveRoute->expects($this->once())
             ->method('remove')
             ->with(static::callback(function (Request $actualRequest) use ($ids) {
                 static::assertEquals($ids, $actualRequest->request->all('ids'));
@@ -97,7 +99,7 @@ class CartServiceTest extends TestCase
 
         $id = Uuid::randomHex();
 
-        $this->cartItemRemoveRoute->expects(static::once())
+        $this->cartItemRemoveRoute->expects($this->once())
             ->method('remove')
             ->with(static::callback(function (Request $actualRequest) use ($id) {
                 static::assertEquals([$id], $actualRequest->request->all('ids'));
@@ -115,7 +117,7 @@ class CartServiceTest extends TestCase
 
         $id = Uuid::randomHex();
 
-        $this->cartItemUpdateRoute->expects(static::once())
+        $this->cartItemUpdateRoute->expects($this->once())
             ->method('change')
             ->with(static::callback(function (Request $actualRequest) use ($id) {
                 $items = $actualRequest->request->all('items');
@@ -147,7 +149,7 @@ class CartServiceTest extends TestCase
             ],
         ];
 
-        $this->cartItemUpdateRoute->expects(static::once())
+        $this->cartItemUpdateRoute->expects($this->once())
             ->method('change')
             ->with(static::callback(function (Request $actualRequest) use ($items) {
                 static::assertEquals($items, $actualRequest->request->all('items'));
@@ -162,7 +164,7 @@ class CartServiceTest extends TestCase
     {
         $cart = new Cart('test');
         $this->cartFactory
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('createNew')
             ->with('test')
             ->willReturn($cart);

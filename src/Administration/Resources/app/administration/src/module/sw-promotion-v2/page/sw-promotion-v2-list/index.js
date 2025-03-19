@@ -163,5 +163,13 @@ export default {
                 this.isLoading = false;
             }
         },
+
+        deleteDisabledTooltip(promotion) {
+            return {
+                showDelay: 300,
+                message: this.$tc('sw-promotion-v2.list.deleteDisabledToolTip'),
+                disabled: promotion.orderCount === 0,
+            };
+        },
     },
 };

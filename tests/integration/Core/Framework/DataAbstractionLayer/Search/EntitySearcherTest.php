@@ -597,9 +597,9 @@ class EntitySearcherTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
         // connection should not be used if limit is 0
-        $connection->expects(static::never())
+        $connection->expects($this->never())
             ->method('executeQuery');
-        $connection->expects(static::never())
+        $connection->expects($this->never())
             ->method('getDatabasePlatform');
 
         $searcher = new EntitySearcher(

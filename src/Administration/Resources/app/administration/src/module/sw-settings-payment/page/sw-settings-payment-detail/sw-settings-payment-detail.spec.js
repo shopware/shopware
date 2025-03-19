@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 async function createWrapper(privileges = [], paymentMethod = {}) {
@@ -82,21 +82,18 @@ async function createWrapper(privileges = [], paymentMethod = {}) {
                         </div>
                     `,
                     },
-                    'sw-button': true,
                     'sw-button-process': true,
                     'sw-language-switch': true,
                     'sw-card-view': true,
-                    'sw-card': true,
                     'sw-container': true,
-                    'sw-alert': true,
-                    'sw-switch-field': true,
-                    'sw-number-field': true,
+                    'mt-switch': true,
+                    'mt-number-field': true,
                     'sw-text-field': true,
                     'sw-language-info': true,
                     'sw-upload-listener': true,
                     'sw-media-upload-v2': true,
                     'sw-plugin-box': true,
-                    'sw-textarea-field': true,
+                    'mt-textarea': true,
                     'sw-select-rule-create': true,
                     'sw-sidebar': true,
                     'sw-sidebar-media-item': true,
@@ -141,7 +138,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
 
         await flushPromises();
 
-        const nameField = wrapper.find('.sw-settings-payment-detail__field-name');
+        const nameField = wrapper.findComponent('.sw-settings-payment-detail__field-name');
         const positionField = wrapper.find('.sw-settings-payment-detail__field-position');
         const commentField = wrapper.find('.sw-settings-payment-detail__description');
         const uploadField = wrapper.find('.sw-settings-payment-detail__logo-image-upload');
@@ -150,14 +147,14 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
         const afterOrderField = wrapper.find('.sw-settings-payment-detail__field-after-order');
         const ruleField = wrapper.find('.sw-settings-payment-detail__field-availability-rule');
 
-        expect(nameField.attributes().disabled).toBeTruthy();
-        expect(positionField.attributes().disabled).toBeTruthy();
-        expect(commentField.attributes().disabled).toBeTruthy();
-        expect(uploadField.attributes().disabled).toBeTruthy();
-        expect(description.attributes().disabled).toBeTruthy();
-        expect(activeField.attributes().disabled).toBeTruthy();
-        expect(afterOrderField.attributes().disabled).toBeTruthy();
-        expect(ruleField.attributes().disabled).toBeTruthy();
+        expect(nameField.props().disabled).toBe(true);
+        expect(positionField.attributes('disabled')).toBeDefined();
+        expect(commentField.attributes('disabled')).toBeDefined();
+        expect(uploadField.attributes('disabled')).toBeDefined();
+        expect(description.attributes('disabled')).toBeDefined();
+        expect(activeField.attributes('disabled')).toBeDefined();
+        expect(afterOrderField.attributes('disabled')).toBeDefined();
+        expect(ruleField.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to edit payment fields', async () => {
@@ -176,15 +173,15 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
         const afterOrderField = wrapper.find('.sw-settings-payment-detail__field-after-order');
         const ruleField = wrapper.find('.sw-settings-payment-detail__field-availability-rule');
 
-        expect(nameField.attributes().disabled).toBeFalsy();
+        expect(nameField.attributes('disabled')).toBeUndefined();
 
-        expect(positionField.attributes().disabled).toBeFalsy();
-        expect(commentField.attributes().disabled).toBeFalsy();
-        expect(uploadField.attributes().disabled).toBeFalsy();
-        expect(description.attributes().disabled).toBeFalsy();
-        expect(activeField.attributes().disabled).toBeFalsy();
-        expect(afterOrderField.attributes().disabled).toBeFalsy();
-        expect(ruleField.attributes().disabled).toBeFalsy();
+        expect(positionField.attributes('disabled')).toBeUndefined();
+        expect(commentField.attributes('disabled')).toBeUndefined();
+        expect(uploadField.attributes('disabled')).toBeUndefined();
+        expect(description.attributes('disabled')).toBeUndefined();
+        expect(activeField.attributes('disabled')).toBeUndefined();
+        expect(afterOrderField.attributes('disabled')).toBeUndefined();
+        expect(ruleField.attributes('disabled')).toBeUndefined();
     });
 
     it('should add conditions association', async () => {
@@ -204,9 +201,9 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
 
         await flushPromises();
 
-        const technicalInput = wrapper.find('.sw-settings-payment-detail__field-technical-name');
+        const technicalInput = wrapper.findComponent('.sw-settings-payment-detail__field-technical-name');
 
-        expect(technicalInput.attributes().disabled).toBeTruthy();
+        expect(technicalInput.props().disabled).toBe(true);
     });
 
     it('should disabled technical name input appId', async () => {
@@ -218,9 +215,9 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
 
         await flushPromises();
 
-        const technicalInput = wrapper.find('.sw-settings-payment-detail__field-technical-name');
+        const technicalInput = wrapper.findComponent('.sw-settings-payment-detail__field-technical-name');
 
-        expect(technicalInput.attributes().disabled).toBeTruthy();
+        expect(technicalInput.props().disabled).toBe(true);
     });
 
     it('should not disabled technical name input', async () => {
@@ -232,6 +229,6 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
 
         const technicalInput = wrapper.find('.sw-settings-payment-detail__field-technical-name');
 
-        expect(technicalInput.attributes().disabled).toBeFalsy();
+        expect(technicalInput.attributes('disabled')).toBeUndefined();
     });
 });

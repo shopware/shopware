@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\DataCollector\DataCollector as BaseDataCollecto
 /**
  * @phpstan-import-type RequestInfo from ClientProfiler
  */
-#[Package('core')]
+#[Package('framework')]
 class DataCollector extends BaseDataCollector
 {
     /**

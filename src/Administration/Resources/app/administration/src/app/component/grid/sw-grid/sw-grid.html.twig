@@ -1,11 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_grid %}
 <div
     class="sw-grid"
     :class="gridClasses"
 >
     <slot name="content">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_grid_slot_content %}
         <div
             class="sw-grid__content"
@@ -16,28 +14,25 @@
                 v-if="header"
                 name="header"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_grid_slot_header %}
                 <div
                     class="sw-grid__header"
                     :style="[columnFlex, { paddingRight: `${scrollbarOffset}px` }]"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_grid_slot_header_cell_selectable %}
                     <div
                         v-if="selectable"
                         class="sw-grid-column"
                     >
                         <div class="sw-grid__cell-content">
-                            <sw-checkbox-field
-                                v-model:value="allSelectedChecked"
-                                @update:value="selectAll"
+                            <mt-checkbox
+                                v-model:checked="allSelectedChecked"
+                                @update:checked="selectAll"
                             />
                         </div>
                     </div>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_grid_slot_header_cell %}
                     <div
                         v-for="(column, columnIndex) in columns"
@@ -49,23 +44,20 @@
                         @keydown.enter="onGridCellClick($event, column)"
                     >
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_grid_slot_header_cell_content %}
                         <div class="sw-grid__cell-content">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_grid_slot_header_cell_icon_label %}
                             <span
                                 v-if="column.iconLabel"
                                 class="sw-grid__cell-label"
                             >
-                                <sw-icon
+                                <mt-icon
                                     :name="column.iconLabel"
                                     :title="column.label"
                                 />
                             </span>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_grid_slot_header_cell_label %}
                             <span
                                 v-else-if="column.label"
@@ -73,18 +65,17 @@
                             >{{ column.label }}</span>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_grid_slot_header_cell_sortable %}
                             <span
                                 v-if="column.sortable && sort === column.dataIndex"
                                 class="sw-grid_cell-sortable"
                             >
-                                <sw-icon
+                                <mt-icon
                                     v-if="sortDir === 'ASC'"
                                     name="regular-chevron-down-xxs"
                                     size="16px"
                                 />
-                                <sw-icon
+                                <mt-icon
                                     v-else
                                     name="regular-chevron-up-xxs"
                                     size="16px"
@@ -100,7 +91,6 @@
             </slot>
 
             <slot name="body">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_grid_slot_body %}
                 <div
                     ref="swGridBody"
@@ -112,9 +102,9 @@
                         :key="getKey(item)"
                         name="items"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_grid_body_slot_items %}
                         <sw-grid-row
+                            ref="rowRefs"
                             :style="columnFlex"
                             :item="item"
                             :index="index"
@@ -124,19 +114,15 @@
                             @inline-edit-start="onInlineEditStart"
                         >
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_grid_body_item_selectable %}
                             <div
                                 v-if="selectable"
                                 class="sw-grid-column"
                             >
                                 <div class="sw-grid__cell-content">
-                                    {# @deprecated tag:v6.7.0 - The property :disabled will be removed #}
-                                    <sw-checkbox-field
-                                        :id="item.id"
-                                        :value="isSelected(item.id)"
-                                        :disabled="isGridDisabled(item.id)"
-                                        @update:value="selectItem($event, item)"
+                                    <mt-checkbox
+                                        :checked="isSelected(item.id)"
+                                        @update:checked="selectItem($event, item)"
                                     />
                                 </div>
                             </div>
@@ -146,20 +132,17 @@
                                 name="columns"
                                 :item="item"
                             >
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_grid_slot_columns %}{% endblock %}
                             </slot>
                         </sw-grid-row>
                         {% endblock %}
                     </slot>
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_grid_slot_empty_columns %}
                     <slot
                         v-if="!items.length"
                         name="empty"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_grid_slot_empty_columns_content %}{% endblock %}
                     </slot>
                     {% endblock %}
@@ -167,14 +150,12 @@
                 {% endblock %}
             </slot>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_grid_pagination %}
             <div
                 v-if="hasPaginationSlot && items.length"
                 class="sw-grid__pagination"
             >
                 <slot name="pagination">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_grid_slot_pagination %}{% endblock %}
                 </slot>
             </div>

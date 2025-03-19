@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 
 import template from './sw-sales-channel-modal-grid.html.twig';
@@ -11,8 +11,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 
@@ -64,7 +62,7 @@ export default {
             this.isLoading = true;
             const context = {
                 ...Shopware.Context.api,
-                languageId: Shopware.State.get('session').languageId,
+                languageId: Shopware.Store.get('session').languageId,
             };
             this.salesChannelTypeRepository.search(new Criteria(1, 500), context).then((response) => {
                 this.total = response.total;

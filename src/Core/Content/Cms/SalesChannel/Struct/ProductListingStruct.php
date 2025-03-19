@@ -7,15 +7,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class ProductListingStruct extends Struct
 {
     /**
      * @var EntitySearchResult<ProductCollection>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $listing;
+    protected ?EntitySearchResult $listing = null;
 
     /**
      * @return EntitySearchResult<ProductCollection>|null

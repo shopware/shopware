@@ -1,8 +1,8 @@
-const { Application, State } = Shopware;
+const { Application, Store } = Shopware;
 
 /**
  * @private
- * @package services-settings
+ * @sw-package framework
  */
 export default function createLicenseViolationsService(storeService) {
     /** {VueInstance|null} applicationRoot  */
@@ -205,7 +205,7 @@ export default function createLicenseViolationsService(storeService) {
             method: () => ignorePlugin(warning.name, getIgnoredPlugins()),
         };
 
-        State.dispatch('notification/createGrowlNotification', {
+        Store.get('notification').createGrowlNotification({
             title: plugin.label,
             message: warning.text,
             autoClose: false,

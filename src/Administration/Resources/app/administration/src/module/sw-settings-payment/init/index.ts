@@ -1,11 +1,13 @@
-import PaymentOverviewCardStore from '../state/overview-cards.store';
+import '../store/overview-cards.store';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
-Shopware.State.registerModule('paymentOverviewCardState', PaymentOverviewCardStore);
-
 Shopware.ExtensionAPI.handle('uiModulePaymentOverviewCard', (componentConfig) => {
-    Shopware.State.commit('paymentOverviewCardState/add', componentConfig);
+    if (componentConfig.component === 'sw-card') {
+        componentConfig.component = 'mt-card';
+    }
+
+    Shopware.Store.get('paymentOverviewCard').add(componentConfig);
 });

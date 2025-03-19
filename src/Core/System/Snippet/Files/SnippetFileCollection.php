@@ -4,13 +4,12 @@ namespace Shopware\Core\System\Snippet\Files;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
-use Shopware\Core\System\Snippet\Exception\InvalidSnippetFileException;
 use Shopware\Core\System\Snippet\SnippetException;
 
 /**
  * @extends Collection<AbstractSnippetFile>
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 class SnippetFileCollection extends Collection
 {
     /**
@@ -112,9 +111,6 @@ class SnippetFileCollection extends Collection
         return $list[$iso] ?? [];
     }
 
-    /**
-     * @throws InvalidSnippetFileException
-     */
     public function getBaseFileByIso(string $iso): AbstractSnippetFile
     {
         foreach ($this->getSnippetFilesByIso($iso) as $file) {

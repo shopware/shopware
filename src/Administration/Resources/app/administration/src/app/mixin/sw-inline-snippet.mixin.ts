@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { defineComponent } from 'vue';
@@ -12,7 +12,7 @@ export default Shopware.Mixin.register(
     defineComponent({
         computed: {
             swInlineSnippetLocale(): string {
-                return Shopware.State.get('session').currentLocale as unknown as string;
+                return Shopware.Store.get('session').currentLocale as unknown as string;
             },
 
             swInlineSnippetFallbackLocale(): string {

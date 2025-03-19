@@ -7,9 +7,6 @@ async function createWrapper(propsData) {
                 $t: (...args) => JSON.stringify([...args]),
                 $tc: (...args) => JSON.stringify([...args]),
             },
-            stubs: {
-                'sw-button': true,
-            },
         },
         props: {
             extensionLabel: 'SEO Professional App',
@@ -19,7 +16,7 @@ async function createWrapper(propsData) {
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('src/module/sw-extension/component/sw-extension-domains-modal', () => {
     it('should not show any domains: null', async () => {

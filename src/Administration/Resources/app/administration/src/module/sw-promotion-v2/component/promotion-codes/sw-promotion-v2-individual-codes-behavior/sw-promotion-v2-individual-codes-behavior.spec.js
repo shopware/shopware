@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 import { mount } from '@vue/test-utils';
 
@@ -11,8 +11,8 @@ async function createWrapper(additionalPromotionData = {}) {
         {
             global: {
                 stubs: {
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot></slot><slot name="toolbar"></slot></div>',
+                    'mt-card': {
+                        template: '<div class="mt-card"><slot></slot><slot name="toolbar"></slot></div>',
                     },
                     'sw-container': {
                         template: '<div class="sw-container"><slot></slot></div>',
@@ -32,20 +32,11 @@ async function createWrapper(additionalPromotionData = {}) {
                         template: '<div class="sw-empty-state"><slot></slot><slot name="actions"></slot></div>',
                     },
                     'sw-context-menu-item': true,
-                    'sw-button': {
-                        template: '<button class="sw-button" @click="$emit(\'click\', $event.target.value)"></button>',
-                        props: ['disabled'],
-                    },
                     'sw-button-process': {
                         template:
                             '<button class="sw-button-process" @click="$emit(\'click\', $event.target.value)"></button>',
                         props: ['disabled'],
                     },
-                    'sw-number-field': {
-                        template: '<div class="sw-number-field"><slot></slot></div>',
-                        props: ['value'],
-                    },
-                    'sw-icon': true,
                     'sw-loader': true,
                 },
                 provide: {
@@ -112,6 +103,10 @@ async function createWrapper(additionalPromotionData = {}) {
 }
 
 describe('src/module/sw-promotion-v2/component/sw-promotion-v2-individual-codes-behavior', () => {
+    beforeAll(() => {
+        global.activeAclRoles = ['promotion.editor'];
+    });
+
     it('should open the individual codes generation modal in empty state', async () => {
         const wrapper = await createWrapper();
 
@@ -123,7 +118,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-individual-codes-
         expect(addModal.exists()).toBe(false);
         expect(addButton.exists()).toBe(false);
 
-        const generateButton = wrapper.find('.sw-promotion-v2-individual-codes-behavior__empty-state-generate-action');
+        const generateButton = wrapper.findByText('button', 'sw-promotion-v2.detail.base.codes.individual.generateButton');
         await generateButton.trigger('click');
 
         codesModal = wrapper.find('.sw-promotion-v2-generate-codes-modal');
@@ -158,10 +153,12 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-individual-codes-
         addModal = wrapper.find('.sw-promotion-v2-individual-codes-behavior__add-codes-modal');
         expect(addModal.exists()).toBe(true);
 
-        const codeAmountInput = wrapper.getComponent('.sw-promotion-v2-individual-codes-behavior__code-amount');
+        const codeAmountInput = wrapper.findByLabel(
+            'sw-promotion-v2.detail.base.codes.individual.addCodesModal.codeAmountLabel',
+        );
         const addCodesModalButton = wrapper.find('.sw-promotion-v2-individual-codes-behavior__add-codes-button-confirm');
 
-        expect(codeAmountInput.props('value')).toBe(10);
+        expect(codeAmountInput.element.value).toBe('10');
         expect(addCodesModalButton.exists()).toBe(true);
         await addCodesModalButton.trigger('click');
 

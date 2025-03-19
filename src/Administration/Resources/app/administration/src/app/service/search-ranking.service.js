@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 const { merge, cloneDeep } = Shopware.Utils.object;
 const { Criteria } = Shopware.Data;

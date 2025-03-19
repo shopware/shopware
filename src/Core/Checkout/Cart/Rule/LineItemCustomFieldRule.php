@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\CustomFieldRule;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleScope;
@@ -13,17 +13,18 @@ use Shopware\Core\Framework\Util\ArrayComparator;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Symfony\Component\Validator\Constraint;
 
-#[Package('services-settings')]
+/**
+ * @final
+ */
+#[Package('fundamentals@after-sales')]
 class LineItemCustomFieldRule extends Rule
 {
     final public const RULE_NAME = 'cartLineItemCustomField';
 
     /**
      * @var array<string|int|bool|float>|string|int|float|bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $renderedFieldValue;
+    protected array|string|int|float|bool|null $renderedFieldValue = null;
 
     protected ?string $selectedField = null;
 
@@ -41,9 +42,6 @@ class LineItemCustomFieldRule extends Rule
         parent::__construct();
     }
 
-    /**
-     * @throws UnsupportedOperatorException
-     */
     public function match(RuleScope $scope): bool
     {
         if ($scope instanceof LineItemScope) {
@@ -71,9 +69,6 @@ class LineItemCustomFieldRule extends Rule
         return CustomFieldRule::getConstraints($this->renderedField);
     }
 
-    /**
-     * @throws UnsupportedOperatorException
-     */
     private function isCustomFieldValid(LineItem $lineItem): bool
     {
         $customFields = $lineItem->getPayloadValue('customFields');
@@ -107,7 +102,7 @@ class LineItemCustomFieldRule extends Rule
             self::OPERATOR_EQ => $actual === $expected,
             self::OPERATOR_GT => $actual > $expected,
             self::OPERATOR_LT => $actual < $expected,
-            default => throw new UnsupportedOperatorException($this->operator, self::class),
+            default => throw CartException::unsupportedOperator($this->operator, self::class),
         };
     }
 }

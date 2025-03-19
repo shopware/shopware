@@ -4,7 +4,7 @@ const ApiService = Shopware.Classes.ApiService;
  * Gateway for the API end point "import-export"
  * @class
  * @extends ApiService
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 class ImportExportApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'import-export') {

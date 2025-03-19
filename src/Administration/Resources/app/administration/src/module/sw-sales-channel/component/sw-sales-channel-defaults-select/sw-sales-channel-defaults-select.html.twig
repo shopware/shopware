@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sales_channel_defaults_select %}
 <sw-container
     class="sw-sales-channel-defaults-select"
@@ -20,7 +19,7 @@
                 v-if="shouldShowActiveState"
                 #result-label-preview="{ item }"
             >
-                <sw-icon
+                <mt-icon
                     class="sw-sales-channel-defaults-select__active-icon"
                     size="6"
                     :color="getActiveIconColor(item)"

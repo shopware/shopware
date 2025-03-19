@@ -3,12 +3,10 @@ import './sw-cms-preview-html.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     data() {
         return {

@@ -11,9 +11,9 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal
+ * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class TwigLoaderConfigCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

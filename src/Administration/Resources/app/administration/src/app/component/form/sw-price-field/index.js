@@ -5,7 +5,7 @@ const { Component, Application } = Shopware;
 const { debounce } = Shopware.Utils;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -20,8 +20,6 @@ const { debounce } = Shopware.Utils;
 Component.register('sw-price-field', {
     template,
     inheritAttrs: false,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -201,10 +199,6 @@ Component.register('sw-price-field', {
         },
 
         attributesWithoutListeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$attrs;
-            }
-
             const attributes = {};
 
             // Filter all listeners from the $attrs object

@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import template from './sw-property-detail-base.html.twig';
@@ -10,8 +10,6 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -76,5 +74,25 @@ export default {
             'displayType',
             'sortingType',
         ]),
+
+        displayTypeOptions() {
+            return this.displayTypes.map((displayType) => {
+                return {
+                    id: displayType.value,
+                    value: displayType.value,
+                    label: displayType.label,
+                };
+            });
+        },
+
+        sortingTypeOptions() {
+            return this.sortingTypes.map((sortingType) => {
+                return {
+                    id: sortingType.value,
+                    value: sortingType.value,
+                    label: sortingType.label,
+                };
+            });
+        },
     },
 };

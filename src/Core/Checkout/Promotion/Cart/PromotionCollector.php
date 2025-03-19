@@ -14,12 +14,12 @@ use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
-use Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException;
 use Shopware\Core\Checkout\Promotion\Gateway\PromotionGatewayInterface;
 use Shopware\Core\Checkout\Promotion\Gateway\Template\PermittedAutomaticPromotions;
 use Shopware\Core\Checkout\Promotion\Gateway\Template\PermittedGlobalCodePromotions;
 use Shopware\Core\Checkout\Promotion\Gateway\Template\PermittedIndividualCodePromotions;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
+use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -65,7 +65,7 @@ class PromotionCollector implements CartDataCollectorInterface
      * into Line Items which will be passed on to the next processor.
      *
      * @throws CartException
-     * @throws UnknownPromotionDiscountTypeException
+     * @throws PromotionException
      * @throws InconsistentCriteriaIdsException
      */
     public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void
@@ -106,7 +106,7 @@ class PromotionCollector implements CartDataCollectorInterface
 
             // check if max allowed redemption of promotion have been reached or not
             // if max redemption has been reached promotion will not be added
-            $allPromotions = $this->getEligiblePromotionsWithDiscounts($allPromotions, $context->getCustomer()?->getId(), $currentOrderId);
+            $allPromotions = $this->getEligiblePromotionsWithDiscounts($allPromotions, $context->getCustomerId(), $currentOrderId);
 
             $discountLineItems = [];
             $foundCodes = [];
@@ -244,7 +244,7 @@ class PromotionCollector implements CartDataCollectorInterface
         // make sure to load it and assign it to
         // the code in our cache list.
         if (\count($codesToFetch) > 0) {
-            $salesChannelId = $context->getSalesChannel()->getId();
+            $salesChannelId = $context->getSalesChannelId();
 
             foreach ($codesToFetch as $currentCode) {
                 // try to find a global code first because
@@ -355,7 +355,7 @@ class PromotionCollector implements CartDataCollectorInterface
      * The function will already avoid duplicate entries.
      *
      * @throws CartException
-     * @throws UnknownPromotionDiscountTypeException
+     * @throws PromotionException
      *
      * @return array<LineItem>
      */
@@ -387,7 +387,7 @@ class PromotionCollector implements CartDataCollectorInterface
                 $code,
                 $promotion,
                 $discount,
-                $context->getCurrency()->getId(),
+                $context->getCurrencyId(),
                 $factor
             );
 

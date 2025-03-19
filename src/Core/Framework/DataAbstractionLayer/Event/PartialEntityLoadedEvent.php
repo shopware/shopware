@@ -7,16 +7,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+/**
+ * @extends EntityLoadedEvent<PartialEntity>
+ */
+#[Package('framework')]
 class PartialEntityLoadedEvent extends EntityLoadedEvent
 {
-    /**
-     * @var PartialEntity[]
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $entities;
-
     /**
      * @param PartialEntity[] $entities
      */
@@ -27,13 +23,5 @@ class PartialEntityLoadedEvent extends EntityLoadedEvent
     ) {
         parent::__construct($definition, $entities, $context);
         $this->name = $this->definition->getEntityName() . '.partial_loaded';
-    }
-
-    /**
-     * @return PartialEntity[]
-     */
-    public function getEntities(): array
-    {
-        return $this->entities;
     }
 }

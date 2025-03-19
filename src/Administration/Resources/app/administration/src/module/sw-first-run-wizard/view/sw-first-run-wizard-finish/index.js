@@ -2,14 +2,13 @@ import template from './sw-first-run-wizard-finish.html.twig';
 import './sw-first-run-wizard-finish.scss';
 
 /**
- * @package checkout
+ * @sw-package fundamentals@after-sales
+ *
  * @private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['firstRunWizardService'],
 
@@ -49,7 +48,7 @@ export default {
         },
 
         buttonConfig() {
-            const disabledExtensionManagement = Shopware.State.get('context').app.config.settings.disableExtensionManagement;
+            const disabledExtensionManagement = Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
             const prevRoute = disabledExtensionManagement ? 'shopware.account' : 'store';
 
             return [
@@ -57,7 +56,7 @@ export default {
                     key: 'back',
                     label: this.$tc('sw-first-run-wizard.general.buttonBack'),
                     position: 'left',
-                    variant: null,
+                    variant: 'secondary',
                     action: `sw.first.run.wizard.index.${prevRoute}`,
                     disabled: false,
                 },

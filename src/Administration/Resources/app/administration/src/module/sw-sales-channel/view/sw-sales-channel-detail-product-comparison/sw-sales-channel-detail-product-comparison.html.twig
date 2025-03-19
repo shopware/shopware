@@ -1,20 +1,16 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sales_channel_detail_base %}
 <div class="sw-sales-channel-detail-product-comparison">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_product_comparison %}
-    <sw-card
+    <mt-card
         key="edit"
         position-identifier="sw-sales-channel-detail-product-comparison"
         :is-loading="isLoading"
         :title="$tc('sw-sales-channel.detail.titleProductComparisonTemplate')"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_product_comparison_header %}
         <sw-container>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_product_comparison_input_header %}
             <sw-code-editor
                 v-model:value="productExport.headerTemplate"
@@ -33,10 +29,8 @@
         </sw-container>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_product_comparison_body %}
         <sw-container>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_product_comparison_input_body %}
             <sw-code-editor
                 v-model:value="productExport.bodyTemplate"
@@ -55,10 +49,8 @@
         </sw-container>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_product_comparison_footer %}
         <sw-container>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_product_comparison_input_footer %}
             <sw-code-editor
                 v-model:value="productExport.footerTemplate"
@@ -77,14 +69,13 @@
         </sw-container>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_product_comparison_actions %}
         <div class="sw-sales-channel-detail-product-comparison__button-group">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_product_comparison_actions_test_button %}
             <sw-button-process
                 size="small"
-                variant="ghost"
+                variant="primary"
+                ghost
                 class="sw-sales-channel-detail-product-comparison__button sw-sales-channel-detail-product-comparison__test-action"
                 :is-loading="isLoadingValidate"
                 :disabled="isLoadingValidate || (!productExport.headerTemplate && !productExport.bodyTemplate && !productExport.footerTemplate)"
@@ -95,11 +86,11 @@
             </sw-button-process>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_product_comparison_actions_preview_button %}
             <sw-button-process
                 size="small"
-                variant="ghost"
+                variant="primary"
+                ghost
                 class="sw-sales-channel-detail-product-comparison__button sw-sales-channel-detail-product-comparison__preview-action"
                 :is-loading="isLoadingPreview"
                 :disabled="isLoadingPreview || (!productExport.headerTemplate && !productExport.bodyTemplate && !productExport.footerTemplate)"
@@ -110,7 +101,6 @@
             </sw-button-process>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_product_comparison_actions_preview_component %}
             <sw-sales-channel-detail-product-comparison-preview
                 :content="previewContent"
@@ -120,7 +110,7 @@
             {% endblock %}
         </div>
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>
 {% endblock %}

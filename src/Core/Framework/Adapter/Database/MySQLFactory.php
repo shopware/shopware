@@ -7,13 +7,14 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Tools\DsnParser;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class MySQLFactory
 {
     /**
@@ -31,14 +32,25 @@ class MySQLFactory
 
         $replicaUrl = (string) EnvironmentHelper::getVariable('DATABASE_REPLICA_0_URL');
 
-        $parameters = [
-            'url' => $url,
+        $dsnParser = new DsnParser(['mysql' => 'pdo_mysql']);
+        $parameters = $dsnParser->parse($url);
+
+        $parameters = array_merge([
             'charset' => 'utf8mb4',
+            'driver' => 'pdo_mysql',
             'driverOptions' => [
                 \PDO::ATTR_STRINGIFY_FETCHES => true,
                 \PDO::ATTR_TIMEOUT => 5, // 5s connection timeout
             ],
+        ], $parameters); // adding parameters that are not in the DSN
+
+        $initCommands = [
+            'SET @@session.time_zone = \'+00:00\'',
+            'SET @@group_concat_max_len = CAST(IF(@@group_concat_max_len > 320000, @@group_concat_max_len, 320000) AS UNSIGNED)',
+            'SET sql_mode=(SELECT REPLACE(@@sql_mode,\'ONLY_FULL_GROUP_BY\',\'\'))',
         ];
+
+        $parameters['driverOptions'][\PDO::MYSQL_ATTR_INIT_COMMAND] = \implode(';', $initCommands);
 
         if ($sslCa = EnvironmentHelper::getVariable('DATABASE_SSL_CA')) {
             $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_CA] = $sslCa;

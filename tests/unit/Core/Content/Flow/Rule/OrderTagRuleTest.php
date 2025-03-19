@@ -23,7 +23,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(OrderTagRule::class)]
 #[Group('rules')]
 class OrderTagRuleTest extends TestCase

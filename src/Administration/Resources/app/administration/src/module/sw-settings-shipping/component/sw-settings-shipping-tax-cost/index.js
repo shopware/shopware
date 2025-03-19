@@ -2,16 +2,14 @@ import template from './sw-settings-shipping-tax-cost.html.twig';
 
 const { Criteria } = Shopware.Data;
 const { Mixin } = Shopware;
-const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors, mapState } = Shopware.Component.getComponentHelper();
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -32,17 +30,17 @@ export default {
     },
 
     computed: {
-        ...mapState('swShippingDetail', [
-            'shippingMethod',
-            'currencies',
-        ]),
-
-        ...mapGetters('swShippingDetail', [
-            'defaultCurrency',
-            'usedRules',
-            'unrestrictedPriceMatrixExists',
-            'newPriceMatrixExists',
-        ]),
+        ...mapState(
+            () => Shopware.Store.get('swShippingDetail'),
+            [
+                'shippingMethod',
+                'currencies',
+                'defaultCurrency',
+                'usedRules',
+                'unrestrictedPriceMatrixExists',
+                'newPriceMatrixExists',
+            ],
+        ),
 
         ...mapPropertyErrors('shippingMethod', [
             'taxType',

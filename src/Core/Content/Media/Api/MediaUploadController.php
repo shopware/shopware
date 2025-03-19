@@ -19,7 +19,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class MediaUploadController extends AbstractController
 {
     /**

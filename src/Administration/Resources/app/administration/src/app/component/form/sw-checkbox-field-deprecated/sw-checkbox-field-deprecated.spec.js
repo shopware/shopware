@@ -1,10 +1,11 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/sw-checkbox-field';
+import { ref } from 'vue';
 
 const defaultData = {
     indeterminateOne: false,
@@ -35,7 +36,6 @@ const createWrapper = async (data = defaultData) => {
             stubs: {
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field-deprecated'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-icon': true,
                 'sw-field-error': {
                     template: '<div></div>',
                 },
@@ -109,7 +109,7 @@ describe('app/component/form/sw-checkbox-field', () => {
             await wrapper.findAll('.sw-field__label label').at(index).trigger('click');
             expect(wrapper.vm[checkboxId]).toBeTruthy();
 
-            expect(wrapper.find('.sw-field__checkbox-state sw-icon-stub').attributes('name')).toBe('regular-checkmark-xxs');
+            expect(wrapper.find('.sw-field__checkbox-state .mt-icon').classes()).toContain('icon--regular-checkmark-xxs');
         });
 
         it(`should click on the input of Checkbox "${checkboxId}" and the corresponding data updates`, async () => {
@@ -120,7 +120,7 @@ describe('app/component/form/sw-checkbox-field', () => {
             await wrapper.find(`input[name="sw-field--${checkboxId}"]`).setChecked();
             expect(wrapper.vm[checkboxId]).toBeTruthy();
 
-            expect(wrapper.find('.sw-field__checkbox-state sw-icon-stub').attributes('name')).toBe('regular-checkmark-xxs');
+            expect(wrapper.find('.sw-field__checkbox-state .mt-icon').classes()).toContain('icon--regular-checkmark-xxs');
         });
     });
 
@@ -136,7 +136,6 @@ describe('app/component/form/sw-checkbox-field', () => {
                 global: {
                     stubs: {
                         'sw-base-field': await wrapTestComponent('sw-base-field'),
-                        'sw-icon': true,
                         'sw-field-error': {
                             template: '<div></div>',
                         },
@@ -165,7 +164,6 @@ describe('app/component/form/sw-checkbox-field', () => {
                 global: {
                     stubs: {
                         'sw-base-field': await wrapTestComponent('sw-base-field'),
-                        'sw-icon': true,
                         'sw-field-error': {
                             template: '<div></div>',
                         },
@@ -209,7 +207,7 @@ describe('app/component/form/sw-checkbox-field', () => {
         const firstCheckbox = wrapper.find('.sw-field--checkbox');
 
         expect(firstCheckbox.find('input').element.checked).toBe(false);
-        expect(firstCheckbox.find('.sw-field__checkbox-state sw-icon-stub').attributes('name')).toBe('regular-minus-xxs');
+        expect(firstCheckbox.find('.sw-field__checkbox-state .mt-icon').classes()).toContain('icon--regular-minus-xxs');
     });
 
     it('should switch the checked icon if partlyChecked state and state is active and checkbox is partlyChecked', async () => {
@@ -222,11 +220,11 @@ describe('app/component/form/sw-checkbox-field', () => {
         await flushPromises();
 
         const firstCheckbox = wrapper.find('.sw-field--checkbox');
-        const icon = firstCheckbox.find('.sw-field__checkbox-state sw-icon-stub');
+        const icon = firstCheckbox.find('.sw-field__checkbox-state .mt-icon');
 
-        expect(icon.attributes('name')).toBe('regular-minus-xxs');
+        expect(icon.classes()).toContain('icon--regular-minus-xxs');
         await firstCheckbox.find('input').setChecked();
-        expect(icon.attributes('name')).toBe('regular-checkmark-xxs');
+        expect(icon.classes()).toContain('icon--regular-checkmark-xxs');
     });
 
     it('should add partlyChecked class to checkbox if partlyChecked state is active and checkbox is not checked', async () => {
@@ -250,5 +248,29 @@ describe('app/component/form/sw-checkbox-field', () => {
 
         const secondCheckbox = wrapper.findAll('.sw-field--checkbox').at(1);
         expect(secondCheckbox.find('input').attributes('aria-label')).toBe('Check Two');
+    });
+
+    it('injects ariaLabel prop from global injection', async () => {
+        const wrapper = mount(
+            { template: `<sw-checkbox-field-deprecated />` },
+            {
+                global: {
+                    stubs: {
+                        'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated'),
+                        'sw-base-field': await wrapTestComponent('sw-base-field'),
+                        'sw-field-error': { template: '<div></div>' },
+                        'sw-help-text': true,
+                        'sw-ai-copilot-badge': true,
+                        'sw-inheritance-switch': true,
+                    },
+                    provide: {
+                        ariaLabel: ref('Aria Label'),
+                    },
+                },
+            },
+        );
+        await flushPromises();
+
+        expect(wrapper.find('input').attributes('aria-label')).toBe('Aria Label');
     });
 });

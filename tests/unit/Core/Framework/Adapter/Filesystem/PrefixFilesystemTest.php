@@ -7,6 +7,7 @@ use League\Flysystem\UrlGeneration\TemporaryUrlGenerator;
 use League\Flysystem\Visibility;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
 
@@ -84,7 +85,7 @@ class PrefixFilesystemTest extends TestCase
 
     public function testEmptyPrefix(): void
     {
-        static::expectException(\InvalidArgumentException::class);
+        static::expectExceptionObject(AdapterException::invalidArgument('The prefix must not be empty.'));
         new PrefixFilesystem(new Filesystem(new MemoryFilesystemAdapter()), '');
     }
 }

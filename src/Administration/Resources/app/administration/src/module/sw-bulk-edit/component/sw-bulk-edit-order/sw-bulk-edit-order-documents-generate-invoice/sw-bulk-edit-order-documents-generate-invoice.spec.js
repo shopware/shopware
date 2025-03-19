@@ -1,8 +1,7 @@
 /**
- * @package services-settings
+ * @sw-package checkout
  */
 import { mount } from '@vue/test-utils';
-import swBulkEditState from 'src/module/sw-bulk-edit/state/sw-bulk-edit.state';
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-bulk-edit-order-documents-generate-invoice', { sync: true }), {
@@ -10,7 +9,6 @@ async function createWrapper() {
             stubs: {
                 'sw-datepicker': true,
                 'sw-textarea-field': true,
-                'sw-switch-field': true,
             },
         },
     });
@@ -18,11 +16,6 @@ async function createWrapper() {
 
 describe('sw-bulk-edit-order-documents-generate-invoice', () => {
     let wrapper;
-
-    beforeAll(() => {
-        Shopware.State.registerModule('swBulkEdit', swBulkEditState);
-    });
-
     beforeEach(async () => {
         wrapper = await createWrapper();
     });
@@ -38,7 +31,7 @@ describe('sw-bulk-edit-order-documents-generate-invoice', () => {
             }),
         );
 
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsValue', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
             type: 'invoice',
             value: {
                 documentDate: 'documentDate',

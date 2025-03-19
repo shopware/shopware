@@ -12,7 +12,7 @@ use Shopware\Core\Test\PHPUnit\Extension\Datadog\Gateway\DatadogGateway;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class TestRunnerExecutionFinishedSubscriber implements ExecutionFinishedSubscriber
 {
     public function __construct(

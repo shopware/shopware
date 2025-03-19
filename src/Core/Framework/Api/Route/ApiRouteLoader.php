@@ -12,7 +12,7 @@ use Symfony\Component\Config\Loader\Loader;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 
-#[Package('core')]
+#[Package('framework')]
 class ApiRouteLoader extends Loader
 {
     /**

@@ -11,7 +11,9 @@ use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Storefront\Theme\Subscriber\UpdateSubscriber;
+use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Shopware\Storefront\Theme\ThemeService;
 
@@ -40,8 +42,8 @@ class UpdateSubscriberTest extends TestCase
         $updateSubscriber = new UpdateSubscriber($themeService, $themeLifecycleService, $salesChannelRepository);
         $event = new UpdatePostFinishEvent(Context::createDefaultContext(), 'v6.2.0', 'v6.2.1');
 
-        $themeLifecycleService->expects(static::once())->method('refreshThemes');
-        $themeService->expects(static::atLeast(2))
+        $themeLifecycleService->expects($this->once())->method('refreshThemes');
+        $themeService->expects($this->atLeast(2))
             ->method('compileThemeById')
             ->willReturnCallback(function ($themeId, $c) use (&$themes, $context) {
                 $this->assertEquals($context, $c);
@@ -75,7 +77,7 @@ class UpdateSubscriberTest extends TestCase
         $themeService = $this->createMock(ThemeService::class);
         $themeLifecycleService = $this->createMock(ThemeLifecycleService::class);
 
-        /** @var EntityRepository $salesChannelRepository */
+        /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
 
         $context = Context::createDefaultContext();
@@ -87,8 +89,8 @@ class UpdateSubscriberTest extends TestCase
         $updateSubscriber = new UpdateSubscriber($themeService, $themeLifecycleService, $salesChannelRepository);
         $event = new UpdatePostFinishEvent($context, 'v6.2.0', 'v6.2.1');
 
-        $themeLifecycleService->expects(static::never())->method('refreshThemes');
-        $themeService->expects(static::never())->method('compileThemeById');
+        $themeLifecycleService->expects($this->never())->method('refreshThemes');
+        $themeService->expects($this->never())->method('compileThemeById');
 
         $updateSubscriber->updateFinished($event);
     }
@@ -98,7 +100,7 @@ class UpdateSubscriberTest extends TestCase
      */
     private function setupThemes(Context $context): array
     {
-        /** @var EntityRepository $themeRepository */
+        /** @var EntityRepository<ThemeCollection> $themeRepository */
         $themeRepository = static::getContainer()->get('theme.repository');
         $themeSalesChannelRepository = static::getContainer()->get('theme_sales_channel.repository');
 

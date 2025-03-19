@@ -1,6 +1,6 @@
 import template from './sw-bulk-edit-order.html.twig';
 import './sw-bulk-edit-order.scss';
-import swBulkEditState from '../../state/sw-bulk-edit.state';
+import '../../store/sw-bulk-edit.store';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -8,18 +8,15 @@ const { types } = Shopware.Utils;
 const { intersectionBy, chunk, uniqBy } = Shopware.Utils.array;
 
 /**
- * @package services-settings
+ * @sw-package checkout
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'bulkEditApiFactory',
         'repositoryFactory',
-        'feature',
         'orderDocumentApiService',
     ],
 
@@ -52,7 +49,7 @@ export default {
 
     computed: {
         selectedIds() {
-            return Shopware.State.get('shopwareApps').selectedIds;
+            return Shopware.Store.get('shopwareApps').selectedIds;
         },
 
         stateMachineStateRepository() {
@@ -248,16 +245,8 @@ export default {
         },
     },
 
-    beforeCreate() {
-        Shopware.State.registerModule('swBulkEdit', swBulkEditState);
-    },
-
     created() {
         this.createdComponent();
-    },
-
-    beforeUnmount() {
-        Shopware.State.unregisterModule('swBulkEdit');
     },
 
     methods: {
@@ -282,17 +271,12 @@ export default {
         },
 
         setRouteMetaModule() {
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.$route.meta.$module, 'color', '#A092F0');
-                this.$set(this.$route.meta.$module, 'icon', 'regular-shopping-bag');
-            } else {
-                if (!this.$route.meta.$module) {
-                    this.$route.meta.$module = {};
-                }
-
-                this.$route.meta.$module.color = '#A092F0';
-                this.$route.meta.$module.icon = 'regular-shopping-bag';
+            if (!this.$route.meta.$module) {
+                this.$route.meta.$module = {};
             }
+
+            this.$route.meta.$module.color = '#A092F0';
+            this.$route.meta.$module.icon = 'regular-shopping-bag';
         },
 
         loadBulkEditData() {
@@ -304,46 +288,21 @@ export default {
 
             bulkEditFormGroups.forEach((bulkEditForms) => {
                 bulkEditForms.forEach((bulkEditForm) => {
-                    if (this.isCompatEnabled('INSTANCE_SET')) {
-                        this.$set(this.bulkEditData, bulkEditForm.name, {
-                            isChanged: false,
-                            type: 'overwrite',
-                            value: null,
-                        });
-                    } else {
-                        this.bulkEditData[bulkEditForm.name] = {
-                            isChanged: false,
-                            type: 'overwrite',
-                            value: null,
-                        };
-                    }
+                    this.bulkEditData[bulkEditForm.name] = {
+                        isChanged: false,
+                        type: 'overwrite',
+                        value: null,
+                    };
                 });
             });
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.bulkEditData, 'customFields', {
-                    type: 'overwrite',
-                    value: null,
-                });
+            this.bulkEditData.customFields = {
+                type: 'overwrite',
+                value: null,
+            };
 
-                this.$set(this.bulkEditData, 'statusMails', {
-                    ...this.bulkEditData.statusMails,
-                    disabled: true,
-                });
-
-                this.$set(this.bulkEditData, 'documents', {
-                    ...this.bulkEditData.documents,
-                    disabled: true,
-                });
-            } else {
-                this.bulkEditData.customFields = {
-                    type: 'overwrite',
-                    value: null,
-                };
-
-                this.bulkEditData.statusMails.disabled = true;
-                this.bulkEditData.documents.disabled = true;
-            }
+            this.bulkEditData.statusMails.disabled = true;
+            this.bulkEditData.documents.disabled = true;
 
             this.order.documents = {
                 documentType: {},
@@ -598,7 +557,7 @@ export default {
         },
 
         onChangeDocument(type, isChanged) {
-            Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
+            Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
                 type,
                 isChanged,
             });

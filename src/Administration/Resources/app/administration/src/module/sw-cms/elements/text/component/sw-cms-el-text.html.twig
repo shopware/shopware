@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_element_text %}
 <div class="sw-cms-el-text">
     <div
@@ -7,18 +6,12 @@
         v-html="$sanitize(demoValue)"
     ></div>
 
-    <sw-text-editor
+    <mt-text-editor
         v-else
-        v-model:value="element.config.content.value"
-        :disabled="disabled"
-        :vertical-align="element.config.verticalAlign.value"
-        :allow-inline-data-mapping="true"
-        :is-inline-edit="true"
-        sanitize-input
-        sanitize-field-name="app_cms_block.template"
-        enable-transparent-background
-        @blur="onBlur"
-        @update:value="onInput"
+        :model-value="element.config.content.value"
+        :custom-buttons="customTextEditorButtons"
+        is-inline-edit
+        @update:model-value="onInput"
     />
 </div>
 {% endblock %}

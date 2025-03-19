@@ -70,14 +70,14 @@ class AuthControllerTest extends TestCase
 
     public function testAccountRegister(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
         $request = new Request();
         $request->attributes->set('_route', 'frontend.account.login.page');
         $dataBag = new RequestDataBag();
         $page = new AccountLoginPage();
 
-        $this->accountLoginPageLoader->expects(static::once())
+        $this->accountLoginPageLoader->expects($this->once())
             ->method('load')
             ->with($request, $context)
             ->willReturn($page);
@@ -94,7 +94,7 @@ class AuthControllerTest extends TestCase
 
     public function testGuestLoginPageWithoutRedirectParametersRedirects(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
 
         $request = new Request();
@@ -127,11 +127,11 @@ class AuthControllerTest extends TestCase
         $exception = new ConstraintViolationException($violations, ['email' => 'test@test']);
 
         $this->passwordRecoveryPageLoader
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('sendRecoveryMail')
             ->willThrowException($exception);
 
-        $this->controller->generateAccountRecovery($request, $dataBag, Generator::createSalesChannelContext());
+        $this->controller->generateAccountRecovery($request, $dataBag, Generator::generateSalesChannelContext());
 
         static::assertSame('frontend.account.recover.page', $this->controller->forwardToRoute);
 

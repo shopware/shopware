@@ -11,15 +11,18 @@ use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('services-settings')]
+/**
+ * @final
+ */
+#[Package('fundamentals@after-sales')]
 class LineItemInCategoryRule extends Rule
 {
     final public const RULE_NAME = 'cartLineItemInCategory';
 
     /**
-     * @internal
-     *
      * @param list<string> $categoryIds
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

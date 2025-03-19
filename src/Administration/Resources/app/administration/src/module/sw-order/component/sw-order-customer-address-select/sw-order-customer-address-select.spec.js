@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const addresses = [
@@ -76,7 +76,6 @@ async function createWrapper() {
                     }),
                     'sw-highlight-text': true,
                     'sw-loader': true,
-                    'sw-icon': true,
                     'sw-field-error': true,
                     'sw-select-result': {
                         props: [

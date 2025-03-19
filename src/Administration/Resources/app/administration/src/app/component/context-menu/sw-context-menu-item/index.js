@@ -4,7 +4,7 @@ import './sw-context-menu-item.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */
@@ -62,13 +62,14 @@ Component.register('sw-context-menu-item', {
                 'sw-context-menu-item--icon': this.icon,
             };
         },
+    },
 
-        contextListeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.disabled || this.variant === 'headline' ? {} : this.$listeners;
+    methods: {
+        // the listener has the `capture` modifier in the template to prevent parent listeners from being called
+        handleClick(event) {
+            if (this.disabled) {
+                event.stopPropagation();
             }
-
-            return {};
         },
     },
 });

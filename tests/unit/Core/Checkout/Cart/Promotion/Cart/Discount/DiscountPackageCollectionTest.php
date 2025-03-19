@@ -10,12 +10,14 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionLineItemTestFixtureBehaviour;
 
 /**
  * @internal
  */
 #[CoversClass(DiscountPackageCollection::class)]
+#[Package('checkout')]
 class DiscountPackageCollectionTest extends TestCase
 {
     use PromotionLineItemTestFixtureBehaviour;

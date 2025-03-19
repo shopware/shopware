@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * @internal
  */
-#[Package('administration')]
+#[Package('framework')]
 #[CoversClass(Administration::class)]
 class AdministrationTest extends TestCase
 {

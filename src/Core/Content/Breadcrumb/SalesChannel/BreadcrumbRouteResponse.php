@@ -7,23 +7,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 /**
- * @experimental stableVersion:v6.7.0 feature:BREADCRUMB_STORE_API
+ * @extends StoreApiResponse<BreadcrumbCollection>
  */
 #[Package('inventory')]
 class BreadcrumbRouteResponse extends StoreApiResponse
 {
-    /**
-     * @var BreadcrumbCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $object;
-
-    public function __construct(BreadcrumbCollection $breadcrumb)
-    {
-        parent::__construct($breadcrumb);
-    }
-
     public function getBreadcrumbCollection(): BreadcrumbCollection
     {
         return $this->object;

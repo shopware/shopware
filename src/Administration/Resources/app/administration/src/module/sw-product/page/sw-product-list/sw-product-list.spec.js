@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 import { mount, config } from '@vue/test-utils';
@@ -302,12 +302,6 @@ async function createWrapper() {
                     'sw-pagination': {
                         template: '<div></div>',
                     },
-                    'sw-icon': {
-                        template: '<div></div>',
-                    },
-                    'sw-button': {
-                        template: '<div></div>',
-                    },
                     'sw-sidebar': {
                         template: '<div></div>',
                     },
@@ -345,13 +339,14 @@ async function createWrapper() {
                     'sw-button-group': true,
                     'sw-text-field': true,
                     'sw-label': true,
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-bulk-edit-modal': true,
                     'sw-product-clone-modal': true,
                     'sw-product-variant-modal': true,
                     'sw-sidebar-filter-panel': true,
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-inline-edit': true,
+                    'sw-provide': { template: '<slot/>', inheritAttrs: false },
                 },
             },
         }),

@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 async function createWrapper(privileges = []) {
@@ -56,14 +56,10 @@ async function createWrapper(privileges = []) {
                         <slot></slot>
                     </div>`,
                     },
-                    'sw-button': true,
-                    'sw-icon': true,
                     'sw-search-bar': true,
                     'sw-language-switch': true,
                     'sw-context-menu-item': true,
                     'sw-card-view': true,
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-ignore-class': true,
                     'sw-extension-component-section': true,
                     'sw-entity-listing': {
@@ -111,7 +107,7 @@ describe('module/sw-settings-delivery-times/page/sw-settings-delivery-time-list'
 
         const createButton = wrapper.find('.sw-settings-delivery-time-list__create');
 
-        expect(createButton.attributes().disabled).toBeTruthy();
+        expect(createButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to create a new delivery time if user has create permission', async () => {

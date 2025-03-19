@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('administration')]
+#[Package('framework')]
 #[CoversClass(AdminTagController::class)]
 class AdminTagControllerTest extends TestCase
 {

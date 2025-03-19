@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 
@@ -33,7 +33,7 @@ async function createWrapper(propsOverride) {
                     cmsService: Shopware.Service('cmsService'),
                 },
                 stubs: {
-                    'sw-text-editor': true,
+                    'mt-text-editor': true,
                 },
             },
         },

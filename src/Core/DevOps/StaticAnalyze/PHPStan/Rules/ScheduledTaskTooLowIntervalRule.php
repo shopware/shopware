@@ -19,7 +19,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ScheduledTaskTooLowIntervalRule implements Rule
 {
     private const EXCEPTION_CLASSES = [
@@ -46,7 +46,7 @@ class ScheduledTaskTooLowIntervalRule implements Rule
 
         $class = $scope->getClassReflection();
 
-        if ($class === null || !$class->isSubclassOf(ScheduledTask::class) || $class->hasMethod('shouldRun')) {
+        if ($class === null || !$class->is(ScheduledTask::class) || $class->hasMethod('shouldRun')) {
             return [];
         }
 

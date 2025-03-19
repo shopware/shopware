@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 
@@ -74,8 +74,6 @@ describe('src/app/component/entity/sw-bulk-edit-modal', () => {
             'sw-checkbox-field': {
                 template: '<div class="sw-checkbox-field"></div>',
             },
-            'sw-icon': true,
-            'sw-button': true,
             'sw-select-field': true,
             'sw-loader': true,
             'sw-context-menu-item': true,
@@ -85,6 +83,7 @@ describe('src/app/component/entity/sw-bulk-edit-modal', () => {
             'sw-data-grid-inline-edit': true,
             'router-link': true,
             'sw-data-grid-skeleton': true,
+            'sw-provide': true,
         };
     });
 

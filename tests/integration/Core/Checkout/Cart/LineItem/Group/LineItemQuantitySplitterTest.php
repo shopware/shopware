@@ -76,7 +76,7 @@ class LineItemQuantitySplitterTest extends TestCase
     {
         $qtyCalc = $this->createMock(QuantityPriceCalculator::class);
         $qtyCalc
-            ->expects(static::exactly($expects))
+            ->expects($this->exactly($expects))
             ->method('calculate')
             ->willReturnCallback(fn (QuantityPriceDefinition $definition, SalesChannelContext $context) => static::getContainer()->get(QuantityPriceCalculator::class)->calculate($definition, $context));
 

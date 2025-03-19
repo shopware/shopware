@@ -20,9 +20,9 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor;
 use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
-use Shopware\Core\Checkout\Payment\PreparedPaymentService;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
@@ -68,14 +68,13 @@ class CartOrderRouteTest extends TestCase
             $this->orderPersister,
             $this->createMock(AbstractCartPersister::class),
             $this->eventDispatcher,
-            $this->createMock(PreparedPaymentService::class),
             $this->createMock(PaymentProcessor::class),
             $this->createMock(TaxProviderProcessor::class),
             $this->createMock(AbstractCheckoutGatewayRoute::class),
             $this->cartContextHasher
         );
 
-        $this->context = Generator::createSalesChannelContext();
+        $this->context = Generator::generateSalesChannelContext();
     }
 
     public function testOrderResponseWithoutHash(): void
@@ -97,14 +96,14 @@ class CartOrderRouteTest extends TestCase
 
         $calculatedCart = new Cart('calculated');
 
-        $this->cartCalculator->expects(static::once())
+        $this->cartCalculator->expects($this->once())
             ->method('calculate')
             ->with($cart, $this->context)
             ->willReturn($calculatedCart);
 
         $orderID = 'oder-ID';
 
-        $this->orderPersister->expects(static::once())
+        $this->orderPersister->expects($this->once())
             ->method('persist')
             ->with($calculatedCart, $this->context)
             ->willReturn($orderID);
@@ -112,14 +111,16 @@ class CartOrderRouteTest extends TestCase
         $orderEntityMock = $this->createMock(EntitySearchResult::class);
 
         $orderEntity = new OrderEntity();
+        $orderEntity->setId($orderID);
+        $orderCollection = new OrderCollection([$orderEntity]);
 
-        $this->orderRepository->expects(static::once())
+        $this->orderRepository->expects($this->once())
             ->method('search')
             ->willReturn($orderEntityMock);
 
-        $orderEntityMock->expects(static::once())
-            ->method('first')
-            ->willReturn($orderEntity);
+        $orderEntityMock->expects($this->once())
+            ->method('getEntities')
+            ->willReturn($orderCollection);
 
         $response = $this->route->order($cart, $this->context, $data);
 
@@ -146,14 +147,14 @@ class CartOrderRouteTest extends TestCase
 
         $calculatedCart = new Cart('calculated');
 
-        $this->cartCalculator->expects(static::once())
+        $this->cartCalculator->expects($this->once())
             ->method('calculate')
             ->with($cart, $this->context)
             ->willReturn($calculatedCart);
 
         $orderID = 'oder-ID';
 
-        $this->orderPersister->expects(static::once())
+        $this->orderPersister->expects($this->once())
             ->method('persist')
             ->with($calculatedCart, $this->context)
             ->willReturn($orderID);
@@ -161,16 +162,18 @@ class CartOrderRouteTest extends TestCase
         $orderEntityMock = $this->createMock(EntitySearchResult::class);
 
         $orderEntity = new OrderEntity();
+        $orderEntity->setId($orderID);
+        $orderCollection = new OrderCollection([$orderEntity]);
 
-        $this->orderRepository->expects(static::once())
+        $this->orderRepository->expects($this->once())
             ->method('search')
             ->willReturn($orderEntityMock);
 
-        $orderEntityMock->expects(static::once())
-            ->method('first')
-            ->willReturn($orderEntity);
+        $orderEntityMock->expects($this->once())
+            ->method('getEntities')
+            ->willReturn($orderCollection);
 
-        $this->eventDispatcher->expects(static::exactly(2))
+        $this->eventDispatcher->expects($this->exactly(2))
             ->method('dispatch')
             ->with(static::callback(static function ($event) use ($orderID, $orderEntity) {
                 if ($event instanceof CheckoutOrderPlacedCriteriaEvent) {
@@ -210,14 +213,14 @@ class CartOrderRouteTest extends TestCase
 
         $calculatedCart = new Cart('calculated');
 
-        $this->cartCalculator->expects(static::once())
+        $this->cartCalculator->expects($this->once())
             ->method('calculate')
             ->with($cart, $this->context)
             ->willReturn($calculatedCart);
 
         $orderID = 'oder-ID';
 
-        $this->orderPersister->expects(static::once())
+        $this->orderPersister->expects($this->once())
             ->method('persist')
             ->with($calculatedCart, $this->context)
             ->willReturn($orderID);
@@ -225,14 +228,16 @@ class CartOrderRouteTest extends TestCase
         $orderEntityMock = $this->createMock(EntitySearchResult::class);
 
         $orderEntity = new OrderEntity();
+        $orderEntity->setId($orderID);
+        $orderCollection = new OrderCollection([$orderEntity]);
 
-        $this->orderRepository->expects(static::once())
+        $this->orderRepository->expects($this->once())
             ->method('search')
             ->willReturn($orderEntityMock);
 
-        $orderEntityMock->expects(static::once())
-            ->method('first')
-            ->willReturn($orderEntity);
+        $orderEntityMock->expects($this->once())
+            ->method('getEntities')
+            ->willReturn($orderCollection);
 
         $response = $this->route->order($cart, $this->context, $data);
 

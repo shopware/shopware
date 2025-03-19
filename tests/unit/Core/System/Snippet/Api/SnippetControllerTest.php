@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Api\SnippetController;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\SnippetException;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(SnippetController::class)]
 class SnippetControllerTest extends TestCase
 {
@@ -26,7 +28,7 @@ class SnippetControllerTest extends TestCase
         $context = new Context(new SystemSource());
 
         if ($exception !== null) {
-            $snippetService->expects(static::never())->method('getList');
+            $snippetService->expects($this->never())->method('getList');
             static::expectExceptionObject($exception);
             static::expectExceptionMessage($exception->getMessage());
 
@@ -37,7 +39,7 @@ class SnippetControllerTest extends TestCase
             return;
         }
 
-        $snippetService->expects(static::once())->method('getList')->with(
+        $snippetService->expects($this->once())->method('getList')->with(
             $request->request->getInt('page', 1),
             $request->request->getInt('limit', 25),
             $context,

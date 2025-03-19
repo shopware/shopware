@@ -55,7 +55,7 @@ class LocaleProviderTest extends TestCase
         $user->setLocale($userLocale);
 
         $userRepository = static::createMock(EntityRepository::class);
-        $userRepository->expects(static::once())
+        $userRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 UserDefinition::ENTITY_NAME,
@@ -76,7 +76,7 @@ class LocaleProviderTest extends TestCase
         $context = Context::createDefaultContext(new AdminApiSource('user-id', null));
 
         $userRepository = static::createMock(EntityRepository::class);
-        $userRepository->expects(static::once())
+        $userRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 UserDefinition::ENTITY_NAME,

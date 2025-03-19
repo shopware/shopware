@@ -7,9 +7,9 @@ use Shopware\Core\Framework\Telemetry\Metrics\Config\TransportConfig;
 use Shopware\Core\Framework\Telemetry\Metrics\MetricTransportInterface;
 
 /**
- * @experimental feature:TELEMETRY_METRICS stableVersion:v6.7.0
+ * @experimental feature:TELEMETRY_METRICS stableVersion:v6.8.0
  */
-#[Package('core')]
+#[Package('framework')]
 interface MetricTransportFactoryInterface
 {
     public function create(TransportConfig $transportConfig): MetricTransportInterface;

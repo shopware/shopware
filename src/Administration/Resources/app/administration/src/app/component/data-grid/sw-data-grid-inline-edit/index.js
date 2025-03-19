@@ -4,14 +4,12 @@ import './sw-data-grid-inline-edit.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */
 Component.register('sw-data-grid-inline-edit', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'feature',
@@ -60,23 +58,9 @@ Component.register('sw-data-grid-inline-edit', {
         this.createdComponent();
     },
 
-    beforeUnmount() {
-        this.beforeDestroyComponent();
-    },
-
     methods: {
         createdComponent() {
             this.currentValue = this.value;
-
-            if (this.isCompatEnabled('INSTANCE_CHILDREN') && this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                this.$parent.$parent.$on('inline-edit-assign', this.emitInput);
-            }
-        },
-
-        beforeDestroyComponent() {
-            if (this.isCompatEnabled('INSTANCE_CHILDREN') && this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                this.$parent.$parent.$off('inline-edit-assign', this.emitInput);
-            }
         },
 
         emitInput() {

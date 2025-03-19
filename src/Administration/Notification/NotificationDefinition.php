@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Integration\IntegrationDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
-#[Package('administration')]
+#[Package('framework')]
 class NotificationDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'notification';

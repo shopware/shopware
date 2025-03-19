@@ -11,15 +11,18 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('services-settings')]
+/**
+ * @final
+ */
+#[Package('fundamentals@after-sales')]
 class LineItemPropertyValueRule extends Rule
 {
     public const RULE_NAME = 'cartLineItemPropertyValue';
 
     /**
-     * @internal
-     *
      * @param list<string>|null $identifiers
+     *
+     * @internal
      */
     public function __construct(
         public string $operator = Rule::OPERATOR_EQ,

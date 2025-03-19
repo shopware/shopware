@@ -23,7 +23,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(SetCustomerGroupCustomFieldAction::class)]
 class SetCustomerGroupCustomFieldActionTest extends TestCase
 {
@@ -81,15 +81,15 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
             $context
         );
 
-        $this->repository->expects(static::once())
+        $this->repository->expects($this->once())
             ->method('search')
             ->willReturn($entitySearchResult);
 
-        $this->connection->expects(static::once())
+        $this->connection->expects($this->once())
             ->method('fetchOne')
             ->willReturn('custom_field_test');
 
-        $this->repository->expects(static::once())
+        $this->repository->expects($this->once())
             ->method('update')
             ->with([['id' => $customerGroupId, 'customFields' => $expected['custom_field_test'] ? $expected : null]]);
 
@@ -99,7 +99,7 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
     public function testActionWithNotAware(): void
     {
         $flow = new StorableFlow('', Context::createDefaultContext(), [], []);
-        $this->repository->expects(static::never())->method('update');
+        $this->repository->expects($this->never())->method('update');
 
         $this->action->handleFlow($flow);
     }

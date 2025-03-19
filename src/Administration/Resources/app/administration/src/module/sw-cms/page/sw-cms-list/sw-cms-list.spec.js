@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
@@ -9,6 +9,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 const defaultCategoryId = 'default-category-id';
 const defaultProductId = 'default-product-id';
+const cloneMock = jest.fn(() => Promise.resolve());
 
 async function createWrapper(
     privileges = [
@@ -45,9 +46,6 @@ async function createWrapper(
                         template: '<div><slot name="content"></slot></div>',
                     },
                     'sw-select-field': true,
-                    'sw-icon': {
-                        template: '<div></div>',
-                    },
                     'sw-pagination': {
                         template: '<div></div>',
                     },
@@ -65,8 +63,7 @@ async function createWrapper(
                     'sw-media-modal-v2': {
                         template: '<div class="sw-media-modal-v2-mock"></div>',
                     },
-                    'sw-button': true,
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot name="grid"></slot></div>',
                     },
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),
@@ -77,7 +74,6 @@ async function createWrapper(
                     'sw-skeleton': true,
                     'sw-empty-state': true,
                     'sw-sorting-select': true,
-                    'sw-alert': true,
                     'sw-modal': {
                         template: `
                         <div class="sw-modal-stub">
@@ -108,6 +104,7 @@ async function createWrapper(
                     'sw-checkbox-field': true,
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-inline-edit': true,
+                    'sw-provide': true,
                 },
                 mocks: {
                     $route: { query: '' },
@@ -126,7 +123,7 @@ async function createWrapper(
 
                             return {
                                 search: () => Promise.resolve(),
-                                clone: jest.fn(() => Promise.resolve()),
+                                clone: cloneMock,
                             };
                         },
                     },
@@ -503,8 +500,8 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             ],
         });
 
-        const createButton = wrapper.find('sw-button-stub');
-        expect(createButton.attributes().disabled).toBe('true');
+        const createButton = wrapper.findByText('button', 'sw-cms.general.createNewLayout');
+        expect(createButton.attributes('disabled') !== undefined).toBe(true);
     });
 
     it('should show an enabled create new button', async () => {
@@ -524,8 +521,8 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             ],
         });
 
-        const createButton = wrapper.find('sw-button-stub');
-        expect(createButton.attributes().disabled).toBeUndefined();
+        const createButton = wrapper.findByText('button', 'sw-cms.general.createNewLayout');
+        expect(createButton.attributes('disabled')).toBeUndefined();
     });
 
     it('should show disabled context fields in data grid view', async () => {
@@ -1143,16 +1140,16 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         await wrapper.find('.sw-cms-list__context-menu-item-duplicate').trigger('click');
         await flushPromises();
 
-        expect(wrapper.vm.pageRepository.clone).toHaveBeenCalledTimes(1);
+        expect(cloneMock).toHaveBeenCalledTimes(1);
 
-        const cloneMock = wrapper.vm.pageRepository.clone.mock.calls[0];
+        const cloneMockLastCall = wrapper.vm.pageRepository.clone.mock.lastCall;
 
-        expect(cloneMock[0]).toBe('1a');
-        expect(cloneMock[1]).toStrictEqual({
+        expect(cloneMockLastCall[0]).toBe('1a');
+        expect(cloneMockLastCall[1]).toStrictEqual({
             overwrites: {
                 name: 'CMS Page 1 - global.default.copy',
             },
         });
-        expect(cloneMock[2]).toStrictEqual(Shopware.Context.api);
+        expect(cloneMockLastCall[2]).toStrictEqual(Shopware.Context.api);
     });
 });

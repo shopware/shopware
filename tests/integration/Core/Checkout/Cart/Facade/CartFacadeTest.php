@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Facade\CartFacade;
 use Shopware\Core\Checkout\Cart\Facade\CartFacadeHookFactory;
 use Shopware\Core\Checkout\Cart\Facade\ContainerFacade;
@@ -24,7 +25,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Script\Exception\HookInjectionException;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Test\Script\Execution\TestHook;
@@ -173,7 +173,7 @@ class CartFacadeTest extends TestCase
 
     public function testDependency(): void
     {
-        $this->expectException(HookInjectionException::class);
+        $this->expectException(CartException::class);
 
         $service = static::getContainer()->get(CartFacadeHookFactory::class);
         $service->factory(new TestHook('test', Context::createDefaultContext()), $this->script);
@@ -452,6 +452,7 @@ class CartFacadeTest extends TestCase
 /**
  * @internal
  */
+#[Package('checkout')]
 class ExpectedPrice extends CalculatedPrice
 {
     public function __construct(

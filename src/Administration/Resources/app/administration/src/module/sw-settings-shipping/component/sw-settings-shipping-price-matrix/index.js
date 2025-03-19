@@ -7,20 +7,16 @@ const {
     Data: { Criteria },
 } = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
-const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
-        'feature',
     ],
 
     emits: [
@@ -74,19 +70,29 @@ export default {
     },
 
     computed: {
-        ...mapState('swShippingDetail', [
-            'shippingMethod',
-            'currencies',
-            'restrictedRuleIds',
-        ]),
+        shippingMethod() {
+            return Shopware.Store.get('swShippingDetail').shippingMethod;
+        },
 
-        ...mapGetters('swShippingDetail', [
-            'defaultCurrency',
-            /** @deprecated tag:v6.7.0 - usedRules will be removed, use restrictedRuleIds instead */
-            'usedRules',
-            'unrestrictedPriceMatrixExists',
-            'newPriceMatrixExists',
-        ]),
+        currencies() {
+            return Shopware.Store.get('swShippingDetail').currencies;
+        },
+
+        restrictedRuleIds() {
+            return Shopware.Store.get('swShippingDetail').restrictedRuleIds;
+        },
+
+        unrestrictedPriceMatrixExists() {
+            return Shopware.Store.get('swShippingDetail').unrestrictedPriceMatrixExists;
+        },
+
+        newPriceMatrixExists() {
+            return Shopware.Store.get('swShippingDetail').newPriceMatrixExists;
+        },
+
+        defaultCurrency() {
+            return Shopware.Store.get('swShippingDetail').defaultCurrency;
+        },
 
         ruleRepository() {
             return this.repositoryFactory.create('rule');
@@ -172,25 +178,26 @@ export default {
                 ]),
             );
 
-            if (!Shopware.Feature.isActive('v6.7.0.0')) {
-                criteria.addAssociation('conditions');
-            }
-
             return criteria;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed use ruleFilterCriteria instead.
+         * Filter for `type` "shipping" will be removed
+         */
         shippingRuleFilterCriteria() {
+            if (Shopware.Feature.isActive('v6.8.0.0')) {
+                return this.ruleFilterCriteria;
+            }
+
             const criteria = new Criteria(1, 25);
             criteria.addFilter(
                 Criteria.multi('OR', [
                     Criteria.contains('rule.moduleTypes.types', 'shipping'),
+                    Criteria.contains('rule.moduleTypes.types', 'price'),
                     Criteria.equals('rule.moduleTypes', null),
                 ]),
             );
-
-            if (!Shopware.Feature.isActive('v6.7.0.0')) {
-                criteria.addAssociation('conditions');
-            }
 
             return criteria;
         },
@@ -206,7 +213,7 @@ export default {
             }
 
             this.priceGroup.prices.forEach((shippingPrice) => {
-                if (!rules.includes(shippingPrice.calculationRuleId)) {
+                if (shippingPrice.calculationRuleId && !rules.includes(shippingPrice.calculationRuleId)) {
                     rules.push(shippingPrice.calculationRuleId);
                 }
             });

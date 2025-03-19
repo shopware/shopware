@@ -1,66 +1,68 @@
+{% block sw_custom_entity_input_field %}
 <div class="sw-custom-entity-input-field">
-    <sw-text-field
+
+    <mt-text-field
         v-if="type === 'string'"
         class="sw-custom-entity-input-field__string"
-        :value="currentValue"
+        :model-value="currentValue"
         :label="label"
         :placeholder="placeholder"
         :help-text="helpText"
-        @update:value="onChange"
+        @update:model-value="onChange"
     />
 
-    <sw-textarea-field
+    <mt-textarea
         v-else-if="type === 'text'"
         class="sw-custom-entity-input-field__text"
-        :value="currentValue"
+        :model-value="currentValue"
         :label="label"
         :placeholder="placeholder"
         :help-text="helpText"
-        @update:value="onChange"
+        @update:model-value="onChange"
     />
 
-    <sw-number-field
+    <mt-number-field
         v-else-if="type === 'int'"
         class="sw-custom-entity-input-field__int"
-        :value="currentValue"
+        :model-value="currentValue"
         number-type="int"
         :label="label"
         :placeholder="placeholder"
         :help-text="helpText"
-        @update:value="onChange"
+        @update:model-value="onChange"
     />
 
-    <sw-number-field
+    <mt-number-field
         v-else-if="type === 'float'"
         class="sw-custom-entity-input-field__float"
-        :value="currentValue"
+        :model-value="currentValue"
         number-type="float"
         :digits="10"
         :label="label"
         :placeholder="placeholder"
         :help-text="helpText"
-        @update:value="onChange"
+        @update:model-value="onChange"
     />
 
-    <sw-switch-field
+    <mt-switch
         v-else-if="type === 'boolean'"
         class="sw-custom-entity-input-field__boolean"
-        :value="currentValue"
+        :checked="currentValue"
         :label="label"
         :placeholder="placeholder"
         :help-text="helpText"
-        @update:value="onChange"
+        @change="onChange"
     />
 
-    <sw-datepicker
+    <mt-datepicker
         v-else-if="type === 'date'"
         class="sw-custom-entity-input-field__date"
         hide-hint
-        :value="currentValue"
+        :model-value="currentValue"
         :label="label"
         :placeholder="placeholder"
         :help-text="helpText"
-        @update:value="onChange"
+        @update:model-value="onChange"
     />
 
     <!-- ToDo NEXT-22874 - Implement email-field verification to entity_schema
@@ -97,7 +99,8 @@
     />-->
 
     <!-- ToDo NEXT-22874 - Remove after Debug -->
-    <sw-text-field
+
+    <mt-text-field
         v-else
         class="sw-custom-entity-input-field__undefined"
         :label="label"
@@ -105,3 +108,4 @@
         disabled
     />
 </div>
+{% endblock %}

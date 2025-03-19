@@ -28,7 +28,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  * @internal
  */
 #[Group('slow')]
-#[Group('skip-paratest')]
 class PluginManagementServiceTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -201,7 +200,7 @@ class PluginManagementServiceTest extends TestCase
             $this->cacheDir,
             'test',
             false,
-            static::getContainer()->get('messenger.bus.shopware'),
+            static::getContainer()->get('messenger.default_bus'),
             static::getContainer()->get('logger')
         );
     }

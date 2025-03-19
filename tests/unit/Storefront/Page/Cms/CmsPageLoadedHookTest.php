@@ -12,14 +12,14 @@ use Shopware\Storefront\Page\Cms\CmsPageLoadedHook;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(CmsPageLoadedHook::class)]
 class CmsPageLoadedHookTest extends TestCase
 {
     public function testCmsPageLoadedHook(): void
     {
         $page = new CmsPageEntity();
-        $hook = new CmsPageLoadedHook($page, Generator::createSalesChannelContext());
+        $hook = new CmsPageLoadedHook($page, Generator::generateSalesChannelContext());
         static::assertSame('cms-page-loaded', $hook->getName());
         static::assertSame($page, $hook->getPage());
     }

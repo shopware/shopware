@@ -5,7 +5,7 @@ import errorConfig from '../../error-config.json';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Criteria } = Shopware.Data;
@@ -15,11 +15,8 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
-        'feature',
     ],
 
     props: {
@@ -41,10 +38,6 @@ export default {
 
     data() {
         return {
-            /**
-             * @deprecated tag:v6.7.0 - will be removed, use customer.orderTotalValue instead
-             */
-            orderAmount: 0,
             orderCount: 0,
             customerLanguage: null,
             currencyCode: Shopware.Context.app.systemCurrencyISOCode,

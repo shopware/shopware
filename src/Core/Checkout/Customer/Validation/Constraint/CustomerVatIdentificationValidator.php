@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraint;
@@ -71,10 +70,6 @@ class CustomerVatIdentificationValidator extends ConstraintValidator
         $pattern = (string) $vatIdInformation['vat_id_pattern'];
         if ($pattern === '') {
             return null;
-        }
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            return '/^' . $pattern . '$/i';
         }
 
         return '/^' . $pattern . '$/';

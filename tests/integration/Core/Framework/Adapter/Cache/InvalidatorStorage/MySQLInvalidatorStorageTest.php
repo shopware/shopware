@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Cache\InvalidatorSto
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\RetryableException;
 use Doctrine\DBAL\Statement;
+use Doctrine\DBAL\TransactionIsolationLevel;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -161,12 +162,16 @@ class MySQLInvalidatorStorageTest extends TestCase
 
     public function testLoadAndDeleteExceptionIsCaughtAndLogged(): void
     {
-        $this->logger->expects(static::once())->method('warning')
+        $this->logger->expects($this->once())->method('warning')
             ->with('Cache tags could not be fetched or removed from storage. Possible deadlock encountered. If the error persists, try the redis adapter. Error: Deadlock');
 
         $connection = $this->createMock(Connection::class);
 
-        $connection->expects(static::once())
+        $connection
+            ->method('getTransactionIsolation')
+            ->willReturn(TransactionIsolationLevel::READ_COMMITTED);
+
+        $connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([['id' => 'id1', 'tag1'], ['id' => 'id2', 'tag2']]);
 
@@ -176,15 +181,14 @@ class MySQLInvalidatorStorageTest extends TestCase
 
         $statement
             ->method('executeStatement')
-            ->with(['id1', 'id2'])
             ->willThrowException($e);
 
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('prepare')
-            ->with('DELETE FROM invalidation_tags WHERE id BETWEEN ? AND ?')
+            ->with('DELETE FROM invalidation_tags WHERE id BETWEEN :firstTagId AND :lastTagId')
             ->willReturn($statement);
 
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('transactional')
             ->willReturnCallback(fn (callable $cb) => $cb());
 

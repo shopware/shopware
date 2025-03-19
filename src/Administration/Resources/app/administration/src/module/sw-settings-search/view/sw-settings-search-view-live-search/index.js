@@ -1,13 +1,11 @@
 /**
- * @package buyers-experience
+ * @sw-package inventory
  */
 import template from './sw-settings-search-view-live-search.html.twig';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         currentSalesChannelId: {
@@ -40,15 +38,6 @@ export default {
     computed: {
         storefrontEsEnable() {
             return Shopware.Context.app.storefrontEsEnable ?? false;
-        },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 };

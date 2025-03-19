@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Rule;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 final class RuleConfig extends Struct
 {
     public const OPERATOR_SET_DEFAULT = [Rule::OPERATOR_EQ, Rule::OPERATOR_NEQ, Rule::OPERATOR_GTE, Rule::OPERATOR_LTE];
@@ -111,6 +111,14 @@ final class RuleConfig extends Struct
     public function intField(string $name, array $config = []): self
     {
         return $this->field($name, 'int', $config);
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public function dateField(string $name, array $config = []): self
+    {
+        return $this->field($name, 'date', $config);
     }
 
     /**

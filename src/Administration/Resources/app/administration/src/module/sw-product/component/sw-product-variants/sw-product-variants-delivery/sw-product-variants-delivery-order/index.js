@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import template from './sw-product-variants-delivery-order.html.twig';
@@ -8,8 +8,6 @@ import './sw-product-variants-delivery-order.scss';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         product: {

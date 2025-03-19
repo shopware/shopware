@@ -21,7 +21,7 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('fundamentals@discovery')]
 #[CoversClass(CurrencyFormatter::class)]
 class CurrencyFormatterTest extends TestCase
 {
@@ -38,7 +38,7 @@ class CurrencyFormatterTest extends TestCase
     #[DataProvider('formattingParameterProvider')]
     public function testFormatCurrencyByLanguageWillUseProvidedDecimalPlaces(float $price, int $decimalPlaces, string $localeCode, string $expectedSeparator, string $currencyISO): void
     {
-        $this->localeProvider->expects(static::once())->method('getLocaleForLanguageId')->willReturn($localeCode);
+        $this->localeProvider->expects($this->once())->method('getLocaleForLanguageId')->willReturn($localeCode);
         $pattern = \sprintf('/\%s\d{%s}/', $expectedSeparator, (string) $decimalPlaces);
         $formattedPrice = $this->formatter->formatCurrencyByLanguage(
             $price,
@@ -57,7 +57,7 @@ class CurrencyFormatterTest extends TestCase
     #[DataProvider('formattingParameterProvider')]
     public function testFormatCurrencyByLanguageWillWriteCorrectCurrencySymbol(float $price, int $decimalPlaces, string $localeCode, string $expectedSeparator, string $currencyISO, string $expectedCurrencySymbol): void
     {
-        $this->localeProvider->expects(static::once())->method('getLocaleForLanguageId')->willReturn($localeCode);
+        $this->localeProvider->expects($this->once())->method('getLocaleForLanguageId')->willReturn($localeCode);
         $formattedPrice = $this->formatter->formatCurrencyByLanguage(
             $price,
             $currencyISO,

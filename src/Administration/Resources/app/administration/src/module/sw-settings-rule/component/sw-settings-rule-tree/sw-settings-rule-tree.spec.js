@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import getTreeItems from 'src/app/component/tree/sw-tree/fixtures/treeItems';
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 
 const { cloneDeep } = Shopware.Utils.object;
@@ -27,9 +27,7 @@ async function createWrapper(props = defaultProps) {
         global: {
             stubs: {
                 'sw-tree-item': await wrapTestComponent('sw-tree-item'),
-                'sw-icon': true,
                 'sw-text-field': true,
-                'sw-button': true,
                 'sw-tree-input-field': true,
                 'sw-checkbox-field': true,
                 'sw-confirm-field': true,

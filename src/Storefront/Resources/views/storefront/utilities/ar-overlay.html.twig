@@ -1,16 +1,16 @@
-{# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+{# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
 {% block augmented_reality_overlay %}
     <div
         data-spatial-ar-overlay
         class="spatial-ar-overlay"
     >
-        {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+        {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
         {% block augmented_reality_overlay_exit %}
             <button
                 data-spatial-ar-overlay-exit
                 class="spatial-ar-exit-button"
             >
-                {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
                 {% block augmented_reality_overlay_exit_icon %}
                     {% sw_icon 'x' style {
                         size: 'small'
@@ -19,7 +19,7 @@
             </button>
         {% endblock %}
 
-        {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+        {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
         {% block augmented_reality_overlay_placement_hint %}
             <div class="spatial-ar-placement-hint w-100 h-100">
                 <div class="
@@ -35,20 +35,20 @@
                     justify-content-center
                     gap-2
                 ">
-                    {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                    {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
                     {% block augmented_reality_overlay_placement_hint_icon %}
                         {% sw_icon 'handtouch' style {
                             size: 'fluid'
                         } %}
                     {% endblock %}
 
-                    {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                    {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
                     {% block augmented_reality_overlay_placement_hint_text %}
                         <span class="text-center">{{ 'spatial.tapToPlaceTheObject'|trans|striptags }}</span>
                     {% endblock %}
                 </div>
 
-                {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
                 {% block augmented_reality_overlay_placement_hint_progress_bar %}
                     <div class="progress rounded-pill position-absolute w-50 start-50 translate-middle-x">
                         <div data-spatial-ar-overlay-progress
@@ -64,7 +64,7 @@
             </div>
         {% endblock %}
 
-        {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+        {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
         {% block augmented_reality_overlay_movement_hint %}
             <div class="spatial-ar-movement-hint w-100 h-100">
                 <div class="
@@ -80,7 +80,7 @@
                     justify-content-center
                     gap-2
                 ">
-                    {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                    {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
                     {% block augmented_reality_overlay_movement_hint_icons %}
                         <div class="ar-anim-container">
                             {% sw_icon 'surface' style {
@@ -94,7 +94,7 @@
                         </div>
                     {% endblock %}
 
-                    {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                    {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
                     {% block augmented_reality_overlay_movement_hint_text %}
                         <span class="text-center">{{ 'spatial.moveTheDeviceToStart'|trans|striptags }}</span>
                     {% endblock %}

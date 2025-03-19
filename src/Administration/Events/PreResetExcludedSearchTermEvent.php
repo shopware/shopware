@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('administration')]
+#[Package('framework')]
 class PreResetExcludedSearchTermEvent extends Event implements ShopwareEvent
 {
     /**

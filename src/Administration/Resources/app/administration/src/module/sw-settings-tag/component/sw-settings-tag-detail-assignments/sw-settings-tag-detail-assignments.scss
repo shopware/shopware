@@ -4,23 +4,24 @@
     display: grid;
 
     &__card {
-        display: grid;
+        display: flex;
+        flex-flow: column nowrap;
         height: 100%;
-        grid-template-rows: auto 1fr;
+        width: 100%;
 
-        &.sw-card {
+        &.mt-card {
             border: 1px solid $color-gray-300;
             filter: none;
 
-            .sw-card__toolbar {
+            .mt-card__toolbar {
                 border: 0;
             }
 
-            .sw-card__content {
+            .mt-card__content {
                 grid-template-rows: auto 1fr;
             }
 
-            .sw-card__content,
+            .mt-card__content,
             .sw-card-section {
                 position: relative;
                 padding: 0;
@@ -29,9 +30,11 @@
             .sw-settings-tag-detail-assignments__filter-selected {
                 padding: 0 20px;
 
+                /* stylelint-disable max-nesting-depth */
                 .sw-field--switch {
                     margin: 0;
                 }
+                /* stylelint-enable max-nesting-depth */
             }
 
             .sw-settings-tag-detail-assignments__total-selected {
@@ -44,6 +47,7 @@
 
         .sw-data-grid.sw-data-grid--plain-appearance {
             .sw-data-grid__body {
+                /* stylelint-disable max-nesting-depth */
                 .sw-data-grid__cell {
                     border: 0;
                 }
@@ -54,6 +58,7 @@
                         background: $color-white;
                     }
                 }
+                /* stylelint-enable max-nesting-depth */
             }
         }
     }
@@ -71,11 +76,13 @@
             }
 
             &:not(.is--scroll-x) {
+                /* stylelint-disable max-nesting-depth */
                 .sw-data-grid__cell--name {
                     .sw-data-grid__cell-content {
                         padding-left: 0;
                     }
                 }
+                /* stylelint-enable max-nesting-depth */
             }
 
             .sw-data-grid__action-edit-column {
@@ -99,9 +106,11 @@
     &__associations-grid {
         &.sw-data-grid.is--compact {
             .sw-data-grid__cell--name {
+                /* stylelint-disable max-nesting-depth */
                 .sw-data-grid__cell-content {
                     padding: 0;
                 }
+                /* stylelint-enable max-nesting-depth */
             }
         }
 
@@ -134,5 +143,9 @@
             font-size: $font-size-xxs;
             color: $color-gray-500;
         }
+    }
+
+    .mt-switch {
+        margin-bottom: 0;
     }
 }

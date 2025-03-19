@@ -38,7 +38,7 @@ class SystemUpdateFinishCommandTest extends TestCase
 
         $application = $this->createMock(Application::class);
         $application
-            ->expects(static::exactly(3))
+            ->expects($this->exactly(3))
             ->method('find')
             ->willReturn($this->createMock(Command::class));
 
@@ -77,7 +77,7 @@ class SystemUpdateFinishCommandTest extends TestCase
         $migrationCommand->method('run')->willReturn(Command::SUCCESS);
 
         $application
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('find')
             ->willReturn($migrationCommand);
 
@@ -105,7 +105,7 @@ class SystemUpdateFinishCommandTest extends TestCase
         $command = new SystemUpdateFinishCommand($this->eventDispatcher, $this->systemConfigService, '6.5.0.0');
         $application = $this->createMock(Application::class);
         $application
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('find');
 
         $command->setApplication($application);

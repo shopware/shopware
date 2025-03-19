@@ -28,7 +28,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @implements Rule<ClassMethod>
  */
-#[Package('core')]
+#[Package('framework')]
 class NoDropStatementInUpdateRule implements Rule
 {
     use InMigrationClassTrait;
@@ -78,10 +78,6 @@ class NoDropStatementInUpdateRule implements Rule
         }
 
         if (!$this->isMigrationAtLeastInMajorVersion6($scope)) {
-            return [];
-        }
-
-        if (!$node->name instanceof Identifier) {
             return [];
         }
 
@@ -161,7 +157,7 @@ class NoDropStatementInUpdateRule implements Rule
                 $name->name
             ))
                 ->identifier('shopware.dropStatement')
-                ->line($statement->getLine())
+                ->line($statement->getStartLine())
                 ->build();
 
             return $errors;
@@ -197,7 +193,7 @@ class NoDropStatementInUpdateRule implements Rule
         if (preg_match(self::DROP_TABLE_REGEX_PATTERN, $sqlStatementToCheck) === 1) {
             $errors[] = RuleErrorBuilder::message('Usage of "DROP TABLE" statements is disallowed in the "update" method of a migration to avoid blue green compatibility breaks.')
                 ->identifier('shopware.dropStatement')
-                ->line($statement->getLine())
+                ->line($statement->getStartLine())
                 ->build();
 
             return $errors;
@@ -206,7 +202,7 @@ class NoDropStatementInUpdateRule implements Rule
         if (preg_match(self::DROP_COLUMN_REGEX_PATTERN, $sqlStatementToCheck) === 1) {
             $errors[] = RuleErrorBuilder::message('Usage of "DROP COLUMN" statements is disallowed in the "update" method of a migration to avoid blue green compatibility breaks.')
                 ->identifier('shopware.dropStatement')
-                ->line($statement->getLine())
+                ->line($statement->getStartLine())
                 ->build();
 
             return $errors;
@@ -215,7 +211,7 @@ class NoDropStatementInUpdateRule implements Rule
         if (preg_match(self::DROP_FOREIGN_KEY_REGEX_PATTERN, $sqlStatementToCheck) === 1) {
             $errors[] = RuleErrorBuilder::message('Usage of "DROP FOREIGN KEY" statements is disallowed in the "update" method of a migration to avoid blue green compatibility breaks.')
                 ->identifier('shopware.dropStatement')
-                ->line($statement->getLine())
+                ->line($statement->getStartLine())
                 ->build();
 
             return $errors;
@@ -224,7 +220,7 @@ class NoDropStatementInUpdateRule implements Rule
         if (preg_match(self::DROP_REGEX_PATTERN, $sqlStatementToCheck) === 1) {
             $errors[] = RuleErrorBuilder::message('Usage of "DROP" statements is disallowed in the "update" method of a migration to avoid blue green compatibility breaks.')
                 ->identifier('shopware.dropStatement')
-                ->line($statement->getLine())
+                ->line($statement->getStartLine())
                 ->build();
         }
 

@@ -1,12 +1,12 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_button_process %}
-<sw-button
+<mt-button
     class="sw-button-process"
     v-bind="$attrs"
-    v-on="listeners"
+    :variant="$attrs.variant || 'secondary'"
+    size="default"
 >
 
-    <sw-icon
+    <mt-icon
         v-if="processSuccess"
         class="sw-button-process__status-indicator"
         name="regular-checkmark-xs"
@@ -17,5 +17,5 @@
     >
         <slot></slot>
     </span>
-</sw-button>
+</mt-button>
 {% endblock %}

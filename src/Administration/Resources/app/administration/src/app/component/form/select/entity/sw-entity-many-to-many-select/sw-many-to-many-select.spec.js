@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -34,9 +34,6 @@ const createSelect = async (
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-icon': {
-                        template: '<div></div>',
-                    },
                     'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
                     'sw-label': true,
@@ -47,7 +44,6 @@ const createSelect = async (
                     'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                     'sw-ai-copilot-badge': true,
                     'sw-help-text': true,
-                    'sw-button': true,
                     'sw-inheritance-switch': true,
                     'mt-loader': true,
                     'sw-loader-deprecated': true,

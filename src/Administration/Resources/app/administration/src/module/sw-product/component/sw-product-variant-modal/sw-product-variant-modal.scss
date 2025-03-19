@@ -68,7 +68,7 @@
         justify-content: space-between;
     }
 
-    .sw-icon {
+    .mt-icon {
         &.is--inactive {
             color: $color-crimson-500;
         }
@@ -113,11 +113,11 @@
         border-bottom: 1px solid $color-gray-300;
         padding: 25px;
 
-        .sw-button {
+        .mt-button {
             height: 32px;
             line-height: 16px;
 
-            .sw-icon {
+            .mt-icon {
                 @include square(15px);
             }
         }

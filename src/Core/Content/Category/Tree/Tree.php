@@ -6,22 +6,15 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('inventory')]
+#[Package('discovery')]
 class Tree extends Struct
 {
     /**
      * @var TreeItem[]
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $tree;
+    protected array $tree;
 
-    /**
-     * @var CategoryEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $active;
+    protected ?CategoryEntity $active = null;
 
     /**
      * @param TreeItem[] $tree

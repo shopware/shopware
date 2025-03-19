@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -19,7 +20,6 @@ use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
-use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginService;
@@ -35,7 +35,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
-use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -48,7 +47,6 @@ use Symfony\Component\Filesystem\Filesystem;
  * @internal
  */
 #[Group('slow')]
-#[Group('skip-paratest')]
 class PluginLifecycleServiceTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -281,7 +279,7 @@ class PluginLifecycleServiceTest extends TestCase
     {
         $assetService = $this->createMock(AssetService::class);
         $assetService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('copyAssetsFromBundle');
 
         $service = new PluginLifecycleService(
@@ -298,9 +296,9 @@ class PluginLifecycleServiceTest extends TestCase
             $this->systemConfigService,
             $this->container->get(CustomEntityPersister::class),
             $this->container->get(CustomEntitySchemaUpdater::class),
-            $this->container->get(CustomEntityLifecycleService::class),
             $this->container->get(PluginService::class),
             $this->container->get(VersionSanitizer::class),
+            $this->container->get(DefinitionInstanceRegistry::class),
         );
 
         $context = Context::createDefaultContext();
@@ -433,7 +431,6 @@ class PluginLifecycleServiceTest extends TestCase
     #[DataProvider('themeProvideData')]
     public function testThemeRemovalOnUninstall(bool $keepUserData): void
     {
-        static::markTestSkipped('This test needs the storefront bundle installed.');
         $this->addTestPluginToKernel(
             $this->fixturePath . 'plugins/SwagTestTheme',
             'SwagTestTheme'
@@ -475,7 +472,6 @@ class PluginLifecycleServiceTest extends TestCase
 
     private function installNotSupportedPlugin(string $name): PluginEntity
     {
-        /** @var EntityRepository<PluginCollection> $pluginRepository */
         $pluginRepository = static::getContainer()->get('plugin.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
@@ -633,7 +629,7 @@ class PluginLifecycleServiceTest extends TestCase
 
         $plugin = $this->getPlugin($context);
 
-        static::expectException(PluginNotInstalledException::class);
+        $this->expectException(PluginNotInstalledException::class);
         $this->expectExceptionMessage(\sprintf('Plugin "%s" is not installed.', self::PLUGIN_NAME));
         $this->pluginLifecycleService->updatePlugin($plugin, $context);
     }
@@ -781,9 +777,9 @@ class PluginLifecycleServiceTest extends TestCase
             $this->systemConfigService,
             $this->container->get(CustomEntityPersister::class),
             $this->container->get(CustomEntitySchemaUpdater::class),
-            $this->container->get(CustomEntityLifecycleService::class),
             $pluginService,
             $this->container->get(VersionSanitizer::class),
+            $this->container->get(DefinitionInstanceRegistry::class),
         );
     }
 

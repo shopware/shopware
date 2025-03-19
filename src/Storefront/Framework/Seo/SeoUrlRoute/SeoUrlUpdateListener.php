@@ -18,7 +18,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class SeoUrlUpdateListener implements EventSubscriberInterface
 {
     final public const CATEGORY_SEO_URL_UPDATER = 'category.seo-url';

@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 import template from './sw-promotion-v2-settings-discount-type.html.twig';
 import './sw-promotion-v2-settings-discount-type.scss';
@@ -9,8 +9,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'acl',
@@ -123,6 +121,26 @@ export default {
 
         showMaxValueAdvancedPrices() {
             return this.discount.type === 'percentage' && this.discount.maxValue !== null;
+        },
+
+        discountTypeOptions() {
+            return this.getApplyDiscountToSelection().map((discountType) => {
+                return {
+                    id: discountType.value,
+                    value: discountType.value,
+                    label: discountType.display,
+                };
+            });
+        },
+
+        applierOptions() {
+            return this.getApplyDiscountToSelection().map((discountType) => {
+                return {
+                    id: discountType.value,
+                    value: discountType.value,
+                    label: discountType.display,
+                };
+            });
         },
     },
 

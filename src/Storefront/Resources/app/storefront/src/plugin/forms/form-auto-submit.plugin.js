@@ -2,15 +2,13 @@ import Plugin from 'src/plugin-system/plugin.class';
 import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading-indicator.util';
 import FormSerializeUtil from 'src/utility/form/form-serialize.util';
 import HttpClient from 'src/service/http-client.service';
-import DomAccess from 'src/helper/dom-access.helper';
-import querystring from 'query-string';
 import Debouncer from 'src/helper/debouncer.helper';
 
 /**
  * This plugin automatically submits a form,
  * when the element or the form itself has changed.
  *
- * @package content
+ * @package framework
  */
 export default class FormAutoSubmitPlugin extends Plugin {
     static options = {
@@ -175,7 +173,7 @@ export default class FormAutoSubmitPlugin extends Plugin {
 
     sendAjaxFormSubmit() {
         const data = FormSerializeUtil.serialize(this._form);
-        const action = DomAccess.getAttribute(this._form, 'action');
+        const action = this._form.getAttribute('action');
 
         this._client.post(action, data, this._onAfterAjaxSubmit.bind(this));
     }
@@ -190,7 +188,7 @@ export default class FormAutoSubmitPlugin extends Plugin {
      */
     _onAfterAjaxSubmit(response) {
         PageLoadingIndicatorUtil.remove();
-        const replaceContainer = DomAccess.querySelector(document, this.options.ajaxContainerSelector);
+        const replaceContainer = document.querySelector(this.options.ajaxContainerSelector);
         replaceContainer.innerHTML = response;
         window.PluginManager.initializePlugins();
 
@@ -198,7 +196,7 @@ export default class FormAutoSubmitPlugin extends Plugin {
     }
 
     _updateRedirectParameters() {
-        const params = querystring.parse(window.location.search);
+        const params = Object.fromEntries(new URLSearchParams(window.location.search).entries());
         const formData = FormSerializeUtil.serialize(this._form);
 
         Object.keys(params)

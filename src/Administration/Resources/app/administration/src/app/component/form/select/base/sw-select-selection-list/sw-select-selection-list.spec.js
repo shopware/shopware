@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 import 'src/app/component/form/select/base/sw-select-selection-list';
@@ -12,7 +12,6 @@ async function createWrapper(propsData = {}) {
                 'sw-label': {
                     template: '<div class="sw-label"><slot></slot></div>',
                 },
-                'sw-button': true,
             },
         },
         propsData: {

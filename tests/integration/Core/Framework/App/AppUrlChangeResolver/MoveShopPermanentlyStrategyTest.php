@@ -15,7 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Test\AppSystemTestBehaviour;
+use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 
 /**
  * @internal
@@ -49,7 +51,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
 
     public function testItReRegistersInstalledApps(): void
     {
-        $appDir = __DIR__ . '/../Manifest/_fixtures/test';
+        $appDir = (string) realpath(__DIR__ . '/../Manifest/_fixtures/test');
         $this->loadAppsFromDir($appDir);
 
         $app = $this->getInstalledApp($this->context);
@@ -57,17 +59,17 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $shopId = $this->changeAppUrl();
 
         $registrationsService = $this->createMock(AppRegistrationService::class);
-        $registrationsService->expects(static::once())
+        $registrationsService->expects($this->once())
             ->method('registerApp')
             ->with(
                 static::callback(static fn (Manifest $manifest): bool => $manifest->getPath() === $appDir),
                 $app->getId(),
-                static::isType('string'),
+                static::isString(),
                 static::isInstanceOf(Context::class)
             );
 
         $moveShopPermanentlyResolver = new MoveShopPermanentlyStrategy(
-            $this->getAppLoader($appDir),
+            new StaticSourceResolver(['test' => new Filesystem($appDir)]),
             static::getContainer()->get('app.repository'),
             $registrationsService,
             $this->shopIdProvider
@@ -96,11 +98,11 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $shopId = $this->changeAppUrl();
 
         $registrationsService = $this->createMock(AppRegistrationService::class);
-        $registrationsService->expects(static::never())
+        $registrationsService->expects($this->never())
             ->method('registerApp');
 
         $moveShopPermanentlyResolver = new MoveShopPermanentlyStrategy(
-            $this->getAppLoader($appDir),
+            new StaticSourceResolver(['no-setup' => new Filesystem($appDir)]),
             static::getContainer()->get('app.repository'),
             $registrationsService,
             $this->shopIdProvider

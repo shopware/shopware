@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_snippet_field_edit_modal %}
 <sw-modal
     class="sw-snippet-field-edit-modal"
@@ -6,42 +5,41 @@
     :is-loading="isLoading"
     @modal-close="closeModal"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_snippet_field_edit_modal_body %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_snippet_field_edit_modal_name_field %}
-    <sw-text-field
-        :value="translationKey"
+
+    <mt-text-field
+        :model-value="translationKey"
         disabled
         :label="$tc('global.sw-snippet-field-edit-modal.labelName')"
     />
     {% endblock %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_snippet_field_edit_modal_snippet_fields %}
     <template v-if="textField">
-        <sw-text-field
+
+        <mt-text-field
             v-for="(snippet, index) in editableSnippets"
             :key="snippet.setId"
-            v-model:value="snippet.value"
+            v-model="snippet.value"
             v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
             class="sw-snippet-field-edit-modal__translation-field"
             :class="`sw-snippet-field-edit-modal__translation-field--${index}`"
             :disabled="!acl.can('snippet.editor')"
-            :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: snippetSets.get(snippet.setId).name })"
+            :label="$tc('sw-settings-snippet.detail.labelContent', { name: snippetSets.get(snippet.setId).name }, 0)"
             :placeholder="snippet.origin || $tc('sw-settings-snippet.general.placeholderValue')"
         />
     </template>
 
     <template v-else-if="textArea">
-        <sw-textarea-field
+        <mt-textarea
             v-for="(snippet, index) in editableSnippets"
             :key="snippet.setId"
-            v-model:value="snippet.value"
+            v-model="snippet.value"
             v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
             class="sw-snippet-field-edit-modal__translation-field"
             :class="`sw-snippet-field-edit-modal__translation-field--${index}`"
             :disabled="!acl.can('snippet.editor')"
-            :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: snippetSets.get(snippet.setId).name })"
+            :label="$tc('sw-settings-snippet.detail.labelContent', { name: snippetSets.get(snippet.setId).name }, 0)"
             :placeholder="snippet.origin || $tc('sw-settings-snippet.general.placeholderValue')"
         />
     </template>
@@ -49,20 +47,18 @@
     {% endblock %}
 
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_snippet_field_edit_modal_footer %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_snippet_field_edit_modal_close_button %}
-        <sw-button
+        <mt-button
             size="small"
+            variant="secondary"
             @click="closeModal"
         >
             {{ $tc('global.sw-modal.labelClose') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_snippet_field_edit_modal_footer_button %}
-        <sw-button
+        <mt-button
             v-tooltip="getNoPermissionsTooltip('snippet.editor')"
             class="sw-snippet-field-edit-modal__save-action"
             size="small"
@@ -71,7 +67,7 @@
             @click="onSave"
         >
             {{ $tc('global.default.save') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
         {% endblock %}
     </template>

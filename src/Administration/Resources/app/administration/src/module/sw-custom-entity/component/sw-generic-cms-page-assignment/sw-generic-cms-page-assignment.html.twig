@@ -1,5 +1,6 @@
+{% block sw_generic_cms_page_assignment %}
 <div>
-    <sw-card
+    <mt-card
         class="sw-generic-cms-page-assignment"
         position-identifier="sw-generic-cms-page-assignment"
         :title="$tc('sw-category.base.cms.title')"
@@ -32,58 +33,63 @@
                     v-if="cmsPage"
                     class="sw-generic-cms-page-assignment__page-selection-actions"
                 >
-                    <sw-button
+                    <mt-button
                         class="sw-generic-cms-page-assignment__change-layout-action"
                         size="small"
+                        variant="secondary"
                         @click="openLayoutModal"
                     >
                         {{ $tc('sw-category.base.cms.changeLayout') }}
-                    </sw-button>
+                    </mt-button>
 
-                    <sw-button
+                    <mt-button
                         class="sw-generic-cms-page-assignment__open-in-pagebuilder"
                         size="small"
+                        variant="secondary"
                         @click="openInCmsEditor"
                     >
                         {{ $tc('sw-category.base.cms.editInPagebuilder') }}
-                    </sw-button>
+                    </mt-button>
 
-                    <sw-button
+                    <mt-button
                         size="small"
                         class="sw-generic-cms-page-assignment__layout-reset"
                         square
+                        variant="secondary"
                         @click="onLayoutSelect(null)"
                     >
-                        <sw-icon
+                        <mt-icon
                             name="regular-trash"
-                            small
+                            size="16px"
                         />
-                    </sw-button>
+                    </mt-button>
                 </div>
 
                 <div
                     v-else
                     class="sw-generic-cms-page-assignment__page-selection-actions"
                 >
-                    <sw-button
+                    <mt-button
                         class="sw-generic-cms-page-assignment__change-layout-action"
                         size="small"
+                        variant="secondary"
                         @click="openLayoutModal"
                     >
                         {{ $tc('sw-category.base.cms.changeLayoutEmpty') }}
-                    </sw-button>
+                    </mt-button>
 
-                    <sw-button
+                    <mt-button
                         class="sw-generic-cms-page-assignment__create-layout"
                         size="small"
+                        variant="secondary"
                         @click="createNewLayout"
                     >
                         {{ $tc('sw-category.base.cms.editInPagebuilderEmpty') }}
-                    </sw-button>
+                    </mt-button>
                 </div>
             </div>
         </div>
-    </sw-card>
+    </mt-card>
 
     <sw-cms-page-form
         v-if="cmsPage"
@@ -98,3 +104,4 @@
         @modal-close="closeLayoutModal"
     />
 </div>
+{% endblock %}

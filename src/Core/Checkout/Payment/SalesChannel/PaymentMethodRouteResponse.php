@@ -8,26 +8,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 /**
- * @method EntitySearchResult<PaymentMethodCollection> getObject()
+ * @extends StoreApiResponse<EntitySearchResult<PaymentMethodCollection>>
  */
 #[Package('checkout')]
 class PaymentMethodRouteResponse extends StoreApiResponse
 {
-    /**
-     * @var EntitySearchResult<PaymentMethodCollection>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $object;
-
-    /**
-     * @param EntitySearchResult<PaymentMethodCollection> $paymentMethods
-     */
-    public function __construct(EntitySearchResult $paymentMethods)
-    {
-        parent::__construct($paymentMethods);
-    }
-
     public function getPaymentMethods(): PaymentMethodCollection
     {
         return $this->object->getEntities();

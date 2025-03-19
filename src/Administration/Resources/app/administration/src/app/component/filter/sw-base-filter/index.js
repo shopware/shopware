@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-base-filter.html.twig';
 import './sw-base-filter.scss';
 
@@ -8,8 +12,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-base-filter', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['filter-reset'],
 

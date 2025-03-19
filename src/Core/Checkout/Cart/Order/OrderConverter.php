@@ -24,7 +24,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
-use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
@@ -93,7 +92,7 @@ class OrderConverter
     }
 
     /**
-     * @throws DeliveryWithoutAddressException
+     * @throws OrderException
      *
      * @return array<string, mixed|float|string|array<int, array<string, string|int|bool|mixed>>|null>
      */
@@ -196,7 +195,7 @@ class OrderConverter
             $data['orderNumber'] = $this->numberRangeValueGenerator->getValue(
                 $this->orderDefinition->getEntityName(),
                 $context->getContext(),
-                $context->getSalesChannel()->getId()
+                $context->getSalesChannelId()
             );
         }
 
@@ -266,34 +265,59 @@ class OrderConverter
         }
 
         $customerId = $order->getOrderCustomer()->getCustomerId();
-        $customerGroupId = null;
+        $customer = null;
 
         if ($customerId) {
-            $customer = $this->customerRepository->search(new Criteria([$customerId]), $context)->getEntities()->get($customerId);
-            if ($customer !== null) {
-                $customerGroupId = $customer->getGroupId();
-            }
+            $customerCriteria = (new Criteria([$customerId]))
+                ->addAssociation('addresses');
+
+            $customer = $this->customerRepository->search($customerCriteria, $context)->getEntities()->first();
         }
 
-        $billingAddressId = $order->getBillingAddressId();
-        $billingAddress = $this->orderAddressRepository->search(new Criteria([$billingAddressId]), $context)->getEntities()->get($billingAddressId);
-        if ($billingAddress === null) {
-            throw CartException::addressNotFound($billingAddressId);
+        $orderBillingAddressId = $order->getBillingAddressId();
+        $orderShippingAddressId = $order->getDeliveries()?->first()?->getShippingOrderAddressId() ?? '';
+
+        $orderAddresses = $this->orderAddressRepository->search(new Criteria(\array_filter([$orderBillingAddressId, $orderShippingAddressId])), $context)->getEntities();
+        $orderBillingAddress = $orderAddresses->get($orderBillingAddressId);
+        $orderShippingAddress = $orderShippingAddressId ? $orderAddresses->get($orderShippingAddressId) : null;
+
+        if ($orderBillingAddress === null) {
+            throw CartException::addressNotFound($orderBillingAddressId);
+        }
+
+        $billingAddressId = null;
+        $shippingAddressId = null;
+        foreach ($customer?->getAddresses() ?? [] as $address) {
+            if ($address->getHash() === $orderBillingAddress->getHash()) {
+                $billingAddressId = $address->getId();
+            }
+
+            if ($address->getHash() === $orderShippingAddress?->getHash()) {
+                $shippingAddressId = $address->getId();
+            }
         }
 
         $options = [
             SalesChannelContextService::CURRENCY_ID => $order->getCurrencyId(),
             SalesChannelContextService::LANGUAGE_ID => $order->getLanguageId(),
             SalesChannelContextService::CUSTOMER_ID => $customerId,
-            SalesChannelContextService::COUNTRY_STATE_ID => $billingAddress->getCountryStateId(),
-            SalesChannelContextService::CUSTOMER_GROUP_ID => $customerGroupId,
+            SalesChannelContextService::COUNTRY_STATE_ID => $orderBillingAddress->getCountryStateId(),
+            SalesChannelContextService::CUSTOMER_GROUP_ID => $customer?->getGroupId(),
             SalesChannelContextService::PERMISSIONS => self::ADMIN_EDIT_ORDER_PERMISSIONS,
             SalesChannelContextService::VERSION_ID => $context->getVersionId(),
         ];
 
-        $delivery = $order->getDeliveries()?->first();
-        if ($delivery !== null) {
-            $options[SalesChannelContextService::SHIPPING_METHOD_ID] = $delivery->getShippingMethodId();
+        if ($billingAddressId) {
+            $options[SalesChannelContextService::BILLING_ADDRESS_ID] = $billingAddressId;
+        }
+
+        if ($shippingAddressId) {
+            $options[SalesChannelContextService::SHIPPING_ADDRESS_ID] = $shippingAddressId;
+        }
+
+        $shippingMethodId = $order->getDeliveries()?->first()?->getShippingMethodId();
+        if ($shippingMethodId !== null) {
+            $options[SalesChannelContextService::SHIPPING_METHOD_ID] = $shippingMethodId;
         }
 
         foreach ($order->getTransactions() as $transaction) {
@@ -313,7 +337,7 @@ class OrderConverter
         $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $options);
         $salesChannelContext->getContext()->addExtensions($context->getExtensions());
         $salesChannelContext->addState(...$context->getStates());
-        $salesChannelContext->setTaxState($order->getTaxStatus());
+        $salesChannelContext->setTaxState($order->getTaxStatus() ?? $order->getPrice()->getTaxStatus());
 
         if ($context->hasState(Context::SKIP_TRIGGER_FLOW)) {
             $salesChannelContext->getContext()->addState(Context::SKIP_TRIGGER_FLOW);

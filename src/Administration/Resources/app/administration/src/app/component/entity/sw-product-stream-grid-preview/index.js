@@ -1,3 +1,7 @@
+/**
+ * @sw-package inventory
+ */
+
 import template from './sw-product-stream-grid-preview.html.twig';
 import './sw-product-stream-grid-preview.scss';
 
@@ -9,8 +13,6 @@ const { Criteria } = Shopware.Data;
  */
 Component.register('sw-product-stream-grid-preview', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',

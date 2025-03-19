@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 import './acl';
@@ -73,7 +73,7 @@ Module.register('sw-settings-product-feature-sets', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'commerce',
         to: 'sw.settings.product.feature.sets.index',
         icon: 'regular-check-square',
         privilege: 'product_feature_sets.viewer',

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @extends Collection<Criteria>
  */
-#[Package('administration')]
+#[Package('framework')]
 class CriteriaCollection extends Collection
 {
     protected function getExpectedClass(): ?string

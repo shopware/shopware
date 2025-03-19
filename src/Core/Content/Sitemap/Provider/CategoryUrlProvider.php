@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Package('services-settings')]
+#[Package('discovery')]
 class CategoryUrlProvider extends AbstractUrlProvider
 {
     final public const CHANGE_FREQ = 'daily';
@@ -109,10 +109,10 @@ class CategoryUrlProvider extends AbstractUrlProvider
         $query = $iterator->getQuery();
         $query->setMaxResults($limit);
 
-        $query->addSelect([
+        $query->addSelect(
             '`category`.created_at',
             '`category`.updated_at',
-        ]);
+        );
 
         $wheres = [];
         $categoryIds = array_filter([
@@ -152,7 +152,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
      */
     private function getExcludedCategoryIds(SalesChannelContext $salesChannelContext): array
     {
-        $salesChannelId = $salesChannelContext->getSalesChannel()->getId();
+        $salesChannelId = $salesChannelContext->getSalesChannelId();
 
         $excludedUrls = $this->configHandler->get(ConfigHandler::EXCLUDED_URLS_KEY);
         if (empty($excludedUrls)) {

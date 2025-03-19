@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Storefront\Theme\Subscriber\UnusedMediaSubscriber;
+use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeService;
 
 /**
@@ -52,6 +53,7 @@ class UnusedMediaSubscriberTest extends TestCase
             ],
         ];
 
+        /** @var StaticEntityRepository<ThemeCollection> $themeRepository */
         $themeRepository = new StaticEntityRepository([
             function (Criteria $criteria, Context $context) use ($themeId1, $themeId2) {
                 return new IdSearchResult(2, [['primaryKey' => $themeId1, 'data' => []], ['primaryKey' => $themeId2, 'data' => []]], $criteria, $context);
@@ -64,7 +66,7 @@ class UnusedMediaSubscriberTest extends TestCase
         ];
 
         $themeService = $this->createMock(ThemeService::class);
-        $themeService->expects(static::exactly(2))
+        $themeService->expects($this->exactly(2))
             ->method('getThemeConfiguration')
             ->willReturnCallback(function (string $themeId, ...$params) use ($themeConfigMap) {
                 return $themeConfigMap[$themeId];

@@ -6,8 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\NotificationController;
-use Shopware\Administration\Notification\Exception\NotificationThrottledException;
 use Shopware\Administration\Notification\NotificationService;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('administration')]
+#[Package('framework')]
 #[CoversClass(NotificationController::class)]
 class NotificationControllerTest extends TestCase
 {
@@ -72,12 +72,12 @@ class NotificationControllerTest extends TestCase
         $controller->saveNotification(new Request([], ['status' => 'ok']), $this->context);
     }
 
-    public function testSaveNotificationThrowsNotificationThrottledExceptionWhenLimitIsReachedAndUserIdExists(): void
+    public function testSaveNotificationThrowsApiExceptionWhenLimitIsReachedAndUserIdExists(): void
     {
         $exception = new RateLimitExceededException(42);
-        $this->expectExceptionObject(new NotificationThrottledException($exception->getWaitTime(), $exception));
+        $this->expectExceptionObject(ApiException::notificationThrottled($exception->getWaitTime(), $exception));
 
-        $this->rateLimiter->expects(static::once())->method('ensureAccepted')
+        $this->rateLimiter->expects($this->once())->method('ensureAccepted')
             ->with('notification', '123')
             ->willThrowException($exception);
 
@@ -85,13 +85,13 @@ class NotificationControllerTest extends TestCase
         $controller->saveNotification(new Request([], ['status' => 'ok', 'message' => 'ok']), $this->context);
     }
 
-    public function testSaveNotificationThrowsNotificationThrottledExceptionWhenLimitIsReachedAndUserIdIsNull(): void
+    public function testSaveNotificationThrowsApiExceptionWhenLimitIsReachedAndUserIdIsNull(): void
     {
         $this->context = Context::createDefaultContext(new AdminApiSource(null, '345'));
         $exception = new RateLimitExceededException(12);
-        $this->expectExceptionObject(new NotificationThrottledException($exception->getWaitTime(), $exception));
+        $this->expectExceptionObject(ApiException::notificationThrottled($exception->getWaitTime(), $exception));
 
-        $this->rateLimiter->expects(static::once())->method('ensureAccepted')
+        $this->rateLimiter->expects($this->once())->method('ensureAccepted')
             ->with('notification', '345-')
             ->willThrowException($exception);
 
@@ -101,7 +101,7 @@ class NotificationControllerTest extends TestCase
 
     public function testSaveNotificationInvokesNotificationService(): void
     {
-        $this->notificationService->expects(static::once())->method('createNotification');
+        $this->notificationService->expects($this->once())->method('createNotification');
 
         $controller = new NotificationController($this->rateLimiter, $this->notificationService);
         $response = $controller->saveNotification(new Request([], ['status' => 'ok', 'message' => 'ok']), $this->context);
@@ -115,7 +115,7 @@ class NotificationControllerTest extends TestCase
 
     public function testFetchNotificationWhenRequestQueryHasNoLimitSet(): void
     {
-        $this->notificationService->expects(static::once())->method('getNotifications')
+        $this->notificationService->expects($this->once())->method('getNotifications')
             ->with($this->context, NotificationController::LIMIT, null);
 
         $controller = new NotificationController($this->rateLimiter, $this->notificationService);
@@ -126,7 +126,7 @@ class NotificationControllerTest extends TestCase
 
     public function testFetchNotificationWhenRequestQuerytHasLimitSet(): void
     {
-        $this->notificationService->expects(static::once())->method('getNotifications')
+        $this->notificationService->expects($this->once())->method('getNotifications')
             ->with($this->context, 100, null);
 
         $controller = new NotificationController($this->rateLimiter, $this->notificationService);
@@ -137,7 +137,7 @@ class NotificationControllerTest extends TestCase
 
     public function testFetchNotificationWhenRequestQueryHasLatestTimestamp(): void
     {
-        $this->notificationService->expects(static::once())->method('getNotifications')
+        $this->notificationService->expects($this->once())->method('getNotifications')
             ->with($this->context, NotificationController::LIMIT, '1719097358');
 
         $controller = new NotificationController($this->rateLimiter, $this->notificationService);

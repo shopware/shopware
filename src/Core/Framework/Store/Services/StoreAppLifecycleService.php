@@ -7,6 +7,8 @@ use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
@@ -45,7 +47,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
             throw StoreException::extensionInstallException(\sprintf('Cannot find app by name %s', $technicalName));
         }
 
-        $this->appLifecycle->install($manifests[$technicalName], false, $context);
+        $this->appLifecycle->install($manifests[$technicalName], new AppInstallParameters(activate: false), $context);
     }
 
     public function uninstallExtension(string $technicalName, Context $context, bool $keepUserData = false): void
@@ -61,17 +63,18 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
         $this->appLifecycle->delete($technicalName, ['id' => $app->getId(), 'roleId' => $app->getAclRoleId()], $context, $keepUserData);
     }
 
-    public function removeExtensionAndCancelSubscription(int $licenseId, string $technicalName, string $id, Context $context): void
+    public function removeExtensionAndCancelSubscription(int $licenseId, string $technicalName, string $id, bool $keepUserData, Context $context): void
     {
         $this->validateExtensionCanBeRemoved($technicalName, $id, $context);
         $app = $this->getAppById($id, $context);
         $this->storeClient->cancelSubscription($licenseId, $context);
         $this->appLifecycle->delete($technicalName, ['id' => $id, 'roleId' => $app->getAclRoleId()], $context);
-        $this->deleteExtension($technicalName);
+        $this->deleteExtension($technicalName, $keepUserData, $context);
     }
 
-    public function deleteExtension(string $technicalName): void
+    public function deleteExtension(string $technicalName, bool $keepUserData, Context $context): void
     {
+        $this->uninstallExtension($technicalName, $context, $keepUserData);
         $this->appLoader->deleteApp($technicalName);
     }
 
@@ -112,6 +115,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
 
         $this->appLifecycle->update(
             $manifests[$technicalName],
+            new AppUpdateParameters(),
             [
                 'id' => $app->getId(),
                 'version' => $app->getVersion(),

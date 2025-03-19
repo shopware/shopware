@@ -1,16 +1,14 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 import template from './sw-profile-index-search-preferences.html.twig';
 import './sw-profile-index-search-preferences.scss';
 
-const { Module, State, Mixin } = Shopware;
+const { Module, Store, Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['searchPreferencesService'],
 
@@ -27,19 +25,19 @@ export default {
     computed: {
         searchPreferences: {
             get() {
-                return State.get('swProfile').searchPreferences;
+                return Store.get('swProfile').searchPreferences;
             },
             set(searchPreferences) {
-                State.commit('swProfile/setSearchPreferences', searchPreferences);
+                Store.get('swProfile').searchPreferences = searchPreferences;
             },
         },
 
         userSearchPreferences: {
             get() {
-                return State.get('swProfile').userSearchPreferences;
+                return Store.get('swProfile').userSearchPreferences;
             },
             set(userSearchPreferences) {
-                State.commit('swProfile/setUserSearchPreferences', userSearchPreferences);
+                Store.get('swProfile').userSearchPreferences = userSearchPreferences;
             },
         },
 
@@ -126,19 +124,11 @@ export default {
         },
 
         addEventListeners() {
-            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                this.$root.$on('sw-search-preferences-modal-close', this.getDataSource);
-            } else {
-                Shopware.Utils.EventBus.on('sw-search-preferences-modal-close', this.getDataSource);
-            }
+            Shopware.Utils.EventBus.on('sw-search-preferences-modal-close', this.getDataSource);
         },
 
         removeEventListeners() {
-            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                this.$root.$off('sw-search-preferences-modal-close', this.getDataSource);
-            } else {
-                Shopware.Utils.EventBus.off('sw-search-preferences-modal-close', this.getDataSource);
-            }
+            Shopware.Utils.EventBus.off('sw-search-preferences-modal-close', this.getDataSource);
         },
 
         updateDataSource() {

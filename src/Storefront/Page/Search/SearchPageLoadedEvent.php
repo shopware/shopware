@@ -7,22 +7,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('services-settings')]
+#[Package('inventory')]
 class SearchPageLoadedEvent extends PageLoadedEvent
 {
-    /**
-     * @var SearchPage
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $page;
-
     public function __construct(
-        SearchPage $page,
+        protected SearchPage $page,
         SalesChannelContext $salesChannelContext,
-        Request $request
+        Request $request,
     ) {
-        $this->page = $page;
         parent::__construct($salesChannelContext, $request);
     }
 

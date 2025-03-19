@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 
 const { Context } = Shopware;
@@ -16,6 +16,9 @@ const mockData = [
         },
     },
 ];
+const flowTemplateRepositorySearchMock = jest.fn((criteria) => {
+    return Promise.resolve(new EntityCollection('', '', Context.api, criteria, mockData, 1));
+});
 
 async function createWrapper(privileges = [], props = {}) {
     return mount(await wrapTestComponent('sw-flow-list-flow-templates', { sync: true }), {
@@ -36,16 +39,12 @@ async function createWrapper(privileges = [], props = {}) {
                     </div>
                 `,
                 },
-                'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-internal-link': await wrapTestComponent('sw-internal-link'),
                 'router-link': {
                     props: ['to'],
                     // eslint-disable-next-line no-template-curly-in-string
                     template: '<a :href="`${to.name}/${to.params.flowTemplateId}`">asdf</a>',
                 },
-                'sw-icon': true,
-                'sw-button': true,
                 'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
                 'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                 'sw-context-menu-item': true,
@@ -62,13 +61,12 @@ async function createWrapper(privileges = [], props = {}) {
                 'sw-data-grid-settings': true,
                 'sw-data-grid-column-boolean': true,
                 'sw-data-grid-inline-edit': true,
+                'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },
             provide: {
                 repositoryFactory: {
                     create: () => ({
-                        search: jest.fn((criteria) => {
-                            return Promise.resolve(new EntityCollection('', '', Context.api, criteria, mockData, 1));
-                        }),
+                        search: flowTemplateRepositorySearchMock,
                     }),
                 },
                 acl: {
@@ -168,12 +166,12 @@ describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
     });
 
     it('should set searchTerm to criteria', async () => {
-        const wrapper = await createWrapper([], {
+        await createWrapper([], {
             searchTerm: 'test-term',
         });
         await flushPromises();
 
-        expect(wrapper.vm.flowTemplateRepository.search).toHaveBeenNthCalledWith(
+        expect(flowTemplateRepositorySearchMock).toHaveBeenNthCalledWith(
             1,
             expect.objectContaining({
                 term: 'test-term',

@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_import_export_new_profile_wizard %}
 <sw-wizard
     ref="wizard"
@@ -10,7 +9,6 @@
     @finish="onFinish"
     @current-page-change="onCurrentPageChange"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_new_profile_wizard_page_general %}
     <sw-wizard-page
         :position="0"
@@ -23,7 +21,6 @@
         />
     </sw-wizard-page>
     {% endblock %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_new_profile_wizard_page_csv %}
     <sw-wizard-page
         :position="csvUploadPagePosition"
@@ -36,7 +33,6 @@
         />
     </sw-wizard-page>
     {% endblock %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_new_profile_wizard_page_mapping %}
     <sw-wizard-page
         :position="2"
@@ -51,13 +47,11 @@
     </sw-wizard-page>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_new_profile_wizard_footer_right_button %}
     <template #footer-right-button>
         <div class="sw-import-export-new-profile-wizard__footer-right-button-group">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_new_profile_wizard_footer_right_button_finish %}
-            <sw-button
+            <mt-button
                 v-if="showNextButton"
                 size="small"
                 variant="primary"
@@ -65,38 +59,36 @@
                 @click="onFinish"
             >
                 {{ $tc('sw-import-export.profile.addProfileLabel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             <template v-else>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_import_export_new_profile_wizard_footer_right_button_skip %}
-                <sw-button
+                <mt-button
                     v-if="showCsvSkipButton"
                     size="small"
+                    variant="secondary"
                     @click="onNextPage"
                 >
                     {{ $tc('sw-import-export.profile.skipCsvUpload') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_import_export_new_profile_wizard_footer_right_button_next %}
-                <sw-button
+                <mt-button
                     size="small"
                     variant="primary"
                     :disabled="nextButtonDisabled"
                     @click="onNextPage"
                 >
                     {{ $tc('sw-wizard.nextButton') }}
-                </sw-button>
+                </mt-button>
             {% endblock %}
             </template>
         </div>
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_new_profile_wizard_violation_modal %}
     <sw-modal
         v-if="showValidationError"
@@ -105,15 +97,12 @@
         @modal-close="resetViolations"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_new_profile_wizard_violation_modal_message %}
         <p>{{ $tc('sw-import-export.profile.violationMessage') }}</p>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_new_profile_wizard_violation_modal_required_fields %}
         <ul>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_new_profile_wizard_violation_modal_required_field %}
             <li
                 v-for="requiredField in missingRequiredFields"
@@ -125,15 +114,15 @@
         </ul>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_new_profile_wizard_violation_modal_footer %}
         <template #modal-footer>
-            <sw-button
+            <mt-button
                 size="small"
+                variant="secondary"
                 @click="resetViolations"
             >
                 {{ $tc('sw-import-export.profile.closeViolation') }}
-            </sw-button>
+            </mt-button>
         </template>
         {% endblock %}
     </sw-modal>

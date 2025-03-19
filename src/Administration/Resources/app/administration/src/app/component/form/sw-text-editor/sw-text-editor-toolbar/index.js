@@ -4,14 +4,13 @@ import './sw-text-editor-toolbar.scss';
 const { Component, Utils } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-text-editor instead.
  *
  * @private
  */
 Component.register('sw-text-editor-toolbar', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'created-el',
@@ -74,6 +73,7 @@ Component.register('sw-text-editor-toolbar', {
             rightButtons: [],
             tableEdit: false,
             scrollEventHandler: undefined,
+            preventReposition: false,
         };
     },
 
@@ -217,7 +217,7 @@ Component.register('sw-text-editor-toolbar', {
         },
 
         setToolbarPosition() {
-            if (!this.selection) {
+            if (!this.selection || this.preventReposition) {
                 return;
             }
 
@@ -229,7 +229,10 @@ Component.register('sw-text-editor-toolbar', {
             this.setSelectionRange();
             const boundary = this.range?.getBoundingClientRect?.();
 
-            if (!boundary) {
+            const selectionLost =
+                !boundary || boundary.top <= 0 || boundary.left <= 0 || boundary.width <= 0 || boundary.height <= 0;
+
+            if (selectionLost) {
                 return;
             }
 
@@ -261,19 +264,11 @@ Component.register('sw-text-editor-toolbar', {
 
             if (button.children) {
                 if (typeof button.expanded === 'undefined') {
-                    if (this.isCompatEnabled('INSTANCE_SET')) {
-                        this.$set(button, 'expanded', false);
-                    } else {
-                        button.expanded = false;
-                    }
+                    button.expanded = false;
                 }
 
                 button.children.forEach((child) => {
-                    if (this.isCompatEnabled('INSTANCE_SET')) {
-                        this.$set(child, 'active', !!this.activeTags.includes(child.tag));
-                    } else {
-                        child.active = !!this.activeTags.includes(child.tag);
-                    }
+                    child.active = !!this.activeTags.includes(child.tag);
                 });
             }
 
@@ -289,11 +284,7 @@ Component.register('sw-text-editor-toolbar', {
                 button.buttonVariant = this.currentLink?.buttonVariant ?? 'primary';
             }
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(button, 'active', !!this.activeTags.includes(button.tag));
-            } else {
-                button.active = !!this.activeTags.includes(button.tag);
-            }
+            button.active = !!this.activeTags.includes(button.tag);
 
             return button;
         },
@@ -315,6 +306,9 @@ Component.register('sw-text-editor-toolbar', {
         },
 
         onButtonClick(button, parent = null) {
+            // Whenever a button is clicked, we can allow the toolbar to reposition because the link menu is closed
+            this.preventReposition = false;
+
             if (button.type === 'link') {
                 this.handleTextStyleChangeLink(button);
                 return;
@@ -462,6 +456,14 @@ Component.register('sw-text-editor-toolbar', {
         },
 
         onToggleMenu(event, button) {
+            // Whenever the link menu is opened, we need to prevent the toolbar from repositioning
+            // The link menu has multiple problems:
+            // 1. It is a popover and not a dropdown
+            // 2. It is not a child of the toolbar, so the toolbar does not know when it is opened
+            // 3. Repositioning the the toolbar while the link menu is opened causes
+            // all popovers to close and the toolbar to disappear
+            this.preventReposition = button.type === 'link';
+
             this.keepSelection();
 
             this.buttonConfig.forEach((item) => {

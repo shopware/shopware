@@ -1,11 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_mail_header_footer_list_grid %}
-<sw-card
+<mt-card
     :title="$tc('sw-mail-header-footer.list.textMailHeaderFooterOverview')"
     position-identifier="sw-mail-header-footer-list"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_mail_header_footer_list_grid_empty_state %}
     <sw-empty-state
         v-if="!isLoading && !showListing"
@@ -14,11 +12,10 @@
         :absolute="false"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_mail_header_footer_list_grid_empty_state_icon %}
         <template #icon>
             <img
-                :src="assetFilter('/administration/static/img/empty-states/settings-empty-state.svg')"
+                :src="assetFilter('/administration/administration/static/img/empty-states/settings-empty-state.svg')"
                 :alt="$tc('sw-mail-header-footer.list.emptyStateTitle')"
             >
         </template>
@@ -27,7 +24,6 @@
     </sw-empty-state>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_mail_template_list_grid %}
     <template #grid>
         <sw-entity-listing
@@ -50,34 +46,32 @@
             @update-records="updateRecords"
         >
             <template #column-salesChannels.name="{ item }">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_mail_template_list_columns_sales_channels_label %}
                 {{ getSalesChannelsString(item) }}
                 {% endblock %}
             </template>
 
             <template #bulk-modal-delete-items>
-                <sw-button
-                    variant="danger"
+                <mt-button
+                    variant="critical"
                     size="small"
                     @click="onMultipleDelete"
                 >
                     {{ $tc('global.default.delete') }}
-                </sw-button>
+                </mt-button>
             </template>
 
             <template #delete-modal-delete-item="{ item }">
-                <sw-button
-                    variant="danger"
+                <mt-button
+                    variant="critical"
                     size="small"
                     @click="onDelete(item)"
                 >
                     {{ $tc('global.default.delete') }}
-                </sw-button>
+                </mt-button>
             </template>
 
             <template #more-actions="{ item }">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_mail_header_footer_list_grid_columns_actions_duplicate %}
                 <sw-context-menu-item
                     class="sw-mail-header-footer-list-grid__duplicate-action"
@@ -92,5 +86,5 @@
     </template>
     {% endblock %}
 
-</sw-card>
+</mt-card>
 {% endblock %}

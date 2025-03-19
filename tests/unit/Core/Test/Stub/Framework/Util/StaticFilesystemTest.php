@@ -11,7 +11,7 @@ use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(StaticFilesystem::class)]
 class StaticFilesystemTest extends TestCase
 {

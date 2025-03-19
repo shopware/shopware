@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package fundamentals@discovery
  */
 import template from './sw-settings-language-detail.html.twig';
 import './sw-settings-language-detail.scss';
@@ -11,8 +11,6 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -165,7 +163,7 @@ export default {
     methods: {
         createdComponent() {
             if (!this.languageId) {
-                Shopware.State.commit('context/resetLanguageToDefault');
+                Shopware.Store.get('context').resetLanguageToDefault();
                 this.language = this.languageRepository.create();
 
                 return;

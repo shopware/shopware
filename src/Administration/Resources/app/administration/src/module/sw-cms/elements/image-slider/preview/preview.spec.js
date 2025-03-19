@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 
@@ -8,13 +8,6 @@ async function createWrapper() {
         await wrapTestComponent('sw-cms-el-preview-image-slider', {
             sync: true,
         }),
-        {
-            global: {
-                stubs: {
-                    'sw-icon': await wrapTestComponent('sw-icon'),
-                },
-            },
-        },
     );
 }
 

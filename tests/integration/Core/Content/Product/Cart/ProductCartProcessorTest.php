@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
@@ -27,7 +28,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
@@ -817,6 +817,17 @@ class ProductCartProcessorTest extends TestCase
         static::assertSame(21.0, $lineItem?->getPrice()?->getTaxRules()?->first()?->getTaxRate());
     }
 
+    public function testTaxFreeIsConsideredOnMultipleCalculations(): void
+    {
+        static::getContainer()->get('currency.repository')->upsert([['id' => Defaults::CURRENCY, 'taxFreeFrom' => 1]], Context::createDefaultContext());
+        $context = $this->getContext();
+        $this->createProduct();
+        $cart = $this->getProductCart();
+
+        static::getContainer()->get(CartCalculator::class)->calculate($cart, $context);
+        static::assertSame(10.0, $cart->getLineItems()->first()?->getPrice()?->getTotalPrice());
+    }
+
     public function testProducePriceChangeAfterContextRuleChange(): void
     {
         $countryIds = $this->getCountryIds();
@@ -935,10 +946,6 @@ class ProductCartProcessorTest extends TestCase
             ],
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
         static::getContainer()->get('customer.repository')->upsert([$customer], Context::createDefaultContext());
 
         return $customerId;
@@ -953,9 +960,7 @@ class ProductCartProcessorTest extends TestCase
 
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
-        $this->cartService->add($cart, $product, $context);
-
-        return $cart;
+        return $this->cartService->add($cart, $product, $context);
     }
 
     private function getContext(): SalesChannelContext

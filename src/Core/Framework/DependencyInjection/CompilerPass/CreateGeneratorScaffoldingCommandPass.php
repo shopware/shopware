@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
-#[Package('core')]
+#[Package('framework')]
 class CreateGeneratorScaffoldingCommandPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

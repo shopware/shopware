@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @see https://github.com/varnish/varnish-modules/blob/master/src/vmod_xkey.vcc
  */
-#[Package('core')]
+#[Package('framework')]
 class VarnishReverseProxyGateway extends AbstractReverseProxyGateway
 {
     private const MAX_TAG_INVALIDATION = 50;

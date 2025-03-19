@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 import template from './sw-settings-mailer.html.twig';
 import './sw-settings-mailer.scss';
@@ -19,8 +19,6 @@ const defaultMailerSettings = {
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['systemConfigApiService'],
 
@@ -62,6 +60,31 @@ export default {
                 'smtp',
                 'smtp+oauth',
             ].includes(this.mailerSettings['core.mailerSettings.emailAgent']);
+        },
+
+        emailAgentOptions() {
+            return [
+                {
+                    id: 1,
+                    value: 'local',
+                    label: this.$tc('sw-settings-mailer.mailer-configuration.local-agent'),
+                },
+                {
+                    id: 2,
+                    value: 'smtp',
+                    label: this.$tc('sw-settings-mailer.mailer-configuration.smtp-server'),
+                },
+                {
+                    id: 3,
+                    value: 'smtp+oauth',
+                    label: this.$tc('sw-settings-mailer.mailer-configuration.smtp-server-oauth'),
+                },
+                {
+                    id: 3,
+                    value: '',
+                    label: this.$tc('sw-settings-mailer.mailer-configuration.env-file'),
+                },
+            ];
         },
     },
 
@@ -124,6 +147,7 @@ export default {
                 this.mailerSettings = {
                     ...defaultMailerSettings,
                     'core.mailerSettings.emailAgent': 'local',
+                    'core.mailerSettings.disableDelivery': this.mailerSettings['core.mailerSettings.disableDelivery'],
                 };
             }
 

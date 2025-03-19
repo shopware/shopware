@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 
-#[Package('core')]
+#[Package('framework')]
 class AppFlowActionProvider
 {
     /**

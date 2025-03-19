@@ -16,7 +16,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class CleanupSalesChannelContextTaskHandlerTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

@@ -13,7 +13,7 @@ use Symfony\Component\Mailer\Event\FailedMessageEvent;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class FailedMessageSubscriber implements EventSubscriberInterface
 {
     public function __construct(private readonly Connection $connection)

@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 

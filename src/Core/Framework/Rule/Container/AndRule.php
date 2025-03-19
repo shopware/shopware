@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 /**
  * AndRule returns true, if all child-rules are true
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class AndRule extends Container
 {
     final public const RULE_NAME = 'andContainer';

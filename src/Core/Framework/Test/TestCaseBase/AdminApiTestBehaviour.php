@@ -105,7 +105,7 @@ trait AdminApiTestBehaviour
         TestCase::assertSame(
             Response::HTTP_OK,
             $browser->getResponse()->getStatusCode(),
-            'Entity does not exists but should do. Response: ' . $browser->getResponse()->getContent()
+            'Entity does not exist but should do. Response: ' . $browser->getResponse()->getContent()
         );
     }
 
@@ -178,7 +178,7 @@ trait AdminApiTestBehaviour
         ];
 
         if (!empty($scopes)) {
-            $authPayload['scope'] = $scopes;
+            $authPayload['scope'] = implode(' ', $scopes);
         }
 
         $browser->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));

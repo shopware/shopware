@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Contract\RuleIdAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -24,182 +23,49 @@ class PaymentMethodEntity extends Entity implements IdAware, RuleIdAware
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $pluginId;
+    protected ?string $pluginId = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $handlerIdentifier;
+    protected string $handlerIdentifier;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $distinguishableName;
+    protected ?string $distinguishableName = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $position;
+    protected int $position;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $active;
+    protected bool $active;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $afterOrderEnabled;
+    protected bool $afterOrderEnabled;
 
-    /**
-     * @var PluginEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $plugin;
+    protected ?PluginEntity $plugin = null;
 
-    /**
-     * @var PaymentMethodTranslationCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translations;
+    protected ?PaymentMethodTranslationCollection $translations = null;
 
-    /**
-     * @var OrderTransactionCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderTransactions;
+    protected ?OrderTransactionCollection $orderTransactions = null;
 
-    /**
-     * @var CustomerCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customers;
+    protected ?CustomerCollection $customers = null;
 
-    /**
-     * @var SalesChannelCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannelDefaultAssignments;
+    protected ?SalesChannelCollection $salesChannelDefaultAssignments = null;
 
-    /**
-     * @var SalesChannelCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannels;
+    protected ?SalesChannelCollection $salesChannels = null;
 
-    /**
-     * @var RuleEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $availabilityRule;
+    protected ?RuleEntity $availabilityRule = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $availabilityRuleId;
+    protected ?string $availabilityRuleId = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $mediaId;
+    protected ?string $mediaId = null;
 
-    /**
-     * @var MediaEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $media;
+    protected ?MediaEntity $media = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $formattedHandlerIdentifier;
+    protected string $formattedHandlerIdentifier;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shortName;
+    protected ?string $shortName = null;
 
-    /**
-     * @deprecated tag:v6.7.0 - will not be nullable
-     */
-    protected ?string $technicalName = null;
+    protected string $technicalName;
 
-    /**
-     * @var AppPaymentMethodEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $appPaymentMethod;
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    protected bool $synchronous = false;
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    protected bool $asynchronous = false;
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    protected bool $prepared = false;
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    protected bool $refundable = false;
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    protected bool $recurring = false;
+    protected ?AppPaymentMethodEntity $appPaymentMethod = null;
 
     public function getPluginId(): ?string
     {
@@ -401,27 +267,13 @@ class PaymentMethodEntity extends Entity implements IdAware, RuleIdAware
         $this->shortName = $shortName;
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - return type will not be nullable
-     */
-    public function getTechnicalName(): ?string
+    public function getTechnicalName(): string
     {
-        if (!$this->technicalName) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `technical_name` will be required');
-        }
-
         return $this->technicalName;
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:parameter-type-change - property type will not be nullable
-     */
-    public function setTechnicalName(?string $technicalName): void
+    public function setTechnicalName(string $technicalName): void
     {
-        if (!$technicalName) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `technical_name` will be required');
-        }
-
         $this->technicalName = $technicalName;
     }
 
@@ -433,100 +285,5 @@ class PaymentMethodEntity extends Entity implements IdAware, RuleIdAware
     public function setAppPaymentMethod(?AppPaymentMethodEntity $appPaymentMethod): void
     {
         $this->appPaymentMethod = $appPaymentMethod;
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    public function isSynchronous(): bool
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `synchronous` will be removed');
-
-        return $this->synchronous;
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    public function setSynchronous(bool $synchronous): void
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `synchronous` will be removed');
-        $this->synchronous = $synchronous;
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    public function isAsynchronous(): bool
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `asynchronous` will be removed');
-
-        return $this->asynchronous;
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    public function setAsynchronous(bool $asynchronous): void
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `asynchronous` will be removed');
-        $this->asynchronous = $asynchronous;
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    public function isPrepared(): bool
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `prepared` will be removed');
-
-        return $this->prepared;
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    public function setPrepared(bool $prepared): void
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `prepared` will be removed');
-        $this->prepared = $prepared;
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    public function isRefundable(): bool
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `refundable` will be removed');
-
-        return $this->refundable;
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    public function setRefundable(bool $refundable): void
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `refundable` will be removed');
-        $this->refundable = $refundable;
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    public function isRecurring(): bool
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `recurring` will be removed');
-
-        return $this->recurring;
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    public function setRecurring(bool $recurring): void
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `recurring` will be removed');
-        $this->recurring = $recurring;
     }
 }

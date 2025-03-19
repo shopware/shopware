@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<CustomFieldSetEntity>
  */
-#[Package('services-settings')]
+#[Package('framework')]
 class CustomFieldSetCollection extends EntityCollection
 {
     public function getApiAlias(): string

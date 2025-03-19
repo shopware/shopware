@@ -46,7 +46,7 @@ class CartPersisterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
         $eventDispatcher = new EventDispatcher();
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchAssociative')
             ->willReturn(false);
 
@@ -55,7 +55,7 @@ class CartPersisterTest extends TestCase
         $e = null;
 
         try {
-            $persister->load('not_existing_token', Generator::createSalesChannelContext());
+            $persister->load('not_existing_token', Generator::generateSalesChannelContext());
         } catch (\Exception $e) {
         }
 
@@ -68,14 +68,14 @@ class CartPersisterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
         $eventDispatcher = new EventDispatcher();
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchAssociative')
             ->willReturn(
                 ['payload' => serialize(new Cart('existing')), 'rule_ids' => json_encode([]), 'compressed' => 0]
             );
 
         $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'));
-        $cart = $persister->load('existing', Generator::createSalesChannelContext());
+        $cart = $persister->load('existing', Generator::generateSalesChannelContext());
 
         static::assertEquals(new Cart('existing'), $cart);
     }
@@ -95,7 +95,7 @@ class CartPersisterTest extends TestCase
 
         $cart = new Cart('existing');
 
-        $persister->save($cart, Generator::createSalesChannelContext());
+        $persister->save($cart, Generator::generateSalesChannelContext());
     }
 
     public function testEmptyCartWithManualShippingCostsExtensionIsSaved(): void
@@ -325,7 +325,7 @@ class CartPersisterTest extends TestCase
 
     private function expectSqlQuery(MockObject $connection, string $beginOfSql): void
     {
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('prepare')
             ->with(
                 static::callback(fn (string $sql): bool => \str_starts_with(\trim($sql), $beginOfSql))

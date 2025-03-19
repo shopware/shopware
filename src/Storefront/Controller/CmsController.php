@@ -5,20 +5,16 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
 use Shopware\Core\Content\Cms\CmsException;
 use Shopware\Core\Content\Cms\SalesChannel\AbstractCmsRoute;
-use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\AbstractFindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\SwitchBuyBoxVariantEvent;
-use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Shopware\Storefront\Page\Cms\CmsPageLoadedHook;
-use Shopware\Storefront\Page\Product\Review\ProductReviewsLoadedEvent as StorefrontProductReviewsLoadedEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,7 +26,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class CmsController extends StorefrontController
 {
     /**
@@ -47,6 +43,10 @@ class CmsController extends StorefrontController
     ) {
     }
 
+    /**
+     * Rendering a CMS layout as a widget, meaning that the layout is rendered standalone without the surrounding page template.
+     * Use this if you want to load content via JS and embed into an existing page or modal.
+     */
     #[Route(path: '/widgets/cms/{id}', name: 'frontend.cms.page', defaults: ['id' => null, 'XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET', 'POST'])]
     public function page(?string $id, Request $request, SalesChannelContext $salesChannelContext): Response
     {
@@ -62,6 +62,19 @@ class CmsController extends StorefrontController
         $response->headers->set('x-robots-tag', 'noindex');
 
         return $response;
+    }
+
+    /**
+     * Rendering a CMS layout as a full page, example including stylesheets, scripts, header, footer, etc.
+     * Use this for internal page links pointing to a layout.
+     */
+    #[Route(path: '/page/cms/{id}', name: 'frontend.cms.page.full', defaults: ['XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET', 'POST'])]
+    public function pageFull(string $id, Request $request, SalesChannelContext $salesChannelContext): Response
+    {
+        $page = $this->cmsRoute->load($id, $request, $salesChannelContext)->getCmsPage();
+        $this->hook(new CmsPageLoadedHook($page, $salesChannelContext));
+
+        return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => ['cmsPage' => $page]]);
     }
 
     /**
@@ -165,27 +178,13 @@ class CmsController extends StorefrontController
 
         $reviews = $this->productReviewLoader->load($request, $context, $product->getId(), $product->getParentId());
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            /** @var StorefrontSearchResult<ProductReviewCollection> $storefrontReviews */
-            $storefrontReviews = new StorefrontSearchResult(
-                $reviews->getEntity(),
-                $reviews->getTotal(),
-                $reviews->getEntities(),
-                $reviews->getAggregations(),
-                $reviews->getCriteria(),
-                $reviews->getContext()
-            );
-
-            $this->eventDispatcher->dispatch(new StorefrontProductReviewsLoadedEvent($storefrontReviews, $context, $request));
-        }
-
         $event = new SwitchBuyBoxVariantEvent($elementId, $product, $configurator, $request, $context);
         $this->eventDispatcher->dispatch($event);
 
         $response = $this->renderStorefront('@Storefront/storefront/component/buy-widget/buy-widget.html.twig', [
             'product' => $product,
             'configuratorSettings' => $configurator,
-            'totalReviews' => $reviews->getTotalReviews(),
+            'totalReviews' => $reviews->getTotal(),
             'elementId' => $elementId,
         ]);
         $response->headers->set('x-robots-tag', 'noindex');

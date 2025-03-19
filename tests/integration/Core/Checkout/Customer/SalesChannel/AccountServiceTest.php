@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
@@ -33,20 +32,6 @@ class AccountServiceTest extends TestCase
     protected function setUp(): void
     {
         $this->accountService = static::getContainer()->get(AccountService::class);
-    }
-
-    public function testLogin(): void
-    {
-        Feature::skipTestIfActive('v6.7.0.0', $this);
-
-        $salesChannelContext = $this->createSalesChannelContext();
-        $customerId = $this->createCustomerOfSalesChannel($salesChannelContext->getSalesChannelId(), 'foo@bar.com');
-        $token = $this->accountService->login('foo@bar.com', $salesChannelContext);
-
-        $customer = $this->getCustomerFromToken($token, $salesChannelContext->getSalesChannelId());
-
-        static::assertSame('foo@bar.com', $customer->getEmail());
-        static::assertSame($customerId, $customer->getId());
     }
 
     public function testLoginById(): void
@@ -87,11 +72,11 @@ class AccountServiceTest extends TestCase
                 ],
             ],
         ]);
-        $this->createCustomerOfSalesChannel($context->getSalesChannel()->getId(), $email);
+        $this->createCustomerOfSalesChannel($context->getSalesChannelId(), $email);
 
         $customer = $this->accountService->getCustomerByLogin($email, 'shopware', $context);
         static::assertEquals($email, $customer->getEmail());
-        static::assertEquals($context->getSalesChannel()->getId(), $customer->getSalesChannelId());
+        static::assertEquals($context->getSalesChannelId(), $customer->getSalesChannelId());
     }
 
     public function testGetCustomerByLoginWithInvalidPassword(): void
@@ -110,11 +95,11 @@ class AccountServiceTest extends TestCase
                 ],
             ],
         ]);
-        $this->createCustomerOfSalesChannel($context->getSalesChannel()->getId(), $email);
+        $this->createCustomerOfSalesChannel($context->getSalesChannelId(), $email);
 
         $customer = $this->accountService->getCustomerByLogin($email, 'invalid-password', $context);
         static::assertEquals($email, $customer->getEmail());
-        static::assertEquals($context->getSalesChannel()->getId(), $customer->getSalesChannelId());
+        static::assertEquals($context->getSalesChannelId(), $customer->getSalesChannelId());
     }
 
     public function testGetCustomerByLoginWhenCustomersHaveSameEmailReturnsTheLatestCreatedCustomer(): void
@@ -133,8 +118,8 @@ class AccountServiceTest extends TestCase
             ],
         ]);
 
-        $this->createCustomerOfSalesChannel($context->getSalesChannel()->getId(), $email, true, true, $idCustomer1, '2022-10-21 10:00:00');
-        $this->createCustomerOfSalesChannel($context->getSalesChannel()->getId(), $email, true, true, $idCustomer2, '2022-10-22 10:00:00');
+        $this->createCustomerOfSalesChannel($context->getSalesChannelId(), $email, true, true, $idCustomer1, '2022-10-21 10:00:00');
+        $this->createCustomerOfSalesChannel($context->getSalesChannelId(), $email, true, true, $idCustomer2, '2022-10-22 10:00:00');
 
         $customer = $this->accountService->getCustomerByLogin($email, 'shopware', $context);
         static::assertEquals($idCustomer2, $customer->getId());
@@ -154,7 +139,7 @@ class AccountServiceTest extends TestCase
                 ],
             ],
         ]);
-        $this->createCustomerOfSalesChannel($context1->getSalesChannel()->getId(), $email);
+        $this->createCustomerOfSalesChannel($context1->getSalesChannelId(), $email);
 
         $context2 = $this->createSalesChannelContext([
             'domains' => [
@@ -167,14 +152,14 @@ class AccountServiceTest extends TestCase
             ],
         ]);
 
-        $this->createCustomerOfSalesChannel($context2->getSalesChannel()->getId(), $email);
+        $this->createCustomerOfSalesChannel($context2->getSalesChannelId(), $email);
 
         $customer1 = $this->accountService->getCustomerByLogin($email, 'shopware', $context1);
 
-        static::assertEquals($context1->getSalesChannel()->getId(), $customer1->getSalesChannelId());
+        static::assertEquals($context1->getSalesChannelId(), $customer1->getSalesChannelId());
 
         $customer2 = $this->accountService->getCustomerByLogin($email, 'shopware', $context2);
-        static::assertEquals($context2->getSalesChannel()->getId(), $customer2->getSalesChannelId());
+        static::assertEquals($context2->getSalesChannelId(), $customer2->getSalesChannelId());
     }
 
     public function testCustomerFailsToLoginByMailWithInactiveAccount(): void
@@ -191,7 +176,7 @@ class AccountServiceTest extends TestCase
                 ],
             ],
         ]);
-        $this->createCustomerOfSalesChannel($context->getSalesChannel()->getId(), $email, true, false);
+        $this->createCustomerOfSalesChannel($context->getSalesChannelId(), $email, true, false);
 
         $this->expectException(CustomerNotFoundException::class);
         $this->expectExceptionMessage('No matching customer for the email "johndoe@example.com" was found.');
@@ -213,11 +198,11 @@ class AccountServiceTest extends TestCase
                 ],
             ],
         ]);
-        $this->createCustomerOfSalesChannel($context->getSalesChannel()->getId(), $email, true, true, $idCustomer, '2022-10-21 10:00:00', Hasher::hash('shopware', 'md5'), 'Md5');
+        $this->createCustomerOfSalesChannel($context->getSalesChannelId(), $email, true, true, $idCustomer, '2022-10-21 10:00:00', Hasher::hash('shopware', 'md5'), 'Md5');
 
         $customer = $this->accountService->getCustomerByLogin($email, 'shopware', $context);
         static::assertEquals($email, $customer->getEmail());
-        static::assertEquals($context->getSalesChannel()->getId(), $customer->getSalesChannelId());
+        static::assertEquals($context->getSalesChannelId(), $customer->getSalesChannelId());
 
         $customer = $this
             ->getContainer()
@@ -245,7 +230,7 @@ class AccountServiceTest extends TestCase
                 ],
             ],
         ]);
-        $this->createCustomerOfSalesChannel($context->getSalesChannel()->getId(), $email, true, true, $idCustomer, '2022-10-21 10:00:00', Hasher::hash('test', 'md5'), 'Md5');
+        $this->createCustomerOfSalesChannel($context->getSalesChannelId(), $email, true, true, $idCustomer, '2022-10-21 10:00:00', Hasher::hash('test', 'md5'), 'Md5');
 
         static::expectException(PasswordPoliciesUpdatedException::class);
         static::expectExceptionMessage('Password policies updated.');
@@ -310,10 +295,6 @@ class AccountServiceTest extends TestCase
                 ],
             ],
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         static::getContainer()
             ->get('customer.repository')

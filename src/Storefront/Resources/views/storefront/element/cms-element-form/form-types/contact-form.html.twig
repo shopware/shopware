@@ -2,7 +2,7 @@
     {% set formPrefix = 'cms-form-contact' %}
     <form action="{{ path(action) }}"
           method="post"
-          data-form-validation="true"
+          data-form-handler="true"
           data-form-preserver="true"
           id="{{ formPrefix }}"
           aria-label="{{ element.config.title.value ? element.config.title.value : 'contact.headline'|trans }}">
@@ -62,20 +62,17 @@
             {% endblock %}
 
             {% block cms_form_contact_input_phone %}
-                {# @deprecated tag:v6.7.0 - Block will be renamed because of a typo. Use outer `cms_form_contact_input_phone` instead. #}
-                {% block cms_form_contact_input_phome %}
-                    {% set phoneNumberFieldRequired = config('core.basicInformation.phoneNumberFieldRequired') == true %}
-                    {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
-                        with {
-                        fieldName: 'phone',
-                        autocomplete: 'tel',
-                        required: phoneNumberFieldRequired,
-                        additionalClass: 'col-md-6',
-                        label: 'account.personalPhoneLabel',
-                        placeholder: 'account.personalPhonePlaceholder'
-                    }
-                    %}
-                {% endblock %}
+                {% set phoneNumberFieldRequired = config('core.basicInformation.phoneNumberFieldRequired') == true %}
+                {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
+                    with {
+                    fieldName: 'phone',
+                    autocomplete: 'tel',
+                    required: phoneNumberFieldRequired,
+                    additionalClass: 'col-md-6',
+                    label: 'account.personalPhoneLabel',
+                    placeholder: 'account.personalPhonePlaceholder'
+                }
+                %}
             {% endblock %}
         </div>
 
@@ -134,7 +131,7 @@
                     <input type="hidden" id="{{ formPrefix }}-navigationId" name="navigationId" value="{{ page.navigationId }}">
                     <input type="hidden" id="{{ formPrefix }}-entityName" name="entityName" value="{{ page.entityName }}">
                 {% else %}
-                    <input type="hidden" id="{{ formPrefix }}-navigationId" name="navigationId" value="{{ page.header.navigation.active.id }}">
+                    <input type="hidden" id="{{ formPrefix }}-navigationId" name="navigationId" value="{{ shopware.navigation.id }}">
                 {% endif %}
 
                 <input type="hidden" id="{{ formPrefix }}-slotId" name="slotId" value="{{ element.id }}">

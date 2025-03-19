@@ -2,13 +2,11 @@ import template from './sw-first-run-wizard-plugins.html.twig';
 import './sw-first-run-wizard-plugins.scss';
 
 /**
- * @package checkout
+ * @sw-package fundamentals@after-sales
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['recommendationsService'],
 
@@ -77,7 +75,7 @@ export default {
                     key: 'back',
                     label: this.$tc('sw-first-run-wizard.general.buttonBack'),
                     position: 'left',
-                    variant: null,
+                    variant: 'secondary',
                     action: 'sw.first.run.wizard.index.paypal.info',
                     disabled: false,
                 },

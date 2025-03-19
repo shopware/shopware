@@ -1,12 +1,10 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_category_entry_point_card %}
-<sw-card
+<mt-card
     class="sw-category-entry-point-card"
     position-identifier="sw-category-entry-point"
     :title="$tc('sw-category.base.entry-point-card.cardTitle')"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_entry_point_card_selection %}
     <sw-single-select
         v-model:value="selectedEntryPoint"
@@ -21,21 +19,18 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_entry_point_card_navigation_headline %}
     <p v-if="hasExistingNavigation">
         {{ $tc('sw-category.base.entry-point-card.existingNavigationDescription') }}
     </p>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_entry_point_card_navigation_list %}
     <div
         v-if="hasExistingNavigation"
         class="sw-category-entry-point-card__navigation-list"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_detail_entry_point_navigation_list_link %}
         <router-link
             v-for="salesChannel in initialNavigationSalesChannels"
@@ -50,7 +45,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_entry_point_card_sales_channel_selection %}
     <sw-category-sales-channel-multi-select
         v-if="associatedCollection"
@@ -64,20 +58,19 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_entry_point_card_button_configure_home %}
-    <sw-button
+    <mt-button
         class="sw-category-entry-point-card__button-configure-home"
-        variant="ghost"
+        ghost
         size="small"
         :disabled="selectedEntryPoint !== 'navigationSalesChannels' || category.navigationSalesChannels.length === 0"
+        variant="secondary"
         @click="openConfigureHomeModal"
     >
         {{ $tc('sw-category.base.entry-point-card.buttonConfigureHome') }}
-    </sw-button>
+    </mt-button>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_entry_point_card_configure_home_modal %}
     <sw-category-entry-point-modal
         v-if="configureHomeModalVisible"
@@ -85,5 +78,5 @@
         @modal-close="closeConfigureHomeModal"
     />
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

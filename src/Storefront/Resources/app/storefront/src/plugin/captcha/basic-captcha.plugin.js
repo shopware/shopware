@@ -10,9 +10,8 @@ export default class BasicCaptchaPlugin extends Plugin {
         captchaImageId: '#basic-captcha-content-image',
         basicCaptchaInputId: '#basic-captcha-input',
         basicCaptchaFieldId: '#basic-captcha-field',
+        invalidFeedbackMessage: 'Incorrect input. Please try again.',
         formId: '',
-        preCheck: false,
-        preCheckId: '#precheck',
         preCheckRoute: {},
     };
 
@@ -23,16 +22,16 @@ export default class BasicCaptchaPlugin extends Plugin {
             return;
         }
 
-        this._httpClient = new HttpClient();
-        this._formSubmitting = false;
+        window.formValidation.addErrorMessage('basicCaptcha', this.options.invalidFeedbackMessage);
+
         this.formPluginInstances = window.PluginManager.getPluginInstancesFromElement(this._form);
+        this._httpClient = new HttpClient();
         this._onLoadBasicCaptcha();
         this._registerEvents();
-        this.formValidating = false;
     }
 
     /**
-     * register all needed events
+     * Registers the necessary event listeners.
      *
      * @private
      */
@@ -40,16 +39,13 @@ export default class BasicCaptchaPlugin extends Plugin {
         const refreshCaptchaButton = this.el.querySelector(this.options.captchaRefreshIconId);
         refreshCaptchaButton.addEventListener('click', this._onLoadBasicCaptcha.bind(this));
 
-        this.formPluginInstances.forEach(plugin => {
-            plugin.$emitter.subscribe('onFormResponse', res => this.onHandleResponse(res.detail));
-
-            if (this.options.preCheck) {
-                plugin.$emitter.subscribe('beforeSubmit', this._onValidate.bind(this));
-            }
-        });
+        this._form.addEventListener('submit', this.validateCaptcha.bind(this));
     }
 
     /**
+     * Fetches a new captcha image and replaces it within the form markup.
+     * Is called by the refresh action of the user or if validation of the current captcha failed.
+     *
      * @private
      */
     _onLoadBasicCaptcha() {
@@ -60,33 +56,71 @@ export default class BasicCaptchaPlugin extends Plugin {
         this._httpClient.get(url, (response) => {
             this.formValidating = false;
             const srcEl = new DOMParser().parseFromString(response, 'text/html');
-            ElementReplaceHelper.replaceElement(srcEl.querySelector(this.options.captchaImageId), captchaImageId, true);
+            ElementReplaceHelper.replaceElement(srcEl.querySelector(this.options.captchaImageId), captchaImageId);
             ElementLoadingIndicatorUtil.remove(captchaImageId);
         });
     }
 
     /**
-     * @private
+     * Validates the captcha via server request.
+     * It checks if the captcha value is correct in association to the form id.
+     * Called on form submit.
+     *
+     * @return {Promise<boolean>}
      */
-    _onValidate() {
-        if (this.formValidating) {
-            return;
-        }
+    async validateCaptcha(event) {
+        event.preventDefault();
 
-        this.formValidating = true;
+        const captchaValue = this.el.querySelector(this.options.basicCaptchaInputId).value;
         const data = JSON.stringify({
             formId: this.options.formId,
-            shopware_basic_captcha_confirm: this.el.querySelector(this.options.basicCaptchaInputId).value,
+            shopware_basic_captcha_confirm: captchaValue,
         });
-        this._httpClient.post(this.options.preCheckRoute.path, data, (res) => {
-            this.formValidating = false;
-            const response = JSON.parse(res);
-            if (response.session) {
-                this.onFormSubmit(response.session);
-                return;
+
+        const response = await fetch(this.options.preCheckRoute.path, {
+            method: 'POST',
+            body: data,
+            headers: { 'Content-Type': 'application/json' },
+        });
+
+        const content = await response.json();
+        const validCaptcha = !!content.session;
+        const validForm = this._form.checkValidity();
+
+        if (!validCaptcha) {
+            // Captcha input will be marked as invalid.
+            const captchaInput = this.el.querySelector(this.options.basicCaptchaInputId);
+            window.formValidation.setFieldInvalid(captchaInput, ['basicCaptcha']);
+
+            // Captcha code is always updated with new image if the validation failed.
+            this._onLoadBasicCaptcha();
+
+            // Remove loading indicators in the case the form uses them.
+            // This event is triggering the corresponding logic in the form handler plugin.
+            this._form.dispatchEvent(new CustomEvent('removeLoader'));
+        }
+
+        if (validCaptcha && validForm) {
+            if (this._isCmsForm()) {
+                // Compatibility with the CMS form handler plugin which does an async form submit.
+                const formCmsHandlerPlugin = this.formPluginInstances.get('FormCmsHandler');
+                formCmsHandlerPlugin._submitForm();
+            } else {
+                // Normal form submit.
+                this._form.submit();
             }
-            this.onHandleResponse(res);
-        });
+        }
+    }
+
+    /**
+     * Checks if the form is the CMS contact form.
+     * This is used to work in association with the form CMS handler.
+     *
+     * @return {boolean}
+     * @private
+     */
+    _isCmsForm() {
+        return this.formPluginInstances.has('FormCmsHandler');
     }
 
     /**
@@ -101,36 +135,5 @@ export default class BasicCaptchaPlugin extends Plugin {
         } else {
             this._form = this.el.closest('form');
         }
-    }
-
-    onFormSubmit(fakeSession) {
-        const preCheckId = `#${this.options.formId}-precheck`;
-        this.el.querySelector(preCheckId).value = 'allowed';
-        this.el.querySelector(this.options.basicCaptchaInputId).value = fakeSession;
-
-        if (!this._form.checkValidity()) {
-            this.el.querySelector(preCheckId).value = '';
-            return;
-        }
-
-        this._form.submit();
-    }
-
-    onHandleResponse(res) {
-        if (this.formValidating) {
-            return;
-        }
-        this.formValidating = true;
-        const response = JSON.parse(res)[0];
-        if (response.error !== 'invalid_captcha') {
-            return;
-        }
-        const basicCaptchaFieldId = this.el.querySelector(this.options.basicCaptchaFieldId);
-        ElementLoadingIndicatorUtil.create(basicCaptchaFieldId);
-
-        const srcEl = new DOMParser().parseFromString(response.input, 'text/html');
-        ElementReplaceHelper.replaceElement(srcEl.querySelector(this.options.basicCaptchaFieldId), basicCaptchaFieldId);
-        ElementLoadingIndicatorUtil.remove(basicCaptchaFieldId);
-        this._onLoadBasicCaptcha();
     }
 }

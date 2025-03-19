@@ -25,7 +25,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 #[CoversClass(NewsletterSubscribeRoute::class)]
 #[Group('store-api')]
 class NewsletterSubscribeRouteTest extends TestCase
@@ -226,7 +226,7 @@ class NewsletterSubscribeRouteTest extends TestCase
     public function testSubscribeIfAlreadyRegistered(): void
     {
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::never())->method('__invoke');
+        $listener->expects($this->never())->method('__invoke');
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
         $this->addEventListener($dispatcher, NewsletterRegisterEvent::class, $listener);

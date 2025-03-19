@@ -1,5 +1,5 @@
 /**
- * @package content
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { deepMergeObject } from 'src/core/service/utils/object.utils';
@@ -14,9 +14,6 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
                 },
             },
             global: {
-                stubs: {
-                    'sw-icon': true,
-                },
                 provide: {
                     repositoryFactory: {
                         create: () => ({

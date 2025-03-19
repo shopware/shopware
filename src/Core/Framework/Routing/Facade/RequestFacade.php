@@ -30,7 +30,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @example scripts/store-api-request-test/store-api-request-test.twig Use request to determine method and return all json body back
  */
-#[Package('core')]
+#[Package('framework')]
 final class RequestFacade
 {
     private const ALLOWED_PARAMETERS = [

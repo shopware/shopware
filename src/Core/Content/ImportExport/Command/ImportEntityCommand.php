@@ -19,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -34,7 +33,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
     name: 'import:entity',
     description: 'Import entities from a csv file',
 )]
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ImportEntityCommand extends Command
 {
     private const DEFAULT_CHUNK_SIZE = 300;
@@ -59,12 +58,6 @@ class ImportEntityCommand extends Command
         $this
             ->addArgument('file', InputArgument::REQUIRED, 'Path to import file')
             ->addArgument('expireDate', InputArgument::REQUIRED, 'PHP DateTime compatible string')
-            /** @deprecated tag:v6.7.0 - Remove argument */
-            ->addArgument(
-                'profile',
-                InputArgument::OPTIONAL,
-                'Wrap profile names with whitespaces into quotation marks, like \'Default Category\''
-            )
             ->addOption(
                 'profile-technical-name',
                 null,
@@ -103,7 +96,6 @@ class ImportEntityCommand extends Command
 
         $doRollback = $rollbackOnError && !$dryRun;
         if ($doRollback) {
-            $this->connection->setNestTransactionsWithSavepoints(true);
             $this->connection->beginTransaction();
         }
 
@@ -181,15 +173,6 @@ class ImportEntityCommand extends Command
 
     private function getProfile(InputInterface $input, OutputInterface $output, Context $context): ImportExportProfileEntity
     {
-        /** @deprecated tag:v6.7.0 - Remove argument and condition */
-        $profileName = $input->getArgument('profile');
-
-        if (!empty($profileName)) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Argument `profile` will no longer be supported. Use option `--profile-technical-name` instead.');
-
-            return $this->profileByName($profileName, $context);
-        }
-
         $technicalName = $input->getOption('profile-technical-name');
 
         if (!empty($technicalName)) {
@@ -216,23 +199,6 @@ class ImportEntityCommand extends Command
         $answer = $io->choice('Please choose a profile', array_keys($byName));
 
         return $byName[$answer];
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Remove method
-     */
-    private function profileByName(string $profileName, Context $context): ImportExportProfileEntity
-    {
-        $result = $this->profileRepository->search(
-            (new Criteria())->addFilter(new EqualsFilter('name', $profileName)),
-            $context
-        )->getEntities();
-
-        if ($result->first() === null) {
-            throw ImportExportException::profileSearchEmpty();
-        }
-
-        return $result->first();
     }
 
     private function profileByTechnicalName(string $technicalName, Context $context): ImportExportProfileEntity

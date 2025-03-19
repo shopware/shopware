@@ -2,18 +2,16 @@ import template from './sw-order-detail-details.html.twig';
 import './sw-order-detail-details.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
-const { Component, State } = Shopware;
+const { Component, Store } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapGetters, mapState, mapPropertyErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: {
         swOrderDetailOnSaveAndReload: {
@@ -79,15 +77,13 @@ export default {
     },
 
     computed: {
-        ...mapGetters('swOrderDetail', [
-            'isLoading',
-        ]),
+        isLoading: () => Store.get('swOrderDetail').isLoading,
 
-        ...mapState('swOrderDetail', [
-            'order',
-            'versionContext',
-            'orderAddressIds',
-        ]),
+        order: () => Store.get('swOrderDetail').order,
+
+        versionContext: () => Store.get('swOrderDetail').versionContext,
+
+        orderAddressIds: () => Store.get('swOrderDetail').orderAddressIds,
 
         ...mapPropertyErrors('order', ['orderCustomer.email']),
 
@@ -235,7 +231,7 @@ export default {
         },
 
         updateLoading(loadingValue) {
-            State.commit('swOrderDetail/setLoading', [
+            Store.get('swOrderDetail').setLoading([
                 'order',
                 loadingValue,
             ]);
@@ -253,7 +249,7 @@ export default {
         },
 
         onChangeOrderAddress(value) {
-            State.commit('swOrderDetail/setOrderAddressIds', value);
+            Store.get('swOrderDetail').setOrderAddressIds(value);
         },
     },
 };

@@ -20,7 +20,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(AdminSalesChannelSourceRule::class)]
 #[Group('rules')]
 class AdminSalesChannelSourceRuleTest extends TestCase
@@ -65,7 +65,7 @@ class AdminSalesChannelSourceRuleTest extends TestCase
 
     public function testMatchWithWrongRuleScope(): void
     {
-        $scope = new TestRuleScope(Generator::createSalesChannelContext());
+        $scope = new TestRuleScope(Generator::generateSalesChannelContext());
 
         $match = $this->rule->match($scope);
 
@@ -90,25 +90,25 @@ class AdminSalesChannelSourceRuleTest extends TestCase
 
         yield 'Condition is not processed by Admin SalesChannel source => Does not match because the order is processed by Admin SalesChannel source' => [
             new AdminSalesChannelSourceRule(false),
-            Generator::createSalesChannelContext(new Context($contextAdminSource)),
+            Generator::generateSalesChannelContext(baseContext: new Context($contextAdminSource)),
             false,
         ];
 
         yield 'Condition is processed by Admin SalesChannel source => Matches because the order is processed by Admin SalesChannel source' => [
             new AdminSalesChannelSourceRule(true),
-            Generator::createSalesChannelContext(new Context($contextAdminSource)),
+            Generator::generateSalesChannelContext(baseContext: new Context($contextAdminSource)),
             true,
         ];
 
         yield 'Condition is processed by Admin SalesChannel source => Does not match because the order is not processed by Admin SalesChannel source' => [
             new AdminSalesChannelSourceRule(true),
-            Generator::createSalesChannelContext(),
+            Generator::generateSalesChannelContext(),
             false,
         ];
 
         yield 'Condition is not processed by Admin SalesChannel source => Matches because the order is not processed by Admin SalesChannel source' => [
             new AdminSalesChannelSourceRule(false),
-            Generator::createSalesChannelContext(),
+            Generator::generateSalesChannelContext(),
             true,
         ];
     }

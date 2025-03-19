@@ -82,9 +82,9 @@ class CustomerAccountRecoverRequestEvent extends Event implements SalesChannelAw
 
     public function getMailStruct(): MailRecipientStruct
     {
-        if (!$this->mailRecipientStruct instanceof MailRecipientStruct) {
+        if (!$this->mailRecipientStruct) {
             $customer = $this->customerRecovery->getCustomer();
-            \assert($customer instanceof CustomerEntity);
+            \assert($customer !== null);
 
             $this->mailRecipientStruct = new MailRecipientStruct([
                 $customer->getEmail() => $customer->getFirstName() . ' ' . $customer->getLastName(),
@@ -96,7 +96,7 @@ class CustomerAccountRecoverRequestEvent extends Event implements SalesChannelAw
 
     public function getSalesChannelId(): string
     {
-        return $this->salesChannelContext->getSalesChannel()->getId();
+        return $this->salesChannelContext->getSalesChannelId();
     }
 
     public function getResetUrl(): string

@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-verify-user-modal.html.twig';
 
 const { Component, Mixin } = Shopware;
@@ -7,8 +11,6 @@ const { Component, Mixin } = Shopware;
  */
 Component.register('sw-verify-user-modal', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'loginService',

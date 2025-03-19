@@ -1,16 +1,15 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
+/* eslint-disable @typescript-eslint/only-throw-error */
 import type { AxiosInstance, AxiosResponse } from 'axios';
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import Criteria from './criteria.data';
 import type EntityHydrator from './entity-hydrator.data';
 import type ChangesetGenerator from './changeset-generator.data';
 import type ErrorResolver from './error-resolver.data';
 import type EntityFactory from './entity-factory.data';
 import type EntityDefinition from './entity-definition.data';
-import type EntityCollection from './entity-collection.data';
 
 type options = {
     [key: string]: unknown;
@@ -170,7 +169,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
         const { changes, deletionQueue } = this.changesetGenerator.generate(entity) as Changeset;
 
         if (!this.options.keepApiErrors) {
-            await this.errorResolver.resetApiErrors();
+            this.errorResolver.resetApiErrors();
         }
 
         await this.sendDeletions(deletionQueue, context);
@@ -210,7 +209,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
         }
 
         if (!this.options.keepApiErrors) {
-            await this.errorResolver.resetApiErrors();
+            this.errorResolver.resetApiErrors();
         }
 
         return this.httpClient.post('_action/sync', operations, { headers }).catch((errorResponse: ErrorResponse) => {
@@ -281,7 +280,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
         const { changeset, deletions } = this.getSyncChangeset(entities);
 
         if (!this.options.keepApiErrors) {
-            await this.errorResolver.resetApiErrors();
+            this.errorResolver.resetApiErrors();
         }
 
         await this.sendDeletions(deletions, context);

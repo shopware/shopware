@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(NoDatabaseSourceResolver::class)]
 class NoDatabaseSourceResolverTest extends TestCase
 {
@@ -21,7 +21,7 @@ class NoDatabaseSourceResolverTest extends TestCase
         static::expectExceptionObject(AppException::notFoundByField('TestApp', 'name'));
 
         $activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
-        $activeAppsLoader->expects(static::any())->method('getActiveApps')->willReturn([]);
+        $activeAppsLoader->expects($this->any())->method('getActiveApps')->willReturn([]);
 
         $resolver = new NoDatabaseSourceResolver($activeAppsLoader);
         $resolver->filesystem('TestApp');
@@ -30,7 +30,7 @@ class NoDatabaseSourceResolverTest extends TestCase
     public function testFilesystemForActiveAppUsesPath(): void
     {
         $activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
-        $activeAppsLoader->expects(static::any())->method('getActiveApps')->willReturn([
+        $activeAppsLoader->expects($this->any())->method('getActiveApps')->willReturn([
             [
                 'name' => 'TestApp',
                 'path' => '/path/to/app',

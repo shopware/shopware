@@ -45,13 +45,12 @@ class ThemeDumpCommandTest extends TestCase
         $themeFileResolverMock = new ThemeFileResolverMock();
 
         $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
-        $themeFilesystemResolver->expects(static::once())->method('getFilesystemForStorefrontConfig')->willReturn(new StaticFilesystem());
+        $themeFilesystemResolver->expects($this->once())->method('getFilesystemForStorefrontConfig')->willReturn(new StaticFilesystem());
 
         $themeDumpCommand = new ThemeDumpCommand(
             $this->getPluginRegistryMock(),
             $themeFileResolverMock,
             static::getContainer()->get('theme.repository'),
-            static::getContainer()->getParameter('kernel.project_dir'),
             $this->createMock(StaticFileConfigDumper::class),
             $themeFilesystemResolver
         );
@@ -79,7 +78,6 @@ class ThemeDumpCommandTest extends TestCase
             $this->getPluginRegistryMock(),
             $themeFileResolverMock,
             static::getContainer()->get('theme.repository'),
-            static::getContainer()->getParameter('kernel.project_dir'),
             $this->createMock(StaticFileConfigDumper::class),
             $themeFilesystemResolverMock
         );
@@ -118,7 +116,6 @@ class ThemeDumpCommandTest extends TestCase
             $this->getPluginRegistryMock(),
             $themeFileResolverMock,
             static::getContainer()->get('theme.repository'),
-            static::getContainer()->getParameter('kernel.project_dir'),
             $this->createMock(StaticFileConfigDumper::class),
             $themeFilesystemResolverMock
         );

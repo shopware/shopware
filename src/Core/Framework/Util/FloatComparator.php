@@ -3,9 +3,8 @@
 namespace Shopware\Core\Framework\Util;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Exception\ComparatorException;
 
-#[Package('core')]
+#[Package('framework')]
 class FloatComparator
 {
     private const EPSILON = 0.00000001;
@@ -19,7 +18,7 @@ class FloatComparator
             '=' => self::equals($a, $b),
             '>' => self::greaterThan($a, $b),
             '<' => self::lessThan($a, $b),
-            default => throw ComparatorException::operatorNotSupported($operator),
+            default => throw UtilException::operatorNotSupported($operator),
         };
     }
 

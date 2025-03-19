@@ -6,7 +6,7 @@ use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 interface TypeDetectorInterface
 {
     public function detect(MediaFile $mediaFile, ?MediaType $previouslyDetectedType): ?MediaType;

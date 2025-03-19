@@ -86,14 +86,14 @@ class RegisterControllerTest extends TestCase
 
     public function testAccountRegister(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
         $request = new Request();
         $request->attributes->set('_route', 'frontend.account.register.page');
         $dataBag = new RequestDataBag();
         $page = new AccountLoginPage();
 
-        $this->accountLoginPageLoader->expects(static::once())
+        $this->accountLoginPageLoader->expects($this->once())
             ->method('load')
             ->with($request, $context)
             ->willReturn($page);
@@ -110,7 +110,7 @@ class RegisterControllerTest extends TestCase
 
     public function testCheckoutRegister(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
         $request = new Request();
         $request->attributes->set('_route', 'frontend.checkout.register.page');
@@ -119,12 +119,12 @@ class RegisterControllerTest extends TestCase
         $cart = new Cart(Uuid::randomHex());
         $cart->add(new LineItem('test', 'test'));
 
-        $this->checkoutRegisterPageLoader->expects(static::once())
+        $this->checkoutRegisterPageLoader->expects($this->once())
             ->method('load')
             ->with($request, $context)
             ->willReturn($page);
 
-        $this->cartService->expects(static::once())
+        $this->cartService->expects($this->once())
             ->method('getCart')
             ->with($context->getToken(), $context)
             ->willReturn($cart);
@@ -140,7 +140,7 @@ class RegisterControllerTest extends TestCase
 
     public function testCustomerGroupRegistration(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
         $request = new Request();
         $request->attributes->set('_route', 'frontend.account.customer-group-registration.page');
@@ -149,7 +149,7 @@ class RegisterControllerTest extends TestCase
         $page->setGroup(new CustomerGroupEntity());
         $customerGroupId = Uuid::randomHex();
 
-        $this->customerGroupRegistrationPageLoader->expects(static::once())
+        $this->customerGroupRegistrationPageLoader->expects($this->once())
             ->method('load')
             ->with($request, $context)
             ->willReturn($page);
@@ -166,13 +166,13 @@ class RegisterControllerTest extends TestCase
 
     public function testRegisterSuccess(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
 
         $request = $this->createRegisterRequest();
         $dataBag = new RequestDataBag();
         $this->registerRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('register')
             ->with($dataBag, $context, false, new DataValidationDefinition('storefront.confirmation'));
 
@@ -183,7 +183,7 @@ class RegisterControllerTest extends TestCase
 
     public function testRegisterWithValueConfirmation(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
 
         $request = $this->createRegisterRequest();
@@ -199,7 +199,7 @@ class RegisterControllerTest extends TestCase
         $expectedDefinition->add('emailConfirmation', new NotBlank(), new EqualTo(['value' => 'foo@bar.de']));
         $expectedDefinition->add('passwordConfirmation', new NotBlank(), new EqualTo(['value' => 'password']));
         $this->registerRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('register')
             ->with($dataBag, $context, false, $expectedDefinition);
 
@@ -210,7 +210,7 @@ class RegisterControllerTest extends TestCase
 
     public function testRegisterWithDoubleOptIn(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
 
         $request = $this->createRegisterRequest();
@@ -220,7 +220,7 @@ class RegisterControllerTest extends TestCase
         $this->systemConfigService->set('core.loginRegistration.doubleOptInRegistration', true, $context->getSalesChannelId());
 
         $this->registerRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('register')
             ->with($dataBag, $context, false, new DataValidationDefinition('storefront.confirmation'));
 
@@ -234,7 +234,7 @@ class RegisterControllerTest extends TestCase
 
     public function testRegisterWithDoubleOptInGuest(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
 
         $request = $this->createRegisterRequest();
@@ -244,7 +244,7 @@ class RegisterControllerTest extends TestCase
         $this->systemConfigService->set('core.loginRegistration.doubleOptInGuestOrder', true, $context->getSalesChannelId());
 
         $this->registerRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('register')
             ->with($dataBag, $context, false, new DataValidationDefinition('storefront.confirmation'));
 
@@ -260,13 +260,13 @@ class RegisterControllerTest extends TestCase
     {
         static::expectExceptionMessage('Parameter "errorRoute" is missing.');
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
 
         $request = $this->createRegisterRequest();
         $dataBag = new RequestDataBag();
 
-        $this->registerRoute->expects(static::once())
+        $this->registerRoute->expects($this->once())
             ->method('register')
             ->willThrowException(new ConstraintViolationException(new ConstraintViolationList(), []));
 
@@ -275,7 +275,7 @@ class RegisterControllerTest extends TestCase
 
     public function testRegisterWithErrorRouteParamEmpty(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
 
         $request = $this->createRegisterRequest();
@@ -283,7 +283,7 @@ class RegisterControllerTest extends TestCase
 
         $dataBag = new RequestDataBag();
 
-        $this->registerRoute->expects(static::once())
+        $this->registerRoute->expects($this->once())
             ->method('register')
             ->willThrowException(new ConstraintViolationException(new ConstraintViolationList(), []));
 
@@ -295,7 +295,7 @@ class RegisterControllerTest extends TestCase
 
     public function testRegisterWithViolation(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
 
         $request = $this->createRegisterRequest();
@@ -303,7 +303,7 @@ class RegisterControllerTest extends TestCase
 
         $dataBag = new RequestDataBag();
 
-        $this->registerRoute->expects(static::once())
+        $this->registerRoute->expects($this->once())
             ->method('register')
             ->willThrowException(new ConstraintViolationException(new ConstraintViolationList(), []));
 
@@ -314,7 +314,7 @@ class RegisterControllerTest extends TestCase
 
     public function testRegisterWithAffiliateTracking(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
 
         $request = new Request();

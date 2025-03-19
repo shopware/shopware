@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@discovery
  */
 import { mount } from '@vue/test-utils';
 
@@ -72,12 +72,8 @@ async function createWrapper(privileges = []) {
                 },
 
                 stubs: {
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-ignore-class': true,
                     'sw-container': await wrapTestComponent('sw-container'),
-                    'sw-button': true,
-                    'sw-icon': true,
                     'sw-simple-search-field': true,
                     'sw-context-menu-item': true,
                     'sw-extension-component-section': true,
@@ -142,9 +138,9 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        const createButton = wrapper.find('.sw-settings-country-state__add-country-state-button');
+        const createButton = wrapper.findByText('button', 'sw-settings-country.detail.buttonAddCountryState');
 
-        expect(createButton.attributes().disabled).toBeTruthy();
+        expect(createButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to edit a country state', async () => {

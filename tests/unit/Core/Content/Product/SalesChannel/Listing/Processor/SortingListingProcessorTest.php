@@ -10,9 +10,12 @@ use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\SortingListingProcessor;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
+use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -38,9 +41,12 @@ class SortingListingProcessorTest extends TestCase
     #[DataProvider('prepareProvider')]
     public function testPrepare(string $sorting, bool $testWithAvailableSortings, array $expected): void
     {
+        /** @var StaticEntityRepository<ProductSortingCollection> $sortingRepository */
+        $sortingRepository = new StaticEntityRepository([$this->buildSortings()]);
+
         $processor = new SortingListingProcessor(
             new StaticSystemConfigService([]),
-            new StaticEntityRepository([$this->buildSortings()])
+            $sortingRepository
         );
 
         $processor->prepare(
@@ -52,16 +58,59 @@ class SortingListingProcessorTest extends TestCase
         static::assertEquals($expected, $criteria->getSorting());
     }
 
+    public function testPrepareDefaultSearchResultSorting(): void
+    {
+        $productSorting = new ProductSortingEntity();
+        $productSorting->setId(Uuid::randomHex());
+        $productSorting->assign([
+            'key' => 'score',
+            'fields' => [
+                ['field' => '_score', 'priority' => 1, 'order' => 'DESC'],
+            ],
+        ]);
+
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->method('search')->willReturn(
+            new EntitySearchResult(
+                ProductSortingDefinition::ENTITY_NAME,
+                1,
+                new ProductSortingCollection([$productSorting]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+
+        $processor = new SortingListingProcessor(
+            new StaticSystemConfigService([
+                'core.listing.defaultSearchResultSorting' => Uuid::randomHex(),
+            ]),
+            $repository
+        );
+
+        $processor->prepare(
+            new Request(['search' => 'test']),
+            $criteria = new Criteria(),
+            $this->createMock(SalesChannelContext::class)
+        );
+
+        static::assertEquals([
+            new FieldSorting('_score', FieldSorting::DESCENDING),
+            new FieldSorting('id', FieldSorting::ASCENDING),
+        ], $criteria->getSorting());
+    }
+
     #[DataProvider('processProvider')]
     public function testProcess(string $requested, ?string $expected): void
     {
         $sortings = $this->buildSortings();
 
+        /** @var StaticEntityRepository<ProductSortingCollection> $sortingRepository */
+        $sortingRepository = new StaticEntityRepository([$sortings]);
+
         $processor = new SortingListingProcessor(
             new StaticSystemConfigService([]),
-            new StaticEntityRepository([
-                $sortings,
-            ])
+            $sortingRepository
         );
 
         $result = new ProductListingResult($requested, 1, new ProductCollection(), null, new Criteria(), Context::createDefaultContext());
@@ -81,11 +130,14 @@ class SortingListingProcessorTest extends TestCase
     {
         $this->expectException(ProductException::class);
 
+        /** @var StaticEntityRepository<ProductSortingCollection> $sortingRepository */
+        $sortingRepository = new StaticEntityRepository([
+            $this->buildSortings(),
+        ]);
+
         $processor = new SortingListingProcessor(
             new StaticSystemConfigService([]),
-            new StaticEntityRepository([
-                $this->buildSortings(),
-            ])
+            $sortingRepository
         );
 
         $processor->prepare(

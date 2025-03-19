@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\DevOps\Test\Command;
 
-use PHPStan\BetterReflection\BetterReflection;
-use PHPStan\BetterReflection\Reflector\DefaultReflector;
-use PHPStan\BetterReflection\SourceLocator\Type\SingleFileSourceLocator;
 use PHPUnit\TextUI\XmlConfiguration\Loader;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
@@ -25,7 +22,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
     name: 'make:coverage',
     description: 'Generate PHP Unit test file',
 )]
-#[Package('core')]
+#[Package('framework')]
 class MakeCoverageTestCommand extends Command
 {
     public function __construct(
@@ -189,15 +186,17 @@ class MakeCoverageTestCommand extends Command
         $class = str_replace('"', '', $rawClass);
 
         if (str_ends_with($class, '.php') && $this->filesystem->exists($class)) {
-            $astLocator = (new BetterReflection())->astLocator();
-            $reflector = new DefaultReflector(new SingleFileSourceLocator($class, $astLocator));
-            $classes = $reflector->reflectAllClasses();
+            $content = (string) file_get_contents($class);
+            preg_match('/namespace\s+([^;]+);/', $content, $matches);
+            $namespace = $matches[1] ?? '';
+            preg_match('/class\s+(\w+)/', $content, $matches);
+            $class = $matches[1] ?? '';
 
-            if (empty($classes)) {
+            if ($class === '') {
                 return null;
             }
 
-            return $classes[0]->getName();
+            return $namespace . '\\' . $class;
         }
 
         return $class;

@@ -3,6 +3,7 @@
 namespace Shopware\Administration\Controller;
 
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Framework\Context;
@@ -19,11 +20,13 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Package('administration')]
+#[Package('framework')]
 class AdminProductStreamController extends AbstractController
 {
     /**
      * @internal
+     *
+     * @param SalesChannelRepository<ProductCollection> $salesChannelProductRepository
      */
     public function __construct(
         private readonly ProductDefinition $productDefinition,

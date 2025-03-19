@@ -1,4 +1,8 @@
 /* eslint no-console: 0 */
+
+/**
+ * @sw-package framework
+ */
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const nodeServerHttp = require('node:http');
 const nodeServerHttps = require('node:https');
@@ -79,7 +83,10 @@ const proxyOptions = {
                     return;
                 }
                 // we only replace things when the request is a document
-                if (req.headers['sec-fetch-dest'] === 'document' || req.headers.accept.indexOf('text/html') !== -1) {
+                const isDocumentRequest = req.headers['sec-fetch-dest'] === 'document' || req.headers.accept.indexOf('text/html') !== -1;
+                const isHtmlRequests = req.url.indexOf('widgets/menu/offcanvas') !== -1 || req.url.indexOf('checkout/offcanvas') !== -1;
+
+                if (isDocumentRequest || isHtmlRequests) {
                     body = Buffer.concat(body).toString();
                     // if we have the offcanvas=1 parameter in the url, we will attach a script to open the offcanvas cart
                     if (req.url.indexOf('offcanvas=1') !== -1) {

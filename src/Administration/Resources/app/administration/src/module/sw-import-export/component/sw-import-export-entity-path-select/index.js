@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import './sw-import-export-entity-path-select.scss';
 import template from './sw-import-export-entity-path-select.html.twig';
@@ -12,8 +12,6 @@ const { debounce, get, flow } = Shopware.Utils;
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -420,17 +418,6 @@ export default {
 
         searchTerm() {
             return this.actualSearch.split('.').pop();
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
-        listeners() {
-            if (!this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return {};
-            }
-
-            return this.$listeners;
         },
     },
 

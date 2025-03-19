@@ -88,7 +88,7 @@ class ThemeScriptsTest extends TestCase
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, 'Storefront');
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, 'Storefront');
 
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
 
         $requestStack->push($request);
@@ -100,7 +100,7 @@ class ThemeScriptsTest extends TestCase
 
         $themeFileResolver = $this->createMock(ThemeFileResolver::class);
         $themeFileResolver
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('resolveFiles')
             ->willReturn([
                 ThemeFileResolver::SCRIPT_FILES => new FileCollection([
@@ -132,7 +132,7 @@ class ThemeScriptsTest extends TestCase
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME, 'Storefront');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, Context::createCLIContext());
 
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
 
         $requestStack->push($request);

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal In order to manipulate the filter process, provide your own tagged AbstractStockUpdateFilter
  */
-#[Package('core')]
+#[Package('framework')]
 final class StockUpdateFilterProvider
 {
     /**

@@ -14,7 +14,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
  *
  * @phpstan-import-type ErrorData from ShopwareHttpException as ShopwareExceptionData
  */
-#[Package('core')]
+#[Package('framework')]
 class ErrorResponseFactory
 {
     public function getResponseFromException(\Throwable $exception, bool $debug = false): Response

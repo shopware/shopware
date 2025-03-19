@@ -1,3 +1,4 @@
+import { inject } from 'vue';
 import template from './sw-number-field.html.twig';
 import './sw-number-field.scss';
 
@@ -5,7 +6,7 @@ const { Component } = Shopware;
 const { warn } = Shopware.Utils.debug;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Number field component which supports Int and Float with optional min, max and step.
@@ -99,6 +100,14 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
             type: Boolean,
             required: false,
             default: false,
+        },
+
+        ariaLabel: {
+            type: String,
+            required: false,
+            default() {
+                return inject('ariaLabel', null)?.value;
+            },
         },
     },
 

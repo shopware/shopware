@@ -53,7 +53,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('core')]
+#[Package('framework')]
 class SalesChannelProxyController extends AbstractController
 {
     private const CUSTOMER_ID = SalesChannelContextService::CUSTOMER_ID;
@@ -103,12 +103,17 @@ class SalesChannelProxyController extends AbstractController
 
         $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
 
-        $order = $this->orderRoute->order($cart, $salesChannelContext, $data, $request)->getOrder();
+        $order = $this->orderRoute->order($cart, $salesChannelContext, $data)->getOrder();
 
         return new JsonResponse($order);
     }
 
-    #[Route(path: '/api/_proxy/switch-customer', name: 'api.proxy.switch-customer', methods: ['PATCH'], defaults: ['_acl' => ['api_proxy_switch-customer']])]
+    #[Route(
+        path: '/api/_proxy/switch-customer',
+        name: 'api.proxy.switch-customer',
+        defaults: ['_acl' => ['api_proxy_switch-customer']],
+        methods: ['PATCH']
+    )]
     public function assignCustomer(Request $request, Context $context): Response
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {
@@ -139,7 +144,12 @@ class SalesChannelProxyController extends AbstractController
         return $response;
     }
 
-    #[Route(path: '/api/_proxy/generate-imitate-customer-token', name: 'api.proxy.generate-imitate-customer-token', methods: ['POST'], defaults: ['_acl' => ['api_proxy_imitate-customer']])]
+    #[Route(
+        path: '/api/_proxy/generate-imitate-customer-token',
+        name: 'api.proxy.generate-imitate-customer-token',
+        defaults: ['_acl' => ['api_proxy_imitate-customer']],
+        methods: ['POST']
+    )]
     public function generateImitateCustomerToken(RequestDataBag $data, Context $context): JsonResponse
     {
         $this->validateImitateCustomerDataFields($data, $context);
@@ -330,7 +340,7 @@ class SalesChannelProxyController extends AbstractController
     {
         $contextToken = $this->getContextToken($request);
 
-        $salesChannelContext = $this->contextService->get(
+        return $this->contextService->get(
             new SalesChannelContextServiceParameters(
                 $salesChannelId,
                 $contextToken,
@@ -340,8 +350,6 @@ class SalesChannelProxyController extends AbstractController
                 $originalContext
             )
         );
-
-        return $salesChannelContext;
     }
 
     private function updateCustomerToContext(string $customerId, SalesChannelContext $context): void
@@ -366,7 +374,7 @@ class SalesChannelProxyController extends AbstractController
         $isSwitchNewCustomer = true;
         if ($context->getCustomer()) {
             // Check if customer switch to another customer or not
-            $isSwitchNewCustomer = $context->getCustomer()->getId() !== $parameters[self::CUSTOMER_ID];
+            $isSwitchNewCustomer = $context->getCustomerId() !== $parameters[self::CUSTOMER_ID];
         }
 
         if (!$isSwitchNewCustomer) {
@@ -384,7 +392,7 @@ class SalesChannelProxyController extends AbstractController
                 'languageId' => null,
                 'currencyId' => null,
             ],
-            $context->getSalesChannel()->getId()
+            $context->getSalesChannelId()
         );
         $event = new SalesChannelContextSwitchEvent($context, $data);
         $this->eventDispatcher->dispatch($event);

@@ -27,7 +27,7 @@ class IsNewDetector extends AbstractIsNewDetector
     {
         $markAsNewDayRange = $this->systemConfigService->get(
             'core.listing.markAsNew',
-            $context->getSalesChannel()->getId()
+            $context->getSalesChannelId()
         );
 
         $now = new \DateTime();

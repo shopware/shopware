@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 import { mount } from '@vue/test-utils';
@@ -64,7 +64,6 @@ async function createWrapper() {
                     mediaService: {},
                 },
                 stubs: {
-                    'sw-icon': true,
                     'sw-upload-listener': true,
                     'sw-media-compact-upload-v2': true,
                     'sw-data-grid': true,

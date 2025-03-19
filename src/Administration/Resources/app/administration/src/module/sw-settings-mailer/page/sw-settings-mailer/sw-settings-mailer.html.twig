@@ -1,19 +1,15 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_mailer_index %}
 <sw-page class="sw-settings-mailer">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smart_bar_header %}
     <template #smart-bar-header>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_mailer_smart_bar_header_title %}
         <h2>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_mailer_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
-            <sw-icon
+            <mt-icon
                 name="regular-chevron-right-xs"
-                small
+                size="16px"
             />
             {{ $tc('sw-settings-mailer.general.textHeadline') }}
             {% endblock %}
@@ -22,10 +18,8 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smart_bar_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_mailer_actions_save %}
         <sw-button-process
             :is-loading="isLoading"
@@ -40,26 +34,23 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_content %}
     <template #content>
         <sw-card-view>
             <sw-skeleton v-if="isLoading" />
 
-            <sw-card
+            <mt-card
                 v-else
                 position-identifier="sw-settings-mailer-configuration"
                 :is-loading="isLoading"
                 :title="$tc('sw-settings-mailer.mailer-configuration.card-title')"
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_mailer_first_configuration %}
                 <div
                     v-if="isFirstConfiguration"
                     class="sw-settings-mailer__first-configuration"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_mailer_first_configuration_headline %}
                     <h4 class="sw-settings-mailer__headline">
                         <strong>
@@ -68,7 +59,6 @@
                     </h4>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_mailer_first_configuration_description %}
                     <p>
                         {{ $tc('sw-settings-mailer.first-configuration.description') }}
@@ -77,7 +67,6 @@
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_mailer_headline_agent %}
                 <p class="sw-settings-mailer__headline">
                     {{ $tc('sw-settings-mailer.mailer-configuration.agent') }}
@@ -85,24 +74,11 @@
                 {% endblock %}
 
                 <div class="sw-settings-mailer__radio-selection">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_mailer_agent_options %}
-                    <sw-select-field
-                        v-model:value="mailerSettings['core.mailerSettings.emailAgent']"
-                    >
-                        <option value="local">
-                            {{ $tc('sw-settings-mailer.mailer-configuration.local-agent') }}
-                        </option>
-                        <option value="smtp">
-                            {{ $tc('sw-settings-mailer.mailer-configuration.smtp-server') }}
-                        </option>
-                        <option value="smtp+oauth">
-                            {{ $tc('sw-settings-mailer.mailer-configuration.smtp-server-oauth') }}
-                        </option>
-                        <option value="">
-                            {{ $tc('sw-settings-mailer.mailer-configuration.env-file') }}
-                        </option>
-                    </sw-select-field>
+                    <mt-select
+                        v-model="mailerSettings['core.mailerSettings.emailAgent']"
+                        :options="emailAgentOptions"
+                    />
 
                     <sw-radio-field
                         v-if="mailerSettings['core.mailerSettings.emailAgent'] === 'local'"
@@ -113,17 +89,16 @@
                 </div>
 
                 <p v-html="$tc('sw-settings-mailer.helpText')"></p>
-                <sw-switch-field
+
+                <mt-switch
                     v-if="!isSmtpMode"
-                    v-model:value="mailerSettings['core.mailerSettings.disableDelivery']"
-                    size="small"
+                    v-model="mailerSettings['core.mailerSettings.disableDelivery']"
                     :label="$tc('sw-settings-mailer.card-smtp.disable-delivery')"
                 />
-            </sw-card>
+            </mt-card>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_mailer_smtp %}
-            <sw-card
+            <mt-card
                 v-if="isSmtpMode"
                 position-identifier="sw-settings-mailer-smtp-settings"
                 :is-loading="isLoading"
@@ -131,7 +106,6 @@
                 class="sw-settings-mailer__input-fields"
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_mailer_smtp_settings %}
                 <sw-settings-mailer-smtp
                     :mailer-settings="mailerSettings"
@@ -142,7 +116,7 @@
                 />
                 {% endblock %}
 
-            </sw-card>
+            </mt-card>
             {% endblock %}
         </sw-card-view>
     </template>

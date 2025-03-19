@@ -23,7 +23,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'plugin:list',
     description: 'Lists all plugins',
 )]
-#[Package('core')]
+#[Package('framework')]
 class PluginListCommand extends Command
 {
     /**

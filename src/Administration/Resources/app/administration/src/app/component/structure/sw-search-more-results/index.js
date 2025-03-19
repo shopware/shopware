@@ -4,7 +4,7 @@ import './sw-search-more-results.scss';
 const { Component, Application } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description
@@ -18,8 +18,6 @@ const { Component, Application } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-search-more-results', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'searchTypeService',
@@ -71,10 +69,14 @@ Component.register('sw-search-more-results', {
         searchContent() {
             const entityName = this.$tc(`global.entities.${this.entity}`, 0);
 
-            return this.$tc('global.sw-search-more-results.labelShowResultsInModuleV2', 0, {
-                entityName: entityName,
-                entityNameLower: entityName.toLowerCase(),
-            });
+            return this.$tc(
+                'global.sw-search-more-results.labelShowResultsInModuleV2',
+                {
+                    entityName: entityName,
+                    entityNameLower: entityName.toLowerCase(),
+                },
+                0,
+            );
         },
     },
 });

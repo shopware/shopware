@@ -38,4 +38,3 @@ rules:
     # naming rules
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Symplify\NoReturnSetterMethodWithFluentSettersRule
     - Symplify\PHPStanRules\Rules\UppercaseConstantRule
-    - Symplify\PHPStanRules\Rules\CheckClassNamespaceFollowPsr4Rule

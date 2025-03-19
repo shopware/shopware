@@ -14,7 +14,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  */
-#[Package('storefront')]
+#[Package('framework')]
 class AffiliateTrackingListener implements EventSubscriberInterface
 {
     final public const AFFILIATE_CODE_KEY = OrderService::AFFILIATE_CODE_KEY;

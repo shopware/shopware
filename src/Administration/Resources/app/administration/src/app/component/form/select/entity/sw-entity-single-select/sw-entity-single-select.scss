@@ -2,14 +2,14 @@
 
 .sw-entity-single-select {
     .sw-entity-single-select__selection-input {
-        padding: 12px 0;
+        padding: 10px 0 11px;
         width: 0;
         display: inline-block;
 
         &.is--expanded {
             width: 100%;
             display: block;
-            padding: 12px 8px;
+            padding: 10px 8px 11px;
         }
     }
 
@@ -18,7 +18,7 @@
         padding-left: 8px;
 
         &.is--placeholder {
-            color: lighten($color-darkgray-200, 25%);
+            color: var(--color-text-secondary-default);
         }
     }
 

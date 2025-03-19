@@ -6,6 +6,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\IsGuestCustomerRule;
+use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -18,14 +20,20 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class IsGuestCustomerRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
+    /**
+     * @var EntityRepository<RuleCollection>
+     */
     private EntityRepository $ruleRepository;
 
+    /**
+     * @var EntityRepository<RuleConditionCollection>
+     */
     private EntityRepository $conditionRepository;
 
     private Context $context;

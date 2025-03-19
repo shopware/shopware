@@ -24,7 +24,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('fundamentals@discovery')]
 #[CoversClass(CountryStateRoute::class)]
 class CountryStateRouteTest extends TestCase
 {
@@ -35,7 +35,7 @@ class CountryStateRouteTest extends TestCase
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(Uuid::randomHex());
 
-        $this->salesChannelContext = Generator::createSalesChannelContext(
+        $this->salesChannelContext = Generator::generateSalesChannelContext(
             baseContext: new Context(new SalesChannelApiSource(Uuid::randomHex())),
             salesChannel: $salesChannel
         );
@@ -45,7 +45,7 @@ class CountryStateRouteTest extends TestCase
     {
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('dispatch')
             ->with(static::callback(static function ($event) use (&$index) {
                 switch ($index) {
@@ -65,7 +65,7 @@ class CountryStateRouteTest extends TestCase
             }));
 
         $countryStateRepository = $this->createMock(EntityRepository::class);
-        $countryStateRepository->expects(static::once())
+        $countryStateRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 'country_state',

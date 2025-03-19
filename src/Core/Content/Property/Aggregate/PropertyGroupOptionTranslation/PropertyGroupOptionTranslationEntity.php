@@ -12,33 +12,13 @@ class PropertyGroupOptionTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $propertyGroupOptionId;
+    protected string $propertyGroupOptionId;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var int|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $position;
+    protected ?int $position = null;
 
-    /**
-     * @var PropertyGroupOptionEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $propertyGroupOption;
+    protected ?PropertyGroupOptionEntity $propertyGroupOption = null;
 
     public function getPropertyGroupOptionId(): string
     {

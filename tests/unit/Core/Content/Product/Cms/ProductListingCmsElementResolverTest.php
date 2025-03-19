@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(ProductListingCmsElementResolver::class)]
 class ProductListingCmsElementResolverTest extends TestCase
 {
@@ -43,7 +43,7 @@ class ProductListingCmsElementResolverTest extends TestCase
         $repository = new StaticEntityRepository([]);
 
         $slot = new CmsSlotEntity();
-        $context = new ResolverContext(Generator::createSalesChannelContext(), new Request());
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
 
         $resolver = new ProductListingCmsElementResolver($route, $repository);
         static::assertNull($resolver->collect($slot, $context));
@@ -69,14 +69,14 @@ class ProductListingCmsElementResolverTest extends TestCase
             ],
         ]);
         $request = new Request();
-        $context = new ResolverContext(Generator::createSalesChannelContext(), $request);
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), $request);
         $data = new ElementDataCollection();
 
         $expectedResult = $this->createMock(ProductListingResult::class);
         $response = new ProductListingRouteResponse($expectedResult);
 
         $route = $this->createMock(AbstractProductListingRoute::class);
-        $route->expects(static::once())->method('load')->willReturn($response);
+        $route->expects($this->once())->method('load')->willReturn($response);
 
         $sorting = new ProductSortingCollection([
             (new ProductSortingEntity())->assign([
@@ -118,14 +118,14 @@ class ProductListingCmsElementResolverTest extends TestCase
                 'sorting-id' => 'sorting-id-1',
             ],
         ]);
-        $context = new ResolverContext(Generator::createSalesChannelContext(), $request);
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), $request);
         $data = new ElementDataCollection();
 
         $expectedResult = $this->createMock(ProductListingResult::class);
         $response = new ProductListingRouteResponse($expectedResult);
 
         $route = $this->createMock(AbstractProductListingRoute::class);
-        $route->expects(static::once())->method('load')->willReturn($response);
+        $route->expects($this->once())->method('load')->willReturn($response);
 
         $sorting = new ProductSortingCollection([
             (new ProductSortingEntity())->assign([

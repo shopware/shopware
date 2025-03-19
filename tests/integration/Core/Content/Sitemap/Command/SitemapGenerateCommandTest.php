@@ -21,7 +21,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 class SitemapGenerateCommandTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
@@ -82,7 +82,7 @@ class SitemapGenerateCommandTest extends TestCase
 
         $result = new SitemapGenerationResult(true, null, null, $storefrontId, Defaults::LANGUAGE_SYSTEM);
 
-        $this->exporter->expects(static::once())
+        $this->exporter->expects($this->once())
             ->method('generate')
             ->with(static::callback(function (SalesChannelContext $context) use ($storefrontId) {
                 static::assertSame($storefrontId, $context->getSalesChannelId());

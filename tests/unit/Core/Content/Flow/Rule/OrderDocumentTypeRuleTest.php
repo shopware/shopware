@@ -24,7 +24,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(OrderDocumentTypeRule::class)]
 #[Group('rules')]
 class OrderDocumentTypeRuleTest extends TestCase
@@ -76,7 +76,7 @@ class OrderDocumentTypeRuleTest extends TestCase
 
         $order->setDocuments($collection);
         $cart = Generator::createCart();
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $scope = new FlowRuleScope($order, $cart, $context);
 
         $this->rule->assign(['documentIds' => $selectedDocumentIds, 'operator' => $operator]);
@@ -94,7 +94,7 @@ class OrderDocumentTypeRuleTest extends TestCase
     {
         $order = new OrderEntity();
         $cart = Generator::createCart();
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $scope = new FlowRuleScope($order, $cart, $context);
 
         $this->rule->assign(['documentIds' => [Uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);

@@ -15,7 +15,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class YoutubeVideoCmsElementResolver extends AbstractCmsElementResolver
 {
     public function getType(): string

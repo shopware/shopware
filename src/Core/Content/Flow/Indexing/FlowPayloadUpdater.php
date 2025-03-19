@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('services-settings')]
+#[Package('after-sales')]
 class FlowPayloadUpdater
 {
     /**

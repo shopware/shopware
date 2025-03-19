@@ -1,23 +1,20 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_collapse_panel_header_slot %}
 <div class="sw-media-collapse__header">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_collapse_title %}
     <h4 class="sw-media-collapse__title">
         {{ title }}
     </h4>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_collapse_buttons %}
     <div class="sw-media-collapse__indicator">
-        <sw-icon
+        <mt-icon
             name="regular-chevron-right-xs"
             class="sw-media-collapse__button"
             :class="expandButtonClass"
             size="10px"
         />
-        <sw-icon
+        <mt-icon
             name="regular-chevron-down-xs"
             class="sw-media-collapse__button"
             :class="collapseButtonClass"

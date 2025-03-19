@@ -10,7 +10,7 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class TestBundle extends Bundle
 {
     public function build(ContainerBuilder $container): void

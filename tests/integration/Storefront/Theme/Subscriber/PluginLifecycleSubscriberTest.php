@@ -62,7 +62,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         $storefrontPluginRegistry = $this->createMock(StorefrontPluginRegistry::class);
         $storefrontPluginRegistry->method('getConfigurations')->willReturn($storefrontPluginConfigCollection);
         $handler = $this->createMock(ThemeLifecycleHandler::class);
-        $handler->expects(static::once())->method('handleThemeInstallOrUpdate')->with(
+        $handler->expects($this->once())->method('handleThemeInstallOrUpdate')->with(
             $storefrontPluginConfigMock,
             // This ensures the plugin storefront config is not added twice
             static::equalTo($storefrontPluginConfigCollection),
@@ -104,7 +104,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         $collectionWithPluginConfig = clone $storefrontPluginConfigCollection;
         $collectionWithPluginConfig->add($storefrontPluginConfigMock);
         $handler = $this->createMock(ThemeLifecycleHandler::class);
-        $handler->expects(static::once())->method('handleThemeInstallOrUpdate')->with(
+        $handler->expects($this->once())->method('handleThemeInstallOrUpdate')->with(
             $storefrontPluginConfigMock,
             // This ensures the plugin storefront config was added in the subscriber
             static::equalTo($collectionWithPluginConfig),
@@ -138,7 +138,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         );
 
         $handler = $this->createMock(ThemeLifecycleHandler::class);
-        $handler->expects(static::never())->method('handleThemeInstallOrUpdate');
+        $handler->expects($this->never())->method('handleThemeInstallOrUpdate');
 
         $subscriber = new PluginLifecycleSubscriber(
             $this->createMock(StorefrontPluginRegistry::class),
@@ -168,7 +168,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         );
 
         $handler = $this->createMock(ThemeLifecycleHandler::class);
-        $handler->expects(static::never())->method('handleThemeInstallOrUpdate');
+        $handler->expects($this->never())->method('handleThemeInstallOrUpdate');
 
         $subscriber = new PluginLifecycleSubscriber(
             $this->createMock(StorefrontPluginRegistry::class),

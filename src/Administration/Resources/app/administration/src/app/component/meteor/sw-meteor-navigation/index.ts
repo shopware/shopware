@@ -6,14 +6,12 @@ import './sw-meteor-navigation.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */
 Component.register('sw-meteor-navigation', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         fromLink: {

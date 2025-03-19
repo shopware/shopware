@@ -6,11 +6,12 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -34,10 +35,16 @@ class PromotionDiscountCompositionTest extends TestCase
     use PromotionIntegrationTestBehaviour;
     use PromotionTestFixtureBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     protected EntityRepository $productRepository;
 
     protected CartService $cartService;
 
+    /**
+     * @var EntityRepository<PromotionCollection>
+     */
     protected EntityRepository $promotionRepository;
 
     protected function setUp(): void
@@ -185,7 +192,7 @@ class PromotionDiscountCompositionTest extends TestCase
         static::assertEquals(1, $promotion->getOrderCount());
         static::assertNotNull($context->getCustomer());
         static::assertEquals(
-            [$context->getCustomer()->getId() => 1],
+            [$context->getCustomerId() => 1],
             $promotion->getOrdersPerCustomerCount()
         );
 
@@ -201,11 +208,11 @@ class PromotionDiscountCompositionTest extends TestCase
         // verify that the promotion has a total order count of 1 and the current customer is although tracked
         static::assertEquals(2, $promotion->getOrderCount());
         static::assertEquals(
-            [$context->getCustomer()->getId() => 2],
+            [$context->getCustomerId() => 2],
             $promotion->getOrdersPerCustomerCount()
         );
 
-        $customerId1 = $context->getCustomer()->getId();
+        $customerId1 = $context->getCustomerId();
 
         $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(
@@ -226,7 +233,7 @@ class PromotionDiscountCompositionTest extends TestCase
 
         static::assertEquals(3, $promotion->getOrderCount());
         $expected = [
-            $context->getCustomer()->getId() => 1,
+            $context->getCustomerId() => 1,
             $customerId1 => 2,
         ];
 
@@ -382,10 +389,6 @@ class PromotionDiscountCompositionTest extends TestCase
                 ],
             ],
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         static::getContainer()
             ->get('customer.repository')

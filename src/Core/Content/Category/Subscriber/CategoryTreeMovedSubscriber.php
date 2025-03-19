@@ -11,7 +11,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('inventory')]
+#[Package('discovery')]
 readonly class CategoryTreeMovedSubscriber implements EventSubscriberInterface
 {
     /**

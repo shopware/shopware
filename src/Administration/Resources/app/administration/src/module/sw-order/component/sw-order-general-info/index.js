@@ -2,24 +2,25 @@ import './sw-order-general-info.scss';
 import template from './sw-order-general-info.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
-const { Mixin } = Shopware;
+const { Mixin, Store } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
-const { mapGetters, mapState } = Shopware.Component.getComponentHelper();
 const { cloneDeep } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: {
         swOrderDetailOnSaveEdits: {
             from: 'swOrderDetailOnSaveEdits',
             default: null,
+        },
+        swOrderDetailAskAndSaveEdits: {
+            from: 'swOrderDetailAskAndSaveEdits',
+            default: () => true,
         },
         acl: {
             from: 'acl',
@@ -71,13 +72,9 @@ export default {
     },
 
     computed: {
-        ...mapGetters('swOrderDetail', [
-            'isLoading',
-        ]),
+        isLoading: () => Store.get('swOrderDetail').isLoading,
 
-        ...mapState('swOrderDetail', [
-            'savedSuccessful',
-        ]),
+        savedSuccessful: () => Store.get('swOrderDetail').savedSuccessful,
 
         lastChangedUser() {
             if (this.liveOrder) {
@@ -280,7 +277,7 @@ export default {
         },
 
         getTransitionOptions() {
-            Shopware.State.commit('swOrderDetail/setLoading', [
+            Store.get('swOrderDetail').setLoading([
                 'states',
                 true,
             ]);
@@ -332,16 +329,21 @@ export default {
                     return Promise.resolve();
                 })
                 .finally(() => {
-                    Shopware.State.commit('swOrderDetail/setLoading', [
+                    Store.get('swOrderDetail').setLoading([
                         'states',
                         false,
                     ]);
                 });
         },
 
-        onStateSelected(stateType, actionName) {
+        async onStateSelected(stateType, actionName) {
             if (!stateType || !actionName) {
                 this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
+                return;
+            }
+
+            const proceed = await this.swOrderDetailAskAndSaveEdits();
+            if (!proceed) {
                 return;
             }
 

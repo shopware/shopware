@@ -1,17 +1,17 @@
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-preview-product-slider', () => import('./preview'));
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-block-product-slider', () => import('./component'));
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'product-slider',
@@ -22,8 +22,8 @@ Shopware.Service('cmsService').registerCmsBlock({
     defaultConfig: {
         marginBottom: '20px',
         marginTop: '20px',
-        marginLeft: '20px',
-        marginRight: '20px',
+        marginLeft: null,
+        marginRight: null,
         sizingMode: 'boxed',
     },
     slots: {

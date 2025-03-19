@@ -1,3 +1,4 @@
+{% block sw_extension_config %}
 <sw-meteor-page
     class="sw-extension-config"
     :from-link="fromLink"
@@ -6,7 +7,7 @@
         <sw-extension-icon
             class="sw-extension-config__extension-icon"
             :src="image"
-            :alt="$tc('sw-extension-store.component.sw-extension-config.imageDescription', 0, { extensionName: extensionLabel})"
+            :alt="$tc('sw-extension-store.component.sw-extension-config.imageDescription', { extensionName: extensionLabel}, 0)"
         />
     </template>
 
@@ -36,13 +37,14 @@
     </template>
 
     <template #smart-bar-actions>
-        <sw-button
+        <mt-button
             variant="primary"
             class="sw-extension-config__save-action"
+            size="default"
             @click.prevent="onSave"
         >
             {{ $tc('global.default.save') }}
-        </sw-button>
+        </mt-button>
     </template>
 
     <template #default>
@@ -54,3 +56,4 @@
         />
     </template>
 </sw-meteor-page>
+{% endblock %}

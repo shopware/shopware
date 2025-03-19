@@ -4,13 +4,11 @@ import './sw-extension-review.scss';
 const { date } = Shopware.Utils.format;
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         review: {

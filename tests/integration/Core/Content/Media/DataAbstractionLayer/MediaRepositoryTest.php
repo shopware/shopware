@@ -28,7 +28,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -40,7 +39,6 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[Group('slow')]
-#[Group('skip-paratest')]
 class MediaRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -578,7 +576,7 @@ class MediaRepositoryTest extends TestCase
         $countryStateId = Uuid::randomHex();
         $salutation = $this->getValidSalutationId();
 
-        $order = [
+        return [
             'id' => $orderId,
             'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
             'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
@@ -689,11 +687,5 @@ class MediaRepositoryTest extends TestCase
                 ],
             ],
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $order['orderCustomer']['customer']['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
-        return $order;
     }
 }

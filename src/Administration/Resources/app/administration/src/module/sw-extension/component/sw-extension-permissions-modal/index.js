@@ -2,13 +2,11 @@ import template from './sw-extension-permissions-modal.html.twig';
 import './sw-extension-permissions-modal.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'modal-close',
@@ -65,9 +63,13 @@ export default {
                 return this.title;
             }
 
-            return this.$tc('sw-extension-store.component.sw-extension-permissions-modal.title', 1, {
-                extensionLabel: this.extensionLabel,
-            });
+            return this.$tc(
+                'sw-extension-store.component.sw-extension-permissions-modal.title',
+                {
+                    extensionLabel: this.extensionLabel,
+                },
+                1,
+            );
         },
 
         permissionsWithGroupedOperations() {
@@ -120,21 +122,17 @@ export default {
                 return this.description;
             }
 
-            return this.$tc('sw-extension-store.component.sw-extension-permissions-modal.description', 1, {
-                extensionLabel: this.extensionLabel,
-            });
+            return this.$tc(
+                'sw-extension-store.component.sw-extension-permissions-modal.description',
+                {
+                    extensionLabel: this.extensionLabel,
+                },
+                1,
+            );
         },
 
         assetFilter() {
             return Shopware.Filter.getByName('asset');
-        },
-
-        listeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 

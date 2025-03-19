@@ -5,7 +5,7 @@ const { Mixin } = Shopware;
 /**
  * @status ready
  * @description The <u>sw-media-modal-folder-dissolve</u> component is used to validate the dissolve folder action.
- * @package content
+ * @sw-package discovery
  * @example-type code-only
  * @component-example
  * <sw-media-modal-folder-dissolve :itemsToDissolve="[items]">
@@ -14,8 +14,6 @@ const { Mixin } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['mediaFolderService'],
 
@@ -53,17 +51,25 @@ export default {
 
                 this.createNotificationSuccess({
                     title: this.$root.$tc('global.default.success'),
-                    message: this.$root.$tc('global.sw-media-modal-folder-dissolve.notification.successSingle.message', 1, {
-                        folderName: item.name,
-                    }),
+                    message: this.$root.$tc(
+                        'global.sw-media-modal-folder-dissolve.notification.successSingle.message',
+                        {
+                            folderName: item.name,
+                        },
+                        1,
+                    ),
                 });
                 return item.id;
             } catch {
                 this.createNotificationError({
                     title: this.$root.$tc('global.default.error'),
-                    message: this.$root.$tc('global.sw-media-modal-folder-dissolve.notification.errorSingle.message', 1, {
-                        folderName: item.name,
-                    }),
+                    message: this.$root.$tc(
+                        'global.sw-media-modal-folder-dissolve.notification.errorSingle.message',
+                        {
+                            folderName: item.name,
+                        },
+                        1,
+                    ),
                 });
 
                 return null;

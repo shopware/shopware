@@ -158,12 +158,8 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Administration\Notification\Extension\IntegrationExtension">
-            <tag name="shopware.entity.extension"/>
-        </service>
-
-        <service id="Shopware\Administration\Notification\Extension\UserExtension">
-            <tag name="shopware.entity.extension"/>
+        <service id="Shopware\Administration\Notification\NotificationBulkEntityExtension">
+            <tag name="shopware.bulk.entity.extension"/>
         </service>
 
         <service id="Shopware\Administration\System\SalesChannel\Subscriber\SalesChannelUserConfigSubscriber">
@@ -186,8 +182,9 @@
 
         <service id="Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator" decorates="pentatrion_vite.file_accessor">
             <argument>%pentatrion_vite.configs%</argument>
-            <argument type="service" id="shopware.filesystem.asset"/>
-            <argument type="service" id="assets.packages"/>
+            <argument type="service" id="shopware.asset.asset"/>
+            <argument type="service" id="kernel"/>
+            <argument type="service" id="filesystem"/>
         </service>
     </services>
 </container>

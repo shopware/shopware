@@ -88,12 +88,12 @@ class AccountProfilePageLoaderTest extends TestCase
         $salutationsSorted = new SalutationCollection([$salutation2, $salutation]);
 
         $this->salutationRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn($salutationResponse);
 
         $this->salutationSorter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('sort')
             ->willReturn($salutationsSorted);
 
@@ -101,12 +101,12 @@ class AccountProfilePageLoaderTest extends TestCase
         $page->setMetaInformation(new MetaInformation());
         $page->getMetaInformation()?->setMetaTitle('testshop');
         $this->genericPageLoader
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn($page);
 
         $this->translator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('trans')
             ->willReturn('translated');
 
@@ -124,14 +124,14 @@ class AccountProfilePageLoaderTest extends TestCase
         static::assertInstanceOf(SalutationRouteRequestEvent::class, $events[0]);
     }
 
-    public function testSetStandardMetaDataIfTranslatorIsSet(): void
+    public function testSetStandardMetaData(): void
     {
         $pageLoader = new TestAccountProfilePageLoader(
             $this->genericPageLoader,
             $this->eventDispatcher,
             $this->salutationRoute,
             $this->salutationSorter,
-            $this->translator
+            $this->translator,
         );
 
         $page = new AccountProfilePage();
@@ -143,25 +143,6 @@ class AccountProfilePageLoaderTest extends TestCase
         static::assertInstanceOf(MetaInformation::class, $page->getMetaInformation());
     }
 
-    public function testNotSetStandardMetaDataIfTranslatorIsNotSet(): void
-    {
-        $pageLoader = new TestAccountProfilePageLoader(
-            $this->genericPageLoader,
-            $this->eventDispatcher,
-            $this->salutationRoute,
-            $this->salutationSorter,
-            null
-        );
-
-        $page = new AccountProfilePage();
-
-        static::assertNull($page->getMetaInformation());
-
-        $pageLoader->setMetaInformationAccess($page);
-
-        static::assertNull($page->getMetaInformation());
-    }
-
     public function testNoCustomerException(): void
     {
         $pageLoader = new AccountProfilePageLoader(
@@ -169,7 +150,7 @@ class AccountProfilePageLoaderTest extends TestCase
             $this->eventDispatcher,
             $this->salutationRoute,
             $this->salutationSorter,
-            null
+            $this->translator,
         );
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);

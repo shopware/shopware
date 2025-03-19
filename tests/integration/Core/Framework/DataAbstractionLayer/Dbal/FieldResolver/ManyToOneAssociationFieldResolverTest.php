@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -27,6 +26,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Stub\Doctrine\QueryBuilderDataExtractor;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
@@ -104,13 +104,13 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
         static::assertSame([
             '`document`' => [
                 [
-                    'joinType' => 'left',
-                    'joinTable' => '`order`',
-                    'joinAlias' => '`document.order`',
-                    'joinCondition' => '`document`.`order_id` = `document.order`.`id` AND `document`.`order_version_id` = `document.order`.`version_id`',
+                    'type' => 'LEFT',
+                    'table' => '`order`',
+                    'alias' => '`document.order`',
+                    'condition' => '`document`.`order_id` = `document.order`.`id` AND `document`.`order_version_id` = `document.order`.`version_id`',
                 ],
             ],
-        ], $this->queryBuilder->getQueryPart('join'));
+        ], QueryBuilderDataExtractor::getJoin($this->queryBuilder));
     }
 
     public function testVersionConstraintWithReferenceToNonVersionedEntity(): void
@@ -137,13 +137,13 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
         static::assertSame([
             '`document`' => [
                 [
-                    'joinType' => 'left',
-                    'joinTable' => '`document_type`',
-                    'joinAlias' => '`document.documentType`',
-                    'joinCondition' => '`document`.`document_type_id` = `document.documentType`.`id`',
+                    'type' => 'LEFT',
+                    'table' => '`document_type`',
+                    'alias' => '`document.documentType`',
+                    'condition' => '`document`.`document_type_id` = `document.documentType`.`id`',
                 ],
             ],
-        ], $this->queryBuilder->getQueryPart('join'));
+        ], QueryBuilderDataExtractor::getJoin($this->queryBuilder));
     }
 
     public function testVersionConstraintWithReferenceToSelf(): void
@@ -170,13 +170,13 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
         static::assertSame([
             '`document`' => [
                 [
-                    'joinType' => 'left',
-                    'joinTable' => '`document`',
-                    'joinAlias' => '`document.referencedDocument`',
-                    'joinCondition' => '`document`.`referenced_document_id` = `document.referencedDocument`.`id`',
+                    'type' => 'LEFT',
+                    'table' => '`document`',
+                    'alias' => '`document.referencedDocument`',
+                    'condition' => '`document`.`referenced_document_id` = `document.referencedDocument`.`id`',
                 ],
             ],
-        ], $this->queryBuilder->getQueryPart('join'));
+        ], QueryBuilderDataExtractor::getJoin($this->queryBuilder));
     }
 
     public function testVersionConstraintWithOneToOneVersionedReferenceFromVersionedEntity(): void
@@ -203,13 +203,13 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
         static::assertSame([
             '`order`' => [
                 [
-                    'joinType' => 'left',
-                    'joinTable' => '`order_customer`',
-                    'joinAlias' => '`order.orderCustomer`',
-                    'joinCondition' => '`order`.`id` = `order.orderCustomer`.`order_id` AND `order`.`version_id` = `order.orderCustomer`.`order_version_id`',
+                    'type' => 'LEFT',
+                    'table' => '`order_customer`',
+                    'alias' => '`order.orderCustomer`',
+                    'condition' => '`order`.`id` = `order.orderCustomer`.`order_id` AND `order`.`version_id` = `order.orderCustomer`.`order_version_id`',
                 ],
             ],
-        ], $this->queryBuilder->getQueryPart('join'));
+        ], QueryBuilderDataExtractor::getJoin($this->queryBuilder));
     }
 
     public function testCorrectOrderVersionOverAssociationOverRepositorySearch(): void
@@ -282,8 +282,6 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
         static::assertCount(2, $products);
 
         [$product1, $product2] = $products;
-        static::assertInstanceOf(ProductEntity::class, $product1);
-        static::assertInstanceOf(ProductEntity::class, $product2);
         static::assertNotNull($product1->getCover());
         static::assertNull($product2->getCover());
 
@@ -296,8 +294,6 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
         static::assertCount(2, $products);
 
         [$product1, $product2] = $products;
-        static::assertInstanceOf(ProductEntity::class, $product1);
-        static::assertInstanceOf(ProductEntity::class, $product2);
         static::assertNotNull($product1->getCover());
         static::assertNotNull($product2->getCover());
     }

@@ -13,40 +13,15 @@ class CustomerWishlistProductEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $wishlistId;
+    protected string $wishlistId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productId;
+    protected string $productId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productVersionId;
+    protected string $productVersionId;
 
-    /**
-     * @var CustomerWishlistEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $wishlist;
+    protected ?CustomerWishlistEntity $wishlist = null;
 
-    /**
-     * @var ProductEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $product;
+    protected ?ProductEntity $product = null;
 
     public function getWishlist(): ?CustomerWishlistEntity
     {

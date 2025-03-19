@@ -194,7 +194,7 @@
             "exportActivityLabel": "Export-Aktivität",
             "exportActivityDescription": "Aktivitäten, die älter als 30 Tage sind, werden automatisch entfernt.",
             "exportLabel": "Export",
-            "directExportVariantsLabel": "Varianten Einstellungen exportieren",
+            "directExportVariantsLabel": "Varianten-Einstellungen exportieren",
             "directExportPropertiesLabel": "Eigenschaften exportieren",
             "close": "Schließen",
             "variantsWarning": "<strong>Warnung: </strong> Stelle sicher, dass die in exportierten CSV-Datei verlinkten Eigenschaften und Varianten zu den Produkten im neuen System vorhanden sind. Sollte dies nicht der Fall sein, hast du die Möglichkeit Eigenschaften und Varianten als einzelne CSV-Dateien mit entsprechenden Profilen zu exportieren. Solltest du beide Fälle nicht haben, so musst du die Produkt Varianten im Anschluss an den Export manuell im neuen System pflegen.",

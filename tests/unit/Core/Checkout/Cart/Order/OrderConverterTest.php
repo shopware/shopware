@@ -41,7 +41,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDo
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
-use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -605,7 +604,6 @@ class OrderConverterTest extends TestCase
             $this->createMock(SalesChannelContextFactory::class),
             $dispatcher,
             $this->createMock(NumberRangeValueGeneratorInterface::class),
-            $this->createMock(OrderDefinition::class),
             $addressRepository,
             $this->createMock(InitialStateIdLoader::class),
             $this->createMock(LineItemDownloadLoader::class),
@@ -832,7 +830,6 @@ class OrderConverterTest extends TestCase
     {
         // Setup classes for OrderConverter
         // Static
-        $orderDefinition = new OrderDefinition();
         $initialStateIdLoader = $this->createMock(InitialStateIdLoader::class);
         $numberRangeValueGenerator = $this->createMock(NumberRangeValueGeneratorInterface::class);
         $numberRangeValueGenerator->method('getValue')->willReturn('10000');
@@ -906,7 +903,6 @@ class OrderConverterTest extends TestCase
             $salesChannelContextFactory,
             $eventDispatcher ?? $this->eventDispatcher,
             $numberRangeValueGenerator,
-            $orderDefinition,
             $orderAddressRepository,
             $initialStateIdLoader,
             $lineItemDownloadLoader,

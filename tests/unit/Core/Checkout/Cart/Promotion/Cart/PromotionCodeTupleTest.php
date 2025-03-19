@@ -7,11 +7,13 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCodeTuple;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(PromotionCodeTuple::class)]
+#[Package('checkout')]
 class PromotionCodeTupleTest extends TestCase
 {
     /**

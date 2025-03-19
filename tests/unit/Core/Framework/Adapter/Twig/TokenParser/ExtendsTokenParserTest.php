@@ -156,13 +156,13 @@ class ExtendsTokenParserTest extends TestCase
         $templateName = ($withStorefrontPrefix ? '@Storefront/' : '') . Uuid::randomHex() . '.html.twig';
 
         $templateFinder = $this->createMock(TemplateFinderInterface::class);
-        $templateFinder->expects($callsTemplateFinder ? static::once() : static::never())
+        $templateFinder->expects($callsTemplateFinder ? $this->once() : $this->never())
             ->method('find')
             ->with('foo.html.twig', false, $templateName)
             ->willReturn('bar.html.twig');
 
         $detector = $this->createMock(TemplateScopeDetector::class);
-        $detector->expects($callsScopeDetector ? static::once() : static::never())
+        $detector->expects($callsScopeDetector ? $this->once() : $this->never())
             ->method('getScopes')
             ->willReturn($scopes);
 

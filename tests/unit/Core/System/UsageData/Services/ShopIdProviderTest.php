@@ -16,7 +16,7 @@ class ShopIdProviderTest extends TestCase
     public function testReturnsShopIdFromSystemConfig(): void
     {
         $appShopIdProvider = $this->createMock(\Shopware\Core\Framework\App\ShopId\ShopIdProvider::class);
-        $appShopIdProvider->expects(static::never())
+        $appShopIdProvider->expects($this->never())
             ->method('getShopId');
 
         $providerToTest = new ShopIdProvider(
@@ -35,7 +35,7 @@ class ShopIdProviderTest extends TestCase
     public function testReturnsShopIdFromInner(): void
     {
         $appShopIdProvider = $this->createMock(\Shopware\Core\Framework\App\ShopId\ShopIdProvider::class);
-        $appShopIdProvider->expects(static::once())
+        $appShopIdProvider->expects($this->once())
             ->method('getShopId')
             ->willReturn('shopId');
 

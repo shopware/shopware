@@ -224,11 +224,11 @@ class SitemapExporterTest extends TestCase
         $urls = [$url1, $url2];
 
         $handler = $this->createMock(AbstractUrlProvider::class);
-        $handler->expects(static::once())->method('getUrls')->willReturn(new UrlResult($urls, null));
+        $handler->expects($this->once())->method('getUrls')->willReturn(new UrlResult($urls, null));
 
         $factory = $this->createMock(SitemapHandleFactoryInterface::class);
         $sitemapHandleMock = $this->createMock(SitemapHandleInterface::class);
-        $sitemapHandleMock->expects(static::once())->method('write')->willReturnCallback(function (array $urls): void {
+        $sitemapHandleMock->expects($this->once())->method('write')->willReturnCallback(function (array $urls): void {
             static::assertCount(2, $urls);
             static::assertInstanceOf(Url::class, $urls[0]);
             static::assertInstanceOf(Url::class, $urls[1]);
@@ -236,7 +236,7 @@ class SitemapExporterTest extends TestCase
             static::assertSame('https://test.com/de/test-without-slash', $urls[1]->getLoc());
         });
 
-        $factory->expects(static::once())->method('create')->willReturn($sitemapHandleMock);
+        $factory->expects($this->once())->method('create')->willReturn($sitemapHandleMock);
 
         $cache = $this->createMock(CacheItemPoolInterface::class);
         $cache->method('getItem')->willReturn($this->createCacheItem('', true, false));

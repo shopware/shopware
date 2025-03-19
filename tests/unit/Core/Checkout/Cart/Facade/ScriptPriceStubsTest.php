@@ -12,11 +12,13 @@ use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(ScriptPriceStubs::class)]
+#[Package('checkout')]
 class ScriptPriceStubsTest extends TestCase
 {
     // fake some static id for the iso

@@ -40,7 +40,7 @@ class CustomFieldUpdaterTest extends TestCase
     {
         $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
         $elasticsearchHelper
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('allowIndexing');
 
         $customFieldUpdater = new CustomFieldUpdater(
@@ -68,7 +68,7 @@ class CustomFieldUpdaterTest extends TestCase
 
         $indexDetector = $this->createMock(ElasticsearchOutdatedIndexDetector::class);
         $indexDetector
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('getAllUsedIndices');
 
         $customFieldUpdater = new CustomFieldUpdater(
@@ -98,7 +98,7 @@ class CustomFieldUpdaterTest extends TestCase
 
         $indexDetector = $this->createMock(ElasticsearchOutdatedIndexDetector::class);
         $indexDetector
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('getAllUsedIndices');
 
         $customFieldUpdater = new CustomFieldUpdater(
@@ -141,18 +141,18 @@ class CustomFieldUpdaterTest extends TestCase
         $customFieldId = Uuid::randomHex();
         $customFieldSetId = Uuid::randomHex();
 
-        $gateway->expects(static::once())
+        $gateway->expects($this->once())
             ->method('fetchFieldSetIds')
             ->with([$customFieldId])
             ->willReturn([$customFieldId => $customFieldSetId]);
 
-        $gateway->expects(static::once())
+        $gateway->expects($this->once())
             ->method('fetchFieldSetEntityMappings')
             ->with([$customFieldSetId])
             ->willReturn([$customFieldSetId => ['product']]);
 
         $deLang = Uuid::randomHex();
-        $gateway->expects(static::once())
+        $gateway->expects($this->once())
             ->method('fetchLanguageIds')
             ->willReturn([Defaults::LANGUAGE_SYSTEM, $deLang]);
 
@@ -198,7 +198,7 @@ class CustomFieldUpdaterTest extends TestCase
         ];
 
         $indices
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('putMapping')
             ->with([
                 'index' => 'test',
@@ -269,7 +269,7 @@ class CustomFieldUpdaterTest extends TestCase
         $customFieldSetId = Uuid::randomHex();
 
         $client = $this->createMock(Client::class);
-        $client->expects(static::never())->method('indices');
+        $client->expects($this->never())->method('indices');
 
         $customFieldUpdater = new CustomFieldUpdater(
             $indexDetector,
@@ -317,11 +317,11 @@ class CustomFieldUpdaterTest extends TestCase
         $customFieldSetId = Uuid::randomHex();
 
         $deLang = Uuid::randomHex();
-        $gateway->expects(static::once())
+        $gateway->expects($this->once())
             ->method('fetchLanguageIds')
             ->willReturn([Defaults::LANGUAGE_SYSTEM, $deLang]);
 
-        $gateway->expects(static::once())
+        $gateway->expects($this->once())
             ->method('fetchCustomFieldsForSets')
             ->with([$customFieldSetId])
             ->willReturn([$customFieldSetId => [
@@ -370,7 +370,7 @@ class CustomFieldUpdaterTest extends TestCase
         ];
 
         $indices
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('putMapping')
             ->with([
                 'index' => 'test',
@@ -448,12 +448,12 @@ class CustomFieldUpdaterTest extends TestCase
         $customFieldSetId1 = Uuid::randomHex();
         $customFieldSetId2 = Uuid::randomHex();
 
-        $gateway->expects(static::once())
+        $gateway->expects($this->once())
             ->method('fetchFieldSetIds')
             ->with([$customFieldId1, $customFieldId2])
             ->willReturn([$customFieldId1 => $customFieldSetId1, $customFieldId2 => $customFieldSetId2]);
 
-        $gateway->expects(static::once())
+        $gateway->expects($this->once())
             ->method('fetchFieldSetEntityMappings')
             ->with([$customFieldSetId1, $customFieldSetId2])
             ->willReturn([
@@ -462,7 +462,7 @@ class CustomFieldUpdaterTest extends TestCase
             ]);
 
         $deLang = Uuid::randomHex();
-        $gateway->expects(static::once())
+        $gateway->expects($this->once())
             ->method('fetchLanguageIds')
             ->willReturn([Defaults::LANGUAGE_SYSTEM, $deLang]);
 
@@ -508,7 +508,7 @@ class CustomFieldUpdaterTest extends TestCase
         ];
 
         $indices
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('putMapping')
             ->with([
                 'index' => 'test',

@@ -202,7 +202,7 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
 
         $paymentMethodRoute = $this->createMock(PaymentMethodRoute::class);
         $paymentMethodRoute
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('load')
             ->with(
                 static::equalTo(new Request(['onlyAvailable' => true])),
@@ -243,7 +243,7 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
 
         $paymentMethodResponse = $this->createMock(PaymentMethodRouteResponse::class);
         $paymentMethodResponse
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getPaymentMethods')
             ->willReturn($collection);
 
@@ -264,7 +264,7 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
 
         $paymentMethodResponse = $this->createMock(PaymentMethodRouteResponse::class);
         $paymentMethodResponse
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getPaymentMethods')
             ->willReturn($collection);
 

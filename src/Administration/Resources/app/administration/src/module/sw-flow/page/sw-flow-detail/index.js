@@ -305,25 +305,23 @@ export default {
             return State.commit('swFlowState/setFlow', flow);
         },
 
-        getDetailFlow() {
+        async getDetailFlow() {
             this.isLoading = true;
-            Shopware.State.dispatch('swFlowState/fetchTriggerActions');
 
-            return this.flowRepository
-                .get(this.flowId, Context.api, this.flowCriteria)
-                .then((data) => {
-                    State.commit('swFlowState/setFlow', data);
-                    State.commit('swFlowState/setOriginFlow', cloneDeep(data));
-                    this.getDataForActionDescription();
-                })
-                .catch(() => {
-                    this.createNotificationError({
-                        message: this.$tc('sw-flow.flowNotification.messageError'),
-                    });
-                })
-                .finally(() => {
-                    this.isLoading = false;
+            try {
+                await Shopware.State.dispatch('swFlowState/fetchTriggerActions');
+                const data = await this.flowRepository.get(this.flowId, Context.api, this.flowCriteria);
+
+                State.commit('swFlowState/setFlow', data);
+                State.commit('swFlowState/setOriginFlow', cloneDeep(data));
+                await this.getDataForActionDescription();
+            } catch (error) {
+                this.createNotificationError({
+                    message: this.$tc('sw-flow.flowNotification.messageError'),
                 });
+            } finally {
+                this.isLoading = false;
+            }
         },
 
         getAppFlowAction() {

@@ -504,7 +504,7 @@ class OrderConverterTest extends TestCase
     {
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->willReturn(static::isInstanceOf(CartConvertedEvent::class));
 
@@ -568,7 +568,7 @@ class OrderConverterTest extends TestCase
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->with(static::callback(static function (SalesChannelContextAssembledEvent $event) use ($order): bool {
                 static::assertSame($order, $event->getOrder());
@@ -585,7 +585,7 @@ class OrderConverterTest extends TestCase
 
         $addressRepository = $this->createMock(EntityRepository::class);
         $addressRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 'order_address',

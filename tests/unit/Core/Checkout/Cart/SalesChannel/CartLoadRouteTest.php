@@ -27,14 +27,14 @@ class CartLoadRouteTest extends TestCase
         $newCart = new Cart('test');
         $factory = $this->createMock(CartFactory::class);
         $factory
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('createNew')
             ->with('test')
             ->willReturn($newCart);
 
         $persister = $this->createMock(AbstractCartPersister::class);
         $persister
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->with('test')
             ->willThrowException(CartException::tokenNotFound('test'));
@@ -42,14 +42,14 @@ class CartLoadRouteTest extends TestCase
         $calculatedCart = new Cart('calculated');
         $calculator = $this->createMock(CartCalculator::class);
         $calculator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('calculate')
             ->with($newCart, $this->createMock(SalesChannelContext::class))
             ->willReturn($calculatedCart);
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getToken')
             ->willReturn('test');
 

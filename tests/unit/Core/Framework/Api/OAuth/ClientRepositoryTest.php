@@ -51,7 +51,7 @@ class ClientRepositoryTest extends TestCase
 
         $this->connection
             ->expects(
-                ($expectedResult && $grantType === 'client_credentials') ? static::once() : static::never()
+                ($expectedResult && $grantType === 'client_credentials') ? $this->once() : $this->never()
             )
             ->method('update');
 
@@ -74,7 +74,7 @@ class ClientRepositoryTest extends TestCase
             );
 
         $this->connection
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('update');
 
         $result = $this->clientRepository->validateClient(
@@ -122,7 +122,7 @@ class ClientRepositoryTest extends TestCase
         });
 
         $this->connection
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('update');
 
         \assert($clientIdentifier !== '');

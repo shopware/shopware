@@ -199,7 +199,7 @@ class AppRegistrationServiceTest extends TestCase
         ]);
 
         $shopIdProviderMock = $this->createMock(ShopIdProvider::class);
-        $shopIdProviderMock->expects(static::once())
+        $shopIdProviderMock->expects($this->once())
             ->method('getShopId')
             ->willReturn($shopId);
 
@@ -211,7 +211,7 @@ class AppRegistrationServiceTest extends TestCase
         );
 
         $shopIdMock = $this->createMock(ShopIdProvider::class);
-        $shopIdMock->expects(static::once())
+        $shopIdMock->expects($this->once())
             ->method('getShopId')
             ->willThrowException(new AppUrlChangeDetectedException('https://test.com', 'https://new.com', $shopId));
 

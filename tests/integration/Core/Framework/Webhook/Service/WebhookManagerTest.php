@@ -459,7 +459,7 @@ class WebhookManagerTest extends TestCase
 
         $this->getManager(adminWorkerEnabled: false)->dispatch($event);
 
-        $this->createMock(MessageBusInterface::class)->expects(static::never())
+        $this->createMock(MessageBusInterface::class)->expects($this->never())
             ->method('dispatch');
 
         $request = $this->getLastRequest();
@@ -569,7 +569,7 @@ class WebhookManagerTest extends TestCase
             'handler' => new MockHandler([]),
         ]);
 
-        $this->createMock(MessageBusInterface::class)->expects(static::never())
+        $this->createMock(MessageBusInterface::class)->expects($this->never())
             ->method('dispatch');
 
         $this->getManager($client)->dispatch($event);
@@ -871,7 +871,7 @@ class WebhookManagerTest extends TestCase
 
         $shopwareVersion = Kernel::SHOPWARE_FALLBACK_VERSION;
 
-        $this->bus->expects(static::once())
+        $this->bus->expects($this->once())
             ->method('dispatch')
             ->with(static::callback(function (WebhookEventMessage $message) use ($payload, $appId, $webhookId, $shopwareVersion) {
                 $actualPayload = $message->getPayload();
@@ -923,7 +923,7 @@ class WebhookManagerTest extends TestCase
 
         $webhookEventId = Uuid::randomHex();
         $shopwareVersion = Kernel::SHOPWARE_FALLBACK_VERSION;
-        $this->bus->expects(static::once())
+        $this->bus->expects($this->once())
             ->method('dispatch')
             ->with(static::callback(function (WebhookEventMessage $message) use ($payload, $webhookId, $shopwareVersion) {
                 $actualPayload = $message->getPayload();

@@ -48,7 +48,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $salesChannelId = Uuid::randomHex();
 
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
-        $cacheInvalidator->expects(static::once())
+        $cacheInvalidator->expects($this->once())
             ->method('invalidate')
             ->with(
                 [
@@ -97,7 +97,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $this->connection->method('fetchAllAssociative')
             ->willReturn([['product_id' => $productId, 'version_id' => null]]);
 
-        $this->cacheInvalidator->expects(static::once())
+        $this->cacheInvalidator->expects($this->once())
             ->method('invalidate')
             ->with(
                 [
@@ -126,7 +126,7 @@ class CacheInvalidationSubscriberTest extends TestCase
                 ['product_id' => $productId, 'variant_id' => $variants[1]],
             ]);
 
-        $this->cacheInvalidator->expects(static::once())
+        $this->cacheInvalidator->expects($this->once())
             ->method('invalidate')
             ->with(
                 [

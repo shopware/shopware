@@ -65,7 +65,7 @@ class FirstRunWizardClientTest extends TestCase
         $context = Context::createDefaultContext();
 
         $client = $this->createMock(ClientInterface::class);
-        $client->expects(static::never())
+        $client->expects($this->never())
             ->method('request');
 
         $frwClient = new FirstRunWizardClient(
@@ -85,7 +85,7 @@ class FirstRunWizardClientTest extends TestCase
         );
 
         $client = $this->createMock(ClientInterface::class);
-        $client->expects(static::never())
+        $client->expects($this->never())
             ->method('request');
 
         $frwClient = new FirstRunWizardClient(
@@ -103,7 +103,7 @@ class FirstRunWizardClientTest extends TestCase
         $context = Context::createDefaultContext();
 
         $client = $this->createMock(ClientInterface::class);
-        $client->expects(static::never())
+        $client->expects($this->never())
             ->method('request');
 
         $frwClient = new FirstRunWizardClient(
@@ -348,7 +348,7 @@ class FirstRunWizardClientTest extends TestCase
     private function createFrwClient(array $requestParams, array $responseBody): FirstRunWizardClient
     {
         $client = $this->createMock(ClientInterface::class);
-        $client->expects(static::once())
+        $client->expects($this->once())
             ->method('request')
             ->with(...$requestParams)
             ->willReturn(new Response(body: json_encode($responseBody, \JSON_THROW_ON_ERROR)));

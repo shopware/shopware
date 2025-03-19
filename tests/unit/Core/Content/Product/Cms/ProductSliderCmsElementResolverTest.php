@@ -63,10 +63,10 @@ class ProductSliderCmsElementResolverTest extends TestCase
     {
         $this->config->add(new FieldConfig('products', FieldConfig::SOURCE_STATIC, 'VALID-VALUE'));
 
-        $this->logger->expects(static::once())->method('error')
+        $this->logger->expects($this->once())->method('error')
             ->with('No product slider processor found by provided source: "static"');
 
-        $this->processor->expects(static::once())->method('getSource')->willReturn('not-existing-processor');
+        $this->processor->expects($this->once())->method('getSource')->willReturn('not-existing-processor');
         $this->processors[] = $this->processor;
 
         $slot = $this->getSlot();
@@ -82,7 +82,7 @@ class ProductSliderCmsElementResolverTest extends TestCase
         $collection->add('product', ProductDefinition::class, new Criteria());
 
         $this->processor->method('getSource')->willReturn(FieldConfig::SOURCE_STATIC);
-        $this->processor->expects(static::once())
+        $this->processor->expects($this->once())
             ->method('collect')
             ->willReturn($collection);
 
@@ -100,7 +100,7 @@ class ProductSliderCmsElementResolverTest extends TestCase
         $data = new ElementDataCollection();
 
         $processor = $this->createMock(AbstractProductSliderProcessor::class);
-        $processor->expects(static::never())->method('enrich');
+        $processor->expects($this->never())->method('enrich');
 
         $this->getResolver()->enrich($slot, $this->getResolverContext(), $data);
     }
@@ -109,11 +109,11 @@ class ProductSliderCmsElementResolverTest extends TestCase
     {
         $this->config->add(new FieldConfig('products', FieldConfig::SOURCE_STATIC, 'VALID-VALUE'));
 
-        $this->logger->expects(static::once())->method('error')
+        $this->logger->expects($this->once())->method('error')
             ->with('No product slider processor found by provided source: "static"');
 
-        $this->processor->expects(static::once())->method('getSource')->willReturn('not-existing-processor');
-        $this->processor->expects(static::never())->method('enrich');
+        $this->processor->expects($this->once())->method('getSource')->willReturn('not-existing-processor');
+        $this->processor->expects($this->never())->method('enrich');
         $this->processors[] = $this->processor;
 
         $slot = $this->getSlot();
@@ -132,7 +132,7 @@ class ProductSliderCmsElementResolverTest extends TestCase
 
         $processor = $this->createMock(AbstractProductSliderProcessor::class);
         $processor->method('getSource')->willReturn(FieldConfig::SOURCE_STATIC);
-        $processor->expects(static::once())->method('enrich')->with($slot, $data, $resolverContext);
+        $processor->expects($this->once())->method('enrich')->with($slot, $data, $resolverContext);
 
         $this->processors['static'] = $processor;
 

@@ -70,7 +70,7 @@ class ProductSuggestRouteTest extends TestCase
 
         $criteria = new Criteria();
 
-        $this->listingLoader->expects(static::once())
+        $this->listingLoader->expects($this->once())
             ->method('load')
             ->willReturn(new ProductListingResult(
                 ProductDefinition::ENTITY_NAME,

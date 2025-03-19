@@ -22,7 +22,7 @@ class WritableCheckTest extends TestCase
             '/',
         ];
 
-        $filesystem->expects(static::exactly(\count($checkFiles)))
+        $filesystem->expects($this->exactly(\count($checkFiles)))
             ->method('checkSingleDirectoryPermissions')
             ->with(
                 static::equalTo('/tmp/'),
@@ -39,7 +39,7 @@ class WritableCheckTest extends TestCase
         $filesystem = $this->createMock(Filesystem::class);
         $writableCheck = new WriteableCheck($filesystem, '/tmp');
 
-        $filesystem->expects(static::exactly(1))
+        $filesystem->expects($this->exactly(1))
             ->method('checkSingleDirectoryPermissions')
             ->with(
                 static::equalTo('/tmp/'),

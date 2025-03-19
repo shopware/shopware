@@ -44,7 +44,7 @@ class CancelOrderRouteTest extends TestCase
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getCustomer')
             ->willReturn(null);
 
@@ -65,11 +65,11 @@ class CancelOrderRouteTest extends TestCase
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getCustomer')
             ->willReturn($customer);
         $salesChannelContext
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getCustomerId')
             ->willReturn($customer->getId());
 
@@ -89,11 +89,11 @@ class CancelOrderRouteTest extends TestCase
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getCustomer')
             ->willReturn($customer);
         $salesChannelContext
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getCustomerId')
             ->willReturn($customer->getId());
         $salesChannelContext
@@ -102,7 +102,7 @@ class CancelOrderRouteTest extends TestCase
 
         $orderService = $this->createMock(OrderService::class);
         $orderService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('orderStateTransition')
             ->with($orderId, 'cancel', new ParameterBag(), Context::createDefaultContext())
             ->willReturn(new StateMachineStateEntity());

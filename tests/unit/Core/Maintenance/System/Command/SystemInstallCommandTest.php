@@ -190,7 +190,7 @@ class SystemInstallCommandTest extends TestCase
         $application->method('has')
             ->willReturn(true);
 
-        $application->expects(static::exactly(\count($expectedCommands)))
+        $application->expects($this->exactly(\count($expectedCommands)))
             ->method('doRun')
             ->willReturn(Command::SUCCESS);
 

@@ -42,12 +42,12 @@ class MessageQueueTelemetrySubscriberTest extends TestCase
             'test'
         );
 
-        $this->messageSizeCalculator->expects(static::once())
+        $this->messageSizeCalculator->expects($this->once())
             ->method('size')
             ->with($envelope->getEnvelope())
             ->willReturn(15);
 
-        $this->meter->expects(static::once())
+        $this->meter->expects($this->once())
             ->method('emit')
             ->with(static::callback(function (ConfiguredMetric $histogram) {
                 return $histogram->name === 'messenger.message.size'

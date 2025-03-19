@@ -110,7 +110,7 @@ class OrderStateChangeEventListenerTest extends TestCase
     private function assertEvent(string $event): void
     {
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
 
         static::getContainer()
             ->get('event_dispatcher')
@@ -283,6 +283,7 @@ class OrderStateChangeEventListenerTest extends TestCase
 /**
  * @internal
  */
+#[Package('checkout')]
 class RuleValidator extends CallableClass
 {
     public ?OrderStateMachineStateChangeEvent $event;

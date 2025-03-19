@@ -66,7 +66,7 @@ class CustomSnippetFormatControllerTest extends TestCase
     public function testGetSnippetsWithPlugins(): void
     {
         $plugin = new BundleWithCustomSnippet(true, __DIR__ . '/Fixtures/BundleWithCustomSnippet');
-        $this->pluginCollection->expects(static::once())->method('getActives')->willReturn([$plugin]);
+        $this->pluginCollection->expects($this->once())->method('getActives')->willReturn([$plugin]);
 
         $response = $this->controller->snippets();
         $content = $response->getContent();
@@ -109,7 +109,7 @@ class CustomSnippetFormatControllerTest extends TestCase
                 'address/last_name',
             ],
         ]);
-        $this->twig->expects(static::once())->method('render')->with('@Framework/snippets/render.html.twig', [
+        $this->twig->expects($this->once())->method('render')->with('@Framework/snippets/render.html.twig', [
             'customer' => [
                 'first_name' => 'Vin',
                 'last_name' => 'Le',

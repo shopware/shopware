@@ -16,6 +16,9 @@
 
     .sw-data-grid__settings-container {
         padding: 10px 18px;
+        display: flex;
+        flex-flow: column nowrap;
+        row-gap: 10px;
     }
 
     .sw_context_menu_divider {
@@ -63,5 +66,10 @@
 
     .columns-list-move {
         transition: transform 0.2s ease-in-out;
+    }
+
+    .mt-switch {
+        margin-bottom: 0;
+        min-height: 0;
     }
 }

@@ -7,11 +7,13 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeEntity;
 use Shopware\Core\Checkout\Promotion\PromotionException;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(PromotionIndividualCodeEntity::class)]
+#[Package('checkout')]
 class PromotionIndividualCodeEntityTest extends TestCase
 {
     /**

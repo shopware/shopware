@@ -154,7 +154,7 @@ class MailServiceTest extends TestCase
             $data['senderMail'] = $dataSenderEmail;
         }
 
-        $mailSender->expects(static::once())
+        $mailSender->expects($this->once())
             ->method('send')
             ->with(static::callback(function (Email $mail) use ($expected, $data): bool {
                 $from = $mail->getFrom();
@@ -201,7 +201,7 @@ class MailServiceTest extends TestCase
             'subject' => 'Test subject',
         ];
 
-        $mailSender->expects(static::once())
+        $mailSender->expects($this->once())
             ->method('send')
             ->with(static::callback(function (Email $mail): bool {
                 $from = $mail->getFrom();
@@ -250,7 +250,7 @@ class MailServiceTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $mailSender->expects(static::once())
+        $mailSender->expects($this->once())
             ->method('send')
             ->with(static::callback(function (Email $mail) use ($salesChannel, $context): bool {
                 $from = $mail->getFrom();

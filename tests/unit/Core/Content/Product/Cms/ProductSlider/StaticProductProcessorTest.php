@@ -166,6 +166,6 @@ class StaticProductProcessorTest extends TestCase
 
     private function hideUnavailableProducts(bool $value): void
     {
-        $this->configService->expects(static::once())->method('get')->willReturn($value);
+        $this->configService->expects($this->once())->method('get')->willReturn($value);
     }
 }

@@ -44,10 +44,13 @@
                     size="default"
                 >
                     {{ $tc('global.default.add') }}
-                    <mt-icon
-                        name="regular-chevron-down-xs"
-                        size="16"
-                    />
+
+                    <template #iconBack>
+                        <mt-icon
+                            name="regular-chevron-down-xs"
+                            size="16"
+                        />
+                    </template>
                 </mt-button>
             </template>
 

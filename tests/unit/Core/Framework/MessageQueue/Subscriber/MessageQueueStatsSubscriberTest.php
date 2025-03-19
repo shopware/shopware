@@ -64,13 +64,13 @@ class MessageQueueStatsSubscriberTest extends TestCase
 
     protected function handleCommonExpectations(Envelope $envelope, bool $increment): void
     {
-        $this->gatewayRegistry->expects(static::once())
+        $this->gatewayRegistry->expects($this->once())
             ->method('get')
             ->with(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL)
             ->willReturn($this->incrementer);
 
         $method = $increment ? 'increment' : 'decrement';
-        $this->incrementer->expects(static::once())
+        $this->incrementer->expects($this->once())
             ->method($method)
             ->with('message_queue_stats', $envelope->getMessage()::class);
     }

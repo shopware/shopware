@@ -34,7 +34,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
 
         $client = $this->createMock(Client::class);
         // client should not be used if limit is 0
-        $client->expects(static::never())
+        $client->expects($this->never())
             ->method('search');
 
         $helper = $this->createMock(ElasticsearchHelper::class);
@@ -76,7 +76,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
 
         $client = $this->createMock(Client::class);
         // client should not be used if limit is 0
-        $client->expects(static::never())
+        $client->expects($this->never())
             ->method('search');
 
         $helper = $this->createMock(ElasticsearchHelper::class);
@@ -115,7 +115,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
 
         $client = $this->createMock(Client::class);
 
-        $client->expects(static::once())
+        $client->expects($this->once())
             ->method('search')->with([
                 'index' => '',
                 'track_total_hits' => true,
@@ -163,7 +163,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
 
         $client = $this->createMock(Client::class);
 
-        $client->expects(static::once())
+        $client->expects($this->once())
             ->method('search')->with([
                 'index' => '',
                 'track_total_hits' => false,
@@ -210,7 +210,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
 
         $client = $this->createMock(Client::class);
 
-        $client->expects(static::once())
+        $client->expects($this->once())
             ->method('search')->with([
                 'index' => '',
                 'track_total_hits' => false,
@@ -262,7 +262,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
 
         $client = $this->createMock(Client::class);
 
-        $client->expects(static::once())
+        $client->expects($this->once())
             ->method('search')->with([
                 'index' => '',
                 'track_total_hits' => false,
@@ -328,12 +328,12 @@ class ElasticsearchEntitySearcherTest extends TestCase
 
         $client = $this->createMock(Client::class);
         // client should not be used if limit is 0
-        $client->expects(static::once())
+        $client->expects($this->once())
             ->method('search')
             ->willThrowException(new NoNodesAvailableException());
 
         $helper = $this->createMock(ElasticsearchHelper::class);
-        $helper->expects(static::once())->method('logAndThrowException');
+        $helper->expects($this->once())->method('logAndThrowException');
         $helper->method('allowSearch')->willReturn(true);
 
         $searcher = new ElasticsearchEntitySearcher(

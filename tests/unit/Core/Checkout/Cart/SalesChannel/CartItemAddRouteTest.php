@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartItemAddRoute;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  */
 #[CoversClass(CartItemAddRoute::class)]
+#[Package('checkout')]
 class CartItemAddRouteTest extends TestCase
 {
     public function testRateLimitationWithoutIp(): void
@@ -81,7 +83,7 @@ class CartItemAddRouteTest extends TestCase
     {
         $rateLimiter = $this->createMock(RateLimiter::class);
         $rateLimiter
-            ->expects(static::exactly($expectedCacheKey === null ? 0 : 1))
+            ->expects($this->exactly($expectedCacheKey === null ? 0 : 1))
             ->method('ensureAccepted')
             ->willReturnCallback(function (string $route, string $key) use ($expectedCacheKey): void {
                 static::assertSame($route, RateLimiter::CART_ADD_LINE_ITEM);
@@ -90,7 +92,7 @@ class CartItemAddRouteTest extends TestCase
 
         $lineItemFactory = $this->createMock(LineItemFactoryRegistry::class);
         $lineItemFactory
-            ->expects(static::atLeastOnce())
+            ->expects($this->atLeastOnce())
             ->method('create')
             ->willReturnCallback(
                 fn ($dataBag): LineItem => new LineItem($dataBag['id'], $dataBag['type'], $dataBag['referencedId'] ?? null, $dataBag['quantity'])

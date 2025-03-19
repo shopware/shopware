@@ -279,7 +279,7 @@ class PluginLifecycleServiceTest extends TestCase
     {
         $assetService = $this->createMock(AssetService::class);
         $assetService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('copyAssetsFromBundle');
 
         $service = new PluginLifecycleService(

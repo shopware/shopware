@@ -51,12 +51,12 @@ class SitemapExporterTest extends TestCase
         $urlResult = new UrlResult($urls, null);
 
         $customerUrlProvider = $this->createMock(CustomUrlProvider::class);
-        $customerUrlProvider->expects(static::once())->method('getUrls')->willReturn($urlResult);
+        $customerUrlProvider->expects($this->once())->method('getUrls')->willReturn($urlResult);
 
         $sitemapHandler1 = $this->createMock(SitemapHandleInterface::class);
         $sitemapHandler2 = $this->createMock(SitemapHandleInterface::class);
         $sitemapHandlerFactory = $this->createMock(SitemapHandleFactoryInterface::class);
-        $sitemapHandlerFactory->expects(static::exactly(2))
+        $sitemapHandlerFactory->expects($this->exactly(2))
             ->method('create')
             ->willReturnOnConsecutiveCalls(
                 $sitemapHandler1,
@@ -105,8 +105,8 @@ class SitemapExporterTest extends TestCase
             $expectedUrls[] = $expectedUrl;
         }
 
-        $sitemapHandler1->expects(static::once())->method('write')->with($expectedUrls);
-        $sitemapHandler2->expects(static::once())->method('write')->with($expectedUrls);
+        $sitemapHandler1->expects($this->once())->method('write')->with($expectedUrls);
+        $sitemapHandler2->expects($this->once())->method('write')->with($expectedUrls);
         $exporter->generate($salesChannelContext);
     }
 }

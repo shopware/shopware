@@ -35,7 +35,7 @@ class LanguageLocaleCodeProviderTest extends TestCase
 
     public function testGetLocaleForLanguageId(): void
     {
-        $this->languageLoader->expects(static::once())->method('loadLanguages')->willReturn($this->createData());
+        $this->languageLoader->expects($this->once())->method('loadLanguages')->willReturn($this->createData());
 
         static::assertEquals('en-GB', $this->languageLocaleProvider->getLocaleForLanguageId($this->ids->get('language-en')));
         static::assertEquals('de-DE', $this->languageLocaleProvider->getLocaleForLanguageId($this->ids->get('language-de')));
@@ -45,7 +45,7 @@ class LanguageLocaleCodeProviderTest extends TestCase
     public function testGetLocaleForLanguageIdThrowsWhenLanguageIsNotFound(): void
     {
         static::expectException(LocaleException::class);
-        $this->languageLoader->expects(static::once())->method('loadLanguages')->willReturn($this->createData());
+        $this->languageLoader->expects($this->once())->method('loadLanguages')->willReturn($this->createData());
 
         $this->languageLocaleProvider->getLocaleForLanguageId(Uuid::randomHex() . 'do_not_find_me');
     }
@@ -53,7 +53,7 @@ class LanguageLocaleCodeProviderTest extends TestCase
     public function testGetLocaleForLanguageIdThrowsWhenLoaderIsReset(): void
     {
         $this->languageLoader
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('loadLanguages')
             ->willReturn($this->createData());
 
@@ -64,7 +64,7 @@ class LanguageLocaleCodeProviderTest extends TestCase
 
     public function testGetLocalesForLanguageIds(): void
     {
-        $this->languageLoader->expects(static::once())->method('loadLanguages')->willReturn($this->createData());
+        $this->languageLoader->expects($this->once())->method('loadLanguages')->willReturn($this->createData());
 
         static::assertEquals([
             $this->ids->get('language-en') => 'en-GB',

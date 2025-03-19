@@ -46,7 +46,7 @@ import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
 import flushPromises from '../_helper_/flushPromises';
 import wrapTestComponent from '../_helper_/componentWrapper';
 import 'blob-polyfill';
-import { sendTimeoutExpired } from '../_helper_/allowedErrors';
+import { sendTimeoutExpired, deprecatedTabComponent, deprecatedPopoverComponent } from '../_helper_/allowedErrors';
 import findByText from '../_helper_/find-by-text';
 import findByLabel from '../_helper_/find-by-label';
 import findByPlaceholder from '../_helper_/find-by-placeholder';
@@ -407,6 +407,8 @@ global.allowedErrors = [
     },
 
     sendTimeoutExpired,
+    deprecatedTabComponent,
+    deprecatedPopoverComponent,
 ];
 
 global.flushPromises = flushPromises;

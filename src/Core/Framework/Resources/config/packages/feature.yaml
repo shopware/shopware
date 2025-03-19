@@ -31,10 +31,6 @@ shopware:
         major: false
         toggleable: true
         description: "Experimental! Enable OpenTelemetry metrics"
-      - name: ENABLE_METEOR_COMPONENTS
-        default: false
-        major: false
-        toggleable: false
       - name: FLOW_EXECUTION_AFTER_BUSINESS_PROCESS
         default: false
         major: false

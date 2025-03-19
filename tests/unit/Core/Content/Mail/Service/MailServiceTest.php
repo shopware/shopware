@@ -100,7 +100,7 @@ class MailServiceTest extends TestCase
             $context
         );
 
-        $this->salesChannelRepository->expects(static::once())->method('search')->willReturn($salesChannelResult);
+        $this->salesChannelRepository->expects($this->once())->method('search')->willReturn($salesChannelResult);
 
         $data = [
             'recipients' => [],
@@ -118,9 +118,9 @@ class MailServiceTest extends TestCase
             ->to('me@shopware.com')
             ->from(new Address($data['senderEmail']));
 
-        $this->mailFactory->expects(static::once())->method('create')->willReturn($email);
-        $this->templateRenderer->expects(static::exactly(4))->method('render')->willReturn('');
-        $this->eventDispatcher->expects(static::exactly(3))->method('dispatch')->willReturnOnConsecutiveCalls(
+        $this->mailFactory->expects($this->once())->method('create')->willReturn($email);
+        $this->templateRenderer->expects($this->exactly(4))->method('render')->willReturn('');
+        $this->eventDispatcher->expects($this->exactly(3))->method('dispatch')->willReturnOnConsecutiveCalls(
             static::isInstanceOf(MailBeforeValidateEvent::class),
             static::isInstanceOf(MailBeforeSentEvent::class),
             static::isInstanceOf(MailSentEvent::class)
@@ -147,7 +147,7 @@ class MailServiceTest extends TestCase
             $context
         );
 
-        $this->salesChannelRepository->expects(static::once())->method('search')->willReturn($salesChannelResult);
+        $this->salesChannelRepository->expects($this->once())->method('search')->willReturn($salesChannelResult);
 
         $data = [
             'recipients' => [],
@@ -165,12 +165,12 @@ class MailServiceTest extends TestCase
             ->to($data['senderEmail'])
             ->from(new Address($data['senderEmail']));
 
-        $this->mailFactory->expects(static::never())->method('create')->willReturn($email);
+        $this->mailFactory->expects($this->never())->method('create')->willReturn($email);
         $beforeValidateEvent = null;
         $mailErrorEvent = null;
 
-        $this->logger->expects(static::once())->method('log')->with(Level::Warning);
-        $this->eventDispatcher->expects(static::exactly(2))
+        $this->logger->expects($this->once())->method('log')->with(Level::Warning);
+        $this->eventDispatcher->expects($this->exactly(2))
             ->method('dispatch')
             ->willReturnCallback(function (Event $event) use (&$beforeValidateEvent, &$mailErrorEvent) {
                 if ($event instanceof MailBeforeValidateEvent) {
@@ -184,7 +184,7 @@ class MailServiceTest extends TestCase
                 return $event;
             });
 
-        $this->templateRenderer->expects(static::exactly(1))->method('render')->willThrowException(new \Exception('cannot render'));
+        $this->templateRenderer->expects($this->exactly(1))->method('render')->willThrowException(new \Exception('cannot render'));
 
         $email = $this->mailService->send($data, Context::createDefaultContext());
 
@@ -221,7 +221,7 @@ class MailServiceTest extends TestCase
             $context
         );
 
-        $this->salesChannelRepository->expects(static::once())->method('search')->willReturn($salesChannelResult);
+        $this->salesChannelRepository->expects($this->once())->method('search')->willReturn($salesChannelResult);
 
         $data = [
             'recipients' => [],
@@ -232,8 +232,8 @@ class MailServiceTest extends TestCase
             'salesChannelId' => $salesChannelId,
         ];
 
-        $this->logger->expects(static::once())->method('log')->with(Level::Error);
-        $this->eventDispatcher->expects(static::exactly(4))->method('dispatch')->willReturnOnConsecutiveCalls(
+        $this->logger->expects($this->once())->method('log')->with(Level::Error);
+        $this->eventDispatcher->expects($this->exactly(4))->method('dispatch')->willReturnOnConsecutiveCalls(
             static::isInstanceOf(MailBeforeValidateEvent::class),
             static::isInstanceOf(MailErrorEvent::class),
             static::isInstanceOf(MailBeforeSentEvent::class),
@@ -246,7 +246,7 @@ class MailServiceTest extends TestCase
             ->to('test@shopware.com')
             ->from(new Address('test@shopware.com'));
 
-        $this->mailFactory->expects(static::once())->method('create')->willReturn($email);
+        $this->mailFactory->expects($this->once())->method('create')->willReturn($email);
 
         $email = $this->mailService->send($data, Context::createDefaultContext());
 

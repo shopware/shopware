@@ -99,7 +99,7 @@ class DocumentMergerTest extends TestCase
         $expectedBlob = 'expected blob';
 
         $mockFpdi = $this->getMockBuilder(Fpdi::class)->onlyMethods(['Output'])->getMock();
-        $mockFpdi->expects(static::once())->method('OutPut')->willReturn($expectedBlob);
+        $mockFpdi->expects($this->once())->method('OutPut')->willReturn($expectedBlob);
 
         $documentMerger = new DocumentMerger(
             $this->documentRepository,
@@ -140,7 +140,7 @@ class DocumentMergerTest extends TestCase
     public function testMergeWithoutStaticMedia(): void
     {
         $mockGenerator = $this->getMockBuilder(DocumentGenerator::class)->disableOriginalConstructor()->onlyMethods(['generate'])->getMock();
-        $mockGenerator->expects(static::once())->method('generate')->willReturn(new DocumentGenerationResult());
+        $mockGenerator->expects($this->once())->method('generate')->willReturn(new DocumentGenerationResult());
 
         $documentMerger = new DocumentMerger(
             $this->documentRepository,
@@ -197,14 +197,14 @@ class DocumentMergerTest extends TestCase
 
         $mockFpdi = $this->getMockBuilder(Fpdi::class)->onlyMethods(['Output', 'setSourceFile', 'importPage'])->getMock();
 
-        $mockFpdi->expects(static::any())->method('setSourceFile')->willReturn($numDocs);
-        $mockFpdi->expects(static::any())->method('importPage')->willReturn('');
+        $mockFpdi->expects($this->any())->method('setSourceFile')->willReturn($numDocs);
+        $mockFpdi->expects($this->any())->method('importPage')->willReturn('');
 
         // Only use merge when merging more than 1 documents
         if ($numDocs > 1 && $withMedia) {
-            $mockFpdi->expects(static::once())->method('OutPut')->willReturn($expectedBlob);
+            $mockFpdi->expects($this->once())->method('OutPut')->willReturn($expectedBlob);
         } else {
-            $mockFpdi->expects(static::exactly(0))->method('OutPut')->willReturn($expectedBlob);
+            $mockFpdi->expects($this->exactly(0))->method('OutPut')->willReturn($expectedBlob);
         }
 
         $documentMerger = new DocumentMerger(

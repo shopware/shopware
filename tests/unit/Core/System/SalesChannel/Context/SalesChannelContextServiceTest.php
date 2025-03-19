@@ -42,7 +42,7 @@ class SalesChannelContextServiceTest extends TestCase
 
         $expiredToken = Uuid::randomHex();
 
-        $factory->expects(static::once())
+        $factory->expects($this->once())
             ->method('create')
             ->with(
                 static::logicalNot(static::equalTo($expiredToken)),
@@ -74,7 +74,7 @@ class SalesChannelContextServiceTest extends TestCase
         $persister->method('load')->willReturn(['expired' => false, SalesChannelContextService::CUSTOMER_ID => $customerId]);
         $noneExpiringToken = Uuid::randomHex();
 
-        $factory->expects(static::once())
+        $factory->expects($this->once())
             ->method('create')
             ->with(
                 $noneExpiringToken,
@@ -102,13 +102,13 @@ class SalesChannelContextServiceTest extends TestCase
         $persister->method('load')->willReturn($session);
 
         $factory = $this->createMock(SalesChannelContextFactory::class);
-        $factory->expects(static::once())
+        $factory->expects($this->once())
             ->method('create')
             ->with($token, TestDefaults::SALES_CHANNEL, $session)
             ->willReturn($context);
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $dispatcher->expects(static::once())
+        $dispatcher->expects($this->once())
             ->method('dispatch')
             ->with(new SalesChannelContextCreatedEvent($context, $token, $session));
 

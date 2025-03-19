@@ -113,5 +113,6 @@
 |`app.deleted` | Fires when an app is deleted | - | 
 |`app.installed` | Fires when an app is installed | - | 
 |`app.updated` | Fires when an app is updated | - | 
+|`app.permissions.updated` | Fires when an apps permissions were updated with a list of the currently accepted permissions, eg after new were accepted or revoked | - | 
 |`shopware.updated` | Fires after an shopware update has been finished | - | 
 |`app.config.changed` | Fires when a system config value is changed | `system_config:read` | 

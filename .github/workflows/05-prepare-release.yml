@@ -30,7 +30,7 @@ jobs:
           fetch-tags: "true"
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@6c489b2fc701c5f9ed70ccebe221b567bee578c0 # 2
+        uses: shivammathur/setup-php@9e72090525849c5e82e596468b86eb55e9cc5401 # 2
         with:
           php-version: 8.2
           coverage: none
@@ -96,7 +96,7 @@ jobs:
       GIT_COMMITTER_NAME: "shopwareBot"
       DEBUG: ${{ github.event.act && '1' || '' }}
     steps:
-      - uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # 4
+      - uses: actions/download-artifact@b14cf4c92620c250e1c074ab0a5800e37df86765 # 4
         with:
           name: context
       - name: Is protected

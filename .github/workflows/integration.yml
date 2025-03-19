@@ -157,7 +157,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@6c489b2fc701c5f9ed70ccebe221b567bee578c0 # 2
+        uses: shivammathur/setup-php@9e72090525849c5e82e596468b86eb55e9cc5401 # 2
         with:
           php-version: "8.2"
 
@@ -188,16 +188,16 @@ jobs:
           fetch-depth: 2
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@6bb031afdd8eb862ea3fc1848194185e076637e5 #  v3.28.11
+        uses: github/codeql-action/init@5f8171a638ada777af81d42b55959a643bb29017 #  v3.28.12
 
         with:
           languages: ${{ matrix.language }}
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@6bb031afdd8eb862ea3fc1848194185e076637e5 #  v3.28.11
+        uses: github/codeql-action/autobuild@5f8171a638ada777af81d42b55959a643bb29017 #  v3.28.12
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@6bb031afdd8eb862ea3fc1848194185e076637e5 #  v3.28.11
+        uses: github/codeql-action/analyze@5f8171a638ada777af81d42b55959a643bb29017 #  v3.28.12
 
   docker:
     runs-on: ubuntu-24.04
@@ -229,7 +229,7 @@ jobs:
       - name: Login into Github Docker Registery
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Build and push
-        uses: docker/build-push-action@ca052bb54ab0790a636c9b5f226502c73d547a25 # 5
+        uses: docker/build-push-action@471d1dc4e07e5cdedd4c2171150001c434f0b7a4 # 5
         if: ${{ !github.ref_protected }}
         with:
           context: .
@@ -237,7 +237,7 @@ jobs:
           tags: ghcr.io/${{ github.repository }}/ci-e2e:${{ github.run_id }}
           file: .gitlab/docker/dev/Dockerfile
       - name: Build and push trunk
-        uses: docker/build-push-action@ca052bb54ab0790a636c9b5f226502c73d547a25 # 5
+        uses: docker/build-push-action@471d1dc4e07e5cdedd4c2171150001c434f0b7a4 # 5
         if: ${{ github.ref_protected }}
         with:
           context: .

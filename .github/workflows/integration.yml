@@ -16,24 +16,23 @@ on:
 jobs:
   acceptance:
     runs-on: ubuntu-24.04
-    if: ${{ github.event_name != 'pull_request' }}
     strategy:
       fail-fast: false
       matrix:
         name:
           - 'Platform'
           - 'Install'
-        major:
+        accessibility:
           - ''
         php-version:
           - '8.2'
           - '8.4'
         include:
           - name: 'Platform'
-            major: 'major'
+            accessibility: 'accessibility'
             php-version: 8.2
           - name: 'Platform'
-            major: 'major'
+            accessibility: 'accessibility'
             php-version: 8.4
     env:
       SHOPWARE_HTTP_CACHE_ENABLED: 0
@@ -42,6 +41,8 @@ jobs:
       COMPOSER_ROOT_VERSION: 6.6.9999999-dev
       MAILER_DSN: "smtp://localhost:1025"
       MAILPIT_BASE_URL: "http://localhost:8025"
+      ACCESSIBILITY_TWEAKS: ${{ matrix.accessibility == 'accessibility' && 'true' }}
+      USE_CURRENTS: ${{ inputs.nightly == 'true' && matrix.php-version == '8.4' && matrix.accessibility && 'true' || 'false' }}
     services:
       database:
         image: mysql:8.0
@@ -51,10 +52,6 @@ jobs:
         ports:
           - "3306:3306"
         options: --health-cmd="mysqladmin ping"
-      redis: # Redis is required since cache rework
-        image: ${{ matrix.major == 'major' && 'redis:alpine' || '' }}
-        ports:
-          - "6379:6379"
       mailpit:
         image: axllent/mailpit
         ports:
@@ -62,17 +59,6 @@ jobs:
           - "8025:8025"
 
     steps:
-      - name: Define environment for major testing
-        shell: bash
-        if: ${{ matrix.major == 'major' }}
-        run: |
-          echo "Workflow Ref: ${{ github.workflow_ref }}"
-          echo "V6_7_0_0=1" >> $GITHUB_ENV
-          echo "FEATURE_ALL=major" >> $GITHUB_ENV
-          echo "DISABLE_VUE_COMPAT=0" >> $GITHUB_ENV
-          echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
-          echo "ADMIN_VITE=1" >> $GITHUB_ENV
-
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
@@ -83,7 +69,6 @@ jobs:
           install-admin: ${{ matrix.name != 'Install' }}
           install-storefront: ${{ matrix.name != 'Install' }}
           env: prod
-          composer-root-version: ${{ matrix.major == 'major' && '6.7.9999999-dev' || '.auto' }}
           php-version: ${{ matrix.php-version }}
 
       - name: Build js
@@ -119,30 +104,27 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run your tests with reporting
-        if: ${{ contains(github.workflow_ref, 'nightly') }}
+        if: ${{ env.USE_CURRENTS == 'true' }}
         working-directory: tests/acceptance
-        run: |-
-          npx pwc \
-            --ci-build-id "${{ format('{0}-{1}-{2}', github.repository, github.run_id, github.run_attempt) }}${{ matrix.major }}" \
-            --project-id ${{ secrets.CURRENTS_PROJECT_ID }} \
-            --key ${{ secrets.CURRENTS_RECORD_KEY }} \
-            -- --project ${{ matrix.name }} --trace=on
+        env:
+          CURRENTS_RECORD_KEY: "${{ secrets.CURRENTS_RECORD_KEY }}"
+          CURRENTS_PROJECT_ID: "${{ secrets.CURRENTS_PROJECT_ID_6_6 }}"
+        run: npx pwc -- --project=${{ matrix.name }} --trace=on
 
       - name: Run your tests
-        if: ${{ !contains(github.workflow_ref, 'nightly') }}
+        if: ${{ env.USE_CURRENTS != 'true' }}
         working-directory: tests/acceptance
         run: npx playwright test --project=${{ matrix.name }} ${{ matrix.name == 'Install' && '--trace=on' || '' }}
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report-${{ matrix.name }}-php${{ matrix.php-version }}-${{ matrix.major == 'major' && '-major' || '' }}
+          name: playwright-report-${{ matrix.name }}-php${{ matrix.php-version }}-${{ matrix.accessibility == 'accessibility' && '-accessibility' || '' }}
           path: tests/acceptance/test-results/
           retention-days: 3
 
   phpunit-matrix:
     runs-on: ubuntu-24.04
-    if: ${{ github.event_name != 'pull_request' }}
     outputs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
     steps: 
@@ -158,8 +140,7 @@ jobs:
 
   phpunit:
     name: "${{ matrix.php}} ${{ matrix.test.testsuite }}${{ matrix.test.path }} ${{ matrix.db }}"
-    if: ${{ github.event_name != 'pull_request' }}
-    needs: 
+    needs:
       - phpunit-matrix
     runs-on: ubuntu-24.04
     strategy: ${{ fromJson(needs.phpunit-matrix.outputs.matrix) }}
@@ -249,7 +230,6 @@ jobs:
         run: ./local-php-security-checker
   code-ql:
     name: Analyze
-    if: ${{ github.repository == 'shopware/shopware' }}
     runs-on: ubuntu-24.04
 
     strategy:
@@ -277,7 +257,6 @@ jobs:
   tested-update-versions:
     name: tested-versions
     runs-on: ubuntu-24.04
-    if: ${{ github.event_name != 'pull_request' }}
     outputs:
       first-version: ${{ steps.versions.outputs.first-version }}
       latest-version: ${{ steps.versions.outputs.latest-version }}
@@ -291,7 +270,6 @@ jobs:
   acceptance-update:
     needs: tested-update-versions
     runs-on: ubuntu-24.04
-    if: ${{ github.event_name != 'pull_request' }}
     strategy:
       fail-fast: false
       matrix:
@@ -379,7 +357,10 @@ jobs:
       - name: Run update tests with reporting
         if: ${{ contains(github.workflow_ref, 'nightly') }}
         working-directory: new-shopware/tests/acceptance
-        run: npx pwc --project-id ${{ secrets.CURRENTS_PROJECT_ID }} --key ${{ secrets.CURRENTS_RECORD_KEY }} -- --project=Update --trace=on
+        env:
+          CURRENTS_RECORD_KEY: "${{ secrets.CURRENTS_RECORD_KEY }}"
+          CURRENTS_PROJECT_ID: "${{ secrets.CURRENTS_PROJECT_ID_6_6 }}"
+        run: npx pwc -- --project=Update --trace=on
       - name: Run update tests
         if: ${{ !contains(github.workflow_ref, 'nightly') }}
         working-directory: new-shopware/tests/acceptance
@@ -395,7 +376,6 @@ jobs:
   blue-green-66-67:
     name: "PHP blue green 6.6 -> 6.7 -> 6.6"
     runs-on: ubuntu-24.04
-    if: ${{ github.event_name != 'pull_request' }}
     env:
       APP_ENV: test
       APP_URL: http://localhost:8000

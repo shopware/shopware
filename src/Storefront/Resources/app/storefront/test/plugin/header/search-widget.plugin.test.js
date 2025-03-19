@@ -154,6 +154,24 @@ describe('ListingPlugin tests', () => {
         expect(searchPlugin._suggest).toHaveBeenCalled();
         expect(searchPlugin.$emitter.publish).toHaveBeenCalledWith('handleInputEvent', { "value": "abcd" });
     });
+
+    test('should add d-none class to search results on close button focus', () => {
+        document.body.innerHTML = `
+            <form class="js-search-form" data-url="/">
+                <input type="search" name="search" autocapitalize="off" autocomplete="off">
+                <button type="submit" class="btn header-search-btn">Search</button>
+                <button type="button" class="btn header-close-btn js-search-close-btn d-none"></button>
+                <div class="search-suggest js-search-result"></div>
+            </form>
+        `;
+
+        const formElement = document.querySelector('.js-search-form');
+        searchPlugin = new SearchPlugin(formElement);
+
+        const searchResult = document.querySelector('.js-search-result');
+        expect(searchResult.classList.contains('d-none')).toBe(false);
+
+        searchPlugin._closeButton.focus();
+        expect(searchResult.classList.contains('d-none')).toBe(true);
+    });
 });
-
-

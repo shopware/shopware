@@ -6,8 +6,7 @@ import template from './sw-order-general-info.html.twig';
  */
 
 const { Mixin, Store } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
-const { cloneDeep } = Shopware.Utils.object;
+const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -189,17 +188,7 @@ export default {
 
     methods: {
         createdComponent() {
-            const tags = cloneDeep(this.order.tags);
-
-            this.tagCollection = new EntityCollection(
-                this.order.tags.source,
-                this.order.tags.entity,
-                Shopware.Context.api,
-                null,
-                tags,
-                tags.length,
-            );
-
+            this.tagCollection = this.order.tags;
             this.getLiveOrder();
             this.getTransitionOptions();
         },

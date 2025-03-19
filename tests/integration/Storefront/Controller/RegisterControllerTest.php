@@ -81,7 +81,7 @@ class RegisterControllerTest extends TestCase
 
         $mock = $this->createMock(SystemConfigService::class);
 
-        $mock->expects(static::any())
+        $mock->expects($this->any())
             ->method('get')
             ->willReturnCallback(function (string $key) use ($config) {
                 if ($key === 'core.loginRegistration.requirePasswordConfirmation') {

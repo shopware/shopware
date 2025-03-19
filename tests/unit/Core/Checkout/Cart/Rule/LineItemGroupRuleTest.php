@@ -49,7 +49,7 @@ class LineItemGroupRuleTest extends TestCase
         $cart = new Cart('test');
         $lineItemGroupBuilder = $this->createMock(LineItemGroupBuilder::class);
         $result = new LineItemGroupBuilderResult();
-        $lineItemGroupBuilder->expects(static::once())->method('findGroupPackages')->willReturn($result);
+        $lineItemGroupBuilder->expects($this->once())->method('findGroupPackages')->willReturn($result);
         $cart->getData()->set(LineItemGroupBuilder::class, $lineItemGroupBuilder);
         $scope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
 
@@ -64,8 +64,8 @@ class LineItemGroupRuleTest extends TestCase
         $cart = new Cart('test');
         $lineItemGroupBuilder = $this->createMock(LineItemGroupBuilder::class);
         $result = $this->createMock(LineItemGroupBuilderResult::class);
-        $result->expects(static::once())->method('hasFoundItems')->willReturn(true);
-        $lineItemGroupBuilder->expects(static::once())->method('findGroupPackages')->willReturn($result);
+        $result->expects($this->once())->method('hasFoundItems')->willReturn(true);
+        $lineItemGroupBuilder->expects($this->once())->method('findGroupPackages')->willReturn($result);
         $cart->getData()->set(LineItemGroupBuilder::class, $lineItemGroupBuilder);
         $scope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
 

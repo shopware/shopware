@@ -55,11 +55,11 @@ class AssetInstallCommandTest extends TestCase
         $appLoader = $this->createMock(ActiveAppsLoader::class);
         $appLoader->method('getActiveApps')->willReturn([]);
 
-        $service->expects(static::once())
+        $service->expects($this->once())
             ->method('copyAssetsFromBundle')
             ->with('ExampleBundle', true);
 
-        $service->expects(static::once())
+        $service->expects($this->once())
             ->method('copyAssets')
             ->with(static::isInstanceOf(Installer::class), true);
 

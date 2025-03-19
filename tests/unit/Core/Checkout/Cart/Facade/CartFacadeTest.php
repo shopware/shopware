@@ -107,7 +107,7 @@ class CartFacadeTest extends TestCase
         $cart->setBehavior(new CartBehavior());
 
         $helper = $this->createMock(CartFacadeHelper::class);
-        $helper->expects(static::once())->method('calculate');
+        $helper->expects($this->once())->method('calculate');
 
         $facade = new CartFacade(
             $helper,

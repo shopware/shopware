@@ -43,7 +43,7 @@ class ProductGatewayTest extends TestCase
         $validator = static::callback(static fn ($subject) => $subject instanceof ProductGatewayCriteriaEvent);
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher->expects(static::once())->method('dispatch')->with($validator);
+        $eventDispatcher->expects($this->once())->method('dispatch')->with($validator);
 
         $gateway = new ProductGateway(
             $repository,

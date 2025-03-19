@@ -46,7 +46,7 @@ class DynamicFieldFactoryTest extends TestCase
 
         $factory = new DynamicFieldFactory();
 
-        $this->container->expects(static::once())
+        $this->container->expects($this->once())
             ->method('get')
             ->willReturn($this->createMock(DefinitionInstanceRegistry::class));
 

@@ -60,7 +60,7 @@ class RegisterConfirmRouteTest extends TestCase
         $newSalesChannelContext = $this->createMock(SalesChannelContext::class);
         $newSalesChannelContext->method('getCustomer')->willReturn(new CustomerEntity());
 
-        $this->salesChannelContextService = $this->createStub(SalesChannelContextServiceInterface::class);
+        $this->salesChannelContextService = static::createStub(SalesChannelContextServiceInterface::class);
         $this->salesChannelContextService
             ->method('get')
             ->willReturn($newSalesChannelContext);
@@ -78,7 +78,7 @@ class RegisterConfirmRouteTest extends TestCase
     {
         $customer = $this->mockCustomer();
 
-        $this->customerRepository->expects(static::exactly(2))
+        $this->customerRepository->expects($this->exactly(2))
             ->method('search')
             ->willReturn(
                 new EntitySearchResult(
@@ -101,7 +101,7 @@ class RegisterConfirmRouteTest extends TestCase
         $customer = $this->mockCustomer();
         $customer->setDoubleOptInRegistration(false);
 
-        $this->customerRepository->expects(static::once())
+        $this->customerRepository->expects($this->once())
             ->method('search')
             ->willReturn(
                 new EntitySearchResult(
@@ -114,7 +114,7 @@ class RegisterConfirmRouteTest extends TestCase
                 )
             );
 
-        $this->validator->expects(static::once())
+        $this->validator->expects($this->once())
             ->method('validate')
             ->willReturnCallback(function (array $data, DataValidationDefinition $definition): void {
                 $properties = $definition->getProperties();
@@ -136,7 +136,7 @@ class RegisterConfirmRouteTest extends TestCase
         $customer->setActive(true);
         $customer->setDoubleOptInConfirmDate(new \DateTime());
 
-        $this->customerRepository->expects(static::once())
+        $this->customerRepository->expects($this->once())
             ->method('search')
             ->willReturn(
                 new EntitySearchResult(
@@ -158,7 +158,7 @@ class RegisterConfirmRouteTest extends TestCase
         $customer = $this->mockCustomer();
         $customer->setDoubleOptInConfirmDate(new \DateTime());
 
-        $this->customerRepository->expects(static::once())
+        $this->customerRepository->expects($this->once())
             ->method('search')
             ->willReturn(
                 new EntitySearchResult(

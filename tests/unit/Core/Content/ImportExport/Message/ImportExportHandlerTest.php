@@ -198,16 +198,16 @@ class ImportExportHandlerTest extends TestCase
 
         $progress = new Progress($logEntity->getId(), $logEntity->getState());
 
-        $factory->expects(static::once())
+        $factory->expects($this->once())
             ->method('create')
             ->willReturn($importExport);
 
-        $importExport->expects(static::once())
+        $importExport->expects($this->once())
             ->method('getLogEntity')
             ->willReturn($logEntity);
 
         if ($processState !== Progress::STATE_ABORTED) {
-            $importExport->expects(static::once())
+            $importExport->expects($this->once())
                 ->method($method)
                 ->willReturn($progress);
         }

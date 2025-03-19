@@ -104,7 +104,7 @@ class RecalculationServiceTest extends TestCase
         );
 
         $entityRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('upsert')
             ->willReturnCallback(function (array $data, Context $context) use ($orderEntity) {
                 static::assertSame($data[0]['stateId'], $orderEntity->getStateId());
@@ -125,7 +125,7 @@ class RecalculationServiceTest extends TestCase
             });
 
         $this->orderConverter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('convertToCart')
             ->willReturnCallback(function (OrderEntity $order, Context $context) use ($cart) {
                 static::assertSame($order->getTaxStatus(), CartPrice::TAX_STATE_FREE);
@@ -135,7 +135,7 @@ class RecalculationServiceTest extends TestCase
             });
 
         $this->orderConverter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('convertToOrder')
             ->willReturnCallback(function (Cart $cart, SalesChannelContext $context, OrderConversionContext $conversionContext) {
                 $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -151,7 +151,7 @@ class RecalculationServiceTest extends TestCase
             });
 
         $this->cartRuleLoader
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('loadByCart')
             ->willReturn(
                 new RuleLoaderResult(
@@ -193,7 +193,7 @@ class RecalculationServiceTest extends TestCase
         );
 
         $entityRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('upsert')
             ->willReturnCallback(function (array $data) use ($order) {
                 static::assertSame($data[0]['stateId'], $order->getStateId());
@@ -245,7 +245,7 @@ class RecalculationServiceTest extends TestCase
         );
 
         $entityRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('upsert')
             ->willReturnCallback(function (array $data) use ($order) {
                 static::assertSame($data[0]['stateId'], $order->getStateId());
@@ -288,7 +288,7 @@ class RecalculationServiceTest extends TestCase
         );
 
         $entityRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('upsert')
             ->willReturnCallback(function (array $data) use ($order) {
                 static::assertSame($data[0]['stateId'], $order->getStateId());
@@ -345,7 +345,7 @@ class RecalculationServiceTest extends TestCase
         );
 
         $entityRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('upsert')
             ->willReturnCallback(function (array $data) use ($order) {
                 static::assertSame($data[0]['stateId'], $order->getStateId());
@@ -381,11 +381,11 @@ class RecalculationServiceTest extends TestCase
         );
 
         $entityRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('upsert');
 
         $this->orderConverter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('convertToOrder')
             ->with(static::anything(), static::anything(), static::callback(static function (OrderConversionContext $context) {
                 return $context->shouldIncludeDeliveries();
@@ -417,7 +417,7 @@ class RecalculationServiceTest extends TestCase
         );
 
         $entityRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('upsert')
             ->willReturnCallback(function (array $data) {
                 static::assertNotNull($data[0]);
@@ -429,7 +429,7 @@ class RecalculationServiceTest extends TestCase
             });
 
         $this->orderConverter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('convertToOrder')
             ->willReturnCallback(function (Cart $cart, SalesChannelContext $context, OrderConversionContext $conversionContext) {
                 $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -471,13 +471,13 @@ class RecalculationServiceTest extends TestCase
 
         $persistentError = $this->createMock(Error::class);
         $persistentError
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('isPersistent')
             ->willReturn(true);
 
         $nonPersistentError = $this->createMock(Error::class);
         $nonPersistentError
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('isPersistent')
             ->willReturn(false);
 
@@ -486,17 +486,17 @@ class RecalculationServiceTest extends TestCase
 
         $processorMock = $this->createMock(Processor::class);
         $processorMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('process')
             ->willReturn($cart);
 
         $this->cartRuleLoader
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('loadByCart')
             ->willReturn(new RuleLoaderResult(new Cart('reloaded-cart'), new RuleCollection()));
 
         $this->orderConverter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('convertToOrder')
             ->willReturnCallback(static function (Cart $validatedCart) {
                 static::assertCount(1, $validatedCart->getErrors());

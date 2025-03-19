@@ -351,7 +351,7 @@ class CheckoutControllerTest extends TestCase
 
         $this->configMock->method('get')->willReturn(true);
 
-        $this->logoutRouteMock->expects(static::once())->method('logout');
+        $this->logoutRouteMock->expects($this->once())->method('logout');
 
         $response = $this->controller->finishPage(new Request(), $context, new RequestDataBag());
 
@@ -374,7 +374,7 @@ class CheckoutControllerTest extends TestCase
 
         $this->configMock->method('get')->willReturn(true);
 
-        $this->logoutRouteMock->expects(static::never())->method('logout');
+        $this->logoutRouteMock->expects($this->never())->method('logout');
 
         $response = $this->controller->finishPage(new Request(), $context, new RequestDataBag());
 
@@ -402,7 +402,7 @@ class CheckoutControllerTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
-        $this->orderServiceMock->expects(static::once())->method('createOrder');
+        $this->orderServiceMock->expects($this->once())->method('createOrder');
 
         $response = $this->controller->order(new RequestDataBag(), $context, $request);
 
@@ -419,7 +419,7 @@ class CheckoutControllerTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
-        $this->orderServiceMock->expects(static::once())->method('createOrder')->willThrowException(
+        $this->orderServiceMock->expects($this->once())->method('createOrder')->willThrowException(
             new ConstraintViolationException(new ConstraintViolationList(), [])
         );
 
@@ -437,7 +437,7 @@ class CheckoutControllerTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
-        $this->orderServiceMock->expects(static::once())->method('createOrder')->willThrowException(
+        $this->orderServiceMock->expects($this->once())->method('createOrder')->willThrowException(
             CartException::invalidCart(
                 new ErrorCollection(
                     [
@@ -469,7 +469,7 @@ class CheckoutControllerTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
-        $this->orderServiceMock->expects(static::once())->method('createOrder')->willThrowException(
+        $this->orderServiceMock->expects($this->once())->method('createOrder')->willThrowException(
             PaymentException::unknownPaymentMethodById(Uuid::randomHex())
         );
 
@@ -488,7 +488,7 @@ class CheckoutControllerTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
-        $this->orderServiceMock->expects(static::once())->method('createOrder')->willThrowException(
+        $this->orderServiceMock->expects($this->once())->method('createOrder')->willThrowException(
             CartException::invalidPaymentButOrderStored(Uuid::randomHex())
         );
 
@@ -506,7 +506,7 @@ class CheckoutControllerTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
-        $this->paymentProcessorMock->expects(static::once())->method('pay')->willThrowException(
+        $this->paymentProcessorMock->expects($this->once())->method('pay')->willThrowException(
             PaymentException::syncProcessInterrupted(Uuid::randomHex(), 'error')
         );
 
@@ -524,7 +524,7 @@ class CheckoutControllerTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
-        $this->paymentProcessorMock->expects(static::once())->method('pay')->willThrowException(
+        $this->paymentProcessorMock->expects($this->once())->method('pay')->willThrowException(
             new IllegalTransitionException('open', 'done', ['in_progress', 'canceled'])
         );
 
@@ -542,7 +542,7 @@ class CheckoutControllerTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
-        $this->paymentProcessorMock->expects(static::once())->method('pay')->willThrowException(
+        $this->paymentProcessorMock->expects($this->once())->method('pay')->willThrowException(
             FlowException::transactionFailed(new IllegalTransitionException('open', 'done', ['in_progress', 'canceled']))
         );
 

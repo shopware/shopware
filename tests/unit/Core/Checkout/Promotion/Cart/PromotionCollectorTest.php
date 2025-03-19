@@ -137,7 +137,7 @@ class PromotionCollectorTest extends TestCase
 
     public function testPromotionWithMaxTotalUseIsReachedInEditingOrder(): void
     {
-        $this->connection->expects(static::once())
+        $this->connection->expects($this->once())
             ->method('fetchOne')
             ->willReturn('1');
         $discountId1 = Uuid::randomHex();
@@ -170,7 +170,7 @@ class PromotionCollectorTest extends TestCase
 
     public function testPromotionWithMaxUsePerCustomerIsReachedInEditingOrder(): void
     {
-        $this->connection->expects(static::once())
+        $this->connection->expects($this->once())
             ->method('fetchOne')
             ->willReturn('1');
         $discountId1 = Uuid::randomHex();

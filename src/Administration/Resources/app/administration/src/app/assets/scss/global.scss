@@ -138,3 +138,8 @@ a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .mt-button) {
 .mt-switch.mt-switch--not-bordered {
     min-height: 0;
 }
+
+// TODO: rename selector after https://github.com/shopware/meteor/issues/603
+.field-hint {
+    margin-bottom: 24px;
+}

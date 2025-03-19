@@ -239,7 +239,12 @@ class AppLifecycle extends AbstractAppLifecycle
 
         $this->updateCustomEntities($app, $manifest);
 
-        $this->permissionPersister->updatePrivileges($manifest->getPermissions(), $id);
+        $this->permissionPersister->updatePrivileges(
+            $manifest->getPermissions(),
+            $id,
+            true,
+            $context
+        );
 
         // If the app has no secret yet, but now specifies setup data we do a registration to get an app secret
         // this mostly happens during install, but may happen in the update case if the app previously worked without an external server

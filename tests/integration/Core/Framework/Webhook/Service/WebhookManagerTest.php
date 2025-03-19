@@ -720,7 +720,7 @@ class WebhookManagerTest extends TestCase
             ],
         ]);
 
-        $permissionPersister->updatePrivileges($permissions, $appId);
+        $permissionPersister->updatePrivileges($permissions, $appId, true, Context::createDefaultContext());
 
         $this->appendNewResponse(new Response(200));
 
@@ -990,11 +990,12 @@ class WebhookManagerTest extends TestCase
             $app['aclRole']['id'] = $aclRoleId;
         }
 
-        $this->appRepository->create([$app], Context::createDefaultContext());
+        $context = Context::createDefaultContext();
+        $this->appRepository->create([$app], $context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $app['name']));
-        $app = $this->appRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        $app = $this->appRepository->search($criteria, $context)->getEntities()->first();
 
         static::assertNotNull($app);
 
@@ -1016,7 +1017,7 @@ class WebhookManagerTest extends TestCase
                 'permissions' => $permissions,
             ]);
 
-            $permissionPersister->updatePrivileges($permissions, $appId);
+            $permissionPersister->updatePrivileges($permissions, $appId, true, $context);
         }
     }
 

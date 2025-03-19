@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
@@ -36,20 +35,16 @@ class CustomerProfileValidationFactoryTest extends TestCase
      */
     private array $accountTypes;
 
-    private SalutationDefinition $salutationDefinition;
-
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->accountTypes = [CustomerEntity::ACCOUNT_TYPE_BUSINESS, CustomerEntity::ACCOUNT_TYPE_PRIVATE];
-        $this->salutationDefinition = new SalutationDefinition();
     }
 
     public function testCreateWithSalesChannelContext(): void
     {
         $customerProfileValidationFactory = new CustomerProfileValidationFactory(
-            $this->salutationDefinition,
             $this->createMock(SystemConfigService::class),
             $this->accountTypes,
         );
@@ -69,7 +64,6 @@ class CustomerProfileValidationFactoryTest extends TestCase
         ]);
 
         $customerProfileValidationFactory = new CustomerProfileValidationFactory(
-            $this->salutationDefinition,
             $configService,
             $this->accountTypes,
         );
@@ -92,7 +86,6 @@ class CustomerProfileValidationFactoryTest extends TestCase
         ]);
 
         $customerProfileValidationFactory = new CustomerProfileValidationFactory(
-            $this->salutationDefinition,
             $configService,
             $this->accountTypes,
         );
@@ -115,7 +108,6 @@ class CustomerProfileValidationFactoryTest extends TestCase
         ]);
 
         $customerProfileValidationFactory = new CustomerProfileValidationFactory(
-            $this->salutationDefinition,
             $configService,
             $this->accountTypes,
         );
@@ -132,7 +124,6 @@ class CustomerProfileValidationFactoryTest extends TestCase
     public function testUpdateWithSalesChannelContext(): void
     {
         $customerProfileValidationFactory = new CustomerProfileValidationFactory(
-            $this->salutationDefinition,
             $this->createMock(SystemConfigService::class),
             $this->accountTypes,
         );
@@ -152,7 +143,6 @@ class CustomerProfileValidationFactoryTest extends TestCase
         ]);
 
         $customerProfileValidationFactory = new CustomerProfileValidationFactory(
-            $this->salutationDefinition,
             $configService,
             $this->accountTypes,
         );
@@ -175,7 +165,6 @@ class CustomerProfileValidationFactoryTest extends TestCase
         ]);
 
         $customerProfileValidationFactory = new CustomerProfileValidationFactory(
-            $this->salutationDefinition,
             $configService,
             $this->accountTypes,
         );
@@ -198,7 +187,6 @@ class CustomerProfileValidationFactoryTest extends TestCase
         ]);
 
         $customerProfileValidationFactory = new CustomerProfileValidationFactory(
-            $this->salutationDefinition,
             $configService,
             $this->accountTypes,
         );

@@ -37,7 +37,8 @@ import {
     MtTabs,
     MtTextField,
     MtTextarea,
-    MtToast, MtTextEditor,
+    MtToast,
+    MtTextEditor,
 } from '@shopware-ag/meteor-component-library';
 import {createI18n} from "vue-i18n";
 import aclService from './_mocks_/acl.service.mock';

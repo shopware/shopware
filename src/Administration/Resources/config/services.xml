@@ -145,6 +145,7 @@
 
         <service id="Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollector"/>
 
+        <!-- @deprecated tag:v6.8.0 Will be removed -->
         <service id="Shopware\Administration\Notification\NotificationDefinition">
             <deprecated package="shopware/administration" version="6.8.0" />
         </service>

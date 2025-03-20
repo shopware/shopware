@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Administration\Controller;
+namespace Shopware\Tests\Integration\Core\Framework\Notification\Api;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Notification\NotificationCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Notification\NotificationCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;

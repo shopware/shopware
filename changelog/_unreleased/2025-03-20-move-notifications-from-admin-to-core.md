@@ -6,6 +6,7 @@ title: Move notifications from admin to core
 ___
 # Administration
 * Deprecated `Shopware\Administration\Notification\NotificationCollection`, `Shopware\Administration\Notification\NotificationDefinition` & `Shopware\Administration\Notification\NotificationEntity`
+* Deprecated `Shopware\Administration\Controller\NotificationController`
 ___
 # Upgrade Information
 ## Deprecated admin notification entity + related classes
@@ -15,6 +16,10 @@ We have moved the notification entity, collection and definition to core. You sh
 * `Shopware\Core\Framework\Notification\NotificationCollection`
 * `Shopware\Core\Framework\Notification\NotificationDefinition`
 * `Shopware\Core\Framework\Notification\NotificationEntity`
+
+## Deprecated notification controller
+
+`\Shopware\Administration\Controller\NotificationController` is now moved to core `\Shopware\Core\Framework\Notification\Api\NotificationController` - if you type hint on this class, please update it. The HTTP route is still the same.
 ___
 # Next Major Version Changes
 ## Removed admin notification entity + related classes
@@ -24,3 +29,7 @@ You should update your code to reference the new classes:
 * `Shopware\Core\Framework\Notification\NotificationCollection`
 * `Shopware\Core\Framework\Notification\NotificationDefinition`
 * `Shopware\Core\Framework\Notification\NotificationEntity`
+
+## Removed notification controller
+
+`\Shopware\Administration\Controller\NotificationController` has been moved to core: `\Shopware\Core\Framework\Notification\Api\NotificationController` - if you type hint on this class, please update it. The HTTP route is still the same.

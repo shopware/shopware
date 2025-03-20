@@ -19,7 +19,7 @@ class NotificationExceptionTest extends TestCase
     {
         $exception = NotificationException::invalidAdminSource(SystemSource::class);
 
-        static::assertEquals(InvalidContextSourceException::class, $exception::class);
-        static::assertEquals(ApiException::API_INVALID_CONTEXT_SOURCE, $exception->getErrorCode());
+        static::assertSame(InvalidContextSourceException::class, $exception::class);
+        static::assertSame(ApiException::API_INVALID_CONTEXT_SOURCE, $exception->getErrorCode());
     }
 }

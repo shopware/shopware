@@ -67,7 +67,7 @@ class ShippingMethodRouteTest extends TestCase
 
         $repo = $this->createMock(SalesChannelRepository::class);
         $repo
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->with(static::equalTo($expectedCriteria), $context)
             ->willReturn($result);
@@ -116,7 +116,7 @@ class ShippingMethodRouteTest extends TestCase
 
         $repo = $this->createMock(SalesChannelRepository::class);
         $repo
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->with(static::equalTo($expectedCriteria), $context)
             ->willReturn($result);
@@ -125,7 +125,7 @@ class ShippingMethodRouteTest extends TestCase
 
         $executor = $this->createMock(ScriptExecutor::class);
         $executor
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('execute')
             ->with(static::equalTo($hook));
 

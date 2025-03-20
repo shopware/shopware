@@ -147,15 +147,15 @@ class CaptchaRouteListenerTest extends TestCase
     {
         $captcha = $this->getMockBuilder(AbstractCaptcha::class)->getMock();
 
-        $captcha->expects(static::once())
+        $captcha->expects($this->once())
             ->method('supports')
             ->willReturn($supports);
 
-        $captcha->expects($supports ? static::once() : static::never())
+        $captcha->expects($supports ? $this->once() : $this->never())
             ->method('isValid')
             ->willReturn($isValid);
 
-        $captcha->expects($supports ? static::once() : static::never())
+        $captcha->expects($supports ? $this->once() : $this->never())
             ->method('shouldBreak')
             ->willReturn(true);
 

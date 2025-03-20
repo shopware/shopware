@@ -156,7 +156,7 @@ class EntityTemplateLoaderTest extends TestCase
     public function testTemplateLoadingIsCachedWithoutDatabaseTemplates(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([]);
 

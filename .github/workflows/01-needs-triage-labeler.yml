@@ -10,7 +10,7 @@ jobs:
   label:
     runs-on: ubuntu-24.04
     steps:
-      - uses: srvaroa/labeler@v1.13.0
+      - uses: srvaroa/labeler@0a20eccb8c94a1ee0bed5f16859aece1c45c3e55 # 1.13.0
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         with:

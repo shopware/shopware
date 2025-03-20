@@ -98,7 +98,7 @@ class ThemeServiceTest extends TestCase
     {
         $themeId = Uuid::randomHex();
 
-        $this->themeSalesChannelRepositoryMock->expects(static::once())->method('upsert')->with(
+        $this->themeSalesChannelRepositoryMock->expects($this->once())->method('upsert')->with(
             [[
                 'themeId' => $themeId,
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
@@ -106,11 +106,11 @@ class ThemeServiceTest extends TestCase
             $this->context
         );
 
-        $this->eventDispatcherMock->expects(static::once())->method('dispatch')->with(
+        $this->eventDispatcherMock->expects($this->once())->method('dispatch')->with(
             new ThemeAssignedEvent($themeId, TestDefaults::SALES_CHANNEL)
         );
 
-        $this->themeCompilerMock->expects(static::once())->method('compileTheme')->with(
+        $this->themeCompilerMock->expects($this->once())->method('compileTheme')->with(
             TestDefaults::SALES_CHANNEL,
             $themeId,
             static::anything(),
@@ -128,7 +128,7 @@ class ThemeServiceTest extends TestCase
     {
         $themeId = Uuid::randomHex();
 
-        $this->themeSalesChannelRepositoryMock->expects(static::once())->method('upsert')->with(
+        $this->themeSalesChannelRepositoryMock->expects($this->once())->method('upsert')->with(
             [[
                 'themeId' => $themeId,
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
@@ -136,11 +136,11 @@ class ThemeServiceTest extends TestCase
             $this->context
         );
 
-        $this->eventDispatcherMock->expects(static::once())->method('dispatch')->with(
+        $this->eventDispatcherMock->expects($this->once())->method('dispatch')->with(
             new ThemeAssignedEvent($themeId, TestDefaults::SALES_CHANNEL)
         );
 
-        $this->themeCompilerMock->expects(static::never())->method('compileTheme');
+        $this->themeCompilerMock->expects($this->never())->method('compileTheme');
 
         $assigned = $this->themeService->assignTheme($themeId, TestDefaults::SALES_CHANNEL, $this->context, true);
 
@@ -151,7 +151,7 @@ class ThemeServiceTest extends TestCase
     {
         $themeId = Uuid::randomHex();
 
-        $this->themeCompilerMock->expects(static::once())->method('compileTheme')->with(
+        $this->themeCompilerMock->expects($this->once())->method('compileTheme')->with(
             TestDefaults::SALES_CHANNEL,
             $themeId,
             static::anything(),
@@ -169,9 +169,9 @@ class ThemeServiceTest extends TestCase
 
         $this->context->addState(ThemeService::STATE_NO_QUEUE);
 
-        $this->messageBusMock->expects(static::never())->method('dispatch');
+        $this->messageBusMock->expects($this->never())->method('dispatch');
 
-        $this->themeCompilerMock->expects(static::once())->method('compileTheme')->with(
+        $this->themeCompilerMock->expects($this->once())->method('compileTheme')->with(
             TestDefaults::SALES_CHANNEL,
             $themeId,
             static::anything(),
@@ -189,10 +189,10 @@ class ThemeServiceTest extends TestCase
     {
         $themeId = Uuid::randomHex();
 
-        $this->themeCompilerMock->expects(static::never())->method('compileTheme');
+        $this->themeCompilerMock->expects($this->never())->method('compileTheme');
 
         $context = $this->context;
-        $this->messageBusMock->expects(static::once())->method('dispatch')
+        $this->messageBusMock->expects($this->once())->method('dispatch')
             ->willReturnCallback(function () use ($themeId, $context): Envelope {
                 return new Envelope(
                     new CompileThemeMessage(
@@ -215,7 +215,7 @@ class ThemeServiceTest extends TestCase
 
         $confCollection = new StorefrontPluginConfigurationCollection();
 
-        $this->themeCompilerMock->expects(static::once())->method('compileTheme')->with(
+        $this->themeCompilerMock->expects($this->once())->method('compileTheme')->with(
             TestDefaults::SALES_CHANNEL,
             $themeId,
             static::anything(),
@@ -231,7 +231,7 @@ class ThemeServiceTest extends TestCase
     {
         $themeId = Uuid::randomHex();
 
-        $this->themeCompilerMock->expects(static::once())->method('compileTheme')->with(
+        $this->themeCompilerMock->expects($this->once())->method('compileTheme')->with(
             TestDefaults::SALES_CHANNEL,
             $themeId,
             static::anything(),
@@ -262,7 +262,7 @@ class ThemeServiceTest extends TestCase
         $parameters = [];
 
         $this->themeCompilerMock
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('compileTheme')
             ->willReturnCallback(function ($salesChannelId, $themeId) use (&$parameters): void {
                 $parameters[] = [$salesChannelId, $themeId];
@@ -339,7 +339,7 @@ class ThemeServiceTest extends TestCase
             )
         );
 
-        $this->themeCompilerMock->expects(static::exactly(2))->method('compileTheme');
+        $this->themeCompilerMock->expects($this->exactly(2))->method('compileTheme');
 
         $this->themeService->updateTheme($themeId, null, null, $this->context);
     }
@@ -384,11 +384,11 @@ class ThemeServiceTest extends TestCase
             )
         );
 
-        $this->eventDispatcherMock->expects(static::once())->method('dispatch')->with(
+        $this->eventDispatcherMock->expects($this->once())->method('dispatch')->with(
             new ThemeConfigChangedEvent($themeId, ['test' => ['value' => ['test']]])
         );
 
-        $this->themeCompilerMock->expects(static::exactly(2))->method('compileTheme');
+        $this->themeCompilerMock->expects($this->exactly(2))->method('compileTheme');
 
         $this->themeService->updateTheme($themeId, ['test' => ['value' => ['test']]], $parentThemeId, $this->context);
     }
@@ -416,7 +416,7 @@ class ThemeServiceTest extends TestCase
             )
         );
 
-        $this->themeCompilerMock->expects(static::never())->method('compileTheme');
+        $this->themeCompilerMock->expects($this->never())->method('compileTheme');
 
         $this->themeService->updateTheme($themeId, null, null, $this->context);
     }
@@ -444,11 +444,11 @@ class ThemeServiceTest extends TestCase
             )
         );
 
-        $this->eventDispatcherMock->expects(static::once())->method('dispatch')->with(
+        $this->eventDispatcherMock->expects($this->once())->method('dispatch')->with(
             new ThemeConfigResetEvent($themeId)
         );
 
-        $this->themeRepositoryMock->expects(static::once())->method('update')->with(
+        $this->themeRepositoryMock->expects($this->once())->method('update')->with(
             [
                 [
                     'id' => $themeId,
@@ -726,10 +726,10 @@ class ThemeServiceTest extends TestCase
             $this->createMock(NotificationService::class)
         );
 
-        $this->systemConfigMock->expects(static::never())->method('get');
-        $this->messageBusMock->expects(static::never())->method('dispatch');
+        $this->systemConfigMock->expects($this->never())->method('get');
+        $this->messageBusMock->expects($this->never())->method('dispatch');
 
-        $this->themeCompilerMock->expects(static::once())->method('compileTheme')->with(
+        $this->themeCompilerMock->expects($this->once())->method('compileTheme')->with(
             TestDefaults::SALES_CHANNEL,
             $themeId,
             static::anything(),

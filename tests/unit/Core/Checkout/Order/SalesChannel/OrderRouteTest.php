@@ -58,7 +58,7 @@ class OrderRouteTest extends TestCase
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->willReturnCallback(function (object $event): object {
                 static::assertInstanceOf(OrderCriteriaEvent::class, $event);
@@ -77,7 +77,7 @@ class OrderRouteTest extends TestCase
 
         $orderRepository = $this->createMock(EntityRepository::class);
         $orderRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->willReturn($searchResult);
 

@@ -20,7 +20,7 @@ class SelectLanguagesControllerTest extends TestCase
     public function testLanguageSelectionRoute(): void
     {
         $twig = $this->createMock(Environment::class);
-        $twig->expects(static::once())->method('render')
+        $twig->expects($this->once())->method('render')
             ->with('@Installer/installer/language-selection.html.twig', $this->getDefaultViewParams())
             ->willReturn('languages');
 

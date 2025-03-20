@@ -33,12 +33,23 @@
 
                             {% block layout_navbar_menu_item %}
                                 {% if category.type == 'folder' %}
-                                    <li class="nav-item main-navigation-link nav-item-{{ id }} nav-link root nav-item-{{ id }}-link"
+                                    <li class="nav-item main-navigation-link nav-item-{{ id }} nav-link root nav-item-{{ id }}-link{% if hasChildren %} dropdown-toggle{% endif %}"
                                         {% if hasChildren %}
+                                            data-bs-toggle="dropdown"
                                             data-flyout-menu-trigger="{{ id }}"
                                         {% endif %}
                                         title="{{ name }}">
                                         <span itemprop="name" class="main-navigation-link-text">{{ name }}</span>
+                                        {% if hasChildren %}
+                                            <div class="dropdown-menu w-100 p-4">
+                                                {% sw_include '@Storefront/storefront/layout/navbar/content.html.twig' with {
+                                                    themeIconConfig: themeIconConfig,
+                                                    navigationTree: treeItem,
+                                                    level: level+1,
+                                                    page: page
+                                                } only %}
+                                            </div>
+                                        {% endif %}
                                     </li>
                                 {% else %}
                                     <li class="nav-item nav-item-{{ id }} {% if hasChildren %}dropdown position-static{% endif %}">

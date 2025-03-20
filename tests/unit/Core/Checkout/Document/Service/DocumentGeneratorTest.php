@@ -138,7 +138,7 @@ class DocumentGeneratorTest extends TestCase
         $mockRenderer = $this->createMock(AbstractDocumentRenderer::class);
         $mockRenderer->method('supports')->willReturn('invoice');
         $mockRenderer
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('render')
             ->with(
                 ['orderId' => $operation],
@@ -191,7 +191,7 @@ class DocumentGeneratorTest extends TestCase
         $mockRenderer = $this->createMock(AbstractDocumentRenderer::class);
         $mockRenderer->method('supports')->willReturn('invoice');
         $mockRenderer
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('render')
             ->with(
                 ['orderId' => $operation],

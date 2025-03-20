@@ -150,7 +150,7 @@ class SalesChannelContextFactoryTest extends TestCase
 
         $baseSalesChannelContextFactory = $this->createMock(AbstractBaseSalesChannelContextFactory::class);
         $baseSalesChannelContextFactory
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('create')
             ->with($salesChannel->getId(), $options)
             ->willReturn($baseContext);

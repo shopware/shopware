@@ -43,12 +43,12 @@ class IterateEntitiesQueryBuilderTest extends TestCase
     protected function setUp(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::never())
+        $connection->expects($this->never())
             ->method('createQueryBuilder');
-        $connection->expects(static::any())
+        $connection->expects($this->any())
             ->method('createExpressionBuilder')
             ->willReturn(new ExpressionBuilder($connection));
-        $connection->expects(static::any())
+        $connection->expects($this->any())
             ->method('getDatabasePlatform')
             ->willReturn(new MySQLPlatform());
 
@@ -102,7 +102,7 @@ class IterateEntitiesQueryBuilderTest extends TestCase
     public function testCreateAddsLastRunConditionIfGiven(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::any())
+        $connection->expects($this->any())
             ->method('createQueryBuilder')
             ->willReturn(new QueryBuilder($connection));
 

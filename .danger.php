@@ -346,7 +346,7 @@ return (new Config())
             }
         }
 
-        var_dump($addedUnitTests);
+        $context->warning(implode($addedUnitTests));
 
         if (\count($missingUnitTests) > 0) {
             $context->warning(

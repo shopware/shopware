@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Api;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Notification\NotificationDefinition;
+use Shopware\Core\Framework\Notification\NotificationDefinition;
 use Shopware\Administration\Snippet\AppAdministrationSnippetDefinition;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;

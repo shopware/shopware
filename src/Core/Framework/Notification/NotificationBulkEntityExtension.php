@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Notification;
 
-use Shopware\Administration\Notification\NotificationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\BulkEntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\Log\Package;

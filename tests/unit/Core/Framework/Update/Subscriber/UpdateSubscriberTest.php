@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Administration\Notification\Subscriber;
+namespace Shopware\Tests\Unit\Core\Framework\Update\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Notification\NotificationService;
-use Shopware\Administration\Notification\Subscriber\UpdateSubscriber;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
+use Shopware\Core\Framework\Update\Subscriber\UpdateSubscriber;
 
 /**
  * @internal

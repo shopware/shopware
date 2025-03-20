@@ -3,6 +3,7 @@
 namespace Shopware\Administration\Notification;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\ReadProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\WriteProtection;
@@ -25,8 +26,10 @@ use Shopware\Core\System\User\UserDefinition;
  * @deprecated tag:v6.8.0 - Will be removed in 6.8.0. Use Shopware\Core\Framework\Notification\NotificationDefinition instead
  */
 #[Package('framework')]
-class NotificationDefinition extends \Shopware\Core\Framework\Notification\NotificationDefinition
+class NotificationDefinition extends EntityDefinition
 {
+    final public const ENTITY_NAME = 'notification';
+
     public function getEntityName(): string
     {
         Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', \Shopware\Core\Framework\Notification\NotificationEntity::class));

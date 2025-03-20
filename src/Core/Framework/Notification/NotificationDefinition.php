@@ -21,9 +21,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Integration\IntegrationDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
-/**
- * @deprecated tag:v6.8.0 - reason:class-hierarchy-change - Will not extend from `\Shopware\Administration\Notification\NotificationDefinition` and will instead extend directly from `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition`
- */
 #[Package('framework')]
 class NotificationDefinition extends EntityDefinition
 {

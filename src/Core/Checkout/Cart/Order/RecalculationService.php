@@ -86,7 +86,7 @@ class RecalculationService
         $cart = $this->orderConverter->convertToCart($order, $context);
         $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext);
 
-        $conversionContext = $this->getOrderConversionContext()->setIncludeDeliveries(\count($cart->getLineItems()) > 0);
+        $conversionContext = $this->getOrderConversionContext()->setIncludeDeliveries($cart->getLineItems()->count() > 0);
         $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
 
         $this->upsertRecalculatedOrder($orderData, $order, $salesChannelContext->getContext(), true);

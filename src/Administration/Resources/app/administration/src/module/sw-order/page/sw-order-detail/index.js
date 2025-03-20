@@ -513,7 +513,7 @@ export default {
                 return;
             }
 
-            Object.values(response?.data?.errors).forEach(({ level, message }) => {
+            Object.values(response.data.errors).forEach(({ level, message }) => {
                 switch (level) {
                     case 0: {
                         this.createNotificationInfo({ message });

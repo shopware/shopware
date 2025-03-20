@@ -104,8 +104,7 @@ class PromotionCollector implements CartDataCollectorInterface
             // However, this cannot be applied directly, because it does not yet have any items in the cart.
             // Therefore the code is stored in the extension and as soon
             // as the user has enough items in the cart, it is added again.
-            $cartExtension = $original->getExtensionOfType(CartExtension::KEY, CartExtension::class);
-            $cartExtension ??= new CartExtension();
+            $cartExtension = $original->getExtensionOfType(CartExtension::KEY, CartExtension::class) ?? new CartExtension();
             $original->addExtension(CartExtension::KEY, $cartExtension);
 
             // if we are in recalculation,
@@ -306,7 +305,7 @@ class PromotionCollector implements CartDataCollectorInterface
                 $foundPromotions = $this->gateway->get($individualCriteria, $context);
             }
 
-            // if we finally have found promotions add them to our list for the current code
+            // if we finally have found promotions, add them to our list for the current code
             $promotionsList->addCodePromotions($currentCode, $foundPromotions->getElements());
         }
 
@@ -318,7 +317,7 @@ class PromotionCollector implements CartDataCollectorInterface
 
     /**
      * Check if max allowed redemption of promotion have been reached or not.
-     * If max redemption has been reached promotion will not be added
+     * If max redemption has been reached, promotion will not be added
      */
     private function isEligible(PromotionEntity $promotion, ?string $customerId, ?string $currentOrderId): bool
     {

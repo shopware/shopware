@@ -118,7 +118,7 @@ class SitemapExporterTest extends TestCase
     /**
      * @param iterable<AbstractUrlProvider>|null $urlProvider
      */
-    private function sitkitemapExporter(
+    private function sitemapExporter(
         CacheItemPoolInterface&MockObject $cache,
         ?iterable $urlProvider = null,
         (SitemapHandleFactoryInterface&MockObject)|null $sitemapHandleFactory = null,

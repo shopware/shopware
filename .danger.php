@@ -346,6 +346,8 @@ return (new Config())
             }
         }
 
+        var_dump($addedUnitTests);
+
         if (\count($missingUnitTests) > 0) {
             $context->warning(
                 'Please be kind and add unit tests for your new code in these files: <br/><br/>'

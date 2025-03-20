@@ -238,7 +238,7 @@ return (new Config())
     })
     ->useRule(function (Context $context): void {
         $addedUnitTests = $context->platform->pullRequest->getFiles()
-            ->filter(fn (File $file) => in_array($file->status, [File::STATUS_ADDED, File::STATUS_MODIFIED], true))
+            //->filter(fn (File $file) => in_array($file->status, [File::STATUS_ADDED, File::STATUS_MODIFIED], true))
             ->matches('tests/unit/**/*Test.php');
 
         $addedSrcFiles = $context->platform->pullRequest->getFiles()->filterStatus(File::STATUS_ADDED)->matches('src/**/*.php');
@@ -346,7 +346,12 @@ return (new Config())
             }
         }
 
-        $context->warning(implode($addedUnitTests));
+        $context->warning(
+            implode(
+                ", ",
+                array_map(fn ($f) => $f->name . '-' . $f->status, $addedUnitTests),
+            )
+        );
 
         if (\count($missingUnitTests) > 0) {
             $context->warning(

@@ -6,6 +6,7 @@ use Composer\IO\NullIO;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -14,13 +15,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
+use Shopware\Core\Framework\Plugin\Exception\PluginComposerRequireException;
 use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
+use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackException;
@@ -468,6 +472,40 @@ class PluginLifecycleServiceTest extends TestCase
             'Test with keep data' => [true],
             'Test without keep data' => [false],
         ];
+    }
+
+    #[RunInSeparateProcess]
+    public function testInstallationOfPluginWhichExecutesComposerCommandsWithPreviouslyInstalledPluginThatShipsVendorDirectory(): void
+    {
+        $this->addTestPluginToKernel(
+            $this->fixturePath . 'plugins/SwagTestShipsVendorDirectory',
+            'SwagTestShipsVendorDirectory'
+        );
+        $this->addTestPluginToKernel(
+            $this->fixturePath . 'plugins/SwagTestExecuteComposerCommands',
+            'SwagTestExecuteComposerCommands'
+        );
+
+        $this->pluginService->refreshPlugins($this->context, new NullIO());
+
+        $pluginWithVendor = $this->pluginService->getPluginByName('SwagTestShipsVendorDirectory', $this->context);
+        $this->pluginLifecycleService->installPlugin($pluginWithVendor, $this->context);
+
+        $pluginWithExecuteComposer = $this->pluginService->getPluginByName('SwagTestExecuteComposerCommands', $this->context);
+
+        try {
+            // Expected fail on executing the composer command, as the plugin is not in the default plugin directory and could therefore not be found
+            $this->pluginLifecycleService->installPlugin($pluginWithExecuteComposer, $this->context);
+        } catch (\Throwable $e) {
+            if (!Feature::isActive('v6.8.0.0')) {
+                static::assertInstanceOf(PluginComposerRequireException::class, $e);
+            } else {
+                static::assertInstanceOf(PluginException::class, $e);
+            }
+            static::assertStringContainsString('Your requirements could not be resolved to an installable set of packages.', $e->getMessage());
+        }
+
+        \ComposerAutoloaderInitPluginTestShipsVendorDirectory::getLoader()->unregister();
     }
 
     private function installNotSupportedPlugin(string $name): PluginEntity

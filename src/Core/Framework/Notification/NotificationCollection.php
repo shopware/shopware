@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\Notification;
 
+use Shopware\Administration\Notification\NotificationEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @deprecated tag:v6.8.0 - reason:class-hierarchy-change - Will not extend from `\Shopware\Administration\Notification\NotificationCollection` and will instead extend directly from `\Shopware\Core\Framework\DataAbstractionLayer\EntityCollection`
+ * @deprecated tag:v6.8.0 - reason:class-hierarchy-change - Will not extend from `\Shopware\Administration\Notification\NotificationCollection` and will instead extend directly from `\Shopware\Core\Framework\DataAbstractionLayer\EntityCollection`.
  *
- * @extends \Shopware\Administration\Notification\NotificationCollection<NotificationEntity>
+ * Re-add @extends EntityCollection<NotificationEntity> in 6.8.0
  */
 #[Package('framework')]
 class NotificationCollection extends \Shopware\Administration\Notification\NotificationCollection

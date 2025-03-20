@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Notification;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\ReadProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\WriteProtection;
@@ -24,7 +25,7 @@ use Shopware\Core\System\User\UserDefinition;
  * @deprecated tag:v6.8.0 - reason:class-hierarchy-change - Will not extend from `\Shopware\Administration\Notification\NotificationDefinition` and will instead extend directly from `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition`
  */
 #[Package('framework')]
-class NotificationDefinition extends \Shopware\Administration\Notification\NotificationDefinition
+class NotificationDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'notification';
 

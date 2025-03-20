@@ -41,7 +41,7 @@
             v-if="selectedIds.length > 0 && isLoadedData"
         >
             {% block sw_bulk_edit_customer_content_account_card %}
-            <sw-card
+            <mt-card
                 class="sw-bulk-edit-customer-base__account"
                 position-identifier="sw-bulk-edit-customer-account"
                 :title="$tc('sw-bulk-edit.customer.account.cardTitle')"
@@ -54,11 +54,11 @@
                     :entity="customer"
                 />
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
             {% block sw_bulk_edit_customer_tags_card %}
-            <sw-card
+            <mt-card
                 class="sw-bulk-edit-customer-base__tags"
                 position-identifier="sw-bulk-edit-customer-tags"
                 :title="$tc('sw-bulk-edit.customer.tags.cardTitle')"
@@ -71,11 +71,11 @@
                     :entity="customer"
                 />
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
             {% block sw_bulk_edit_customer_custom_field_card %}
-            <sw-card
+            <mt-card
                 class="sw-bulk-edit-customer-base__custom_fields"
                 position-identifier="sw-bulk-edit-customer-custom-field"
                 :title="$tc('sw-bulk-edit.customer.customFields.cardTitle')"
@@ -86,7 +86,7 @@
                     :sets="customFieldSets"
                     @change="onCustomFieldsChange"
                 />
-            </sw-card>
+            </mt-card>
             {% endblock %}
         </sw-card-view>
 

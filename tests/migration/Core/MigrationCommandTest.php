@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\Command\MigrationCommand;
 use Shopware\Core\Framework\Migration\Command\MigrationDestructiveCommand;
 use Shopware\Core\Framework\Migration\MigrationCollection;
@@ -56,11 +55,7 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getCommand();
 
-        if (Feature::isActive('v6.7.0.0')) {
-            $this->expectException(MigrationException::class);
-        } else {
-            $this->expectException(\InvalidArgumentException::class);
-        }
+        $this->expectException(MigrationException::class);
         $this->expectExceptionMessage('missing timestamp cap or --all option');
         $command->run(new ArrayInput([]), new BufferedOutput());
     }
@@ -102,11 +97,7 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getCommand();
 
-        if (Feature::isActive('v6.7.0.0')) {
-            $this->expectException(MigrationException::class);
-        } else {
-            $this->expectException(\InvalidArgumentException::class);
-        }
+        $this->expectException(MigrationException::class);
         $this->expectExceptionMessage('Running migrations for multiple identifiers without --all option or with --limit option is not supported.');
         $command->run(new ArrayInput(['identifier' => [self::INTEGRATION_IDENTIFIER(), '_test_migrations_valid_run_time'], '--until' => \PHP_INT_MAX]), new BufferedOutput());
     }
@@ -117,11 +108,7 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getCommand();
 
-        if (Feature::isActive('v6.7.0.0')) {
-            $this->expectException(MigrationException::class);
-        } else {
-            $this->expectException(\InvalidArgumentException::class);
-        }
+        $this->expectException(MigrationException::class);
         $this->expectExceptionMessage('Running migrations for multiple identifiers without --all option or with --limit option is not supported.');
         $command->run(new ArrayInput(['identifier' => [self::INTEGRATION_IDENTIFIER(), '_test_migrations_valid_run_time'], '--all' => true, '--limit' => 10]), new BufferedOutput());
     }
@@ -160,11 +147,7 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getDestructiveCommand();
 
-        if (Feature::isActive('v6.7.0.0')) {
-            $this->expectException(MigrationException::class);
-        } else {
-            $this->expectException(\InvalidArgumentException::class);
-        }
+        $this->expectException(MigrationException::class);
         $this->expectExceptionMessage('missing timestamp cap or --all option');
         $command->run(new ArrayInput([]), new BufferedOutput());
     }
@@ -235,7 +218,7 @@ class MigrationCommandTest extends TestCase
         $loader = $this->getMockBuilder(MigrationCollectionLoader::class)->disableOriginalConstructor()->getMock();
 
         $nullLogger = new NullLogger();
-        $loader->expects(static::once())->method('collect')->willReturn(
+        $loader->expects($this->once())->method('collect')->willReturn(
             new MigrationCollection(
                 new MigrationSource(''),
                 new MigrationRuntime($connection, $nullLogger),
@@ -245,7 +228,7 @@ class MigrationCommandTest extends TestCase
         );
 
         $cache = $this->getMockBuilder(TagAwareAdapter::class)->disableOriginalConstructor()->getMock();
-        $cache->expects(static::never())->method('clear');
+        $cache->expects($this->never())->method('clear');
 
         $command = new MigrationCommand($loader, $cache, static::getContainer()->getParameter('kernel.shopware_version'));
 
@@ -259,7 +242,7 @@ class MigrationCommandTest extends TestCase
         static::assertSame(0, $this->getMigrationCount(true));
 
         $cache = $this->getMockBuilder(TagAwareAdapter::class)->disableOriginalConstructor()->getMock();
-        $cache->expects(static::once())->method('clear');
+        $cache->expects($this->once())->method('clear');
 
         $command = new MigrationCommand(static::getContainer()->get(MigrationCollectionLoader::class), $cache, static::getContainer()->getParameter('kernel.shopware_version'));
 
@@ -273,7 +256,7 @@ class MigrationCommandTest extends TestCase
         static::assertSame(0, $this->getMigrationCount(true));
 
         $cache = $this->getMockBuilder(TagAwareAdapter::class)->disableOriginalConstructor()->getMock();
-        $cache->expects(static::once())->method('clear');
+        $cache->expects($this->once())->method('clear');
 
         $command = new MigrationCommand(static::getContainer()->get(MigrationCollectionLoader::class), $cache, static::getContainer()->getParameter('kernel.shopware_version'));
 

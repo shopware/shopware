@@ -188,7 +188,7 @@ class PaymentMethodIndexerTest extends TestCase
     public function testPaymentMethodIndexerNotLooping(): void
     {
         // Setup payment method(s)
-        /** @var EntityRepository $paymentRepository */
+        /** @var EntityRepository<PaymentMethodCollection> $paymentRepository */
         $paymentRepository = static::getContainer()->get('payment_method.repository');
 
         $paymentMethodId = Uuid::randomHex();

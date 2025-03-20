@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
@@ -39,7 +40,6 @@ use Symfony\Component\Cache\Adapter\ArrayAdapter;
  * @internal
  */
 #[Group('slow')]
-#[Group('skip-paratest')]
 class KernelPluginIntegrationTest extends TestCase
 {
     use PluginIntegrationTestBehaviour;
@@ -70,7 +70,11 @@ class KernelPluginIntegrationTest extends TestCase
     {
         $this->insertPlugin($this->getInstalledInactivePlugin());
 
-        $loader = new DbalKernelPluginLoader($this->classLoader, null, $this->connection);
+        $loader = new DbalKernelPluginLoader(
+            $this->classLoader,
+            null,
+            static::getContainer()->get(Connection::class)
+        );
         $this->kernel = $this->makeKernel($loader);
         $this->kernel->boot();
 
@@ -87,9 +91,15 @@ class KernelPluginIntegrationTest extends TestCase
     {
         $this->insertPlugin($this->getActivePlugin());
 
-        $this->connection->executeStatement('UPDATE plugin SET active = 1, installed_at = date(now())');
+        static::getContainer()
+            ->get(Connection::class)
+            ->executeStatement('UPDATE plugin SET active = 1, installed_at = date(now())');
 
-        $loader = new DbalKernelPluginLoader($this->classLoader, null, $this->connection);
+        $loader = new DbalKernelPluginLoader(
+            $this->classLoader,
+            null,
+            static::getContainer()->get(Connection::class)
+        );
         $this->kernel = $this->makeKernel($loader);
         $this->kernel->boot();
 
@@ -103,7 +113,11 @@ class KernelPluginIntegrationTest extends TestCase
     {
         $this->insertPlugin($this->getInstalledInactivePlugin());
 
-        $loader = new DbalKernelPluginLoader($this->classLoader, null, $this->connection);
+        $loader = new DbalKernelPluginLoader(
+            $this->classLoader,
+            null,
+            static::getContainer()->get(Connection::class)
+        );
         $this->kernel = $this->makeKernel($loader);
         $this->kernel->boot();
 
@@ -114,7 +128,11 @@ class KernelPluginIntegrationTest extends TestCase
     {
         $this->insertPlugin($this->getActivePlugin());
 
-        $loader = new DbalKernelPluginLoader($this->classLoader, null, $this->connection);
+        $loader = new DbalKernelPluginLoader(
+            $this->classLoader,
+            null,
+            static::getContainer()->get(Connection::class)
+        );
         $this->kernel = $this->makeKernel($loader);
         $this->kernel->boot();
 
@@ -133,7 +151,11 @@ class KernelPluginIntegrationTest extends TestCase
         $inactive = $this->getInstalledInactivePlugin();
         $this->insertPlugin($inactive);
 
-        $loader = new DbalKernelPluginLoader($this->classLoader, null, $this->connection);
+        $loader = new DbalKernelPluginLoader(
+            $this->classLoader,
+            null,
+            static::getContainer()->get(Connection::class)
+        );
         $this->kernel = $this->makeKernel($loader);
         $this->kernel->boot();
 
@@ -161,7 +183,11 @@ class KernelPluginIntegrationTest extends TestCase
         $inactive = $this->getInstalledInactivePluginRebuildDisabled();
         $this->insertPlugin($inactive);
 
-        $loader = new DbalKernelPluginLoader($this->classLoader, null, $this->connection);
+        $loader = new DbalKernelPluginLoader(
+            $this->classLoader,
+            null,
+            static::getContainer()->get(Connection::class)
+        );
         $this->kernel = $this->makeKernel($loader);
         $this->kernel->boot();
 
@@ -189,7 +215,11 @@ class KernelPluginIntegrationTest extends TestCase
         $inactive = $this->getInstalledInactivePluginRebuildDisabled();
         $this->insertPlugin($inactive);
 
-        $loader = new DbalKernelPluginLoader($this->classLoader, null, $this->connection);
+        $loader = new DbalKernelPluginLoader(
+            $this->classLoader,
+            null,
+            static::getContainer()->get(Connection::class)
+        );
         $this->kernel = $this->makeKernel($loader);
         $this->kernel->boot();
 
@@ -217,7 +247,11 @@ class KernelPluginIntegrationTest extends TestCase
         $active = $this->getActivePlugin();
         $this->insertPlugin($active);
 
-        $loader = new DbalKernelPluginLoader($this->classLoader, null, $this->connection);
+        $loader = new DbalKernelPluginLoader(
+            $this->classLoader,
+            null,
+            static::getContainer()->get(Connection::class)
+        );
         $this->kernel = $this->makeKernel($loader);
         $this->kernel->boot();
 
@@ -252,7 +286,11 @@ class KernelPluginIntegrationTest extends TestCase
         $plugin = $this->getInstalledInactivePlugin();
         $this->insertPlugin($plugin);
 
-        $loader = new DbalKernelPluginLoader($this->classLoader, null, $this->connection);
+        $loader = new DbalKernelPluginLoader(
+            $this->classLoader,
+            null,
+            static::getContainer()->get(Connection::class)
+        );
         $this->kernel = $this->makeKernel($loader);
         $this->kernel->boot();
 
@@ -294,7 +332,11 @@ class KernelPluginIntegrationTest extends TestCase
         $plugin = $this->getInstalledInactivePlugin();
         $this->insertPlugin($plugin);
 
-        $loader = new DbalKernelPluginLoader($this->classLoader, null, $this->connection);
+        $loader = new DbalKernelPluginLoader(
+            $this->classLoader,
+            null,
+            static::getContainer()->get(Connection::class)
+        );
         $this->makeKernel($loader);
         $kernel = $this->kernel;
         static::assertNotNull($kernel);
@@ -358,12 +400,15 @@ class KernelPluginIntegrationTest extends TestCase
 
     private function makeKernel(KernelPluginLoader $loader): Kernel
     {
-        $kernel = KernelFactory::create('test', true, KernelLifecycleManager::getClassLoader(), $loader);
+        $kernel = KernelFactory::create(
+            'test',
+            true,
+            KernelLifecycleManager::getClassLoader(),
+            $loader,
+            static::getContainer()->get(Connection::class)
+        );
         static::assertInstanceOf(Kernel::class, $kernel);
         $this->kernel = $kernel;
-        $connection = (new \ReflectionClass(KernelFactory::$kernelClass))->getProperty('connection');
-        $connection->setAccessible(true);
-        $connection->setValue($this->kernel, $this->connection);
 
         return $this->kernel;
     }

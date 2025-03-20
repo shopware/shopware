@@ -112,6 +112,7 @@ src/Core/DevOps/Locust/**/__pycache__/
 !build/artifacts/.gitkeep
 tests/integration/Core/Framework/Plugin/_fixtures/SwagFashionTheme.zip
 tests/integration/Core/Framework/Plugin/_fixtures/TestShippingApp.zip
+.jest
 ###> symfony/phpunit-bridge ###
 .phpunit
 .phpunit.result.cache

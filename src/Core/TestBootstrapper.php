@@ -149,12 +149,9 @@ class TestBootstrapper
 
         $dbUrlParts = parse_url($_SERVER['DATABASE_URL'] ?? '') ?: [];
 
-        $testToken = getenv('TEST_TOKEN');
         $dbUrlParts['path'] ??= 'root';
-
-        // allows using the same database during development, by setting TEST_TOKEN=none
-        if ($testToken !== 'none' && !str_ends_with($dbUrlParts['path'], 'test')) {
-            $dbUrlParts['path'] .= '_' . ($testToken ?: 'test');
+        if (!str_ends_with($dbUrlParts['path'], '_test')) {
+            $dbUrlParts['path'] .= '_test';
         }
 
         $auth = isset($dbUrlParts['user']) ? ($dbUrlParts['user'] . (isset($dbUrlParts['pass']) ? (':' . $dbUrlParts['pass']) : '') . '@') : '';

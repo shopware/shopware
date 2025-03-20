@@ -4,12 +4,12 @@ namespace Shopware\Tests\Unit\Core\Checkout\Order\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Event\OrderCriteriaEvent;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -31,7 +31,7 @@ class OrderRouteTest extends TestCase
 {
     public function testNotLoggedIn(): void
     {
-        $this->expectException(CustomerNotLoggedInException::class);
+        $this->expectException(OrderException::class);
 
         $route = new OrderRoute(
             $this->createMock(EntityRepository::class),
@@ -58,7 +58,7 @@ class OrderRouteTest extends TestCase
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->willReturnCallback(function (object $event): object {
                 static::assertInstanceOf(OrderCriteriaEvent::class, $event);
@@ -77,7 +77,7 @@ class OrderRouteTest extends TestCase
 
         $orderRepository = $this->createMock(EntityRepository::class);
         $orderRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->willReturn($searchResult);
 

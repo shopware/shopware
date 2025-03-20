@@ -76,7 +76,7 @@ export default defineConfig(({ command }) => {
             const sharedPlugins = [
                 // Shopware plugins: build/vite-plugins
                 TwigPlugin(),
-                AssetPlugin(isProd, __dirname),
+                AssetPlugin(isProd, __dirname, extensions),
                 AssetPathPlugin(),
 
                 // Twig.JS loads node modules, so we need to polyfill them

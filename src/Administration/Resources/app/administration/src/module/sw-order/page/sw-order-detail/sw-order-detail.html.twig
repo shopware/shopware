@@ -45,7 +45,7 @@
 
         {% block sw_order_detail_actions_slot_smart_bar_actions %}
         {% block sw_order_detail_actions_abort %}
-        <sw-button
+        <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('order.editor'),
@@ -53,10 +53,12 @@
             }"
             class="sw-order-detail__smart-bar-cancel-button"
             :disabled="isLoading || !acl.can('order.editor')"
+            variant="secondary"
+            size="default"
             @click="onCancelEditing"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_order_detail_actions_save %}
@@ -185,7 +187,7 @@
                 >
                     {{ $tc('sw-order.detail.tabDocuments') }}
 
-                    <sw-icon
+                    <mt-icon
                         v-if="isOrderEditing"
                         v-tooltip="{ message: $tc('sw-order.documentTab.tooltipSaveBeforeCreateDocument') }"
                         class="sw-order-detail__tab-warning-badge"

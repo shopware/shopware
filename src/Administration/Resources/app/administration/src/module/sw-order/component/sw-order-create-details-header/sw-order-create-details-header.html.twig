@@ -123,12 +123,13 @@
                     {% endblock %}
                 </sw-entity-single-select>
                 {% endblock %}
-                <sw-button
+                <mt-button
                     size="small"
+                    variant="secondary"
                     @click="onShowNewCustomerModal"
                 >
                     {{ $tc('sw-order.createBase.detailsHeader.buttonAddNewCustomer') }}
-                </sw-button>
+                </mt-button>
             </sw-container>
         </div>
         {% endblock %}

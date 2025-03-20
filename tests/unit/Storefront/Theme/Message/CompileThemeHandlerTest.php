@@ -15,7 +15,7 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
 use Shopware\Storefront\Theme\Message\CompileThemeHandler;
 use Shopware\Storefront\Theme\Message\CompileThemeMessage;
-use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
+use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCompiler;
 
 /**
@@ -32,7 +32,7 @@ class CompileThemeHandlerTest extends TestCase
         $context = Context::createDefaultContext();
         $message = new CompileThemeMessage(TestDefaults::SALES_CHANNEL, $themeId, true, $context);
 
-        $themeCompilerMock->expects(static::once())->method('compileTheme');
+        $themeCompilerMock->expects($this->once())->method('compileTheme');
 
         $scEntity = new SalesChannelEntity();
         $scEntity->setUniqueIdentifier(Uuid::randomHex());
@@ -44,7 +44,7 @@ class CompileThemeHandlerTest extends TestCase
         $handler = new CompileThemeHandler(
             $themeCompilerMock,
             $this->createMock(AbstractConfigLoader::class),
-            $this->createMock(StorefrontPluginRegistryInterface::class),
+            $this->createMock(StorefrontPluginRegistry::class),
             $notificationServiceMock,
             $salesChannelRep
         );

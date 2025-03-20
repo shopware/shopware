@@ -125,36 +125,33 @@
                                                     {% endblock %}
 
                                                     {% block page_account_order_item_detail_tracking_code_label_value %}
-                                                        {% apply spaceless %}
-                                                            <dd class="col-6 col-md-7">
-                                                                {% set totalOutput = 0 %}
+                                                        <dd class="col-6 col-md-7">
+                                                            {% for delivery in order.deliveries %}
+                                                                {% set trackingCodes = delivery.trackingCodes %}
+                                                                {% set trackingUrl = delivery.shippingMethod.translated.trackingUrl %}
 
-                                                                {% for delivery in order.deliveries %}
-                                                                    {% set trackingCodes = delivery.trackingCodes %}
-                                                                    {% set trackingUrl = delivery.shippingMethod.translated.trackingUrl %}
+                                                                {% if trackingCodes|length > 0 %}
 
-                                                                    {% if trackingCodes|length > 0 %}
-                                                                        {% for trackingCode in trackingCodes %}
-                                                                            {% if trackingUrl %}
-                                                                                {% set output %}
-                                                                                    <a href="{{ trackingUrl|format(trackingCode) }}" target="_blank" rel="noopener">{{ trackingCode }}</a>
-                                                                                {% endset %}
-                                                                            {% else %}
-                                                                                {% set output %}
-                                                                                    <span>{{ trackingCode }}</span>
-                                                                                {% endset %}
-                                                                            {% endif %}
+                                                                    {% set trackingCodesOutput = [] %}
 
-                                                                            {% set totalOutput = totalOutput + 1 %}
+                                                                    {% for trackingCode in trackingCodes %}
+                                                                        {% if trackingUrl %}
+                                                                            {% set trackingCodesOutput = trackingCodesOutput|merge(
+                                                                                ['<a href="' ~ trackingUrl|format(trackingCode) ~ '" target="_blank" rel="noopener">' ~ trackingCode ~ '</a>']
+                                                                            ) %}
+                                                                        {% else %}
+                                                                            {% set trackingCodesOutput = trackingCodesOutput|merge(
+                                                                                ['<span>' ~ trackingCode ~ '</span>']
+                                                                            ) %}
+                                                                        {% endif %}
+                                                                    {% endfor %}
 
-                                                                            {% if totalOutput > 1 %}<span>, </span>{% endif %}{{ output }}
-                                                                        {% endfor %}
-                                                                    {% else %}
-                                                                        {{ 'account.orderTrackingNotAvailable'|trans|sw_sanitize }}
-                                                                    {% endif %}
-                                                                {% endfor %}
-                                                            </dd>
-                                                        {% endapply %}
+                                                                    {{- trackingCodesOutput|join(', ')|raw -}}
+                                                                {% else %}
+                                                                    {{ 'account.orderTrackingNotAvailable'|trans|sw_sanitize }}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </dd>
                                                     {% endblock %}
                                                 {% endif %}
                                             {% endblock %}
@@ -177,7 +174,7 @@
                                                 {% endblock %}
 
                                                 {% block page_account_order_item_detail_vat %}
-                                                    {% if not order.isTaxFree %}
+                                                    {% if order.taxStatus !== constant('Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\CartPrice::TAX_STATE_FREE') %}
                                                         {% for calculatedTax in order.price.calculatedTaxes %}
                                                             {% block page_account_order_item_detail_vat_label %}
                                                                 <dt class="col-6 col-md-8">
@@ -199,7 +196,7 @@
                                                 {% block page_account_order_item_detail_amount %}
                                                     {% block page_account_order_item_detail_amount_label %}
                                                         <dt class="col-6 col-md-8">
-                                                            {% if order.isTaxFree %}
+                                                            {% if order.taxStatus === constant('Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\CartPrice::TAX_STATE_FREE') %}
                                                                 {{ 'account.orderItemNetTotal'|trans|sw_sanitize }}
                                                             {% else %}
                                                                 {{ 'account.orderItemTotal'|trans|sw_sanitize }}
@@ -209,7 +206,7 @@
 
                                                     {% block page_account_order_item_detail_amount_value %}
                                                         <dd class="col-6 col-md-4">
-                                                            {% if order.isTaxFree %}
+                                                            {% if order.taxStatus === constant('Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\CartPrice::TAX_STATE_FREE') %}
                                                                 {{ order.amountNet|currency(order.currency.isoCode) }}
                                                             {% else %}
                                                                 {{ order.amountTotal|currency(order.currency.isoCode) }}
@@ -222,24 +219,6 @@
                                     </div>
                                 </div>
                             </div>
-                        {% endblock %}
-
-                        {#
-                            @deprecated tag:v6.7.0 - Block page_account_order_item_detail_table_footnote and its content will be removed.
-                            Tax and shipping information is already displayed in the summary above.
-                        #}
-                        {% block page_account_order_item_detail_table_footnote %}
-                            {%- if not feature('ACCESSIBILITY_TWEAKS') -%}
-                                <div class="order-item-detail-footnote">
-                                    {% set taxSnippetKey = order.taxStatus == 'gross' ? 'includeVatText' : 'excludeVatText' %}
-                                    {% set cmsPath = 'frontend.cms.page' %}
-
-                                    {{ 'footer.%s'|format(taxSnippetKey)|trans({
-                                        '%url%': path(cmsPath, { id: config('core.basicInformation.shippingPaymentInfoPage') }),
-                                        '%star%': '* '
-                                    })|raw }}
-                                </div>
-                            {% endif %}
                         {% endblock %}
                     </div>
                 {% endblock %}

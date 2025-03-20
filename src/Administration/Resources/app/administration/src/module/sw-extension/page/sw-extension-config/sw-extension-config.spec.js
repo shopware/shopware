@@ -25,22 +25,17 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
                     'sw-external-link': {
                         template: '<a><slot></slot></a>',
                     },
-                    'sw-button': {
-                        inheritAttrs: false,
-                        template: '<button :class="$attrs.class" @click="$emit(\'click\', $event)"><slot></slot></button>',
-                    },
                     'sw-search-bar': true,
                     'sw-notification-center': true,
                     'sw-help-center-v2': true,
                     'sw-meteor-navigation': true,
-                    'sw-icon': true,
                     'sw-tabs': true,
                     'sw-sales-channel-switch': true,
 
                     'sw-form-field-renderer': true,
                     'sw-inherit-wrapper': true,
-                    'sw-card': true,
                     'sw-app-topbar-button': true,
+                    'sw-ai-copilot-badge': true,
                 },
                 provide: {
                     shopwareExtensionService: {
@@ -130,7 +125,9 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
         const wrapper = await createWrapper();
 
         const iconComponent = wrapper.get('.sw-extension-config__extension-icon img');
-        expect(iconComponent.attributes().src).toBe('administration/static/img/theme/default_theme_preview.jpg');
+        expect(iconComponent.attributes().src).toBe(
+            'administration/administration/static/img/theme/default_theme_preview.jpg',
+        );
         expect(iconComponent.attributes().alt).toBe('sw-extension-store.component.sw-extension-config.imageDescription');
 
         const title = wrapper.get('.sw-meteor-page__smart-bar-title');

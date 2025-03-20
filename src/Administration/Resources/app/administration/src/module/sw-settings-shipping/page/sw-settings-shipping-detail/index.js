@@ -67,12 +67,7 @@ export default {
         },
 
         restrictedRuleIds() {
-            /** @deprecated tag:v6.7.0 - usedRules will be removed, use restrictedRuleIds instead */
             return Shopware.Store.get('swShippingDetail').restrictedRuleIds;
-        },
-
-        usedRules() {
-            return Shopware.Store.get('swShippingDetail').usedRules;
         },
 
         ...mapPropertyErrors('shippingMethod', [
@@ -222,7 +217,7 @@ export default {
                     Shopware.Store.get('swShippingDetail').shippingMethod = res;
 
                     this.ruleConditionDataProviderService.getRestrictedRules('shippingMethodPrices').then((result) => {
-                        Shopware.Store.get('swShippingDetail').restrictedRuleIds = this.usedRules.concat(result);
+                        Shopware.Store.get('swShippingDetail').restrictedRuleIds = this.restrictedRuleIds.concat(result);
                     });
 
                     this.loadCustomFieldSets().then(() => {

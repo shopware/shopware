@@ -1,0 +1,14 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "Association": {
+                "additionalProperties": {
+                    "$ref": "#/components/schemas/Association"
+                }
+            }
+        }
+    }
+}

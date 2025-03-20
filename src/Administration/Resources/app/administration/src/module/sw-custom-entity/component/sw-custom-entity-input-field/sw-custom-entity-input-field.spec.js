@@ -13,38 +13,29 @@ async function createWrapper(props = { type: 'string' }) {
                         'helpText',
                     ],
                 },
-                'sw-textarea-field': {
+                'mt-textarea': {
                     template: '<input/>',
                     props: [
-                        'value',
+                        'modelValue',
                         'label',
                         'placeholder',
                         'helpText',
                     ],
                 },
-                'sw-number-field': {
+                'mt-number-field': {
                     template: '<input/>',
                     props: [
-                        'value',
+                        'modelValue',
                         'label',
                         'placeholder',
                         'helpText',
                         'numberType',
                     ],
                 },
-                'sw-switch-field': {
+                'mt-datepicker': {
                     template: '<input/>',
                     props: [
-                        'value',
-                        'label',
-                        'placeholder',
-                        'helpText',
-                    ],
-                },
-                'sw-datepicker': {
-                    template: '<input/>',
-                    props: [
-                        'value',
+                        'modelValue',
                         'label',
                         'placeholder',
                         'helpText',
@@ -86,7 +77,24 @@ describe('module/sw-custom-entity/component/sw-custom-entity-input-field', () =>
             await wrapper.setProps(mockData);
 
             const inputField = wrapper.getComponent(`.sw-custom-entity-input-field__${type}`);
-            expect(inputField.props('value')).toBe(mockData.value);
+            const modelValueTypes = [
+                'text',
+                'string',
+                'date',
+            ];
+            let propType = modelValueTypes.includes(type) ? 'modelValue' : 'value';
+
+            if (type === 'boolean') {
+                propType = 'checked';
+                mockData.value = true;
+                mockData.placeholder = undefined;
+            }
+
+            if (type === 'int' || type === 'float') {
+                propType = 'modelValue';
+            }
+
+            expect(inputField.props(propType)).toBe(mockData.value);
             expect(inputField.props('label')).toBe(mockData.label);
             expect(inputField.props('placeholder')).toBe(mockData.placeholder);
             expect(inputField.props('helpText')).toBe(mockData['help-text']);

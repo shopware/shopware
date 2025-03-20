@@ -13,11 +13,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 final class DatabaseSalesChannelThemeLoader
 {
     /**
-     * @deprecated tag:v6.7.0 - Will be removed in 6.7.0 as the cache key is not used anymore
-     */
-    final public const CACHE_KEY = 'sales-channel-themes';
-
-    /**
      * @var array<string, array<int, string>>
      */
     private array $themes = [];

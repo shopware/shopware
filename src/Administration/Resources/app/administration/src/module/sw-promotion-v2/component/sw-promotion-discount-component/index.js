@@ -287,7 +287,7 @@ export default {
             let i;
             for (i = 1; i < 10; i += 1) {
                 counts.push({
-                    key: i,
+                    key: i.toString(),
                     name: this.$tc('sw-promotion-v2.detail.conditions.filter.counter.SELECT', { count: i }, 0),
                 });
             }
@@ -321,6 +321,66 @@ export default {
                     .snippet,
                 2,
             );
+        },
+
+        fieldScopeOptions() {
+            return this.scopes.map((scope, index) => {
+                return {
+                    id: index,
+                    value: scope.key,
+                    label: scope.name,
+                };
+            });
+        },
+
+        applyCountOptions() {
+            return this.graduationAppliers.map((applier, index) => {
+                return {
+                    id: index,
+                    value: applier.key,
+                    label: applier.name,
+                };
+            });
+        },
+
+        maxCountOptions() {
+            return this.graduationCounts.map((count, index) => {
+                return {
+                    id: index,
+                    value: count.key,
+                    label: count.name,
+                };
+            });
+        },
+
+        sorterOptions() {
+            return this.graduationSorters.map((sorter, index) => {
+                return {
+                    id: index,
+                    value: sorter.key,
+                    label: sorter.name,
+                };
+            });
+        },
+
+        pickerOptions() {
+            return this.graduationPickers.map((picker, index) => {
+                return {
+                    id: index,
+                    value: picker.key,
+                    label: picker.name,
+                };
+            });
+        },
+
+        discountTypeOptions() {
+            return this.types.map((type, index) => {
+                return {
+                    id: index,
+                    value: type.key,
+                    label: type.name,
+                };
+            });
         },
     },
     created() {

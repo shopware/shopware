@@ -10,13 +10,15 @@
     </template>
 
     <template #smart-bar-actions>
-        <sw-button
+        <mt-button
             v-tooltip.bottom="{ message: 'ESC', appearance: 'light' }"
             :disabled="isLoading"
+            variant="secondary"
+            size="default"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
 
         <sw-button-process
             v-model:process-success="isSaveSuccessful"
@@ -46,7 +48,7 @@
                     {{ $tc('sw-settings-tax.taxProviderDetail.infoText') }}
                 </mt-banner>
 
-                <sw-card
+                <mt-card
                     position-identifier="sw-settings-tax-tax-provider-detail-settings"
                     :title="$tc('sw-settings-tax.taxProviderDetail.cardTitleSettings')"
                     :is-loading="isLoading"
@@ -55,23 +57,23 @@
                         columns="5fr 1fr"
                         gap="0px 30px"
                     >
-                        <sw-number-field
-                            v-model:value="taxProvider.priority"
+                        <mt-number-field
+                            v-model="taxProvider.priority"
                             class="sw-settings-tax-tax-provider-detail__field-priority"
                             :disabled="true"
                             :label="$tc('sw-settings-tax.taxProviderDetail.labelPriority')"
                         />
 
-                        <sw-switch-field
-                            v-model:value="taxProvider.active"
+                        <mt-switch
+                            v-model="taxProvider.active"
                             class="sw-settings-tax-tax-provider-detail__field-active"
                             :disabled="!acl.can('tax.editor') || undefined"
                             :label="$tc('sw-settings-tax.taxProviderDetail.labelActive')"
                         />
                     </sw-container>
-                </sw-card>
+                </mt-card>
 
-                <sw-card
+                <mt-card
                     position-identifier="sw-settings-tax-tax-provider-detail-availability"
                     :title="$tc('sw-settings-tax.taxProviderDetail.cardTitleAvailability')"
                     :is-loading="isLoading"
@@ -87,7 +89,7 @@
                         @save-rule="onSaveRule"
                         @dismiss-rule="onDismissRule"
                     />
-                </sw-card>
+                </mt-card>
 
                 <sw-extension-component-section
                     v-if="hasIdentifier"

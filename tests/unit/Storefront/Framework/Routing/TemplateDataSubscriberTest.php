@@ -16,9 +16,7 @@ use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\TemplateDataSubscriber;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
-use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -31,7 +29,7 @@ class TemplateDataSubscriberTest extends TestCase
 
     private ShopIdProvider&MockObject $shopIdProvider;
 
-    private StorefrontPluginRegistryInterface&MockObject $themeRegistry;
+    private StorefrontPluginRegistry&MockObject $themeRegistry;
 
     private ActiveAppsLoader&MockObject $activeAppsLoader;
 
@@ -41,7 +39,7 @@ class TemplateDataSubscriberTest extends TestCase
     {
         $this->hreflangLoader = $this->createMock(HreflangLoaderInterface::class);
         $this->shopIdProvider = $this->createMock(ShopIdProvider::class);
-        $this->themeRegistry = $this->createMock(StorefrontPluginRegistryInterface::class);
+        $this->themeRegistry = $this->createMock(StorefrontPluginRegistry::class);
         $this->activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
 
         $this->subscriber = new TemplateDataSubscriber(
@@ -85,7 +83,7 @@ class TemplateDataSubscriberTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $this->hreflangLoader->expects(static::never())->method('load');
+        $this->hreflangLoader->expects($this->never())->method('load');
 
         $this->subscriber->addHreflang($event);
     }
@@ -105,7 +103,7 @@ class TemplateDataSubscriberTest extends TestCase
         );
 
         $this->hreflangLoader
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn(new HreflangCollection());
 
@@ -128,7 +126,7 @@ class TemplateDataSubscriberTest extends TestCase
             ->willReturn([]);
 
         $this->shopIdProvider
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('getShopId');
 
         $this->subscriber->addShopIdParameter($event);
@@ -148,7 +146,7 @@ class TemplateDataSubscriberTest extends TestCase
             ->willReturn(['someApp']);
 
         $this->shopIdProvider
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getShopId')
             ->willThrowException(new AppUrlChangeDetectedException('before', 'new', '123'));
 
@@ -169,7 +167,7 @@ class TemplateDataSubscriberTest extends TestCase
             ->willReturn(['someApp']);
 
         $this->shopIdProvider
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getShopId')
             ->willReturn('123');
 
@@ -188,8 +186,8 @@ class TemplateDataSubscriberTest extends TestCase
         );
 
         $this->themeRegistry
-            ->expects(static::never())
-            ->method('getConfigurations');
+            ->expects($this->never())
+            ->method('getByTechnicalName');
 
         $this->subscriber->addIconSetConfig($event);
     }
@@ -207,8 +205,8 @@ class TemplateDataSubscriberTest extends TestCase
         );
 
         $this->themeRegistry
-            ->expects(static::once())
-            ->method('getConfigurations');
+            ->expects($this->once())
+            ->method('getByTechnicalName');
 
         $this->subscriber->addIconSetConfig($event);
         static::assertArrayNotHasKey('themeIconConfig', $event->getParameters());
@@ -229,12 +227,9 @@ class TemplateDataSubscriberTest extends TestCase
         $themeConfig = new StorefrontPluginConfiguration('Storefront');
         $themeConfig->setIconSets(['default' => '@Storefront/icons/default']);
 
-        $collection = new StorefrontPluginConfigurationCollection();
-        $collection->add($themeConfig);
-
         $this->themeRegistry
-            ->method('getConfigurations')
-            ->willReturn($collection);
+            ->method('getByTechnicalName')
+            ->willReturn($themeConfig);
 
         $this->subscriber->addIconSetConfig($event);
 
@@ -259,11 +254,7 @@ class TemplateDataSubscriberTest extends TestCase
         $themeRegistry = $this->createMock(StorefrontPluginRegistry::class);
 
         $themeRegistry
-            ->expects(static::never())
-            ->method('getConfigurations');
-
-        $themeRegistry
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getByTechnicalName')
             ->willReturn($themeConfig);
 

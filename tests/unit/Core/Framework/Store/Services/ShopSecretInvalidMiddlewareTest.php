@@ -52,11 +52,11 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
         $response = new Response(401, [], '{"code":"ShopwarePlatformException-68"}');
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('executeStatement');
 
         $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects(static::once())
+        $systemConfigService->expects($this->once())
             ->method('delete')
             ->with(StoreRequestOptionsProvider::CONFIG_KEY_STORE_SHOP_SECRET);
 

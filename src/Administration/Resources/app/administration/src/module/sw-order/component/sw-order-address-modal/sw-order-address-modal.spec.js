@@ -13,7 +13,6 @@ async function createWrapper() {
                 'sw-tabs-item': true,
                 'sw-customer-address-form': true,
                 'sw-custom-field-set-renderer': true,
-                'sw-button': true,
             },
             provide: {
                 repositoryFactory: {

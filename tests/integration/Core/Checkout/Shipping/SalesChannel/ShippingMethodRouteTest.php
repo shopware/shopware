@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\Hook\ShippingMethodRouteHook;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -18,6 +19,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  * @internal
  */
 #[Group('store-api')]
+#[Package('checkout')]
 class ShippingMethodRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -185,43 +187,6 @@ class ShippingMethodRouteTest extends TestCase
 
         static::assertSame(3, $response['total']);
         static::assertNotEmpty($response['elements'][0]['availabilityRule']);
-    }
-
-    public function testOnlyAvailableGet(): void
-    {
-        $this->browser
-            ->request(
-                'GET',
-                '/store-api/shipping-method?onlyAvailable=1',
-            );
-
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR) ?: [];
-
-        static::assertSame(2, $response['total']);
-        static::assertCount(2, $response['elements']);
-        static::assertNotContains($this->ids->get('shipping3'), array_column($response['elements'], 'id'));
-
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
-        static::assertArrayHasKey(ShippingMethodRouteHook::HOOK_NAME, $traces);
-    }
-
-    public function testOnlyAvailablePost(): void
-    {
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/shipping-method',
-                ['onlyAvailable' => 1],
-            );
-
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR) ?: [];
-
-        static::assertSame(2, $response['total']);
-        static::assertCount(2, $response['elements']);
-        static::assertNotContains($this->ids->get('shipping3'), array_column($response['elements'], 'id'));
-
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
-        static::assertArrayHasKey(ShippingMethodRouteHook::HOOK_NAME, $traces);
     }
 
     private function createData(): void

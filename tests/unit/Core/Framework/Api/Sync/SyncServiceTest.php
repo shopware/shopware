@@ -52,7 +52,7 @@ class SyncServiceTest extends TestCase
 
         $writer = $this->createMock(EntityWriterInterface::class);
         $writer
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('sync')
             ->willReturn($writeResult);
 
@@ -121,7 +121,7 @@ class SyncServiceTest extends TestCase
 
         $searcher = $this->createMock(EntitySearcher::class);
         $searcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->with($registry->get(ProductCategoryDefinition::class), $criteria);
 
@@ -146,7 +146,7 @@ class SyncServiceTest extends TestCase
     {
         $writer = $this->createMock(EntityWriterInterface::class);
         $writer
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('sync')
             ->willReturnCallback(function ($operations) {
                 static::assertCount(1, $operations);
@@ -179,7 +179,7 @@ class SyncServiceTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('productId', ['product-1', 'product-2']));
 
-        $criteriaBuilder->expects(static::once())
+        $criteriaBuilder->expects($this->once())
             ->method('fromArray')
             ->with(['filter' => $filter])
             ->willReturn($criteria);
@@ -193,7 +193,7 @@ class SyncServiceTest extends TestCase
 
         $ids = new IdSearchResult(4, $data, new Criteria(), Context::createDefaultContext());
 
-        $searcher->expects(static::once())
+        $searcher->expects($this->once())
             ->method('search')
             ->willReturn($ids);
 

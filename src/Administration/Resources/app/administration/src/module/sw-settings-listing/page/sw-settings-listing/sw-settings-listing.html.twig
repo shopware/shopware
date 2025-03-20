@@ -17,9 +17,9 @@
         <h2>
             {% block sw_settings_listing_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
-            <sw-icon
+            <mt-icon
                 name="regular-chevron-right-xs"
-                small
+                size="16px"
             />
             {{ $tc('sw-settings-listing.general.textHeadline') }}
             {% endblock %}
@@ -61,7 +61,7 @@
             {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
             <div v-show="!isLoading">
                 {% block sw_settings_listing_content_card_view_default_sales_channel %}
-                <sw-card
+                <mt-card
                     class="sw-settings-listing__sales-channel-card"
                     position-identifier="sw-settings-listing-sales-channel"
                     :title="$tc('sw-settings-listing.index.defaultSalesChannel.title')"
@@ -70,7 +70,7 @@
                         ref="defaultSalesChannelCard"
                         :is-loading="isLoading"
                     />
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_settings_listing_content_card_view_system_config %}
@@ -137,7 +137,7 @@
                 {% endblock %}
 
                 {% block sw_settings_listing_content_card_view_options_card %}
-                <sw-card
+                <mt-card
                     class="sw-settings-listing-index__sorting-options-card"
                     position-identifier="sw-settings-listing-sorting-options"
                     :title="$tc('sw-settings-listing.index.productSorting.title')"
@@ -165,13 +165,14 @@
                             {% endblock %}
 
                             {% block sw_settings_listing_content_card_view_options_card_toolbar_add_product_option %}
-                            <sw-button
-                                variant="ghost"
+                            <mt-button
+                                ghost
                                 size="small"
+                                variant="secondary"
                                 @click="onAddNewProductSortingOption"
                             >
                                 {{ $tc('sw-settings-listing.index.productSorting.addButton') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
                         </sw-container>
                         {% endblock %}
@@ -255,14 +256,14 @@
                         {% block sw_settings_listing_content_card_view_options_card_empty_state_icon %}
                         <template #icon>
                             <img
-                                :src="assetFilter('administration/static/img/empty-states/settings-empty-state.svg')"
+                                :src="assetFilter('administration/administration/static/img/empty-states/settings-empty-state.svg')"
                                 :alt="$tc('sw-settings-listing.index.productSorting.emptyState.title')"
                             >
                         </template>
                         {% endblock %}
                     </sw-empty-state>
                     {% endblock %}
-                </sw-card>
+                </mt-card>
                 {% endblock %}
             </div>
         </sw-card-view>

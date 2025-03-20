@@ -31,8 +31,8 @@ async function createWrapper(privileges = []) {
                     },
                 },
                 stubs: {
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot></slot></div>',
+                    'mt-card': {
+                        template: '<div class="mt-card"><slot></slot></div>',
                     },
                     'sw-product-packaging-form': await wrapTestComponent('sw-product-packaging-form', { sync: true }),
                     'sw-product-properties': true,
@@ -40,7 +40,6 @@ async function createWrapper(privileges = []) {
                     'sw-custom-field-set-renderer': true,
                     'sw-container': await wrapTestComponent('sw-container'),
                     'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper', { sync: true }),
-                    'sw-number-field': true,
                     'sw-text-field': true,
                     'sw-text-editor': true,
                     'sw-entity-single-select': true,
@@ -160,9 +159,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
 
         await nextTick();
 
-        expect(wrapper.find('.sw-product-detail-specification__measures-packaging').attributes().style).toBe(
-            'display: none;',
-        );
+        expect(wrapper.find('.sw-product-detail-specification__measures-packaging').exists()).toBeFalsy();
     });
 
     it('should show Properties card even advanced mode is off', async () => {
@@ -366,8 +363,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
         await wrapper.vm.$nextTick();
 
         const cardElement = wrapper.find('.sw-product-detail-specification__measures-packaging');
-        const cardStyles = cardElement.attributes('style');
 
-        expect(cardStyles).toBe('display: none;');
+        expect(cardElement.exists()).toBeFalsy();
     });
 });

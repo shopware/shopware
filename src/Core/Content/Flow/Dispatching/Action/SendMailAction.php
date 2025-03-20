@@ -10,7 +10,6 @@ use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
-use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
@@ -72,7 +71,6 @@ class SendMailAction extends FlowAction implements DelayableAction
 
     /**
      * @throws MailEventConfigurationException
-     * @throws SalesChannelNotFoundException
      * @throws InconsistentCriteriaIdsException
      */
     public function handleFlow(StorableFlow $flow): void

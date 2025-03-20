@@ -13,11 +13,6 @@ class AdministrationRouteScope extends AbstractRouteScope implements ApiContextR
     final public const ID = 'administration';
 
     /**
-     * @var list<string>
-     */
-    protected array $allowedPaths;
-
-    /**
      * @internal
      */
     public function __construct(string $administrationPathName = 'admin')

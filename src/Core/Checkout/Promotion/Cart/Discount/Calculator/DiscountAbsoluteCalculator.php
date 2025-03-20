@@ -53,7 +53,7 @@ class DiscountAbsoluteCalculator implements DiscountCalculatorInterface
     }
 
     /**
-     * @return DiscountCompositionItem[]
+     * @return list<DiscountCompositionItem>
      */
     private function getCompositionItems(float $discountValue, DiscountPackageCollection $packages, float $totalOriginalSum): array
     {

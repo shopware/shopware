@@ -4,7 +4,6 @@ import template from './sw-order-promotion-field.html.twig';
 /**
  * @sw-package checkout
  */
-
 const { Store } = Shopware;
 const { ChangesetGenerator } = Shopware.Data;
 
@@ -40,8 +39,8 @@ export default {
     },
 
     emits: [
-        'loading-change',
         'error',
+        'loading-change',
         'reload-entity-data',
     ],
 
@@ -65,16 +64,20 @@ export default {
     },
 
     computed: {
-        order: () => Store.get('swOrderDetail').order,
+        order() {
+            return Store.get('swOrderDetail').order;
+        },
 
-        versionContext: () => Store.get('swOrderDetail').versionContext,
+        versionContext() {
+            return Store.get('swOrderDetail').versionContext;
+        },
 
         orderLineItemRepository() {
             return this.repositoryFactory.create('order_line_item');
         },
 
         hasLineItem() {
-            return this.order.lineItems.filter((item) => item.hasOwnProperty('id')).length > 0;
+            return this.order.lineItems.some((item) => item.hasOwnProperty('id'));
         },
 
         currency() {
@@ -135,7 +138,9 @@ export default {
         // Validate if switch can be toggled
         disabledAutoPromotions(newState, oldState) {
             // To prevent recursion when value is set in next tick
-            if (oldState === this.hasAutomaticPromotions) return;
+            if (oldState === this.hasAutomaticPromotions) {
+                return;
+            }
 
             this.toggleAutomaticPromotions(newState);
         },
@@ -155,127 +160,106 @@ export default {
             this.disabledAutoPromotions = !this.hasAutomaticPromotions;
         },
 
+        emitEntityData() {
+            this.$emit('reload-entity-data');
+
+            if (this.swOrderDetailOnReloadEntityData) {
+                this.swOrderDetailOnReloadEntityData();
+            }
+        },
+
+        emitLoadingChange(state) {
+            this.$emit('loading-change', state);
+
+            if (this.swOrderDetailOnLoadingChange) {
+                this.swOrderDetailOnLoadingChange(state);
+            }
+        },
+
+        handleUnsavedOrderChangesResponse() {
+            this.createNotificationWarning({
+                message: this.$tc('sw-order.detailBase.textUnsavedChanges', 0),
+            });
+        },
+
+        handleError(error) {
+            this.emitLoadingChange(false);
+            this.$emit('error', error);
+
+            if (this.swOrderDetailOnError) {
+                this.swOrderDetailOnError(error);
+            }
+        },
+
         deleteAutomaticPromotions() {
             if (this.automaticPromotions.length === 0) {
                 return Promise.resolve();
             }
 
-            const deletionPromises = [];
-
-            this.automaticPromotions.forEach((promotion) => {
-                deletionPromises.push(this.orderLineItemRepository.delete(promotion.id, this.versionContext));
+            const deletionPromises = this.automaticPromotions.map((promotion) => {
+                return this.orderLineItemRepository.delete(promotion.id, this.versionContext);
             });
 
             return Promise.all(deletionPromises)
                 .then(() => {
                     this.automaticPromotions.forEach((promotion) => {
                         this.createNotificationSuccess({
-                            message: this.$tc(
-                                'sw-order.detailBase.textPromotionRemoved',
-                                {
-                                    promotion: promotion.label,
-                                },
-                                0,
-                            ),
+                            message: this.$tc('sw-order.detailBase.textPromotionRemoved', { promotion: promotion.label }, 0),
                         });
                     });
                 })
-                .catch((error) => {
-                    this.$emit('loading-change', false);
-                    if (this.swOrderDetailOnLoadingChange) {
-                        this.swOrderDetailOnLoadingChange(false);
-                    }
-
-                    this.$emit('error', error);
-                    if (this.swOrderDetailOnError) {
-                        this.swOrderDetailOnError(error);
-                    }
-                });
+                .catch(this.handleError);
         },
 
         toggleAutomaticPromotions(state) {
-            this.$emit('loading-change', true);
-            if (this.swOrderDetailOnLoadingChange) {
-                this.swOrderDetailOnLoadingChange(true);
-            }
+            this.emitLoadingChange(true);
 
-            // Throw notification warning and reset switch state
             if (this.hasOrderUnsavedChanges) {
-                this.$emit('loading-change', false);
-                if (this.swOrderDetailOnLoadingChange) {
-                    this.swOrderDetailOnLoadingChange(false);
-                }
+                this.emitLoadingChange(false);
+
                 this.handleUnsavedOrderChangesResponse();
                 this.$nextTick(() => {
                     this.disabledAutoPromotions = !state;
                 });
+
                 return;
             }
 
             this.deleteAutomaticPromotions()
                 .then(() => {
-                    return this.orderService.toggleAutomaticPromotions(this.order.id, this.order.versionId, state);
+                    this.orderService.toggleAutomaticPromotions(this.order.id, this.order.versionId, state);
                 })
-                .then((response) => {
-                    this.handlePromotionResponse(response);
-                    this.$emit('reload-entity-data');
-                    if (this.swOrderDetailOnReloadEntityData) {
-                        this.swOrderDetailOnReloadEntityData();
-                    }
-                })
-                .catch((error) => {
-                    this.$emit('loading-change', false);
-                    if (this.swOrderDetailOnLoadingChange) {
-                        this.swOrderDetailOnLoadingChange(false);
-                    }
-                    this.$emit('error', error);
-                    if (this.swOrderDetailOnError) {
-                        this.swOrderDetailOnError(error);
-                    }
-                });
+                .then(this.handlePromotionResponse)
+                .catch(this.handleError);
         },
 
         onSubmitCode(code) {
-            this.$emit('loading-change', true);
-            if (this.swOrderDetailOnLoadingChange) {
-                this.swOrderDetailOnLoadingChange(true);
-            }
+            this.emitLoadingChange(true);
 
             if (this.hasOrderUnsavedChanges) {
-                this.$emit('loading-change', false);
-                if (this.swOrderDetailOnLoadingChange) {
-                    this.swOrderDetailOnLoadingChange(false);
-                }
+                this.emitLoadingChange(false);
                 this.handleUnsavedOrderChangesResponse();
+
                 return;
             }
 
             this.orderService
                 .addPromotionToOrder(this.order.id, this.order.versionId, code)
-                .then((response) => {
-                    this.handlePromotionResponse(response);
-                    this.$emit('reload-entity-data');
-                    if (this.swOrderDetailOnReloadEntityData) {
-                        this.swOrderDetailOnReloadEntityData();
-                    }
-                })
-                .catch((error) => {
-                    this.$emit('loading-change', false);
-                    if (this.swOrderDetailOnLoadingChange) {
-                        this.swOrderDetailOnLoadingChange(false);
-                    }
-                    this.$emit('error', error);
-                    if (this.swOrderDetailOnError) {
-                        this.swOrderDetailOnError(error);
-                    }
-                });
+                .then(this.handlePromotionResponse)
+                .catch(this.handleError);
         },
 
         handlePromotionResponse(response) {
-            Object.values(response.data.errors).forEach((value) => {
+            this.emitEntityData();
+
+            if (!response?.data?.errors) {
+                return;
+            }
+
+            Object.values(response?.data?.errors).forEach((value) => {
                 switch (value.level) {
                     case 0: {
-                        this.createNotificationSuccess({
+                        this.createNotificationInfo({
                             message: value.message,
                         });
                         break;
@@ -298,21 +282,13 @@ export default {
             });
         },
 
-        handleUnsavedOrderChangesResponse() {
-            this.createNotificationWarning({
-                message: this.$tc('sw-order.detailBase.textUnsavedChanges', 0),
-            });
-        },
-
         onRemoveExistingCode(removedItem) {
-            this.$emit('loading-change', true);
+            this.emitLoadingChange(true);
 
             if (this.hasOrderUnsavedChanges) {
-                this.$emit('loading-change', false);
-                if (this.swOrderDetailOnLoadingChange) {
-                    this.swOrderDetailOnLoadingChange(false);
-                }
+                this.emitLoadingChange(false);
                 this.handleUnsavedOrderChangesResponse();
+
                 return;
             }
 
@@ -322,22 +298,8 @@ export default {
 
             this.orderLineItemRepository
                 .delete(lineItem.id, this.versionContext)
-                .then(() => {
-                    this.$emit('reload-entity-data');
-                    if (this.swOrderDetailOnReloadEntityData) {
-                        this.swOrderDetailOnReloadEntityData();
-                    }
-                })
-                .catch((error) => {
-                    this.$emit('loading-change', false);
-                    if (this.swOrderDetailOnLoadingChange) {
-                        this.swOrderDetailOnLoadingChange(false);
-                    }
-                    this.$emit('error', error);
-                    if (this.swOrderDetailOnError) {
-                        this.swOrderDetailOnError(error);
-                    }
-                });
+                .then(this.emitEntityData)
+                .catch(this.handleError);
         },
 
         getLineItemByPromotionCode(code) {

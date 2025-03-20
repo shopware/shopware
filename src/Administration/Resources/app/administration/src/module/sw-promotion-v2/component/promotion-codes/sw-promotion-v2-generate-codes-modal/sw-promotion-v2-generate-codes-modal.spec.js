@@ -56,8 +56,8 @@ async function createWrapper(propsData = {}) {
             },
             global: {
                 stubs: {
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot /></div>',
+                    'mt-card': {
+                        template: '<div class="mt-card"><slot /></div>',
                     },
                     'sw-container': {
                         template: '<div class="sw-container"><slot /></div>',
@@ -66,17 +66,10 @@ async function createWrapper(propsData = {}) {
                         template: '<input class="sw-text-field"></input>',
                         props: ['value'],
                     },
-                    'sw-number-field': {
-                        template: '<input class="sw-number-field"></input>',
-                        props: ['value'],
-                    },
-                    'sw-switch-field': true,
                     'sw-field-error': true,
                     'sw-modal': {
                         template: '<div class="sw-modal"><slot /></div>',
                     },
-
-                    'sw-button': true,
                     'sw-button-process': true,
                 },
                 provide: {
@@ -107,14 +100,16 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
         await wrapper.vm.$nextTick();
         jest.advanceTimersByTime(1000);
 
-        expect(wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__prefix').props('value')).toBe('PREFIX_');
-        expect(wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__replacement').props('value')).toBe(4);
-        expect(wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__suffix').props('value')).toBe('_SUFFIX');
+        expect(wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__prefix').props('modelValue')).toBe('PREFIX_');
+        expect(
+            wrapper.findByLabel('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCodeLength').element.value,
+        ).toBe('4');
+        expect(wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__suffix').props('modelValue')).toBe('_SUFFIX');
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__preview').props('value')).toBe(mockCode);
+        expect(wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__preview').props('modelValue')).toBe(mockCode);
     });
 
     it('should generate a correct preview in custom mode', async () => {
@@ -133,13 +128,13 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
         const inputCustomPattern = wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__custom-pattern');
         const inputPreview = wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__preview');
 
-        expect(inputCustomPattern.props('value')).toBe('%d%d%d');
-        expect(inputPreview.props('value')).toBe(mockCode);
+        expect(inputCustomPattern.props('modelValue')).toBe('%d%d%d');
+        expect(inputPreview.props('modelValue')).toBe(mockCode);
 
         expect(wrapper.get('.sw-promotion-v2-generate-codes-modal__custom-pattern').isVisible()).toBe(true);
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__preview').props('value')).toBe(mockCode);
+        expect(wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__preview').props('modelValue')).toBe(mockCode);
     });
 
     it('should show or hide alert depends on existing individualCodes', async () => {

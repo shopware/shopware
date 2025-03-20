@@ -28,8 +28,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                 stubs: {
                     'sw-page': await wrapTestComponent('sw-page'),
                     'sw-loader': await wrapTestComponent('sw-loader'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
                     'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
                     'sw-bulk-edit-custom-fields': await wrapTestComponent('sw-bulk-edit-custom-fields'),
@@ -41,14 +39,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
                     'sw-empty-state': await wrapTestComponent('sw-empty-state'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
                     'sw-single-select': await wrapTestComponent('sw-single-select'),
-                    'sw-number-field': await wrapTestComponent('sw-number-field'),
-                    'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
@@ -69,9 +61,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     'sw-text-editor': true,
                     'sw-language-switch': true,
                     'sw-notification-center': true,
-                    'sw-icon': true,
                     'sw-help-text': true,
-
                     'sw-label': true,
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
@@ -96,17 +86,14 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     'sw-bulk-edit-save-modal': await wrapTestComponent('sw-bulk-edit-save-modal', { sync: true }),
                     'sw-app-topbar-button': true,
                     'sw-help-center-v2': true,
-                    'mt-button': true,
                     'mt-loader': true,
                     'sw-loader-deprecated': true,
-                    'mt-card': true,
                     'sw-ai-copilot-badge': true,
                     'sw-context-button': true,
                     'sw-inheritance-switch': true,
                     'sw-inherit-wrapper': true,
                     'sw-media-collapse': true,
                     'mt-tabs': true,
-                    'mt-checkbox': true,
                     'sw-highlight-text': true,
                     'sw-select-result': true,
                     'sw-select-result-list': true,
@@ -507,7 +494,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                 },
             },
         });
-        expect(wrapper.find('.sw-button-process').classes()).toContain('sw-button--disabled');
+        expect(wrapper.find('.sw-button-process').attributes('disabled') !== undefined).toBe(true);
 
         await wrapper.setData({
             isLoading: false,
@@ -523,6 +510,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                 },
             },
         });
-        expect(wrapper.find('.sw-button-process').classes()).not.toContain('sw-button--disabled');
+        expect(wrapper.find('.sw-button-process').attributes('disabled')).toBeUndefined();
     });
 });

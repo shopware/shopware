@@ -10,7 +10,7 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-card-view': true,
-                'sw-card': {
+                'mt-card': {
                     template: `
                         <div class="sw-card__content">
                             <slot name="grid"></slot>
@@ -20,29 +20,13 @@ async function createWrapper() {
                 'sw-container': await wrapTestComponent('sw-container', {
                     sync: true,
                 }),
+                'sw-number-field': await wrapTestComponent('sw-number-field', { sync: true }),
                 'sw-card-section': await wrapTestComponent('sw-card-section', { sync: true }),
                 'sw-description-list': await wrapTestComponent('sw-description-list', { sync: true }),
                 'sw-order-saveable-field': await wrapTestComponent('sw-order-saveable-field', { sync: true }),
-                'sw-number-field': {
-                    template: `
-                        <input type="number" :value="value" @input="$emit('update:value', Number($event.target.value))" />
-                    `,
-                    props: {
-                        value: 0,
-                    },
-                },
                 'sw-order-line-items-grid-sales-channel': true,
                 'sw-extension-component-section': true,
                 'sw-order-create-general-info': true,
-                'sw-icon': true,
-                'sw-button': {
-                    emits: ['click'],
-                    template: `
-                        <button class="sw-button" @click="$emit('click')">
-                            <slot />
-                        </button>
-                    `,
-                },
             },
         },
     });
@@ -197,7 +181,7 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
         await saveableField.trigger('input');
         await flushPromises();
 
-        button = wrapper.find('.sw-order-saveable-field .sw-button[variant="primary"]');
+        button = wrapper.findByAriaLabel('button', 'global.default.save');
         await button.trigger('click');
         await flushPromises();
 

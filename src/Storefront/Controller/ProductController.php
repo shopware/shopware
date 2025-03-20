@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
-use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\AbstractFindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader;
@@ -162,7 +161,7 @@ class ProductController extends StorefrontController
     }
 
     /**
-     * @throws ReviewNotActiveExeption
+     * @throws StorefrontException
      */
     private function checkReviewsActive(SalesChannelContext $context): void
     {

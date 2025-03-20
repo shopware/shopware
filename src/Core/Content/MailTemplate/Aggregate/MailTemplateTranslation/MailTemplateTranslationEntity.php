@@ -24,7 +24,7 @@ class MailTemplateTranslationEntity extends TranslationEntity
 
     protected ?string $contentPlain = null;
 
-    protected ?MailTemplateEntity $mailTemplate;
+    protected ?MailTemplateEntity $mailTemplate = null;
 
     public function getMailTemplateId(): string
     {

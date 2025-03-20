@@ -45,7 +45,6 @@ async function createWrapper() {
             },
             global: {
                 stubs: {
-                    'sw-icon': true,
                     'sw-cms-section-actions': true,
                     'sw-cms-block': {
                         template: '<div class="sw-cms-block"><slot /></div>',
@@ -97,6 +96,8 @@ describe('module/sw-cms/component/sw-cms-section', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
+        expect(wrapper.vm.section.backgroundMediaMode).toBe('cover');
+        expect(wrapper.vm.section.backgroundColor).toBe('');
     });
 
     it('should not disable all sub components', async () => {

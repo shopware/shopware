@@ -1,7 +1,7 @@
 {% block sw_product_cross_selling_form %}
 <div class="product-detail-cross-selling-form">
     {% block sw_prduct_cross_selling_form_card %}
-    <sw-card
+    <mt-card
         :title="crossSelling.name"
         position-identifier="sw-product-cross-selling-form"
     >
@@ -32,8 +32,9 @@
                 align="start"
             >
                 {% block sw_prduct_cross_selling_form_title_field %}
-                <sw-text-field
-                    v-model:value="crossSelling.name"
+
+                <mt-text-field
+                    v-model="crossSelling.name"
                     name="sw-field--crossSelling-name"
                     :label="$tc('sw-product.crossselling.inputCrossSellingTitle')"
                     required
@@ -43,8 +44,9 @@
                 />
                 {% endblock %}
                 {% block sw_prduct_cross_selling_form_active_field %}
-                <sw-switch-field
-                    v-model:value="crossSelling.active"
+
+                <mt-switch
+                    v-model="crossSelling.active"
                     class="sw-product-detail-cross-selling__active-switch"
                     :label="$tc('sw-product.crossselling.inputCrossSellingActive')"
                     :disabled="!allowEdit"
@@ -58,25 +60,18 @@
                 gap="0px 30px"
             >
                 {% block sw_prduct_cross_selling_form_type %}
-                <sw-select-field
-                    v-model:value="crossSelling.type"
+                <mt-select
+                    v-model="crossSelling.type"
                     :label="$tc('sw-product.crossselling.inputCrossSellingType')"
                     :error="crossSellingTypeError"
                     :disabled="!allowEdit"
-                    @update:value="onTypeChanged"
-                >
-                    <option
-                        v-for="option in crossSellingTypes"
-                        :key="option.value"
-                        :value="option.value"
-                    >
-                        {{ option.label }}
-                    </option>
-                </sw-select-field>
+                    :options="crossSellingTypeOptions"
+                    @update:model-value="onTypeChanged"
+                />
                 {% endblock %}
                 {% block sw_prduct_cross_selling_form_position_field %}
-                <sw-number-field
-                    v-model:value="crossSelling.position"
+                <mt-number-field
+                    v-model="crossSelling.position"
                     number-type="int"
                     :min="1"
                     :label="$tc('sw-product.crossselling.inputCrossSellingPosition')"
@@ -106,25 +101,18 @@
                     gap="0px 30px"
                 >
                     {% block sw_prduct_cross_selling_form_sort_field %}
-                    <sw-select-field
+                    <mt-select
                         :label="$tc('sw-product.crossselling.inputCrossSellingSorting')"
-                        :value="sortingConCat"
+                        :model-value="sortingConCat"
                         :disabled="!allowEdit"
-                        @update:value="onSortingChanged"
-                    >
-                        <option
-                            v-for="option in sortingTypes"
-                            :key="option.value"
-                            :value="option.value"
-                        >
-                            {{ option.label }}
-                        </option>
-                    </sw-select-field>
+                        :options="sortingTypeOptions"
+                        @update:model-value="onSortingChanged"
+                    />
                     {% endblock %}
 
                     {% block sw_prduct_cross_selling_form_limit_field %}
-                    <sw-number-field
-                        v-model:value="crossSelling.limit"
+                    <mt-number-field
+                        v-model="crossSelling.limit"
                         number-type="int"
                         :label="$tc('sw-product.crossselling.inputCrossSellingLimit')"
                         :disabled="!allowEdit"
@@ -147,9 +135,9 @@
                         @keydown.enter="openModalPreview"
                     >
                         {{ $tc('sw-product.crossselling.linkOpenStreamPreview') }}
-                        <sw-icon
+                        <mt-icon
                             name="regular-long-arrow-right"
-                            small
+                            size="16px"
                         />
                     </a>
                 </sw-container>
@@ -175,7 +163,7 @@
             />
             {% endblock %}
         </div>
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_product_detail_cross_selling_form_modal_delete %}
@@ -195,23 +183,24 @@
         {% block sw_product_detail_cross_selling_form_modal_delete_footer %}
         <template #modal-footer>
             {% block sw_product_detail_cross_selling_modal_delete_action_cancel %}
-            <sw-button
+            <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCloseDeleteModal"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_product_detail_cross_selling_form_modal_delete_action_delete %}
-            <sw-button
+            <mt-button
                 class="sw-product-detail-cross-selling__delete-button"
                 size="small"
-                variant="danger"
+                variant="critical"
                 @click="onConfirmDelete"
             >
                 {{ $tc('sw-product.crossselling.deleteButtonDelete') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
         {% endblock %}

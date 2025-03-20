@@ -21,6 +21,7 @@ use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -31,6 +32,7 @@ use Symfony\Contracts\Cache\CacheInterface;
  * @internal
  */
 #[CoversClass(CartRuleLoader::class)]
+#[Package('checkout')]
 class CartRuleLoaderTest extends TestCase
 {
     public function testLoadByTokenCreatesNewCart(): void
@@ -38,39 +40,39 @@ class CartRuleLoaderTest extends TestCase
         $newCart = new Cart('test');
         $factory = $this->createMock(CartFactory::class);
         $factory
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('createNew')
             ->with('test')
             ->willReturn($newCart);
 
         $persister = $this->createMock(AbstractCartPersister::class);
         $persister
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->with('test')
             ->willThrowException(CartException::tokenNotFound('test'));
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getToken')
             ->willReturn('test');
         $salesChannelContext
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('getContext')
             ->willReturn(Context::createDefaultContext());
 
         $calculatedCart = new Cart('calculated');
         $processor = $this->createMock(Processor::class);
         $processor
-            ->expects(static::exactly(3))
+            ->expects($this->exactly(3))
             ->method('process')
             ->with(static::isInstanceOf(Cart::class), $salesChannelContext, static::isInstanceOf(CartBehavior::class))
             ->willReturn($calculatedCart);
 
         $ruleLoader = $this->createMock(RuleLoader::class);
         $ruleLoader
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->with($salesChannelContext->getContext())
             ->willReturn(new RuleCollection());
@@ -126,7 +128,7 @@ class CartRuleLoaderTest extends TestCase
 
         $ruleLoader = $this->createMock(RuleLoader::class);
         $ruleLoader
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->with($salesChannelContext->getContext())
             ->willReturn(new RuleCollection([$rule1, $rule2, $rule3]))
@@ -134,7 +136,7 @@ class CartRuleLoaderTest extends TestCase
 
         $processor = $this->createMock(Processor::class);
         $processor
-            ->expects(static::exactly(3))
+            ->expects($this->exactly(3))
             ->method('process')
             ->with(static::isInstanceOf(Cart::class), static::callback(function (SalesChannelContext $context) use ($ruleIds, $areaRuleIds) {
                 static::assertEquals($ruleIds, $context->getRuleIds());

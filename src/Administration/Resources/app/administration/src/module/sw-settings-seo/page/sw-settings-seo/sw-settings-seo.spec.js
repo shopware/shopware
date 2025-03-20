@@ -9,7 +9,7 @@ const classes = {
     cardView: 'sw-card-view',
     templateCard: 'sw-seo-url-template-card',
     systemConfig: 'sw-system-config',
-    settingsCard: 'sw-card',
+    settingsCard: 'mt-card',
 };
 
 async function createWrapper() {
@@ -21,16 +21,12 @@ async function createWrapper() {
             global: {
                 stubs: {
                     'sw-page': await wrapTestComponent('sw-page'),
-                    'sw-icon': true,
-                    'sw-button': true,
                     'sw-card-view': await wrapTestComponent('sw-card-view'),
                     'sw-seo-url-template-card': true,
                     'sw-system-config': await wrapTestComponent('sw-system-config'),
                     'sw-search-bar': true,
                     'sw-notification-center': true,
                     'sw-help-center': true,
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-ignore-class': true,
                     'sw-loader': true,
                     'sw-app-actions': true,

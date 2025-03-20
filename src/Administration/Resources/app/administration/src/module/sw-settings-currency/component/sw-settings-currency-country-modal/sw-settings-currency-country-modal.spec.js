@@ -29,7 +29,6 @@ async function createWrapper() {
                     'sw-modal': true,
                     'sw-entity-single-select': true,
                     'sw-settings-price-rounding': true,
-                    'sw-button': true,
                     'sw-highlight-text': true,
                     'sw-select-result': true,
                 },

@@ -437,6 +437,30 @@ All available Hooks that can be used to load additional data.
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>[request](./miscellaneous-script-services-reference.md#RequestFacade)<br> |
 | **Stoppable**          | `false`                  |
 
+#### footer-pagelet-loaded
+
+| <!-- -->               | <!-- -->                                |
+|:-----------------------|:----------------------------------------|
+| **Name**               | footer-pagelet-loaded                         |
+| **Since**              | 6.7.0.0                        |
+| **Class**              | `Shopware\Storefront\Pagelet\Footer\FooterPageletLoadedHook`                      |
+| **Description**        | Triggered when the FooterPagelet is loaded<br>                  |
+| **Available Data**     | page: [`Shopware\Storefront\Pagelet\Footer\FooterPagelet`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Pagelet/Footer/FooterPagelet.php)<br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php)<br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php)<br>        |
+| **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>[request](./miscellaneous-script-services-reference.md#RequestFacade)<br> |
+| **Stoppable**          | `false`                  |
+
+#### header-pagelet-loaded
+
+| <!-- -->               | <!-- -->                                |
+|:-----------------------|:----------------------------------------|
+| **Name**               | header-pagelet-loaded                         |
+| **Since**              | 6.7.0.0                        |
+| **Class**              | `Shopware\Storefront\Pagelet\Header\HeaderPageletLoadedHook`                      |
+| **Description**        | Triggered when the HeaderPagelet is loaded<br>                  |
+| **Available Data**     | page: [`Shopware\Storefront\Pagelet\Header\HeaderPagelet`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Pagelet/Header/HeaderPagelet.php)<br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php)<br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php)<br>        |
+| **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>[request](./miscellaneous-script-services-reference.md#RequestFacade)<br> |
+| **Stoppable**          | `false`                  |
+
 #### menu-offcanvas-pagelet-loaded
 
 | <!-- -->               | <!-- -->                                |

@@ -50,7 +50,7 @@
             class="sw-extension-my-extensions-listing__empty-state"
         >
             <img
-                :src="assetFilter('administration/static/img/empty-states/extensions-empty-state.svg')"
+                :src="assetFilter('administration/administration/static/img/empty-states/extensions-empty-state.svg')"
                 alt=""
             >
 
@@ -68,12 +68,13 @@
                 {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.apps.textEmptyState') }}
             </p>
 
-            <sw-button
-                variant="ghost"
+            <mt-button
+                ghost
+                variant="secondary"
                 @click="isThemeRoute ? openThemesStore() : openStore()"
             >
                 {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.btnOpenStore') }}
-            </sw-button>
+            </mt-button>
         </sw-meteor-card>
 
         {% endblock %}
@@ -95,7 +96,7 @@
                     class="sw-extension-my-extensions-listing__empty-state"
                 >
                     <img
-                        :src="assetFilter('administration/static/img/empty-states/extensions-empty-state.svg')"
+                        :src="assetFilter('administration/administration/static/img/empty-states/extensions-empty-state.svg')"
                         alt=""
                     >
 

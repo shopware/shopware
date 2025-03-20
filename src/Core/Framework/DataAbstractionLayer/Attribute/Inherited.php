@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-class Inherited
+final class Inherited
 {
     public function __construct(public bool $reversed = false)
     {

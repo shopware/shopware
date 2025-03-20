@@ -33,7 +33,7 @@ Shopware.Service('cmsService').registerCmsBlock({
         marginRight: null,
         sizingMode: 'boxed',
         backgroundMedia: {
-            url: '/administration/static/img/cms/preview_mountain_large.jpg',
+            url: '/administration/administration/static/img/cms/preview_mountain_large.jpg',
         },
     },
     slots: {

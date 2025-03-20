@@ -22,17 +22,12 @@ async function createWrapper() {
             },
             global: {
                 stubs: {
-                    'sw-card': true,
                     'sw-container': true,
                     'sw-context-button': true,
                     'sw-text-field': true,
-                    'sw-button': true,
                     'sw-context-menu-item': true,
-                    'sw-switch-field': true,
                     'sw-select-field': true,
-                    'sw-number-field': true,
                     'sw-entity-single-select': true,
-                    'sw-icon': true,
                     'sw-product-cross-selling-assignment': true,
                     'sw-product-stream-modal-preview': true,
                     'sw-modal': true,

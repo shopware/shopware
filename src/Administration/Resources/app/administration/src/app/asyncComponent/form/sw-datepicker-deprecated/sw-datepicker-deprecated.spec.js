@@ -12,7 +12,6 @@ async function createWrapper(customOptions = {}) {
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-icon': true,
                 'sw-field-error': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
@@ -107,7 +106,6 @@ describe('src/app/component/form/sw-datepicker', () => {
                         'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
                         'sw-contextual-field': await wrapTestComponent('sw-contextual-field', { sync: true }),
                         'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
-                        'sw-icon': true,
                         'sw-field-error': true,
                         'sw-inheritance-switch': true,
                         'sw-ai-copilot-badge': true,
@@ -154,7 +152,7 @@ describe('src/app/component/form/sw-datepicker', () => {
             await nextTick();
 
             const hint = wrapper.find('.sw-field__hint');
-            const clockIcon = hint.find('sw-icon-stub[name="solid-clock"]');
+            const clockIcon = hint.find('.mt-icon.icon--solid-clock');
 
             expect(hint.text()).toContain(expectedTimeZone);
             expect(clockIcon.isVisible()).toBe(true);

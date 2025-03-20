@@ -77,13 +77,6 @@ async function createWrapper(query = {}) {
                             'initial-search',
                         ],
                     },
-                    'sw-button': {
-                        template: '<div class="sw-button"></div>',
-                        props: [
-                            'router-link',
-                            'variant',
-                        ],
-                    },
                     'sw-entity-listing': {
                         template: '<div class="sw-entity-listing"></div>',
                         props: [
@@ -146,7 +139,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
         const imageElement = wrapper.get('.sw-empty-state img');
 
         expect(imageElement.attributes()).toStrictEqual({
-            src: 'administration/static/img/empty-states/custom-entity-empty-state.svg',
+            src: 'administration/administration/static/img/empty-states/custom-entity-empty-state.svg',
             alt: 'custom_test_entity.list.emptyState',
         });
     });

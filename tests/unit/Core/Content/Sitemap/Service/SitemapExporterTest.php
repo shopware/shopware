@@ -8,6 +8,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Content\Sitemap\Provider\AbstractUrlProvider;
 use Shopware\Core\Content\Sitemap\Provider\CustomUrlProvider;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporter;
 use Shopware\Core\Content\Sitemap\Service\SitemapHandleFactoryInterface;
@@ -114,7 +115,10 @@ class SitemapExporterTest extends TestCase
         $cartRuleLoader->expects(static::never())->method('loadByToken');
     }
 
-    private function sitemapExporter(
+    /**
+     * @param iterable<AbstractUrlProvider>|null $urlProvider
+     */
+    private function sitkitemapExporter(
         CacheItemPoolInterface&MockObject $cache,
         ?iterable $urlProvider = null,
         (SitemapHandleFactoryInterface&MockObject)|null $sitemapHandleFactory = null,

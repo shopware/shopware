@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Sitemap\Service;
 
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
@@ -67,38 +68,17 @@ class SitemapExporterTest extends TestCase
         $cacheItemPoolInterface = $this->createMock(CacheItemPoolInterface::class);
         $cacheItemPoolInterface->method('getItem')->willReturn(new CacheItem());
 
-        $exporter = new SitemapExporter(
-            [
-                $customerUrlProvider,
-            ],
-            $cacheItemPoolInterface,
-            10,
-            $this->createMock(FilesystemOperator::class),
-            $sitemapHandlerFactory,
-            $this->createMock(EventDispatcher::class),
-            $this->createMock(CartRuleLoader::class)
-        );
+        $exporter = $this->sitemapExporter($cacheItemPoolInterface, [$customerUrlProvider], $sitemapHandlerFactory);
 
         $languageId = Uuid::randomHex();
-        $salesChannel = new SalesChannelEntity();
-        $salesChannel->setId('testSalesChannel');
-        $salesChannel->setLanguageId($languageId);
+        $salesChannel = $this->salesChannel('testSalesChannel', $languageId);
 
-        $domainA = new SalesChannelDomainEntity();
-        $domainA->setId('testDomainA');
-        $domainA->setUrl('https://test.com/');
-        $domainA->setLanguageId($languageId);
-
-        $domainB = new SalesChannelDomainEntity();
-        $domainB->setId('testDomainB');
-        $domainB->setUrl('https://test.com');
-        $domainB->setLanguageId($languageId);
+        $domainA = $this->salesChannelDomain('testDomainA', 'https://test.com/', $languageId);
+        $domainB = $this->salesChannelDomain('testDomainB', 'https://test.com', $languageId);
 
         $salesChannel->setDomains(new SalesChannelDomainCollection([$domainA, $domainB]));
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
-        $salesChannelContext->method('getLanguageId')->willReturn($languageId);
+        $salesChannelContext = $this->mockSalesChannelContext($salesChannel);
 
         $expectedUrls = [];
         foreach ($urls as $url) {
@@ -110,5 +90,78 @@ class SitemapExporterTest extends TestCase
         $sitemapHandler1->expects(static::once())->method('write')->with($expectedUrls);
         $sitemapHandler2->expects(static::once())->method('write')->with($expectedUrls);
         $exporter->generate($salesChannelContext);
+    }
+
+    public function testDoesNotRefreshSalesChannelWithRules(): void
+    {
+        $salesChannel = $this->salesChannel('salesChannelWithRules');
+        $salesChannelRules = array_map(fn () => Uuid::randomHex(), range(0, 2));
+
+        $domain = $this->salesChannelDomain('testDomain', 'https://test.com', $salesChannel->getLanguageId());
+        $salesChannel->setDomains(new SalesChannelDomainCollection([$domain]));
+
+        $salesChannelContext = $this->mockSalesChannelContext($salesChannel);
+        $salesChannelContext->expects(static::once())->method('getRuleIds')->willReturn($salesChannelRules);
+
+        $cache = $this->createMock(CacheItemPoolInterface::class);
+        $cache->method('getItem')->willReturn(new CacheItem());
+
+        $cartRuleLoader = $this->createMock(CartRuleLoader::class);
+        $exporter = $this->sitemapExporter($cache, cartRuleLoader: $cartRuleLoader);
+        $exporter->generate($salesChannelContext);
+
+        $salesChannelContext->expects(static::never())->method('getToken');
+        $cartRuleLoader->expects(static::never())->method('loadByToken');
+    }
+
+    private function sitemapExporter(
+        CacheItemPoolInterface&MockObject $cache,
+        ?iterable $urlProvider = null,
+        (SitemapHandleFactoryInterface&MockObject)|null $sitemapHandleFactory = null,
+        ?CartRuleLoader $cartRuleLoader = null
+    ): SitemapExporter {
+        return new SitemapExporter(
+            $urlProvider ?? [],
+            $cache,
+            10,
+            $this->createMock(FilesystemOperator::class),
+            $sitemapHandleFactory ?? $this->createMock(SitemapHandleFactoryInterface::class),
+            $this->createMock(EventDispatcher::class),
+            $cartRuleLoader ?? $this->createMock(CartRuleLoader::class)
+        );
+    }
+
+    private function salesChannel(
+        string $salesChannelId,
+        ?string $languageId = null
+    ): SalesChannelEntity {
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId($salesChannelId);
+        $salesChannel->setLanguageId($languageId ?? Uuid::randomHex());
+
+        return $salesChannel;
+    }
+
+    private function salesChannelDomain(
+        string $domainId,
+        string $domainUrl,
+        ?string $languageId = null
+    ): SalesChannelDomainEntity {
+        $salesChannelDomain = new SalesChannelDomainEntity();
+        $salesChannelDomain->setId($domainId);
+        $salesChannelDomain->setUrl($domainUrl);
+        $salesChannelDomain->setLanguageId($languageId ?? Uuid::randomHex());
+
+        return $salesChannelDomain;
+    }
+
+    private function mockSalesChannelContext(
+        SalesChannelEntity $salesChannel,
+    ): SalesChannelContext&MockObject {
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
+        $salesChannelContext->method('getLanguageId')->willReturn($salesChannel->getLanguageId());
+
+        return $salesChannelContext;
     }
 }

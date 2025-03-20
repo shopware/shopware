@@ -17,7 +17,6 @@ use Symfony\Component\Messenger\TraceableMessageBus;
  * @internal
  */
 #[Package('framework')]
-#[Group('skip-paratest')]
 class CacheControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -71,6 +70,7 @@ class CacheControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($response->getContent(), true));
         $decodedContent = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
+        static::assertIsArray($decodedContent);
         static::assertArrayHasKey('environment', $decodedContent);
         static::assertSame('test', $decodedContent['environment']);
         static::assertArrayHasKey('httpCache', $decodedContent);

@@ -13,13 +13,11 @@ async function createWrapper() {
                     template:
                         '<div class="sw-page"><slot name="smart-bar-actions"></slot><slot name="content"></slot></div>',
                 },
-                'sw-button': true,
                 'sw-entity-listing': true,
                 'sw-promotion-v2-empty-state-hero': true,
                 'sw-context-menu-item': true,
                 'sw-search-bar': true,
                 'sw-language-switch': true,
-                'sw-icon': true,
                 'sw-sidebar-item': true,
                 'sw-sidebar': true,
             },
@@ -55,7 +53,7 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
         const smartBarButton = wrapper.find('.sw-promotion-v2-list__smart-bar-button-add');
 
         expect(smartBarButton.exists()).toBeTruthy();
-        expect(smartBarButton.attributes().disabled).toBeTruthy();
+        expect(smartBarButton.attributes('disabled')).toBeDefined();
     });
 
     it('should enable create button when privilege available', async () => {
@@ -257,6 +255,27 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
         expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
             name: 'sw.promotion.v2.detail',
             params: { id: 'new-promotion-id' },
+        });
+    });
+
+    it('should return correct tooltip for delete button', async () => {
+        const wrapper = await createWrapper();
+
+        const promotionWithOrders = { orderCount: 1 };
+        const promotionWithoutOrders = { orderCount: 0 };
+
+        const tooltipWithOrders = wrapper.vm.deleteDisabledTooltip(promotionWithOrders);
+        expect(tooltipWithOrders).toEqual({
+            showDelay: 300,
+            message: 'sw-promotion-v2.list.deleteDisabledToolTip',
+            disabled: false,
+        });
+
+        const tooltipWithoutOrders = wrapper.vm.deleteDisabledTooltip(promotionWithoutOrders);
+        expect(tooltipWithoutOrders).toEqual({
+            showDelay: 300,
+            message: 'sw-promotion-v2.list.deleteDisabledToolTip',
+            disabled: true,
         });
     });
 });

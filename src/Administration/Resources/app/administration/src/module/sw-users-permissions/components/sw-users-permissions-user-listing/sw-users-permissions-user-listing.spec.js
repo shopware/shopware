@@ -34,10 +34,8 @@ async function createWrapper(privileges = []) {
                     $route: { query: '' },
                 },
                 stubs: {
-                    'sw-card': true,
                     'sw-container': true,
                     'sw-simple-search-field': true,
-                    'sw-button': true,
                     'sw-data-grid': {
                         props: [
                             'dataSource',
@@ -55,7 +53,6 @@ async function createWrapper(privileges = []) {
                     'sw-avatar': true,
                     'router-link': true,
                     'sw-pagination': true,
-                    'sw-password-field': true,
                 },
             },
         },
@@ -142,13 +139,13 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
     });
 
     it('the card should contain the right title', async () => {
-        const title = wrapper.attributes().title;
-        expect(title).toBe('sw-users-permissions.users.general.cardLabel');
+        const title = wrapper.findByText('div', 'sw-users-permissions.users.general.cardLabel');
+        expect(title.exists()).toBe(true);
     });
 
     it('the add user button should be disabled', async () => {
         const addUser = wrapper.find('.sw-users-permissions-user-listing__add-user-button');
-        expect(addUser.attributes().disabled).toBe('true');
+        expect(addUser.attributes('disabled')).toBeDefined();
     });
 
     it('the add user button should be enabled', async () => {

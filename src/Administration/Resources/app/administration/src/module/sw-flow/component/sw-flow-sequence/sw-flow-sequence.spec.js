@@ -32,7 +32,7 @@ async function createWrapper(propsData = {}) {
 }
 
 describe('src/module/sw-flow/component/sw-flow-sequence', () => {
-    it.skip('should show sequence selector type correctly', async () => {
+    it('should show sequence selector type correctly', async () => {
         const wrapper = await createWrapper();
         const selector = wrapper.find('sw-flow-sequence-selector-stub');
         const action = wrapper.find('sw-flow-sequence-action-stub');
@@ -43,7 +43,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
         expect(condition.exists()).toBeFalsy();
     });
 
-    it.skip('should show sequence condition type correctly', async () => {
+    it('should show sequence condition type correctly', async () => {
         const wrapper = await createWrapper({
             sequence: {
                 ...sequenceFixture,
@@ -60,7 +60,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
         expect(condition.exists()).toBeTruthy();
     });
 
-    it.skip('should show sequence action type correctly', async () => {
+    it('should show sequence action type correctly', async () => {
         const wrapper = await createWrapper({
             sequence: {
                 ...sequenceFixture,
@@ -77,7 +77,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
         expect(condition.exists()).toBeFalsy();
     });
 
-    it.skip('should show block children correctly', async () => {
+    it('should show block children correctly', async () => {
         const wrapper = await createWrapper({
             sequence: {
                 ...sequenceFixture,

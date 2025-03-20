@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
 use Shopware\Storefront\Theme\Exception\ThemeException;
-use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
+use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCompilerInterface;
 use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -29,7 +29,7 @@ final class CompileThemeHandler
     public function __construct(
         private readonly ThemeCompilerInterface $themeCompiler,
         private readonly AbstractConfigLoader $configLoader,
-        private readonly StorefrontPluginRegistryInterface $extensionRegistry,
+        private readonly StorefrontPluginRegistry $extensionRegistry,
         private readonly NotificationService $notificationService,
         private readonly EntityRepository $saleschannelRepository
     ) {

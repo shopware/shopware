@@ -22,7 +22,7 @@ jobs:
           shopware-repository: ${{ github.repository }}
 
       - name: Cache ESLint and Stylelint
-        uses: actions/cache@v4
+        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # 4
         with:
           path: |
             src/Storefront/Resources/app/storefront/node_modules/.eslintcache
@@ -44,6 +44,30 @@ jobs:
           npm run lint:js
           npm run lint:scss
 
+  twig-lint-storefront:
+    name: Twig Lint (Storefront)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+
+      - name: Run ludtwig linter
+        uses: addnab/docker-run-action@4f65fabd2431ebc8d299f8e5a018d79a769ae185 # 3
+        with:
+          image: maltejanz/ludtwig:0.10.0
+          options: -v ${{ github.workspace }}:/ludtwig
+          run: |
+            cd ./src/Storefront/Resources/views
+            ludtwig .
+            status=$?  # Capture the exit code of ludtwig
+            ludtwig --version
+            echo "If you want to run this locally install https://github.com/MalteJanz/ludtwig in the version above"
+            echo "And then composer run ludtwig:storefront or ludtwig:storefront:fix"
+            echo "Alternatively you also can run these in the DevEnv shell"
+            exit $status  # Fail the job if ludtwig . failed
+
+
   jest:
     name: "Jest Storefront"
     runs-on: ubuntu-24.04
@@ -52,6 +76,7 @@ jobs:
       APP_URL: http://localhost:8000
       APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
       OPENSEARCH_URL: elasticsearch:9200
+      ADMIN_OPENSEARCH_URL: elasticsearch:9200
       BLUE_GREEN_DEPLOYMENT: 1
       COMPOSER_ROOT_VERSION: 6.7.9999999-dev
 
@@ -70,7 +95,7 @@ jobs:
           npm run unit -- --silent
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # 5
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
@@ -84,23 +109,15 @@ jobs:
       WHITELISTED_JS_PACKAGES: "abab@2.0.1;administration;taffydb@2.6.2"
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-      - name: package*.json changed
-        id: changed-package-json
-        uses: tj-actions/changed-files@v45
-        with:
-          files: src/Storefront/Resources/app/storefront/package*.json
-      - uses: actions/setup-node@v4
-        if: steps.changed-package-json.outputs.any_changed == 'true'
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+      - uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # 4
         with:
           node-version: 20
       - name: install packages
-        if: steps.changed-package-json.outputs.any_changed == 'true'
         working-directory: src/Storefront/Resources/app/storefront
         run: |
           npm ci
       - name: Check license
-        if: steps.changed-package-json.outputs.any_changed == 'true'
         working-directory: src/Storefront/Resources/app/storefront
         run: |
           npx license-checker-rseidelsohn \
@@ -114,11 +131,12 @@ jobs:
       - lint
       - jest
       - license-check
+      - twig-lint-storefront
 
       runs-on: Ubuntu-latest
       steps:
       - name: Decide whether the needed jobs succeeded or failed
-        uses: re-actors/alls-green@release/v1
+        uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
         with:
           # allowed-failures: docs, linters
           # allowed-skips: non-voting-flaky-job

@@ -31,7 +31,6 @@ async function createWrapper(props = defaultProps, privileges = ['rule.editor'])
         props,
         global: {
             stubs: {
-                'sw-card': await wrapTestComponent('sw-card'),
                 'sw-multi-select': await wrapTestComponent('sw-multi-select'),
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
@@ -41,9 +40,12 @@ async function createWrapper(props = defaultProps, privileges = ['rule.editor'])
                 'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                 'sw-condition-tree': swConditionTree,
                 'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': {
+                    template: '<div class="sw-popover"><slot></slot></div>',
+                },
                 'sw-text-field': true,
-                'sw-number-field': true,
-                'sw-textarea-field': true,
+                'mt-number-field': true,
+                'mt-textarea': true,
                 'sw-entity-tag-select': true,
                 'sw-loader': true,
                 'sw-custom-field-set-renderer': true,
@@ -51,12 +53,10 @@ async function createWrapper(props = defaultProps, privileges = ['rule.editor'])
                 'sw-ai-copilot-badge': true,
                 'sw-context-button': true,
                 'sw-highlight-text': true,
-                'sw-icon': true,
                 'sw-inheritance-switch': true,
                 'sw-help-text': true,
                 'sw-field-error': true,
                 'sw-label': true,
-                'sw-button': true,
                 'sw-extension-teaser-popover': true,
             },
             provide: {
@@ -91,28 +91,28 @@ async function createWrapper(props = defaultProps, privileges = ['rule.editor'])
 
 describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => {
     describe('sw-settings-rule-detail-base-content', () => {
-        it.skip('should have disabled fields', async () => {
+        it('should have disabled fields', async () => {
             const wrapper = await createWrapper(defaultProps, []);
             await flushPromises();
 
-            const ruleNameField = wrapper.find('sw-text-field-stub[name=sw-field--rule-name]');
-            const rulePriorityField = wrapper.find('sw-number-field-stub[name=sw-field--rule-priority]');
-            const ruleDescriptionField = wrapper.find('sw-textarea-field-stub[name=sw-field--rule-description]');
+            const ruleNameField = wrapper.find('input[name=sw-field--rule-name]');
+            const rulePriorityField = wrapper.find('mt-number-field-stub[name=sw-field--rule-priority]');
+            const ruleDescriptionField = wrapper.find('mt-textarea-stub[name=sw-field--rule-description]');
 
-            expect(ruleNameField.attributes().disabled).toBe('true');
+            expect(ruleNameField.attributes().disabled).toBeDefined();
             expect(rulePriorityField.attributes().disabled).toBe('true');
             expect(ruleDescriptionField.attributes().disabled).toBe('true');
 
             expect(wrapper.find('.sw-settings-rule-detail__type-field').classes()).toContain('is--disabled');
         });
 
-        it.skip('should have enabled fields', async () => {
+        it('should have enabled fields', async () => {
             const wrapper = await createWrapper();
             await flushPromises();
 
-            const ruleNameField = wrapper.find('sw-text-field-stub[name=sw-field--rule-name]');
-            const rulePriorityField = wrapper.find('sw-number-field-stub[name=sw-field--rule-priority]');
-            const ruleDescriptionField = wrapper.find('sw-textarea-field-stub[name=sw-field--rule-description]');
+            const ruleNameField = wrapper.find('input[name=sw-field--rule-name]');
+            const rulePriorityField = wrapper.find('mt-number-field-stub[name=sw-field--rule-priority]');
+            const ruleDescriptionField = wrapper.find('mt-textarea-stub[name=sw-field--rule-description]');
 
             expect(ruleNameField.attributes().disabled).toBeUndefined();
             expect(rulePriorityField.attributes().disabled).toBeUndefined();
@@ -121,7 +121,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             expect(wrapper.find('.sw-settings-rule-detail__type-field').classes()).not.toContain('is--disabled');
         });
 
-        it.skip('should set module types', async () => {
+        it('should set module types', async () => {
             const wrapper = await createWrapper();
             await flushPromises();
 
@@ -137,7 +137,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             });
         });
 
-        it.skip('should set module types to null if value is empty', async () => {
+        it('should set module types to null if value is empty', async () => {
             const wrapper = await createWrapper({
                 ...defaultProps,
                 rule: {
@@ -161,7 +161,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
     });
 
     describe('sw-settings-rule-detail__condition_container', () => {
-        it.skip('renders condition tree', async () => {
+        it('renders condition tree', async () => {
             const wrapper = await createWrapper();
             await flushPromises();
 
@@ -170,7 +170,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             expect(conditionTree.exists()).toBe(true);
         });
 
-        it.skip('emits changed conditions from sub component', async () => {
+        it('emits changed conditions from sub component', async () => {
             const wrapper = await createWrapper();
             await flushPromises();
 
@@ -195,7 +195,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             ]);
         });
 
-        it.skip('emits initial loading', async () => {
+        it('emits initial loading', async () => {
             const wrapper = await createWrapper();
             await flushPromises();
 
@@ -208,7 +208,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
     });
 
     describe('sw-settings-rule-detail-base-custom-field-sets', () => {
-        it.skip('should render custom fields', async () => {
+        it('should render custom fields', async () => {
             const wrapper = await createWrapper();
             await flushPromises();
 

@@ -127,11 +127,6 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
                     'sw-pagination': await wrapTestComponent('sw-pagination', {
                         sync: true,
                     }),
-                    'sw-button': await wrapTestComponent('sw-button', {
-                        sync: true,
-                    }),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-                    'sw-icon': true,
                     'sw-time-ago': true,
                     'sw-label': {
                         template: '<div class="sw-label"><slot></slot></div>',
@@ -246,7 +241,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
 
     it('should emit modal-close event when clicking on Close button', async () => {
         const wrapper = await createWrapper();
-        const closeButton = wrapper.find('.sw-button');
+        const closeButton = wrapper.findByText('button', 'global.default.close');
 
         await closeButton.trigger('click');
         expect(wrapper.emitted('modal-close')).toBeTruthy();

@@ -91,6 +91,15 @@ export default {
         htmlPreviewDisabled() {
             return this.currentDocumentType?.technicalName?.startsWith('zugferd_') ?? false;
         },
+
+        documentNumber: {
+            get() {
+                return String(this.documentConfig.documentNumber);
+            },
+            set(value) {
+                this.documentConfig.documentNumber = Number(value);
+            },
+        },
     },
 
     created() {

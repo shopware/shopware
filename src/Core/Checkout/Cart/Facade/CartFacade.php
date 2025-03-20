@@ -22,7 +22,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @script-service cart_manipulation
  */
 #[Package('checkout')]
-class CartFacade
+class CartFacade implements \Countable
 {
     use ContainerFactoryTrait;
     use DiscountTrait;

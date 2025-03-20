@@ -15,9 +15,9 @@ jobs:
       if: github.repository == 'shopware/shopware'
       steps:
         - name: Checkout repository
-          uses: actions/checkout@v4
+          uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
 
-        - uses: denoland/setup-deno@v1
+        - uses: denoland/setup-deno@ # 1
           with:
             deno-version: 1.29.1
 
@@ -43,7 +43,7 @@ jobs:
             AWS_SECRET_ACCESS_KEY: ${{ secrets.RELEASE_INFO_SECRET }}
             AWS_DEFAULT_REGION: eu-west-1
 
-        - uses: octo-sts/action@v1.0.0
+        - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
           if: github.event.action == 'published'
           id: sts-store-api-reference
           with:
@@ -62,7 +62,7 @@ jobs:
             https://api.github.com/repos/shopware/store-api-reference/actions/workflows/manual_versioning.yml/dispatches \
             -d '{"ref": "latest", "inputs": {"shopware_version": "${{ github.event.release.tag_name }}"}}'
 
-        - uses: octo-sts/action@v1.0.0
+        - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
           if: github.event.action == 'published'
           id: sts-admin-api-reference
           with:
@@ -81,7 +81,7 @@ jobs:
             https://api.github.com/repos/shopware/admin-api-reference/actions/workflows/manual_versioning.yml/dispatches \
             -d '{"ref": "latest", "inputs": {"shopware_version": "${{ github.event.release.tag_name }}"}}'
 
-        - uses: octo-sts/action@v1.0.0
+        - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
           if: github.event.action == 'published'
           id: sts-production
           with:
@@ -100,7 +100,7 @@ jobs:
             https://api.github.com/repos/shopware/production/actions/workflows/update.yml/dispatches \
             -d '{"ref": "trunk"}'
 
-        - uses: octo-sts/action@v1.0.0
+        - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
           if: github.event.action == 'published'
           id: sts-testenv-platform
           with:
@@ -133,7 +133,7 @@ jobs:
     continue-on-error: true
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
       - name: Publish sbp release
         run: |
           echo DRY_RUN: "${DRY_RUN}"

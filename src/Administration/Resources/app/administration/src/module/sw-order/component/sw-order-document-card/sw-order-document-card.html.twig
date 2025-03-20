@@ -1,6 +1,6 @@
 {% block sw_order_document_card %}
-<sw-card
-    v-show="!isDataLoading"
+<mt-card
+    v-if="!isDataLoading"
     position-identifier="sw-order-document-card"
     :title="$tc('sw-order.documentCard.cardTitle')"
     :class="documentCardStyles"
@@ -24,7 +24,7 @@
 
                 <template #filter>
                     {% block sw_order_document_card_header_create_document_context_button %}
-                    <sw-button
+                    <mt-button
                         v-if="!attachView"
                         v-tooltip="{
                             message: tooltipCreateDocumentButton,
@@ -32,9 +32,10 @@
                             showOnDisabledElements: true
                         }"
                         size="small"
-                        variant="ghost"
+                        ghost
                         :disabled="!acl.can('document.viewer') || isEditing"
                         class="sw-order-document-grid-button"
+                        variant="secondary"
                         @click="onShowSelectDocumentTypeModal"
                     >
 
@@ -42,7 +43,7 @@
                         {{ $tc('sw-order.documentCard.labelCreateNew') }}
                         {% endblock %}
 
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
 
                 </template>
@@ -117,7 +118,7 @@
                 <sw-context-menu-item
                     :disabled="!acl.can('document.viewer')"
                     class="sw-order-document-card__context-button-open-pdf"
-                    @click="onOpenDocument(item.id, item.deepLinkCode)"
+                    @click="onOpenDocument(item.id, item.deepLinkCode, item.documentMediaFile?.fileExtension)"
                 >
                     {% block sw_order_document_card_grid_action_open_label %}
                     {{ $tc('sw-order.documentCard.labelOpenDocument') }}
@@ -129,7 +130,7 @@
                 <sw-context-menu-item
                     :disabled="!acl.can('document.viewer')"
                     class="sw-order-document-card__context-button-download-pdf"
-                    @click="onDownload(item.id, item.deepLinkCode)"
+                    @click="onDownload(item.id, item.deepLinkCode, item.documentMediaFile?.fileExtension)"
                 >
                     {% block sw_order_document_card_grid_action_download_label %}
                     {{ $tc('sw-order.documentCard.labelDownloadPdf') }}
@@ -182,7 +183,6 @@
 
     {% block sw_order_document_card_grid_column_modal %}
     <div v-if="showModal">
-        <h1>huhu</h1>
         <component
             :is="documentModal"
             :current-document-type="currentDocumentType"
@@ -222,16 +222,17 @@
         v-if="documentsEmpty"
         :title="emptyStateTitle"
         :show-description="false"
+        :absolute="false"
     >/
         <template #icon>
             <img
-                :src="assetFilter('/administration/static/img/empty-states/order-empty-state.svg')"
+                :src="assetFilter('/administration/administration/static/img/empty-states/order-empty-state.svg')"
                 :alt="$tc('sw-order.list.messageEmpty')"
             >
         </template>
 
         <template #actions>
-            <sw-button
+            <mt-button
                 v-if="showCreateDocumentButton"
                 v-tooltip="{
                     message: tooltipCreateDocumentButton,
@@ -239,9 +240,10 @@
                     showOnDisabledElements: true
                 }"
                 size="small"
-                variant="ghost"
+                ghost
                 :disabled="!acl.can('document.viewer') || isEditing"
                 class="sw-order-document-grid-button"
+                variant="secondary"
                 @click="onShowSelectDocumentTypeModal"
             >
 
@@ -249,9 +251,9 @@
                 {{ $tc('sw-order.documentCard.labelCreateNew') }}
                 {% endblock %}
 
-            </sw-button>
+            </mt-button>
         </template>
     </sw-empty-state>
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

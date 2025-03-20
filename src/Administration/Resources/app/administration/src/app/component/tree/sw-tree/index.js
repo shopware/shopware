@@ -345,7 +345,7 @@ Component.register('sw-tree', {
 
         handleFocusIn(event) {
             // Check if focus in already in the tree on any tree item
-            if (event.target.classList.contains('sw-tree-item')) {
+            if (event.target.classList.contains('sw-tree-item') || event.target.classList.contains('sw-tree-item__toggle')) {
                 // If focus is already on a tree item, do nothing
                 return;
             }
@@ -933,6 +933,8 @@ Component.register('sw-tree', {
 
         onFinishNameingElement(draft, event) {
             if (this.createdItem) {
+                this.createdItem.data.name = draft;
+
                 this.createdItem.data.save().then(() => {
                     this.createdItem = null;
                     this.saveItems();

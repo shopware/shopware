@@ -31,7 +31,6 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackager;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\AdvancedPackagePicker;
-use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Exception\FilterSorterNotFoundException;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\PackageFilter;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\SetGroupScopeFilter;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionExcludedError;
@@ -230,7 +229,6 @@ class PromotionCalculator
      * the provided discount line item.
      *
      * @throws DiscountCalculatorNotFoundException
-     * @throws FilterSorterNotFoundException
      * @throws PromotionException
      * @throws InvalidScopeDefinitionException
      * @throws CartException
@@ -254,7 +252,7 @@ class PromotionCalculator
             PromotionDiscountEntity::SCOPE_CART => $this->cartScopeDiscountPackager,
             PromotionDiscountEntity::SCOPE_SET => $this->setScopeDiscountPackager,
             PromotionDiscountEntity::SCOPE_SETGROUP => $this->setGroupScopeDiscountPackager,
-            default => throw new InvalidScopeDefinitionException($discount->getScope()),
+            default => throw PromotionException::invalidScopeDefinition($discount->getScope()),
         };
 
         $packages = $packager->getMatchingItems($discount, $calculatedCart, $context);
@@ -302,7 +300,7 @@ class PromotionCalculator
             PromotionDiscountEntity::TYPE_PERCENTAGE => new DiscountPercentageCalculator($this->absolutePriceCalculator, $this->percentagePriceCalculator),
             PromotionDiscountEntity::TYPE_FIXED => new DiscountFixedPriceCalculator($this->absolutePriceCalculator),
             PromotionDiscountEntity::TYPE_FIXED_UNIT => new DiscountFixedUnitPriceCalculator($this->absolutePriceCalculator),
-            default => throw new DiscountCalculatorNotFoundException($discount->getType()),
+            default => throw PromotionException::discountCalculatorNotFound($discount->getType()),
         };
 
         $result = $calculator->calculate($discount, $packages, $context);

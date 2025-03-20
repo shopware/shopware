@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
@@ -37,7 +38,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @internal
  */
 #[Group('slow')]
-#[Group('skip-paratest')]
 class PluginLifecycleServiceMigrationTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -188,6 +188,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
             $this->container->get(CustomEntitySchemaUpdater::class),
             $this->container->get(PluginService::class),
             $this->container->get(VersionSanitizer::class),
+            $this->container->get(DefinitionInstanceRegistry::class),
         );
     }
 

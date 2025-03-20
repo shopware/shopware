@@ -32,8 +32,9 @@ class DALFieldsMustBeRegisteredWithSchemaBuilder implements Rule
      */
     private ?array $mappings = null;
 
-    public function __construct(private readonly ReflectionProvider $reflectionProvider)
-    {
+    public function __construct(
+        private readonly ReflectionProvider $reflectionProvider,
+    ) {
     }
 
     public function getNodeType(): string
@@ -58,7 +59,7 @@ class DALFieldsMustBeRegisteredWithSchemaBuilder implements Rule
             return [];
         }
 
-        if (!$ref->isSubclassOf(Field::class)) {
+        if (!$ref->isSubclassOfClass($this->reflectionProvider->getClass(Field::class))) {
             return [];
         }
 

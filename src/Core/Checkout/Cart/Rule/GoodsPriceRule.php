@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class GoodsPriceRule extends FilterRule
@@ -21,6 +21,9 @@ class GoodsPriceRule extends FilterRule
 
     protected float $amount;
 
+    /**
+     * @internal
+     */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
         ?float $amount = null

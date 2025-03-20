@@ -136,7 +136,7 @@ class AppUrlVerifierTest extends TestCase
 
     public function testAppsThatNeedAppUrlReturnFalseWithoutAppsThatRequireRegistration(): void
     {
-        $this->connection->expects(static::once())
+        $this->connection->expects($this->once())
             ->method('fetchOne')
             ->willReturn('0');
 
@@ -147,7 +147,7 @@ class AppUrlVerifierTest extends TestCase
 
     public function testAppsThatNeedAppUrlReturnTrueWithAppsThatRequireRegistration(): void
     {
-        $this->connection->expects(static::once())
+        $this->connection->expects($this->once())
             ->method('fetchOne')
             ->willReturn('1');
 

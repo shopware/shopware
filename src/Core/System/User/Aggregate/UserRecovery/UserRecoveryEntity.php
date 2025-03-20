@@ -12,26 +12,11 @@ class UserRecoveryEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $userId;
+    protected string $userId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $hash;
+    protected string $hash;
 
-    /**
-     * @var UserEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $user;
+    protected ?UserEntity $user = null;
 
     public function getId(): string
     {

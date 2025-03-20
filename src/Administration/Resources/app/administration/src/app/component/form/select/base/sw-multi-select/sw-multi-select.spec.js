@@ -11,9 +11,6 @@ const createMultiSelect = async (customOptions) => {
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-icon': {
-                    template: '<div></div>',
-                },
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
@@ -22,8 +19,6 @@ const createMultiSelect = async (customOptions) => {
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-label': await wrapTestComponent('sw-label'),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-loader': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,

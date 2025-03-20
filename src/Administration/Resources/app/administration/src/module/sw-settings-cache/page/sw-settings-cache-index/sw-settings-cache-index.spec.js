@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
+import selectMtSelectOptionByText from '../../../../../test/_helper_/select-mt-select-by-text';
 
 const cacheInfo = {
     data: {
@@ -32,13 +33,9 @@ async function createWrapper(indexMock = jest.fn(() => Promise.resolve()), delay
                     </div>`,
                 },
                 'sw-card-view': await wrapTestComponent('sw-card-view'),
-                'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-card-section': await wrapTestComponent('sw-card-section'),
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-button-process': await wrapTestComponent('sw-button-process'),
-                'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
-                'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-label': await wrapTestComponent('sw-label'),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
@@ -46,11 +43,8 @@ async function createWrapper(indexMock = jest.fn(() => Promise.resolve()), delay
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                 'sw-error-summary': await wrapTestComponent('sw-error-summary'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
-                'sw-icon': await wrapTestComponent('sw-icon'),
                 'sw-extension-component-section': await wrapTestComponent('sw-extension-component-section'),
                 'sw-skeleton': true,
                 'sw-ai-copilot-badge': true,
@@ -60,11 +54,12 @@ async function createWrapper(indexMock = jest.fn(() => Promise.resolve()), delay
                 'sw-tabs': true,
                 'sw-iframe-renderer': true,
                 'router-link': true,
-                'sw-icon-deprecated': true,
-
                 'sw-inheritance-switch': true,
                 'sw-help-text': true,
                 'sw-color-badge': true,
+                'mt-popover-deprecated': {
+                    template: '<div class="mt-popover-deprecated"><slot></slot></div>',
+                },
             },
         },
     });
@@ -83,9 +78,7 @@ describe('module/sw-settings-cache/page/sw-settings-cache-index', () => {
         expect(indexesSelectLabel.text()).toBe('sw-settings-cache.section.indexesSkipSelectLabel');
         expect(indexSelectPlaceholder.text()).toBe('sw-settings-cache.section.indexesSkipSelectPlaceholder');
 
-        const methodSelect = wrapper.find('select[name="indexingMethod"]');
-        await methodSelect.setValue('only');
-        await flushPromises();
+        await selectMtSelectOptionByText(wrapper, 'sw-settings-cache.section.indexingModeOptionOnlyLabel');
 
         expect(indexesSelectLabel.text()).toBe('sw-settings-cache.section.indexesOnlySelectLabel');
         expect(indexSelectPlaceholder.text()).toBe('sw-settings-cache.section.indexesOnlySelectPlaceholder');
@@ -125,8 +118,7 @@ describe('module/sw-settings-cache/page/sw-settings-cache-index', () => {
         expect(indexMock).toHaveBeenCalledTimes(1);
         expect(indexMock).toHaveBeenCalledWith(['category.tree'], []);
 
-        const methodSelect = wrapper.find('select[name="indexingMethod"]');
-        await methodSelect.setValue('only');
+        await selectMtSelectOptionByText(wrapper, 'sw-settings-cache.section.indexingModeOptionOnlyLabel');
 
         await button.trigger('click');
         await flushPromises();

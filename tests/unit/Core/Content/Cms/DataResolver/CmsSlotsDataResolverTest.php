@@ -97,13 +97,13 @@ class CmsSlotsDataResolverTest extends TestCase
         $this->formResolver->method('collect')->willReturn($collection);
 
         $this->formResolver->method('getType')->willReturn('form');
-        $this->formResolver->expects(static::once())->method('enrich');
+        $this->formResolver->expects($this->once())->method('enrich');
 
         $this->htmlResolver->method('getType')->willReturn('html');
-        $this->htmlResolver->expects(static::once())->method('enrich');
+        $this->htmlResolver->expects($this->once())->method('enrich');
 
         $this->textResolver->method('getType')->willReturn('text');
-        $this->textResolver->expects(static::never())->method('enrich');
+        $this->textResolver->expects($this->never())->method('enrich');
 
         $context = Generator::generateSalesChannelContext();
         $resolverContext = new ResolverContext($context, new Request());
@@ -125,7 +125,7 @@ class CmsSlotsDataResolverTest extends TestCase
         ]);
 
         $this->formResolver->method('getType')->willReturn('form');
-        $this->formResolver->expects(static::once())->method('enrich');
+        $this->formResolver->expects($this->once())->method('enrich');
 
         $criteria = new Criteria(['id-1', 'id-2']);
         $criteriaCollection = new CriteriaCollection();
@@ -138,7 +138,7 @@ class CmsSlotsDataResolverTest extends TestCase
 
         $this->dispatcher
             // 3 extensions, each dispatched as pre- and post-event
-            ->expects(static::exactly(6))
+            ->expects($this->exactly(6))
             ->method('dispatch')
             ->willReturnCallback(function (Extension $extension) use ($slots, $resolverContext, $criteriaCollection) {
                 switch (true) {

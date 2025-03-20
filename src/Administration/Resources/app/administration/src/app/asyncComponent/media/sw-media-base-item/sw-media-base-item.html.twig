@@ -38,15 +38,15 @@
                 appearance="pill"
                 size="medium"
             >
-                <sw-icon
+                <mt-icon
                     v-if="item.config?.spatial?.arReady ?? defaultArReady"
                     name="regular-AR"
-                    small
+                    size="16px"
                 />
-                <sw-icon
+                <mt-icon
                     v-else
                     name="regular-3d"
-                    small
+                    size="16px"
                 />
 
                 <span class="sw-media-base-item__labels-text">{{ (item.config?.spatial?.arReady ?? defaultArReady) ? $tc('sw-product.mediaForm.arSubline') : $tc('sw-product.mediaForm.spatialSubline') }}</span>
@@ -111,7 +111,7 @@
     {% endblock %}
 
     {% block sw_media_base_item_loading_indicator %}
-    <sw-icon
+    <mt-icon
         v-if="isLoading"
         class="sw-media-base-item__loader"
         name="regular-spinner-star"

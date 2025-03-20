@@ -531,7 +531,6 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         beforeAll(() => {
             global.allowedErrors.push({
                 method: 'warn',
-                hurensohn: true,
                 msgCheck: (_, msg) => {
                     if (typeof msg !== 'string') {
                         return false;
@@ -754,7 +753,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
 
             await flushPromises();
 
-            expect(vueAdapter.i18n.global.locale).toEqual(expectedLocale);
+            expect(vueAdapter.i18n.global.locale.value).toEqual(expectedLocale);
         });
     });
 });

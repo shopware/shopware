@@ -1,23 +1,16 @@
 /**
- * @private
  * @sw-package discovery
  */
+
+const ENTITY_MAPPING = {
+    media: 'sw-media-media-item',
+    media_folder: 'sw-media-folder-item',
+};
+/**
+ * @private
+ */
 export default {
-    functional: true,
-
-    render(createElement, context) {
-        function mapEntity() {
-            const entityMapping = {
-                media: 'sw-media-media-item',
-                media_folder: 'sw-media-folder-item',
-            };
-            return entityMapping[context.props.item.getEntityName()];
-        }
-
-        Object.assign(context.data, context.props);
-
-        return createElement(mapEntity(), context.data, context.slots().default);
-    },
+    template: `<component :is="mapEntity" v-bind="$props"><slot/></component>`,
 
     props: {
         item: {
@@ -26,6 +19,12 @@ export default {
             validator(value) {
                 return !!value.getEntityName();
             },
+        },
+    },
+
+    computed: {
+        mapEntity() {
+            return ENTITY_MAPPING[this.item.getEntityName()];
         },
     },
 };

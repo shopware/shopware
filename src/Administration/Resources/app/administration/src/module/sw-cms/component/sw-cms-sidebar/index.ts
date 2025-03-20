@@ -123,6 +123,17 @@ export default Shopware.Component.wrapComponentConfig({
             return this.cmsPageTypeService.getTypes();
         },
 
+        pageTypesOptions() {
+            return this.pageTypes.map((pageType) => {
+                return {
+                    id: pageType.name,
+                    label: this.$tc(pageType.title),
+                    value: pageType.name,
+                    disabled: this.isDisabledPageType(pageType) || undefined,
+                };
+            });
+        },
+
         blockRepository() {
             return this.repositoryFactory.create('cms_block');
         },
@@ -221,6 +232,15 @@ export default Shopware.Component.wrapComponentConfig({
             return defaultCategories;
         },
 
+        cmsBlockCategoriesOptions() {
+            return this.cmsBlockCategories.map((category) => {
+                return {
+                    value: category.value,
+                    label: this.$tc(category.label),
+                };
+            });
+        },
+
         mediaRepository() {
             return this.repositoryFactory.create('media');
         },
@@ -310,6 +330,10 @@ export default Shopware.Component.wrapComponentConfig({
             return result.filter((block) => block && block.category === this.currentBlockCategory);
         },
 
+        isLayoutAssignmentDisabled() {
+            return this.disabled || this.page.locked;
+        },
+
         ...mapPropertyErrors('page', ['name']),
     },
 
@@ -361,7 +385,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         blockIsRemovable(block: Entity<'cms_block'>) {
             const cmsBlocks = this.cmsService.getCmsBlockRegistry();
-            return cmsBlocks[block.type]?.removable && this.isSystemDefaultLanguage;
+            return (cmsBlocks[block.type]?.removable !== false) && this.isSystemDefaultLanguage;
         },
 
         blockIsUnique(block: Entity<'cms_block'>) {

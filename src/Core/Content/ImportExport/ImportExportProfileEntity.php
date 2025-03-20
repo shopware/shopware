@@ -43,14 +43,14 @@ class ImportExportProfileEntity extends Entity
      */
     protected ?array $updateBy = [];
 
-    protected ?ImportExportLogCollection $importExportLogs;
+    protected ?ImportExportLogCollection $importExportLogs = null;
 
     /**
      * @var array<string, mixed>
      */
     protected array $config;
 
-    protected ?ImportExportProfileTranslationCollection $translations;
+    protected ?ImportExportProfileTranslationCollection $translations = null;
 
     public function getTechnicalName(): string
     {

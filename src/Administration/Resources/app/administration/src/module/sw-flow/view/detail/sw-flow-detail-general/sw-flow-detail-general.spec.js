@@ -36,16 +36,16 @@ async function createWrapper(privileges = [], query = {}) {
                     },
                 },
                 stubs: {
-                    'sw-number-field': true,
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot></slot></div>',
                     },
-                    'sw-text-field': true,
-                    'sw-textarea-field': true,
+                    'mt-text-field': true,
+                    'mt-textarea': true,
+                    'mt-number-field': true,
                     'sw-container': {
                         template: '<div><slot></slot></div>',
                     },
-                    'sw-switch-field': true,
+                    'mt-switch': true,
                 },
             },
         },
@@ -86,8 +86,8 @@ describe('module/sw-flow/view/detail/sw-flow-detail-general', () => {
         ];
 
         elementClasses.forEach((element) => {
-            const inputElement = wrapper.find(`${element}`);
-            expect(inputElement.attributes().disabled).toBeTruthy();
+            const inputElement = wrapper.find(element);
+            expect(inputElement.attributes('disabled')).toBeDefined();
         });
     });
 

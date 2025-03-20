@@ -85,6 +85,7 @@ class AppJWTGenerateRouteTest extends TestCase
 
         $payload = json_decode((string) base64_decode($parts[1], true), true, 512, \JSON_THROW_ON_ERROR);
 
+        static::assertIsArray($payload);
         static::assertArrayHasKey('salesChannelId', $payload);
         static::assertArrayHasKey('customerId', $payload);
         static::assertSame($context->getSalesChannelId(), $payload['salesChannelId']);

@@ -49,7 +49,7 @@ class MakeCoverageTestCommandTest extends TestCase
     public function testExecuteInvalidClasses(): void
     {
         $kernel = $this->createMock(Kernel::class);
-        $kernel->expects(static::never())->method('getBundle');
+        $kernel->expects($this->never())->method('getBundle');
 
         $fileSystem = new Filesystem();
         $fileSystem->copy(__DIR__ . '/../../../../../../phpunit.xml.dist', $this->projectDir . '/phpunit.xml.dist');
@@ -73,7 +73,7 @@ class MakeCoverageTestCommandTest extends TestCase
     public function testExecute(): void
     {
         $kernel = $this->createMock(Kernel::class);
-        $kernel->expects(static::never())->method('getBundle');
+        $kernel->expects($this->never())->method('getBundle');
 
         $fileSystem = new Filesystem();
 

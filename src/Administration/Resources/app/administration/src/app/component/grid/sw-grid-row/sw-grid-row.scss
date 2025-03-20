@@ -85,7 +85,7 @@ $sw-grid-row-border-radius: $border-radius-default;
         display: none;
         position: absolute;
         left: 50%;
-        bottom: -53px;
+        top: 100%;
         transform: translate(-50%, 0);
         z-index: 10;
         padding: 10px 16px;

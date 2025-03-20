@@ -1,5 +1,5 @@
 {% block sw_order_customer_grid %}
-<sw-card
+<mt-card
     class="sw-order-customer-grid"
     position-identifier="sw-order-customer-grid"
     :is-loading="isSwitchingCustomer"
@@ -15,14 +15,15 @@
             {% endblock %}
 
             {% block sw_order_customer_grid_add_new_customer %}
-            <sw-button
+            <mt-button
                 class="sw-order-customer-grid__add-customer"
-                variant="ghost"
+                ghost
                 size="small"
+                variant="secondary"
                 @click="onShowNewCustomerModal"
             >
                 {{ $tc('sw-order.initialModal.customerGrid.buttonAddNewCustomer') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </div>
         {% endblock %}
@@ -107,7 +108,7 @@
                 {% block sw_order_customer_grid_empty_state_icon %}
                 <template #icon>
                     <img
-                        :src="assetFilter('/administration/static/img/empty-states/customer-empty-state.svg')"
+                        :src="assetFilter('/administration/administration/static/img/empty-states/customer-empty-state.svg')"
                         :alt="$tc('sw-customer.list.messageEmpty')"
                     >
                 </template>
@@ -163,16 +164,17 @@
 
             <template #modal-footer>
                 {% block sw_order_customer_grid_sales_channel_action_close %}
-                <sw-button
+                <mt-button
                     size="small"
+                    variant="secondary"
                     @click="onCloseSalesChannelSelectModal"
                 >
                     {{ $tc('global.default.cancel') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_order_customer_grid_sales_channel_action_select %}
-                <sw-button
+                <mt-button
                     size="small"
                     variant="primary"
                     :is-loading="isLoading"
@@ -180,7 +182,7 @@
                     @click="onSelectSalesChannel"
                 >
                     {{ $tc('sw-order.initialModal.customerGrid.buttonSelectSalesChannel') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </template>
         </sw-modal>
@@ -203,27 +205,28 @@
 
             <template #modal-footer>
                 {% block sw_order_customer_grid_customer_changes_modal_action_close %}
-                <sw-button
+                <mt-button
                     size="small"
+                    variant="secondary"
                     @click="onCloseCustomerChangesModal"
                 >
                     {{ $tc('global.default.cancel') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_order_customer_grid_customer_changes_modal_action_changes %}
-                <sw-button
+                <mt-button
                     size="small"
                     variant="primary"
                     :is-loading="isLoading"
                     @click="onChangeCustomer"
                 >
                     {{ $tc('sw-order.initialModal.customerGrid.buttonChangeCustomer') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </template>
         </sw-modal>
         {% endblock %}
     </template>
-</sw-card>
+</mt-card>
 {% endblock %}

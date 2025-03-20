@@ -44,7 +44,7 @@ class ServiceClientFactoryTest extends TestCase
     public function testNewForServiceRegistryEntry(): void
     {
         $this->httpClient
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('withOptions')
             ->with([
                 'base_uri' => 'https://mycoolservice.com',
@@ -62,14 +62,14 @@ class ServiceClientFactoryTest extends TestCase
     public function testFromNameProxiesToServiceRegistryClient(): void
     {
         $this->httpClient
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('withOptions')
             ->with([
                 'base_uri' => 'https://mycoolservice.com',
             ])
             ->willReturn($this->scopedClient);
         $serviceClientRegistry = static::createMock(ServiceRegistryClient::class);
-        $serviceClientRegistry->expects(static::once())
+        $serviceClientRegistry->expects($this->once())
             ->method('get')
             ->with('MyCoolService')
             ->willReturn(new ServiceRegistryEntry('MyCoolService', 'My Cool Service', 'https://mycoolservice.com', '/app-endpoint'));

@@ -10,7 +10,7 @@ tags: [storefront, js, helper]
 The Storefront JavaScript currently offers a helper class `src/helper/iterator.helper.js` that can iterate over different objects like Maps, FormData, plain arrays etc.
 Using this approach has several downsides we want to address.
 
-* It creates an unnecessary abstraction over the native alternative. Very often the `Iterator.iterate()` directly uses ja plain `forEach` loop without any additional logic. Using the abstraction is actually creating more complexity.
+* It creates an unnecessary abstraction over the native alternative. Very often the `Iterator.iterate()` directly uses js plain `forEach` loop without any additional logic. Using the abstraction is actually creating more complexity.
 * It prevents the developer from using the appropriate loop for the given data type and instead passes it to an iterator that does it with arbitrary data types.
 * The iterator is a special shopware syntax that needs to be understood and documented. It is way easier to use web standards that everyone knows and that is also officially documented already.
 * The usage throughout the codebase is inconsistent and the iterator helper is used alongside the native loops which can create confusion.

@@ -1,5 +1,5 @@
 {% block sw_settings_search_searchable_content %}
-<sw-card
+<mt-card
     class="sw-settings-search-searchable-content"
     position-identifier="sw-settings-search-searchable-content"
     :title="$tc('sw-settings-search.generalTab.labelSearchableContent')"
@@ -19,28 +19,30 @@
     >
         <div class="sw-settings-search__searchable-content-button-group">
             {% block sw_settings_search_searchable_add_item %}
-            <sw-button
+            <mt-button
                 v-if="defaultTab !== tabNames.generalTab"
                 class="sw-settings-search__searchable-content-add-button"
-                variant="ghost"
+                ghost
                 size="small"
                 :disabled="!acl.can('product_search_config.creator')"
+                variant="secondary"
                 @click="onAddNewConfig"
             >
                 {{ $tc('sw-settings-search.generalTab.buttonAddContent') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_settings_search_searchable_reset_default %}
-            <sw-button
+            <mt-button
                 v-if="defaultTab !== tabNames.customTab"
                 class="sw-settings-search__searchable-content-reset-button"
                 size="small"
                 :disabled="isEnabledReset || !acl.can('product_search_config.editor')"
+                variant="secondary"
                 @click="onResetToDefault"
             >
                 {{ $tc('sw-settings-search.generalTab.buttonResetDefault') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </div>
 
@@ -57,9 +59,9 @@
                 @click="onShowExampleModal"
             >
                 {{ $tc('sw-settings-search.generalTab.linkExample') }}
-                <sw-icon
+                <mt-icon
                     name="regular-long-arrow-right"
-                    small
+                    size="16px"
                 />
             </a>
             {% endblock %}
@@ -69,9 +71,9 @@
                 class="sw-settings-search__searchable-content-rebuild-link"
             >
                 {{ $tc('sw-settings-search.liveSearchTab.linkRebuildSearchIndex') }}
-                <sw-icon
+                <mt-icon
                     name="regular-long-arrow-right"
-                    small
+                    size="16px"
                 />
             </router-link>
         </div>
@@ -146,5 +148,5 @@
         </template>
     </sw-tabs>
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

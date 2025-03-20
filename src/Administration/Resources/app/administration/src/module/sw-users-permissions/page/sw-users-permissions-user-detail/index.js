@@ -46,10 +46,6 @@ export default {
             mediaItem: null,
             newPassword: '',
             newPasswordConfirm: '',
-            /**
-             * @deprecated tag:v6.7.0 - Will be removed. Use `isEmailAlreadyInUse` instead
-             */
-            isEmailUsed: false,
             isEmailAlreadyInUse: false,
             isUsernameUsed: false,
             isIntegrationsLoading: false,
@@ -187,6 +183,16 @@ export default {
                 appearance: 'light',
             };
         },
+
+        localeOptions() {
+            return this.languages.map((language) => {
+                return {
+                    id: language.locale.id,
+                    value: language.locale.id,
+                    label: language.customLabel,
+                };
+            });
+        },
     },
 
     watch: {
@@ -308,10 +314,6 @@ export default {
                     id: this.user.id,
                 })
                 .then(({ emailIsUnique }) => {
-                    /**
-                     * @deprecated tag:v6.7.0 - remove this.isEmailUsed assignment
-                     */
-                    this.isEmailUsed = !emailIsUnique;
                     this.isEmailAlreadyInUse = !emailIsUnique;
                 });
         },

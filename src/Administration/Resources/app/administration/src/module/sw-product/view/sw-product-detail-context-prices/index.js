@@ -433,7 +433,7 @@ export default {
             }
 
             // add price to rule.price
-            this.$set(rule.price, rule.price.length, newPrice);
+            rule.price[rule.price.length] = newPrice;
         },
 
         isPriceFieldInherited(rule, currency) {
@@ -522,7 +522,7 @@ export default {
             newPriceRule.price = [];
 
             referencePrice.price.forEach((price, index) => {
-                this.$set(newPriceRule.price, index, { ...price });
+                newPriceRule.price[index] = { ...price };
             });
 
             this.product.prices.add(newPriceRule);
@@ -543,7 +543,7 @@ export default {
         },
 
         onChangeShowListPrices(value, ruleId) {
-            this.$set(this.showListPrices, ruleId, value);
+            this.showListPrices[ruleId] = value;
         },
 
         getStartQuantityTooltip(itemIndex, quantity) {

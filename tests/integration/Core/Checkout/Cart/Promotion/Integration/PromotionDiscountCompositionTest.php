@@ -6,7 +6,9 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -33,10 +35,16 @@ class PromotionDiscountCompositionTest extends TestCase
     use PromotionIntegrationTestBehaviour;
     use PromotionTestFixtureBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     protected EntityRepository $productRepository;
 
     protected CartService $cartService;
 
+    /**
+     * @var EntityRepository<PromotionCollection>
+     */
     protected EntityRepository $promotionRepository;
 
     protected function setUp(): void

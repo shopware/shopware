@@ -58,6 +58,11 @@ export default {
             required: false,
             default: false,
         },
+        position: {
+            type: String,
+            required: false,
+            default: '',
+        },
     },
 
     data() {
@@ -128,6 +133,14 @@ export default {
                 default:
                     return null;
             }
+        },
+
+        cardPosition() {
+            if (!this.position) {
+                return 'sw-order-details-state';
+            }
+
+            return `sw-order-details-state-${this.position}`;
         },
     },
 

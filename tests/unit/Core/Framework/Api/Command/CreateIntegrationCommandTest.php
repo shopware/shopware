@@ -35,7 +35,7 @@ class CreateIntegrationCommandTest extends TestCase
         $accessKey = null;
         $secretAccessKey = null;
         $admin = null;
-        $integrationRepository->expects(static::once())
+        $integrationRepository->expects($this->once())
             ->method('create')
             ->with(static::callback(function ($input) use (&$accessKey, &$secretAccessKey, &$admin) {
                 $accessKey = $input[0]['accessKey'];

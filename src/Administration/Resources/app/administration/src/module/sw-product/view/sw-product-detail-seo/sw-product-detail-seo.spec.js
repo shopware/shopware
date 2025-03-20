@@ -108,7 +108,7 @@ async function createWrapper(privileges = []) {
                 validationService: {},
             },
             stubs: {
-                'sw-card': {
+                'mt-card': {
                     data() {
                         return { currentSalesChannelId: null };
                     },
@@ -138,19 +138,14 @@ async function createWrapper(privileges = []) {
                 'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
                 'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch', { sync: true }),
-                'sw-icon': await wrapTestComponent('sw-icon', {
-                    sync: true,
-                }),
-                'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated', { sync: true }),
                 'sw-help-text': true,
                 'sw-loader': true,
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-skeleton': true,
                 'sw-textarea-field': true,
-                'sw-switch-field': true,
+
                 'sw-product-variant-info': true,
                 'sw-text-field-deprecated': true,
-                'sw-button': true,
                 'sw-ai-copilot-badge': true,
             },
         },
@@ -248,7 +243,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
             categories: [],
         };
         await flushPromises();
-        await inheritanceSwitch.find('.sw-icon').trigger('click');
+        await inheritanceSwitch.find('.mt-icon').trigger('click');
 
         expect(inheritanceSwitch.classes()).toContain(classes.inherited);
 

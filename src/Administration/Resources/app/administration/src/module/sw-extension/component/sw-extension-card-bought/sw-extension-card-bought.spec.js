@@ -67,8 +67,7 @@ async function createWrapper(extension) {
             ],
             stubs: {
                 'sw-meteor-card': await wrapTestComponent('sw-meteor-card', { sync: true }),
-                'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
-                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                 'sw-context-button': {
                     template: '<div class="sw-context-button"><slot></slot></div>',
                 },
@@ -77,10 +76,6 @@ async function createWrapper(extension) {
                 'sw-loader': await wrapTestComponent('sw-loader', {
                     sync: true,
                 }),
-                'sw-icon': await wrapTestComponent('sw-icon', {
-                    sync: true,
-                }),
-                'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated', { sync: true }),
                 'sw-circle-icon': await wrapTestComponent('sw-circle-icon', { sync: true }),
                 'router-link': {
                     template: '<div class="sw-router-link"><slot></slot></div>',
@@ -96,10 +91,6 @@ async function createWrapper(extension) {
                         </div>
                     `,
                 },
-                'sw-button': await wrapTestComponent('sw-button', {
-                    sync: true,
-                }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-extension-adding-failed': await wrapTestComponent('sw-extension-adding-failed', { sync: true }),
                 'sw-extension-icon': await wrapTestComponent('sw-extension-icon', { sync: true }),
                 'sw-extension-rating-modal': true,
@@ -260,7 +251,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
 
         expect(wrapper.find('.sw-extension-card-base__info-name').text()).toBe('Sample Extension Label');
         expect(wrapper.find('.sw-extension-icon img').attributes().src).toBe(
-            'administration/static/img/theme/default_theme_preview.jpg',
+            'administration/administration/static/img/theme/default_theme_preview.jpg',
         );
         expect(wrapper.find('.sw-extension-card-base__meta-info').text().replace(/\s/g, '')).toBe(
             'sw-extension-store.component.sw-extension-card-base.installedLabel01/02/2021',
@@ -404,7 +395,9 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         await wrapper.get('.sw-extension-card-base__remove-link').trigger('click');
         expect(wrapper.find('.sw-extension-removal-modal').exists()).toBe(true);
 
-        await wrapper.get('.sw-extension-removal-modal .sw-button--danger').trigger('click');
+        await wrapper
+            .findByText('button', 'sw-extension-store.component.sw-extension-removal-modal.labelCancel')
+            .trigger('click');
         expect(wrapper.find('.sw-extension-removal-modal').exists()).toBe(false);
         expect(cancelLicenceSpy).toHaveBeenCalledTimes(0);
         expect(removeExtensionSpy).toHaveBeenCalledTimes(1);
@@ -448,7 +441,9 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         await wrapper.get('.sw-extension-card-base__cancel-and-remove-link').trigger('click');
         expect(wrapper.find('.sw-extension-removal-modal').exists()).toBe(true);
 
-        await wrapper.get('.sw-extension-removal-modal .sw-button--danger').trigger('click');
+        await wrapper
+            .findByText('button', 'sw-extension-store.component.sw-extension-removal-modal.labelCancel')
+            .trigger('click');
         expect(wrapper.find('.sw-extension-removal-modal').exists()).toBe(false);
         expect(cancelLicenceSpy).toHaveBeenCalledTimes(1);
         expect(removeExtensionSpy).toHaveBeenCalledTimes(1);
@@ -586,7 +581,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             const infoSubscriptionExpiry = wrapper.get('.sw-extension-card-bought__info-subscription-expiry');
             expect(infoSubscriptionExpiry.text()).toBe(expectedTextSnippet);
 
-            const icon = infoSubscriptionExpiry.findComponent('.sw-icon');
+            const icon = infoSubscriptionExpiry.findComponent('.mt-icon');
 
             if (expectedIcon) {
                 // eslint-disable-next-line jest/no-conditional-expect

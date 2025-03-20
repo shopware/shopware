@@ -50,7 +50,7 @@ export default {
         },
 
         defaultThemeAsset() {
-            return this.assetFilter('administration/static/img/theme/default_theme_preview.jpg');
+            return this.assetFilter('administration/administration/static/img/theme/default_theme_preview.jpg');
         },
 
         extensionCardClasses() {
@@ -135,7 +135,7 @@ export default {
         },
 
         isUpdateable() {
-            if (!this.extension || this.extension.latestVersion === null || this.extension.managedByComposer) {
+            if (!this.extension || this.extension.latestVersion === null || !this.extension.allowUpdate) {
                 return false;
             }
 

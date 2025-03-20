@@ -4,8 +4,9 @@
     @modal-close="onCancel"
 >
     {% block sw_property_option_detail_name %}
-    <sw-text-field
-        v-model:value="currentOption.name"
+
+    <mt-text-field
+        v-model="currentOption.name"
         name="sw-field--currentOption-name"
         validation="required"
         :label="$tc('sw-property.detail.labelOptionName')"
@@ -17,8 +18,8 @@
     {% endblock %}
 
     {% block sw_property_option_detail_position %}
-    <sw-number-field
-        v-model:value="currentOption.position"
+    <mt-number-field
+        v-model="currentOption.position"
         name="sw-field--currentOption-position"
         pattern="[0-9]"
         :step="1"
@@ -29,10 +30,9 @@
     {% endblock %}
 
     {% block sw_property_option_detail_color %}
-    <sw-colorpicker
-        v-model:value="currentOption.colorHexCode"
+    <mt-colorpicker
+        v-model="currentOption.colorHexCode"
         name="sw-field--currentOption-colorHexCode"
-        color-output="hex"
         :disabled="!allowEdit"
         :label="$tc('sw-property.detail.labelOptionColor')"
         :z-index="1000"
@@ -59,16 +59,17 @@
     {% block sw_property_option_detail_footer %}
     <template #modal-footer>
         {% block sw_property_option_detail_footer_cancel %}
-        <sw-button
+        <mt-button
             size="small"
+            variant="secondary"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_property_option_detail_footer_save %}
-        <sw-button
+        <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('property.editor'),
@@ -80,7 +81,7 @@
             @click="onSave"
         >
             {{ $tc('global.default.apply') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

@@ -3,7 +3,6 @@
  */
 import { config, mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
-import { MtButton } from '@shopware-ag/meteor-component-library';
 
 async function createWrapper() {
     delete config.global.mocks.$router;
@@ -35,13 +34,7 @@ async function createWrapper() {
             plugins: [router],
             stubs: {
                 'sw-extension-component-section': true,
-                'sw-icon': true,
                 'sw-external-link': true,
-                'sw-button': await wrapTestComponent('sw-button', {
-                    sync: true,
-                }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-                'mt-button': MtButton,
                 'sw-loader': true,
             },
             provide: {

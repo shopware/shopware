@@ -99,14 +99,14 @@ class CheckoutGatewayRouteTest extends TestCase
 
         $paymentMethodRoute = $this->createMock(AbstractPaymentMethodRoute::class);
         $paymentMethodRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->with($request, $context, static::equalTo((new Criteria())->addAssociation('appPaymentMethod.app')))
             ->willReturn($paymentMethods);
 
         $shippingMethodRoute = $this->createMock(AbstractShippingMethodRoute::class);
         $shippingMethodRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->with($request, $context, static::equalTo((new Criteria())->addAssociation('appShippingMethod.app')))
             ->willReturn($shippingMethods);
@@ -121,14 +121,14 @@ class CheckoutGatewayRouteTest extends TestCase
 
         $checkoutGateway = $this->createMock(CheckoutGatewayInterface::class);
         $checkoutGateway
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('process')
             ->with(static::equalTo($payload))
             ->willReturn($response);
 
         $ruleIdMatcher = $this->createMock(RuleIdMatcher::class);
         $ruleIdMatcher
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('filterCollection')
             ->willReturnArgument(0);
 
@@ -190,14 +190,14 @@ class CheckoutGatewayRouteTest extends TestCase
 
         $paymentMethodRoute = $this->createMock(AbstractPaymentMethodRoute::class);
         $paymentMethodRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->with($request, $context, static::equalTo((new Criteria())->addAssociation('appPaymentMethod.app')))
             ->willReturn($paymentMethods);
 
         $shippingMethodRoute = $this->createMock(AbstractShippingMethodRoute::class);
         $shippingMethodRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->with($request, $context, static::equalTo((new Criteria())->addAssociation('appShippingMethod.app')))
             ->willReturn($shippingMethods);
@@ -212,14 +212,14 @@ class CheckoutGatewayRouteTest extends TestCase
 
         $checkoutGateway = $this->createMock(CheckoutGatewayInterface::class);
         $checkoutGateway
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('process')
             ->with(static::equalTo($payload))
             ->willReturn($response);
 
         $ruleIdMatcher = $this->createMock(RuleIdMatcher::class);
         $ruleIdMatcher
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('filterCollection')
             ->willReturnArgument(0);
 
@@ -245,5 +245,41 @@ class CheckoutGatewayRouteTest extends TestCase
         static::assertNotNull($error);
         static::assertSame('shipping-method-blocked', $error->getMessageKey());
         static::assertSame('Shipping method Foo not available', $error->getMessage());
+    }
+
+    public function testOnlyAvailableFlagIsSet(): void
+    {
+        $request = new Request(['onlyAvailable' => true]);
+        $context = Generator::generateSalesChannelContext();
+
+        $paymentMethodRoute = $this->createMock(AbstractPaymentMethodRoute::class);
+        $paymentMethodRoute
+            ->expects($this->once())
+            ->method('load')
+            ->with($request, $context, static::isInstanceOf(Criteria::class));
+
+        $shippingMethodRoute = $this->createMock(AbstractShippingMethodRoute::class);
+        $shippingMethodRoute
+            ->expects($this->once())
+            ->method('load')
+            ->with($request, $context, static::isInstanceOf(Criteria::class));
+
+        $checkoutGateway = $this->createMock(CheckoutGatewayInterface::class);
+        $checkoutGateway
+            ->method('process')
+            ->willReturn(new CheckoutGatewayResponse(
+                new PaymentMethodCollection(),
+                new ShippingMethodCollection(),
+                new ErrorCollection()
+            ));
+
+        $route = new CheckoutGatewayRoute(
+            $paymentMethodRoute,
+            $shippingMethodRoute,
+            $checkoutGateway,
+            new RuleIdMatcher()
+        );
+
+        $route->load(new Request(), new Cart('hatoken'), $context);
     }
 }

@@ -1,33 +1,37 @@
 {% block mt_card %}
-<mt-card-original
-    v-bind="$attrs"
->
-    <template #before-card>
-        <sw-extension-component-section
-            v-if="positionIdentifier"
-            :position-identifier="positionIdentifier + '__before'"
-        />
-
-        <slot name="before-card"></slot>
-    </template>
-
-    <template
-        v-for="(index, name) in getFilteredSlots()"
-        #[name]="data"
+<!-- mt-card is using fragments, therefore v-show doesn't work.
+ This "div" is needed to make it work again.  -->
+<div class="mt-card__wrapper">
+    <mt-card-original
+        v-bind="$attrs"
     >
-        <slot
-            :name="name"
-            v-bind="data"
-        ></slot>
-    </template>
+        <template #before-card>
+            <sw-extension-component-section
+                v-if="positionIdentifier"
+                :position-identifier="positionIdentifier + '__before'"
+            />
 
-    <template #after-card>
-        <slot name="after-card"></slot>
+            <slot name="before-card"></slot>
+        </template>
 
-        <sw-extension-component-section
-            v-if="positionIdentifier"
-            :position-identifier="positionIdentifier + '__after'"
-        />
-    </template>
-</mt-card-original>
+        <template
+            v-for="(index, name) in getFilteredSlots()"
+            #[name]="data"
+        >
+            <slot
+                :name="name"
+                v-bind="data"
+            ></slot>
+        </template>
+
+        <template #after-card>
+            <slot name="after-card"></slot>
+
+            <sw-extension-component-section
+                v-if="positionIdentifier"
+                :position-identifier="positionIdentifier + '__after'"
+            />
+        </template>
+    </mt-card-original>
+</div>
 {% endblock %}

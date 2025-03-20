@@ -5,8 +5,8 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 use PhpParser\Node;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Expr\Throw_;
 use PhpParser\Node\Name;
-use PhpParser\Node\Stmt\Throw_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\IdentifierRuleError;
@@ -119,7 +119,7 @@ class DomainExceptionRule implements Rule
         }
 
         // Allow InvalidArgumentException in commands to validate user input
-        if ($scope->getClassReflection()->isSubclassOf(Command::class) && $exceptionClass === 'InvalidArgumentException') {
+        if ($scope->getClassReflection()->is(Command::class) && $exceptionClass === 'InvalidArgumentException') {
             return [];
         }
 
@@ -143,7 +143,7 @@ class DomainExceptionRule implements Rule
         }
 
         $exception = $this->reflectionProvider->getClass($exceptionClass);
-        if (!$exception->isSubclassOf(HttpException::class)) {
+        if (!$exception->is(HttpException::class)) {
             return [
                 RuleErrorBuilder::message(\sprintf('Domain exception class %s has to extend the \Shopware\Core\Framework\HttpException class', $exceptionClass))
                     ->identifier('shopware.domainException')
@@ -172,7 +172,7 @@ class DomainExceptionRule implements Rule
         ];
 
         foreach ($acceptedClasses as $expected) {
-            if ($exceptionClass === $expected || $exception->isSubclassOf($expected)) {
+            if ($exceptionClass === $expected || $exception->is($expected)) {
                 return [];
             }
         }

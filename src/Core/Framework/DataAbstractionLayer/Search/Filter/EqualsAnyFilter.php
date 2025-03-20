@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 class EqualsAnyFilter extends SingleFieldFilter
 {
     /**
-     * @param list<string>|array<string, string>|list<float>|list<int> $value
+     * @param list<string|int|float|null>|array<string, string> $value
      */
     public function __construct(
         protected readonly string $field,
@@ -25,7 +25,7 @@ class EqualsAnyFilter extends SingleFieldFilter
     }
 
     /**
-     * @return list<string>|array<string, string>|list<float>|list<int>
+     * @return list<string|int|float|null>|array<string, string>
      */
     public function getValue(): array
     {

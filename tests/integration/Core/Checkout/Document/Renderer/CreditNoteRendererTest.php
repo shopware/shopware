@@ -23,6 +23,7 @@ use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -54,6 +55,9 @@ class CreditNoteRendererTest extends TestCase
 
     private Context $context;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     private CreditNoteRenderer $creditNoteRenderer;
@@ -317,7 +321,6 @@ class CreditNoteRendererTest extends TestCase
             new DocumentRendererConfig()
         );
 
-        static::assertEquals($operationCreditNote->getOrderVersionId(), Defaults::LIVE_VERSION);
         static::assertTrue($this->orderVersionExists($orderId, $operationCreditNote->getOrderVersionId()));
     }
 

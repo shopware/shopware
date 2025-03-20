@@ -143,3 +143,10 @@ a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .mt-button) {
 .field-hint {
     margin-bottom: 24px;
 }
+
+.mt-card__toolbar {
+    flex-basis: 100%;
+    padding: 30px;
+    background-color: $color-gray-100;
+    border-bottom: 1px solid $color-gray-300;
+}

@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -47,6 +48,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
      * @param EntityRepository<ShippingMethodCollection> $shippingMethodRepository
      * @param EntityRepository<CountryStateCollection> $countryStateRepository
      * @param EntityRepository<CurrencyCountryRoundingCollection> $currencyCountryRepository
+     * @param EntityRepository<LanguageCollection> $languageRepository
      */
     public function __construct(
         private readonly EntityRepository $salesChannelRepository,
@@ -59,6 +61,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         private readonly EntityRepository $countryStateRepository,
         private readonly EntityRepository $currencyCountryRepository,
         private readonly ContextFactory $contextFactory,
+        private readonly EntityRepository $languageRepository,
     ) {
     }
 
@@ -73,10 +76,6 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         $criteria->setTitle('base-context-factory::sales-channel');
         $criteria->addAssociation('currency');
         $criteria->addAssociation('domains');
-        $criteria->getAssociation('languages')
-            ->addFilter(new EqualsFilter('id', $context->getLanguageId()))
-            ->addAssociation('translationCode')
-            ->addAssociation('locale');
 
         $salesChannel = $this->salesChannelRepository->search($criteria, $context)->getEntities()->get($salesChannelId);
         if (!$salesChannel instanceof SalesChannelEntity) {
@@ -152,7 +151,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
             $shippingLocation,
             $itemRounding,
             $totalRounding,
-            $this->getLanguageInfo($salesChannel->getLanguages(), $context->getLanguageId()),
+            $this->getLanguageInfo($context->getLanguageId(), $context),
         );
     }
 
@@ -279,19 +278,32 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         return [$currency->getItemRounding(), $currency->getTotalRounding()];
     }
 
-    private function getLanguageInfo(?LanguageCollection $languages, string $currentLanguageId): LanguageInfo
+    private function getLanguageInfo(string $currentLanguageId, Context $context): LanguageInfo
     {
-        $currentLanguage = $languages?->get($currentLanguageId);
-        if ($currentLanguage === null) {
+        $criteria = new Criteria([$currentLanguageId]);
+        $criteria->addFields([
+            'id',
+            'name',
+            'translationCode.code',
+            'translationCode.name',
+            'locale.code',
+            'locale.name',
+        ]);
+
+        $currentLanguage = $this->languageRepository->search($criteria, $context)->getEntities()->get($currentLanguageId);
+        if (!$currentLanguage instanceof PartialEntity) {
             throw SalesChannelException::languageNotFound($currentLanguageId);
         }
 
-        $locale = $currentLanguage->getTranslationCode() ?? $currentLanguage->getLocale();
-        \assert($locale !== null, 'At least the localeId is required, so the fallback should never be null');
+        $locale = $currentLanguage->get('translationCode') ?? $currentLanguage->get('locale');
+        \assert($locale instanceof PartialEntity, 'At least the localeId is required, so the fallback should never be null');
 
         return new LanguageInfo(
-            $currentLanguage->getTranslation('name') ?? $currentLanguage->getName(),
-            $locale->getCode(),
+            $currentLanguage->get('id'),
+            $currentLanguage->get('name'),
+            $context->getLanguageIdChain(),
+            $locale->get('id'),
+            $locale->get('code'),
         );
     }
 }

@@ -97,7 +97,7 @@ class CategoryUrlProviderTest extends TestCase
             static::getContainer()->get(CategoryDefinition::class),
             static::getContainer()->get(IteratorFactory::class),
             static::getContainer()->get(RouterInterface::class),
-            static::getContainer()->get('sales_channel.product.repository'),
+            static::getContainer()->get('sales_channel.category.repository'),
         );
     }
 

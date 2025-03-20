@@ -71,7 +71,8 @@
                                     <div class="footer-column-headline footer-headline js-collapse-footer-column-trigger"
                                          data-bs-target="#collapseFooterTitle{{ loop.index }}"
                                          aria-expanded="true"
-                                         aria-controls="collapseFooter{{ loop.index }}">
+                                         aria-controls="collapseFooter{{ loop.index }}"
+                                         role="listitem">
 
                                         {% if root.category.type == 'folder' %}
                                             {{ root.category.translated.name }}
@@ -103,7 +104,8 @@
                                 {% block layout_footer_navigation_information_content %}
                                     <div id="collapseFooter{{ loop.index }}"
                                          class="footer-column-content collapse js-footer-column-content"
-                                         aria-labelledby="collapseFooterTitle{{ loop.index }}">
+                                         aria-labelledby="collapseFooterTitle{{ loop.index }}"
+                                         role="listitem">
                                         <div class="footer-column-content-inner">
                                             {% block layout_footer_navigation_information_links %}
                                                 <ul class="list-unstyled">

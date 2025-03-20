@@ -26,9 +26,9 @@ use Shopware\Core\System\User\UserDefinition;
  * @deprecated tag:v6.8.0 - Will be removed in 6.8.0. Use Shopware\Core\Framework\Notification\NotificationDefinition instead
  */
 #[Package('framework')]
-class NotificationDefinition extends EntityDefinition
+class NotificationDefinition extends \Shopware\Core\Framework\Notification\NotificationDefinition
 {
-    final public const ENTITY_NAME = 'notification';
+    //final public const ENTITY_NAME = 'notification';
 
     public function getEntityName(): string
     {

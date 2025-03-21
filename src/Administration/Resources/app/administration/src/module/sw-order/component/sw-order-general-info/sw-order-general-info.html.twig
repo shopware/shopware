@@ -159,14 +159,13 @@
 
     {% block sw_order_detail_base_general_info_order_tags %}
     <sw-entity-tag-select
-        v-model:entity-collection="tagCollection"
+        v-model:entity-collection="order.tags"
         class="sw-order-general-info__order-tags"
         size="small"
         :disabled="!acl.can('order.editor')"
         :placeholder="$tc('sw-order.generalTab.tagSelect.placeholder')"
         :always-show-placeholder="true"
-        @item-add="onTagAdd"
-        @item-remove="onTagRemove"
+        @update:entity-collection="setTagCollection"
     />
     {% endblock %}
 </div>

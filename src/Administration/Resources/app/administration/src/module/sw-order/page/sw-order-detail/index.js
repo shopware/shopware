@@ -108,7 +108,9 @@ export default {
         },
 
         orderRepository() {
-            return this.repositoryFactory.create('order');
+            return this.repositoryFactory.create('order', null, {
+                useSync: true,
+            });
         },
 
         automaticPromotions() {

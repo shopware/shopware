@@ -22,9 +22,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -50,7 +49,7 @@ class SyncServiceTest extends TestCase
             ]
         );
 
-        $writer = $this->createMock(EntityWriterInterface::class);
+        $writer = $this->createMock(VersionManager::class);
         $writer
             ->expects($this->once())
             ->method('sync')
@@ -126,7 +125,7 @@ class SyncServiceTest extends TestCase
             ->with($registry->get(ProductCategoryDefinition::class), $criteria);
 
         $service = new SyncService(
-            $this->createMock(EntityWriter::class),
+            $this->createMock(VersionManager::class),
             new EventDispatcher(),
             $registry,
             $searcher,
@@ -144,7 +143,7 @@ class SyncServiceTest extends TestCase
 
     public function testWildcardDeleteForMappingEntities(): void
     {
-        $writer = $this->createMock(EntityWriterInterface::class);
+        $writer = $this->createMock(VersionManager::class);
         $writer
             ->expects($this->once())
             ->method('sync')

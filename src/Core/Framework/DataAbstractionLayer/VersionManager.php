@@ -227,6 +227,26 @@ class VersionManager
     }
 
     /**
+     * @param list<SyncOperation> $operations
+     */
+    public function sync(array $operations, WriteContext $context): WriteResult
+    {
+        $result = $this->entityWriter->sync($operations, $context);
+        if ($context->getContext()->hasState(self::DISABLE_AUDIT_LOG)) {
+            return $result;
+        }
+
+        if ($context->getContext()->getVersionId() === Defaults::LIVE_VERSION) {
+            return $result;
+        }
+
+        $this->writeAuditLog($result->getWritten(), $context);
+        $this->writeAuditLog($result->getDeleted(), $context);
+
+        return $result;
+    }
+
+    /**
      * @return array<string, array<EntityWriteResult>>
      */
     private function cloneEntity(
@@ -470,7 +490,7 @@ class VersionManager
                 continue;
             }
 
-            $definition = $this->registry->getByEntityName($items[0]->getEntityName());
+            $definition = $this->registry->getByEntityName($items[array_key_first($items)]->getEntityName());
             $entityName = $definition->getEntityName();
 
             if (!$definition->isVersionAware()) {

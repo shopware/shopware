@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
@@ -27,7 +27,7 @@ class SyncService implements SyncServiceInterface
      * @internal
      */
     public function __construct(
-        private readonly EntityWriterInterface $writer,
+        private readonly VersionManager $versionManager,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly DefinitionInstanceRegistry $registry,
         private readonly EntitySearcherInterface $searcher,
@@ -55,7 +55,7 @@ class SyncService implements SyncServiceInterface
             $context->addState($behavior->getIndexingBehavior());
         }
 
-        $result = $this->writer->sync($operations, WriteContext::createFromContext($context));
+        $result = $this->versionManager->sync($operations, WriteContext::createFromContext($context));
 
         $writes = EntityWrittenContainerEvent::createWithWrittenEvents($result->getWritten(), $context, []);
         $deletes = EntityWrittenContainerEvent::createWithDeletedEvents($result->getDeleted(), $context, []);

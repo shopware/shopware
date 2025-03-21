@@ -84,7 +84,7 @@ class SalesChannelContextFactoryTest extends TestCase
             new ShippingLocation($country, null, null),
             new CashRoundingConfig(2, 0.01, true),
             new CashRoundingConfig(2, 0.01, true),
-            new LanguageInfo('English', 'en-GB'),
+            new LanguageInfo('English', 'en-GB', 'English'),
         );
 
         /** @var StaticEntityRepository<PaymentMethodCollection> $paymentMethodRepository */

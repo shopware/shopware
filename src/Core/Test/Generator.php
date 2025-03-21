@@ -180,7 +180,7 @@ class Generator extends TestCase
 
         $areaRuleIds ??= [];
 
-        $languageInfo ??= new LanguageInfo(self::LANGUAGE_INFO_NAME, self::LANGUAGE_INFO_LOCALE_CODE);
+        $languageInfo ??= new LanguageInfo(self::LANGUAGE_INFO_NAME, self::LANGUAGE_INFO_LOCALE_CODE, self::LANGUAGE_INFO_NAME);
 
         $salesChannelContext = new SalesChannelContext(
             $baseContext,

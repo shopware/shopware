@@ -41,14 +41,21 @@ class ContextFactory
         SELECT
           sales_channel.id as sales_channel_id,
           sales_channel.language_id as sales_channel_default_language_id,
+          language.name as sales_channel_default_language_name,
+          GROUP_CONCAT(LOWER(HEX(sales_channel_language.language_id))) as sales_channel_language_ids,
+          locale.id as sales_channel_default_language_locale_id,
+          locale.code as sales_channel_default_language_locale_code,
           sales_channel.currency_id as sales_channel_currency_id,
-          currency.factor as sales_channel_currency_factor,
-          GROUP_CONCAT(LOWER(HEX(sales_channel_language.language_id))) as sales_channel_language_ids
+          currency.factor as sales_channel_currency_factor
         FROM sales_channel
             INNER JOIN currency
                 ON sales_channel.currency_id = currency.id
             LEFT JOIN sales_channel_language
                 ON sales_channel_language.sales_channel_id = sales_channel.id
+            LEFT JOIN language
+                ON sales_channel.language_id = language.id
+            LEFT JOIN locale
+                ON language.translation_code_id = locale.id
         WHERE sales_channel.id = :id
         GROUP BY sales_channel.id, sales_channel.language_id, sales_channel.currency_id, currency.factor';
 
@@ -76,6 +83,8 @@ class ContextFactory
 
         $versionId = $options[SalesChannelContextService::VERSION_ID] ?? Defaults::LIVE_VERSION;
 
+        $languageInfo = $this->getLanguageInfo($defaultLanguageId, $data, $languageChain);
+
         return $this->eventDispatcher->dispatch(new ContextCreatedEvent(
             new Context(
                 $origin,
@@ -84,7 +93,8 @@ class ContextFactory
                 $languageChain,
                 $versionId,
                 (float) $data['sales_channel_currency_factor'],
-                true
+                true,
+                languageInfo: $languageInfo,
             ),
         ))->context;
     }
@@ -131,5 +141,20 @@ class ContextFactory
         }
 
         return $data;
+    }
+
+    /**
+     * @param array<string, string> $data
+     * @param non-empty-list<string> $chain
+     */
+    private function getLanguageInfo(string $currentLanguageId, array $data, array $chain): LanguageInfo
+    {
+        return new LanguageInfo(
+            $currentLanguageId,
+            $data['sales_channel_default_language_name'],
+            $chain,
+            Uuid::fromBytesToHex($data['sales_channel_default_language_locale_id']),
+            $data['sales_channel_default_language_locale_code'],
+        );
     }
 }

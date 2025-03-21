@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Symfony\Component\Serializer\Attribute\Ignore;
 
 #[Package('framework')]
@@ -47,7 +48,8 @@ class Context extends Struct
          * @see CartPrice::TAX_STATE_GROSS, CartPrice::TAX_STATE_NET, CartPrice::TAX_STATE_FREE
          */
         protected string $taxState = CartPrice::TAX_STATE_GROSS,
-        protected CashRoundingConfig $rounding = new CashRoundingConfig(2, 0.01, true)
+        protected CashRoundingConfig $rounding = new CashRoundingConfig(2, 0.01, true),
+        protected ?LanguageInfo $languageInfo = null,
     ) {
         if ($source instanceof SystemSource) {
             $this->scope = self::SYSTEM_SCOPE;
@@ -89,7 +91,7 @@ class Context extends Struct
 
     public function getLanguageId(): string
     {
-        return $this->languageIdChain[0];
+        return $this->languageInfo->id ?? $this->languageIdChain[0];
     }
 
     public function getCurrencyId(): string
@@ -115,7 +117,12 @@ class Context extends Struct
      */
     public function getLanguageIdChain(): array
     {
-        return $this->languageIdChain;
+        return $this->languageInfo->chain ?? $this->languageIdChain;
+    }
+
+    public function getLanguageInfo(): ?LanguageInfo
+    {
+        return $this->languageInfo;
     }
 
     public function createWithVersionId(string $versionId): self
@@ -129,7 +136,8 @@ class Context extends Struct
             $this->currencyFactor,
             $this->considerInheritance,
             $this->taxState,
-            $this->rounding
+            $this->rounding,
+            $this->languageInfo,
         );
         $context->scope = $this->scope;
 

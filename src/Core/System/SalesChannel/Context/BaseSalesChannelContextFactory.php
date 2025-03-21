@@ -128,7 +128,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
 
         [$itemRounding, $totalRounding] = $this->getCashRounding($currency, $shippingLocation, $context);
 
-        $context = new Context(
+        $newContext = new Context(
             $context->getSource(),
             [],
             $currency->getId(),
@@ -137,11 +137,12 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
             $currency->getFactor(),
             true,
             CartPrice::TAX_STATE_GROSS,
-            $itemRounding
+            $itemRounding,
+            $context->getLanguageInfo() ?? $this->getLanguageInfo($context->getLanguageId(), $context),
         );
 
         return new BaseSalesChannelContext(
-            $context,
+            $newContext,
             $salesChannel,
             $currency,
             $customerGroup,
@@ -151,7 +152,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
             $shippingLocation,
             $itemRounding,
             $totalRounding,
-            $this->getLanguageInfo($context->getLanguageId(), $context),
+            $newContext->getLanguageInfo() ?? $this->getLanguageInfo($newContext->getLanguageId(), $newContext),
         );
     }
 

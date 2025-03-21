@@ -51,7 +51,7 @@ class UpsertAddressRouteTest extends TestCase
         $addressRepository = $this->createMock(EntityRepository::class);
         $addressRepository->method('search')->willReturn($result);
         $addressRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('upsert')
             ->willReturnCallback(function (array $data) {
                 static::assertSame(['mapped' => 1], $data[0]['customFields']);
@@ -112,7 +112,7 @@ class UpsertAddressRouteTest extends TestCase
         $address->setId(Uuid::randomHex());
         $address->setSalutationId($salutationId);
 
-        $addressRepository->expects(static::once())->method('search')->willReturn(
+        $addressRepository->expects($this->once())->method('search')->willReturn(
             new EntitySearchResult(
                 'customer_address',
                 1,

@@ -32,7 +32,7 @@ class ProfilerControllerTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $controller = new ProfilerController($twig, $profiler, $connection);
 
-        $profiler->expects(static::once())
+        $profiler->expects($this->once())
             ->method('loadProfile')
             ->with('some-token')
             ->willReturn(null);
@@ -49,7 +49,7 @@ class ProfilerControllerTest extends TestCase
         $controller = new ProfilerController($twig, $profiler, $connection);
 
         $profile = new Profile('some-token');
-        $profiler->expects(static::once())
+        $profiler->expects($this->once())
             ->method('loadProfile')
             ->with('some-token')
             ->willReturn($profile);
@@ -66,7 +66,7 @@ class ProfilerControllerTest extends TestCase
         $controller = new ProfilerController($twig, $profiler, $connection);
 
         $profile = new Profile('some-token');
-        $profiler->expects(static::once())
+        $profiler->expects($this->once())
             ->method('loadProfile')
             ->with('some-token')
             ->willReturn($profile);
@@ -101,14 +101,14 @@ class ProfilerControllerTest extends TestCase
         $profiler = $this->createMock(Profiler::class);
         $connection = $this->createMock(Connection::class);
 
-        $connection->expects(static::any())
+        $connection->expects($this->any())
             ->method('getConfiguration')
             ->willReturn($config);
 
         $controller = new ProfilerController($twig, $profiler, $connection);
 
         $profile = new Profile('some-token');
-        $profiler->expects(static::once())
+        $profiler->expects($this->once())
             ->method('loadProfile')
             ->with('some-token')
             ->willReturn($profile);
@@ -145,7 +145,7 @@ class ProfilerControllerTest extends TestCase
         $controller = new ProfilerController($twig, $profiler, $connection);
 
         $profile = new Profile('some-token');
-        $profiler->expects(static::once())
+        $profiler->expects($this->once())
             ->method('loadProfile')
             ->with('some-token')
             ->willReturn($profile);
@@ -193,14 +193,14 @@ class ProfilerControllerTest extends TestCase
             ->willReturn($config);
 
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('executeQuery')
             ->with('EXPLAIN SELECT 1', [], []);
 
         $controller = new ProfilerController($twig, $profiler, $connection);
 
         $profile = new Profile('some-token');
-        $profiler->expects(static::once())
+        $profiler->expects($this->once())
             ->method('loadProfile')
             ->with('some-token')
             ->willReturn($profile);

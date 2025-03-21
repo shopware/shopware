@@ -39,7 +39,7 @@ class DocumentRouteTest extends TestCase
         $customer->setGuest(false);
 
         $generator = $this->createMock(DocumentGenerator::class);
-        $generator->expects(static::once())
+        $generator->expects($this->once())
             ->method('readDocument')
             ->willReturn($document);
 

@@ -29,7 +29,7 @@ class MySQLKeyValueStorageTest extends TestCase
 
     public function testHas(): void
     {
-        $this->connectionMock->expects(static::once())->method('fetchAllKeyValue')->willReturn([
+        $this->connectionMock->expects($this->once())->method('fetchAllKeyValue')->willReturn([
             'key-1' => 'value-1',
             'key-2' => null,
         ]);
@@ -41,7 +41,7 @@ class MySQLKeyValueStorageTest extends TestCase
 
     public function testGet(): void
     {
-        $this->connectionMock->expects(static::once())->method('fetchAllKeyValue')->willReturn([
+        $this->connectionMock->expects($this->once())->method('fetchAllKeyValue')->willReturn([
             'key-1' => 'value-1',
             'key-2' => null,
         ]);
@@ -54,7 +54,7 @@ class MySQLKeyValueStorageTest extends TestCase
 
     public function testRemove(): void
     {
-        $this->connectionMock->expects(static::once())->method('delete')->with('app_config', [
+        $this->connectionMock->expects($this->once())->method('delete')->with('app_config', [
             '`key`' => 'key-1',
         ]);
 
@@ -63,7 +63,7 @@ class MySQLKeyValueStorageTest extends TestCase
 
     public function testSet(): void
     {
-        $this->connectionMock->expects(static::once())->method('executeStatement')->with('REPLACE INTO `app_config` (`key`, `value`) VALUES (:key, :value)', [
+        $this->connectionMock->expects($this->once())->method('executeStatement')->with('REPLACE INTO `app_config` (`key`, `value`) VALUES (:key, :value)', [
             'key' => 'key-1',
             'value' => 'value-1',
         ]);
@@ -73,11 +73,11 @@ class MySQLKeyValueStorageTest extends TestCase
 
     public function testGetAfterRemoving(): void
     {
-        $this->connectionMock->expects(static::once())->method('fetchAllKeyValue')->willReturn([
+        $this->connectionMock->expects($this->once())->method('fetchAllKeyValue')->willReturn([
             'key-1' => 'value-1',
         ]);
 
-        $this->connectionMock->expects(static::once())->method('delete')->with('app_config', [
+        $this->connectionMock->expects($this->once())->method('delete')->with('app_config', [
             '`key`' => 'key-1',
         ]);
 
@@ -90,12 +90,12 @@ class MySQLKeyValueStorageTest extends TestCase
 
     public function testGetAfterSet(): void
     {
-        $this->connectionMock->expects(static::exactly(2))->method('fetchAllKeyValue')->willReturnOnConsecutiveCalls(
+        $this->connectionMock->expects($this->exactly(2))->method('fetchAllKeyValue')->willReturnOnConsecutiveCalls(
             ['key-1' => 'value-1'],
             ['key-1' => null],
         );
 
-        $this->connectionMock->expects(static::once())->method('executeStatement')->with('REPLACE INTO `app_config` (`key`, `value`) VALUES (:key, :value)', [
+        $this->connectionMock->expects($this->once())->method('executeStatement')->with('REPLACE INTO `app_config` (`key`, `value`) VALUES (:key, :value)', [
             'key' => 'key-1',
             'value' => null,
         ]);

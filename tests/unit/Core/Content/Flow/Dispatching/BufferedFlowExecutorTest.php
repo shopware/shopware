@@ -59,16 +59,16 @@ class BufferedFlowExecutorTest extends TestCase
     {
         $event = $this->createCheckoutOrderPlacedEvent(new OrderEntity());
 
-        $this->bufferedFlowQueueMock->expects(static::exactly(2))
+        $this->bufferedFlowQueueMock->expects($this->exactly(2))
             ->method('isEmpty')
             ->willReturnOnConsecutiveCalls(false, true);
 
-        $this->bufferedFlowQueueMock->expects(static::once())
+        $this->bufferedFlowQueueMock->expects($this->once())
             ->method('dequeueFlows')
             ->willReturn([$event]);
 
         $flowPayload = new Flow(Uuid::randomHex());
-        $this->flowLoaderMock->expects(static::once())
+        $this->flowLoaderMock->expects($this->once())
             ->method('load')
             ->willReturn([
                 'checkout.order.placed' => [
@@ -81,12 +81,12 @@ class BufferedFlowExecutorTest extends TestCase
             ]);
 
         $flow = new StorableFlow('checkout.order.placed', $event->getContext(), [], []);
-        $this->flowFactoryMock->expects(static::once())
+        $this->flowFactoryMock->expects($this->once())
             ->method('create')
             ->with($event)
             ->willReturn($flow);
 
-        $this->flowExecutorMock->expects(static::once())
+        $this->flowExecutorMock->expects($this->once())
             ->method('executeFlows')
             ->with(
                 [
@@ -109,9 +109,9 @@ class BufferedFlowExecutorTest extends TestCase
         $this->bufferedFlowQueueMock->method('dequeueFlows')->willReturn([$event]);
 
         $flow = new StorableFlow('name', $event->getContext(), [], []);
-        $this->flowFactoryMock->expects(static::once())->method('create')->willReturn($flow);
+        $this->flowFactoryMock->expects($this->once())->method('create')->willReturn($flow);
 
-        $this->flowLoaderMock->expects(static::once())->method('load')->willReturn([]);
+        $this->flowLoaderMock->expects($this->once())->method('load')->willReturn([]);
 
         $this->bufferedFlowExecutor->executeBufferedFlows();
     }
@@ -123,7 +123,7 @@ class BufferedFlowExecutorTest extends TestCase
         $this->bufferedFlowQueueMock->method('dequeueFlows')->willReturn([$event]);
         $this->flowLoaderMock->method('load')->willReturn([]);
 
-        $this->loggerMock->expects(static::once())
+        $this->loggerMock->expects($this->once())
             ->method('error')
             ->with(
                 'Maximum execution depth reached for buffered flow executor. This might be caused by a cyclic flow execution.',

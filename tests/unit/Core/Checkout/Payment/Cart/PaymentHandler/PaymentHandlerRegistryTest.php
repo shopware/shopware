@@ -126,7 +126,7 @@ class PaymentHandlerRegistryTest extends TestCase
     {
         $qb = $this->createMock(QueryBuilder::class);
         $qb
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('select')
             ->with('
                 payment_method.handler_identifier,
@@ -135,13 +135,13 @@ class PaymentHandlerRegistryTest extends TestCase
             ->willReturnSelf();
 
         $qb
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('from')
             ->with('payment_method')
             ->willReturnSelf();
 
         $qb
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('leftJoin')
             ->with(
                 'payment_method',
@@ -152,7 +152,7 @@ class PaymentHandlerRegistryTest extends TestCase
             ->willReturnSelf();
 
         $qb
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('andWhere')
             ->with('payment_method.id = :paymentMethodId')
             ->willReturnSelf();
@@ -160,7 +160,7 @@ class PaymentHandlerRegistryTest extends TestCase
         $uuid = Uuid::randomHex();
 
         $qb
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('setParameter')
             ->with('paymentMethodId', Uuid::fromHexToBytes($uuid))
             ->willReturnSelf();

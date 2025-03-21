@@ -3,9 +3,19 @@
     {% block sw_gtc_checkbox_input %}
     <mt-checkbox
         :checked="value"
-        :label="$tc('global.sw-gtc-checkbox.url')"
         @update:checked="onChange"
-    />
+    >
+        <template #label>
+            {{ $tc('global.sw-gtc-checkbox.label') }}
+            <mt-link
+                class="sw-external-link"
+                type="external"
+                :href="$tc('global.sw-gtc-checkbox.url')"
+            >
+                {{ $tc('global.sw-gtc-checkbox.link') }}
+            </mt-link>
+        </template>
+    </mt-checkbox>
     {% endblock %}
 </div>
 {% endblock %}

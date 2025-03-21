@@ -22,7 +22,7 @@ jobs:
           shopware-repository: ${{ github.repository }}
 
       - name: Cache ESLint and Stylelint
-        uses: actions/cache@v4
+        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
         with:
           path: |
             src/Administration/Resources/app/administration/node_modules/.eslintcache
@@ -65,7 +65,7 @@ jobs:
       - name: Run Jest Admin ${{ matrix.test-type }}
         run: npm --prefix src/Administration/Resources/app/administration run ${{ matrix.test-type }} -- --silent
       - name: Upload coverage
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # 5
         if: ${{ matrix.test-type == 'unit' }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -80,8 +80,8 @@ jobs:
       WHITELISTED_JS_PACKAGES: 'abab@2.0.1;administration;taffydb@2.6.2'
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+      - uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # 4
         with:
           node-version: 20
       - name: install packages
@@ -106,7 +106,7 @@ jobs:
     runs-on: Ubuntu-latest
     steps:
     - name: Decide whether the needed jobs succeeded or failed
-      uses: re-actors/alls-green@release/v1
+      uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
       with:
         # allowed-failures: docs, linters
         # allowed-skips: non-voting-flaky-job

@@ -27,7 +27,7 @@ class FrameworkTest extends TestCase
     {
         $container = new Container();
         $registry = $this->createMock(FeatureFlagRegistry::class);
-        $registry->expects(static::once())->method('register');
+        $registry->expects($this->once())->method('register');
 
         $container->set(FeatureFlagRegistry::class, $registry);
         $container->set(DefinitionInstanceRegistry::class, $this->createMock(DefinitionInstanceRegistry::class));

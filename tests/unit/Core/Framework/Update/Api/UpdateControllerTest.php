@@ -168,7 +168,7 @@ class UpdateControllerTest extends TestCase
     public function testDownloadRecovery(): void
     {
         $apiClient = $this->createMock(ApiClient::class);
-        $apiClient->expects(static::once())->method('downloadRecoveryTool');
+        $apiClient->expects($this->once())->method('downloadRecoveryTool');
 
         $updateController = new UpdateController(
             $apiClient,

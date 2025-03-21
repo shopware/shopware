@@ -55,12 +55,12 @@ class ThumbnailServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->mediaRepository = $this->getContainer()->get('media.repository');
-        $this->thumbnailRepository = $this->getContainer()->get('media_thumbnail.repository');
+        $this->mediaRepository = static::getContainer()->get('media.repository');
+        $this->thumbnailRepository = static::getContainer()->get('media_thumbnail.repository');
         $this->context = Context::createDefaultContext();
-        $this->remoteThumbnailsEnable = $this->getContainer()->getParameter('shopware.media.remote_thumbnails.enable');
+        $this->remoteThumbnailsEnable = static::getContainer()->getParameter('shopware.media.remote_thumbnails.enable');
 
-        $this->thumbnailService = $this->getContainer()->get(ThumbnailService::class);
+        $this->thumbnailService = static::getContainer()->get(ThumbnailService::class);
     }
 
     public function testThumbnailGeneration(): void
@@ -528,7 +528,7 @@ class ThumbnailServiceTest extends TestCase
 
         $this->getPublicFilesystem()->writeStream($url, $resource);
 
-        $thumbnailService = $this->getContainer()->get(ThumbnailService::class);
+        $thumbnailService = static::getContainer()->get(ThumbnailService::class);
 
         $thumbnailService->generate(new MediaCollection([$media]), $this->context);
 
@@ -659,10 +659,10 @@ class ThumbnailServiceTest extends TestCase
             'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
-        $this->getContainer()->get('media.repository')
+        static::getContainer()->get('media.repository')
             ->upsert([$media], Context::createDefaultContext());
 
-        $media = $this->getContainer()->get('media.repository')
+        $media = static::getContainer()->get('media.repository')
             ->search(new Criteria([$ids->get('media')]), Context::createDefaultContext())
             ->first();
 
@@ -673,6 +673,6 @@ class ThumbnailServiceTest extends TestCase
 
         $this->getFilesystem('shopware.filesystem.public')->writeStream($media->getPath(), $resource);
 
-        $service = $this->getContainer()->get(ThumbnailService::class);
+        $service = static::getContainer()->get(ThumbnailService::class);
     }
 }

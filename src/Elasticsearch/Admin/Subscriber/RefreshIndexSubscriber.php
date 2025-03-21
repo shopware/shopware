@@ -11,7 +11,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('inventory')]
 final class RefreshIndexSubscriber implements EventSubscriberInterface
 {
     public function __construct(private readonly AdminSearchRegistry $registry)

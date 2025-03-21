@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import 'src/app/component/filter/sw-range-filter';
 import 'src/app/component/filter/sw-base-filter';
 import { mount } from '@vue/test-utils';
@@ -14,7 +18,6 @@ async function createWrapper() {
                 'sw-container': {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
-                'sw-icon': true,
                 'sw-field-error': true,
             },
         },

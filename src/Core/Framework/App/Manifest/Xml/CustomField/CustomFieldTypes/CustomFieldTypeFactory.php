@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class CustomFieldTypeFactory
 {
     private const TAG_TO_CLASS_MAPPING = [

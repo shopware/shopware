@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
@@ -37,7 +37,6 @@ async function createWrapper() {
             global: {
                 stubs: {
                     'sw-block-field': true,
-                    'sw-icon': true,
                 },
                 provide: {
                     cmsService: {

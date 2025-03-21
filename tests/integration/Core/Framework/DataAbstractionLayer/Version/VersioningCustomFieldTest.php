@@ -33,7 +33,7 @@ class VersioningCustomFieldTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->orderRepository = $this->getContainer()->get('order.repository');
+        $this->orderRepository = static::getContainer()->get('order.repository');
         $this->context = Context::createDefaultContext();
     }
 
@@ -100,7 +100,7 @@ class VersioningCustomFieldTest extends TestCase
      */
     private function getOrderFixture(string $orderId, string $orderVersionId): array
     {
-        $stateId = $this->getContainer()->get('state_machine_state.repository')
+        $stateId = static::getContainer()->get('state_machine_state.repository')
             ->searchIds((new Criteria())->addFilter(new EqualsFilter('stateMachine.technicalName', OrderStates::STATE_MACHINE)), Context::createDefaultContext())
             ->firstId();
         static::assertIsString($stateId);

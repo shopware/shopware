@@ -17,7 +17,7 @@ use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@discovery')]
 class CountryStateRepositoryTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -30,14 +30,14 @@ class CountryStateRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('country_state.repository');
+        $this->repository = static::getContainer()->get('country_state.repository');
     }
 
     public function testSearchRanking(): void
     {
         $country = Uuid::randomHex();
 
-        $this->getContainer()->get('country.repository')->create([
+        static::getContainer()->get('country.repository')->create([
             ['id' => $country, 'name' => 'test'],
         ], Context::createDefaultContext());
 
@@ -53,8 +53,8 @@ class CountryStateRepositoryTest extends TestCase
 
         $criteria = new Criteria();
 
-        $builder = $this->getContainer()->get(EntityScoreQueryBuilder::class);
-        $pattern = $this->getContainer()->get(SearchTermInterpreter::class)->interpret('match');
+        $builder = static::getContainer()->get(EntityScoreQueryBuilder::class);
+        $pattern = static::getContainer()->get(SearchTermInterpreter::class)->interpret('match');
         $context = Context::createDefaultContext();
         $queries = $builder->buildScoreQueries(
             $pattern,

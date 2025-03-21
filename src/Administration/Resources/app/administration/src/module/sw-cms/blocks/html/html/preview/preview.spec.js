@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 
@@ -12,7 +12,6 @@ async function createWrapper() {
             global: {
                 stubs: {
                     'sw-code-editor': await wrapTestComponent('sw-code-editor'),
-                    'sw-icon': true,
                 },
             },
         },

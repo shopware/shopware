@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class MediaThumbnailEntity extends Entity
 {
     use EntityCustomFieldsTrait;
@@ -16,40 +16,15 @@ class MediaThumbnailEntity extends Entity
 
     protected ?string $path = null;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be native `int` type
-     */
-    protected $width;
+    protected int $width;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be native `int` type
-     */
-    protected $height;
+    protected int $height;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $url = '';
+    protected string $url = '';
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $mediaId;
+    protected string $mediaId;
 
-    /**
-     * @var MediaEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $media;
+    protected ?MediaEntity $media = null;
 
     public function getWidth(): int
     {
@@ -103,9 +78,7 @@ class MediaThumbnailEntity extends Entity
 
     public function getIdentifier(): string
     {
-        $identifier = \sprintf('%dx%d', $this->getWidth(), $this->getHeight());
-
-        return $identifier;
+        return \sprintf('%dx%d', $this->getWidth(), $this->getHeight());
     }
 
     public function getPath(): string

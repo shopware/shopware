@@ -12,14 +12,14 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(CacheTelemetrySubscriber::class)]
 class CacheTelemetrySubscriberTest extends TestCase
 {
     public function testEmitInvalidateCacheCountMetric(): void
     {
         $meter = $this->createMock(Meter::class);
-        $meter->expects(static::once())
+        $meter->expects($this->once())
             ->method('emit')
             ->with(static::callback(function (ConfiguredMetric $metric) {
                 return $metric->name === 'cache.invalidate.count' && $metric->value === 1;

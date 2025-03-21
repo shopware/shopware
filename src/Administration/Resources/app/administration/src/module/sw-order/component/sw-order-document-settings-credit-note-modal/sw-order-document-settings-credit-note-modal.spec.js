@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 import { mount } from '@vue/test-utils';
@@ -106,17 +106,14 @@ async function createWrapper() {
                 'sw-text-field': true,
                 'sw-datepicker': true,
                 'sw-checkbox-field': true,
-                'sw-switch-field': true,
+
                 'sw-context-button': {
                     template: '<div class="sw-context-button"><slot></slot></div>',
                 },
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-button-group': await wrapTestComponent('sw-button-group'),
                 'sw-context-menu-item': true,
                 'sw-upload-listener': true,
                 'sw-textarea-field': true,
-                'sw-icon': true,
                 'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
                 'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
@@ -382,34 +379,31 @@ describe('sw-order-document-settings-credit-note-modal', () => {
     });
 
     it('should show only invoice numbers in invoice number select field', async () => {
-        const invoiceSelect = wrapper.find('.sw-order-document-settings-credit-note-modal__invoice-select');
+        const invoiceSelect = wrapper.find('.sw-order-document-settings-credit-note-modal__invoice-select input');
         await invoiceSelect.trigger('click');
 
-        const invoiceOptions = wrapper
-            .find('.sw-order-document-settings-credit-note-modal__invoice-select')
-            .findAll('option');
+        const invoiceOptions = wrapper.find('.mt-select-result-list-popover').findAll('.mt-select-result');
 
-        expect(invoiceOptions.at(1).text()).toBe('1000');
-        expect(invoiceOptions.at(2).text()).toBe('1001');
+        expect(invoiceOptions).toHaveLength(2);
+        expect(invoiceOptions.at(0).text()).toBe('1000');
+        expect(invoiceOptions.at(1).text()).toBe('1001');
     });
 
     it('should disable create button if there is no selected invoice', async () => {
         const createButton = wrapper.findComponent('.sw-order-document-settings-modal__create');
         expect(createButton.attributes('disabled')).toBeDefined();
 
-        const createContextMenu = wrapper.findComponent('.sw-context-button');
+        const createContextMenu = wrapper.findAllComponents('.sw-context-button').at(1);
         expect(createContextMenu.attributes('disabled')).toBe('true');
     });
 
     it('should enable create button if there is at least one selected invoice', async () => {
-        const invoiceSelect = wrapper.find('.sw-order-document-settings-credit-note-modal__invoice-select');
+        const invoiceSelect = wrapper.find('.sw-order-document-settings-credit-note-modal__invoice-select input');
         await invoiceSelect.trigger('click');
 
-        const invoiceOptions = wrapper
-            .find('.sw-order-document-settings-credit-note-modal__invoice-select')
-            .findAll('option');
+        const invoiceOptions = wrapper.find('.mt-select-result-list-popover').findAll('.mt-select-result');
 
-        await invoiceOptions.at(1).setSelected();
+        await invoiceOptions.at(0).trigger('click');
         await wrapper.vm.$nextTick();
 
         const createButton = wrapper.find('.sw-order-document-settings-modal__create');

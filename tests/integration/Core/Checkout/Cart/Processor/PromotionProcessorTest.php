@@ -37,9 +37,9 @@ class PromotionProcessorTest extends TestCase
     #[DataProvider('processorProvider')]
     public function testProcessor(array $items, CartPrice $cartPrice, ?Error $expectedError): void
     {
-        $processor = $this->getContainer()->get(PromotionProcessor::class);
+        $processor = static::getContainer()->get(PromotionProcessor::class);
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $cart = new Cart('test');
@@ -67,9 +67,9 @@ class PromotionProcessorTest extends TestCase
     #[DataProvider('processorPromotionTypeProvider')]
     public function testProcessorPromotionType(LineItem $promotionItem, bool $expectedError): void
     {
-        $processor = $this->getContainer()->get(PromotionProcessor::class);
+        $processor = static::getContainer()->get(PromotionProcessor::class);
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         $items = [
             new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex(), 1),
@@ -100,7 +100,7 @@ class PromotionProcessorTest extends TestCase
 
     public static function processorProvider(): \Generator
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->setTaxState(CartPrice::TAX_STATE_GROSS);
         $context->setItemRounding(new CashRoundingConfig(2, 0.01, true));
 
@@ -119,7 +119,7 @@ class PromotionProcessorTest extends TestCase
 
     public static function processorPromotionTypeProvider(): \Generator
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->setTaxState(CartPrice::TAX_STATE_GROSS);
         $context->setItemRounding(new CashRoundingConfig(2, 0.01, true));
 

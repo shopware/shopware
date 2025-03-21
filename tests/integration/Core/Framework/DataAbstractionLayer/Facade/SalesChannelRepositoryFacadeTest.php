@@ -48,8 +48,8 @@ class SalesChannelRepositoryFacadeTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->factory = $this->getContainer()->get(SalesChannelRepositoryFacadeHookFactory::class);
-        $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $this->factory = static::getContainer()->get(SalesChannelRepositoryFacadeHookFactory::class);
+        $this->context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     /**
@@ -209,7 +209,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
             ]
         );
 
-        $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
+        static::getContainer()->get(ScriptExecutor::class)->execute($hook);
 
         static::assertTrue($page->hasExtension('myProduct'));
         $product = $page->getExtension('myProduct');
@@ -236,7 +236,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
             ]
         );
 
-        $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
+        static::getContainer()->get(ScriptExecutor::class)->execute($hook);
 
         static::assertTrue($page->hasExtension('myProduct'));
         $product = $page->getExtension('myProduct');
@@ -264,7 +264,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
             ]
         );
 
-        $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
+        static::getContainer()->get(ScriptExecutor::class)->execute($hook);
 
         static::assertTrue($page->hasExtension('myProduct'));
         $product = $page->getExtension('myProduct');
@@ -296,7 +296,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
             ]
         );
 
-        $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
+        static::getContainer()->get(ScriptExecutor::class)->execute($hook);
 
         static::assertTrue($page->hasExtension('myProductIds'));
         $extension = $page->getExtension('myProductIds');
@@ -323,7 +323,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
             ]
         );
 
-        $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
+        static::getContainer()->get(ScriptExecutor::class)->execute($hook);
 
         static::assertTrue($page->hasExtension('myProductAggregations'));
         $extension = $page->getExtension('myProductAggregations');
@@ -374,7 +374,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
             ->visibility()
             ->price(300);
 
-        $this->getContainer()->get('product.repository')->create([
+        static::getContainer()->get('product.repository')->create([
             $product1->build(),
             $product2->build(),
             $product3->build(),
@@ -385,7 +385,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
     {
         $this->loadAppsFromDir($appDir);
 
-        $appId = $this->getContainer()->get('app.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
+        $appId = static::getContainer()->get('app.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
         static::assertIsString($appId);
 
         return $appId;
@@ -394,7 +394,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
     private function getExistingTaxId(): string
     {
         /** @var EntityRepository<TaxCollection> $taxRepository */
-        $taxRepository = $this->getContainer()->get('tax.repository');
+        $taxRepository = static::getContainer()->get('tax.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'Standard rate'));

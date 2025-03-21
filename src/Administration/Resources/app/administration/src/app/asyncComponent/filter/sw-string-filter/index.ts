@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import type { PropType } from 'vue';
 import template from './sw-string-filter.html.twig';
 
@@ -8,8 +12,6 @@ const { Criteria } = Shopware.Data;
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         filter: {

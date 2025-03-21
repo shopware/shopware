@@ -4,7 +4,7 @@ import template from './sw-button-group.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -19,8 +19,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-button-group', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         block: {

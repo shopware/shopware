@@ -7,13 +7,11 @@ const {
 } = Shopware;
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['acl'],
 
@@ -49,7 +47,7 @@ export default {
             };
         },
         listingCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(this.page, this.limit);
 
             if (this.term) {
                 criteria.setTerm(this.term);
@@ -60,14 +58,6 @@ export default {
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
-        },
-    },
-
-    methods: {
-        onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
-
-            this.getList();
         },
     },
 };

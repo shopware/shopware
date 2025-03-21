@@ -2,13 +2,11 @@ import template from './sw-first-run-wizard-store.html.twig';
 import './sw-first-run-wizard-store.scss';
 
 /**
- * @package checkout
+ * @sw-package fundamentals@after-sales
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['extensionHelperService'],
 
@@ -45,7 +43,7 @@ export default {
                 key: 'back',
                 label: this.$tc('sw-first-run-wizard.general.buttonBack'),
                 position: 'left',
-                variant: null,
+                variant: 'secondary',
                 action: 'sw.first.run.wizard.index.shopware.account',
                 disabled: this.isActivating || this.loadStatus,
             };
@@ -70,7 +68,7 @@ export default {
                     key: 'skip',
                     label: this.$tc('sw-first-run-wizard.general.buttonSkip'),
                     position: 'right',
-                    variant: null,
+                    variant: 'secondary',
                     action: 'sw.first.run.wizard.index.finish',
                     disabled: this.isActivating || this.loadStatus,
                 },

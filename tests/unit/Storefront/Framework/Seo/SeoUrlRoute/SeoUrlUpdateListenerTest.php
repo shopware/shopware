@@ -11,7 +11,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
 use Shopware\Core\Content\Seo\SeoUrlUpdater;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlUpdateListener;
@@ -26,16 +25,13 @@ class SeoUrlUpdateListenerTest extends TestCase
 
     private Connection&MockObject $connection;
 
-    private EntityIndexerRegistry&MockObject $indexerRegistry;
-
     private SeoUrlUpdateListener $listener;
 
     protected function setUp(): void
     {
         $this->seoUrlUpdater = $this->createMock(SeoUrlUpdater::class);
         $this->connection = $this->createMock(Connection::class);
-        $this->indexerRegistry = $this->createMock(EntityIndexerRegistry::class);
-        $this->listener = new SeoUrlUpdateListener($this->seoUrlUpdater, $this->connection, $this->indexerRegistry);
+        $this->listener = new SeoUrlUpdateListener($this->seoUrlUpdater, $this->connection);
     }
 
     public function testUpdateCategoryUrlsWithFullIndexing(): void
@@ -43,8 +39,8 @@ class SeoUrlUpdateListenerTest extends TestCase
         $childUuid = Uuid::randomHex();
         $event = new CategoryIndexerEvent([$childUuid], Context::createDefaultContext(), [], true);
 
-        $this->connection->expects(static::never())->method('createQueryBuilder');
-        $this->seoUrlUpdater->expects(static::once())
+        $this->connection->expects($this->never())->method('createQueryBuilder');
+        $this->seoUrlUpdater->expects($this->once())
             ->method('update')
             ->with(
                 NavigationPageSeoUrlRoute::ROUTE_NAME,
@@ -70,7 +66,7 @@ class SeoUrlUpdateListenerTest extends TestCase
         $queryBuilder->method('executeQuery')->willReturn($result);
         $this->connection->method('createQueryBuilder')->willReturn($queryBuilder);
 
-        $this->seoUrlUpdater->expects(static::once())
+        $this->seoUrlUpdater->expects($this->once())
             ->method('update')
             ->with(
                 NavigationPageSeoUrlRoute::ROUTE_NAME,

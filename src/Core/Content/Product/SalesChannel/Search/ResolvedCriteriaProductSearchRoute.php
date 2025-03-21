@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('services-settings')]
+#[Package('inventory')]
 class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
 {
     final public const DEFAULT_SEARCH_SORT = 'score';
@@ -42,10 +42,6 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
     #[Route(path: '/store-api/search', name: 'store-api.search', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSearchRouteResponse
     {
-        if (!$request->get('order')) {
-            $request->request->set('order', self::DEFAULT_SEARCH_SORT);
-        }
-
         $criteria->addState(self::STATE);
 
         $criteria = $this->criteriaBuilder->handleRequest(

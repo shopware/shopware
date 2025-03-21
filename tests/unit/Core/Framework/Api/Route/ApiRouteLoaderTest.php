@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\Route;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Route\ApiRouteLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
@@ -30,7 +31,7 @@ class ApiRouteLoaderTest extends TestCase
 
         $routes = $loader->load('resource');
 
-        static::assertCount(7, $routes);
+        static::assertCount(8, $routes);
         static::assertArrayHasKey('api.product.detail', $routes->all());
         static::assertArrayHasKey('api.product.update', $routes->all());
         static::assertArrayHasKey('api.product.delete', $routes->all());
@@ -39,8 +40,7 @@ class ApiRouteLoaderTest extends TestCase
         static::assertArrayHasKey('api.product.search-ids', $routes->all());
         static::assertArrayHasKey('api.product.create', $routes->all());
 
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Do not add the "api" loader twice');
+        static::expectExceptionObject(ApiException::apiRoutesAreAlreadyLoaded());
         $loader->load('resource', 'api');
     }
 }

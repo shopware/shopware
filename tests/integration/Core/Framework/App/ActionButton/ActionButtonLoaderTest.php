@@ -34,8 +34,8 @@ class ActionButtonLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->appRepository = $this->getContainer()->get('app.repository');
-        $this->actionButtonLoader = $this->getContainer()->get(ActionButtonLoader::class);
+        $this->appRepository = static::getContainer()->get('app.repository');
+        $this->actionButtonLoader = static::getContainer()->get(ActionButtonLoader::class);
         $this->context = Context::createDefaultContext();
 
         $this->app1OrderDetailButtonId = Uuid::randomHex();

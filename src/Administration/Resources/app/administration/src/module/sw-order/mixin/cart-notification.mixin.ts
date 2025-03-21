@@ -2,10 +2,10 @@ import { defineComponent } from 'vue';
 import type { CartError } from '../order.types';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
-const { State, Mixin } = Shopware;
+const { Store, Mixin } = Shopware;
 /**
  * @private
  *
@@ -17,7 +17,7 @@ export default Mixin.register(
         computed: {
             cartErrors(): CartError[] {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                return State.getters['swOrder/cartErrors'] as CartError[];
+                return Store.get('swOrder').cartErrors;
             },
         },
 

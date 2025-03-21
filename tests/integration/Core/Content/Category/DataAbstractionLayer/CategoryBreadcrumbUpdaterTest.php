@@ -35,7 +35,7 @@ class CategoryBreadcrumbUpdaterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('category.repository');
+        $this->repository = static::getContainer()->get('category.repository');
 
         $this->deLanguageId = $this->getDeDeLanguageId();
     }

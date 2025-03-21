@@ -8,11 +8,13 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetCustomerCustomFieldAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Log\Package;
@@ -21,7 +23,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(SetCustomerCustomFieldAction::class)]
 class SetCustomerCustomFieldActionTest extends TestCase
 {
@@ -29,18 +31,12 @@ class SetCustomerCustomFieldActionTest extends TestCase
 
     private MockObject&EntityRepository $repository;
 
-    /**
-     * @var MockObject&EntitySearchResult<CustomerCollection>
-     */
-    private MockObject&EntitySearchResult $entitySearchResult;
-
     private SetCustomerCustomFieldAction $action;
 
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
         $this->repository = $this->createMock(EntityRepository::class);
-        $this->entitySearchResult = $this->createMock(EntitySearchResult::class);
 
         $this->action = new SetCustomerCustomFieldAction($this->connection, $this->repository);
     }
@@ -66,27 +62,34 @@ class SetCustomerCustomFieldActionTest extends TestCase
     #[DataProvider('actionExecutedProvider')]
     public function testExecutedAction(array $config, array $existsData, array $expected): void
     {
+        $customerId = Uuid::randomHex();
         $customer = new CustomerEntity();
+        $customer->setId($customerId);
+        $customer->setUniqueIdentifier($customerId);
         $customer->setCustomFields($existsData);
 
         $context = Context::createDefaultContext();
-        $customerId = Uuid::randomHex();
         $flow = new StorableFlow('', $context, [], [CustomerAware::CUSTOMER_ID => $customerId]);
         $flow->setConfig($config);
 
-        $this->entitySearchResult->expects(static::once())
-            ->method('first')
-            ->willReturn($customer);
+        $entitySearchResult = new EntitySearchResult(
+            CustomerDefinition::ENTITY_NAME,
+            1,
+            new CustomerCollection([$customer]),
+            null,
+            new Criteria(),
+            $context
+        );
 
-        $this->repository->expects(static::once())
+        $this->repository->expects($this->once())
             ->method('search')
-            ->willReturn($this->entitySearchResult);
+            ->willReturn($entitySearchResult);
 
-        $this->connection->expects(static::once())
+        $this->connection->expects($this->once())
             ->method('fetchOne')
             ->willReturn('custom_field_test');
 
-        $this->repository->expects(static::once())
+        $this->repository->expects($this->once())
             ->method('update')
             ->with([['id' => $customerId, 'customFields' => $expected['custom_field_test'] ? $expected : null]]);
 
@@ -96,7 +99,7 @@ class SetCustomerCustomFieldActionTest extends TestCase
     public function testActionWithNotAware(): void
     {
         $flow = new StorableFlow('', Context::createDefaultContext(), [], []);
-        $this->repository->expects(static::never())->method('update');
+        $this->repository->expects($this->never())->method('update');
 
         $this->action->handleFlow($flow);
     }

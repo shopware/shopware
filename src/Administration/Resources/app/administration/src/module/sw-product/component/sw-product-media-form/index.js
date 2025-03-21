@@ -1,18 +1,15 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import template from './sw-product-media-form.html.twig';
 import './sw-product-media-form.scss';
 
-const { Component, Mixin } = Shopware;
-const { mapGetters } = Component.getComponentHelper();
+const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -58,7 +55,7 @@ export default {
 
     computed: {
         product() {
-            const state = Shopware.State.get('swProductDetail');
+            const state = Shopware.Store.get('swProductDetail');
 
             if (this.isInherited) {
                 return state.parentProduct;
@@ -89,9 +86,9 @@ export default {
             return this.product.media.find((media) => media.id === coverId);
         },
 
-        ...mapGetters('swProductDetail', {
-            isStoreLoading: 'isLoading',
-        }),
+        isStoreLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
 
         isLoading() {
             return this.isMediaLoading || this.isStoreLoading;
@@ -283,7 +280,7 @@ export default {
         },
 
         /**
-         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+         * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
          */
         isSpatial(productMedia) {
             // we need to check the media url since media.fileExtension is set directly after upload
@@ -291,7 +288,7 @@ export default {
         },
 
         /**
-         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+         * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
          */
         isArReady(productMedia) {
             return productMedia.media?.config?.spatial?.arReady ?? this.globalIsArReady;

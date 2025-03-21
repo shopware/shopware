@@ -4,7 +4,7 @@ import './sw-select-base.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -13,8 +13,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-select-base', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inheritAttrs: false,
 
@@ -54,18 +52,36 @@ Component.register('sw-select-base', {
         swFieldClasses() {
             return { 'has--focus': this.expanded };
         },
+    },
 
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
+    mounted() {
+        this.onMounted();
+    },
 
-            return {};
-        },
+    beforeUnmount() {
+        this.onBeforeUnmount();
     },
 
     methods: {
+        onMounted() {
+            document.addEventListener('keydown', this.handleKeydown);
+        },
+
+        onBeforeUnmount() {
+            document.removeEventListener('keydown', this.handleKeydown);
+        },
+
+        handleKeydown(event) {
+            if (!this.expanded) {
+                return;
+            }
+
+            // Handle escape key
+            if (event.key === 'Escape' || event.key === 'Esc') {
+                this.collapse();
+            }
+        },
+
         toggleExpand() {
             if (!this.expanded) {
                 this.expand();

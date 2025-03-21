@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
 import 'src/app/mixin/notification.mixin';
@@ -87,21 +87,12 @@ async function createWrapper(privileges = []) {
                 },
 
                 stubs: {
-                    'sw-card': true,
-                    'sw-button-process': await wrapTestComponent('sw-button-process'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                    'sw-progress-bar': {
-                        template: '<div class="sw-progress-bar"><slot></slot></div>',
+                    'mt-progress-bar': {
+                        template: '<div class="mt-progress-bar"><slot></slot></div>',
                     },
-                    'sw-alert': {
-                        template: '<div class="sw-alert"><slot></slot></div>',
-                    },
-                    'sw-icon': true,
                     'sw-loader': true,
                     'sw-time-ago': true,
-                    'sw-button': {
-                        template: '<button @click="$emit(\'click\')"><slot></slot></button>',
-                    },
+                    'sw-button-process': true,
                 },
             },
         },

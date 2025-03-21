@@ -23,7 +23,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -69,12 +68,12 @@ class StockStorageTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->orderLineItemRepository = $this->getContainer()->get('order_line_item.repository');
-        $this->cartService = $this->getContainer()->get(CartService::class);
-        $this->contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $this->lineItemRepository = $this->getContainer()->get('order_line_item.repository');
-        $this->orderRepository = $this->getContainer()->get('order.repository');
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->orderLineItemRepository = static::getContainer()->get('order_line_item.repository');
+        $this->cartService = static::getContainer()->get(CartService::class);
+        $this->contextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
+        $this->lineItemRepository = static::getContainer()->get('order_line_item.repository');
+        $this->orderRepository = static::getContainer()->get('order.repository');
         $this->addCountriesToSalesChannel();
 
         $this->context = $this->contextFactory->create(
@@ -175,6 +174,35 @@ class StockStorageTest extends TestCase
         $this->assertStock(0, $product);
     }
 
+    public function testAvailableAfterUpdateIsCloseoutNull(): void
+    {
+        $parentId = $this->createProduct([
+            'isCloseout' => null,
+        ]);
+        $productId = $this->createProduct([
+            'parentId' => $parentId,
+            'stock' => 10,
+            'isCloseout' => true,
+        ]);
+
+        $context = Context::createDefaultContext();
+
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->get($productId);
+
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertTrue($product->getAvailable());
+        $this->assertStock(10, $product);
+
+        $this->productRepository->update([['id' => $productId, 'isCloseout' => null]], $context);
+
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->get($productId);
+
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertFalse($product->getIsCloseout());
+        static::assertTrue($product->getAvailable());
+        $this->assertStock(10, $product);
+    }
+
     public static function triggerProductNoLongerAvailableEventOnCreateProvider(): \Generator
     {
         yield 'Closeout, no stock' => [0, true, 0];
@@ -190,10 +218,10 @@ class StockStorageTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::exactly($triggered))->method('__invoke');
+        $listener->expects($this->exactly($triggered))->method('__invoke');
 
         $this->addEventListener($dispatcher, ProductNoLongerAvailableEvent::class, $listener);
 
@@ -281,10 +309,10 @@ class StockStorageTest extends TestCase
 
         $this->productRepository->create([$product], $context);
 
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
 
-        $listener->expects(static::exactly($triggered))->method('__invoke');
+        $listener->expects($this->exactly($triggered))->method('__invoke');
         $this->addEventListener($dispatcher, ProductNoLongerAvailableEvent::class, $listener);
 
         $this->productRepository->update([['id' => $product['id'], 'stock' => $after]], $context);
@@ -388,13 +416,13 @@ class StockStorageTest extends TestCase
 
         $orderId = $this->orderProduct($id, 1);
 
-        $this->getContainer()->get('order.repository')
+        static::getContainer()->get('order.repository')
             ->createVersion($orderId, $context);
 
-        $this->getContainer()->get('order.repository')
+        static::getContainer()->get('order.repository')
             ->createVersion($orderId, $context);
 
-        $count = $this->getContainer()
+        $count = static::getContainer()
             ->get(Connection::class)
             ->fetchOne('SELECT COUNT(id) FROM `order` WHERE id = :id', ['id' => Uuid::fromHexToBytes($orderId)]);
 
@@ -467,7 +495,7 @@ class StockStorageTest extends TestCase
         static::assertFalse($product->getAvailable());
         $this->assertStock(0, $product);
 
-        $lineItemRepository = $this->getContainer()->get('order_line_item.repository');
+        $lineItemRepository = static::getContainer()->get('order_line_item.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('referencedId', $id));
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
@@ -855,11 +883,7 @@ class StockStorageTest extends TestCase
             ],
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
-        $this->getContainer()
+        static::getContainer()
             ->get('customer.repository')
             ->upsert([$customer], Context::createDefaultContext());
 
@@ -916,7 +940,7 @@ class StockStorageTest extends TestCase
 
     private function transitionOrder(string $orderId, string $transition): void
     {
-        $registry = $this->getContainer()->get(StateMachineRegistry::class);
+        $registry = static::getContainer()->get(StateMachineRegistry::class);
         $transitionObject = new Transition('order', $orderId, $transition, 'stateId');
 
         $registry->transition($transitionObject, Context::createDefaultContext());

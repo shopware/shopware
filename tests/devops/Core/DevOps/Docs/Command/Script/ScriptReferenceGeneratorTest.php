@@ -48,7 +48,7 @@ MSG
      */
     private function getGenerators(): iterable
     {
-        $command = $this->getContainer()->get(ScriptReferenceGeneratorCommand::class);
+        $command = static::getContainer()->get(ScriptReferenceGeneratorCommand::class);
 
         $reflection = new \ReflectionClass($command);
 

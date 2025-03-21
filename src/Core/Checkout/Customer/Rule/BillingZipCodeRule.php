@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Rule\Container\ZipCodeRule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class BillingZipCodeRule extends ZipCodeRule
 {
     final public const RULE_NAME = 'customerBillingZipCode';

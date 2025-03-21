@@ -14,7 +14,7 @@ use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Elasticsearch extends Bundle
 {
     public function getTemplatePriority(): int

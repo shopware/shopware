@@ -4,8 +4,11 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Subscriber\ProductReviewSubscriber;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -19,7 +22,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(ProductReviewSubscriber::class)]
 class ProductReviewSubscriberTest extends TestCase
 {
@@ -27,26 +30,35 @@ class ProductReviewSubscriberTest extends TestCase
 
     private IdsCollection $ids;
 
+    /**
+     * @var EntityRepository<ProductReviewCollection>
+     */
     private EntityRepository $productReviewRepository;
 
+    /**
+     * @var EntityRepository<CustomerCollection>
+     */
     private EntityRepository $customerRepository;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
 
-        /** @var EntityRepository $productReviewRepository */
-        $productReviewRepository = $this->getContainer()->get('product_review.repository');
+        /** @var EntityRepository<ProductReviewCollection> $productReviewRepository */
+        $productReviewRepository = static::getContainer()->get('product_review.repository');
         $this->productReviewRepository = $productReviewRepository;
 
-        /** @var EntityRepository $customerRepository */
-        $customerRepository = $this->getContainer()->get('customer.repository');
+        /** @var EntityRepository<CustomerCollection> $customerRepository */
+        $customerRepository = static::getContainer()->get('customer.repository');
         $this->customerRepository = $customerRepository;
 
-        /** @var EntityRepository $productRepository */
-        $productRepository = $this->getContainer()->get('product.repository');
+        /** @var EntityRepository<ProductCollection> $productRepository */
+        $productRepository = static::getContainer()->get('product.repository');
         $this->productRepository = $productRepository;
 
         $this->createCustomer();

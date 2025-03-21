@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Checkout\Order\Listener;
 
-use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Event\OrderStateChangeCriteriaEvent;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Framework\Context;
@@ -13,9 +15,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateCollection;
 use Shopware\Core\System\StateMachine\Event\StateMachineStateChangeEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -28,6 +29,11 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<OrderCollection> $orderRepository
+     * @param EntityRepository<OrderTransactionCollection> $transactionRepository
+     * @param EntityRepository<OrderDeliveryCollection> $deliveryRepository
+     * @param EntityRepository<StateMachineStateCollection> $stateRepository
      */
     public function __construct(
         private readonly EntityRepository $orderRepository,
@@ -56,20 +62,11 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
     {
         $orderDeliveryId = $event->getTransition()->getEntityId();
 
-        $criteria = new Criteria([$orderDeliveryId]);
-        $criteria->addAssociation('order.orderCustomer');
-        $criteria->addAssociation('order.transactions.stateMachineState');
+        $criteria = (new Criteria([$orderDeliveryId]))
+            ->addAssociations(['order.orderCustomer', 'order.transactions.stateMachineState']);
 
-        /** @var OrderDeliveryEntity|null $orderDelivery */
-        $orderDelivery = $this->deliveryRepository
-            ->search($criteria, $event->getContext())
-            ->first();
-
-        if ($orderDelivery === null) {
-            throw OrderException::orderDeliveryNotFound($orderDeliveryId);
-        }
-
-        if ($orderDelivery->getOrder() === null) {
+        $orderDelivery = $this->deliveryRepository->search($criteria, $event->getContext())->getEntities()->first();
+        if (!$orderDelivery || !$orderDelivery->getOrder()) {
             throw OrderException::orderDeliveryNotFound($orderDeliveryId);
         }
 
@@ -86,24 +83,15 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
     {
         $orderTransactionId = $event->getTransition()->getEntityId();
 
-        $criteria = new Criteria([$orderTransactionId]);
-        $criteria->addAssociation('paymentMethod');
-        $criteria->addAssociation('order.orderCustomer');
-        $criteria->addAssociation('order.transactions.stateMachineState');
+        $criteria = (new Criteria([$orderTransactionId]))
+            ->addAssociations([
+                'paymentMethod',
+                'order.orderCustomer',
+                'order.transactions.stateMachineState',
+            ]);
 
-        $orderTransaction = $this->transactionRepository
-            ->search($criteria, $event->getContext())
-            ->first();
-
-        if ($orderTransaction === null) {
-            throw OrderException::orderTransactionNotFound($orderTransactionId);
-        }
-
-        if ($orderTransaction->getPaymentMethod() === null) {
-            throw OrderException::orderTransactionNotFound($orderTransactionId);
-        }
-
-        if ($orderTransaction->getOrder() === null) {
+        $orderTransaction = $this->transactionRepository->search($criteria, $event->getContext())->getEntities()->first();
+        if (!$orderTransaction || !$orderTransaction->getOrder() || !$orderTransaction->getPaymentMethod()) {
             throw OrderException::orderTransactionNotFound($orderTransactionId);
         }
 
@@ -129,17 +117,16 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
 
         $collection = $event->getCollection();
 
-        $criteria = new Criteria();
-        $criteria->addAssociation('stateMachine');
+        $criteria = (new Criteria())
+            ->addAssociation('stateMachine');
 
-        $states = $this->stateRepository->search($criteria, $context);
+        $states = $this->stateRepository->search($criteria, $context)->getEntities();
 
         $sides = [
             StateMachineStateChangeEvent::STATE_MACHINE_TRANSITION_SIDE_ENTER,
             StateMachineStateChangeEvent::STATE_MACHINE_TRANSITION_SIDE_LEAVE,
         ];
 
-        /** @var StateMachineStateEntity $state */
         foreach ($states as $state) {
             foreach ($sides as $side) {
                 $machine = $state->getStateMachine();
@@ -177,9 +164,8 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
 
     private function getContext(string $orderId, Context $context): Context
     {
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->first();
-
-        if (!$order instanceof OrderEntity) {
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->getEntities()->first();
+        if (!$order) {
             throw OrderException::orderNotFound($orderId);
         }
 
@@ -194,7 +180,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
             $context->getVersionId(),
             $order->getCurrencyFactor(),
             true,
-            $order->getTaxStatus(),
+            $order->getTaxStatus() ?? $order->getPrice()->getTaxStatus(),
             $itemRounding
         );
 
@@ -211,11 +197,8 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
     {
         $orderCriteria = $this->getOrderCriteria($orderId, $context);
 
-        $order = $this->orderRepository
-            ->search($orderCriteria, $context)
-            ->first();
-
-        if (!$order instanceof OrderEntity) {
+        $order = $this->orderRepository->search($orderCriteria, $context)->getEntities()->first();
+        if (!$order) {
             throw OrderException::orderNotFound($orderId);
         }
 
@@ -224,30 +207,26 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
 
     private function getOrderCriteria(string $orderId, Context $context): Criteria
     {
-        $criteria = new Criteria([$orderId]);
-        $criteria->addAssociation('orderCustomer.salutation');
-        $criteria->addAssociation('orderCustomer.customer');
-        $criteria->addAssociation('stateMachineState');
-        $criteria->addAssociation('deliveries.shippingMethod');
-        $criteria->addAssociation('deliveries.shippingOrderAddress.country');
-        $criteria->addAssociation('deliveries.shippingOrderAddress.countryState');
-        $criteria->addAssociation('salesChannel');
-        $criteria->addAssociation('language.locale');
-        $criteria->addAssociation('transactions.paymentMethod');
-        $criteria->addAssociation('lineItems');
-        $criteria->addAssociation('lineItems.downloads.media');
-        $criteria->addAssociation('currency');
-        $criteria->addAssociation('addresses.country');
-        $criteria->addAssociation('addresses.countryState');
-        $criteria->addAssociation('tags');
+        $criteria = (new Criteria([$orderId]))
+            ->addAssociations([
+                'orderCustomer.salutation',
+                'orderCustomer.customer',
+                'stateMachineState',
+                'deliveries.shippingMethod',
+                'deliveries.shippingOrderAddress.country',
+                'deliveries.shippingOrderAddress.countryState',
+                'salesChannel',
+                'language.locale',
+                'transactions.paymentMethod',
+                'lineItems',
+                'lineItems.downloads.media',
+                'currency',
+                'addresses.country',
+                'addresses.countryState',
+                'tags',
+            ]);
 
-        if (Feature::isActive('v6.7.0.0')) {
-            $event = new OrderStateChangeCriteriaEvent($orderId, $criteria, $context);
-        } else {
-            $event = new OrderStateChangeCriteriaEvent($orderId, $criteria);
-            Feature::callSilentIfInactive('v6.7.0.0', fn () => $event->setContext($context));
-        }
-        $this->eventDispatcher->dispatch($event);
+        $this->eventDispatcher->dispatch(new OrderStateChangeCriteriaEvent($orderId, $criteria, $context));
 
         return $criteria;
     }

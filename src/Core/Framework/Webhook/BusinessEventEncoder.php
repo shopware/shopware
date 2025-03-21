@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class BusinessEventEncoder
 {
     /**
@@ -123,12 +123,12 @@ class BusinessEventEncoder
     private function getProperty(string $propertyName, $object)
     {
         if (\is_object($object)) {
-            $getter = 'get' . ucfirst($propertyName);
+            $getter = 'get' . $propertyName;
             if (method_exists($object, $getter)) {
                 return $object->$getter(); /* @phpstan-ignore-line */
             }
 
-            $isser = 'is' . ucfirst($propertyName);
+            $isser = 'is' . $propertyName;
             if (method_exists($object, $isser)) {
                 return $object->$isser(); /* @phpstan-ignore-line */
             }

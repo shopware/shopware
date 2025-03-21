@@ -5,37 +5,28 @@ declare(strict_types=1);
 namespace Shopware\Core\Content\Flow\Dispatching;
 
 use Doctrine\DBAL\Connection;
+use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\StoppableEventInterface;
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\FlowLogEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\Service\ServiceSubscriberInterface;
 
 /**
  * @internal not intended for decoration or replacement
  */
-#[Package('services-settings')]
-class FlowDispatcher implements EventDispatcherInterface
+#[Package('after-sales')]
+class FlowDispatcher implements EventDispatcherInterface, ServiceSubscriberInterface
 {
-    private ContainerInterface $container;
-
     public function __construct(
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly LoggerInterface $logger,
-        private readonly FlowFactory $flowFactory,
-        private readonly Connection $connection,
+        private readonly ContainerInterface $container,
     ) {
-    }
-
-    public function setContainer(ContainerInterface $container): void
-    {
-        $this->container = $container;
     }
 
     /**
@@ -62,7 +53,13 @@ class FlowDispatcher implements EventDispatcherInterface
             return $event;
         }
 
-        $storableFlow = $this->flowFactory->create($event);
+        if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS')) {
+            $this->container->get(BufferedFlowQueue::class)->queueFlow($event);
+
+            return $event;
+        }
+
+        $storableFlow = $this->container->get(FlowFactory::class)->create($event);
         $this->callFlowExecutor($storableFlow);
 
         return $event;
@@ -109,6 +106,21 @@ class FlowDispatcher implements EventDispatcherInterface
         return $this->dispatcher->hasListeners($eventName);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public static function getSubscribedServices(): array
+    {
+        return [
+            'logger',
+            Connection::class,
+            FlowFactory::class,
+            FlowExecutor::class,
+            FlowLoader::class,
+            BufferedFlowQueue::class,
+        ];
+    }
+
     private function callFlowExecutor(StorableFlow $event): void
     {
         $flows = $this->getFlows($event->getName());
@@ -119,16 +131,12 @@ class FlowDispatcher implements EventDispatcherInterface
 
         $flowExecutor = $this->container->get(FlowExecutor::class);
 
-        if ($flowExecutor === null) {
-            throw new ServiceNotFoundException(FlowExecutor::class);
-        }
-
         foreach ($flows as $flow) {
             try {
                 $payload = $flow['payload'];
                 $flowExecutor->execute($payload, $event);
             } catch (ExecuteSequenceException $e) {
-                $this->logger->warning(
+                $this->container->get('logger')->warning(
                     "Could not execute flow with error message:\n"
                     . 'Flow name: ' . $flow['name'] . "\n"
                     . 'Flow id: ' . $flow['id'] . "\n"
@@ -137,18 +145,8 @@ class FlowDispatcher implements EventDispatcherInterface
                     . 'Error Code: ' . $e->getCode() . "\n",
                     ['exception' => $e]
                 );
-
-                if ($e->getPrevious() && $this->isInNestedTransaction()) {
-                    /**
-                     * If we are already in a nested transaction, that does not have save points enabled, we must inform the caller of the rollback.
-                     * We do this via an exception, so that the outer transaction can also be rolled back.
-                     *
-                     * Otherwise, when it attempts to commit, it would fail.
-                     */
-                    throw $e->getPrevious();
-                }
             } catch (\Throwable $e) {
-                $this->logger->error(
+                $this->container->get('logger')->error(
                     "Could not execute flow with error message:\n"
                     . 'Flow name: ' . $flow['name'] . "\n"
                     . 'Flow id: ' . $flow['id'] . "\n"
@@ -166,11 +164,6 @@ class FlowDispatcher implements EventDispatcherInterface
     private function getFlows(string $eventName): array
     {
         $flowLoader = $this->container->get(FlowLoader::class);
-
-        if ($flowLoader === null) {
-            throw new ServiceNotFoundException(FlowExecutor::class);
-        }
-
         $flows = $flowLoader->load();
 
         $result = [];
@@ -179,10 +172,5 @@ class FlowDispatcher implements EventDispatcherInterface
         }
 
         return $result;
-    }
-
-    private function isInNestedTransaction(): bool
-    {
-        return $this->connection->getTransactionNestingLevel() !== 1 && !$this->connection->getNestTransactionsWithSavepoints();
     }
 }

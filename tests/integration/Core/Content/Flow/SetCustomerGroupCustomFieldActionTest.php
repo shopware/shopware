@@ -20,7 +20,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class SetCustomerGroupCustomFieldActionTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -31,9 +31,9 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->flowRepository = $this->getContainer()->get('flow.repository');
+        $this->flowRepository = static::getContainer()->get('flow.repository');
 
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
 
         $this->ids = new IdsCollection();
 
@@ -95,7 +95,7 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
         ]);
 
         /** @var CustomerGroupEntity $customerGroup */
-        $customerGroup = $this->getContainer()->get('customer_group.repository')
+        $customerGroup = static::getContainer()->get('customer_group.repository')
             ->search(new Criteria([$this->ids->get('customer_group')]), Context::createDefaultContext())->first();
 
         $expect = $option === 'clear' ? null : [$customFieldName => $expectData];

@@ -2,13 +2,11 @@ import template from './sw-extension-removal-modal.html.twig';
 import './sw-extension-removal-modal.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'modal-close',
@@ -28,6 +26,12 @@ export default {
             type: Boolean,
             required: true,
         },
+    },
+
+    data() {
+        return {
+            removePluginData: false,
+        };
     },
 
     computed: {

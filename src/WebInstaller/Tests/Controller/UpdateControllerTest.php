@@ -47,7 +47,7 @@ class UpdateControllerTest extends TestCase
             $this->createMock(ProjectComposerJsonUpdater::class),
         );
 
-        $controller->setContainer($this->getContainer());
+        $controller->setContainer($this->buildContainer());
 
         $request = new Request();
         $request->setSession(new Session(new MockArraySessionStorage()));
@@ -71,7 +71,7 @@ class UpdateControllerTest extends TestCase
             $this->createMock(StreamedCommandResponseGenerator::class),
             $this->createMock(ProjectComposerJsonUpdater::class),
         );
-        $controller->setContainer($this->getContainer());
+        $controller->setContainer($this->buildContainer());
 
         $request = new Request();
         $request->setSession(new Session(new MockArraySessionStorage()));
@@ -95,7 +95,7 @@ class UpdateControllerTest extends TestCase
             $this->createMock(StreamedCommandResponseGenerator::class),
             $this->createMock(ProjectComposerJsonUpdater::class),
         );
-        $controller->setContainer($this->getContainer());
+        $controller->setContainer($this->buildContainer());
 
         $request = new Request();
         $request->setSession(new Session(new MockArraySessionStorage()));
@@ -114,22 +114,22 @@ class UpdateControllerTest extends TestCase
         $flexMigrator = $this->createMock(FlexMigrator::class);
 
         $flexMigrator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('cleanup')
             ->with('/path/to/shopware');
 
         $flexMigrator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('patchRootComposerJson')
             ->with('/path/to/shopware');
 
         $flexMigrator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('copyNewTemplateFiles')
             ->with('/path/to/shopware');
 
         $flexMigrator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('migrateEnvFile')
             ->with('/path/to/shopware');
 
@@ -141,7 +141,7 @@ class UpdateControllerTest extends TestCase
             $this->createMock(ProjectComposerJsonUpdater::class),
         );
 
-        $controller->setContainer($this->getContainer());
+        $controller->setContainer($this->buildContainer());
 
         $response = $controller->migrateTemplate();
 
@@ -158,7 +158,7 @@ class UpdateControllerTest extends TestCase
 
         $responseGenerator = $this->createMock(StreamedCommandResponseGenerator::class);
         $responseGenerator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('runJSON')
             ->with([
                 '/usr/bin/php',
@@ -176,7 +176,7 @@ class UpdateControllerTest extends TestCase
             $responseGenerator,
             $this->createMock(ProjectComposerJsonUpdater::class),
         );
-        $controller->setContainer($this->getContainer());
+        $controller->setContainer($this->buildContainer());
 
         $request = new Request();
         $request->setSession(new Session(new MockArraySessionStorage()));
@@ -195,7 +195,7 @@ class UpdateControllerTest extends TestCase
 
         $responseGenerator = $this->createMock(StreamedCommandResponseGenerator::class);
         $responseGenerator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('runJSON')
             ->with([
                 '/usr/bin/php',
@@ -213,7 +213,7 @@ class UpdateControllerTest extends TestCase
             $responseGenerator,
             $this->createMock(ProjectComposerJsonUpdater::class),
         );
-        $controller->setContainer($this->getContainer());
+        $controller->setContainer($this->buildContainer());
 
         $request = new Request();
         $request->setSession(new Session(new MockArraySessionStorage()));
@@ -244,7 +244,7 @@ class UpdateControllerTest extends TestCase
 
         $responseGenerator = $this->createMock(StreamedCommandResponseGenerator::class);
         $responseGenerator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('runJSON')
             ->with([
                 '/usr/bin/php',
@@ -268,7 +268,7 @@ class UpdateControllerTest extends TestCase
             $responseGenerator,
             $this->createMock(ProjectComposerJsonUpdater::class),
         );
-        $controller->setContainer($this->getContainer());
+        $controller->setContainer($this->buildContainer());
 
         $request = new Request();
         $request->query->set('shopwareVersion', '6.4.15.0');
@@ -299,7 +299,7 @@ class UpdateControllerTest extends TestCase
 
         $responseGenerator = $this->createMock(StreamedCommandResponseGenerator::class);
         $responseGenerator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('runJSON')
             ->with([
                 '/usr/bin/php',
@@ -323,7 +323,7 @@ class UpdateControllerTest extends TestCase
             $responseGenerator,
             $this->createMock(ProjectComposerJsonUpdater::class),
         );
-        $controller->setContainer($this->getContainer());
+        $controller->setContainer($this->buildContainer());
 
         $request = new Request();
         $request->query->set('shopwareVersion', '6.5.0.0-rc1');
@@ -370,7 +370,7 @@ class UpdateControllerTest extends TestCase
 
         $responseGenerator = $this->createMock(StreamedCommandResponseGenerator::class);
         $responseGenerator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('runJSON')
             ->with([
                 '/usr/bin/php',
@@ -394,7 +394,7 @@ class UpdateControllerTest extends TestCase
             $responseGenerator,
             $this->createMock(ProjectComposerJsonUpdater::class),
         );
-        $controller->setContainer($this->getContainer());
+        $controller->setContainer($this->buildContainer());
 
         $request = new Request();
         $request->setSession(new Session(new MockArraySessionStorage()));
@@ -422,7 +422,7 @@ class UpdateControllerTest extends TestCase
 
         $responseGenerator = $this->createMock(StreamedCommandResponseGenerator::class);
         $responseGenerator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('runJSON')
             ->with([
                 '/usr/bin/php',
@@ -446,7 +446,7 @@ class UpdateControllerTest extends TestCase
             $responseGenerator,
             $this->createMock(ProjectComposerJsonUpdater::class),
         );
-        $controller->setContainer($this->getContainer());
+        $controller->setContainer($this->buildContainer());
 
         $request = new Request();
         $request->setSession(new Session(new MockArraySessionStorage()));
@@ -463,14 +463,14 @@ class UpdateControllerTest extends TestCase
     {
         $releaseInfoProvider = $this->createMock(ReleaseInfoProvider::class);
         $releaseInfoProvider
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchUpdateVersions')
             ->willReturn(['6.3.5.0', '6.4.18.0']);
 
         return $releaseInfoProvider;
     }
 
-    private function getContainer(): ContainerInterface
+    private function buildContainer(): ContainerInterface
     {
         $container = new Container();
 

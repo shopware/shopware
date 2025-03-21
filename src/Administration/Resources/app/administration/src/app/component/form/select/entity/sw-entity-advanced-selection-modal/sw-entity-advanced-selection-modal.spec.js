@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -79,15 +79,12 @@ const createAdvancedSelectionModal = async (customOptions) => {
         },
         global: {
             stubs: {
-                'sw-icon': true,
                 'sw-modal': true,
-                'sw-card': true,
                 'sw-card-filter': true,
                 'sw-ignore-class': true,
                 'sw-extension-component-section': true,
                 'sw-empty-state': true,
                 'sw-loader': true,
-                'sw-button': true,
                 'sw-simple-search-field': true,
                 'sw-context-menu': true,
                 'sw-filter-panel': true,

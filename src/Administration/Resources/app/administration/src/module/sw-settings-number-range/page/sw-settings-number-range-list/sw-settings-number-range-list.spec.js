@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 
@@ -51,8 +51,6 @@ async function createWrapper(privileges = []) {
                 `,
                     },
                     'sw-card-view': true,
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-ignore-class': true,
                     'sw-entity-listing': {
                         props: ['items'],
@@ -66,8 +64,6 @@ async function createWrapper(privileges = []) {
                     'sw-language-switch': true,
                     'sw-search-bar': true,
                     'sw-context-menu-item': true,
-                    'sw-icon': true,
-                    'sw-button': true,
                     'sw-loader': true,
                     'sw-empty-state': true,
                     'sw-extension-component-section': true,
@@ -94,7 +90,7 @@ describe('module/sw-settings-number-range/page/sw-settings-number-range-list', (
     it('Should not allow create without permission', async () => {
         const addButton = wrapper.find('.sw-number-range-list__add-number-range');
 
-        expect(addButton.attributes().disabled).toBe('true');
+        expect(addButton.attributes('disabled')).toBeDefined();
     });
 
     it('Should allow create with correct permission', async () => {

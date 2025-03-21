@@ -23,7 +23,7 @@ class IntFieldTest extends TestCase
 
     public function testIntFieldSerializerNullValue(): void
     {
-        $serializer = $this->getContainer()->get(IntFieldSerializer::class);
+        $serializer = static::getContainer()->get(IntFieldSerializer::class);
 
         $data = new KeyValuePair('count', null, false);
 
@@ -47,7 +47,7 @@ class IntFieldTest extends TestCase
 
     public function testIntFieldSerializerWrongValueType(): void
     {
-        $serializer = $this->getContainer()->get(IntFieldSerializer::class);
+        $serializer = static::getContainer()->get(IntFieldSerializer::class);
 
         $data = new KeyValuePair('count', 'foo', false);
 
@@ -71,7 +71,7 @@ class IntFieldTest extends TestCase
 
     public function testIntFieldSerializerZeroValue(): void
     {
-        $serializer = $this->getContainer()->get(IntFieldSerializer::class);
+        $serializer = static::getContainer()->get(IntFieldSerializer::class);
 
         $data = new KeyValuePair('count', 0, false);
 
@@ -90,7 +90,7 @@ class IntFieldTest extends TestCase
 
     public function testIntFieldSerializerIntValue(): void
     {
-        $serializer = $this->getContainer()->get(IntFieldSerializer::class);
+        $serializer = static::getContainer()->get(IntFieldSerializer::class);
 
         $data = new KeyValuePair('count', 15, false);
 
@@ -107,7 +107,7 @@ class IntFieldTest extends TestCase
 
     public function testIntFieldSerializerNotRequiredValue(): void
     {
-        $serializer = $this->getContainer()->get(IntFieldSerializer::class);
+        $serializer = static::getContainer()->get(IntFieldSerializer::class);
 
         $data = new KeyValuePair('count', null, false);
 

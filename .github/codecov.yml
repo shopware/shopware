@@ -1,0 +1,26 @@
+flag_management:
+  default_rules:
+    carryforward: true
+  individual_flags:
+    - name: phpunit-unit
+      paths:
+        - src/**
+      ignore:
+        - src/Core/Framework/Test # ignore fixtures consumed by tests
+        - src/WebInstaller/Tests  # ignore unit tests files from WebInstaller
+    - name: jest-admin
+      paths:
+        - src/Administration/Resources/app/administration/src
+    - name: jest-storefront
+      paths:
+        - src/Storefront/Resources/app/storefront/src
+coverage:
+  status:
+    project:
+      default:
+        threshold: 0.01%
+    patch:
+      default:
+        target: auto
+        threshold: 5%
+        base: auto

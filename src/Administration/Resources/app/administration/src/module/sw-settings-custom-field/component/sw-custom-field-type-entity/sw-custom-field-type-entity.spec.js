@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 
@@ -46,8 +46,7 @@ async function createWrapper(privileges = [], isNew = true, currentCustomField =
                     'sw-custom-field-translated-labels': true,
                     'sw-single-select': true,
                     'sw-field': true,
-                    'sw-switch-field': true,
-                    'sw-button': true,
+
                     'sw-text-field': true,
                     'sw-container': true,
                 },
@@ -103,14 +102,18 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-ent
         expect(wrapper.vm.currentCustomField.config.options).toBeUndefined();
     });
 
-    it.each([
-        { name: 'new custom field', isNew: true, expected: undefined },
-        { name: 'old custom field', isNew: false, expected: 'true' },
-    ])('should disable multi select switch: $name', async ({ isNew, expected }) => {
-        const wrapper = await createWrapper([], isNew);
+    it('should disable multi select switch: old custom field', async () => {
+        const wrapper = await createWrapper([], false);
         await flushPromises();
 
-        expect(wrapper.find('sw-switch-field-stub').attributes('disabled')).toBe(expected);
+        expect(wrapper.findComponent('.mt-switch').props('disabled')).toBeDefined();
+    });
+
+    it('should disable multi select switch: new custom field', async () => {
+        const wrapper = await createWrapper([], true);
+        await flushPromises();
+
+        expect(wrapper.findComponent('.mt-switch').props('disabled')).toBeUndefined();
     });
 
     it('should only allow valid component names', async () => {

@@ -80,7 +80,7 @@ class RateLimiterTest extends TestCase
         ]);
         $this->assignSalesChannelContext($this->browser);
 
-        $this->salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class)->getDecorated();
+        $this->salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class)->getDecorated();
 
         $this->clearCache();
     }
@@ -125,8 +125,8 @@ class RateLimiterTest extends TestCase
     public function testResetRateLimitLoginRoute(): void
     {
         $route = new LoginRoute(
-            $this->getContainer()->get(AccountService::class),
-            $this->getContainer()->get('request_stack'),
+            static::getContainer()->get(AccountService::class),
+            static::getContainer()->get('request_stack'),
             $this->mockResetLimiter([
                 RateLimiter::LOGIN_ROUTE => 1,
             ])
@@ -134,7 +134,7 @@ class RateLimiterTest extends TestCase
 
         $this->createCustomer('loginTest@example.com');
 
-        $this->getContainer()->get('request_stack')->push(new Request([
+        static::getContainer()->get('request_stack')->push(new Request([
             'email' => 'loginTest@example.com',
             'password' => 'shopware',
         ]));

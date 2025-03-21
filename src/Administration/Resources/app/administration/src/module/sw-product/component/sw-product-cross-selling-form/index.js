@@ -1,15 +1,17 @@
+/**
+ * @sw-package inventory
+ */
+
 import template from './sw-product-cross-selling-form.html.twig';
 import './sw-product-cross-selling-form.scss';
 
 const { Criteria } = Shopware.Data;
 const { Component, Mixin } = Shopware;
-const { mapPropertyErrors, mapGetters, mapState } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -62,13 +64,13 @@ export default {
             'position',
         ]),
 
-        ...mapState('swProductDetail', [
-            'product',
-        ]),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
 
-        ...mapGetters('swProductDetail', [
-            'isLoading',
-        ]),
+        isLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
 
         productCrossSellingRepository() {
             return this.repositoryFactory.create('product_cross_selling');
@@ -152,6 +154,26 @@ export default {
 
         associationValue() {
             return this.crossSelling?.productStreamId || '';
+        },
+
+        crossSellingTypeOptions() {
+            return this.crossSellingTypes.map((item) => {
+                return {
+                    id: item.value,
+                    value: item.value,
+                    label: item.label,
+                };
+            });
+        },
+
+        sortingTypeOptions() {
+            return this.sortingTypes.map((item) => {
+                return {
+                    id: item.value,
+                    value: item.value,
+                    label: item.label,
+                };
+            });
         },
     },
 

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -27,8 +27,6 @@ const dom = Shopware.Utils.dom;
  */
 Component.register('sw-tabs-deprecated', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -120,15 +118,8 @@ Component.register('sw-tabs-deprecated', {
         },
 
         sliderLength() {
-            const children = Shopware.Utils.VueHelper.getCompatChildren();
-
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                if (this.$children[this.activeItem]) {
-                    const activeChildren = this.$children[this.activeItem];
-                    return this.isVertical ? activeChildren.$el.offsetHeight : activeChildren.$el.offsetWidth;
-                }
-            } else if (children[this.activeItem]) {
-                const activeChildren = children[this.activeItem];
+            if (this.registeredTabItems[this.activeItem]) {
+                const activeChildren = this.registeredTabItems[this.activeItem];
                 return this.isVertical ? activeChildren.$el.offsetHeight : activeChildren.$el.offsetWidth;
             }
 
@@ -136,18 +127,10 @@ Component.register('sw-tabs-deprecated', {
         },
 
         activeTabHasErrors() {
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                return this.$children[this.activeItem]?.hasError ?? false;
-            }
-
             return this.registeredTabItems[this.activeItem]?.hasError ?? false;
         },
 
         activeTabHasWarnings() {
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                return this.$children[this.activeItem]?.hasWarning ?? false;
-            }
-
             return this.registeredTabItems[this.activeItem]?.hasWarning ?? false;
         },
 
@@ -159,12 +142,8 @@ Component.register('sw-tabs-deprecated', {
         },
 
         sliderMovement() {
-            const children = this.isCompatEnabled('INSTANCE_CHILDREN')
-                ? this.$children
-                : Shopware.Utils.VueHelper.getCompatChildren();
-
-            if (children[this.activeItem]) {
-                const activeChildren = children[this.activeItem];
+            if (this.registeredTabItems[this.activeItem]) {
+                const activeChildren = this.registeredTabItems[this.activeItem];
                 return this.isVertical ? activeChildren.$el.offsetTop : activeChildren.$el.offsetLeft;
             }
 
@@ -193,7 +172,7 @@ Component.register('sw-tabs-deprecated', {
         },
 
         tabExtensions() {
-            return Shopware.State.get('tabs').tabItems[this.positionIdentifier] ?? [];
+            return Shopware.Store.get('tabs').tabItems[this.positionIdentifier] ?? [];
         },
     },
 
@@ -338,37 +317,20 @@ Component.register('sw-tabs-deprecated', {
 
         updateActiveItem() {
             this.$nextTick().then(() => {
-                if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                    const children = this.$children;
+                const firstActiveTabItem = this.registeredTabItems.find((child) => {
+                    return child.$el.nodeType === 1 && child.$el.classList.contains('sw-tabs-item--active');
+                });
 
-                    const firstActiveTabItem = children.find((child) => {
-                        return child.$el.nodeType === 1 && child.$el.classList.contains('sw-tabs-item--active');
-                    });
-
-                    if (!firstActiveTabItem) {
-                        return;
-                    }
-
-                    this.activeItem = children.indexOf(firstActiveTabItem);
-                    if (!this.firstScroll) {
-                        this.scrollToItem(firstActiveTabItem);
-                    }
-                    this.firstScroll = true;
-                } else {
-                    const firstActiveTabItem = this.registeredTabItems.find((child) => {
-                        return child.$el.nodeType === 1 && child.$el.classList.contains('sw-tabs-item--active');
-                    });
-
-                    if (!firstActiveTabItem) {
-                        return;
-                    }
-
-                    this.activeItem = this.registeredTabItems.indexOf(firstActiveTabItem);
-                    if (!this.firstScroll) {
-                        this.scrollToItem(firstActiveTabItem);
-                    }
-                    this.firstScroll = true;
+                if (!firstActiveTabItem) {
+                    return;
                 }
+
+                this.activeItem = this.registeredTabItems.indexOf(firstActiveTabItem);
+
+                if (!this.firstScroll) {
+                    this.scrollToItem(firstActiveTabItem);
+                }
+                this.firstScroll = true;
             });
         },
 

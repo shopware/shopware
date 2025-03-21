@@ -11,15 +11,18 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 
-#[Package('services-settings')]
+/**
+ * @final
+ */
+#[Package('fundamentals@after-sales')]
 class CustomerSalutationRule extends Rule
 {
     final public const RULE_NAME = 'customerSalutation';
 
     /**
-     * @internal
-     *
      * @param list<string>|null $salutationIds
+     *
+     * @internal
      */
     public function __construct(
         public string $operator = self::OPERATOR_EQ,

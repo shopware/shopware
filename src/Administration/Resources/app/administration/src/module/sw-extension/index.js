@@ -1,7 +1,6 @@
 import initState from './store';
 import './mixin/sw-extension-error.mixin';
 import './service';
-import './page/sw-extension-my-extensions-account';
 import './acl';
 
 initState(Shopware);
@@ -81,7 +80,7 @@ Shopware.Component.register('sw-extension-app-module-page', () => import('./page
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 Shopware.Module.register('sw-extension', {
@@ -93,7 +92,6 @@ Shopware.Module.register('sw-extension', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     entity: 'extension',
-    display: !Shopware.Context.app.disableExtensions,
 
     searchMatcher: (regex, labelType, manifest) => {
         const match = labelType.toLowerCase().match(regex);

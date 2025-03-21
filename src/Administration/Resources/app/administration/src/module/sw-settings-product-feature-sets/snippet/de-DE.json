@@ -15,7 +15,6 @@
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
       "messageDeleteSuccess": "Das wesentliche Merkmal \"{name}\" wurde gelöscht.",
-      "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen"
     },
     "detail": {
@@ -43,7 +42,6 @@
       "emptyStateDescription": "Füge Werte hinzu, um wesentliche Merkmale zu definieren, die auf Dein Produktsortiment zugeschnitten sind.."
     },
     "modal": {
-      "buttonAdd": "Hinzufügen",
       "textPropertyLabel": "Eigenschaft",
       "textCustomFieldLabel": "Zusatzfeld",
       "textProductInfoLabel": "Produkt-Informationen",
@@ -52,7 +50,6 @@
       "labelTitleModal": "Werte hinzufügen",
       "labelName": "Name",
       "buttonNext": "Weiter",
-      "buttonCancel": "Abbrechen",
       "label": {
         "property": "Eigenschaft",
         "width": "Breite",

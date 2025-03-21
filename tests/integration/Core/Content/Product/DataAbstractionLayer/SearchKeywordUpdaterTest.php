@@ -32,9 +32,9 @@ class SearchKeywordUpdaterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->salesChannelLanguageRepository = $this->getContainer()->get('sales_channel_language.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->salesChannelLanguageRepository = static::getContainer()->get('sales_channel_language.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
     }
 
     /**
@@ -102,10 +102,10 @@ class SearchKeywordUpdaterTest extends TestCase
         $context = Context::createDefaultContext();
         $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create($products, $context);
 
-        $id = $this->getContainer()->get(Connection::class)
+        $id = static::getContainer()->get(Connection::class)
             ->fetchOne('SELECT LOWER(HEX(id)) FROM product_search_config WHERE language_id = :id', ['id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]);
 
         $fields = [
@@ -113,10 +113,10 @@ class SearchKeywordUpdaterTest extends TestCase
             ['searchConfigId' => $id, 'searchable' => true, 'field' => 'manufacturer.customFields.field1', 'tokenize' => true, 'ranking' => 100, 'language_id' => Defaults::LANGUAGE_SYSTEM],
         ];
 
-        $this->getContainer()->get('product_search_config_field.repository')
+        static::getContainer()->get('product_search_config_field.repository')
             ->create($fields, Context::createDefaultContext());
 
-        $this->getContainer()->get(SearchKeywordUpdater::class)
+        static::getContainer()->get(SearchKeywordUpdater::class)
             ->update($ids->getList(['p1', 'p2']), Context::createDefaultContext());
     }
 
@@ -125,7 +125,7 @@ class SearchKeywordUpdaterTest extends TestCase
         $ids = new IdsCollection();
         $esLocale = $this->getLocaleIdByIsoCode('es-ES');
 
-        $languageRepo = $this->getContainer()->get('language.repository');
+        $languageRepo = static::getContainer()->get('language.repository');
         $languageRepo->create([
             [
                 'id' => $ids->get('language'),
@@ -348,7 +348,7 @@ class SearchKeywordUpdaterTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('code', $iso));
 
-        $firstId = $this->getContainer()->get('locale.repository')
+        $firstId = static::getContainer()->get('locale.repository')
             ->searchIds($criteria, Context::createDefaultContext())
             ->firstId();
 

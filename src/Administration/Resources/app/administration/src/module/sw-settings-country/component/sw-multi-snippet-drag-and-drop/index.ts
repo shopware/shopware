@@ -15,14 +15,12 @@ const DEFAULT_MIN_LINES = 1 as number;
 const DEFAULT_MAX_LINES = 10 as number;
 
 /**
- * @package buyers-experience
+ * @sw-package fundamentals@discovery
  *
  * @private
  */
 Component.register('sw-multi-snippet-drag-and-drop', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -141,19 +139,6 @@ Component.register('sw-multi-snippet-drag-and-drop', {
         isMinLines(): boolean {
             return this.totalLines <= DEFAULT_MIN_LINES;
         },
-
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed.
-         */
-        listeners() {
-            let listeners = {};
-
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                listeners = this.$listeners;
-            }
-
-            return listeners;
-        },
     },
 
     methods: {
@@ -193,7 +178,7 @@ Component.register('sw-multi-snippet-drag-and-drop', {
                 return true;
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
             return this.selectionDisablingMethod(selection);
         },
 

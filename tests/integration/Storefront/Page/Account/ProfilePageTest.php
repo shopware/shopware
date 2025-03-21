@@ -32,6 +32,6 @@ class ProfilePageTest extends TestCase
 
     protected function getPageLoader(): AccountProfilePageLoader
     {
-        return $this->getContainer()->get(AccountProfilePageLoader::class);
+        return static::getContainer()->get(AccountProfilePageLoader::class);
     }
 }

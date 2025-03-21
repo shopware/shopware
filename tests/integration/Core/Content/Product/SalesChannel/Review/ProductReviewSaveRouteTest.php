@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -59,7 +60,7 @@ class ProductReviewSaveRouteTest extends TestCase
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals($response['errors'][0]['code'], 'CHECKOUT__CUSTOMER_NOT_LOGGED_IN');
+        static::assertEquals($response['errors'][0]['code'], RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE);
     }
 
     #[DataProvider('provideContentData')]
@@ -167,7 +168,7 @@ class ProductReviewSaveRouteTest extends TestCase
         ]);
 
         /** @var EventDispatcherInterface $dispatcher */
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
         $caughtEvent = null;
         $this->addEventListener(
             $dispatcher,
@@ -182,7 +183,7 @@ class ProductReviewSaveRouteTest extends TestCase
             'content' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna',
             'points' => 3,
         ]);
-        $this->getContainer()->get(ProductReviewSaveRoute::class)->save(
+        static::getContainer()->get(ProductReviewSaveRoute::class)->save(
             $this->ids->get('product'),
             $data,
             $salesChannelContext
@@ -228,7 +229,7 @@ class ProductReviewSaveRouteTest extends TestCase
 
     private function assertReviewCount(int $expected): void
     {
-        $count = $this->getContainer()
+        $count = static::getContainer()
             ->get(Connection::class)
             ->fetchOne('SELECT COUNT(*) FROM product_review WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($this->ids->get('product'))]);
 
@@ -250,7 +251,7 @@ class ProductReviewSaveRouteTest extends TestCase
             'active' => true,
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product], Context::createDefaultContext());
     }
 
@@ -264,7 +265,7 @@ class ProductReviewSaveRouteTest extends TestCase
                 ],
             ],
         ];
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->update($update, Context::createDefaultContext());
     }
 
@@ -275,7 +276,7 @@ class ProductReviewSaveRouteTest extends TestCase
 
     private function assertReviewContent(string $expectedContent): void
     {
-        $content = $this->getContainer()
+        $content = static::getContainer()
             ->get(Connection::class)
             ->fetchOne('SELECT content FROM product_review WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($this->ids->get('product'))]);
 

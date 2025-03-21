@@ -10,7 +10,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('fundamentals@discovery')]
 class SalesChannelLanguageLoader implements ResetInterface
 {
     /**
@@ -30,7 +30,7 @@ class SalesChannelLanguageLoader implements ResetInterface
      */
     public function loadLanguages(): array
     {
-        if ($this->languages) {
+        if ($this->languages !== null) {
             return $this->languages;
         }
 

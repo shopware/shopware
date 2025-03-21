@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import template from './sw-import-export-exporter.html.twig';
 import './sw-import-export-exporter.scss';
@@ -12,8 +12,6 @@ const { Criteria } = Shopware.Data;
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'importExport',

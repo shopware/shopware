@@ -8,7 +8,7 @@ import { loadThreeJs } from './utils/spatial-threejs-load-util';
 /**
  * @package innovation
  *
- * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+ * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
  */
 // @ts-ignore
 export default class SpatialBaseViewerPlugin extends Plugin {
@@ -42,6 +42,7 @@ export default class SpatialBaseViewerPlugin extends Plugin {
         this.setReady(false);
         // @ts-ignore
         this.canvas = this.el as HTMLCanvasElement;
+        this.canvas.tabIndex = 0;
         if (this.camera == undefined || force) {
             // eslint-disable-next-line
             this.camera = new window.threeJs.PerspectiveCamera( 70, this.canvas.clientWidth / this.canvas.clientHeight, 0.01, 10 );

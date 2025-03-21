@@ -82,7 +82,7 @@ class ElasticsearchIndexerTest extends TestCase
         $indexer = $this->getIndexer();
 
         $this->indexCreator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('createIndex');
 
         $msg = $indexer->iterate();
@@ -94,7 +94,7 @@ class ElasticsearchIndexerTest extends TestCase
     {
         $indexer = $this->getIndexer();
         $this->connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('insert')
             ->with('elasticsearch_index_task');
 
@@ -104,7 +104,7 @@ class ElasticsearchIndexerTest extends TestCase
 
         $this
             ->indexCreator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('createIndex');
 
         $msg = $indexer->iterate();
@@ -178,7 +178,7 @@ class ElasticsearchIndexerTest extends TestCase
     {
         $this->helper = $this->createMock(ElasticsearchHelper::class);
         $this->helper
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('getIndexName');
 
         $indexer = $this->getIndexer();
@@ -189,7 +189,7 @@ class ElasticsearchIndexerTest extends TestCase
     public function testUpdateIndexDoesNotExistsCreatesThem(): void
     {
         $this->indexCreator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('createIndex');
 
         $indexer = $this->getIndexer();
@@ -201,7 +201,7 @@ class ElasticsearchIndexerTest extends TestCase
     {
         $this->helper = $this->createMock(ElasticsearchHelper::class);
 
-        $this->connection->expects(static::never())->method('executeStatement');
+        $this->connection->expects($this->never())->method('executeStatement');
 
         $indexer = $this->getIndexer();
 
@@ -217,13 +217,33 @@ class ElasticsearchIndexerTest extends TestCase
         );
 
         $this->indices
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('exists')->willReturn(true);
 
         $indexer = $this->getIndexer();
 
         static::expectException(ElasticsearchException::class);
         static::expectExceptionMessage('Definition not_existing not found');
+
+        $indexer($message);
+    }
+
+    public function testHandleIndexingNoIds(): void
+    {
+        $message = new ElasticsearchIndexingMessage(
+            new IndexingDto([], 'foo', 'product'),
+            null,
+            Context::createDefaultContext()
+        );
+
+        $this->indices
+            ->expects($this->once())
+            ->method('exists')->willReturn(true);
+
+        $indexer = $this->getIndexer();
+
+        static::expectException(ElasticsearchException::class);
+        static::expectExceptionMessage('Empty indexing request provided');
 
         $indexer($message);
     }
@@ -255,7 +275,7 @@ class ElasticsearchIndexerTest extends TestCase
         );
 
         $this->indices
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('exists')->willReturn(true);
 
         $indexer = $this->getIndexer();
@@ -297,12 +317,12 @@ class ElasticsearchIndexerTest extends TestCase
             ]);
 
         $this->indices
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('exists')->willReturn(true);
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('error')
             ->with('failed to parse');
 
@@ -324,7 +344,7 @@ class ElasticsearchIndexerTest extends TestCase
         $indexer = $this->getIndexer(eventDispatcher: $eventDispatcher);
 
         $this->connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('insert')
             ->with('elasticsearch_index_task');
 
@@ -348,7 +368,7 @@ class ElasticsearchIndexerTest extends TestCase
         $indexer = $this->getIndexer();
 
         $this->connection
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('insert')
             ->with('elasticsearch_index_task');
 
@@ -367,7 +387,7 @@ class ElasticsearchIndexerTest extends TestCase
         $indexer = $this->getIndexer($logger);
 
         $this->connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('insert')
             ->with('elasticsearch_index_task');
 
@@ -375,7 +395,7 @@ class ElasticsearchIndexerTest extends TestCase
             ->method('aliasExists')
             ->willReturn(true);
 
-        $this->helper->expects(static::once())->method('logAndThrowException')->with(ElasticsearchException::definitionNotFound('category'));
+        $this->helper->expects($this->once())->method('logAndThrowException')->with(ElasticsearchException::definitionNotFound('category'));
 
         $entities = ['product', 'category'];
 

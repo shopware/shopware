@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_manufacturer_list %}
 <sw-page class="sw-manufacturer-list">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_manufacturer_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -12,18 +10,14 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_manufacturer_list_smart_bar_header %}
     <template #smart-bar-header>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_manufacturer_list_smart_bar_header_title %}
         <h2>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_manufacturer_list_smart_bar_header_title_text %}
             {{ $tc('sw-manufacturer.list.textManufacturerOverview') }}
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_manufacturer_list_smart_bar_header_amount %}
             <span
                 v-if="!isLoading"
@@ -37,29 +31,27 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_manufacturer_list_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_manufacturer_list_smart_bar_actions %}
-        <sw-button
+        <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('product_manufacturer.creator'),
                 showOnDisabledElements: true
             }"
-            :router-link="{ name: 'sw.manufacturer.create' }"
             :disabled="!acl.can('product_manufacturer.creator') || undefined"
             class="sw-manufacturer-list__add-manufacturer"
             variant="primary"
+            size="default"
+            @click="$router.push({ name: 'sw.manufacturer.create' })"
         >
             {{ $tc('sw-manufacturer.list.buttonAddManufacturer') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_manufacturer_list_language_switch %}
     <template #language-switch>
         <sw-language-switch @on-change="onChangeLanguage" />
@@ -67,10 +59,8 @@
     {% endblock %}
 
     <template #content>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_manufacturer_list_content %}
         <div class="sw-manufacturer-list__content">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_manufacturer_list_grid %}
             <sw-entity-listing
                 v-if="entitySearchable"
@@ -93,7 +83,6 @@
                 @page-change="onPageChange"
                 @column-sort="onSortColumn"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_manufacturer_list_grid_columns_name_preview %}
                 <template #preview-name="{ item }">
                     <sw-media-preview-v2 :source="item.mediaId" />
@@ -102,7 +91,6 @@
             </sw-entity-listing>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_manufacturer_list_empty_state %}
             <sw-empty-state
                 v-if="!isLoading && !total && isValidTerm(term)"

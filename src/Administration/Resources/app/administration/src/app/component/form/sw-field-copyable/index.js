@@ -5,14 +5,12 @@ const { Component, Mixin } = Shopware;
 const domUtils = Shopware.Utils.dom;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */
 Component.register('sw-field-copyable', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     mixins: [
         Mixin.getByName('notification'),

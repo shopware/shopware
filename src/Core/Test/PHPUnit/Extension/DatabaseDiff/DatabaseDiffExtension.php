@@ -14,7 +14,7 @@ use Shopware\Core\Test\PHPUnit\Extension\DatabaseDiff\Subscriber\TestFinishedSub
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class DatabaseDiffExtension implements Extension
 {
     public function bootstrap(Configuration $configuration, Facade $facade, ParameterCollection $parameters): void

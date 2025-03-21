@@ -1,35 +1,8 @@
 import { mount } from '@vue/test-utils';
-import flowState from 'src/module/sw-flow/state/flow.state';
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
-
-Shopware.State.registerModule('swFlowState', {
-    ...flowState,
-    state: {
-        invalidSequences: [],
-        triggerEvent: {
-            data: {
-                customer: {
-                    type: 'entity',
-                },
-                order: {
-                    type: 'entity',
-                },
-            },
-            customerAware: true,
-            extensions: [],
-            logAware: false,
-            mailAware: true,
-            name: 'checkout.customer.login',
-            orderAware: false,
-            salesChannelAware: true,
-            userAware: false,
-            webhookAware: true,
-        },
-    },
-});
 
 const fieldClasses = [
     '.sw-flow-affiliate-and-campaign-code-modal__entity',
@@ -88,9 +61,6 @@ async function createWrapper() {
                         </div>
                     `,
                     },
-                    'sw-button': {
-                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                    },
                     'sw-popover': {
                         template: '<div class="sw-popover"><slot></slot></div>',
                     },
@@ -112,14 +82,12 @@ async function createWrapper() {
                     },
                     'sw-loader': true,
                     'sw-label': true,
-                    'sw-icon': true,
                     'sw-field-error': true,
                     'sw-highlight-text': true,
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-container': await wrapTestComponent('sw-container'),
@@ -137,6 +105,28 @@ async function createWrapper() {
 }
 
 describe('module/sw-flow/component/sw-flow-affiliate-and-campaign-code-modal', () => {
+    beforeAll(() => {
+        Shopware.Store.get('swFlow').triggerEvent = {
+            data: {
+                customer: {
+                    type: 'entity',
+                },
+                order: {
+                    type: 'entity',
+                },
+            },
+            customerAware: true,
+            extensions: [],
+            logAware: false,
+            mailAware: true,
+            name: 'checkout.customer.login',
+            orderAware: false,
+            salesChannelAware: true,
+            userAware: false,
+            webhookAware: true,
+        };
+    });
+
     it('should preselect entity', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

@@ -24,7 +24,7 @@ class UninstallAppCommandTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->appRepository = $this->getContainer()->get('app.repository');
+        $this->appRepository = static::getContainer()->get('app.repository');
     }
 
     public function testUninstall(): void
@@ -45,7 +45,7 @@ class UninstallAppCommandTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        $commandTester = new CommandTester($this->getContainer()->get(UninstallAppCommand::class));
+        $commandTester = new CommandTester(static::getContainer()->get(UninstallAppCommand::class));
 
         $commandTester->execute(['name' => 'SwagApp']);
 
@@ -56,7 +56,7 @@ class UninstallAppCommandTest extends TestCase
 
     public function testUninstallWithNotFoundApp(): void
     {
-        $commandTester = new CommandTester($this->getContainer()->get(UninstallAppCommand::class));
+        $commandTester = new CommandTester(static::getContainer()->get(UninstallAppCommand::class));
 
         $commandTester->execute(['name' => 'SwagApp']);
 

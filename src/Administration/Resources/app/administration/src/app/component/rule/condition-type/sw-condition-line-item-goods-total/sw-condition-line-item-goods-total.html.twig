@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_condition_value_content %}
 <div class="sw-condition-line-item-goods-total">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_line_item_goods_total_field_operator %}
     <sw-condition-operator-select
         v-bind="{ operators, condition }"
@@ -10,10 +8,9 @@
     {% endblock %}
 
     <div class="sw-condition-line-item-goods-total__value">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_condition_line_item_goods_total_field_count %}
-        <sw-number-field
-            v-model:value="count"
+        <mt-number-field
+            v-model="count"
             name="sw-field--count"
             class="sw-contidion-line-item-goods-total__numfield"
             size="medium"
@@ -23,24 +20,23 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_condition_line_item_goods_total_filter_button %}
         <div class="sw-condition-line-item-goods-total__filter">
-            <sw-button
+            <mt-button
                 v-tooltip="{ message: $tc('sw-settings-rule.conditionFilter.infoText') }"
                 :disabled="disabled || undefined"
+                variant="secondary"
                 @click="showFilterModal = true"
             >
-                <sw-icon
+                <mt-icon
                     name="regular-filter-s"
-                    small
+                    size="16px"
                 />
-            </sw-button>
+            </mt-button>
         </div>
         {% endblock %}
     </div>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_line_item_goods_total_condition_modal %}
     <sw-condition-modal
         v-if="showFilterModal"

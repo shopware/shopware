@@ -11,7 +11,7 @@
     <services>
         <service id="Shopware\Core\Service\Api\ServiceController" public="true">
             <argument type="service" id="app.repository"/>
-            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
         </service>

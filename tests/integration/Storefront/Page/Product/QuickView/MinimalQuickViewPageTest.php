@@ -83,6 +83,6 @@ class MinimalQuickViewPageTest extends TestCase
 
     protected function getPageLoader(): MinimalQuickViewPageLoader
     {
-        return $this->getContainer()->get(MinimalQuickViewPageLoader::class);
+        return static::getContainer()->get(MinimalQuickViewPageLoader::class);
     }
 }

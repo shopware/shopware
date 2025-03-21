@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
@@ -13,8 +13,6 @@ const { cloneDeep } = Shopware.Utils.object;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -83,9 +81,8 @@ export default {
         },
 
         currenciesColumns() {
-            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             return this.currencies
-                .sort((a, b) => {
+                .toSorted((a, b) => {
                     return b.isSystemDefault ? 1 : -1;
                 })
                 .map((item) => {
@@ -108,8 +105,9 @@ export default {
 
             productCriteria.setTerm(this.term);
             productCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
-            productCriteria.addAssociation('cover');
+            productCriteria.addAssociation('cover.media');
             productCriteria.addAssociation('manufacturer');
+            productCriteria.addAssociation('tax');
 
             this.filterCriteria.forEach((filter) => {
                 productCriteria.addFilter(filter);
@@ -335,7 +333,7 @@ export default {
             return promise
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-product.list.messageSaveSuccess', 0, { name: productName }),
+                        message: this.$tc('sw-product.list.messageSaveSuccess', { name: productName }, 0),
                     });
                 })
                 .catch(() => {
@@ -355,7 +353,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').setApiLanguageId(languageId);
             this.getList();
         },
 

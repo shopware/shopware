@@ -1,5 +1,4 @@
 import type { AdminUiDefinition, CustomEntityDefinition } from 'src/app/service/custom-entity-definition.service';
-import type EntityCollection from 'src/core/data/entity-collection.data';
 import type CriteriaType from 'src/core/data/criteria.data';
 import type Repository from 'src/core/data/repository.data';
 
@@ -42,12 +41,10 @@ interface RouteParseOptions {
 
 /**
  * @private
- * @package content
+ * @sw-package framework
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'customEntityDefinitionService',
@@ -197,7 +194,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onChangeLanguage(languageId: string): void {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').setApiLanguageId(languageId);
             void this.getList();
         },
 

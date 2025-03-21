@@ -11,18 +11,20 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
+use Shopware\Core\Framework\Store\InAppPurchase;
 
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class QuerySigner
 {
     public function __construct(
         private readonly string $shopUrl,
         private readonly string $shopwareVersion,
         private readonly LocaleProvider $localeProvider,
-        private readonly ShopIdProvider $shopIdProvider
+        private readonly ShopIdProvider $shopIdProvider,
+        private readonly InAppPurchase $inAppPurchase,
     ) {
     }
 
@@ -33,19 +35,21 @@ class QuerySigner
             throw AppException::appSecretMissing($app->getName());
         }
 
-        $uri = Uri::withQueryValues(new Uri($uri), [
+        $unsignedUri = Uri::withQueryValues(new Uri($uri), [
             'shop-id' => $this->shopIdProvider->getShopId(),
             'shop-url' => $this->shopUrl,
             'timestamp' => (string) (new \DateTime())->getTimestamp(),
             'sw-version' => $this->shopwareVersion,
+            'app-version' => $app->getVersion(),
+            'in-app-purchases' => \urlencode($this->inAppPurchase->getJWTByExtension($app->getName()) ?? ''),
             AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE => $context->getLanguageId(),
             AuthMiddleware::SHOPWARE_USER_LANGUAGE => $this->localeProvider->getLocaleFromContext($context),
         ]);
 
         return Uri::withQueryValue(
-            $uri,
+            $unsignedUri,
             'shopware-shop-signature',
-            (new RequestSigner())->signPayload($uri->getQuery(), $secret)
+            (new RequestSigner())->signPayload($unsignedUri->getQuery(), $secret)
         );
     }
 }

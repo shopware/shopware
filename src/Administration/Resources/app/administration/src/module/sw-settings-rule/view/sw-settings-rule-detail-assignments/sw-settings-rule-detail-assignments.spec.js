@@ -3,7 +3,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import RuleAssignmentConfigurationService from 'src/module/sw-settings-rule/service/rule-assignment-configuration.service';
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 
 const { Criteria } = Shopware.Data;
@@ -140,11 +140,7 @@ async function createWrapper(
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-context-button': await wrapTestComponent('sw-context-button'),
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-card-filter': await wrapTestComponent('sw-card-filter'),
                     'sw-empty-state': await wrapTestComponent('sw-empty-state'),
@@ -157,7 +153,6 @@ async function createWrapper(
                     'sw-extension-component-section': true,
                     'sw-ai-copilot-badge': true,
                     'sw-loader': true,
-                    'sw-icon': true,
                     'sw-field-error': true,
                     'sw-data-grid-inline-edit': true,
                     'sw-pagination': true,
@@ -176,6 +171,7 @@ async function createWrapper(
                     'sw-data-grid-skeleton': true,
                     'sw-settings-rule-add-assignment-listing': true,
                     'sw-settings-rule-category-tree': true,
+                    'sw-provide': { template: '<slot/>', inheritAttrs: false },
                 },
                 provide: {
                     ruleConditionDataProviderService: ruleConditionDataProviderServiceMock,
@@ -395,7 +391,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         const addButton = wrapper.find('.sw-settings-rule-detail-assignments__add-button');
 
         expect(addButton.exists()).toBe(true);
-        expect(addButton.attributes('disabled') === '').toBe(disabled);
+        expect(addButton.attributes('disabled') !== undefined).toBe(disabled);
     });
 
     it.each([
@@ -466,7 +462,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
 
         expect(wrapper.find('.sw-settings-rule-detail-assignments__delete-modal').exists()).toBe(false);
 
-        await wrapper.find('.sw-data-grid__row--0 .sw-context-button button').trigger('click');
+        await wrapper.find('.sw-data-grid__row--0 .sw-context-button').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-context-menu-item--danger').exists()).toBe(true);
@@ -591,7 +587,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         const wrapper = await createWrapper(defaultProps, ['product'], repositoryOverwriteMock);
         await flushPromises();
 
-        await wrapper.find('.sw-data-grid__row--0 .sw-context-button button').trigger('click');
+        await wrapper.find('.sw-data-grid__row--0 .sw-context-button').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-context-menu-item--danger').exists()).toBe(true);
@@ -640,13 +636,13 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         const wrapper = await createWrapper(defaultProps, ['product'], repositoryOverwriteMock);
         await flushPromises();
 
-        await wrapper.find('.sw-data-grid__row--0 .sw-field__checkbox input').setChecked(true);
-        await wrapper.find('.sw-data-grid__row--0 .sw-field__checkbox input').trigger('click');
+        await wrapper.find('.sw-data-grid__row--0 .mt-field--checkbox__container input').setChecked(true);
+        await wrapper.find('.sw-data-grid__row--0 .mt-field--checkbox__container input').trigger('click');
 
         await wrapper.find('.sw-settings-rule-detail-assignments__entity-listing .link-danger').trigger('click');
 
         expect(wrapper.find('.sw-entity-listing__confirm-bulk-delete-modal').exists()).toBe(true);
-        await wrapper.find('.sw-entity-listing__confirm-bulk-delete-modal .sw-button--danger').trigger('click');
+        await wrapper.findByText('button', 'global.default.remove').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-entity-listing__confirm-bulk-delete-modal').exists()).toBe(false);

@@ -16,7 +16,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class CacheStateSubscriber implements EventSubscriberInterface
 {
     final public const STATE_LOGGED_IN = 'logged-in';

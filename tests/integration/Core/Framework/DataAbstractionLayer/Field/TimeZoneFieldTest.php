@@ -23,7 +23,7 @@ class TimeZoneFieldTest extends TestCase
     #[DataProvider('validTimeZones')]
     public function testTimeZoneSerializerTest(string $timeZone): void
     {
-        $serializer = $this->getContainer()->get(TimeZoneFieldSerializer::class);
+        $serializer = static::getContainer()->get(TimeZoneFieldSerializer::class);
 
         $name = 'string_' . Uuid::randomHex();
         $data = new KeyValuePair($name, $timeZone, false);
@@ -43,7 +43,7 @@ class TimeZoneFieldTest extends TestCase
     #[DataProvider('inValidTimeZones')]
     public function testInvalidTimeZone(string $timeZone): void
     {
-        $serializer = $this->getContainer()->get(TimeZoneFieldSerializer::class);
+        $serializer = static::getContainer()->get(TimeZoneFieldSerializer::class);
 
         $name = 'string_' . Uuid::randomHex();
         $data = new KeyValuePair($name, $timeZone, false);
@@ -60,7 +60,7 @@ class TimeZoneFieldTest extends TestCase
 
     public function testNullable(): void
     {
-        $serializer = $this->getContainer()->get(TimeZoneFieldSerializer::class);
+        $serializer = static::getContainer()->get(TimeZoneFieldSerializer::class);
 
         $name = 'string_' . Uuid::randomHex();
         $data = new KeyValuePair($name, null, false);

@@ -4,7 +4,7 @@ import './sw-select-result-list.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -13,8 +13,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-select-result-list', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     provide() {
         return {
@@ -82,7 +80,7 @@ Component.register('sw-select-result-list', {
 
     data() {
         return {
-            activeItemIndex: 0,
+            activeItemIndex: -1,
         };
     },
 
@@ -103,10 +101,6 @@ Component.register('sw-select-result-list', {
         this.createdComponent();
     },
 
-    mounted() {
-        this.mountedComponent();
-    },
-
     beforeUnmount() {
         this.beforeDestroyedComponent();
     },
@@ -114,11 +108,6 @@ Component.register('sw-select-result-list', {
     methods: {
         createdComponent() {
             this.addEventListeners();
-        },
-
-        mountedComponent() {
-            // Set first item active
-            this.emitActiveItemIndex();
         },
 
         beforeDestroyedComponent() {
@@ -131,14 +120,14 @@ Component.register('sw-select-result-list', {
         },
 
         addEventListeners() {
-            this.focusEl.addEventListener('keydown', this.navigate);
+            document.addEventListener('keydown', this.navigate);
             document.addEventListener('click', this.checkOutsideClick);
 
             Shopware.Utils.EventBus.on('item-select', this.onItemSelect);
         },
 
         removeEventListeners() {
-            this.focusEl.removeEventListener('keydown', this.navigate);
+            document.removeEventListener('keydown', this.navigate);
             document.removeEventListener('click', this.checkOutsideClick);
 
             Shopware.Utils.EventBus.off('item-select', this.onItemSelect);
@@ -148,9 +137,13 @@ Component.register('sw-select-result-list', {
             this.$emit('item-select', item);
         },
 
-        emitActiveItemIndex() {
-            this.$emit('active-item-change', this.activeItemIndex);
-            Shopware.Utils.EventBus.emit('active-item-change', this.activeItemIndex);
+        emitActiveItemIndex(shouldFocus = false) {
+            this.$emit('active-item-change', this.activeItemIndex, {
+                shouldFocus,
+            });
+            Shopware.Utils.EventBus.emit('active-item-change', this.activeItemIndex, {
+                shouldFocus,
+            });
         },
 
         /**
@@ -196,16 +189,19 @@ Component.register('sw-select-result-list', {
 
             this.activeItemIndex += 1;
 
-            this.emitActiveItemIndex();
+            this.emitActiveItemIndex({ shouldFocus: true });
             this.updateScrollPosition();
         },
 
         navigatePrevious() {
-            if (this.activeItemIndex > 0) {
+            if (this.activeItemIndex === -1) {
+                // Set the active item to the last item in the list
+                this.activeItemIndex = this.options.length - 1;
+            } else if (this.activeItemIndex > 0) {
                 this.activeItemIndex -= 1;
             }
 
-            this.emitActiveItemIndex();
+            this.emitActiveItemIndex({ shouldFocus: true });
             this.updateScrollPosition();
         },
 

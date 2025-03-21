@@ -1,3 +1,4 @@
+{% block sw_cms_el_config_html %}
 <div class="sw-cms-el-config-html">
     <sw-code-editor
         :value="element.config.content.value"
@@ -6,7 +7,8 @@
         @blur="onBlur"
     />
 
-    <sw-alert variant="warning">
+    <mt-banner variant="attention">
         {{ $tc('sw-cms.elements.html.config.warning') }}
-    </sw-alert>
+    </mt-banner>
 </div>
+{% endblock %}

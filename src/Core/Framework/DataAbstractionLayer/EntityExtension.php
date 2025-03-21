@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 abstract class EntityExtension
 {
     /**
@@ -28,8 +28,5 @@ abstract class EntityExtension
     {
     }
 
-    /**
-     * Defines which entity definition should be extended by this class
-     */
-    abstract public function getDefinitionClass(): string;
+    abstract public function getEntityName(): string;
 }

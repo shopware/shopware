@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class NoFlowStoreFunctionRule implements Rule
 {
     use InTestClassTrait;
@@ -60,7 +60,7 @@ class NoFlowStoreFunctionRule implements Rule
         }
 
         $class = $scope->getClassReflection();
-        if ($class === null || $class->isSubclassOf(FlowStorer::class)) {
+        if ($class === null || $class->is(FlowStorer::class)) {
             return [];
         }
 

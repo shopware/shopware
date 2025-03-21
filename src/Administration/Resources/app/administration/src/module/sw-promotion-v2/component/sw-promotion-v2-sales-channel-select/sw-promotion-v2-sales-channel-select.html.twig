@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_promotion_v2_sales_channel_selection %}
 <sw-multi-select
     v-model:value="salesChannelIds"
@@ -8,14 +7,12 @@
     label-property="name"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_sales_channel_selection_label %}
     <template #selection-label-property="{ item }">
         {{ item.name || item.translated.name }}
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_sales_channel_selection_result_label %}
     <template #result-label-property="{ item }">
         {{ item.name || item.translated.name }}

@@ -3,13 +3,11 @@ import template from './sw-settings-store.html.twig';
 const { Mixin } = Shopware;
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     mixins: [
         Mixin.getByName('notification'),

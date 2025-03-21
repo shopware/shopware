@@ -1,10 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_category_seo_form %}
 <div class="sw-category-seo-form">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_seo_form_meta_title %}
-    <sw-text-field
-        v-model:value="category.metaTitle"
+
+    <mt-text-field
+        v-model="category.metaTitle"
         maxlength="255"
         :disabled="!acl.can('category.editor')"
         :label="$tc('sw-category.base.seo.labelMetaTitle')"
@@ -13,10 +12,9 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_seo_form_meta_description %}
-    <sw-textarea-field
-        v-model:value="category.metaDescription"
+    <mt-textarea
+        v-model="category.metaDescription"
         maxlength="255"
         :disabled="!acl.can('category.editor')"
         :label="$tc('sw-category.base.seo.labelMetaDescription')"
@@ -25,10 +23,10 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_seo_form_keywords %}
-    <sw-text-field
-        v-model:value="category.keywords"
+
+    <mt-text-field
+        v-model="category.keywords"
         :disabled="!acl.can('category.editor')"
         :label="$tc('sw-category.base.seo.labelKeywords')"
         :placeholder="$tc('sw-category.base.seo.placeholderKeywords')"

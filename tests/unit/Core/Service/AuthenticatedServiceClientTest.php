@@ -19,7 +19,7 @@ use Shopware\Core\Service\ServiceRegistryEntry;
  * @internal
  */
 #[CoversClass(AuthenticatedServiceClient::class)]
-#[Package('core')]
+#[Package('framework')]
 class AuthenticatedServiceClientTest extends TestCase
 {
     private Client $client;
@@ -50,7 +50,7 @@ class AuthenticatedServiceClientTest extends TestCase
         static::assertNotNull($lastRequest);
         static::assertSame('POST', $lastRequest->getMethod());
         static::assertSame('https://example.com/sync', (string) $lastRequest->getUri());
-        static::assertSame('{"source":{"url":"http:foo","shopId":"' . $id . '","appVersion":"1.0.1"},"licenseKey":"license_key","licenseHost":"license_host"}', (string) $lastRequest->getBody());
+        static::assertSame('{"source":{"url":"http:foo","shopId":"' . $id . '","appVersion":"1.0.1","inAppPurchases":null},"licenseKey":"license_key","licenseHost":"license_host"}', (string) $lastRequest->getBody());
     }
 
     public function testSyncLicenseServicesSendsPostRequestWithLicenseHostNull(): void
@@ -71,7 +71,7 @@ class AuthenticatedServiceClientTest extends TestCase
         static::assertNotNull($lastRequest);
         static::assertSame('POST', $lastRequest->getMethod());
         static::assertSame('https://example.com/sync', (string) $lastRequest->getUri());
-        static::assertSame('{"source":{"url":"http:foo","shopId":"' . $id . '","appVersion":"1.0.1"},"licenseKey":"license_key","licenseHost":""}', (string) $lastRequest->getBody());
+        static::assertSame('{"source":{"url":"http:foo","shopId":"' . $id . '","appVersion":"1.0.1","inAppPurchases":null},"licenseKey":"license_key","licenseHost":""}', (string) $lastRequest->getBody());
     }
 
     public function testSyncLicenseServicesSendsPostRequestWithLicenseKeyEmpty(): void
@@ -92,7 +92,7 @@ class AuthenticatedServiceClientTest extends TestCase
         static::assertNotNull($lastRequest);
         static::assertSame('POST', $lastRequest->getMethod());
         static::assertSame('https://example.com/sync', (string) $lastRequest->getUri());
-        static::assertSame('{"source":{"url":"http:foo","shopId":"' . $id . '","appVersion":"1.0.1"},"licenseKey":"","licenseHost":"license_host"}', (string) $lastRequest->getBody());
+        static::assertSame('{"source":{"url":"http:foo","shopId":"' . $id . '","appVersion":"1.0.1","inAppPurchases":null},"licenseKey":"","licenseHost":"license_host"}', (string) $lastRequest->getBody());
     }
 
     public function testSyncLicenseServicesDoesNotSendRequestWhenKeyAndHostIsEmpty(): void
@@ -114,7 +114,7 @@ class AuthenticatedServiceClientTest extends TestCase
         static::assertNotNull($lastRequest);
         static::assertSame('POST', $lastRequest->getMethod());
         static::assertSame('https://example.com/sync', (string) $lastRequest->getUri());
-        static::assertSame('{"source":{"url":"http:foo","shopId":"' . $id . '","appVersion":"1.0.1"},"licenseKey":"","licenseHost":""}', (string) $lastRequest->getBody());
+        static::assertSame('{"source":{"url":"http:foo","shopId":"' . $id . '","appVersion":"1.0.1","inAppPurchases":null},"licenseKey":"","licenseHost":""}', (string) $lastRequest->getBody());
     }
 
     public function testSyncLicenseServicesDoesNotSendRequestWhenLicenseSyncEndPointIsNull(): void

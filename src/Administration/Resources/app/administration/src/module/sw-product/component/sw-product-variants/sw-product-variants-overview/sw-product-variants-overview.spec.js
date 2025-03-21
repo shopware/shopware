@@ -1,10 +1,24 @@
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 import { mount } from '@vue/test-utils';
 import Criteria from 'src/core/data/criteria.data';
 
+let repositoryFactoryMock;
+let repositoryFactoryCreateMock;
+
 async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {}) {
+    repositoryFactoryCreateMock = {
+        search: () => Promise.resolve([]),
+        save: jest.fn(() => Promise.resolve([])).mockName('repositoryFactory save'),
+        get: () => Promise.resolve({}),
+        syncDeleted: () => Promise.resolve({}),
+    };
+    repositoryFactoryMock = {
+        create: jest.fn(() => repositoryFactoryCreateMock),
+        ...repositoryFactoryOverride,
+    };
+
     return mount(await wrapTestComponent('sw-product-variants-overview', { sync: true }), {
         props: {
             selectedGroups: [],
@@ -17,15 +31,7 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
         },
         global: {
             provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        search: () => Promise.resolve([]),
-                        save: () => Promise.resolve([]),
-                        get: () => Promise.resolve({}),
-                        syncDeleted: () => Promise.resolve({}),
-                    }),
-                    ...repositoryFactoryOverride,
-                },
+                repositoryFactory: repositoryFactoryMock,
                 searchRankingService: {},
                 configService: {
                     getConfig: () =>
@@ -59,11 +65,6 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
                     sync: true,
                 }),
                 'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field', { sync: true }),
-                'sw-button': await wrapTestComponent('sw-button', {
-                    sync: true,
-                }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-                'sw-icon': true,
                 'sw-context-menu': await wrapTestComponent('sw-context-menu', { sync: true }),
                 'sw-tree': await wrapTestComponent('sw-tree', {
                     sync: true,
@@ -77,7 +78,6 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
                 'sw-inheritance-switch': true,
                 'sw-price-field': true,
                 'sw-price-preview': true,
-                'sw-number-field': true,
                 'sw-text-field': true,
                 'sw-product-variants-media-upload': true,
                 'sw-upload-listener': true,
@@ -116,6 +116,7 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
                 'sw-media-preview-v2': true,
                 'sw-context-menu-divider': true,
                 'sw-media-modal-v2': true,
+                'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },
         },
     });
@@ -131,12 +132,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         };
         product.getEntityName = () => 'T-Shirt';
 
-        if (Shopware.State.get('swProductDetail')) {
-            Shopware.State.unregisterModule('swProductDetail');
-        }
-
-        Shopware.State.registerModule('swProductDetail', {
-            namespaced: true,
+        Shopware.Store.register({
+            id: 'swProductDetail',
             state() {
                 return {
                     product: product,
@@ -179,7 +176,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
             getters: {
                 isLoading: () => false,
             },
-            mutations: {
+            actions: {
                 setVariants(state, variants) {
                     state.variants = variants;
                 },
@@ -200,7 +197,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         const wrapper = await createWrapper();
         const generateVariantsButton = wrapper.find('.sw-product-variants__generate-action');
         expect(generateVariantsButton.exists()).toBeTruthy();
-        expect(generateVariantsButton.classes('sw-button--disabled')).toBeTruthy();
+        expect(generateVariantsButton.attributes('disabled')).toBeDefined();
     });
 
     it('should have an enabled generate variants button', async () => {
@@ -209,7 +206,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         const wrapper = await createWrapper();
         const generateVariantsButton = wrapper.find('.sw-product-variants__generate-action');
         expect(generateVariantsButton.exists()).toBeTruthy();
-        expect(generateVariantsButton.classes('sw-button--disabled')).toBeFalsy();
+        expect(generateVariantsButton.attributes('disabled')).toBeUndefined();
     });
 
     it('should enable selection deleting of list variants', async () => {
@@ -476,17 +473,57 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
             productEntity: product,
         });
 
-        const productSaveSpy = jest.spyOn(wrapper.vm.productRepository, 'save');
-
         const deleteContextButton = wrapper.find('.sw-context-menu-item.sw-context-menu-item--danger');
         await deleteContextButton.trigger('click');
 
         const deleteModal = wrapper.find('.sw-product-variants-overview__delete-modal');
         expect(deleteModal.exists()).toBe(true);
 
-        await wrapper.find('.sw-product-variants-overview__delete-modal .sw-button--danger').trigger('click');
+        await wrapper.findByText('button', 'sw-product.variations.generatedListDeleteModalButtonDelete').trigger('click');
         await flushPromises();
 
-        expect(productSaveSpy).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.productRepository.save).toHaveBeenCalledTimes(1);
+    });
+
+    it('should contain a currencyColumns computed property', async () => {
+        const wrapper = await createWrapper();
+
+        Shopware.Store.get('swProductDetail').currencies = undefined;
+
+        expect(wrapper.vm.currencyColumns).toEqual([]);
+
+        Shopware.Store.get('swProductDetail').currencies = [
+            {
+                id: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                name: 'Euro',
+                isSystemDefault: true,
+                translated: {
+                    name: 'Euro',
+                },
+            },
+            {
+                id: 'b7d2554b0ce847cd82f3ac9bd1c0dfcb',
+                name: 'Dollar',
+                isSystemDefault: false,
+                translated: {
+                    name: 'Dollar',
+                },
+            },
+        ];
+
+        expect(wrapper.vm.currencyColumns).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    property: 'price.b7d2554b0ce847cd82f3ac9bd1c0dfca.net',
+                    label: 'Euro',
+                    visible: true,
+                }),
+                expect.objectContaining({
+                    property: 'price.b7d2554b0ce847cd82f3ac9bd1c0dfcb.net',
+                    label: 'Dollar',
+                    visible: false,
+                }),
+            ]),
+        );
     });
 });

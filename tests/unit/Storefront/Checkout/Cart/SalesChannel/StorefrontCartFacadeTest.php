@@ -303,7 +303,7 @@ class StorefrontCartFacadeTest extends TestCase
     {
         $cartService = static::createMock(CartService::class);
         $cartService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getCart')
             ->with(
                 'token',

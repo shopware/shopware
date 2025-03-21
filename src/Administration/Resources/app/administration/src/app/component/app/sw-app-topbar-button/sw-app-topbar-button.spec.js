@@ -1,5 +1,5 @@
 /**
- * @package customer-order
+ * @sw-package innovation
  */
 
 import { mount } from '@vue/test-utils';
@@ -7,12 +7,6 @@ import { mount } from '@vue/test-utils';
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-app-topbar-button', { sync: true }), {
         global: {
-            stubs: {
-                'sw-icon': true,
-                'sw-button': {
-                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                },
-            },
             provide: {
                 acl: { can: () => true },
             },

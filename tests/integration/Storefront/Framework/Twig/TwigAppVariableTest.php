@@ -68,7 +68,7 @@ class TwigAppVariableTest extends TestCase
         $appVariable = $this->createMock(AppVariable::class);
         $appVariable->method('getRequest')->willReturn($orgRequest);
 
-        $app = new TwigAppVariable($appVariable, $this->getContainer()->getParameter('shopware.twig.app_variable.allowed_server_params'));
+        $app = new TwigAppVariable($appVariable, static::getContainer()->getParameter('shopware.twig.app_variable.allowed_server_params'));
         $appRequest = $app->getRequest();
 
         static::assertNotNull($appRequest);

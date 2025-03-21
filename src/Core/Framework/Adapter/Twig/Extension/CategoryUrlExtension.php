@@ -11,7 +11,7 @@ use Symfony\Bridge\Twig\Extension\RoutingExtension;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
-#[Package('core')]
+#[Package('framework')]
 class CategoryUrlExtension extends AbstractExtension
 {
     /**
@@ -31,6 +31,9 @@ class CategoryUrlExtension extends AbstractExtension
         ];
     }
 
+    /**
+     * @param array<string, mixed> $twigContext
+     */
     public function getCategoryUrl(array $twigContext, CategoryEntity $category): ?string
     {
         $salesChannel = null;

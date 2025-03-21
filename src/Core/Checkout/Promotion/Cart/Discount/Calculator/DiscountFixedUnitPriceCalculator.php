@@ -8,12 +8,11 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositi
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorResult;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
-use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class DiscountFixedUnitPriceCalculator
 {
     public function __construct(private readonly AbsolutePriceCalculator $absolutePriceCalculator)
@@ -21,7 +20,7 @@ class DiscountFixedUnitPriceCalculator
     }
 
     /**
-     * @throws InvalidPriceDefinitionException
+     * @throws PromotionException
      */
     public function calculate(
         DiscountLineItem $discount,

@@ -7,7 +7,7 @@
         margin: 20px 0;
     }
 
-    &.has--navigation {
+    &.has--navigation-indent {
         &.has--border {
             margin: 20px;
         }
@@ -20,6 +20,30 @@
 
         .sw-cms-el-product-slider__title {
             margin: 20px 40px;
+        }
+    }
+
+    .sw-cms-el-product-slider__navigation-button {
+        translate: 0 20px;
+    }
+
+    .has--arrow-inside {
+        position: absolute;
+        height: 65px;
+        left: 0;
+        top: 50%;
+        translate: 0 -50%;
+        z-index: $z-index-overlay;
+        opacity: 0.5;
+        background-color: $color-gray-200;
+
+        &.is--right-arrow {
+            left: unset;
+            right: 0;
+        }
+
+        &:hover {
+            opacity: 1;
         }
     }
 

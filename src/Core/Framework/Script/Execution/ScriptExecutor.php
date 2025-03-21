@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Script\Execution;
 
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PcreExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
 use Shopware\Core\Framework\Adapter\Twig\Filter\ReplaceRecursiveFilter;
@@ -24,7 +23,7 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Twig\Environment;
 use Twig\Extension\DebugExtension;
 
-#[Package('core')]
+#[Package('framework')]
 class ScriptExecutor
 {
     public static bool $isInScriptExecutionContext = false;
@@ -43,10 +42,6 @@ class ScriptExecutor
 
     public function execute(Hook $hook): void
     {
-        if (EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false)) {
-            return;
-        }
-
         if ($hook instanceof InterfaceHook) {
             throw ScriptException::interfaceHookExecutionNotAllowed($hook::class);
         }

@@ -4,13 +4,15 @@ namespace Shopware\Tests\Integration\Core\Framework\Routing;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
+use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
@@ -25,7 +27,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
@@ -47,14 +48,14 @@ class SalesChannelRequestContextResolverTest extends TestCase
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
-        $this->currencyRepository = $this->getContainer()->get('currency.repository');
-        $this->contextService = $this->getContainer()->get(SalesChannelContextService::class);
+        $this->currencyRepository = static::getContainer()->get('currency.repository');
+        $this->contextService = static::getContainer()->get(SalesChannelContextService::class);
     }
 
     public function testRequestSalesChannelCurrency(): void
     {
         $this->createTestSalesChannel();
-        $resolver = $this->getContainer()->get(SalesChannelRequestContextResolver::class);
+        $resolver = static::getContainer()->get(SalesChannelRequestContextResolver::class);
 
         $phpunit = $this;
         $currencyId = $this->getCurrencyId('USD');
@@ -64,13 +65,13 @@ class SalesChannelRequestContextResolverTest extends TestCase
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, $currencyId);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['store-api']);
 
-        /** @var EventDispatcher $dispatcher */
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
         $listenerContextEventClosure = function (SalesChannelContextResolvedEvent $event) use (&$eventDidRun, $phpunit, $currencyId): void {
             $eventDidRun = true;
             $phpunit->assertSame($currencyId, $event->getSalesChannelContext()->getContext()->getCurrencyId());
+            $phpunit->assertInstanceOf(SalesChannelApiSource::class, $event->getSalesChannelContext()->getContext()->getSource());
         };
 
         $this->addEventListener($dispatcher, SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
@@ -121,7 +122,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
     #[DataProvider('loginRequiredAnnotationData')]
     public function testLoginRequiredAnnotation(bool $doLogin, bool $isGuest, array $attributes, bool $pass): void
     {
-        $resolver = $this->getContainer()->get(SalesChannelRequestContextResolver::class);
+        $resolver = static::getContainer()->get(SalesChannelRequestContextResolver::class);
 
         $currencyId = $this->getCurrencyId('USD');
 
@@ -149,13 +150,45 @@ class SalesChannelRequestContextResolverTest extends TestCase
         if ($pass) {
             static::assertNull($exception, 'Exception: ' . ($exception !== null ? \print_r($exception->getMessage(), true) : 'No Exception'));
         } else {
-            static::assertInstanceOf(CustomerNotLoggedInException::class, $exception, 'Exception: ' . ($exception !== null ? \print_r($exception->getMessage(), true) : 'No Exception'));
+            static::assertInstanceOf(RoutingException::class, $exception, 'Exception: ' . ($exception !== null ? \print_r($exception->getMessage(), true) : 'No Exception'));
         }
+    }
+
+    public function testRequestAdminSalesChannelApiSource(): void
+    {
+        $this->createTestSalesChannel();
+        $resolver = static::getContainer()->get(SalesChannelRequestContextResolver::class);
+
+        $phpunit = $this;
+        $currencyId = $this->getCurrencyId('USD');
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $this->ids->get('sales-channel'));
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, $currencyId);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['store-api']);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, Context::createDefaultContext());
+
+        $dispatcher = static::getContainer()->get('event_dispatcher');
+
+        $eventDidRun = false;
+        $listenerContextEventClosure = function (SalesChannelContextResolvedEvent $event) use (&$eventDidRun, $phpunit, $currencyId): void {
+            $eventDidRun = true;
+            $phpunit->assertSame($currencyId, $event->getSalesChannelContext()->getContext()->getCurrencyId());
+            $phpunit->assertInstanceOf(AdminSalesChannelApiSource::class, $event->getSalesChannelContext()->getContext()->getSource());
+        };
+
+        $this->addEventListener($dispatcher, SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
+
+        $resolver->resolve($request);
+
+        $dispatcher->removeListener(SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
+
+        static::assertTrue($eventDidRun, 'The "' . SalesChannelContextResolvedEvent::class . '" Event did not run');
     }
 
     public function testImitatingUserIdWithCustomer(): void
     {
-        $resolver = $this->getContainer()->get(SalesChannelRequestContextResolver::class);
+        $resolver = static::getContainer()->get(SalesChannelRequestContextResolver::class);
 
         $currencyId = $this->getCurrencyId('USD');
 
@@ -181,7 +214,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
 
     public function testImitatingUserIdClearWithoutCustomer(): void
     {
-        $resolver = $this->getContainer()->get(SalesChannelRequestContextResolver::class);
+        $resolver = static::getContainer()->get(SalesChannelRequestContextResolver::class);
 
         $currencyId = $this->getCurrencyId('USD');
 
@@ -294,7 +327,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
         $customerId = $this->createCustomer($email, $isGuest);
 
         $token = Random::getAlphanumericString(32);
-        $this->getContainer()->get(SalesChannelContextPersister::class)->save($token, ['customerId' => $customerId], TestDefaults::SALES_CHANNEL);
+        static::getContainer()->get(SalesChannelContextPersister::class)->save($token, ['customerId' => $customerId], TestDefaults::SALES_CHANNEL);
 
         return $token;
     }

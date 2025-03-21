@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
@@ -36,8 +35,8 @@ class CustomerRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('customer.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->repository = static::getContainer()->get('customer.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
     }
 
     public function testGetNoDuplicateMappingTableException(): void
@@ -55,10 +54,10 @@ class CustomerRepositoryTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('customer.repository')
+        static::getContainer()->get('customer.repository')
             ->update([$update], Context::createDefaultContext());
 
-        $this->getContainer()->get('customer.repository')
+        static::getContainer()->get('customer.repository')
             ->update([$update], Context::createDefaultContext());
 
         $count = $this->connection->fetchOne('SELECT COUNT(*) FROM customer_tag WHERE customer_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
@@ -137,21 +136,14 @@ class CustomerRepositoryTest extends TestCase
             ],
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $paymentMethod = $this->getValidPaymentMethodId();
-            foreach ($records as &$customer) {
-                $customer['defaultPaymentMethodId'] = $paymentMethod;
-            }
-        }
-
         $this->repository->create($records, Context::createDefaultContext());
 
         $context = Context::createDefaultContext();
         $criteria = new Criteria();
 
-        $definition = $this->getContainer()->get(CustomerDefinition::class);
-        $builder = $this->getContainer()->get(EntityScoreQueryBuilder::class);
-        $pattern = $this->getContainer()->get(SearchTermInterpreter::class)->interpret($matchTerm);
+        $definition = static::getContainer()->get(CustomerDefinition::class);
+        $builder = static::getContainer()->get(EntityScoreQueryBuilder::class);
+        $pattern = static::getContainer()->get(SearchTermInterpreter::class)->interpret($matchTerm);
         $queries = $builder->buildScoreQueries($pattern, $definition, $definition->getEntityName(), $context);
         $criteria->addQuery(...$queries);
 
@@ -201,10 +193,6 @@ class CustomerRepositoryTest extends TestCase
             'tags' => [['name' => 'testTag']],
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
         $this->repository->create([$customer], Context::createDefaultContext());
 
         $this->repository->delete([['id' => $customerId]], Context::createDefaultContext());
@@ -238,11 +226,7 @@ class CustomerRepositoryTest extends TestCase
             'customerNumber' => '12345',
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
-        $repo = $this->getContainer()->get('customer.repository');
+        $repo = static::getContainer()->get('customer.repository');
 
         $repo->create([$customer], Context::createDefaultContext());
 

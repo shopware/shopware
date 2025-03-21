@@ -25,7 +25,7 @@ class CustomFieldRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repo = $this->getContainer()->get('custom_field.repository');
+        $this->repo = static::getContainer()->get('custom_field.repository');
     }
 
     public function testCreate(): void

@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import { mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
@@ -70,13 +70,11 @@ async function createWrapper(condition = {}) {
                 'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                 'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
                 'sw-condition-unit-menu': await wrapTestComponent('sw-condition-unit-menu', { sync: true }),
-                'sw-number-field': await wrapTestComponent('sw-number-field'),
                 'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
                 'sw-field-error': true,
                 'sw-condition-type-select': true,
-                'sw-icon': true,
                 'sw-loader': true,
                 'sw-label': true,
                 'sw-highlight-text': true,
@@ -91,7 +89,6 @@ async function createWrapper(condition = {}) {
                 'sw-help-text': true,
                 'sw-product-variant-info': true,
                 'sw-inheritance-switch': true,
-                'sw-button': true,
                 'sw-field-copyable': true,
             },
             provide: {
@@ -115,7 +112,7 @@ async function createWrapper(condition = {}) {
 
 describe('components/rule/condition-type/sw-condition-generic', () => {
     beforeEach(() => {
-        Shopware.State.commit('ruleConditionsConfig/setConfig', ruleConditionsConfig);
+        Shopware.Store.get('ruleConditionsConfig').config = ruleConditionsConfig;
     });
 
     it('should render fields and set condition values on change', async () => {

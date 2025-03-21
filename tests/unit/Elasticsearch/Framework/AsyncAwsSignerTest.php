@@ -3,8 +3,8 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Framework;
 
 use AsyncAws\Core\Configuration;
-use AsyncAws\Core\Credentials\ChainProvider;
 use AsyncAws\Core\Credentials\CredentialProvider;
+use AsyncAws\Core\Credentials\Credentials;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -36,8 +36,9 @@ class AsyncAwsSignerTest extends TestCase
             'accessKeyId' => 'key',
             'accessKeySecret' => 'secret',
         ]);
-        $credentialProvider = ChainProvider::createDefaultChain(null, $this->logger);
 
+        $credentialProvider = $this->createMock(CredentialProvider::class);
+        $credentialProvider->method('getCredentials')->willReturn(new Credentials('key', 'secret'));
         $signer = new AsyncAwsSigner($configuration, $this->logger, 'es', 'us-east-1', $credentialProvider);
 
         $request = [
@@ -63,7 +64,7 @@ class AsyncAwsSignerTest extends TestCase
 
         $signer = new AsyncAwsSigner($configuration, $this->logger, 'es', 'test', $this->credentialProvider);
 
-        $this->logger->expects(static::once())
+        $this->logger->expects($this->once())
             ->method('error')
             ->with(static::stringContains('Error signing request'));
 

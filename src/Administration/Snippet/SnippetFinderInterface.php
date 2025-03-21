@@ -4,7 +4,7 @@ namespace Shopware\Administration\Snippet;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('administration')]
+#[Package('discovery')]
 interface SnippetFinderInterface
 {
     /**

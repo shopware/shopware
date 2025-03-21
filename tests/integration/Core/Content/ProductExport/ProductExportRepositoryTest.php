@@ -36,7 +36,7 @@ class ProductExportRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productExportRepository = $this->getContainer()->get('product_export.repository');
+        $this->productExportRepository = static::getContainer()->get('product_export.repository');
         $this->context = Context::createDefaultContext();
 
         $this->createProductStream();
@@ -173,6 +173,7 @@ class ProductExportRepositoryTest extends TestCase
         $entity = $this->productExportRepository->search($criteria, $this->context)->getEntities()->get($id);
         static::assertInstanceOf(ProductExportEntity::class, $entity);
         $productStream = $entity->getProductStream();
+        static::assertNotNull($productStream);
         static::assertSame($productStreamId, $productStream->getId());
     }
 
@@ -202,6 +203,8 @@ class ProductExportRepositoryTest extends TestCase
         $entity = $this->productExportRepository->search($criteria, $this->context)->getEntities()->get($id);
         static::assertInstanceOf(ProductExportEntity::class, $entity);
         $salesChannel = $entity->getSalesChannel();
+
+        static::assertNotNull($salesChannel);
         static::assertSame($this->getSalesChannelId(), $salesChannel->getId());
     }
 
@@ -231,13 +234,14 @@ class ProductExportRepositoryTest extends TestCase
         $entity = $this->productExportRepository->search($criteria, $this->context)->getEntities()->get($id);
         static::assertInstanceOf(ProductExportEntity::class, $entity);
         $salesChannelDomain = $entity->getSalesChannelDomain();
+        static::assertNotNull($salesChannelDomain);
         static::assertSame($this->getSalesChannelDomainId(), $salesChannelDomain->getId());
     }
 
     private function getSalesChannelId(): string
     {
         /** @var EntityRepository<SalesChannelCollection> $repository */
-        $repository = $this->getContainer()->get('sales_channel.repository');
+        $repository = static::getContainer()->get('sales_channel.repository');
 
         $first = $repository->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertInstanceOf(SalesChannelEntity::class, $first);
@@ -248,7 +252,7 @@ class ProductExportRepositoryTest extends TestCase
     private function getSalesChannelDomainId(): string
     {
         /** @var EntityRepository<SalesChannelDomainCollection> $repository */
-        $repository = $this->getContainer()->get('sales_channel_domain.repository');
+        $repository = static::getContainer()->get('sales_channel_domain.repository');
 
         $first = $repository->search(new Criteria(), $this->context)->getEntities()->first();
 
@@ -259,7 +263,7 @@ class ProductExportRepositoryTest extends TestCase
 
     private function createProductStream(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $randomProductIds = implode('|', \array_slice(array_column($this->createProducts(), 'id'), 0, 2));
 
@@ -289,7 +293,7 @@ class ProductExportRepositoryTest extends TestCase
      */
     private function createProducts(): array
     {
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $manufacturerId = Uuid::randomHex();
         $taxId = Uuid::randomHex();
         $salesChannelId = TestDefaults::SALES_CHANNEL;

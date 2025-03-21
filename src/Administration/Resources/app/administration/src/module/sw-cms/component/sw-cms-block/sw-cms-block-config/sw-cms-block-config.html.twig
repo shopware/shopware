@@ -1,14 +1,11 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_block_config %}
 <div class="sw-cms-block-config">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_block_config__quickactions %}
     <ul
         class="sw-cms-block-config__quickactions-list"
         :class="quickactionClasses"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_block_config__quickaction_duplicate %}
         <li
             class="sw-cms-block-config__quickaction"
@@ -17,7 +14,7 @@
             @click="onBlockDuplicate"
             @keydown.enter="onBlockDuplicate"
         >
-            <sw-icon
+            <mt-icon
                 name="regular-duplicate"
                 size="16"
             />
@@ -25,7 +22,6 @@
         </li>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_block_config__quickaction_delete %}
         <li
             class="sw-cms-block-config__quickaction is--danger"
@@ -34,7 +30,7 @@
             @click="onBlockDelete"
             @keydown.enter="onBlockDelete"
         >
-            <sw-icon
+            <mt-icon
                 name="regular-trash"
                 size="16"
             />
@@ -44,31 +40,28 @@
     </ul>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_block_config__settings %}
     <div class="sw-cms-section-config__settings">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_block_config_name_field %}
-        <sw-text-field
-            :value="block.name"
+
+        <mt-text-field
+            :model-value="block.name"
             :label="$tc('sw-cms.detail.label.blockNameField')"
             :placeholder="$tc('sw-cms.detail.label.blockNameFieldPlaceholder')"
             :help-text="$tc('sw-cms.detail.tooltip.blockNameField')"
-            @update:value="onBlockNameChange"
+            @update:model-value="onBlockNameChange"
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_block_config_background_color_field %}
-        <sw-colorpicker
-            v-model:value="block.backgroundColor"
+        <mt-colorpicker
+            v-model="block.backgroundColor"
             :label="$tc('sw-cms.detail.label.backgroundColorLabel')"
             :placeholder="$tc('sw-cms.detail.label.backgroundColorField')"
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_block_config_background_image_field %}
         <sw-media-compact-upload-v2
             :source="block && block.backgroundMedia && block.backgroundMedia.id ? block.backgroundMedia : null"
@@ -85,23 +78,13 @@
             @media-upload-finish="successfulUpload"
         />
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_block_config_background_image_position_field %}
-        <sw-select-field
-            v-model:value="block.backgroundMediaMode"
+        <mt-select
+            v-model="block.backgroundMediaMode"
             :label="$tc('sw-cms.detail.label.backgroundMediaMode')"
             :disabled="!block.backgroundMediaId"
-        >
-            <option value="auto">
-                {{ $tc('sw-cms.detail.label.backgroundMediaModeAuto') }}
-            </option>
-            <option value="contain">
-                {{ $tc('sw-cms.detail.label.backgroundMediaModeContain') }}
-            </option>
-            <option value="cover">
-                {{ $tc('sw-cms.detail.label.backgroundMediaModeCover') }}
-            </option>
-        </sw-select-field>
+            :options="backgroundModeOptions"
+        />
         {% endblock %}
         {% endblock %}
     </div>

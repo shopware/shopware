@@ -6,8 +6,6 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException;
-use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry;
@@ -424,7 +422,7 @@ class LineItemGroupBuilderTest extends TestCase
 
         $group = $this->buildGroup('UNKNOWN', 2, self::KEY_SORTER_PRICE_ASC, new RuleCollection());
 
-        $this->expectException(LineItemGroupPackagerNotFoundException::class);
+        $this->expectExceptionObject(CartException::lineItemGroupPackagerNotFoundException('UNKNOWN'));
 
         $this->unitTestBuilder->findGroupPackages([$group], $cart, $this->context);
     }
@@ -440,7 +438,7 @@ class LineItemGroupBuilderTest extends TestCase
 
         $group = $this->buildGroup(self::KEY_PACKAGER_COUNT, 2, 'UNKNOWN', new RuleCollection());
 
-        $this->expectException(LineItemGroupSorterNotFoundException::class);
+        $this->expectExceptionObject(CartException::lineItemGroupSorterNotFoundException('UNKNOWN'));
 
         $this->unitTestBuilder->findGroupPackages([$group], $cart, $this->context);
     }

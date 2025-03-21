@@ -16,20 +16,22 @@ use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\DuplicateWishlistProductException;
 use Shopware\Core\Checkout\Customer\Exception\InvalidImitateCustomerTokenException;
 use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
+use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
+use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Exception\MissingOptionsException;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 #[Package('checkout')]
 class CustomerException extends HttpException
 {
-    /**
-     * @deprecated tag:v6.7.0 - Constant CUSTOMER_IS_INACTIVE will be removed as it is unused
-     */
-    public const CUSTOMER_IS_INACTIVE = 'CHECKOUT__CUSTOMER_IS_INACTIVE';
-
     public const CUSTOMERS_NOT_FOUND = 'CHECKOUT__CUSTOMERS_NOT_FOUND';
     public const CUSTOMER_NOT_FOUND = 'CHECKOUT__CUSTOMER_NOT_FOUND';
     public const CUSTOMER_GROUP_NOT_FOUND = 'CHECKOUT__CUSTOMER_GROUP_NOT_FOUND';
@@ -59,6 +61,13 @@ class CustomerException extends HttpException
     public const CUSTOMER_CHANGE_PAYMENT_ERROR = 'CHECKOUT__CUSTOMER_CHANGE_PAYMENT_METHOD_NOT_FOUND';
     public const CUSTOMER_GUEST_AUTH_INVALID = 'CHECKOUT__CUSTOMER_AUTH_INVALID';
     public const IMITATE_CUSTOMER_INVALID_TOKEN = 'CHECKOUT__IMITATE_CUSTOMER_INVALID_TOKEN';
+    public const MISSING_ROUTE_ANNOTATION = 'CHECKOUT__MISSING_ROUTE_ANNOTATION';
+    public const MISSING_ROUTE_SALES_CHANNEL = 'CHECKOUT__MISSING_ROUTE_SALES_CHANNEL';
+    public const OPERATOR_NOT_SUPPORTED = 'CHECKOUT__CUSTOMER_RULE_OPERATOR_NOT_SUPPORTED';
+    public const VALUE_NOT_SUPPORTED = 'CONTENT__RULE_VALUE_NOT_SUPPORTED';
+    public const MISSING_REQUEST_PARAMETER_CODE = 'CONTENT__MISSING_REQUEST_PARAMETER_CODE';
+    public const MISSING_OPTIONS = 'CONTENT__MISSING_OPTIONS';
+    public const UNEXPECTED_TYPE = 'CHECKOUT__UNEXPECTED_TYPE';
 
     public static function customerGroupNotFound(string $id): self
     {
@@ -258,25 +267,8 @@ class CustomerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - Method will be removed as it is unused
-     */
-    public static function inactiveCustomer(string $id): ShopwareHttpException
+    public static function customerOptinNotCompleted(string $id): CustomerOptinNotCompletedException
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Method "CustomerException::inactiveCustomer" will be removed as it is unused.');
-
-        return self::customerOptinNotCompleted($id);
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Parameter $message will be removed as it is unused
-     */
-    public static function customerOptinNotCompleted(string $id, ?string $message = null): CustomerOptinNotCompletedException
-    {
-        if ($message !== null) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The parameter $message is unused and will be removed.');
-        }
-
         return new CustomerOptinNotCompletedException($id);
     }
 
@@ -305,5 +297,120 @@ class CustomerException extends HttpException
     public static function invalidImitationToken(string $token): InvalidImitateCustomerTokenException
     {
         return new InvalidImitateCustomerTokenException($token);
+    }
+
+    public static function missingRouteAnnotation(string $annotation, string $route): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MISSING_ROUTE_ANNOTATION,
+            'Missing @{{ annotation }} annotation for route: {{ route }}',
+            ['annotation' => $annotation, 'route' => $route]
+        );
+    }
+
+    public static function missingRouteSalesChannel(string $route): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MISSING_ROUTE_SALES_CHANNEL,
+            'Missing sales channel context for route {{ route }}',
+            ['route' => $route]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function unsupportedOperator(string $operator, string $class): self|UnsupportedOperatorException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new UnsupportedOperatorException($operator, $class);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::OPERATOR_NOT_SUPPORTED,
+            'Unsupported operator {{ operator }} in {{ class }}',
+            ['operator' => $operator, 'class' => $class]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function unsupportedValue(string $type, string $class): self|UnsupportedValueException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new UnsupportedValueException($type, $class);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::VALUE_NOT_SUPPORTED,
+            'Unsupported value of type {{ type }} in {{ class }}',
+            ['type' => $type, 'class' => $class]
+        );
+    }
+
+    public static function missingRequestParameter(string $name): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_REQUEST_PARAMETER_CODE,
+            'Parameter "{{ parameterName }}" is missing.',
+            ['parameterName' => $name]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function productNotFound(string $productId): self|ProductNotFoundException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new ProductNotFoundException($productId);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_REQUEST_PARAMETER_CODE,
+            'Product for id {{ productId }} not found.',
+            ['productId' => $productId]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function missingOption(string $option, string $constraint): self|MissingOptionsException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new MissingOptionsException(\sprintf('Option "%s" must be given for constraint %s', $option, $constraint), ['context']);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_OPTIONS,
+            'Option "{{ option }}" must be given for constraint {{ constraint }}',
+            ['option' => $option, 'constraint' => $constraint]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function unexpectedType(Constraint $constraint, string $class): self|UnexpectedTypeException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new UnexpectedTypeException($constraint, CustomerEmailUnique::class);
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::UNEXPECTED_TYPE,
+            'Expected argument of type "{{ expectedType }}", "{{ givenType }}" given',
+            ['expectedType' => $class, 'givenType' => get_debug_type($constraint)]
+        );
     }
 }

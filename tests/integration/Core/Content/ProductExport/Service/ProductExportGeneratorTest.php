@@ -51,8 +51,8 @@ class ProductExportGeneratorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('product_export.repository');
-        $this->service = $this->getContainer()->get(ProductExportGenerator::class);
+        $this->repository = static::getContainer()->get('product_export.repository');
+        $this->service = static::getContainer()->get(ProductExportGenerator::class);
         $this->context = Context::createDefaultContext();
     }
 
@@ -83,7 +83,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $exportBehavior = new ExportBehavior();
 
-        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $eventDispatcher = static::getContainer()->get('event_dispatcher');
 
         $productExportProductCriteriaEventDispatched = false;
         $productExportProductCriteriaCallback = function () use (
@@ -119,21 +119,21 @@ class ProductExportGeneratorTest extends TestCase
         );
 
         $exportGenerator = new ProductExportGenerator(
-            $this->getContainer()->get(ProductStreamBuilder::class),
-            $this->getContainer()->get('sales_channel.product.repository'),
-            $this->getContainer()->get(ProductExportRenderer::class),
+            static::getContainer()->get(ProductStreamBuilder::class),
+            static::getContainer()->get('sales_channel.product.repository'),
+            static::getContainer()->get(ProductExportRenderer::class),
             $eventDispatcher,
-            $this->getContainer()->get(ProductExportValidator::class),
-            $this->getContainer()->get(SalesChannelContextService::class),
-            $this->getContainer()->get(Translator::class),
-            $this->getContainer()->get(SalesChannelContextPersister::class),
-            $this->getContainer()->get(Connection::class),
+            static::getContainer()->get(ProductExportValidator::class),
+            static::getContainer()->get(SalesChannelContextService::class),
+            static::getContainer()->get(Translator::class),
+            static::getContainer()->get(SalesChannelContextPersister::class),
+            static::getContainer()->get(Connection::class),
             100,
-            $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class),
-            $this->getContainer()->get('twig'),
-            $this->getContainer()->get(ProductDefinition::class),
-            $this->getContainer()->get(LanguageLocaleCodeProvider::class),
-            $this->getContainer()->get(TwigVariableParserFactory::class)
+            static::getContainer()->get(SeoUrlPlaceholderHandlerInterface::class),
+            static::getContainer()->get('twig'),
+            static::getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(LanguageLocaleCodeProvider::class),
+            static::getContainer()->get(TwigVariableParserFactory::class)
         );
 
         $exportGenerator->generate($productExport, $exportBehavior);
@@ -158,7 +158,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $exportBehavior = new ExportBehavior();
 
-        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $eventDispatcher = static::getContainer()->get('event_dispatcher');
 
         $productExportProductCriteriaEventDispatched = false;
         $productExportProductCriteriaCallback = function (ProductExportProductCriteriaEvent $event) use (
@@ -186,21 +186,21 @@ class ProductExportGeneratorTest extends TestCase
         );
 
         $exportGenerator = new ProductExportGenerator(
-            $this->getContainer()->get(ProductStreamBuilder::class),
-            $this->getContainer()->get('sales_channel.product.repository'),
-            $this->getContainer()->get(ProductExportRenderer::class),
+            static::getContainer()->get(ProductStreamBuilder::class),
+            static::getContainer()->get('sales_channel.product.repository'),
+            static::getContainer()->get(ProductExportRenderer::class),
             $eventDispatcher,
-            $this->getContainer()->get(ProductExportValidator::class),
-            $this->getContainer()->get(SalesChannelContextService::class),
-            $this->getContainer()->get(Translator::class),
-            $this->getContainer()->get(SalesChannelContextPersister::class),
-            $this->getContainer()->get(Connection::class),
+            static::getContainer()->get(ProductExportValidator::class),
+            static::getContainer()->get(SalesChannelContextService::class),
+            static::getContainer()->get(Translator::class),
+            static::getContainer()->get(SalesChannelContextPersister::class),
+            static::getContainer()->get(Connection::class),
             100,
-            $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class),
-            $this->getContainer()->get('twig'),
-            $this->getContainer()->get(ProductDefinition::class),
-            $this->getContainer()->get(LanguageLocaleCodeProvider::class),
-            $this->getContainer()->get(TwigVariableParserFactory::class)
+            static::getContainer()->get(SeoUrlPlaceholderHandlerInterface::class),
+            static::getContainer()->get('twig'),
+            static::getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(LanguageLocaleCodeProvider::class),
+            static::getContainer()->get(TwigVariableParserFactory::class)
         );
 
         try {
@@ -290,7 +290,7 @@ class ProductExportGeneratorTest extends TestCase
     private function getSalesChannelId(): string
     {
         /** @var EntityRepository $repository */
-        $repository = $this->getContainer()->get('sales_channel.repository');
+        $repository = static::getContainer()->get('sales_channel.repository');
 
         $salesChannel = $repository->search(new Criteria(), $this->context)->first();
         static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
@@ -301,7 +301,7 @@ class ProductExportGeneratorTest extends TestCase
     private function getSalesChannelDomain(): SalesChannelDomainEntity
     {
         /** @var EntityRepository $repository */
-        $repository = $this->getContainer()->get('sales_channel_domain.repository');
+        $repository = static::getContainer()->get('sales_channel_domain.repository');
 
         $salesChannelDomain = $repository->search(new Criteria(), $this->context)->first();
         static::assertInstanceOf(SalesChannelDomainEntity::class, $salesChannelDomain);
@@ -346,7 +346,7 @@ class ProductExportGeneratorTest extends TestCase
 
     private function createProductStream(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $randomProductIds = implode('|', \array_slice(array_column($this->createProducts(), 'id'), 0, 2));
 
@@ -370,7 +370,7 @@ class ProductExportGeneratorTest extends TestCase
      */
     private function createProducts(): array
     {
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $manufacturerId = Uuid::randomHex();
         $taxId = Uuid::randomHex();
         $salesChannelId = $this->getSalesChannelDomain()->getSalesChannelId();

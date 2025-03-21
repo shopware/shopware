@@ -1,14 +1,11 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_import_export_new_profile_wizard_csv_page %}
 <div class="sw-import-export-new-profile-wizard-csv-page">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_new_profile_wizard_csv_page_text %}
     <p class="sw-import-export-new-profile-wizard-csv-page__text">
         {{ $tc('sw-import-export.profile.csvUploadText') }}
     </p>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_new_profile_wizard_csv_page_csv_upload %}
     <sw-file-input
         v-model:value="csvFile"

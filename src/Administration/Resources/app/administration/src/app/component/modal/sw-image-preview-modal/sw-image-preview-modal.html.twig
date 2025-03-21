@@ -1,17 +1,13 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_image_preview_modal %}
 <transition
     name="sw-image-preview-modal-fade"
     appear
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_image_preview_modal_element %}
     <div class="sw-image-preview-modal">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_image_preview_modal_action %}
         <div class="sw-image-preview-modal__action">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_image_preview_modal_button_zoom_out %}
             <button
                 ref="btnZoomOut"
@@ -20,11 +16,10 @@
                 :disabled="isDisabledZoomOut"
                 @click="onClickZoomOut"
             >
-                <sw-icon name="regular-minus-circle" />
+                <mt-icon name="regular-minus-circle" />
             </button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_image_preview_modal_button_zoom_reset %}
             <button
                 ref="btnReset"
@@ -33,11 +28,10 @@
                 :disabled="isDisabledReset"
                 @click="onClickReset"
             >
-                <sw-icon name="regular-compress-arrows" />
+                <mt-icon name="regular-compress-arrows" />
             </button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_image_preview_modal_button_zoom_in %}
             <button
                 ref="btnZoomIn"
@@ -46,13 +40,12 @@
                 :disabled="isDisabledZoomIn"
                 @click="onClickZoomIn"
             >
-                <sw-icon name="regular-plus-circle" />
+                <mt-icon name="regular-plus-circle" />
             </button>
             {% endblock %}
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_image_preview_modal_button_close %}
         <div
             class="sw-image-preview-modal__button-close"
@@ -61,11 +54,10 @@
             @click="onClickClose"
             @keydown.enter="onClickClose"
         >
-            <sw-icon name="regular-times" />
+            <mt-icon name="regular-times" />
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_image_preview_modal_image_slider %}
         <sw-image-slider
             class="sw-image-preview-modal__image-slider"
@@ -83,7 +75,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_image_preview_modal_divider %}
         <hr
             v-if="images.length > 1"
@@ -91,7 +82,6 @@
         >
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_image_preview_modal_thumbnail_slider %}
         <sw-image-slider
             v-if="images.length > 1"

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
@@ -67,12 +67,6 @@ async function createWrapper() {
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-field-error': true,
-                    'sw-icon': true,
-                    'sw-text-field': {
-                        template:
-                            '<input class="sw-text-field" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
-                        props: ['value'],
-                    },
                     'sw-media-compact-upload-v2': true,
                     'sw-upload-listener': true,
                     'sw-select-field': true,
@@ -99,7 +93,7 @@ describe('module/sw-cms/component/sw-cms-block-config', () => {
 
     it('should be able to config block name', async () => {
         const wrapper = await createWrapper();
-        const blockNameField = await wrapper.find('.sw-text-field');
+        const blockNameField = await wrapper.find('.mt-text-field input');
 
         expect(wrapper.vm.block.name).toBe(block.name);
         await blockNameField.setValue('test');

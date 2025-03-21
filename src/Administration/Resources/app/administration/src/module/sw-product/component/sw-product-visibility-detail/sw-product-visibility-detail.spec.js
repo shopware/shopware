@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 const salesChannelFixture = {
@@ -26,29 +26,17 @@ const productFixture = {
 };
 
 function createStateMapper(customProduct = {}) {
-    if (Shopware.State.list().includes('swProductDetail')) {
-        Shopware.State.unregisterModule('swProductDetail');
-    }
-
-    const newModule = {
-        state: {
+    Shopware.Store.unregister('swProductDetail');
+    Shopware.Store.register({
+        id: 'swProductDetail',
+        state: () => ({
+            isLoading: false,
+            isSavedSuccessful: false,
             product: {
                 ...productFixture,
                 ...customProduct,
             },
-        },
-    };
-
-    Shopware.State.registerModule('swProductDetail', {
-        ...{
-            namespaced: true,
-            state: {
-                isLoading: false,
-                isSavedSuccessful: false,
-                product: productFixture,
-            },
-        },
-        ...newModule,
+        }),
     });
 }
 
@@ -67,11 +55,6 @@ async function createWrapper() {
                     'sw-pagination': await wrapTestComponent('sw-pagination'),
                     'sw-grid-row': await wrapTestComponent('sw-grid-row'),
                     'sw-grid-column': await wrapTestComponent('sw-grid-column'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                    'sw-icon': {
-                        template: '<div></div>',
-                    },
                     'sw-field-error': {
                         template: '<div></div>',
                     },
@@ -97,7 +80,7 @@ describe('src/module/sw-settings-listing/component/sw-product-visibility-detail'
                     return false;
                 }
 
-                return msg.includes('does not exists in given options');
+                return msg.includes('does not exist in given options');
             },
         });
     });

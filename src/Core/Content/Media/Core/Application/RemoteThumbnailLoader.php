@@ -17,13 +17,13 @@ use Symfony\Contracts\Service\ResetInterface;
  *
  * @final
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class RemoteThumbnailLoader implements ResetInterface
 {
     /**
-     * @var array<string, array<array{width: string, height: string}>>
+     * @var ?array<string, array<array{width: string, height: string}>>
      */
-    private array $mediaFolderThumbnailSizes = [];
+    private ?array $mediaFolderThumbnailSizes = null;
 
     /**
      * @internal
@@ -101,7 +101,7 @@ class RemoteThumbnailLoader implements ResetInterface
 
     public function reset(): void
     {
-        $this->mediaFolderThumbnailSizes = [];
+        $this->mediaFolderThumbnailSizes = null;
     }
 
     /**
@@ -133,7 +133,7 @@ class RemoteThumbnailLoader implements ResetInterface
      */
     private function getMediaThumbnailSizes(): array
     {
-        if (!empty($this->mediaFolderThumbnailSizes)) {
+        if ($this->mediaFolderThumbnailSizes !== null) {
             return $this->mediaFolderThumbnailSizes;
         }
 
@@ -167,10 +167,20 @@ class RemoteThumbnailLoader implements ResetInterface
 
     private function getUrl(string $mediaUrl, string $mediaPath, string $width, string $height, ?\DateTimeInterface $mediaUpdatedAt): string
     {
-        return str_replace(
+        $replacements = [
+            str_starts_with($mediaPath, 'http') ? '' : $mediaUrl,
+            $mediaPath,
+            $width,
+            $height,
+            (string) $mediaUpdatedAt?->getTimestamp() ?: '',
+        ];
+
+        $url = str_replace(
             ['{mediaUrl}', '{mediaPath}', '{width}', '{height}', '{mediaUpdatedAt}'],
-            [$mediaUrl, $mediaPath, $width, $height, $mediaUpdatedAt?->getTimestamp() ?: ''],
+            $replacements,
             $this->pattern
         );
+
+        return str_starts_with($mediaPath, 'http') ? ltrim($url, '/') : $url;
     }
 }

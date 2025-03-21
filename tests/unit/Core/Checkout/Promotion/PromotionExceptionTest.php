@@ -4,11 +4,17 @@ namespace Shopware\Tests\Unit\Core\Checkout\Promotion;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Exception\FilterPickerNotFoundException;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Exception\FilterSorterNotFoundException;
+use Shopware\Core\Checkout\Promotion\Exception\DiscountCalculatorNotFoundException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidCodePatternException;
+use Shopware\Core\Checkout\Promotion\Exception\InvalidScopeDefinitionException;
 use Shopware\Core\Checkout\Promotion\Exception\PatternNotComplexEnoughException;
-use Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException;
+use Shopware\Core\Checkout\Promotion\Exception\PriceNotFoundException;
 use Shopware\Core\Checkout\Promotion\PromotionException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,7 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('checkout')]
 #[CoversClass(PromotionException::class)]
 class PromotionExceptionTest extends TestCase
 {
@@ -92,17 +98,6 @@ class PromotionExceptionTest extends TestCase
         static::assertSame(['code' => 'code-123'], $exception->getParameters());
     }
 
-    #[DisabledFeatures(['v6.7.0.0'])]
-    public function testUnknownPromotionDiscountTypeWithDisableFeature(): void
-    {
-        $promotion = new PromotionDiscountEntity();
-        $promotion->setType('test');
-
-        $exception = PromotionException::unknownPromotionDiscountType($promotion);
-
-        static::assertInstanceOf(UnknownPromotionDiscountTypeException::class, $exception);
-    }
-
     public function testUnknownPromotionDiscountType(): void
     {
         $promotion = new PromotionDiscountEntity();
@@ -110,10 +105,115 @@ class PromotionExceptionTest extends TestCase
 
         $exception = PromotionException::unknownPromotionDiscountType($promotion);
 
-        static::assertInstanceOf(PromotionException::class, $exception);
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(PromotionException::CHECKOUT_UNKNOWN_PROMOTION_DISCOUNT_TYPE, $exception->getErrorCode());
         static::assertSame('Unknown promotion discount type detected: test', $exception->getMessage());
         static::assertSame(['type' => 'test'], $exception->getParameters());
+    }
+
+    public function testPromotionSetGroupNotFound(): void
+    {
+        $exception = PromotionException::promotionSetGroupNotFound('fooGroupId');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(PromotionException::PROMOTION_SET_GROUP_NOT_FOUND, $exception->getErrorCode());
+        static::assertSame('Promotion SetGroup "fooGroupId" has not been found!', $exception->getMessage());
+        static::assertSame(['id' => 'fooGroupId'], $exception->getParameters());
+    }
+
+    public function testDiscountCalculatorNotFound(): void
+    {
+        $exception = PromotionException::discountCalculatorNotFound('type-123');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(PromotionException::DISCOUNT_CALCULATOR_NOT_FOUND, $exception->getErrorCode());
+        static::assertSame('Promotion Discount Calculator "type-123" has not been found!', $exception->getMessage());
+        static::assertSame(['type' => 'type-123'], $exception->getParameters());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testDiscountCalculatorNotFoundDeprecated(): void
+    {
+        $exception = PromotionException::discountCalculatorNotFound('type-123');
+
+        static::assertInstanceOf(DiscountCalculatorNotFoundException::class, $exception);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame('CHECKOUT__DISCOUNT_CALCULATOR_NOT_FOUND', $exception->getErrorCode());
+        static::assertSame('Promotion Discount Calculator "type-123" has not been found!', $exception->getMessage());
+        static::assertSame(['type' => 'type-123'], $exception->getParameters());
+    }
+
+    public function testInvalidScopeDefinition(): void
+    {
+        $exception = PromotionException::invalidScopeDefinition('bad-scope');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(PromotionException::INVALID_DISCOUNT_SCOPE_DEFINITION, $exception->getErrorCode());
+        static::assertSame('Invalid discount calculator scope definition "bad-scope"', $exception->getMessage());
+        static::assertSame(['label' => 'bad-scope'], $exception->getParameters());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testInvalidScopeDefinitionDeprecated(): void
+    {
+        $exception = PromotionException::invalidScopeDefinition('bad-scope');
+
+        static::assertInstanceOf(InvalidScopeDefinitionException::class, $exception);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame('CHECKOUT__INVALID_DISCOUNT_SCOPE_DEFINITION', $exception->getErrorCode());
+        static::assertSame('Invalid discount calculator scope definition "bad-scope"', $exception->getMessage());
+        static::assertSame(['label' => 'bad-scope'], $exception->getParameters());
+    }
+
+    public function testMissingRequestParameter(): void
+    {
+        $exception = PromotionException::missingRequestParameter('parameter');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(PromotionException::MISSING_REQUEST_PARAMETER_CODE, $exception->getErrorCode());
+        static::assertSame('Parameter "parameter" is missing.', $exception->getMessage());
+        static::assertSame(['parameterName' => 'parameter'], $exception->getParameters());
+    }
+
+    public function testPriceNotFound(): void
+    {
+        $exception = PromotionException::priceNotFound(new LineItem('test', 'test'));
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertInstanceOf(PriceNotFoundException::class, $exception);
+        }
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(PromotionException::PRICE_NOT_FOUND_FOR_ITEM, $exception->getErrorCode());
+        static::assertSame('No calculated price found for item test', $exception->getMessage());
+        static::assertSame(['id' => 'test'], $exception->getParameters());
+    }
+
+    public function testFilterSorterNotFound(): void
+    {
+        $exception = PromotionException::filterSorterNotFound('filter-123');
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertInstanceOf(FilterSorterNotFoundException::class, $exception);
+        }
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(PromotionException::FILTER_SORTER_NOT_FOUND, $exception->getErrorCode());
+        static::assertSame('Sorter "filter-123" has not been found!', $exception->getMessage());
+        static::assertSame(['key' => 'filter-123'], $exception->getParameters());
+    }
+
+    public function testFilterPickerNotFoundException(): void
+    {
+        $exception = PromotionException::filterPickerNotFoundException('filter-123');
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertInstanceOf(FilterPickerNotFoundException::class, $exception);
+        }
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(PromotionException::FILTER_PICKER_NOT_FOUND, $exception->getErrorCode());
+        static::assertSame('Picker "filter-123" has not been found!', $exception->getMessage());
+        static::assertSame(['key' => 'filter-123'], $exception->getParameters());
     }
 }

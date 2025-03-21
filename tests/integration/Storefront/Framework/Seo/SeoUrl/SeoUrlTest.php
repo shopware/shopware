@@ -4,10 +4,12 @@ namespace Shopware\Tests\Integration\Storefront\Framework\Seo\SeoUrl;
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\LandingPage\LandingPageEntity;
+use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
@@ -29,9 +31,8 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('inventory')]
 #[Group('slow')]
-#[Group('skip-paratest')]
 class SeoUrlTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -39,14 +40,20 @@ class SeoUrlTest extends TestCase
     use SalesChannelApiTestBehaviour;
     use StorefrontSalesChannelTestHelper;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
+    /**
+     * @var EntityRepository<LandingPageCollection>
+     */
     private EntityRepository $landingPageRepository;
 
     protected function setUp(): void
     {
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->landingPageRepository = $this->getContainer()->get('landing_page.repository');
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->landingPageRepository = static::getContainer()->get('landing_page.repository');
     }
 
     public function testSearchLandingPage(): void
@@ -63,13 +70,12 @@ class SeoUrlTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('seoUrls');
 
-        /** @var LandingPageEntity $landingPage */
-        $landingPage = $this->landingPageRepository->search($criteria, $salesChannelContext->getContext())->first();
+        $landingPage = $this->landingPageRepository->search($criteria, $salesChannelContext->getContext())->getEntities()->first();
+        static::assertNotNull($landingPage);
 
-        static::assertInstanceOf(SeoUrlCollection::class, $landingPage->getSeoUrls());
-
-        /** @var SeoUrlCollection $seoUrls */
         $seoUrls = $landingPage->getSeoUrls();
+        static::assertNotNull($seoUrls);
+
         $seoUrl = $seoUrls->first();
         static::assertInstanceOf(SeoUrlEntity::class, $seoUrl);
         static::assertEquals('coolUrl', $seoUrl->getSeoPathInfo());
@@ -99,16 +105,13 @@ class SeoUrlTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('seoUrls');
 
-        /** @var ProductEntity $first */
-        $first = $this->landingPageRepository->search($criteria, Context::createDefaultContext())->first();
-
+        $first = $this->landingPageRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertNotNull($first);
 
-        /** @var SeoUrlCollection $urls */
         $urls = $first->getSeoUrls();
+        static::assertNotNull($urls);
 
         // Old seo url
-        /** @var SeoUrlEntity|null $seoUrl */
         $seoUrl = $urls->filterByProperty('seoPathInfo', 'coolUrl')->first();
         static::assertNotNull($seoUrl);
 
@@ -185,7 +188,7 @@ class SeoUrlTest extends TestCase
         $salesChannelId = Uuid::randomHex();
         $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
-        $categoryRepository = $this->getContainer()->get('category.repository');
+        $categoryRepository = static::getContainer()->get('category.repository');
 
         $rootId = Uuid::randomHex();
         $childAId = Uuid::randomHex();
@@ -224,7 +227,7 @@ class SeoUrlTest extends TestCase
         $salesChannelId = Uuid::randomHex();
         $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
-        $categoryRepository = $this->getContainer()->get('category.repository');
+        $categoryRepository = static::getContainer()->get('category.repository');
 
         $categoryPageId = Uuid::randomHex();
         $categoryPage = [
@@ -266,7 +269,7 @@ class SeoUrlTest extends TestCase
             'test'
         );
 
-        $categoryRepository = $this->getContainer()->get('category.repository');
+        $categoryRepository = static::getContainer()->get('category.repository');
 
         $rootId = Uuid::randomHex();
         $childAId = Uuid::randomHex();
@@ -317,7 +320,7 @@ class SeoUrlTest extends TestCase
             'test'
         );
 
-        $categoryRepository = $this->getContainer()->get('category.repository');
+        $categoryRepository = static::getContainer()->get('category.repository');
 
         $rootId = Uuid::randomHex();
         $childAId = Uuid::randomHex();
@@ -399,8 +402,8 @@ class SeoUrlTest extends TestCase
 
     public function testSearchWithLimit(): void
     {
-        /** @var EntityRepository $productRepo */
-        $productRepo = $this->getContainer()->get('product.repository');
+        /** @var EntityRepository<ProductCollection> $productRepo */
+        $productRepo = static::getContainer()->get('product.repository');
 
         $productRepo->create([[
             'id' => Uuid::randomHex(),
@@ -429,8 +432,8 @@ class SeoUrlTest extends TestCase
 
     public function testSearchWithFilter(): void
     {
-        /** @var EntityRepository $productRepo */
-        $productRepo = $this->getContainer()->get('product.repository');
+        /** @var EntityRepository<ProductCollection> $productRepo */
+        $productRepo = static::getContainer()->get('product.repository');
 
         $productRepo->create([[
             'id' => Uuid::randomHex(),
@@ -511,16 +514,12 @@ class SeoUrlTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('seoUrls');
 
-        /** @var ProductEntity $first */
-        $first = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
-
+        $first = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertNotNull($first);
 
-        /** @var SeoUrlCollection $seoUrls */
         $seoUrls = $first->getSeoUrls();
         static::assertNotNull($seoUrls);
 
-        /** @var SeoUrlEntity|null $seoUrl */
         $seoUrl = $seoUrls->filterByProperty('id', $seoUrlId1)->first();
         static::assertNotNull($seoUrl);
 
@@ -536,7 +535,7 @@ class SeoUrlTest extends TestCase
         $id = Uuid::randomHex();
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product']);
 
-        $router = $this->getContainer()->get('router');
+        $router = static::getContainer()->get('router');
         $pathInfo = $router->generate(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $id]);
 
         $this->upsertProduct([
@@ -555,15 +554,12 @@ class SeoUrlTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('seoUrls');
 
-        /** @var ProductEntity $first */
-        $first = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
-
+        $first = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertNotNull($first);
 
-        /** @var SeoUrlCollection $urls */
         $urls = $first->getSeoUrls();
+        static::assertNotNull($urls);
 
-        /** @var SeoUrlEntity|null $seoUrl */
         $seoUrl = $urls->filterByProperty('id', $seoUrlId)->first();
         static::assertNotNull($seoUrl);
 
@@ -576,6 +572,7 @@ class SeoUrlTest extends TestCase
 
     /**
      * @param array<array{expected: string|null, categoryId: string}> $cases
+     * @param EntityRepository<CategoryCollection> $categoryRepository
      */
     private function runChecks(array $cases, EntityRepository $categoryRepository, Context $context, string $salesChannelId): void
     {

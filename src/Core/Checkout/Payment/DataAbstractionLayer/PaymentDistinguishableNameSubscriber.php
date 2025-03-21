@@ -11,7 +11,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('checkout')]
 class PaymentDistinguishableNameSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array
@@ -21,9 +21,11 @@ class PaymentDistinguishableNameSubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @param EntityLoadedEvent<PaymentMethodEntity> $event
+     */
     public function addDistinguishablePaymentName(EntityLoadedEvent $event): void
     {
-        /** @var PaymentMethodEntity $payment */
         foreach ($event->getEntities() as $payment) {
             if ($payment->getTranslation('distinguishableName') === null) {
                 $payment->addTranslated('distinguishableName', $payment->getTranslation('name'));

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Script\Facade\ArrayFacade;
 use Shopware\Core\Framework\Script\ScriptException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('core')]
+#[Package('framework')]
 class ScriptResponse
 {
     private ArrayFacade $body;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Route;
 
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Controller\ApiController;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -11,7 +12,7 @@ use Symfony\Component\Config\Loader\Loader;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 
-#[Package('core')]
+#[Package('framework')]
 class ApiRouteLoader extends Loader
 {
     /**
@@ -32,7 +33,7 @@ class ApiRouteLoader extends Loader
     public function load(mixed $resource, ?string $type = null): RouteCollection
     {
         if ($this->isLoaded) {
-            throw new \RuntimeException('Do not add the "api" loader twice');
+            throw ApiException::apiRoutesAreAlreadyLoaded();
         }
 
         $routes = new RouteCollection();
@@ -121,6 +122,15 @@ class ApiRouteLoader extends Loader
             $route->addRequirements(['path' => $listSuffix, 'version' => '\d+']);
             $route->setOption(self::DYNAMIC_RESOURCE_ROOT_PATH, '/api/search-ids/' . $resourceName);
             $routes->add('api.' . $entityName . '.search-ids', $route);
+
+            $route = new Route('/api/aggregate/' . $resourceName . '{path}');
+            $route->setMethods(['POST']);
+            $route->setDefault('_controller', $class . '::aggregate');
+            $route->setDefault('entityName', $resourceName);
+            $route->setDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['api']);
+            $route->addRequirements(['path' => $listSuffix, 'version' => '\d+']);
+            $route->setOption(self::DYNAMIC_RESOURCE_ROOT_PATH, '/api/aggregate/' . $resourceName);
+            $routes->add('api.' . $entityName . '.aggregate', $route);
 
             $route = new Route('/api/' . $resourceName . '{path}');
             $route->setMethods(['POST']);

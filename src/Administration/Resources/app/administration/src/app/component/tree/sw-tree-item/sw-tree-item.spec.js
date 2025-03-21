@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -17,7 +17,6 @@ async function createWrapper() {
         global: {
             renderStubDefaultSlot: true,
             stubs: {
-                'sw-icon': true,
                 'sw-field': true,
                 'sw-context-button': true,
                 'sw-context-menu-item': true,

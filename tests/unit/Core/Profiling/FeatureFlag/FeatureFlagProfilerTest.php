@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(FeatureFlagProfiler::class)]
 class FeatureFlagProfilerTest extends TestCase
 {
@@ -29,7 +29,7 @@ class FeatureFlagProfilerTest extends TestCase
             ],
         ]);
         $featureFlagService = $this->createMock(FeatureFlagRegistry::class);
-        $featureFlagService->expects(static::once())->method('register');
+        $featureFlagService->expects($this->once())->method('register');
 
         $profiler = new FeatureFlagProfiler($featureFlagService);
         $profiler->collect(new Request(), new Response());

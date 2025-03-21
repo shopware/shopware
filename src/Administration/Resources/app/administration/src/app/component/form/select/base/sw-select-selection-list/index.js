@@ -4,7 +4,7 @@ import './sw-select-selection-list.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -13,8 +13,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-select-selection-list', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -93,33 +91,17 @@ Component.register('sw-select-selection-list', {
             required: false,
             default: false,
         },
-    },
-
-    data() {
-        return {
-            /**
-             * @deprecated tag:v6.7.0 - Will be removed
-             */
-            tagLimit: true,
-        };
+        inputLabel: {
+            type: String,
+            required: false,
+            default: undefined,
+        },
     },
 
     computed: {
         showPlaceholder() {
             return this.alwaysShowPlaceholder || this.selections.length === 0 || this.hideLabels ? this.placeholder : '';
         },
-
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
-        // eslint-disable-next-line vue/return-in-computed-property
-        visibleTags() {},
-
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
-        // eslint-disable-next-line vue/return-in-computed-property
-        numberOfHiddenTags() {},
     },
 
     methods: {
@@ -168,10 +150,5 @@ Component.register('sw-select-selection-list', {
         getFocusEl() {
             return this.$refs.swSelectInput;
         },
-
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
-        removeTagLimit() {},
     },
 });

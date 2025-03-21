@@ -12,7 +12,7 @@ use Twig\Node\Expression\NameExpression;
 use Twig\Node\ForNode;
 use Twig\Node\Node;
 
-#[Package('core')]
+#[Package('framework')]
 class TwigVariableParser
 {
     /**
@@ -22,6 +22,9 @@ class TwigVariableParser
     {
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function parse(string $template): array
     {
         $loader = new ArrayLoader(['content.html.twig' => $template]);
@@ -35,6 +38,12 @@ class TwigVariableParser
         return array_values($this->getVariables($parsed));
     }
 
+    /**
+     * @param array<Node> $nodes
+     * @param array<mixed> $aliases
+     *
+     * @return array<mixed>
+     */
     private function getVariables(iterable $nodes, array $aliases = []): array
     {
         $variables = [];

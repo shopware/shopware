@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_first_run_wizard_paypal_info %}
 <div class="sw-first-run-wizard-paypal">
     <div
@@ -7,7 +6,7 @@
     >
         <img
             class="sw-first-run-wizard-paypal-info__icon"
-            :src="assetFilter('/administration/static/img/paypal-official-logo.svg')"
+            :src="assetFilter('/administration/administration/static/img/paypal-official-logo.svg')"
             alt=""
         >
 
@@ -20,28 +19,28 @@
             class="paymethods"
         >
             <div class="paymethod">
-                <sw-icon
+                <mt-icon
                     name="regular-check-circle"
                     size="12px"
                 />
                 <span>{{ $tc('sw-first-run-wizard.paypalInfo.paymethod.paypal') }}</span>
             </div>
             <div class="paymethod">
-                <sw-icon
+                <mt-icon
                     name="regular-check-circle"
                     size="12px"
                 />
                 <span>{{ $tc('sw-first-run-wizard.paypalInfo.paymethod.debit') }}</span>
             </div>
             <div class="paymethod">
-                <sw-icon
+                <mt-icon
                     name="regular-check-circle"
                     size="12px"
                 />
                 <span>{{ $tc('sw-first-run-wizard.paypalInfo.paymethod.creditcard') }}</span>
             </div>
             <div class="paymethod">
-                <sw-icon
+                <mt-icon
                     name="regular-check-circle"
                     size="12px"
                 />
@@ -52,13 +51,12 @@
             v-if="pluginInstallationFailed"
             class="sw-first-run-wizard-paypal__error"
         >
-            <sw-alert
+            <mt-banner
                 :title="pluginError.title"
-                variant="error"
-                appearance="notification"
+                variant="critical"
             >
                 {{ pluginError.detail }}
-            </sw-alert>
+            </mt-banner>
         </div>
         <div class="disclaimer">
             <p>{{ $tc('sw-first-run-wizard.paypalInfo.disclaimerLineOne') }}</p>

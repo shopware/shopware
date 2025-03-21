@@ -4,9 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Attribute;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-class ReferenceVersion extends Field
+final class ReferenceVersion extends Field
 {
     public const TYPE = 'reference-version';
 

@@ -9,11 +9,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('core')]
+#[Package('framework')]
 class StopwordTokenFilter extends AbstractTokenFilter
 {
-    private const DEFAULT_MIN_SEARCH_TERM_LENGTH = 2;
-
     /**
      * @var array<string, int>
      */

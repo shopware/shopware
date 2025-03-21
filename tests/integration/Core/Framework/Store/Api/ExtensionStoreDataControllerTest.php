@@ -25,7 +25,7 @@ class ExtensionStoreDataControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->controller = $this->getContainer()->get(ExtensionStoreDataController::class);
+        $this->controller = static::getContainer()->get(ExtensionStoreDataController::class);
     }
 
     public function testInstalled(): void

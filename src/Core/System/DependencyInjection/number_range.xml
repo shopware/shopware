@@ -56,16 +56,12 @@
         </service>
 
         <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageRegistry">
-            <argument type="tagged" tag="shopware.value_generator_connector" index-by="storage"/>
+            <argument type="tagged_iterator" tag="shopware.value_generator_connector" index-by="storage"/>
             <argument>%shopware.number_range.increment_storage%</argument>
         </service>
 
         <service id="shopware.number_range.redis" class="Redis">
-            <!-- @deprecated tag:v6.7.0 - Replace factory method with getConnection on the next line -->
-            <factory service="Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider" method="getOrCreateFromDsn"/>
             <argument>%shopware.number_range.config.connection%</argument>
-            <!-- @deprecated tag:v6.7.0 - remove next line (dsn argument) -->
-            <argument>%shopware.number_range.config.dsn%</argument>
         </service>
 
         <service class="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGenerator"
@@ -77,7 +73,7 @@
         </service>
 
         <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry">
-            <argument type="tagged" tag="shopware.value_generator_pattern"/>
+            <argument type="tagged_iterator" tag="shopware.value_generator_pattern"/>
         </service>
 
         <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternIncrement">

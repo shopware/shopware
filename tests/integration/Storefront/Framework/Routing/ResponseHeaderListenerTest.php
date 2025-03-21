@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\TestDefaults;
@@ -22,7 +23,6 @@ class ResponseHeaderListenerTest extends TestCase
         'frontend.account.order.page' => [],
         'frontend.account.order.single.page' => ['deepLinkCode' => 'abc'],
         'frontend.account.edit-order.page' => ['orderId' => 'abc'],
-        'frontend.account.payment.page' => [],
         'frontend.account.home.page' => [],
         'frontend.account.profile.page' => [],
         'frontend.account.address.page' => [],
@@ -95,7 +95,7 @@ class ResponseHeaderListenerTest extends TestCase
     #[DataProvider('dataProviderRevalidateRoutes')]
     public function testNoStoreHeaderPresent(string $routeName, array $routeParameters): void
     {
-        $router = $this->getContainer()->get('router');
+        $router = static::getContainer()->get('router');
         $route = $router->generate($routeName, $routeParameters);
 
         $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel());
@@ -123,11 +123,7 @@ class ResponseHeaderListenerTest extends TestCase
      */
     private function toggleNotFoundSubscriber(bool $debug): void
     {
-        $subscriber = $this->getContainer()->get(NotFoundSubscriber::class);
-        $reflection = new \ReflectionClass($subscriber);
-        $reflectionProperty = $reflection->getProperty('kernelDebug');
-
-        $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($subscriber, $debug);
+        $subscriber = static::getContainer()->get(NotFoundSubscriber::class);
+        ReflectionHelper::getProperty($subscriber::class, 'kernelDebug')->setValue($subscriber, $debug);
     }
 }

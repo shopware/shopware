@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
 
@@ -52,11 +52,10 @@ async function createWrapper(privileges = []) {
                 stubs: {
                     'sw-settings-search-live-search': true,
                     'sw-settings-search-search-index': await wrapTestComponent('sw-settings-search-search-index'),
-                    'sw-card': true,
                     'sw-button-process': true,
-                    'sw-alert': true,
+
                     'sw-time-ago': true,
-                    'sw-progress-bar': true,
+                    'mt-progress-bar': true,
                 },
             },
         },

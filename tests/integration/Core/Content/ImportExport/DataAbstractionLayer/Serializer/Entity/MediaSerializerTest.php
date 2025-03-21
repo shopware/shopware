@@ -31,7 +31,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class MediaSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -39,8 +39,8 @@ class MediaSerializerTest extends TestCase
     public function testDeserializeDownloadsAndPersistsMedia(): void
     {
         $context = Context::createDefaultContext();
-        $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
-        $mediaDefinition = $this->getContainer()->get(MediaDefinition::class);
+        $serializerRegistry = static::getContainer()->get(SerializerRegistry::class);
+        $mediaDefinition = static::getContainer()->get(MediaDefinition::class);
 
         $mediaService = $this->createMock(MediaService::class);
         $fileSaver = $this->createMock(FileSaver::class);
@@ -69,11 +69,11 @@ class MediaSerializerTest extends TestCase
             'png',
             1337
         );
-        $mediaService->expects(static::once())
+        $mediaService->expects($this->once())
             ->method('fetchFile')
             ->willReturn($expectedMediaFile);
 
-        $fileSaver->expects(static::once())
+        $fileSaver->expects($this->once())
             ->method('persistFileToMedia')
             ->willReturnCallback(function (MediaFile $m, string $dest, string $id) use ($expectedMediaFile, $expectedDestination, $mediaId): void {
                 $this->assertSame($expectedMediaFile, $m);
@@ -92,8 +92,8 @@ class MediaSerializerTest extends TestCase
     public function testExistingMediaWithSameUrlDoesNotDownload(): void
     {
         $context = Context::createDefaultContext();
-        $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
-        $mediaDefinition = $this->getContainer()->get(MediaDefinition::class);
+        $serializerRegistry = static::getContainer()->get(SerializerRegistry::class);
+        $mediaDefinition = static::getContainer()->get(MediaDefinition::class);
 
         $mediaService = $this->createMock(MediaService::class);
         $fileSaver = $this->createMock(FileSaver::class);
@@ -124,10 +124,10 @@ class MediaSerializerTest extends TestCase
             ],
         ];
 
-        $mediaService->expects(static::never())
+        $mediaService->expects($this->never())
             ->method('fetchFile');
 
-        $fileSaver->expects(static::never())
+        $fileSaver->expects($this->never())
             ->method('persistFileToMedia');
 
         $searchResult = new EntitySearchResult('media', 1, new MediaCollection([$mediaEntity]), null, new Criteria(), $context);
@@ -152,13 +152,13 @@ class MediaSerializerTest extends TestCase
     public function testOnlyUrl(): void
     {
         $context = Context::createDefaultContext();
-        $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
-        $mediaDefinition = $this->getContainer()->get(MediaDefinition::class);
+        $serializerRegistry = static::getContainer()->get(SerializerRegistry::class);
+        $mediaDefinition = static::getContainer()->get(MediaDefinition::class);
 
         $mediaService = $this->createMock(MediaService::class);
         $fileSaver = $this->createMock(FileSaver::class);
 
-        $mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
+        $mediaFolderRepository = static::getContainer()->get('media_folder.repository');
         $mediaRepository = $this->createMock(EntityRepository::class);
 
         $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
@@ -178,11 +178,11 @@ class MediaSerializerTest extends TestCase
             'png',
             1337
         );
-        $mediaService->expects(static::once())
+        $mediaService->expects($this->once())
             ->method('fetchFile')
             ->willReturn($expectedMediaFile);
 
-        $fileSaver->expects(static::once())
+        $fileSaver->expects($this->once())
             ->method('persistFileToMedia')
             ->willReturnCallback(function (MediaFile $m, string $dest) use ($expectedMediaFile, $expectedDestination): void {
                 $this->assertSame($expectedMediaFile, $m);
@@ -199,13 +199,13 @@ class MediaSerializerTest extends TestCase
 
     public function testInvalidUrl(): void
     {
-        $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
-        $mediaDefinition = $this->getContainer()->get(MediaDefinition::class);
+        $serializerRegistry = static::getContainer()->get(SerializerRegistry::class);
+        $mediaDefinition = static::getContainer()->get(MediaDefinition::class);
 
         $mediaService = $this->createMock(MediaService::class);
         $fileSaver = $this->createMock(FileSaver::class);
 
-        $mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
+        $mediaFolderRepository = static::getContainer()->get('media_folder.repository');
         $mediaRepository = $this->createMock(EntityRepository::class);
 
         $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
@@ -221,13 +221,13 @@ class MediaSerializerTest extends TestCase
 
     public function testEmpty(): void
     {
-        $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
-        $mediaDefinition = $this->getContainer()->get(MediaDefinition::class);
+        $serializerRegistry = static::getContainer()->get(SerializerRegistry::class);
+        $mediaDefinition = static::getContainer()->get(MediaDefinition::class);
 
         $mediaService = $this->createMock(MediaService::class);
         $fileSaver = $this->createMock(FileSaver::class);
 
-        $mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
+        $mediaFolderRepository = static::getContainer()->get('media_folder.repository');
         $mediaRepository = $this->createMock(EntityRepository::class);
 
         $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
@@ -241,13 +241,13 @@ class MediaSerializerTest extends TestCase
 
     public function testFailedDownload(): void
     {
-        $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
-        $mediaDefinition = $this->getContainer()->get(MediaDefinition::class);
+        $serializerRegistry = static::getContainer()->get(SerializerRegistry::class);
+        $mediaDefinition = static::getContainer()->get(MediaDefinition::class);
 
         $mediaService = $this->createMock(MediaService::class);
         $fileSaver = $this->createMock(FileSaver::class);
 
-        $mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
+        $mediaFolderRepository = static::getContainer()->get('media_folder.repository');
         $mediaRepository = $this->createMock(EntityRepository::class);
 
         $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
@@ -267,11 +267,11 @@ class MediaSerializerTest extends TestCase
         $serializer = new MediaSerializer(
             $this->createMock(MediaService::class),
             $this->createMock(FileSaver::class),
-            $this->getContainer()->get('media_folder.repository'),
-            $this->getContainer()->get('media.repository')
+            static::getContainer()->get('media_folder.repository'),
+            static::getContainer()->get('media.repository')
         );
 
-        $definitionRegistry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
         foreach ($definitionRegistry->getDefinitions() as $definition) {
             $entity = $definition->getEntityName();
 

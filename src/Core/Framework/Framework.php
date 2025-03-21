@@ -6,9 +6,6 @@ use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionsCompilerPass;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityCompiler;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
-use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetBundleRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AttributeEntityCompilerPass;
@@ -22,6 +19,7 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompiler
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FilesystemConfigMigrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FrameworkMigrationReplacementCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\HttpCacheConfigCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\MessengerMiddlewareCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RateLimiterCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RedisPrefixCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RouteScopeCompilerPass;
@@ -35,7 +33,6 @@ use Shopware\Core\Framework\MessageQueue\MessageHandlerCompilerPass;
 use Shopware\Core\Framework\Telemetry\Metrics\MeterProvider;
 use Shopware\Core\Framework\Test\DependencyInjection\CompilerPass\ContainerVisibilityCompilerPass;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -46,7 +43,7 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Framework extends Bundle
 {
     public function getTemplatePriority(): int
@@ -107,6 +104,7 @@ class Framework extends Bundle
         $container->addCompilerPass(new EntityCompilerPass());
         $container->addCompilerPass(new DisableTwigCacheWarmerCompilerPass());
         $container->addCompilerPass(new DefaultTransportCompilerPass());
+        $container->addCompilerPass(new MessengerMiddlewareCompilerPass());
         $container->addCompilerPass(new TwigLoaderConfigCompilerPass());
         $container->addCompilerPass(new TwigEnvironmentCompilerPass());
         $container->addCompilerPass(new RouteScopeCompilerPass());
@@ -145,48 +143,14 @@ class Framework extends Bundle
         /** @var FeatureFlagRegistry $featureFlagRegistry */
         $featureFlagRegistry = $this->container->get(FeatureFlagRegistry::class);
         $featureFlagRegistry->register();
-        // Inject the meter early in the application lifecycle. This is needed to use the meter in special case (static contexts).
-        MeterProvider::bindMeter($this->container);
 
-        $this->registerEntityExtensions(
-            $this->container->get(DefinitionInstanceRegistry::class),
-            $this->container->get(SalesChannelDefinitionInstanceRegistry::class),
-            $this->container->get(ExtensionRegistry::class)
-        );
-
-        \assert($this->container instanceof ContainerInterface, 'Container is not set yet, please call setContainer() before calling boot(), see `src/Core/Kernel.php:186`.');
+        if ($this->container->getParameter('kernel.environment') !== 'test') {
+            // Inject the meter early in the application lifecycle. This is needed to use the meter in special case (static contexts).
+            MeterProvider::bindMeter($this->container);
+        }
 
         CacheValueCompressor::$compress = $this->container->getParameter('shopware.cache.cache_compression');
         CacheValueCompressor::$compressMethod = $this->container->getParameter('shopware.cache.cache_compression_method');
-    }
-
-    private function registerEntityExtensions(
-        DefinitionInstanceRegistry $definitionRegistry,
-        SalesChannelDefinitionInstanceRegistry $salesChannelRegistry,
-        ExtensionRegistry $registry
-    ): void {
-        foreach ($registry->getExtensions() as $extension) {
-            /** @var string $class */
-            $class = $extension->getDefinitionClass();
-
-            try {
-                $definition = $definitionRegistry->get($class);
-            } catch (DefinitionNotFoundException) {
-                continue;
-            }
-
-            $definition->addExtension($extension);
-
-            try {
-                $salesChannelDefinition = $salesChannelRegistry->get($class);
-            } catch (DefinitionNotFoundException) {
-                continue;
-            }
-
-            // same definition? do not added extension
-            if ($salesChannelDefinition !== $definition) {
-                $salesChannelDefinition->addExtension($extension);
-            }
-        }
+        Feature::$emitDeprecations = $this->container->getParameter('kernel.debug');
     }
 }

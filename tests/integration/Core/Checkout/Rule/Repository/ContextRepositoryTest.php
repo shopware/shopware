@@ -18,7 +18,7 @@ use Shopware\Core\System\Currency\Rule\CurrencyRule;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ContextRepositoryTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -33,7 +33,7 @@ class ContextRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('rule.repository');
+        $this->repository = static::getContainer()->get('rule.repository');
         $this->context = Context::createDefaultContext();
     }
 

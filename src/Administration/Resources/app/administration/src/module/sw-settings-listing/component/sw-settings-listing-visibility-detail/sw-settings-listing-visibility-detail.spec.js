@@ -1,11 +1,11 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 // Turn off known errors
-import { unknownOptionError } from 'src/../test/_helper_/allowedErrors';
+import { unknownOptionError } from 'test/_helper_/allowedErrors';
 
 global.allowedErrors = [
     ...global.allowedErrors,
@@ -57,11 +57,6 @@ async function createWrapper(props = defaultProps) {
                     'sw-pagination': await wrapTestComponent('sw-pagination'),
                     'sw-grid-row': await wrapTestComponent('sw-grid-row'),
                     'sw-grid-column': await wrapTestComponent('sw-grid-column'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                    'sw-icon': {
-                        template: '<div></div>',
-                    },
                     'sw-field-error': {
                         template: '<div></div>',
                     },

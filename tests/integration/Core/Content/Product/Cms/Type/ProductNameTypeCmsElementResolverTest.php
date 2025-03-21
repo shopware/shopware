@@ -30,7 +30,7 @@ class ProductNameTypeCmsElementResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productNameCmsElementResolver = $this->getContainer()->get(ProductNameCmsElementResolver::class);
+        $this->productNameCmsElementResolver = static::getContainer()->get(ProductNameCmsElementResolver::class);
     }
 
     public function testType(): void
@@ -73,7 +73,7 @@ class ProductNameTypeCmsElementResolverTest extends TestCase
         $product = new SalesChannelProductEntity();
         $product->setId('product_01');
         $product->setName('Product 01');
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->getContainer()->get(SalesChannelProductDefinition::class), $product);
+        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), static::getContainer()->get(SalesChannelProductDefinition::class), $product);
         $result = new ElementDataCollection();
 
         $slot = new CmsSlotEntity();

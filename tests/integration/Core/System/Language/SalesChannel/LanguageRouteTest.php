@@ -121,7 +121,7 @@ class LanguageRouteTest extends TestCase
 
     private function createData(): void
     {
-        $this->getContainer()->get('locale.repository')->create([
+        static::getContainer()->get('locale.repository')->create([
             [
                 'id' => $this->ids->get('locale-1'),
                 'code' => 'locale-1',
@@ -151,7 +151,7 @@ class LanguageRouteTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('language.repository')
+        static::getContainer()->get('language.repository')
             ->create($data, Context::createDefaultContext());
     }
 

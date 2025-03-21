@@ -11,7 +11,7 @@ trait ExtensionBehaviour
 {
     public function installApp(string $path, bool $install = true): void
     {
-        $appRepository = $this->getContainer()->get('app.repository');
+        $appRepository = static::getContainer()->get('app.repository');
         $idResult = $appRepository->searchIds(new Criteria(), Context::createDefaultContext());
 
         /** @var array<string> $ids */
@@ -23,11 +23,11 @@ trait ExtensionBehaviour
         $fs = new Filesystem();
 
         $name = basename($path);
-        $appDir = $this->getContainer()->getParameter('shopware.app_dir') . '/' . $name;
+        $appDir = static::getContainer()->getParameter('shopware.app_dir') . '/' . $name;
         $fs->mirror($path, $appDir);
 
         if ($install) {
-            $this->getContainer()->get(AbstractStoreAppLifecycleService::class)->installExtension($name, Context::createDefaultContext());
+            static::getContainer()->get(AbstractStoreAppLifecycleService::class)->installExtension($name, Context::createDefaultContext());
         }
     }
 
@@ -35,7 +35,7 @@ trait ExtensionBehaviour
     {
         $fs = new Filesystem();
 
-        $fs->remove($this->getContainer()->getParameter('shopware.app_dir') . '/' . basename($path));
+        $fs->remove(static::getContainer()->getParameter('shopware.app_dir') . '/' . basename($path));
     }
 
     public function registerPlugin(string $path): void
@@ -43,7 +43,7 @@ trait ExtensionBehaviour
         $fs = new Filesystem();
 
         $name = basename($path);
-        $pluginDir = $this->getContainer()->getParameter('kernel.plugin_dir') . '/' . $name;
+        $pluginDir = static::getContainer()->getParameter('kernel.plugin_dir') . '/' . $name;
         $fs->mirror($path, $pluginDir);
     }
 
@@ -51,6 +51,6 @@ trait ExtensionBehaviour
     {
         $fs = new Filesystem();
 
-        $fs->remove($this->getContainer()->getParameter('kernel.plugin_dir') . '/' . basename($path));
+        $fs->remove(static::getContainer()->getParameter('kernel.plugin_dir') . '/' . basename($path));
     }
 }

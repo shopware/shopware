@@ -16,12 +16,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -55,12 +53,12 @@ class ProductRatingAverageIndexerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->reviewRepository = $this->getContainer()->get('product_review.repository');
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
-        $this->salesChannel = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->productIndexer = $this->getContainer()->get(ProductIndexer::class);
+        $this->reviewRepository = static::getContainer()->get('product_review.repository');
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
+        $this->salesChannel = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->productIndexer = static::getContainer()->get(ProductIndexer::class);
     }
 
     /**
@@ -317,7 +315,7 @@ SQL;
     {
         $customerId = Uuid::randomHex();
         $this->createCustomer($customerId);
-        $salesChannelId = $this->salesChannel->getSalesChannel()->getId();
+        $salesChannelId = $this->salesChannel->getSalesChannelId();
         $languageId = Defaults::LANGUAGE_SYSTEM;
         $title = 'foo';
 
@@ -359,7 +357,7 @@ SQL;
                     'manufacturer' => ['name' => 'test'],
                     'tax' => ['taxRate' => 19, 'name' => 'with id'],
                     'visibilities' => [
-                        ['salesChannelId' => $this->salesChannel->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                        ['salesChannelId' => $this->salesChannel->getSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                     ],
                     'categories' => [
                         ['id' => Uuid::randomHex(), 'name' => 'Clothing'],
@@ -397,15 +395,6 @@ SQL;
             'salutationId' => $this->getValidSalutationId(),
             'customerNumber' => '12345',
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethod'] = [
-                'name' => 'Invoice',
-                'technicalName' => Uuid::randomHex(),
-                'description' => 'Default payment method',
-                'handlerIdentifier' => SyncTestPaymentHandler::class,
-            ];
-        }
 
         $this->customerRepository->create([$customer], Context::createDefaultContext());
     }

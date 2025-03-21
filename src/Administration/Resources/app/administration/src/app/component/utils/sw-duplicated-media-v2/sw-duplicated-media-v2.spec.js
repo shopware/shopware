@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -75,15 +75,11 @@ describe('components/utils/sw-duplicated-media-v2', () => {
                     },
                     'sw-container': true,
                     'sw-media-preview-v2': true,
-                    'sw-icon': true,
                     'sw-radio-field': await wrapTestComponent('sw-radio-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-field-error': true,
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-media-media-item': true,
                     'sw-checkbox-field': true,
-                    'mt-button': true,
                     'router-link': true,
                     'sw-loader': true,
                     'sw-help-text': true,

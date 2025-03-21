@@ -7,6 +7,7 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Delta\DomainsDeltaProvider;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -31,7 +32,7 @@ class DomainsDeltaProviderTest extends TestCase
         $context = Context::createDefaultContext();
         $manifest = $this->getTestManifest();
 
-        $this->getAppLifecycle()->install($manifest, false, $context);
+        $this->getAppLifecycle()->install($manifest, new AppInstallParameters(activate: false), $context);
 
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('name', 'test'))
@@ -63,7 +64,7 @@ class DomainsDeltaProviderTest extends TestCase
         $context = Context::createDefaultContext();
         $manifest = $this->getTestManifest();
 
-        $this->getAppLifecycle()->install($manifest, false, $context);
+        $this->getAppLifecycle()->install($manifest, new AppInstallParameters(activate: false), $context);
 
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('name', 'test'));
@@ -80,7 +81,7 @@ class DomainsDeltaProviderTest extends TestCase
 
     private function getAppLifecycle(): AbstractAppLifecycle
     {
-        return $this->getContainer()->get(AppLifecycle::class);
+        return static::getContainer()->get(AppLifecycle::class);
     }
 
     /**
@@ -88,7 +89,7 @@ class DomainsDeltaProviderTest extends TestCase
      */
     private function getAppRepository(): EntityRepository
     {
-        return $this->getContainer()->get('app.repository');
+        return static::getContainer()->get('app.repository');
     }
 
     private function getTestManifest(): Manifest

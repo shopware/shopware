@@ -9,9 +9,12 @@
 {% block page_checkout_main_content %}
     {% block page_checkout_confirm %}
         {% block page_checkout_confirm_header %}
-            <h1 class="confirm-main-header">
+            <h1 class="confirm-main-header d-inline-block">
                 {{ 'checkout.confirmHeader'|trans|sw_sanitize }}
             </h1>
+            <span class="confirm-main-header-item-counter d-inline-block mb-4 fw-bold fs-3 ms-1 text-dark-emphasis">
+                ({{- 'checkout.itemCounter'|trans({'%count%': page.cart.lineItems|length})|sw_sanitize -}})
+            </span>
         {% endblock %}
 
         {% block page_checkout_confirm_alerts %}
@@ -32,6 +35,7 @@
             <div class="confirm-tos">
                 <div class="card checkout-card">
                     <div class="card-body">
+
                         {% block page_checkout_confirm_tos_header %}
                             <div class="card-title">
                                 {{ 'checkout.confirmTermsHeader'|trans|sw_sanitize }}
@@ -39,9 +43,13 @@
                         {% endblock %}
 
                         {% block page_checkout_confirm_revocation_notice %}
+                            {% set cmsPath = 'frontend.cms.page' %}
                             <p class="revocation-notice">
-                                {{ 'checkout.confirmRevocationNotice'|trans({
-                                    '%url%': path('frontend.cms.page', { id: config('core.basicInformation.revocationPage') })
+                                {% set revocationSnippetKey = 'checkout.confirmRevocationNoticeModal' %}
+
+                                {{ revocationSnippetKey|trans({
+                                    '%revocationModalTagOpen%': '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.revocationPage') }) ~ '">',
+                                    '%revocationModalTagClose%': '</button>'
                                 })|raw }}
                             </p>
                         {% endblock %}
@@ -58,10 +66,13 @@
                                 {% endblock %}
 
                                 {% block page_checkout_confirm_tos_control_label %}
+                                    {% set tosSnippetKey = 'checkout.confirmTermsTextModal' %}
+                                    {% set cmsPath = 'frontend.cms.page' %}
                                     <label for="tos"
                                            class="checkout-confirm-tos-label custom-control-label">
-                                        {{ 'checkout.confirmTermsText'|trans({
-                                            '%url%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') })
+                                        {{ tosSnippetKey|trans({
+                                            '%tosModalTagOpen%': '<button type="button" class="checkout-confirm-terms-modal btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.tosPage') }) ~ '">',
+                                            '%tosModalTagClose%': '</button>'
                                         })|raw }}
                                     </label>
                                 {% endblock %}
@@ -125,12 +136,7 @@
             <div class="confirm-product">
                 {% block page_checkout_confirm_table_container %}
                     <div class="card">
-                        {# @deprecated tag:v6.7.0 - Line items wrapper will be `<ul>` element instead of `<div>` #}
-                        {%- if feature('ACCESSIBILITY_TWEAKS') -%}
-                            <ul class="card-body list-unstyled">
-                        {%- else -%}
-                            <div class="card-body" role="list">
-                        {%- endif -%}
+                        <ul class="card-body list-unstyled">
                             {% block page_checkout_confirm_table_header %}
                                 {% sw_include '@Storefront/storefront/component/checkout/cart-header.html.twig' with {
                                     showTaxPrice: true
@@ -147,12 +153,7 @@
                                     {% endblock %}
                                 {% endfor %}
                             {% endblock %}
-                        {# @deprecated tag:v6.7.0 - Line items wrapper will be `<ul>` element instead of `<div>` #}
-                        {%- if not feature('ACCESSIBILITY_TWEAKS') -%}
-                            </div>
-                        {%- else -%}
-                            </ul>
-                        {%- endif -%}
+                        </ul>
                     </div>
                 {% endblock %}
             </div>

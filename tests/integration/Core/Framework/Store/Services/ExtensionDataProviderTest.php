@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Store\Services;
 
 use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -23,7 +22,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 #[Package('checkout')]
 class ExtensionDataProviderTest extends TestCase
 {
@@ -102,6 +100,7 @@ class ExtensionDataProviderTest extends TestCase
 
         $installedExtensions = $this->extensionDataProvider->getInstalledExtensions($this->context);
         $installedExtensions = $installedExtensions->filter(fn (ExtensionStruct $extension) => $extension->getName() !== 'SwagCommercial');
+
         static::assertCount(7, $installedExtensions);
     }
 
@@ -159,7 +158,7 @@ class ExtensionDataProviderTest extends TestCase
         ], $context);
 
         // update apps and set managed = true
-        $appRepository = $this->getContainer()->get('app.repository');
+        $appRepository = static::getContainer()->get('app.repository');
         $ids = $appRepository->searchIds(new Criteria(), $context);
 
         $appRepository->update(

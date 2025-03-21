@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -52,12 +52,7 @@ async function createWrapper(isSelectable, tooltip) {
                 stubs: {
                     'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
                     'sw-data-grid-settings': await wrapTestComponent('sw-data-grid-settings'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-context-button': await wrapTestComponent('sw-context-button'),
-                    'sw-icon': true,
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                     'sw-context-menu-divider': true,
                     'sw-pagination': await wrapTestComponent('sw-pagination'),
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
@@ -78,6 +73,7 @@ async function createWrapper(isSelectable, tooltip) {
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,
                     'sw-help-text': true,
+                    'sw-provide': { template: '<slot/>', inheritAttrs: false },
                 },
                 directives: {
                     tooltip: {
@@ -115,9 +111,9 @@ describe('src/app/component/entity/sw-entity-advanced-selection-modal-grid', () 
         });
         await flushPromises();
 
-        const firstRowCheckbox = wrapper.find('.sw-data-grid__row--1').find('.sw-field--checkbox');
+        const firstRowCheckbox = wrapper.find('.sw-data-grid__row--1').findComponent('.mt-field--checkbox__container');
 
-        expect(firstRowCheckbox.classes().includes('is--disabled')).toBeTruthy();
+        expect(firstRowCheckbox.props().disabled).toBe(true);
 
         expect(firstRowCheckbox.attributes('data-tooltip-message')).toBe('test message');
         expect(firstRowCheckbox.attributes('data-tooltip-disabled')).toBe('false');
@@ -127,9 +123,9 @@ describe('src/app/component/entity/sw-entity-advanced-selection-modal-grid', () 
         const wrapper = await createWrapper(true);
         await flushPromises();
 
-        const firstRowCheckbox = wrapper.find('.sw-data-grid__row--1').find('.sw-field--checkbox');
+        const firstRowCheckbox = wrapper.find('.sw-data-grid__row--1').findComponent('.mt-field--checkbox__container');
 
-        expect(firstRowCheckbox.classes().includes('is--disabled')).toBeFalsy();
+        expect(firstRowCheckbox.props().disabled).toBe(false);
         expect(firstRowCheckbox.attributes('data-tooltip-message')).toBe('');
         expect(firstRowCheckbox.attributes('data-tooltip-disabled')).toBe('true');
     });
@@ -141,9 +137,9 @@ describe('src/app/component/entity/sw-entity-advanced-selection-modal-grid', () 
         });
         await flushPromises();
 
-        const firstRowCheckbox = wrapper.find('.sw-data-grid__row--1').find('.sw-field--checkbox');
+        const firstRowCheckbox = wrapper.find('.sw-data-grid__row--1').findComponent('.mt-field--checkbox__container');
 
-        expect(firstRowCheckbox.classes().includes('is--disabled')).toBeTruthy();
+        expect(firstRowCheckbox.props().disabled).toBe(true);
         expect(firstRowCheckbox.attributes('data-tooltip-message')).toBe('test message');
         expect(firstRowCheckbox.attributes('data-tooltip-disabled')).toBe('true');
     });

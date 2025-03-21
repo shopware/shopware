@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 const classes = {
@@ -36,19 +36,11 @@ const detailPage = async (additionalOptions = {}, privileges = []) => {
                     'sw-button-process': true,
                     'sw-card-view': await wrapTestComponent('sw-card-view'),
                     'sw-language-info': true,
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-ignore-class': true,
                     'sw-text-field': await wrapTestComponent('sw-text-field', {
                         sync: true,
                     }),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', {
-                        sync: true,
-                    }),
-                    'sw-textarea-field': await wrapTestComponent('sw-textarea-field', {
-                        sync: true,
-                    }),
-                    'sw-textarea-field-deprecated': await wrapTestComponent('sw-textarea-field-deprecated', {
                         sync: true,
                     }),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
@@ -119,8 +111,8 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
 
     it('should show the name field', async () => {
         const root = wrapper.get(`.${classes.componentRoot}`);
-        const nameField = root.findComponent('.sw-field--text');
-        const nameFieldLabel = nameField.get(`.${classes.fieldLabel}`);
+        const nameField = root.findComponent('.mt-text-field');
+        const nameFieldLabel = nameField.get(`label`);
 
         expect(nameFieldLabel.text()).toEqual(text.labelNameField);
         expect(nameField.find('input').attributes('placeholder')).toEqual(text.placeholderNameField);
@@ -128,8 +120,8 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
 
     it('should show the description field', async () => {
         const root = wrapper.get(`.${classes.componentRoot}`);
-        const descriptionField = root.findComponent('.sw-field--textarea');
-        const descriptionFieldLabel = descriptionField.get(`.${classes.fieldLabel}`);
+        const descriptionField = root.findComponent('.mt-textarea');
+        const descriptionFieldLabel = descriptionField.get(`label`);
 
         expect(descriptionFieldLabel.text()).toEqual(text.labelDescriptionField);
         expect(descriptionField.props().placeholder).toEqual(text.placeholderDescriptionField);
@@ -155,8 +147,8 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         );
 
         expect(saveButton.attributes().disabled).toBe('true');
-        expect(fieldName.vm.$attrs.disabled).toBe(true);
-        expect(fieldDescription.vm.$attrs.disabled).toBe(true);
+        expect(fieldName.props().disabled).toBe(true);
+        expect(fieldDescription.vm.disabled).toBe(true);
         expect(productFeatureSetsValuesCard.attributes()['allow-edit']).toBeUndefined();
     });
 
@@ -184,8 +176,8 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         );
 
         expect(saveButton.attributes().disabled).toBeUndefined();
-        expect(fieldName.vm.$attrs.disabled).toBe(false);
-        expect(fieldDescription.vm.$attrs.disabled).toBe(false);
+        expect(fieldName.props().disabled).toBe(false);
+        expect(fieldDescription.vm.disabled).toBe(false);
         expect(productFeatureSetsValuesCard.attributes()['allow-edit']).toBe('true');
     });
 });

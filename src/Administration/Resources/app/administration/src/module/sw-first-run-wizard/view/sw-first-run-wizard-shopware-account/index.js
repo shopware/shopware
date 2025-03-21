@@ -2,13 +2,11 @@ import template from './sw-first-run-wizard-shopware-account.html.twig';
 import './sw-first-run-wizard-shopware-account.scss';
 
 /**
- * @package checkout
+ * @sw-package fundamentals@after-sales
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['firstRunWizardService'],
 
@@ -47,7 +45,7 @@ export default {
         },
 
         updateButtons() {
-            const disabledExtensionManagement = Shopware.State.get('context').app.config.settings.disableExtensionManagement;
+            const disabledExtensionManagement = Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
             const prevRoute = disabledExtensionManagement ? 'mailer.selection' : 'plugins';
             const skipRoute = disabledExtensionManagement ? 'finish' : 'store';
 
@@ -56,7 +54,7 @@ export default {
                     key: 'back',
                     label: this.$tc('sw-first-run-wizard.general.buttonBack'),
                     position: 'left',
-                    variant: null,
+                    variant: 'secondary',
                     action: `sw.first.run.wizard.index.${prevRoute}`,
                     disabled: false,
                 },
@@ -64,7 +62,7 @@ export default {
                     key: 'skip',
                     label: this.$tc('sw-first-run-wizard.general.buttonSkip'),
                     position: 'right',
-                    variant: null,
+                    variant: 'secondary',
                     action: `sw.first.run.wizard.index.${skipRoute}`,
                     disabled: false,
                 },

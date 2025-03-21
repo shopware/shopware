@@ -6,12 +6,10 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 
@@ -50,6 +48,26 @@ export default {
         isProductPage() {
             return this.cmsPageState?.currentPage?.type === 'product_detail';
         },
+
+        alignmentOptions() {
+            return [
+                {
+                    id: 1,
+                    value: 'flex-start',
+                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignTop'),
+                },
+                {
+                    id: 2,
+                    value: 'center',
+                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignCenter'),
+                },
+                {
+                    id: 3,
+                    value: 'flex-end',
+                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignBottom'),
+                },
+            ];
+        },
     },
 
     created() {
@@ -80,25 +98,15 @@ export default {
 
             this.element.config.product.value = productId;
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.element.data, 'productId', productId);
-                this.$set(this.element.data, 'product', product);
-            } else {
-                this.element.data.productId = productId;
-                this.element.data.product = product;
-            }
+            this.element.data.productId = productId;
+            this.element.data.product = product;
         },
 
         deleteProduct() {
             this.element.config.product.value = null;
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.element.data, 'productId', null);
-                this.$set(this.element.data, 'product', null);
-            } else {
-                this.element.data.productId = null;
-                this.element.data.product = null;
-            }
+            this.element.data.productId = null;
+            this.element.data.product = null;
         },
     },
 };

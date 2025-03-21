@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Storefront\Page;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
@@ -90,7 +89,7 @@ class ProductPageTest extends TestCase
         $context = $this->createSalesChannelContextWithNavigation();
 
         // enable hideCloseoutProductsWhenOutOfStock filter
-        $this->getContainer()->get(SystemConfigService::class)
+        static::getContainer()->get(SystemConfigService::class)
             ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);
 
         $product = $this->getRandomProduct($context, 1, true);
@@ -111,7 +110,7 @@ class ProductPageTest extends TestCase
         $context = $this->createSalesChannelContextWithNavigation();
 
         // enable hideCloseoutProductsWhenOutOfStock filter
-        $this->getContainer()->get(SystemConfigService::class)
+        static::getContainer()->get(SystemConfigService::class)
             ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);
 
         $product = $this->getRandomProduct($context, 0, true);
@@ -123,42 +122,6 @@ class ProductPageTest extends TestCase
 
         $this->expectException(ProductNotFoundException::class);
         $this->getPageLoader()->load($request, $context);
-    }
-
-    public function testItLoadsPageWithProductCategoryAsActiveNavigation(): void
-    {
-        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
-
-        $seoCategoryName = 'Fancy Category';
-
-        $catRepository = $this->getContainer()->get('category.repository');
-
-        $seoCategoryId = Uuid::randomHex();
-
-        $catRepository->create([[
-            'id' => $seoCategoryId,
-            'name' => $seoCategoryName,
-            'active' => true,
-            'parentId' => $context->getSalesChannel()->getNavigationCategoryId(),
-        ]], Context::createDefaultContext());
-
-        $product = $this->getRandomProduct($context, 1, false, [
-            'categories' => [
-                ['id' => $seoCategoryId],
-            ],
-        ]);
-
-        $this->updateProductStream($product->getId(), Uuid::randomHex());
-
-        $request = new Request([], [], ['productId' => $product->getId()]);
-
-        $page = $this->getPageLoader()->load($request, $context);
-
-        static::assertNotNull($page->getHeader());
-        static::assertNotNull($page->getHeader()->getNavigation());
-        static::assertNotNull($page->getHeader()->getNavigation()->getActive());
-        static::assertEquals($seoCategoryName, $page->getHeader()->getNavigation()->getActive()->getName());
-        static::assertEquals($seoCategoryId, $page->getHeader()->getNavigation()->getActive()->getId());
     }
 
     public function testItDoesLoadACmsProductDetailPage(): void
@@ -310,18 +273,6 @@ class ProductPageTest extends TestCase
 
     protected function getPageLoader(): ProductPageLoader
     {
-        return $this->getContainer()->get(ProductPageLoader::class);
-    }
-
-    private function updateProductStream(string $productId, string $streamId): void
-    {
-        $connection = $this->getContainer()->get(Connection::class);
-        $connection->executeStatement(
-            'UPDATE `product` SET `stream_ids` = :streamIds WHERE `id` = :id',
-            [
-                'streamIds' => json_encode([$streamId], \JSON_THROW_ON_ERROR),
-                'id' => Uuid::fromHexToBytes($productId),
-            ]
-        );
+        return static::getContainer()->get(ProductPageLoader::class);
     }
 }

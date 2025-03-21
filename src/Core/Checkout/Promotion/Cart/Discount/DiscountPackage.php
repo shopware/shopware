@@ -7,10 +7,10 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
-use Shopware\Core\Checkout\Promotion\Exception\PriceNotFoundException;
+use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class DiscountPackage
 {
     private LineItemFlatCollection $cartItems;
@@ -73,18 +73,13 @@ class DiscountPackage
         return $price;
     }
 
-    /**
-     * Gets the price collection of all cart items in this package.
-     *
-     * @throws PriceNotFoundException
-     */
     public function getAffectedPrices(): PriceCollection
     {
         $affectedPrices = new PriceCollection();
 
         foreach ($this->cartItems as $lineItem) {
             if ($lineItem->getPrice() === null) {
-                throw new PriceNotFoundException($lineItem);
+                throw PromotionException::priceNotFound($lineItem);
             }
 
             $affectedPrices->add($lineItem->getPrice());

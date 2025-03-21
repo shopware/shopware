@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Page\Navigation\Error;
 
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
-use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -18,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
  */
-#[Package('storefront')]
+#[Package('framework')]
 class ErrorPageLoader implements ErrorPageLoaderInterface
 {
     /**
@@ -42,14 +41,14 @@ class ErrorPageLoader implements ErrorPageLoaderInterface
         $page = $this->genericLoader->load($request, $context);
         $page = ErrorPage::createFrom($page);
 
-        /** @var CmsPageCollection $pages */
         $pages = $this->cmsPageLoader->load($request, new Criteria([$cmsErrorLayoutId]), $context)->getEntities();
 
-        if (!$pages->has($cmsErrorLayoutId)) {
+        $cmsPage = $pages->first();
+        if ($cmsPage === null) {
             throw new PageNotFoundException($cmsErrorLayoutId);
         }
 
-        $page->setCmsPage($pages->get($cmsErrorLayoutId));
+        $page->setCmsPage($cmsPage);
 
         $this->eventDispatcher->dispatch(new ErrorPageLoadedEvent($page, $context, $request));
 

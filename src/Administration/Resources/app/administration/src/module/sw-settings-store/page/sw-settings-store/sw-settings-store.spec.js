@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 import { mount } from '@vue/test-utils';
@@ -31,7 +31,6 @@ async function createWrapper(customString = '') {
                     },
                     'sw-skeleton': true,
                     'sw-search-bar': true,
-                    'sw-icon': true,
                     'sw-button-process': true,
                 },
             },

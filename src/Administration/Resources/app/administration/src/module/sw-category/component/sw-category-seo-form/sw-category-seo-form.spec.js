@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 
@@ -8,7 +8,7 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-text-field': true,
-                'sw-textarea-field': true,
+                'mt-textarea': true,
             },
         },
         props: {

@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Demodata\PersonalData\CleanPersonalDataCommand;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -37,8 +36,8 @@ class CleanPersonalDataCommandTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->customerRepository = static::getContainer()->get('customer.repository');
         $this->clearTable('cart');
         $this->clearTable('customer');
     }
@@ -263,7 +262,7 @@ class CleanPersonalDataCommandTest extends TestCase
             'payload' => '{}',
         ];
 
-        $this->getContainer()->get('order.repository')->upsert([$order], Context::createDefaultContext());
+        static::getContainer()->get('order.repository')->upsert([$order], Context::createDefaultContext());
     }
 
     private function clearTable(string $table): void
@@ -298,10 +297,6 @@ class CleanPersonalDataCommandTest extends TestCase
             'customerNumber' => 'not',
             'guest' => $isGuest,
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $guest['defaultPaymentMethodId'] = $this->fetchFirstIdFromTable('payment_method');
-        }
 
         $this->customerRepository->upsert([$guest], Context::createDefaultContext());
 

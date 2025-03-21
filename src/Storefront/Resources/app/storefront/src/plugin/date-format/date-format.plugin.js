@@ -10,7 +10,7 @@ import DateFormatHelper from 'src/helper/date.helper';
  * which might yield different results, c.f.:
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date
  *
- * @package storefront
+ * @sw-package framework
  */
 export default class DateFormat extends Plugin {
     init() {

@@ -29,7 +29,7 @@ class ReloadDataResponseFactoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->factory = $this->getContainer()->get(ReloadDataResponseFactory::class);
+        $this->factory = static::getContainer()->get(ReloadDataResponseFactory::class);
         $app = new AppEntity();
         $app->setId(Uuid::randomHex());
         $app->setAppSecret('app-secret');

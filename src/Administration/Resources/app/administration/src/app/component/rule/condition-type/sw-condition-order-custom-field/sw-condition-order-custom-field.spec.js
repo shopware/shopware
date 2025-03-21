@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import { mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
@@ -79,7 +79,6 @@ async function createWrapper() {
                     'sw-context-button': true,
                     'sw-field-error': true,
                     'sw-product-variant-info': true,
-                    'sw-icon': true,
                     'sw-highlight-text': true,
                     'sw-loader': true,
                     'sw-inheritance-switch': true,

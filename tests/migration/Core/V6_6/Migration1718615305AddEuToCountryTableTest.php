@@ -22,7 +22,7 @@ class Migration1718615305AddEuToCountryTableTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
     }
 
     public function testGetCreationTimestamp(): void

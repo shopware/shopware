@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 
-#[Package('core')]
+#[Package('framework')]
 class RouteParamsCleanupListener
 {
     private const CLEANUP_PARAMETERS = [

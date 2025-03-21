@@ -27,7 +27,7 @@ class IncrementApiControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $gatewayRegistry = $this->getContainer()->get('shopware.increment.gateway.registry');
+        $gatewayRegistry = static::getContainer()->get('shopware.increment.gateway.registry');
 
         $gateway = $gatewayRegistry->get(IncrementGatewayRegistry::USER_ACTIVITY_POOL);
 
@@ -58,6 +58,7 @@ class IncrementApiControllerTest extends TestCase
 
         $entries = json_decode((string) $client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
+        static::assertIsArray($entries);
         static::assertArrayHasKey('foo', $entries);
         static::assertEquals(2, $entries['foo']['count']);
         static::assertArrayHasKey('bar', $entries);

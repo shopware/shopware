@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
  * It is also possible to use following aliases as id: "main-navigation", "footer-navigation" and "service-navigation".
  * With this route it is also possible to send the standard API parameters such as: \'page\', \'limit\', \'filter\', etc.
  */
-#[Package('inventory')]
+#[Package('discovery')]
 abstract class AbstractNavigationRoute
 {
     abstract public function getDecorated(): AbstractNavigationRoute;

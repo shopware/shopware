@@ -1,4 +1,5 @@
-<sw-card
+{% block sw_flow_list_flow_templates %}
+<mt-card
     class="sw-flow-list-flow-templates-card"
     position-identifier="sw-flow-list-flow-templates-card"
 >
@@ -59,10 +60,11 @@
                 <template #icon>
                     <img
                         :alt="$tc('sw-flow.list.emptyStateTitle')"
-                        :src="assetFilter('/administration/static/img/empty-states/settings-empty-state.svg')"
+                        :src="assetFilter('/administration/administration/static/img/empty-states/settings-empty-state.svg')"
                     >
                 </template>
             </sw-empty-state>
         </div>
     </div>
-</sw-card>
+</mt-card>
+{% endblock %}

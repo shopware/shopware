@@ -12,7 +12,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class CreditOrderLineItemListener implements EventSubscriberInterface
 {
     final public const ACL_ORDER_CREATE_DISCOUNT_PRIVILEGE = 'order:create:discount';

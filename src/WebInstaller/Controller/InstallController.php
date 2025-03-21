@@ -19,7 +19,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class InstallController extends AbstractController
 {
     public function __construct(
@@ -73,7 +73,7 @@ class InstallController extends AbstractController
         };
 
         return $this->streamedCommandResponseGenerator->run([
-            $this->recoveryManager->getPhpBinary($request),
+            $this->recoveryManager->getPHPBinary($request),
             '-dmemory_limit=1G',
             $this->recoveryManager->getBinary(),
             'install',

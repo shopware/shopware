@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
  */
-#[Package('storefront')]
+#[Package('discovery')]
 class GuestWishlistPageLoader
 {
     /**
@@ -26,6 +26,8 @@ class GuestWishlistPageLoader
     public function load(Request $request, SalesChannelContext $context): GuestWishlistPage
     {
         $page = $this->genericPageLoader->load($request, $context);
+        $page->getMetaInformation()?->setRobots('noindex,follow');
+
         $page = GuestWishlistPage::createFrom($page);
 
         $this->eventDispatcher->dispatch(new GuestWishlistPageLoadedEvent($page, $context, $request));

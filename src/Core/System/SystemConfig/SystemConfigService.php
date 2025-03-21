@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Util\XmlReader;
@@ -29,7 +28,7 @@ use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
-#[Package('services-settings')]
+#[Package('framework')]
 class SystemConfigService implements ResetInterface
 {
     /**
@@ -56,7 +55,6 @@ class SystemConfigService implements ResetInterface
         private readonly AbstractSystemConfigLoader $loader,
         private readonly EventDispatcherInterface $dispatcher,
         private readonly SymfonySystemConfigService $symfonySystemConfigService,
-        private readonly bool $fineGrainedCache
     ) {
     }
 
@@ -70,19 +68,7 @@ class SystemConfigService implements ResetInterface
      */
     public function get(string $key, ?string $salesChannelId = null)
     {
-        if (Feature::isActive('cache_rework')) {
-            $this->dispatcher->dispatch(new AddCacheTagEvent('global.system.config'));
-        } else {
-            if ($this->fineGrainedCache) {
-                foreach (array_keys($this->keys) as $trace) {
-                    $this->traces[$trace][self::buildName($key)] = true;
-                }
-            } else {
-                foreach (array_keys($this->keys) as $trace) {
-                    $this->traces[$trace]['global.system.config'] = true;
-                }
-            }
-        }
+        $this->dispatcher->dispatch(new AddCacheTagEvent('system.config-' . $salesChannelId));
 
         $config = $this->loader->load($salesChannelId);
 
@@ -351,7 +337,7 @@ class SystemConfigService implements ResetInterface
         $insertQueue->execute();
 
         // Dispatch the hook before the events to invalid the cache
-        $this->dispatcher->dispatch(new SystemConfigChangedHook($values, $this->getAppMapping()));
+        $this->dispatcher->dispatch(new SystemConfigChangedHook($values, $this->getAppMapping(), $salesChannelId));
 
         // Dispatch events that the given values have been changed
         foreach ($events as $event) {

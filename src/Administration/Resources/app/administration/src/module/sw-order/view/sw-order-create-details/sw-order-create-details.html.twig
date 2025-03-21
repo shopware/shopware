@@ -1,9 +1,7 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_create_details %}
 <div class="sw-order-create-details">
     <sw-loader v-if="isLoading" />
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_details_promotion_modal %}
     <sw-order-create-promotion-modal
         v-if="showPromotionModal"
@@ -15,9 +13,8 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_details_payment %}
-    <sw-card
+    <mt-card
         class="sw-order-create-details__payment"
         position-identifier="sw-order-create-details-payment"
         :title="$tc('sw-order.createBase.detailsTab.labelTransactionCard')"
@@ -58,12 +55,11 @@
                 required
             />
         </sw-container>
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_details_shipping %}
-    <sw-card
+    <mt-card
         class="sw-order-create-details__shipping"
         position-identifier="sw-order-create-details-shipping"
         :title="$tc('sw-order.createBase.detailsTab.labelDeliveryCard')"
@@ -93,8 +89,8 @@
                 required
             />
 
-            <sw-number-field
-                v-model:value="shippingCosts"
+            <mt-number-field
+                v-model="shippingCosts"
                 :label="$tc('sw-order.createBase.labelShippingCosts')"
                 :min="0"
                 fill-digits
@@ -103,21 +99,20 @@
                 <template #suffix>
                     {{ currency.symbol }}
                 </template>
-            </sw-number-field>
+            </mt-number-field>
 
-            <sw-datepicker
-                v-model:value="deliveryDate"
+            <mt-datepicker
+                v-model="deliveryDate"
                 disabled
                 hide-hint
                 :label="$tc('sw-order.detailDeliveries.labelDeliveryDate')"
             />
         </sw-container>
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_details_order %}
-    <sw-card
+    <mt-card
         class="sw-order-create-details__order"
         position-identifier="sw-order-create-details-order"
         :title="$tc('sw-order.createBase.detailsTab.labelOrderCard')"
@@ -127,10 +122,10 @@
             gap="0px 30px"
             columns="1fr 1fr"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_details_email %}
-            <sw-text-field
-                v-model:value="email"
+
+            <mt-text-field
+                v-model="email"
                 disabled
                 class="sw-order-create-details__email"
                 :label="$tc('sw-order.createBase.labelEmail')"
@@ -139,10 +134,10 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_details_phone_number %}
-            <sw-text-field
-                v-model:value="phoneNumber"
+
+            <mt-text-field
+                v-model="phoneNumber"
                 disabled
                 class="sw-order-create-details__phone-number"
                 :label="$tc('sw-order.createBase.labelPhoneNumber')"
@@ -151,7 +146,6 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_details__order_sales_channel %}
             <sw-entity-single-select
                 v-model:value="salesChannelId"
@@ -163,7 +157,6 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_details_order_language %}
             <sw-entity-single-select
                 v-model:value="context.languageId"
@@ -178,7 +171,6 @@
         {% endblock %}
         </sw-container>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_details_voucher_field %}
         <sw-order-promotion-tag-field
             v-model:value="promotionCodeTags"
@@ -191,16 +183,16 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_details_switch_disable_auto_promotion %}
-        <sw-switch-field
+
+        <mt-switch
             class="sw-order-create-details__disable-auto-promotion"
-            :value="disabledAutoPromotion"
+            :checked="disabledAutoPromotion"
             :label="$tc('sw-order.createBase.labelToggleAutomaticPromotions')"
-            @update:value="toggleAutomaticPromotions"
+            @change="toggleAutomaticPromotions"
         />
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>
 {% endblock %}

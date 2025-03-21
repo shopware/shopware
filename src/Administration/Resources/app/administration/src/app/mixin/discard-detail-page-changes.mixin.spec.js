@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import 'src/app/mixin/discard-detail-page-changes.mixin';
 import { mount, config } from '@vue/test-utils';

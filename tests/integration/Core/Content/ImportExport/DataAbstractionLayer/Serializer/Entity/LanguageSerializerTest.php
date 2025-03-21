@@ -17,7 +17,7 @@ use Shopware\Core\System\Language\LanguageDefinition;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class LanguageSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -30,8 +30,8 @@ class LanguageSerializerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->languageRepository = $this->getContainer()->get('language.repository');
-        $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
+        $this->languageRepository = static::getContainer()->get('language.repository');
+        $serializerRegistry = static::getContainer()->get(SerializerRegistry::class);
 
         $this->serializer = new LanguageSerializer($this->languageRepository);
         $this->serializer->setRegistry($serializerRegistry);
@@ -39,12 +39,14 @@ class LanguageSerializerTest extends TestCase
 
     public function testSimple(): void
     {
-        $this->createCountry();
+        $localeId = Uuid::randomHex();
+        $this->createCountry($localeId);
 
         $config = new Config([], [], []);
         $language = [
             'locale' => [
                 'code' => 'xx-XX',
+                'id' => $localeId,
             ],
         ];
 
@@ -53,13 +55,14 @@ class LanguageSerializerTest extends TestCase
         $deserialized = iterator_to_array($this->serializer->deserialize($config, $this->languageRepository->getDefinition(), $serialized));
 
         static::assertSame($this->languageId, $deserialized['id']);
+        static::assertSame($localeId, $deserialized['locale']['id']);
     }
 
     public function testSupportsOnlyCountry(): void
     {
-        $serializer = new LanguageSerializer($this->getContainer()->get('language.repository'));
+        $serializer = new LanguageSerializer(static::getContainer()->get('language.repository'));
 
-        $definitionRegistry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
         foreach ($definitionRegistry->getDefinitions() as $definition) {
             $entity = $definition->getEntityName();
 
@@ -74,9 +77,8 @@ class LanguageSerializerTest extends TestCase
         }
     }
 
-    private function createCountry(): void
+    private function createCountry(string $localeId): void
     {
-        $localeId = Uuid::randomHex();
         $this->languageRepository->upsert([
             [
                 'id' => $this->languageId,

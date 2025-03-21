@@ -17,7 +17,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  * @internal
  */
 #[CoversClass(QuerySigner::class)]
-#[Package('core')]
+#[Package('framework')]
 class QuerySignerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -31,11 +31,13 @@ class QuerySignerTest extends TestCase
     protected function setUp(): void
     {
         $this->app = new AppEntity();
+        $this->app->setName('TestApp');
         $this->app->setId('app-id');
         $this->app->setAppSecret('lksf#$osck$FSFDSF#$#F43jjidjsfisj-333');
+        $this->app->setVersion('1.0.0');
 
-        $this->querySigner = $this->getContainer()->get(QuerySigner::class);
-        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $this->querySigner = static::getContainer()->get(QuerySigner::class);
+        $this->systemConfigService = static::getContainer()->get(SystemConfigService::class);
     }
 
     public function testSignUri(): void
@@ -60,13 +62,16 @@ class QuerySignerTest extends TestCase
         static::assertArrayHasKey('timestamp', $signedQuery);
 
         static::assertArrayHasKey('sw-version', $signedQuery);
-        static::assertSame($this->getContainer()->getParameter('kernel.shopware_version'), $signedQuery['sw-version']);
+        static::assertSame(static::getContainer()->getParameter('kernel.shopware_version'), $signedQuery['sw-version']);
 
         static::assertArrayHasKey('sw-context-language', $signedQuery);
         static::assertSame(Context::createDefaultContext()->getLanguageId(), $signedQuery['sw-context-language']);
 
         static::assertArrayHasKey('sw-user-language', $signedQuery);
         static::assertSame('en-GB', $signedQuery['sw-user-language']);
+
+        static::assertArrayHasKey('app-version', $signedQuery);
+        static::assertSame('1.0.0', $signedQuery['app-version']);
 
         static::assertNotNull($this->app->getAppSecret());
 

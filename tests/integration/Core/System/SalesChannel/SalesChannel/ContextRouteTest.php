@@ -17,7 +17,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(ContextRoute::class)]
 #[Group('store-api')]
 class ContextRouteTest extends TestCase
@@ -69,6 +69,7 @@ class ContextRouteTest extends TestCase
         static::assertArrayHasKey('salesChannel', $response);
         static::assertSame($response['salesChannel']['id'], $this->ids->get('sales-channel'));
 
+        static::assertIsArray($response);
         static::assertArrayHasKey('customer', $response);
         static::assertArrayHasKey('activeBillingAddress', $response['customer']);
         static::assertArrayHasKey('activeShippingAddress', $response['customer']);
@@ -91,7 +92,7 @@ class ContextRouteTest extends TestCase
         static::assertArrayHasKey('activeBillingAddress', $response['customer']);
 
         $newBillingAddressId = Uuid::randomHex();
-        $addressRepository = $this->getContainer()->get('customer_address.repository');
+        $addressRepository = static::getContainer()->get('customer_address.repository');
         $addressRepository->create([
             [
                 'id' => $newBillingAddressId,

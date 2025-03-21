@@ -12,14 +12,12 @@ type ComponentData = {
 };
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */
 Component.register('sw-meteor-page', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         fullWidth: {
@@ -60,24 +58,10 @@ Component.register('sw-meteor-page', {
         },
 
         hasIconOrIconSlot(): boolean {
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return (
-                    this.hasIcon ||
-                    typeof this.$slots['smart-bar-icon'] !== 'undefined' ||
-                    typeof this.$scopedSlots['smart-bar-icon'] !== 'undefined'
-                );
-            }
-
             return this.hasIcon || typeof this.$slots['smart-bar-icon'] !== 'undefined';
         },
 
         hasTabs(): boolean {
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return (
-                    typeof this.$slots['page-tabs'] !== 'undefined' || typeof this.$scopedSlots['page-tabs'] !== 'undefined'
-                );
-            }
-
             return typeof this.$slots['page-tabs'] !== 'undefined';
         },
 
@@ -87,7 +71,7 @@ Component.register('sw-meteor-page', {
     },
 
     beforeUnmount(): void {
-        void Shopware.State.dispatch('error/resetApiErrors');
+        void Shopware.Store.get('error').resetApiErrors();
     },
 
     mounted(): void {

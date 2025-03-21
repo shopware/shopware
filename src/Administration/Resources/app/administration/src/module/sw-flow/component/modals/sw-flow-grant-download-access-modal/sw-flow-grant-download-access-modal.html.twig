@@ -1,3 +1,4 @@
+{% block sw_flow_grant_download_access_modal %}
 <sw-modal
     class="sw-flow-grant-download-access-modal"
     :title="$tc('sw-flow.modals.downloadAccess.titleSetDownloadAccess')"
@@ -18,21 +19,23 @@
     </div>
 
     <template #modal-footer>
-        <sw-button
+        <mt-button
             class="sw-flow-grant-download-access-modal__cancel-button"
             size="small"
+            variant="secondary"
             @click="onClose"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
 
-        <sw-button
+        <mt-button
             class="sw-flow-grant-download-access-modal__save-button"
             variant="primary"
             size="small"
             @click="onSave"
         >
             {{ $tc('sw-flow.modals.buttonSaveAction') }}
-        </sw-button>
+        </mt-button>
     </template>
 </sw-modal>
+{% endblock %}

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -11,11 +11,6 @@ async function createWrapper(props = {}) {
                 value: 3.5,
             },
             ...props,
-        },
-        global: {
-            stubs: {
-                'sw-icon': true,
-            },
         },
     });
 }

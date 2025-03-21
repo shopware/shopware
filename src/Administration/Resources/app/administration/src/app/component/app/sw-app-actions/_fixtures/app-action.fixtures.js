@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { createRouter as createRouterVue, createWebHistory } from 'vue-router';

@@ -59,7 +59,7 @@ class EntityWriterTest extends TestCase
         $this->id = Uuid::randomHex();
         $this->idBytes = Uuid::fromHexToBytes($this->id);
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
     }
 
     public function testDelete(): void
@@ -69,7 +69,7 @@ class EntityWriterTest extends TestCase
         $context = $this->createWriteContext();
 
         $this->getWriter()->insert(
-            $this->getContainer()->get(CategoryDefinition::class),
+            static::getContainer()->get(CategoryDefinition::class),
             [
                 ['id' => $id, 'name' => 'test-country'],
             ],
@@ -80,7 +80,7 @@ class EntityWriterTest extends TestCase
         static::assertNotEmpty($exists);
 
         $deleteResult = $this->getWriter()->delete(
-            $this->getContainer()->get(CategoryDefinition::class),
+            static::getContainer()->get(CategoryDefinition::class),
             [
                 ['id' => $id],
             ],
@@ -101,7 +101,7 @@ class EntityWriterTest extends TestCase
         $context = $this->createWriteContext();
 
         $this->getWriter()->insert(
-            $this->getContainer()->get(CategoryDefinition::class),
+            static::getContainer()->get(CategoryDefinition::class),
             [
                 ['id' => $id, 'name' => 'test-country1'],
                 ['id' => $id2, 'name' => 'test-country2'],
@@ -126,7 +126,7 @@ class EntityWriterTest extends TestCase
         static::assertCount(2, $translations);
 
         $deleteResult = $this->getWriter()->delete(
-            $this->getContainer()->get(CategoryDefinition::class),
+            static::getContainer()->get(CategoryDefinition::class),
             [
                 ['id' => $id],
                 ['id' => $id2],
@@ -161,7 +161,7 @@ class EntityWriterTest extends TestCase
         $context = $this->createWriteContext();
 
         $this->getWriter()->insert(
-            $this->getContainer()->get(CategoryDefinition::class),
+            static::getContainer()->get(CategoryDefinition::class),
             [
                 ['id' => $id, 'name' => 'test-country1'],
                 ['id' => $id2, 'name' => 'test-country2'],
@@ -178,7 +178,7 @@ class EntityWriterTest extends TestCase
         static::assertCount(2, $exists);
 
         $deleteResult = $this->getWriter()->delete(
-            $this->getContainer()->get(CategoryDefinition::class),
+            static::getContainer()->get(CategoryDefinition::class),
             [
                 ['id' => $id],
                 ['id' => $id2],
@@ -207,7 +207,7 @@ class EntityWriterTest extends TestCase
         $categoryId = Uuid::randomHex();
 
         $context = $this->createWriteContext();
-        $this->getWriter()->insert($this->getContainer()->get(ProductDefinition::class), [
+        $this->getWriter()->insert(static::getContainer()->get(ProductDefinition::class), [
             [
                 'id' => $productId,
                 'productNumber' => Uuid::randomHex(),
@@ -228,7 +228,7 @@ class EntityWriterTest extends TestCase
         );
         static::assertCount(1, $exists);
 
-        $deleteResult = $this->getWriter()->delete($this->getContainer()->get(ProductCategoryDefinition::class), [
+        $deleteResult = $this->getWriter()->delete(static::getContainer()->get(ProductCategoryDefinition::class), [
             ['productId' => $productId, 'categoryId' => $categoryId],
         ], $context);
 
@@ -248,7 +248,7 @@ class EntityWriterTest extends TestCase
 
         $productId = Uuid::randomHex();
 
-        $this->getWriter()->delete($this->getContainer()->get(ProductCategoryDefinition::class), [
+        $this->getWriter()->delete(static::getContainer()->get(ProductCategoryDefinition::class), [
             ['productId' => $productId],
         ], $this->createWriteContext());
     }
@@ -260,7 +260,7 @@ class EntityWriterTest extends TestCase
         $categoryId = Uuid::randomHex();
 
         $context = $this->createWriteContext();
-        $this->getWriter()->insert($this->getContainer()->get(ProductDefinition::class), [
+        $this->getWriter()->insert(static::getContainer()->get(ProductDefinition::class), [
             [
                 'id' => $productId,
                 'productNumber' => Uuid::randomHex(),
@@ -305,7 +305,7 @@ class EntityWriterTest extends TestCase
         );
         static::assertCount(2, $exists);
 
-        $deleteResult = $this->getWriter()->delete($this->getContainer()->get(ProductCategoryDefinition::class), [
+        $deleteResult = $this->getWriter()->delete(static::getContainer()->get(ProductCategoryDefinition::class), [
             ['productId' => $productId, 'categoryId' => $categoryId],
             ['productId' => $productId2, 'categoryId' => $categoryId],
         ], $context);
@@ -324,7 +324,7 @@ class EntityWriterTest extends TestCase
     public function testInsertWithId(): void
     {
         $this->getWriter()->insert(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             [
                 [
                     'id' => $this->id,
@@ -360,7 +360,7 @@ class EntityWriterTest extends TestCase
         $productCountBefore = (int) $this->connection->fetchOne('SELECT COUNT(*) FROM product');
 
         $this->getWriter()->insert(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             [
                 [
                     'productNumber' => Uuid::randomHex(),
@@ -383,7 +383,7 @@ class EntityWriterTest extends TestCase
     public function testInsertFromDocs(): void
     {
         $this->getWriter()->insert(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             [
                 [
                     'id' => $this->id,
@@ -427,7 +427,7 @@ class EntityWriterTest extends TestCase
         $productManufacturerId = Uuid::randomHex();
 
         $this->getWriter()->update(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             [
                 [
                     'id' => $this->id,
@@ -470,7 +470,7 @@ class EntityWriterTest extends TestCase
         static::assertIsArray($newProduct);
 
         $this->getWriter()->update(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             [
                 ['id' => $this->id, 'ean' => 'ABC'],
             ],
@@ -494,7 +494,7 @@ class EntityWriterTest extends TestCase
     public function testInsertIgnoresRuntimeFields(): void
     {
         static::assertNotNull(
-            $this->getContainer()->get(MediaDefinition::class)
+            static::getContainer()->get(MediaDefinition::class)
                 ->getFields()
                 ->get('url')
                 ?->getFlag(Runtime::class)
@@ -503,7 +503,7 @@ class EntityWriterTest extends TestCase
         $id = '2b9a945bb62b4122a32a3bbfbe1e6fd3';
         $writeContext = $this->createWriteContext();
         $this->getWriter()->insert(
-            $this->getContainer()->get(MediaDefinition::class),
+            static::getContainer()->get(MediaDefinition::class),
             [
                 [
                     'id' => $id,
@@ -529,11 +529,11 @@ class EntityWriterTest extends TestCase
 
     public function testUpdateIgnoresRuntimeFields(): void
     {
-        static::assertNotNull($this->getContainer()->get(MediaDefinition::class)->getFields()->get('url')?->getFlag(Runtime::class));
+        static::assertNotNull(static::getContainer()->get(MediaDefinition::class)->getFields()->get('url')?->getFlag(Runtime::class));
         $id = '2b9a945bb62b4122a32a3bbfbe1e6fd3';
         $writeContext = $this->createWriteContext();
         $this->getWriter()->insert(
-            $this->getContainer()->get(MediaDefinition::class),
+            static::getContainer()->get(MediaDefinition::class),
             [
                 [
                     'id' => $id,
@@ -548,7 +548,7 @@ class EntityWriterTest extends TestCase
         );
 
         $this->getWriter()->update(
-            $this->getContainer()->get(MediaDefinition::class),
+            static::getContainer()->get(MediaDefinition::class),
             [
                 ['id' => $id, 'url' => 'www.example.com'],
             ],
@@ -569,11 +569,11 @@ class EntityWriterTest extends TestCase
         $this->insertEmptyProduct();
 
         $localeId = Uuid::randomHex();
-        $this->getContainer()->get('locale.repository')->upsert([
+        static::getContainer()->get('locale.repository')->upsert([
             ['id' => $localeId, 'name' => 'test', 'territory' => 'tmp', 'code' => Uuid::randomHex()],
         ], Context::createDefaultContext());
 
-        $this->getContainer()->get('language.repository')->upsert([
+        static::getContainer()->get('language.repository')->upsert([
             [
                 'id' => '2d905256e75149678dd5a32a81b94f1f',
                 'name' => 'language 2',
@@ -588,7 +588,7 @@ class EntityWriterTest extends TestCase
         ], Context::createDefaultContext());
 
         $this->getWriter()->update(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             [
                 [
                     'id' => $this->id,
@@ -654,7 +654,7 @@ class EntityWriterTest extends TestCase
 
         $this->expectException(WriteException::class);
         $this->getWriter()->update(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             [
                 ['id' => $this->id, 'name' => $tooLongValue],
             ],
@@ -669,7 +669,7 @@ class EntityWriterTest extends TestCase
 
         $this->expectException(WriteTypeIntendException::class);
         $this->getWriter()->update(
-            $this->getContainer()->get(TaxDefinition::class),
+            static::getContainer()->get(TaxDefinition::class),
             [$data],
             WriteContext::createFromContext(Context::createDefaultContext())
         );
@@ -677,7 +677,7 @@ class EntityWriterTest extends TestCase
 
     public function testWriteOneToManyWithOptionalIdField(): void
     {
-        $mediaRepo = $this->getContainer()->get('media.repository');
+        $mediaRepo = static::getContainer()->get('media.repository');
         $mediaId = Uuid::randomHex();
         $manufacturerId = Uuid::randomHex();
 
@@ -694,7 +694,7 @@ class EntityWriterTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $manufacturer = $this->getContainer()->get('product_manufacturer.repository')
+        $manufacturer = static::getContainer()->get('product_manufacturer.repository')
             ->search(new Criteria([$manufacturerId]), Context::createDefaultContext())
             ->get($manufacturerId);
 
@@ -705,7 +705,7 @@ class EntityWriterTest extends TestCase
 
     public function testWriteTranslatedEntityWithoutRequiredFieldsNotInSystemLanguage(): void
     {
-        $mediaRepo = $this->getContainer()->get('media.repository');
+        $mediaRepo = static::getContainer()->get('media.repository');
         $mediaId = Uuid::randomHex();
         $context = Context::createDefaultContext();
         $context = new Context(
@@ -730,7 +730,7 @@ class EntityWriterTest extends TestCase
 
     public function testWriteWithEmptyDataIsValid(): void
     {
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
 
         $context = Context::createDefaultContext();
 
@@ -753,7 +753,7 @@ class EntityWriterTest extends TestCase
         // creation auto-commits the current transaction on database level and would cause errors when Doctrine tries to
         // commit the still-open transaction.
         $this->connection->commit();
-        $container = $this->getContainer();
+        $container = static::getContainer();
         $context = Context::createDefaultContext();
         /** @var DefinitionInstanceRegistry $definitionInstanceRegistry */
         $definitionInstanceRegistry = $container->get(DefinitionInstanceRegistry::class);
@@ -841,7 +841,7 @@ class EntityWriterTest extends TestCase
     public function testCanUpdateEntitiesToAddCustomFields(): void
     {
         /** @var EntityRepository $productRepository */
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $productId = Uuid::randomHex();
 
         $productRepository->create(
@@ -873,7 +873,7 @@ class EntityWriterTest extends TestCase
     {
         $ids = new IdsCollection();
 
-        $this->getContainer()->get('language.repository')->create(
+        static::getContainer()->get('language.repository')->create(
             [
                 [
                     'id' => $ids->create('language'),
@@ -898,11 +898,11 @@ class EntityWriterTest extends TestCase
             )
             ->build();
 
-        $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
 
         $behavior = new CloneBehavior(['productNumber' => 'new-parent'], false);
 
-        $this->getContainer()->get('product.repository')->clone(
+        static::getContainer()->get('product.repository')->clone(
             $ids->get('parent'),
             Context::createDefaultContext(),
             $ids->get('new-parent'),
@@ -914,14 +914,14 @@ class EntityWriterTest extends TestCase
             'productNumber' => 'new-child',
         ], false);
 
-        $this->getContainer()->get('product.repository')->clone(
+        static::getContainer()->get('product.repository')->clone(
             $ids->get('child'),
             Context::createDefaultContext(),
             $ids->get('new-child'),
             $behavior
         );
 
-        $translations = $this->getContainer()->get(Connection::class)->fetchAssociative(
+        $translations = static::getContainer()->get(Connection::class)->fetchAssociative(
             'SELECT name, description FROM product_translation WHERE language_id = :language AND product_id = :id',
             ['language' => $ids->getBytes('language'), 'id' => $ids->getBytes('new-child')]
         );
@@ -939,7 +939,7 @@ class EntityWriterTest extends TestCase
     protected function insertEmptyProduct(): void
     {
         $this->getWriter()->insert(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             [
                 [
                     'id' => $this->id,
@@ -963,11 +963,11 @@ class EntityWriterTest extends TestCase
 
     private function getWriter(): EntityWriterInterface
     {
-        return $this->getContainer()->get(EntityWriter::class);
+        return static::getContainer()->get(EntityWriter::class);
     }
 
     private function getMediaRepository(): EntityRepository
     {
-        return $this->getContainer()->get('media.repository');
+        return static::getContainer()->get('media.repository');
     }
 }

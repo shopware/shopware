@@ -10,7 +10,7 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class InstallerLocaleListener implements EventSubscriberInterface
 {
     final public const FALLBACK_LOCALE = 'en';

@@ -2,13 +2,11 @@ import template from './sw-media-display-options.html.twig';
 import './sw-media-display-options.scss';
 
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'media-sorting-change',
@@ -107,6 +105,28 @@ export default {
                     name: this.$tc('sw-media.presentation.labelPresentationList'),
                 },
             ];
+        },
+
+        presentationOptions() {
+            return (
+                this.previewOptions?.map((item) => {
+                    return {
+                        id: item.value,
+                        value: item.value,
+                        label: item.name,
+                    };
+                }) ?? []
+            );
+        },
+
+        sortOptionsSelect() {
+            return this.sortOptions.map((item) => {
+                return {
+                    id: item.value,
+                    value: item.value,
+                    label: item.name,
+                };
+            });
         },
     },
 

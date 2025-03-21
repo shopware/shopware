@@ -5,17 +5,16 @@ const {
     Mixin,
     Data: { Criteria },
     Component,
+    Store,
 } = Shopware;
 const { mapState } = Component.getComponentHelper();
 
 /**
  * @private
- * @package services-settings
+ * @sw-package after-sales
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'acl',
@@ -120,7 +119,7 @@ export default {
             return Shopware.Filter.getByName('asset');
         },
 
-        ...mapState('swFlowState', ['triggerEvents']),
+        ...mapState(() => Store.get('swFlow'), ['triggerEvents']),
     },
 
     watch: {
@@ -140,7 +139,7 @@ export default {
 
         getList() {
             this.isLoading = true;
-            Shopware.State.dispatch('swFlowState/fetchTriggerActions');
+            Shopware.Store.get('swFlow').fetchTriggerActions();
 
             this.flowRepository
                 .search(this.flowCriteria)

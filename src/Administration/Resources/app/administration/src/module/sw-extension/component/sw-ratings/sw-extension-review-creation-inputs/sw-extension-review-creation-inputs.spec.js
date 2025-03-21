@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creation-inputs', () => {
     async function createWrapper(headlineError, ratingError) {
@@ -23,7 +23,6 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
                         'sw-field-error': await wrapTestComponent('sw-field-error', { sync: true }),
                         'sw-extension-select-rating': await wrapTestComponent('sw-extension-select-rating', { sync: true }),
                         'sw-extension-rating-stars': await wrapTestComponent('sw-extension-rating-stars', { sync: true }),
-                        'sw-icon': true,
                         'sw-textarea-field': {
                             template: '<textarea></textarea>',
                         },
@@ -67,7 +66,7 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
         };
 
         const wrapper = await createWrapper(headlineError);
-        const headlineInput = wrapper.get('.sw-field');
+        const headlineInput = wrapper.get('.mt-text-field');
 
         expect(headlineInput.attributes('class')).toContain('has--error');
     });

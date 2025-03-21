@@ -19,7 +19,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class DeleteExpiredFilesCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -35,9 +35,9 @@ class DeleteExpiredFilesCommandTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->fileRepository = $this->getContainer()->get('import_export_file.repository');
+        $this->fileRepository = static::getContainer()->get('import_export_file.repository');
 
-        $this->deleteExpiredFilesCommand = $this->getContainer()->get(DeleteExpiredFilesCommand::class);
+        $this->deleteExpiredFilesCommand = static::getContainer()->get(DeleteExpiredFilesCommand::class);
 
         $this->context = Context::createDefaultContext();
 

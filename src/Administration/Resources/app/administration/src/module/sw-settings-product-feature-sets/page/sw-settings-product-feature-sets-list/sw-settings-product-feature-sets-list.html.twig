@@ -1,10 +1,7 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_list %}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_product_feature_set_index %}
 <sw-page class="sw-settings-product-feature-sets-list">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_product_feature_set_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -16,17 +13,15 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_product_feature_set_list_smart_bar_header %}
     <template #smart-bar-header>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_product_feature_set_list_smart_bar_header_title %}
         <h2>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_product_feature_set_list_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }} <sw-icon
+            {{ $tc('sw-settings.index.title') }}
+            <mt-icon
                 name="regular-chevron-right-xs"
-                small
+                size="16px"
             /> {{ $tc('sw-settings-product-feature-sets.list.textHeadline') }}
             {% endblock %}
         </h2>
@@ -34,24 +29,22 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_product_feature_set_list_smart_bar_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_product_feature_set_list_smart_bar_actions_add %}
-        <sw-button
-            :router-link="{ name: 'sw.settings.product.feature.sets.create' }"
+        <mt-button
             :disabled="!acl.can('product_feature_sets.creator') || undefined"
             class="sw-settings-product-feature-sets-list-grid__create-button"
             variant="primary"
+            size="default"
+            @click="$router.push({ name: 'sw.settings.product.feature.sets.create' })"
         >
             {{ $tc('sw-settings-product-feature-sets.list.buttonAddEssentialCharacteristics') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_product_feature_set_list_smart_bar_language_switch %}
     <template #language-switch>
         <sw-language-switch @on-change="onChangeLanguage" />
@@ -59,7 +52,6 @@
     {% endblock %}
 
     <template #content>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_product_feature_set_list_content %}
         <div class="sw-product-feature-sets-list__content">
 
@@ -90,11 +82,9 @@
                     </span>
                 </template>
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_product_feature_set_list_grid_columns_actions %}
                 <template #actions="{ item }">
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_product_feature_set_list_grid_columns_actions_edit %}
                     <sw-context-menu-item
                         :router-link="{ name: 'sw.settings.product.feature.sets.detail', params: { id: item.id, edit: 'edit' }}"
@@ -105,7 +95,6 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_product_feature_set_list_grid_columns_actions_delete %}
                     <sw-context-menu-item
                         :disabled="item.isSystemDefault || !acl.can('product_feature_sets.deleter') || undefined"
@@ -120,11 +109,9 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_product_feature_set_list_grid_action_modals %}
                 <template #action-modals="{ item }">
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_product_feature_set_list_delete_modal %}
                     <sw-modal
                         v-if="showDeleteModal"
@@ -133,36 +120,33 @@
                         @modal-close="onCloseDeleteModal"
                     >
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_product_feature_set_list_delete_modal_confirm_delete_text %}
                         <p class="sw-settings-product-feature-sets-list__confirm-delete-text">
-                            {{ $tc('sw-settings-product-feature-sets.list.textDeleteConfirm', 0, { name: item.name }) }}
+                            {{ $tc('sw-settings-product-feature-sets.list.textDeleteConfirm', { name: item.name }, 0) }}
                         </p>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_product_feature_set_list_delete_modal_footer %}
                         <template #modal-footer>
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_product_feature_set_list_delete_modal_cancel %}
-                            <sw-button
+                            <mt-button
                                 size="small"
+                                variant="secondary"
                                 @click="onCloseDeleteModal"
                             >
-                                {{ $tc('sw-settings-product-feature-sets.list.buttonCancel') }}
-                            </sw-button>
+                                {{ $tc('global.default.cancel') }}
+                            </mt-button>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_product_feature_set_list_delete_modal_confirm %}
-                            <sw-button
-                                variant="danger"
+                            <mt-button
+                                variant="critical"
                                 size="small"
                                 @click="onConfirmDelete(item.id)"
                             >
                                 {{ $tc('sw-settings-product-feature-sets.list.buttonDelete') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
 
                         </template>

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Api\Serializer;
 
 use Shopware\Core\Framework\Api\ApiException;
-use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -18,7 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 
-#[Package('core')]
+#[Package('framework')]
 class JsonApiEncoder
 {
     /**
@@ -32,10 +31,10 @@ class JsonApiEncoder
     private array $serializeCache = [];
 
     /**
-     * @param EntityCollection<Entity>|Entity|null $data
+     * @param EntityCollection<covariant Entity>|Entity|null $data
      * @param array<string, mixed> $metaData
      *
-     * @throws UnsupportedEncoderInputException|ApiException
+     * @throws ApiException
      * @throws \JsonException
      */
     public function encode(Criteria $criteria, EntityDefinition $definition, $data, string $baseUrl, array $metaData = []): string
@@ -92,7 +91,7 @@ class JsonApiEncoder
 
             try {
                 $relationData = $entity->get($propertyName);
-            } catch (PropertyNotFoundException|\InvalidArgumentException) {
+            } catch (PropertyNotFoundException) {
                 continue;
             }
 
@@ -126,7 +125,7 @@ class JsonApiEncoder
     }
 
     /**
-     * @param Entity|EntityCollection<Entity> $data
+     * @param Entity|EntityCollection<covariant Entity> $data
      */
     private function encodeData(ResponseFields $fields, EntityDefinition $definition, Entity|EntityCollection $data, JsonApiEncodingResult $result): void
     {

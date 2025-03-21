@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_visibility_detail %}
 <sw-grid
     class="sw-settings-listing-visibility-detail"
@@ -6,17 +5,14 @@
     :items="items"
     :selectable="false"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_listing_visibility_detail_columns %}
     <template #columns="{ item }">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_visibility_detail_columns_sales_channel %}
         <sw-grid-column
             :label="$tc('sw-product.visibility.columnSalesChannel')"
             flex="0.5fr"
             align="left"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_listing_visibility_detail_columns_sales_channel_label %}
             <span
                 v-tooltip="{ message: item.name, disabled: item.name.length < 10 }"
@@ -28,7 +24,6 @@
         </sw-grid-column>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_visibility_detail_columns_all %}
         <sw-grid-column
             :label="$tc('sw-product.visibility.columnAll')"
@@ -45,7 +40,6 @@
         </sw-grid-column>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_visibility_detail_columns_search_only %}
         <sw-grid-column
             :label="$tc('sw-product.visibility.columnSearchOnly')"
@@ -62,7 +56,6 @@
         </sw-grid-column>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_visibility_detail_columns_link_only %}
         <sw-grid-column
             :label="$tc('sw-product.visibility.columnLinkOnly')"
@@ -82,7 +75,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_listing_visibility_detail_pagination %}
     <template #pagination>
         <sw-pagination

@@ -48,7 +48,7 @@ class AppConfirmationDeltaProviderTest extends TestCase
 
     private function getAppConfirmationDeltaProvider(): AppConfirmationDeltaProvider
     {
-        return $this->getContainer()
+        return static::getContainer()
             ->get(AppConfirmationDeltaProvider::class);
     }
 }

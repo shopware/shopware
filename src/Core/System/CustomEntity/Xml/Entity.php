@@ -13,7 +13,7 @@ use Symfony\Component\Config\Util\XmlUtils;
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
-#[Package('core')]
+#[Package('framework')]
 class Entity extends XmlElement
 {
     protected string $name;

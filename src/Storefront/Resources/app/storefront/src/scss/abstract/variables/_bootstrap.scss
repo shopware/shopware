@@ -4,6 +4,8 @@ Bootstrap variables
 Contains all overrides of bootstrap default variables.
 
 https://getbootstrap.com/docs/5.2/customize/sass/#variable-defaults
+
+@sw-package framework
 */
 
 $enable-responsive-font-sizes: true !default;
@@ -16,6 +18,9 @@ $modal-transition:
 $container-max-widths: (
     xs: 1400px,
 ) !default;
+
+// Form validation
+$enable-validation-icons: true !default;
 
 // Utility importance (add no !important to utilities like .d-block)
 $enable-important-utilities: false !default;

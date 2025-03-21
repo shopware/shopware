@@ -26,7 +26,7 @@ class MediaFolderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
+        $this->mediaFolderRepository = static::getContainer()->get('media_folder.repository');
     }
 
     public function testCreateMediaFolderWithConfiguration(): void
@@ -82,7 +82,7 @@ class MediaFolderTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAssociation('mediaFolders');
 
-        $mediaFolderConfigurationRepository = $this->getContainer()->get('media_folder_configuration.repository');
+        $mediaFolderConfigurationRepository = static::getContainer()->get('media_folder_configuration.repository');
         $collection = $mediaFolderConfigurationRepository->search($criteria, $context)->getEntities();
 
         $configuration = $collection->get($configurationId);

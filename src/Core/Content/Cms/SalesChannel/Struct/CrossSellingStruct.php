@@ -6,15 +6,10 @@ use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementC
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class CrossSellingStruct extends Struct
 {
-    /**
-     * @var CrossSellingElementCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $crossSellings;
+    protected ?CrossSellingElementCollection $crossSellings = null;
 
     public function getCrossSellings(): ?CrossSellingElementCollection
     {

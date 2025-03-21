@@ -30,8 +30,8 @@ class LineItemFactoryRegistryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->service = $this->getContainer()->get(LineItemFactoryRegistry::class);
-        $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $this->service = static::getContainer()->get(LineItemFactoryRegistry::class);
+        $this->context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     public function testCreateProduct(): void

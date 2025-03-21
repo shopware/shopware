@@ -9,7 +9,6 @@ use Shopware\Core\Installer\Requirements\RequirementsValidatorInterface;
 use Shopware\Core\Installer\Requirements\Struct\PathCheck;
 use Shopware\Core\Installer\Requirements\Struct\RequirementCheck;
 use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
-use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -32,13 +31,13 @@ class RequirementsControllerTest extends TestCase
         $checks = new RequirementsCheckCollection([new PathCheck('check', RequirementCheck::STATUS_SUCCESS)]);
 
         $validator = $this->createMock(RequirementsValidatorInterface::class);
-        $validator->expects(static::once())
+        $validator->expects($this->once())
             ->method('validateRequirements')
             ->with(static::isInstanceOf(RequirementsCheckCollection::class))
             ->willReturn($checks);
 
         $twig = $this->createMock(Environment::class);
-        $twig->expects(static::once())->method('render')
+        $twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/requirements.html.twig',
                 array_merge($this->getDefaultViewParams(), [
@@ -47,10 +46,7 @@ class RequirementsControllerTest extends TestCase
             )
             ->willReturn('checks');
 
-        $jwtCertificateGenerator = $this->createMock(JwtCertificateGenerator::class);
-        $jwtCertificateGenerator->expects(static::never())->method('generate');
-
-        $controller = new RequirementsController([$validator], $jwtCertificateGenerator, __DIR__);
+        $controller = new RequirementsController([$validator]);
         $controller->setContainer($this->getInstallerContainer($twig));
 
         $response = $controller->requirements($request);
@@ -65,24 +61,20 @@ class RequirementsControllerTest extends TestCase
         $checks = new RequirementsCheckCollection([new PathCheck('check', RequirementCheck::STATUS_SUCCESS)]);
 
         $validator = $this->createMock(RequirementsValidatorInterface::class);
-        $validator->expects(static::once())
+        $validator->expects($this->once())
             ->method('validateRequirements')
             ->with(static::isInstanceOf(RequirementsCheckCollection::class))
             ->willReturn($checks);
 
         $twig = $this->createMock(Environment::class);
-        $twig->expects(static::never())->method('render');
+        $twig->expects($this->never())->method('render');
 
         $router = $this->createMock(RouterInterface::class);
-        $router->expects(static::once())->method('generate')
+        $router->expects($this->once())->method('generate')
             ->with('installer.license', [], UrlGeneratorInterface::ABSOLUTE_PATH)
             ->willReturn('/installer/license');
 
-        $jwtCertificateGenerator = $this->createMock(JwtCertificateGenerator::class);
-        $jwtCertificateGenerator->expects(static::once())->method('generate')
-            ->with(__DIR__ . '/config/jwt/private.pem', __DIR__ . '/config/jwt/public.pem');
-
-        $controller = new RequirementsController([$validator], $jwtCertificateGenerator, __DIR__);
+        $controller = new RequirementsController([$validator]);
         $controller->setContainer($this->getInstallerContainer($twig, ['router' => $router]));
 
         $response = $controller->requirements($request);
@@ -98,13 +90,13 @@ class RequirementsControllerTest extends TestCase
         $checks = new RequirementsCheckCollection([new PathCheck('check', RequirementCheck::STATUS_ERROR)]);
 
         $validator = $this->createMock(RequirementsValidatorInterface::class);
-        $validator->expects(static::once())
+        $validator->expects($this->once())
             ->method('validateRequirements')
             ->with(static::isInstanceOf(RequirementsCheckCollection::class))
             ->willReturn($checks);
 
         $twig = $this->createMock(Environment::class);
-        $twig->expects(static::once())->method('render')
+        $twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/requirements.html.twig',
                 array_merge($this->getDefaultViewParams(), [
@@ -113,10 +105,7 @@ class RequirementsControllerTest extends TestCase
             )
             ->willReturn('checks');
 
-        $jwtCertificateGenerator = $this->createMock(JwtCertificateGenerator::class);
-        $jwtCertificateGenerator->expects(static::never())->method('generate');
-
-        $controller = new RequirementsController([$validator], $jwtCertificateGenerator, __DIR__);
+        $controller = new RequirementsController([$validator]);
         $controller->setContainer($this->getInstallerContainer($twig));
 
         $response = $controller->requirements($request);

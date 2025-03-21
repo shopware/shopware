@@ -1,11 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sales_channel_modal %}
 <sw-modal
     class="sw-sales-channel-modal"
     :title="$tc(modalTitle)"
     @modal-close="onCloseModal"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_modal_grid %}
     <sw-sales-channel-modal-grid
         v-if="!detailType"
@@ -17,7 +15,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_modal_detail %}
     <sw-sales-channel-modal-detail
         v-else
@@ -25,7 +22,6 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_modal_footer %}
     <template #modal-footer>
         <a
@@ -36,22 +32,20 @@
             {{ $tc('sw-sales-channel.general.manageSalesChannels') }}
         </a>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_modal_footer_detail_actions %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_modal_footer_back %}
-        <sw-button
+        <mt-button
             v-if="detailType"
             size="small"
+            variant="secondary"
             @click.prevent="detailType = false"
         >
             {{ $tc('sw-sales-channel.modal.buttonBack') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_modal_footer_add_channel %}
-        <sw-button
+        <mt-button
             v-if="detailType"
             v-tooltip="{
                 message: $tc('sw-sales-channel.modal.messageNoProductStreams'),
@@ -66,21 +60,20 @@
             @click="onAddChannel(detailType.id)"
         >
             {{ $tc('sw-sales-channel.modal.buttonAddChannel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_modal_footer_actions %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_modal_footer_cancel %}
-        <sw-button
+        <mt-button
             v-if="!detailType"
             size="small"
+            variant="secondary"
             @click="onCloseModal"
         >
-            {{ $tc('sw-sales-channel.modal.buttonCancel') }}
-        </sw-button>
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
         {% endblock %}
         {% endblock %}
     </template>

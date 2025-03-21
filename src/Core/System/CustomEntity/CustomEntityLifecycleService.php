@@ -6,7 +6,6 @@ namespace Shopware\Core\System\CustomEntity;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema;
@@ -18,7 +17,7 @@ use Symfony\Component\Filesystem\Path;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class CustomEntityLifecycleService
 {
     public function __construct(
@@ -26,22 +25,8 @@ class CustomEntityLifecycleService
         private readonly CustomEntitySchemaUpdater $customEntitySchemaUpdater,
         private readonly CustomEntityEnrichmentService $customEntityEnrichmentService,
         private readonly CustomEntityXmlSchemaValidator $customEntityXmlSchemaValidator,
-        private readonly string $projectDir,
         private readonly SourceResolver $sourceResolver
     ) {
-    }
-
-    public function updatePlugin(string $pluginId, string $pluginPath): ?CustomEntityXmlSchema
-    {
-        return $this->update(
-            \sprintf(
-                '%s/%s/src/Resources/',
-                $this->projectDir,
-                $pluginPath,
-            ),
-            PluginEntity::class,
-            $pluginId
-        );
     }
 
     public function updateApp(AppEntity $app): ?CustomEntityXmlSchema

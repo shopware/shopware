@@ -21,7 +21,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -56,9 +55,9 @@ class StateMachineActionControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->orderRepository = $this->getContainer()->get('order.repository');
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
-        $this->stateMachineHistoryRepository = $this->getContainer()->get('state_machine_history.repository');
+        $this->orderRepository = static::getContainer()->get('order.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
+        $this->stateMachineHistoryRepository = static::getContainer()->get('state_machine_history.repository');
     }
 
     public function testOrderNotFoundException(): void
@@ -139,7 +138,7 @@ class StateMachineActionControllerTest extends TestCase
         static::assertInstanceOf(StateMachineStateEntity::class, $toStateMachineState);
         static::assertEquals($destinationStateTechnicalName, $toStateMachineState->getTechnicalName());
 
-        static::assertEquals($this->getContainer()->get(OrderDefinition::class)->getEntityName(), $historyEntry->getEntityName());
+        static::assertEquals(static::getContainer()->get(OrderDefinition::class)->getEntityName(), $historyEntry->getEntityName());
 
         static::assertEquals($orderId, $historyEntry->getReferencedId());
         static::assertEquals(Defaults::LIVE_VERSION, $historyEntry->getReferencedVersionId());
@@ -166,7 +165,7 @@ class StateMachineActionControllerTest extends TestCase
         $context = Context::createDefaultContext();
         $customerId = $this->createCustomer($context);
 
-        $cartService = $this->getContainer()->get(CartService::class);
+        $cartService = static::getContainer()->get(CartService::class);
 
         $options = [
             SalesChannelContextService::LANGUAGE_ID => $this->getDeDeLanguageId(),
@@ -174,7 +173,7 @@ class StateMachineActionControllerTest extends TestCase
             SalesChannelContextService::SHIPPING_METHOD_ID => $this->createShippingMethod(),
         ];
 
-        $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, $options);
 
         $productId = Uuid::randomHex();
@@ -187,7 +186,7 @@ class StateMachineActionControllerTest extends TestCase
             ],
             'active' => true,
             'visibilities' => [
-                ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['salesChannelId' => $salesChannelContext->getSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
             'stock' => 10,
             'price' => [
@@ -202,7 +201,7 @@ class StateMachineActionControllerTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product], $salesChannelContext->getContext());
         $this->addTaxDataToSalesChannel($salesChannelContext, $product['tax']);
 
@@ -217,7 +216,7 @@ class StateMachineActionControllerTest extends TestCase
         $orderId = $cartService->order($cart, $salesChannelContext, new RequestDataBag());
 
         /** @var EntityRepository $orderRepository */
-        $orderRepository = $this->getContainer()->get('order.repository');
+        $orderRepository = static::getContainer()->get('order.repository');
 
         /** @var OrderEntity $order */
         $order = $orderRepository->search(new Criteria([$orderId]), $salesChannelContext->getContext())->first();
@@ -230,7 +229,7 @@ class StateMachineActionControllerTest extends TestCase
         $context = Context::createDefaultContext();
         $customerId = $this->createCustomer($context);
 
-        $cartService = $this->getContainer()->get(CartService::class);
+        $cartService = static::getContainer()->get(CartService::class);
 
         $options = [
             SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
@@ -238,7 +237,7 @@ class StateMachineActionControllerTest extends TestCase
             SalesChannelContextService::SHIPPING_METHOD_ID => $this->createShippingMethod(),
         ];
 
-        $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, $options);
 
         $productId = Uuid::randomHex();
@@ -255,7 +254,7 @@ class StateMachineActionControllerTest extends TestCase
             ],
             'active' => true,
             'visibilities' => [
-                ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['salesChannelId' => $salesChannelContext->getSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
             'tax' => ['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 18],
             'manufacturer' => [
@@ -266,7 +265,7 @@ class StateMachineActionControllerTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product], $salesChannelContext->getContext());
         $this->addTaxDataToSalesChannel($salesChannelContext, $product['tax']);
 
@@ -281,7 +280,7 @@ class StateMachineActionControllerTest extends TestCase
         $orderId = $cartService->order($cart, $salesChannelContext, new RequestDataBag());
 
         /** @var EntityRepository $orderRepository */
-        $orderRepository = $this->getContainer()->get('order.repository');
+        $orderRepository = static::getContainer()->get('order.repository');
 
         /** @var OrderEntity $order */
         $order = $orderRepository->search(new Criteria([$orderId]), $salesChannelContext->getContext())->first();
@@ -300,7 +299,7 @@ class StateMachineActionControllerTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('rule.repository')
+        static::getContainer()->get('rule.repository')
             ->create([$rule], Context::createDefaultContext());
 
         $shipping = [
@@ -318,11 +317,11 @@ class StateMachineActionControllerTest extends TestCase
                 ],
             ],
             'availabilityRuleId' => $rule['id'],
-            'deliveryTimeId' => $this->getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROm delivery_time LIMIT 1'),
+            'deliveryTimeId' => static::getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROm delivery_time LIMIT 1'),
             'salesChannels' => [['id' => TestDefaults::SALES_CHANNEL]],
         ];
 
-        $this->getContainer()->get('shipping_method.repository')
+        static::getContainer()->get('shipping_method.repository')
             ->create([$shipping], Context::createDefaultContext());
 
         return $shipping['id'];
@@ -331,7 +330,7 @@ class StateMachineActionControllerTest extends TestCase
     private function createOrder(string $customerId, Context $context): string
     {
         $orderId = Uuid::randomHex();
-        $stateId = $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
+        $stateId = static::getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
         $billingAddressId = Uuid::randomHex();
 
         $order = [
@@ -410,10 +409,6 @@ class StateMachineActionControllerTest extends TestCase
                 ],
             ],
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         $this->customerRepository->upsert([$customer], $context);
 

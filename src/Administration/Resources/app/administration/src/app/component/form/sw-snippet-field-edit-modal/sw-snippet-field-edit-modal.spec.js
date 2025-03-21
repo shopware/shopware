@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -49,14 +49,10 @@ async function createWrapper() {
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-loader': true,
-                'sw-icon': true,
                 'sw-modal': await wrapTestComponent('sw-modal'),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-contextual-field': true,
                 'mt-text-field': true,
                 'sw-textarea-field': true,
-                'mt-button': true,
                 'router-link': true,
                 'sw-field-copyable': true,
             },

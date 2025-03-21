@@ -1,9 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_list %}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_tag_index %}
 <sw-page class="sw-settings-tag-list">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_tag_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -15,21 +12,18 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_tag_list_smart_bar_header %}
     <template #smart-bar-header>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_tag_list_smart_bar_header_title %}
         <h2>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_tag_list_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }} <sw-icon
+            {{ $tc('sw-settings.index.title') }}
+            <mt-icon
                 name="regular-chevron-right-xs"
-                small
+                size="16px"
             /> {{ $tc('sw-settings-tag.list.textHeadline') }}
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_tag_list_smart_bar_header_amount %}
             <span
                 v-if="!isLoading"
@@ -43,12 +37,10 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_tag_list_smart_bar_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_tag_list_smart_bar_actions_add %}
-        <sw-button
+        <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('tag.creator'),
@@ -57,26 +49,24 @@
             class="sw-settings-tag-list__button-create"
             variant="primary"
             :disabled="!acl.can('tag.creator') || undefined"
+            size="default"
             @click="onDetail(null)"
         >
             {{ $tc('sw-settings-tag.list.buttonAddTag') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_tag_list_content %}
     <template #content>
         <sw-card-view>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_tag_list_content_card %}
-            <sw-card
+            <mt-card
                 class="sw-settings-tag-list__content"
                 position-identifier="sw-settings-tag-list-content"
             >
                 <template #toolbar>
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_tag_list_grid_toolbar_search %}
                     <sw-card-filter
                         ref="swCardFilter"
@@ -84,7 +74,6 @@
                         @sw-card-filter-term-change="onSearch"
                     />
                     {% endblock %}
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_tag_list_grid_toolbar_filter %}
                     <sw-context-button
                         :menu-width="300"
@@ -94,18 +83,18 @@
                         :additional-context-menu-classes="{ 'sw-settings-tag-list__filter': true }"
                     >
                         <template #button>
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_tag_list_grid_toolbar_filter_menu_trigger %}
-                            <sw-button
+                            <mt-button
                                 class="sw-settings-tag-list__filter-menu-trigger"
                                 size="small"
+                                variant="secondary"
                             >
-                                <sw-icon
+                                <mt-icon
                                     name="regular-filter-s"
                                     size="16"
                                 />
                                 {{ $tc('sw-settings-tag.list.filter') }}
-                            </sw-button>
+                            </mt-button>
                             <i
                                 v-if="filterCount > 0"
                                 class="filter-badge"
@@ -115,35 +104,32 @@
                             {% endblock %}
                         </template>
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_tag_list_grid_toolbar_filter_header %}
                         <h3>{{ $tc('sw-settings-tag.list.filter') }}</h3>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_tag_list_grid_toolbar_filter_divider %}
                         <sw-context-menu-divider />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_tag_list_grid_toolbar_filter_duplicate %}
-                        <sw-switch-field
-                            v-model:value="duplicateFilter"
+
+                        <mt-switch
+                            v-model="duplicateFilter"
                             :label="$tc('sw-settings-tag.list.filterDuplicate')"
-                            @update:value="onFilter"
+                            @update:model-value="onFilter"
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_tag_list_grid_toolbar_filter_empty %}
-                        <sw-switch-field
-                            v-model:value="emptyFilter"
+
+                        <mt-switch
+                            v-model="emptyFilter"
                             :label="$tc('sw-settings-tag.list.filterEmpty')"
-                            @update:value="onFilter"
+                            @update:model-value="onFilter"
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_tag_list_grid_toolbar_filter_assignment %}
                         <sw-multi-select
                             v-model:value="assignmentFilter"
@@ -156,7 +142,6 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_tag_list_grid_toolbar_filter_footer %}
                         <div class="sw-settings-tag-list__filter-footer">
                             <a
@@ -172,7 +157,6 @@
                 </template>
 
                 <template #grid>
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_tag_list_grid %}
                     <sw-entity-listing
                         v-if="isLoading || total > 0"
@@ -196,7 +180,6 @@
                         @column-sort="onSortColumn"
                         @page-change="onPageChange"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_tag_list_grid_bulk %}
                         <template #bulk-additional="{ selectionCount }">
                             <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
@@ -212,7 +195,6 @@
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_tag_list_grid_bulk_merge_modal %}
                         <template #bulk-modals-additional="{ selection, ids }">
                             <sw-modal
@@ -225,9 +207,9 @@
                                     name="bulk-modal-merge-confirm-text"
                                     v-bind="{ selection, ids }"
                                 >
-                                    <sw-alert variant="info">
+                                    <mt-banner variant="info">
                                         {{ $tc('sw-settings-tag.list.bulkMergeNotice') }}
-                                    </sw-alert>
+                                    </mt-banner>
                                     <p class="sw-settings-tag-list__confirm-bulk-merge-text">
                                         <span v-if="!bulkMergeProgress.isRunning">
                                             {{ $tc('sw-settings-tag.list.bulkMergeMessage') }}
@@ -259,15 +241,15 @@
                                     </p>
                                 </slot>
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_tag_list_merge_modal_confirm_name_input %}
                                 <slot name="bulk-modal-merge-confirm-name-input">
                                     <p
                                         v-if="!bulkMergeProgress.isRunning"
                                         class="sw-settings-tag-list__confirm-bulk-merge-name-input"
                                     >
-                                        <sw-text-field
-                                            v-model:value="duplicateName"
+
+                                        <mt-text-field
+                                            v-model="duplicateName"
                                             :label="$tc('sw-settings-tag.list.bulkMergeName')"
                                             :placeholder="$tc('sw-settings-tag.list.placeholderTagName')"
                                             maxlength="255"
@@ -277,7 +259,6 @@
                                 </slot>
                                 {% endblock %}
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_tag_list_merge_modal_progress %}
                                 <slot name="bulk-modal-merge-progress">
                                     <div
@@ -297,14 +278,15 @@
                                         name="bulk-modal-merge-footer"
                                         v-bind="{ selection }"
                                     >
-                                        <sw-button
+                                        <mt-button
                                             size="small"
+                                            variant="secondary"
                                             @click="onCloseBulkMergeModal"
                                         >
                                             {{ $tc('global.default.cancel') }}
-                                        </sw-button>
+                                        </mt-button>
 
-                                        <sw-button
+                                        <mt-button
                                             variant="primary"
                                             size="small"
                                             :is-loading="isLoading"
@@ -312,14 +294,13 @@
                                             @click="onMergeTags(selection)"
                                         >
                                             {{ $tc('sw-settings-tag.list.bulkMerge') }}
-                                        </sw-button>
+                                        </mt-button>
                                     </slot>
                                 </template>
                             </sw-modal>
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_tag_list_grid_column_default_name %}
                         <template #column-name="{ item, column }">
                             <sw-label v-tooltip="{ message: item.name }">
@@ -328,7 +309,6 @@
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_tag_list_grid_column_assignments %}
                         <template
                             v-for="(propertyName, index) in assignmentProperties"
@@ -344,10 +324,8 @@
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_tag_list_grid_columns_actions %}
                         <template #actions="{ item }">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_tag_list_grid_columns_actions_edit %}
                             <sw-context-menu-item
                                 class="sw-settings-tag-list__edit-action"
@@ -358,7 +336,6 @@
                             </sw-context-menu-item>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_tag_list_grid_columns_actions_duplicate %}
                             <sw-context-menu-item
                                 :disabled="!acl.can('tag.creator') || undefined"
@@ -369,7 +346,6 @@
                             </sw-context-menu-item>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_tag_list_grid_columns_actions_delete %}
                             <sw-context-menu-item
                                 class="sw-settings-tag-list__delete-action"
@@ -383,10 +359,8 @@
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_tag_list_grid_action_modals %}
                         <template #action-modals="{ item }">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_tag_list_delete_modal %}
                             <sw-modal
                                 v-if="showDeleteModal === item.id"
@@ -394,42 +368,38 @@
                                 variant="small"
                                 @modal-close="onCloseDeleteModal"
                             >
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_tag_list_delete_modal_confirm_delete_text %}
                                 <p class="sw-settings-tag-list__confirm-delete-text">
-                                    {{ $tc('sw-settings-tag.list.textDeleteConfirm', 0, { name: item.name }) }}
+                                    {{ $tc('sw-settings-tag.list.textDeleteConfirm', { name: item.name }, 0) }}
                                 </p>
                                 {% endblock %}
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_tag_list_delete_modal_footer %}
                                 <template #modal-footer>
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_settings_tag_list_delete_modal_cancel %}
-                                    <sw-button
+                                    <mt-button
                                         size="small"
+                                        variant="secondary"
                                         @click="onCloseDeleteModal"
                                     >
-                                        {{ $tc('sw-settings-tag.list.buttonCancel') }}
-                                    </sw-button>
+                                        {{ $tc('global.default.cancel') }}
+                                    </mt-button>
                                     {% endblock %}
 
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_settings_tag_list_delete_modal_confirm %}
-                                    <sw-button
-                                        variant="danger"
+                                    <mt-button
+                                        variant="critical"
                                         size="small"
                                         @click="onConfirmDelete(item.id)"
                                     >
                                         {{ $tc('sw-settings-tag.list.buttonDelete') }}
-                                    </sw-button>
+                                    </mt-button>
                                     {% endblock %}
                                 </template>
                                 {% endblock %}
                             </sw-modal>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_tag_list_duplicate_modal %}
                             <sw-modal
                                 v-if="showDuplicateModal === item.id"
@@ -437,11 +407,11 @@
                                 variant="small"
                                 @modal-close="onCloseDuplicateModal"
                             >
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_tag_list_delete_modal_confirm_duplicate_input %}
                                 <p class="sw-settings-tag-list__confirm-duplicate-input">
-                                    <sw-text-field
-                                        v-model:value="duplicateName"
+
+                                    <mt-text-field
+                                        v-model="duplicateName"
                                         :label="$tc('sw-settings-tag.list.columnName')"
                                         :placeholder="$tc('sw-settings-tag.list.placeholderTagName')"
                                         maxlength="255"
@@ -450,36 +420,33 @@
                                 </p>
                                 {% endblock %}
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_tag_list_duplicate_modal_footer %}
                                 <template #modal-footer>
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_settings_tag_list_duplicate_modal_cancel %}
-                                    <sw-button
+                                    <mt-button
                                         size="small"
+                                        variant="secondary"
                                         @click="onCloseDuplicateModal"
                                     >
-                                        {{ $tc('sw-settings-tag.list.buttonCancel') }}
-                                    </sw-button>
+                                        {{ $tc('global.default.cancel') }}
+                                    </mt-button>
                                     {% endblock %}
 
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_settings_tag_list_duplicate_modal_confirm %}
-                                    <sw-button
+                                    <mt-button
                                         variant="primary"
                                         size="small"
                                         :disabled="!duplicateName"
                                         @click="onConfirmDuplicate(item.id)"
                                     >
                                         {{ $tc('sw-settings-tag.list.buttonAddTag') }}
-                                    </sw-button>
+                                    </mt-button>
                                     {% endblock %}
                                 </template>
                                 {% endblock %}
                             </sw-modal>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_tag_list_detail_edit_modal %}
                             <sw-settings-tag-detail-modal
                                 v-if="showDetailModal === item.id"
@@ -496,7 +463,6 @@
                     </sw-entity-listing>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_tag_list_empty_state %}
                     <sw-empty-state
                         v-else
@@ -506,7 +472,6 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_tag_list_detail_add_modal %}
                     <sw-settings-tag-detail-modal
                         v-if="showDetailModal === true"
@@ -515,7 +480,7 @@
                     />
                     {% endblock %}
                 </template>
-            </sw-card>
+            </mt-card>
             {% endblock %}
         </sw-card-view>
     </template>

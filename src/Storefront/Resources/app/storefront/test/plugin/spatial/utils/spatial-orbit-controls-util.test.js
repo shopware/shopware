@@ -1,5 +1,17 @@
 import SpatialOrbitControlsUtil from 'src/plugin/spatial/utils/spatial-orbit-controls-util';
 
+const mockCamera = {};
+const mockCanvas = {
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn()
+};
+
+const mockKeyDownEvent = {
+    key: 'irrelevant',
+    preventDefault: jest.fn(),
+    stopPropagation: jest.fn()
+};
+
 /**
  * @package innovation
  */
@@ -16,10 +28,16 @@ describe('SpatialOrbitControlsUtil', () => {
                 dispose: jest.fn(),
                 target: {
                     set: jest.fn()
-                }
+                },
+                getAzimuthalAngle: jest.fn(),
+                getPolarAngle: jest.fn(),
+                getDistance: jest.fn()
             }
         };
-        SpatialOrbitControlsUtilObject = new SpatialOrbitControlsUtil();
+        window.threeJsAddons.MathUtils = {
+            clamp: jest.fn(),
+        };
+        SpatialOrbitControlsUtilObject = new SpatialOrbitControlsUtil(mockCamera, mockCanvas);
     });
 
     afterEach(() => {
@@ -28,6 +46,135 @@ describe('SpatialOrbitControlsUtil', () => {
 
     test('SpatialOrbitControlsUtil is instantiated', () => {
         expect(SpatialOrbitControlsUtilObject instanceof SpatialOrbitControlsUtil).toBe(true);
+    });
+
+    describe('.bindEventListeners ', () => {
+        beforeEach(() => {
+            jest.clearAllMocks();
+        });
+
+        test('should define a function', () => {
+            expect(typeof SpatialOrbitControlsUtilObject.bindEventListeners).toBe('function');
+        });
+
+        test('should call addEventListener on canvas', () => {
+            expect(mockCanvas.addEventListener).not.toHaveBeenCalled();
+
+            SpatialOrbitControlsUtilObject.bindEventListeners(mockCanvas);
+
+            expect(mockCanvas.addEventListener).toHaveBeenCalled();
+        });
+    });
+
+    describe('.onKeyDown', () => {
+        beforeEach(() => {
+            jest.clearAllMocks();
+
+            jest.spyOn(SpatialOrbitControlsUtilObject, 'zoom');
+            jest.spyOn(SpatialOrbitControlsUtilObject, 'move');
+        });
+
+        test('should define a function', () => {
+            expect(typeof SpatialOrbitControlsUtilObject.onKeyDown).toBe('function');
+        });
+
+        test('should not stop event propagation with irrelevant key', () => {
+            expect(SpatialOrbitControlsUtilObject.move).not.toHaveBeenCalled();
+            expect(mockKeyDownEvent.preventDefault).not.toHaveBeenCalled();
+            expect(mockKeyDownEvent.stopPropagation).not.toHaveBeenCalled();
+
+            SpatialOrbitControlsUtilObject.onKeyDown(mockKeyDownEvent);
+
+            expect(SpatialOrbitControlsUtilObject.move).not.toHaveBeenCalled();
+            expect(mockKeyDownEvent.preventDefault).not.toHaveBeenCalled();
+            expect(mockKeyDownEvent.stopPropagation).not.toHaveBeenCalled();
+        });
+
+        describe('should call controls keydown function', () => {
+            test('with ArrowRight', () => {
+                mockKeyDownEvent.key = 'ArrowRight';
+
+                expect(SpatialOrbitControlsUtilObject.move).not.toHaveBeenCalled();
+                expect(mockKeyDownEvent.preventDefault).not.toHaveBeenCalled();
+                expect(mockKeyDownEvent.stopPropagation).not.toHaveBeenCalled();
+
+                SpatialOrbitControlsUtilObject.onKeyDown(mockKeyDownEvent);
+
+                expect(SpatialOrbitControlsUtilObject.move).toHaveBeenCalledWith(expect.any(Number), 0);
+                expect(mockKeyDownEvent.preventDefault).toHaveBeenCalled();
+                expect(mockKeyDownEvent.stopPropagation).toHaveBeenCalled();
+            });
+
+            test('with ArrowLeft', () => {
+                mockKeyDownEvent.key = 'ArrowLeft';
+
+                expect(SpatialOrbitControlsUtilObject.move).not.toHaveBeenCalled();
+                expect(mockKeyDownEvent.preventDefault).not.toHaveBeenCalled();
+                expect(mockKeyDownEvent.stopPropagation).not.toHaveBeenCalled();
+
+                SpatialOrbitControlsUtilObject.onKeyDown(mockKeyDownEvent);
+
+                expect(SpatialOrbitControlsUtilObject.move).toHaveBeenCalledWith(expect.any(Number), 0);
+                expect(mockKeyDownEvent.preventDefault).toHaveBeenCalled();
+                expect(mockKeyDownEvent.stopPropagation).toHaveBeenCalled();
+            });
+
+            test('with ArrowUp', () => {
+                mockKeyDownEvent.key = 'ArrowUp';
+
+                expect(SpatialOrbitControlsUtilObject.move).not.toHaveBeenCalled();
+                expect(mockKeyDownEvent.preventDefault).not.toHaveBeenCalled();
+                expect(mockKeyDownEvent.stopPropagation).not.toHaveBeenCalled();
+
+                SpatialOrbitControlsUtilObject.onKeyDown(mockKeyDownEvent);
+
+                expect(SpatialOrbitControlsUtilObject.move).toHaveBeenCalledWith(0, expect.any(Number));
+                expect(mockKeyDownEvent.preventDefault).toHaveBeenCalled();
+                expect(mockKeyDownEvent.stopPropagation).toHaveBeenCalled();
+            });
+
+            test('with ArrowDown', () => {
+                mockKeyDownEvent.key = 'ArrowDown';
+
+                expect(SpatialOrbitControlsUtilObject.move).not.toHaveBeenCalled();
+                expect(mockKeyDownEvent.preventDefault).not.toHaveBeenCalled();
+                expect(mockKeyDownEvent.stopPropagation).not.toHaveBeenCalled();
+
+                SpatialOrbitControlsUtilObject.onKeyDown(mockKeyDownEvent);
+
+                expect(SpatialOrbitControlsUtilObject.move).toHaveBeenCalledWith(0, expect.any(Number));
+                expect(mockKeyDownEvent.preventDefault).toHaveBeenCalled();
+                expect(mockKeyDownEvent.stopPropagation).toHaveBeenCalled();
+            });
+
+            test('with +', () => {
+                mockKeyDownEvent.key = '+';
+
+                expect(SpatialOrbitControlsUtilObject.zoom).not.toHaveBeenCalled();
+                expect(mockKeyDownEvent.preventDefault).not.toHaveBeenCalled();
+                expect(mockKeyDownEvent.stopPropagation).not.toHaveBeenCalled();
+
+                SpatialOrbitControlsUtilObject.onKeyDown(mockKeyDownEvent);
+
+                expect(SpatialOrbitControlsUtilObject.zoom).toHaveBeenCalledWith(expect.any(Number));
+                expect(mockKeyDownEvent.preventDefault).toHaveBeenCalled();
+                expect(mockKeyDownEvent.stopPropagation).toHaveBeenCalled();
+            });
+
+            test('with -', () => {
+                mockKeyDownEvent.key = '-';
+
+                expect(SpatialOrbitControlsUtilObject.zoom).not.toHaveBeenCalled();
+                expect(mockKeyDownEvent.preventDefault).not.toHaveBeenCalled();
+                expect(mockKeyDownEvent.stopPropagation).not.toHaveBeenCalled();
+
+                SpatialOrbitControlsUtilObject.onKeyDown(mockKeyDownEvent);
+
+                expect(SpatialOrbitControlsUtilObject.zoom).toHaveBeenCalledWith(expect.any(Number));
+                expect(mockKeyDownEvent.preventDefault).toHaveBeenCalled();
+                expect(mockKeyDownEvent.stopPropagation).toHaveBeenCalled();
+            });
+        });
     });
 
     describe('.update', () => {
@@ -130,10 +277,14 @@ describe('SpatialOrbitControlsUtil', () => {
         });
 
         test('should call controls dispose function', () => {
+            const unbindEventListenersSpy = jest.spyOn(SpatialOrbitControlsUtilObject, 'unbindEventListeners');
+
+            expect(unbindEventListenersSpy).not.toHaveBeenCalled();
             expect(SpatialOrbitControlsUtilObject.controls.dispose).not.toHaveBeenCalled();
 
             SpatialOrbitControlsUtilObject.dispose();
 
+            expect(unbindEventListenersSpy).toHaveBeenCalled();
             expect(SpatialOrbitControlsUtilObject.controls.dispose).toHaveBeenCalled();
         });
     });

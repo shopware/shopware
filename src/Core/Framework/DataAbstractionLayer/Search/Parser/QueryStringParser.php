@@ -36,7 +36,7 @@ use Shopware\Core\Framework\Log\Package;
  * @phpstan-type EqualsAnyFilterType array{type: 'equalsAny', field: string, value: mixed}
  * @phpstan-type Query array{type: string, field?: string, value?: mixed, parameters?: array{operator: RangeFilter::*}, queries?: list<array{type: string, field?: string, value?: mixed}>}
  */
-#[Package('core')]
+#[Package('framework')]
 class QueryStringParser
 {
     /**
@@ -54,7 +54,7 @@ class QueryStringParser
                     throw DataAbstractionLayerException::invalidFilterQuery('Parameter "field" for equals filter is missing.', $path . '/field');
                 }
 
-                if (!\array_key_exists('value', $query) || $query['value'] === '') {
+                if (!\array_key_exists('value', $query)) {
                     throw DataAbstractionLayerException::invalidFilterQuery('Parameter "value" for equals filter is missing.', $path . '/value');
                 }
 

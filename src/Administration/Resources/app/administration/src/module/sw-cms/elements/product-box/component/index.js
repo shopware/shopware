@@ -5,12 +5,10 @@ const { Mixin, Filter } = Shopware;
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     mixins: [
         Mixin.getByName('cms-element'),
@@ -30,7 +28,7 @@ export default {
                     ],
                     cover: {
                         media: {
-                            url: '/administration/static/img/cms/preview_glasses_large.jpg',
+                            url: '/administration/administration/static/img/cms/preview_glasses_large.jpg',
                             alt: 'Lorem Ipsum dolor',
                         },
                     },
@@ -53,7 +51,7 @@ export default {
                 return this.assetFilter(this.product.cover.media.url);
             }
 
-            return this.assetFilter('administration/static/img/cms/preview_glasses_large.jpg');
+            return this.assetFilter('administration/administration/static/img/cms/preview_glasses_large.jpg');
         },
 
         altTag() {

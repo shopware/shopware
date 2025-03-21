@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\Http;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
@@ -29,19 +28,18 @@ class CacheStoreTest extends TestCase
 
         $cache = $this->createMock(TagAwareAdapterInterface::class);
 
-        $cache->expects(static::once())->method('hasItem')->willReturn(false);
+        $cache->expects($this->once())->method('hasItem')->willReturn(false);
 
         $item = new CacheItem();
 
-        $cache->expects(static::once())->method('getItem')->willReturn($item);
+        $cache->expects($this->once())->method('getItem')->willReturn($item);
 
-        $cache->expects(static::once())->method('save')->with($item);
+        $cache->expects($this->once())->method('save')->with($item);
 
         $store = new CacheStore(
             $cache,
             $this->createMock(CacheStateValidator::class),
             new EventDispatcher(),
-            $this->createMock(AbstractCacheTracer::class),
             new HttpCacheKeyGenerator('test', new EventDispatcher(), []),
             $this->createMock(MaintenanceModeResolver::class),
             [],
@@ -63,16 +61,15 @@ class CacheStoreTest extends TestCase
         $response = new Response();
 
         $cache = $this->createMock(TagAwareAdapterInterface::class);
-        $cache->expects(static::never())->method('save');
+        $cache->expects($this->never())->method('save');
 
         $stateValidator = $this->createMock(CacheStateValidator::class);
-        $stateValidator->expects(static::once())->method('isValid')->with($request)->willReturn(false);
+        $stateValidator->expects($this->once())->method('isValid')->with($request)->willReturn(false);
 
         $store = new CacheStore(
             $cache,
             $stateValidator,
             new EventDispatcher(),
-            $this->createMock(AbstractCacheTracer::class),
             new HttpCacheKeyGenerator('test', new EventDispatcher(), []),
             $this->createMock(MaintenanceModeResolver::class),
             [],

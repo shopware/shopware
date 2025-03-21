@@ -22,6 +22,10 @@ Contains custom styles for the minimal header which is used on checkout pages.
     display: none;
 }
 
+.header-minimal-contact a {
+    color: $primary;
+}
+
 .header-minimal-back-to-shop {
     display: flex;
     justify-content: flex-end;

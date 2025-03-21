@@ -5,15 +5,10 @@ namespace Shopware\Core\Content\ContactForm\SalesChannel;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class ContactFormRouteResponseStruct extends Struct
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $individualSuccessMessage;
+    protected string $individualSuccessMessage;
 
     public function getApiAlias(): string
     {

@@ -1,19 +1,33 @@
 services:
   editor:
-    image: ghcr.io/shopwarelabs/devcontainer/base-slim:8.2@sha256:1c67f419cd08700a8bf8d58439fc06a7087a7879489d0b20f676f7899b554aeb
+    image: ghcr.io/shopwarelabs/devcontainer/base-slim:8.3
   db:
-    image: chainguard/mariadb
+    image: mariadb:latest
+    network_mode: 'service:editor'
     environment:
       MARIADB_ROOT_PASSWORD: root
       MARIADB_DATABASE: shopware
+    command:
+      - --sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
+      - --log_bin_trust_function_creators=1
+      - --binlog_cache_size=16M
+      - --key_buffer_size=0
+      - --join_buffer_size=1024M
+      - --innodb_log_file_size=128M
+      - --innodb_buffer_pool_size=1024M
+      - --innodb_buffer_pool_instances=1
+      - --group_concat_max_len=320000
+      - --default-time-zone=+00:00
+      - --max_binlog_size=512M
+      - --binlog_expire_logs_seconds=86400
     volumes:
       - db-data:/var/lib/mysql
   smtp:
     image: axllent/mailpit
-    ports:
-      - 8025:8025
+    network_mode: 'service:editor'
   redis:
-    image: chainguard/valkey
+    image: valkey/valkey:alpine
+    network_mode: 'service:editor'
 
 volumes:
   db-data:

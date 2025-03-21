@@ -1,3 +1,6 @@
+/**
+ * @sw-package framework
+ */
 module.exports = {
     extends: 'stylelint-config-recommended-scss',
     plugins: ['stylelint-prettier'],

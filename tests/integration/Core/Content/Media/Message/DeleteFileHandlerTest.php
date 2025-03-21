@@ -18,7 +18,7 @@ class DeleteFileHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->handler = $this->getContainer()->get(DeleteFileHandler::class);
+        $this->handler = static::getContainer()->get(DeleteFileHandler::class);
     }
 
     public function testItHandlesDeletes(): void

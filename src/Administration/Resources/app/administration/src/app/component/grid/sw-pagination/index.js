@@ -4,7 +4,7 @@ import template from './sw-pagination.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -15,8 +15,6 @@ const { Component } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-pagination', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['page-change'],
 
@@ -144,6 +142,15 @@ Component.register('sw-pagination', {
             });
 
             return possibleSteps;
+        },
+
+        possibleStepsOptions() {
+            return this.possibleSteps.map((step) => {
+                return {
+                    value: String(step),
+                    label: String(step),
+                };
+            });
         },
     },
 

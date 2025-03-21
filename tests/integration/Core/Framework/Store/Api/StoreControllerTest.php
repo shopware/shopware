@@ -39,7 +39,7 @@ class StoreControllerTest extends TestCase
     protected function setUp(): void
     {
         $this->defaultContext = Context::createDefaultContext();
-        $this->userRepository = $this->getContainer()->get('user.repository');
+        $this->userRepository = static::getContainer()->get('user.repository');
     }
 
     public function testCheckLoginWithoutStoreToken(): void
@@ -70,7 +70,7 @@ class StoreControllerTest extends TestCase
         $context = new Context(new AdminApiSource($adminUser->getId()));
 
         $storeClientMock = $this->createMock(StoreClient::class);
-        $storeClientMock->expects(static::once())
+        $storeClientMock->expects($this->once())
             ->method('loginWithShopwareId')
             ->with('j.doe@shopware.com', 'v3rys3cr3t');
 
@@ -98,7 +98,7 @@ class StoreControllerTest extends TestCase
             ->willReturn(new Response());
 
         $storeClientMock = $this->createMock(StoreClient::class);
-        $storeClientMock->expects(static::once())
+        $storeClientMock->expects($this->once())
             ->method('loginWithShopwareId')
             ->willThrowException($clientExceptionMock);
 
@@ -121,7 +121,7 @@ class StoreControllerTest extends TestCase
         $context = new Context(new AdminApiSource($adminUser->getId()));
 
         $storeClientMock = $this->createMock(StoreClient::class);
-        $storeClientMock->expects(static::never())
+        $storeClientMock->expects($this->never())
             ->method('loginWithShopwareId');
 
         $storeController = $this->getStoreController($storeClientMock);
@@ -194,7 +194,7 @@ class StoreControllerTest extends TestCase
         return new StoreController(
             $storeClient ?? $this->getStoreClientMock(),
             $this->userRepository,
-            $this->getContainer()->get(AbstractExtensionDataProvider::class)
+            static::getContainer()->get(AbstractExtensionDataProvider::class)
         );
     }
 

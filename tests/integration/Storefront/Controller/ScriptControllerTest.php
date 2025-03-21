@@ -199,13 +199,13 @@ class ScriptControllerTest extends TestCase
                     ->build()
             );
 
-        $salesChannelIds = $this->getContainer()->get(Connection::class)
+        $salesChannelIds = static::getContainer()->get(Connection::class)
             ->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM sales_channel');
         foreach ($salesChannelIds as $salesChannelId) {
             $product1->visibility($salesChannelId);
         }
 
-        $this->getContainer()->get('product.repository')->create([
+        static::getContainer()->get('product.repository')->create([
             $product1->build(),
         ], Context::createDefaultContext());
     }

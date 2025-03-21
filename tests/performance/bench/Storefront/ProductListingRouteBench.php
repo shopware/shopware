@@ -39,14 +39,14 @@ class ProductListingRouteBench extends AbstractBenchCase
             throw new \Exception('Customer not logged in for bench tests which require it!');
         }
 
-        $this->getContainer()->get(Connection::class)->beginTransaction();
+        static::getContainer()->get(Connection::class)->beginTransaction();
     }
 
     #[Bench\Groups(['custom-pricing'])]
     #[Bench\Assert('mean(variant.time.avg) < 35ms')]
     public function bench_load_product_listing_route_with_logged_out_user(): void
     {
-        $this->getContainer()->get(ProductListingRoute::class)
+        static::getContainer()->get(ProductListingRoute::class)
             ->load($this->ids->get(self::CATEGORY_KEY), new Request(), $this->context, new Criteria());
     }
 
@@ -54,7 +54,7 @@ class ProductListingRouteBench extends AbstractBenchCase
     #[Bench\Assert('mean(variant.time.avg) < 35ms')]
     public function bench_load_product_listing_route_no_criteria(): void
     {
-        $this->getContainer()->get(ProductListingRoute::class)
+        static::getContainer()->get(ProductListingRoute::class)
             ->load($this->ids->get(self::CATEGORY_KEY), new Request(), $this->context, new Criteria());
     }
 
@@ -68,7 +68,7 @@ class ProductListingRouteBench extends AbstractBenchCase
                 RangeFilter::LT => 80.00,
             ]))
             ->addFilter(new EqualsFilter('active', true));
-        $this->getContainer()->get(ProductListingRoute::class)
+        static::getContainer()->get(ProductListingRoute::class)
             ->load($this->ids->get(self::CATEGORY_KEY), new Request(), $this->context, $criteria);
     }
 

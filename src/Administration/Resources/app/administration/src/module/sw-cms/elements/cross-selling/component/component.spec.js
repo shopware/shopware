@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
@@ -35,7 +35,6 @@ async function createWrapper(element = defaultElement) {
             global: {
                 stubs: {
                     'sw-cms-el-product-box': true,
-                    'sw-icon': true,
                 },
                 provide: {
                     cmsService: Shopware.Service('cmsService'),

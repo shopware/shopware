@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 
-#[Package('buyers-experience')]
+#[Package('fundamentals@framework')]
 class CurrencyCountryRoundingDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'currency_country_rounding';

@@ -14,7 +14,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * @internal
  * When a language is created, we need to trigger an indexing for that
  */
-#[Package('core')]
+#[Package('framework')]
 class LanguageSubscriber implements EventSubscriberInterface
 {
     public function __construct(

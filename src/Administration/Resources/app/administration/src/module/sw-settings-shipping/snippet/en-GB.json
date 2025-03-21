@@ -8,7 +8,6 @@
         "list": {
             "textHeadline": "Shipping",
             "buttonAddShippingMethod": "Add shipping method",
-            "buttonCancel": "Cancel",
             "buttonDelete": "Delete",
             "columnName": "Name",
             "columnDescription": "Description",
@@ -44,7 +43,6 @@
             "placeholderPosition": "Enter position...",
             "placeholderDescription": "Enter description...",
             "labelDescription": "Description",
-            "buttonCancel": "Cancel",
             "buttonSave": "Save",
             "labelSetRules": "Select rules",
             "labelBasicInfo": "Basic information",
@@ -55,7 +53,6 @@
             "placeholderTrackingUrl": "Enter URL...",
             "helpTextTrackingUrl": "Enter the tracking URL of the shipping provider and insert \"%s\" as a placeholder where the actual tracking code would be. The tracking code is automatically inserted from the individual orders.",
             "helpTextTechnicalName": "The technical name is used to uniquely identify the shipping method. A subsequent change to the technical name can cause shipping integrations that rely on it to no longer work.",
-            "hintTextTechnicalName": "Will be required from version 6.7.0 onwards",
             "tax": {
                 "fieldName": "Tax calculation",
                 "labelTaxType": "Type",
@@ -77,7 +74,6 @@
             "addNewShippingPrice": "Add pricing level",
             "duplicateMatrixContextLabel": "Duplicate price matrix",
             "deleteMatrixContextLabel": "Delete price matrix",
-            "contextMenuDuplicatePrice": "Duplicate pricing level",
             "contextMenuDeletePrice": "Delete pricing level",
             "selectProperty": "Select cart property...",
             "useRules": "Build a rule",
@@ -99,7 +95,6 @@
             "columnCalculationRule": "Rule",
             "buttonAddAdditionalPriceMatrix": "Add price matrix",
             "any": "∞",
-            "buttonCancel": "Cancel",
             "buttonDelete": "Delete",
             "textDeleteConfirm": "Are you sure you really want to delete the price matrix \"{name}\"? | Are you sure you really want to delete these price matrices?",
             "deletionNotPossibleMessage": "At least one price tier needed. Try deleting the entire pricing rule instead.",
@@ -111,7 +106,6 @@
             "unrestrictedRuleAlreadyExistsMessage": "There is already an unrestricted price matrix.",
             "newMatrixAlreadyExists": "There is already a new price matrix without a rule assigned.",
             "newMatrixAlertMessage": "A rule has to be assigned to save this price matrix.",
-            "contextMenuModifyPrice": "Change price rule",
             "buttonLoadAllPrices": "Load all prices"
         },
         "sidebar": {

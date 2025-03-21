@@ -3,8 +3,10 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Promotion\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeCollection;
 use Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionIndexer;
 use Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionIndexingMessage;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -38,15 +40,15 @@ class PromotionIndexerTest extends TestCase
 
     public function testPromotionIndexerUpdateReturnNullIfGeneratingCode(): void
     {
-        $indexer = $this->getContainer()->get(PromotionIndexer::class);
+        $indexer = static::getContainer()->get(PromotionIndexer::class);
 
         $salesChannelContext = $this->createSalesChannelContext();
 
-        /** @var EntityRepository $promotionRepository */
-        $promotionRepository = $this->getContainer()->get('promotion.repository');
+        /** @var EntityRepository<PromotionCollection> $promotionRepository */
+        $promotionRepository = static::getContainer()->get('promotion.repository');
 
-        /** @var EntityRepository $promotionIndividualRepository */
-        $promotionIndividualRepository = $this->getContainer()->get('promotion_individual_code.repository');
+        /** @var EntityRepository<PromotionIndividualCodeCollection> $promotionIndividualRepository */
+        $promotionIndividualRepository = static::getContainer()->get('promotion_individual_code.repository');
 
         $voucherA = $this->ids->create('voucherA');
 
@@ -71,12 +73,12 @@ class PromotionIndexerTest extends TestCase
 
     public function testPromotionIndexerUpdateReturnPromotionIndexingMessage(): void
     {
-        $indexer = $this->getContainer()->get(PromotionIndexer::class);
+        $indexer = static::getContainer()->get(PromotionIndexer::class);
 
         $salesChannelContext = $this->createSalesChannelContext();
 
-        /** @var EntityRepository $promotionRepository */
-        $promotionRepository = $this->getContainer()->get('promotion.repository');
+        /** @var EntityRepository<PromotionCollection> $promotionRepository */
+        $promotionRepository = static::getContainer()->get('promotion.repository');
 
         $voucherA = $this->ids->create('voucherA');
 
@@ -92,7 +94,7 @@ class PromotionIndexerTest extends TestCase
      */
     private function createSalesChannelContext(array $options = []): SalesChannelContext
     {
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
 
         $token = Uuid::randomHex();
 

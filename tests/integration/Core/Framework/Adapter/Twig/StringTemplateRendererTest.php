@@ -19,7 +19,7 @@ class StringTemplateRendererTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->stringTemplateRenderer = $this->getContainer()->get(StringTemplateRenderer::class);
+        $this->stringTemplateRenderer = static::getContainer()->get(StringTemplateRenderer::class);
     }
 
     public function testRender(): void
@@ -37,13 +37,13 @@ class StringTemplateRendererTest extends TestCase
         $context = Context::createDefaultContext();
 
         /** @var CoreExtension $coreExtension */
-        $coreExtension = $this->getContainer()->get('twig')->getExtension(CoreExtension::class);
+        $coreExtension = static::getContainer()->get('twig')->getExtension(CoreExtension::class);
         $coreExtension->setTimezone('Europe/London');
         $this->stringTemplateRenderer->initialize();
         $renderedTime = $this->stringTemplateRenderer->render($templateMock, ['testDate' => $testDate], $context);
 
         /** @var CoreExtension $coreExtension */
-        $coreExtension = $this->getContainer()->get('twig')->getExtension(CoreExtension::class);
+        $coreExtension = static::getContainer()->get('twig')->getExtension(CoreExtension::class);
         $coreExtension->setTimezone('Europe/Berlin');
         $this->stringTemplateRenderer->initialize();
 

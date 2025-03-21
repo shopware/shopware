@@ -1,5 +1,5 @@
 {
-    "openapi": "3.0.0",
+    "openapi": "3.1.0",
     "info": [],
     "paths": {
         "/account/newsletter-recipient": {
@@ -57,11 +57,8 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "salutationId",
-                                    "firstName",
-                                    "lastName"
-                                ],
+                                "type": "object",
+                                "required": ["firstName", "lastName"],
                                 "properties": {
                                     "salutationId": {
                                         "description": "Id of the salutation for the customer account. Fetch options using `salutation` endpoint.",
@@ -79,10 +76,6 @@
                                         "description": "Customer last name. Value will be reused for shipping and billing address if not provided explicitly.",
                                         "type": "string"
                                     },
-                                    "company": {
-                                        "description": "Company of the customer. Only required when `accountType` is `business`.",
-                                        "type": "string"
-                                    },
                                     "birthdayDay": {
                                         "description": "Birthday day",
                                         "type": "integer"
@@ -96,7 +89,50 @@
                                         "type": "integer"
                                     }
                                 },
-                                "type": "object"
+                                "oneOf": [
+                                    {
+                                        "properties": {
+                                            "accountType": {
+                                                "description": "Type of the customer account. Default value is 'private'.",
+                                                "type": "string",
+                                                "enum": ["private"],
+                                                "default": "private"
+                                            },
+                                            "company": {
+                                                "type": "null"
+                                            },
+                                            "vatIds": {
+                                                "type": "null"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "required": [
+                                            "accountType",
+                                            "company",
+                                            "vatIds"
+                                        ],
+                                        "properties": {
+                                            "accountType": {
+                                                "description": "Type of the customer account. Can be `private` or `business`.",
+                                                "type": "string",
+                                                "enum": ["business"]
+                                            },
+                                            "company": {
+                                                "description": "Company of the customer. Only required when `accountType` is `business`.",
+                                                "type": "string"
+                                            },
+                                            "vatIds": {
+                                                "description": "VAT IDs of the customer's company. Only valid when `accountType` is `business`.",
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                },
+                                                "minItems": 1
+                                            }
+                                        }
+                                    }
+                                ]
                             }
                         }
                     }
@@ -274,43 +310,6 @@
                 ]
             }
         },
-        "/account/change-payment-method/{paymentMethodId}": {
-            "post": {
-                "tags": ["Profile"],
-                "summary": "Change the customer's default payment method",
-                "description": "Changes a customer's default (preselected) payment method.",
-                "operationId": "changePaymentMethod",
-                "parameters": [
-                    {
-                        "name": "paymentMethodId",
-                        "in": "path",
-                        "description": "Identifier of the desired default payment method",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Returns a success response indicating a successful update.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/SuccessResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "ApiKey": [],
-                        "ContextToken": []
-                    }
-                ]
-            }
-        },
         "/account/customer-recovery-is-expired": {
             "post": {
                 "tags": ["Profile"],
@@ -355,9 +354,7 @@
                                             }
                                         },
                                         "apiAlias": {
-                                            "enum": [
-                                                "array_struct"
-                                            ],
+                                            "enum": ["array_struct"],
                                             "type": "string"
                                         }
                                     }
@@ -497,7 +494,6 @@
                                         {
                                             "$ref": "#/components/schemas/CustomerAddress"
                                         },
-
                                         {
                                             "$ref": "#/components/schemas/CustomerAddressRead"
                                         }
@@ -541,10 +537,23 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/CustomerAddress"
-                                    }
+                                    "allOf": [
+                                        {
+                                            "type": "object",
+                                            "required": ["elements"],
+                                            "properties": {
+                                                "elements": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/CustomerAddress"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/EntitySearchResult"
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -773,11 +782,6 @@
                                     "shippingAddress": {
                                         "$ref": "#/components/schemas/CustomerAddress"
                                     },
-                                    "accountType": {
-                                        "description": "Account type of the customer which can be either `private` or `business`.",
-                                        "type": "string",
-                                        "default": "private"
-                                    },
                                     "guest": {
                                         "description": "If set, will create a guest customer. Guest customers can re-use an email address and don't need a password.",
                                         "type": "boolean",
@@ -811,12 +815,55 @@
                                 "required": [
                                     "email",
                                     "password",
-                                    "salutationId",
                                     "firstName",
                                     "lastName",
                                     "acceptedDataProtection",
                                     "storefrontUrl",
                                     "billingAddress"
+                                ],
+                                "oneOf": [
+                                    {
+                                        "properties": {
+                                            "accountType": {
+                                                "description": "Type of the customer account. Default value is 'private'.",
+                                                "type": "string",
+                                                "enum": ["private"],
+                                                "default": "private"
+                                            },
+                                            "company": {
+                                                "type": "null"
+                                            },
+                                            "vatIds": {
+                                                "type": "null"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "required": [
+                                            "accountType",
+                                            "company",
+                                            "vatIds"
+                                        ],
+                                        "properties": {
+                                            "accountType": {
+                                                "description": "Type of the customer account. Can be `private` or `business`.",
+                                                "type": "string",
+                                                "enum": ["business"]
+                                            },
+                                            "company": {
+                                                "description": "Company of the customer. Only required when `accountType` is `business`.",
+                                                "type": "string"
+                                            },
+                                            "vatIds": {
+                                                "description": "VAT IDs of the customer's company. Only valid when `accountType` is `business`.",
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                },
+                                                "minItems": 1
+                                            }
+                                        }
+                                    }
                                 ],
                                 "type": "object"
                             }
@@ -1012,7 +1059,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/CustomerAddress"
+                                "$ref": "#/components/schemas/CustomerAddressBody"
                             }
                         }
                     }

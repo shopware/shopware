@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 interface EntityWriteGatewayInterface
 {
     public function prefetchExistences(WriteParameterBag $parameterBag): void;

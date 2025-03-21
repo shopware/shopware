@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -15,11 +16,13 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('services-settings')]
+#[Package('inventory')]
 final class OrderAdminSearchIndexer extends AbstractAdminIndexer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<OrderCollection> $repository
      */
     public function __construct(
         private readonly Connection $connection,
@@ -83,21 +86,21 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
                    order_delivery.tracking_codes
             FROM `order`
                 LEFT JOIN order_customer
-                    ON `order`.id = order_customer.order_id
+                    ON `order`.id = order_customer.order_id AND order_customer.order_version_id = :versionId
                 LEFT JOIN order_address
-                    ON `order`.id = order_address.order_id
+                    ON `order`.id = order_address.order_id AND order_address.order_version_id = :versionId
                 LEFT JOIN country
                     ON order_address.country_id = country.id
                 LEFT JOIN country_translation
                     ON country.id = country_translation.country_id
                 LEFT JOIN order_tag
-                    ON `order`.id = order_tag.order_id
+                    ON `order`.id = order_tag.order_id AND order_tag.order_version_id = :versionId
                 LEFT JOIN tag
                     ON order_tag.tag_id = tag.id
                 LEFT JOIN order_delivery
-                    ON `order`.id = order_delivery.order_id
+                    ON `order`.id = order_delivery.order_id AND order_delivery.order_version_id = :versionId
                 LEFT JOIN document
-                    ON `order`.id = document.order_id
+                    ON `order`.id = document.order_id AND document.order_version_id = :versionId
             WHERE order.id IN (:ids) AND `order`.version_id = :versionId
             GROUP BY order.id
         ',

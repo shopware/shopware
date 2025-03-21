@@ -1,6 +1,6 @@
 name: Bug report 🐛
-description: Existing feature does not behave as expected.
-labels: [Bug]
+description: Errors or flaws in the code are leading to incorrect or unexpected behavior.
+type: Bug
 body:
     - type: markdown
       attributes:
@@ -44,17 +44,17 @@ body:
       validations:
           required: true
     - type: textarea
+      id: actual-behaviour
+      attributes:
+        label: Actual behaviour
+        description: Please describe the issue
+      validations:
+        required: true
+    - type: textarea
       id: expected-behaviour
       attributes:
           label: Expected behaviour
           description: What did you expect to happen?
-      validations:
-          required: true
-    - type: textarea
-      id: actual-behaviour
-      attributes:
-          label: Actual behaviour
-          description: Please describe the issue
       validations:
           required: true
     - type: textarea

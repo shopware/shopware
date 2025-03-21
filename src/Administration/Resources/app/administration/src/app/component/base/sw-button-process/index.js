@@ -4,7 +4,7 @@ import './sw-button-process.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -18,8 +18,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-button-process', {
     template,
-
-    compatConfig: Shopware.disableCompat,
 
     inheritAttrs: false,
 
@@ -45,14 +43,6 @@ Component.register('sw-button-process', {
             return {
                 'is--hidden': this.processSuccess,
             };
-        },
-
-        listeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 

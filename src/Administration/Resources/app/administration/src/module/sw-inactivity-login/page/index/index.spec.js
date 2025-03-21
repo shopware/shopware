@@ -2,7 +2,7 @@ import { BroadcastChannel } from 'worker_threads';
 import { mount } from '@vue/test-utils';
 
 /**
- * @package admin
+ * @sw-package framework
  */
 async function createWrapper(routerPushImplementation = jest.fn(), loginByUsername = jest.fn()) {
     return mount(await wrapTestComponent('sw-inactivity-login', { sync: true }), {
@@ -21,12 +21,7 @@ async function createWrapper(routerPushImplementation = jest.fn(), loginByUserna
                         </div>
                     `,
                 },
-                'sw-icon': await wrapTestComponent('sw-icon'),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-loader': await wrapTestComponent('sw-loader'),
-                'sw-password-field': await wrapTestComponent('sw-password-field'),
-                'sw-password-field-deprecated': await wrapTestComponent('sw-password-field-deprecated'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
@@ -37,7 +32,6 @@ async function createWrapper(routerPushImplementation = jest.fn(), loginByUserna
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'router-link': true,
                 'sw-field-copyable': true,
-                'sw-icon-deprecated': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
@@ -57,10 +51,7 @@ async function createWrapper(routerPushImplementation = jest.fn(), loginByUserna
                             return;
                         }
 
-                        const duration = new Date();
-                        duration.setDate(duration.getDate() + 14);
-
-                        localStorage.setItem('rememberMe', `${+duration}`);
+                        localStorage.setItem('rememberMe', `true`);
                     },
                 },
                 shortcutService: {
@@ -89,7 +80,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
     afterEach(() => {
         sessionStorage.removeItem('lastKnownUser');
         sessionStorage.removeItem('sw-admin-previous-route_foo');
-        localStorage.removeItem('inactivityBackground_foo');
+        sessionStorage.removeItem('inactivityBackground_foo');
         localStorage.removeItem('rememberMe');
     });
 
@@ -108,7 +99,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
 
     it('should set data:url as background image', async () => {
         sessionStorage.setItem('lastKnownUser', 'admin');
-        localStorage.setItem('inactivityBackground_foo', 'data:urlFoOBaR');
+        sessionStorage.setItem('inactivityBackground_foo', 'data:urlFoOBaR');
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -138,7 +129,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         const wrapper = await createWrapper(push, loginByUserName);
         await flushPromises();
 
-        const loginButton = wrapper.find('.sw-button');
+        const loginButton = wrapper.findByText('button', 'sw-login.index.buttonLogin');
         await loginButton.trigger('click');
 
         expect(loginByUserName).toHaveBeenCalledTimes(1);
@@ -155,7 +146,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         const wrapper = await createWrapper(jest.fn(), loginByUserName);
         await flushPromises();
 
-        const loginButton = wrapper.find('.sw-button');
+        const loginButton = wrapper.findByText('button', 'sw-login.index.buttonLogin');
         await loginButton.trigger('click');
         await flushPromises();
 
@@ -163,7 +154,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         expect(loginByUserName).toHaveBeenCalledWith('max', '');
 
         expect(wrapper.vm.passwordError !== null).toBe(true);
-        const passwordError = wrapper.find('.sw-field__error');
+        const passwordError = wrapper.findByText('span', 'sw-inactivity-login.modal.errors.password');
         expect(passwordError.exists()).toBe(true);
     });
 
@@ -230,19 +221,16 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         );
         await flushPromises();
 
-        const rememberMe = wrapper.find('.sw-field--checkbox input');
-        await rememberMe.trigger('click');
+        const rememberMeInput = wrapper.find('.mt-field--checkbox__container input');
+        await rememberMeInput.setChecked(true);
 
-        const loginButton = wrapper.find('.sw-button');
+        const loginButton = wrapper.findByText('button', 'sw-login.index.buttonLogin');
         await loginButton.trigger('click');
 
         expect(push).toHaveBeenCalledTimes(1);
         expect(push).toHaveBeenCalledWith('sw.example.route.index');
 
-        const expectedDuration = new Date();
-        expectedDuration.setDate(expectedDuration.getDate() + 14);
-        const rememberMeDuration = Number(localStorage.getItem('rememberMe'));
-        expect(rememberMeDuration).toBeGreaterThan(1600000);
-        expect(rememberMeDuration).toBeLessThanOrEqual(+expectedDuration);
+        const rememberMe = Boolean(localStorage.getItem('rememberMe'));
+        expect(rememberMe).toBe(true);
     });
 });

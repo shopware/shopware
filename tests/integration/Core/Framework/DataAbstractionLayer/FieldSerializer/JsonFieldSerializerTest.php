@@ -39,7 +39,7 @@ class JsonFieldSerializerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->serializer = $this->getContainer()->get(JsonFieldSerializer::class);
+        $this->serializer = static::getContainer()->get(JsonFieldSerializer::class);
 
         $definition = $this->registerDefinition(JsonDefinition::class);
         $this->existence = new EntityExistence($definition->getEntityName(), [], false, false, false, []);
@@ -80,7 +80,7 @@ class JsonFieldSerializerTest extends TestCase
     #[DataProvider('encodeProvider')]
     public function testEncode(JsonField $field, $input, $expected): void
     {
-        $field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+        $field->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
 
         $kvPair = new KeyValuePair('password', $input, true);
         $actual = $this->serializer->encode($field, $this->existence, $kvPair, $this->parameters)->current();
@@ -117,7 +117,7 @@ class JsonFieldSerializerTest extends TestCase
     #[DataProvider('decodeProvider')]
     public function testDecode(JsonField $field, $input, $expected): void
     {
-        $field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+        $field->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
         $actual = $this->serializer->decode($field, $input);
         static::assertEquals($expected, $actual);
     }
@@ -125,7 +125,7 @@ class JsonFieldSerializerTest extends TestCase
     public function testEmptyValueForRequiredField(): void
     {
         $field = new JsonField('data', 'data');
-        $field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+        $field->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
 
         $kvPair = new KeyValuePair('data', [], true);
 
@@ -137,7 +137,7 @@ class JsonFieldSerializerTest extends TestCase
     public function testRequiredValidationThrowsError(): void
     {
         $field = (new JsonField('data', 'data'))->addFlags(new ApiAware(), new Required());
-        $field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+        $field->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
 
         $kvPair = new KeyValuePair('data', null, true);
 
@@ -156,7 +156,7 @@ class JsonFieldSerializerTest extends TestCase
     public function testNullValueForNotRequiredField(): void
     {
         $field = new JsonField('data', 'data');
-        $field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+        $field->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
 
         $kvPair = new KeyValuePair('data', null, true);
 

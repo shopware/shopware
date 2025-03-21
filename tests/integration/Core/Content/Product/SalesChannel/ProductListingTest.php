@@ -55,7 +55,7 @@ class ProductListingTest extends TestCase
 
         $this->categoryId = Uuid::randomHex();
 
-        $this->getContainer()->get('category.repository')
+        static::getContainer()->get('category.repository')
             ->create([['id' => $this->categoryId, 'name' => 'test', 'parentId' => $parent]], Context::createDefaultContext());
 
         $this->testData = new ListingTestData();
@@ -71,10 +71,10 @@ class ProductListingTest extends TestCase
     {
         $request = new Request();
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), $this->salesChannelId);
 
-        $listing = $this->getContainer()
+        $listing = static::getContainer()
             ->get(ProductListingRoute::class)
             ->load($this->categoryId, $request, $context, new Criteria())
             ->getResult();
@@ -149,10 +149,10 @@ class ProductListingTest extends TestCase
         $this->createTestProductStreamEntity($this->categoryStreamId);
         $request = new Request();
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), $this->salesChannelId);
 
-        $listing = $this->getContainer()
+        $listing = static::getContainer()
             ->get(ProductListingRoute::class)
             ->load($this->categoryStreamId, $request, $context, new Criteria())
             ->getResult();
@@ -167,13 +167,13 @@ class ProductListingTest extends TestCase
         $this->createTestProductStreamEntity($this->categoryStreamId);
         $request = new Request();
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), $this->salesChannelId);
 
         $criteria = new Criteria();
         $criteria->addFilter(new ContainsFilter('name', 'Foo Bar'));
 
-        $listing = $this->getContainer()
+        $listing = static::getContainer()
             ->get(ProductListingRoute::class)
             ->load($this->categoryStreamId, $request, $context, $criteria)
             ->getResult();
@@ -189,14 +189,14 @@ class ProductListingTest extends TestCase
     {
         $request = new Request();
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), $this->salesChannelId);
 
         $request->attributes->set('_route_params', [
             'navigationId' => $this->categoryId,
         ]);
 
-        $listing = $this->getContainer()
+        $listing = static::getContainer()
             ->get(ProductListingRoute::class)
             ->load($this->categoryId, $request, $context, new Criteria())
             ->getResult();
@@ -351,7 +351,7 @@ class ProductListingTest extends TestCase
             }
         }
 
-        $repo = $this->getContainer()->get('product.repository');
+        $repo = static::getContainer()->get('product.repository');
 
         $repo->create($data, Context::createDefaultContext());
     }
@@ -421,7 +421,7 @@ class ProductListingTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('property_group.repository')->create($data, Context::createDefaultContext());
+        static::getContainer()->get('property_group.repository')->create($data, Context::createDefaultContext());
     }
 
     private function createTestProductStreamEntity(string $categoryStreamId): void
@@ -455,10 +455,10 @@ class ProductListingTest extends TestCase
                 ],
             ],
         ];
-        $productRepository = $this->getContainer()->get('product_stream.repository');
+        $productRepository = static::getContainer()->get('product_stream.repository');
         $productRepository->create([$stream], $this->context);
 
-        $this->getContainer()->get('category.repository')
+        static::getContainer()->get('category.repository')
             ->create([['id' => $categoryStreamId, 'productStreamId' => $streamId, 'name' => 'test', 'parentId' => null, 'productAssignmentType' => 'product_stream']], Context::createDefaultContext());
     }
 
@@ -471,7 +471,7 @@ class ProductListingTest extends TestCase
         $ids->create('manufacturer');
         $ids->create('taxId');
 
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $salesChannelId = $this->salesChannelId;
         $products = [];
 

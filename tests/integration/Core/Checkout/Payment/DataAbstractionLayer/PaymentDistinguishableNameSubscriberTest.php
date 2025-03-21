@@ -45,7 +45,7 @@ class PaymentDistinguishableNameSubscriberTest extends TestCase
 
     public function testFallsBackToPaymentMethodNameIfDistinguishableNameIsNotSet(): void
     {
-        $paymentRepository = $this->getContainer()->get('payment_method.repository');
+        $paymentRepository = static::getContainer()->get('payment_method.repository');
 
         $paymentRepository->create(
             [

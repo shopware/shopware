@@ -1,10 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_first_run_wizard_welcome %}
 <div class="sw-first-run-wizard-welcome">
     <div class="center">
         <img
             class="sw-first-run-wizard__welcome-image"
-            :src="assetFilter('/administration/static/img/first-run-wizard/welcome.svg')"
+            :src="assetFilter('/administration/administration/static/img/first-run-wizard/welcome.svg')"
             alt=""
         >
         <h4 class="headline-welcome">
@@ -38,7 +37,6 @@
         />
     </sw-container>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_first_run_wizard_welcome_confirm_language_switch_modal %}
     <sw-modal
         v-if="showConfirmLanguageSwitchModal"
@@ -48,55 +46,46 @@
         @modal-close="onCancelSwitch"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_text %}
         <p class="sw-first-run-wizard-welcome__modal-text">
-            {{ $tc('sw-first-run-wizard.welcome.switchLanguageMessage', {}, { pluginName: latestTouchedPlugin.name }) }}
+            {{ $tc('sw-first-run-wizard.welcome.switchLanguageMessage', { pluginName: latestTouchedPlugin.name }, {}) }}
         </p>
-        <sw-select-field
-            v-model:value="user.localeId"
+
+        <mt-select
+            v-model="user.localeId"
             class="sw-profile__language"
             :label="$tc('sw-users-permissions.users.user-detail.labelLanguage')"
-        >
-            <option
-                v-for="language in languages"
-                :key="language.locale.id"
-                :value="language.locale.id"
-                :selected="user.localeId === language.locale.id"
-            >
-                {{ language.customLabel }}
-            </option>
-        </sw-select-field>
-        <sw-password-field
-            v-model:value="user.pw"
+            :options="localeOptions"
+        />
+
+        <mt-password-field
+            v-model="user.pw"
             type="password"
             :label="$tc('sw-first-run-wizard.shopwareAccount.passwordPlaceholder')"
             @keypress.enter="onConfirmLanguageSwitch"
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_footer %}
         <template #modal-footer>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_action_cancel %}
-            <sw-button
+            <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCancelSwitch"
             >
-                {{ $tc('sw-first-run-wizard.welcome.cancelLanguageSwitch') }}
-            </sw-button>
+                {{ $tc('global.default.cancel') }}
+            </mt-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_action_switch %}
-            <sw-button
+            <mt-button
                 size="small"
                 variant="primary"
                 @click="onConfirmLanguageSwitch"
             >
                 {{ $tc('sw-first-run-wizard.welcome.confirmLanguageSwitch') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
         {% endblock %}

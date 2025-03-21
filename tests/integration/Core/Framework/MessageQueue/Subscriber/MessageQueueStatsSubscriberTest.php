@@ -23,14 +23,14 @@ class MessageQueueStatsSubscriberTest extends TestCase
     public function testListener(): void
     {
         /** @var AbstractIncrementer $pool */
-        $pool = $this->getContainer()
+        $pool = static::getContainer()
             ->get('shopware.increment.gateway.registry')
             ->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
 
         $pool->reset('message_queue_stats');
 
         /** @var MessageBusInterface $bus */
-        $bus = $this->getContainer()->get('messenger.bus.test_shopware');
+        $bus = static::getContainer()->get('messenger.bus.test_shopware');
 
         $bus->dispatch(new FooMessage());
         $bus->dispatch(new BarMessage());

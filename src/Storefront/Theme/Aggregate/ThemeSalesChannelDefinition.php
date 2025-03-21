@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Storefront\Theme\ThemeDefinition;
 
-#[Package('storefront')]
+#[Package('framework')]
 class ThemeSalesChannelDefinition extends MappingEntityDefinition
 {
     final public const ENTITY_NAME = 'theme_sales_channel';

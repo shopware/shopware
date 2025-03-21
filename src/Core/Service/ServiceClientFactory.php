@@ -16,7 +16,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ServiceClientFactory
 {
     public function __construct(
@@ -67,7 +67,7 @@ class ServiceClientFactory
         return new AuthenticatedServiceClient(
             $authClient,
             $entry,
-            $this->appPayloadServiceHelper->buildSource($app)
+            $this->appPayloadServiceHelper->buildSource($app->getVersion(), $app->getName())
         );
     }
 

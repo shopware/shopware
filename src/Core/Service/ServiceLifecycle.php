@@ -8,6 +8,8 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\Context;
@@ -19,7 +21,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ServiceLifecycle
 {
     /**
@@ -50,7 +52,7 @@ class ServiceLifecycle
         try {
             $appInfo = $this->serviceClientFactory->newFor($serviceEntry)->latestAppInfo();
         } catch (ServiceException $e) {
-            $this->logger->error(\sprintf('Cannot install service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
+            // noop - errors will be recorded in the service
 
             return false;
         }
@@ -58,7 +60,7 @@ class ServiceLifecycle
         try {
             $fs = $this->sourceResolver->filesystemForVersion($appInfo);
         } catch (AppException $e) {
-            $this->logger->error(\sprintf('Cannot install service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
+            $this->logger->debug(\sprintf('Cannot install service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
 
             return false;
         }
@@ -66,12 +68,17 @@ class ServiceLifecycle
         $manifest = $this->createManifest($fs->path('manifest.xml'), $serviceEntry->host, $appInfo);
 
         try {
-            $this->appLifecycle->install($manifest, $serviceEntry->activateOnInstall, Context::createDefaultContext());
+            $this->appLifecycle->install(
+                $manifest,
+                new AppInstallParameters(activate: $serviceEntry->activateOnInstall),
+                Context::createDefaultContext()
+            );
+
             $this->logger->debug(\sprintf('Installed service "%s"', $serviceEntry->name));
 
             return true;
         } catch (\Exception $e) {
-            $this->logger->error(\sprintf('Cannot install service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
+            $this->logger->debug(\sprintf('Cannot install service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
 
             return false;
         }
@@ -90,7 +97,7 @@ class ServiceLifecycle
         try {
             $latestAppInfo = $this->serviceClientFactory->newFor($serviceEntry)->latestAppInfo();
         } catch (ServiceException $e) {
-            $this->logger->error(\sprintf('Cannot update service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
+            $this->logger->debug(\sprintf('Cannot update service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
 
             return false;
         }
@@ -103,7 +110,7 @@ class ServiceLifecycle
         try {
             $fs = $this->sourceResolver->filesystemForVersion($latestAppInfo);
         } catch (AppException $e) {
-            $this->logger->error(\sprintf('Cannot update service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
+            $this->logger->debug(\sprintf('Cannot update service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
 
             return false;
         }
@@ -113,6 +120,7 @@ class ServiceLifecycle
         try {
             $this->appLifecycle->update(
                 $manifest,
+                new AppUpdateParameters(),
                 [
                     'id' => $app->getId(),
                     'roleId' => $app->getAclRoleId(),
@@ -123,7 +131,7 @@ class ServiceLifecycle
 
             return true;
         } catch (\Exception $e) {
-            $this->logger->error(\sprintf('Cannot update service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
+            $this->logger->debug(\sprintf('Cannot update service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
 
             return false;
         }

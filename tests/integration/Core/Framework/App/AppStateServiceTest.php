@@ -13,6 +13,7 @@ use Shopware\Core\Framework\App\Event\Hooks\AppDeactivatedHook;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -49,10 +50,10 @@ class AppStateServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->appRepository = $this->getContainer()->get('app.repository');
-        $this->appStateService = $this->getContainer()->get(AppStateService::class);
-        $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
-        $this->appLifecycle = $this->getContainer()->get(AppLifecycle::class);
+        $this->appRepository = static::getContainer()->get('app.repository');
+        $this->appStateService = static::getContainer()->get(AppStateService::class);
+        $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
+        $this->appLifecycle = static::getContainer()->get(AppLifecycle::class);
         $this->context = Context::createDefaultContext();
     }
 
@@ -71,7 +72,7 @@ class AppStateServiceTest extends TestCase
     public function testActivate(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/Manifest/_fixtures/test/manifest.xml');
-        $this->appLifecycle->install($manifest, false, $this->context);
+        $this->appLifecycle->install($manifest, new AppInstallParameters(activate: false), $this->context);
         $appId = $this->appRepository->searchIds(new Criteria(), $this->context)->firstId();
         static::assertNotNull($appId);
         $this->assertAppState($appId, false);
@@ -84,7 +85,7 @@ class AppStateServiceTest extends TestCase
         $this->eventDispatcher->addListener(AppActivatedEvent::class, $onAppInstalled);
         $this->appStateService->activateApp($appId, $this->context);
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(AppActivatedHook::HOOK_NAME, $traces);
         static::assertSame('activated', $traces[AppActivatedHook::HOOK_NAME][0]['output'][0]);
 
@@ -97,7 +98,7 @@ class AppStateServiceTest extends TestCase
     public function testDeactivate(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/Manifest/_fixtures/test/manifest.xml');
-        $this->appLifecycle->install($manifest, true, $this->context);
+        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
         $appId = $this->appRepository->searchIds(new Criteria(), $this->context)->firstId();
         static::assertNotNull($appId);
         $this->assertAppState($appId, true);
@@ -110,7 +111,7 @@ class AppStateServiceTest extends TestCase
         $this->eventDispatcher->addListener(AppDeactivatedEvent::class, $onAppInstalled);
         $this->appStateService->deactivateApp($appId, $this->context);
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(AppDeactivatedHook::HOOK_NAME, $traces);
         static::assertSame('deactivated', $traces[AppDeactivatedHook::HOOK_NAME][0]['output'][0]);
 
@@ -123,7 +124,7 @@ class AppStateServiceTest extends TestCase
     public function testDeactivateThrowsIfDeactivationIsNotAllowed(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/Manifest/_fixtures/test/manifest.xml');
-        $this->appLifecycle->install($manifest, true, $this->context);
+        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
         $appId = $this->appRepository->searchIds(new Criteria(), $this->context)->firstId();
         static::assertNotNull($appId);
         $this->assertAppState($appId, true);

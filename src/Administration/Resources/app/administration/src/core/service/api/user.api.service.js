@@ -4,7 +4,7 @@ import ApiService from '../api.service';
  * Gateway for the API end point "user"
  * @class
  * @extends ApiService
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 class UserApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'user') {

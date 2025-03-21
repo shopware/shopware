@@ -11,6 +11,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
+use Shopware\Core\Maintenance\System\Service\SystemLanguageChangeEvent;
+use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 
 /**
  * @internal
@@ -20,20 +22,20 @@ class ShopConfiguratorTest extends TestCase
 {
     private ShopConfigurator $shopConfigurator;
 
-    /**
-     * @var Connection&MockObject
-     */
-    private Connection $connection;
+    private Connection&MockObject $connection;
+
+    private CollectingEventDispatcher $eventDispatcher;
 
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
-        $this->shopConfigurator = new ShopConfigurator($this->connection);
+        $this->eventDispatcher = new CollectingEventDispatcher();
+        $this->shopConfigurator = new ShopConfigurator($this->connection, $this->eventDispatcher);
     }
 
     public function testUpdateBasicInformation(): void
     {
-        $this->connection->expects(static::exactly(2))->method('executeStatement')->willReturnCallback(function (string $sql, array $parameters): void {
+        $this->connection->expects($this->exactly(2))->method('executeStatement')->willReturnCallback(function (string $sql, array $parameters): int {
             static::assertSame(
                 'INSERT INTO `system_config` (`id`, `configuration_key`, `configuration_value`, `sales_channel_id`, `created_at`)
             VALUES (:id, :key, :value, NULL, NOW())
@@ -53,6 +55,8 @@ class ShopConfiguratorTest extends TestCase
                 static::assertSame('core.basicInformation.email', $parameters['key']);
                 static::assertSame('{"_value":"shop@test.com"}', $parameters['value']);
             }
+
+            return 1;
         });
 
         $this->shopConfigurator->updateBasicInformation('test-shop', 'shop@test.com');
@@ -63,7 +67,7 @@ class ShopConfiguratorTest extends TestCase
         $this->expectException(MaintenanceException::class);
         $this->expectExceptionMessage('Default language locale not found');
 
-        $this->connection->expects(static::once())->method('fetchAssociative')->willReturnCallback(function (string $sql, array $parameters): ?array {
+        $this->connection->expects($this->once())->method('fetchAssociative')->willReturnCallback(function (string $sql, array $parameters): false {
             static::assertSame(
                 'SELECT locale.id, locale.code
              FROM language
@@ -75,17 +79,20 @@ class ShopConfiguratorTest extends TestCase
             static::assertArrayHasKey('languageId', $parameters);
             static::assertSame(Defaults::LANGUAGE_SYSTEM, Uuid::fromBytesToHex($parameters['languageId']));
 
-            return null;
+            return false;
         });
 
         $this->shopConfigurator->setDefaultLanguage('vi-VN');
+
+        static::assertCount(1, $this->eventDispatcher->getEvents());
+        static::assertInstanceOf(SystemLanguageChangeEvent::class, $this->eventDispatcher->getEvents()[0]);
     }
 
     public function testSetDefaultLanguageMatchCurrentLocale(): void
     {
-        $currentLocaleId = Uuid::randomHex();
+        $currentLocaleId = Uuid::randomBytes();
 
-        $this->connection->expects(static::once())->method('fetchAssociative')->willReturnCallback(function (string $sql, array $parameters) use ($currentLocaleId) {
+        $this->connection->expects($this->once())->method('fetchAssociative')->willReturnCallback(function (string $sql, array $parameters) use ($currentLocaleId) {
             static::assertSame(
                 'SELECT locale.id, locale.code
              FROM language
@@ -100,7 +107,7 @@ class ShopConfiguratorTest extends TestCase
             return ['id' => $currentLocaleId, 'code' => 'vi-VN'];
         });
 
-        $this->connection->expects(static::once())->method('fetchOne')->willReturnCallback(function (string $sql, array $parameters) use ($currentLocaleId) {
+        $this->connection->expects($this->once())->method('fetchOne')->willReturnCallback(function (string $sql, array $parameters) use ($currentLocaleId) {
             static::assertSame(
                 'SELECT locale.id FROM  locale WHERE LOWER(locale.code) = LOWER(:iso)',
                 trim($sql)
@@ -112,8 +119,8 @@ class ShopConfiguratorTest extends TestCase
             return $currentLocaleId;
         });
 
-        $this->connection->expects(static::never())->method('executeStatement');
-        $this->connection->expects(static::never())->method('prepare');
+        $this->connection->expects($this->never())->method('executeStatement');
+        $this->connection->expects($this->never())->method('prepare');
 
         $this->shopConfigurator->setDefaultLanguage('vi_VN');
     }
@@ -123,9 +130,9 @@ class ShopConfiguratorTest extends TestCase
         $this->expectException(MaintenanceException::class);
         $this->expectExceptionMessage('Locale with iso-code "vi-VN" not found');
 
-        $currentLocaleId = Uuid::randomHex();
+        $currentLocaleId = Uuid::randomBytes();
 
-        $this->connection->expects(static::once())->method('fetchAssociative')->willReturnCallback(function (string $sql, array $parameters) use ($currentLocaleId) {
+        $this->connection->expects($this->once())->method('fetchAssociative')->willReturnCallback(function (string $sql, array $parameters) use ($currentLocaleId) {
             static::assertSame(
                 'SELECT locale.id, locale.code
              FROM language
@@ -140,7 +147,7 @@ class ShopConfiguratorTest extends TestCase
             return ['id' => $currentLocaleId, 'code' => 'vi-VN'];
         });
 
-        $this->connection->expects(static::once())->method('fetchOne')->willReturnCallback(function (string $sql, array $parameters) {
+        $this->connection->expects($this->once())->method('fetchOne')->willReturnCallback(function (string $sql, array $parameters) {
             static::assertSame(
                 'SELECT locale.id FROM  locale WHERE LOWER(locale.code) = LOWER(:iso)',
                 trim($sql)
@@ -167,9 +174,10 @@ class ShopConfiguratorTest extends TestCase
         int $expectedInsertCall,
         callable $insertCallback
     ): void {
-        $currentLocaleId = Uuid::randomHex();
+        $currentLocaleId = Uuid::randomBytes();
+        $languageId = Uuid::randomBytes();
 
-        $this->connection->expects(static::once())->method('fetchAssociative')->willReturnCallback(function (string $sql, array $parameters) use ($currentLocaleId) {
+        $this->connection->expects($this->once())->method('fetchAssociative')->willReturnCallback(function (string $sql, array $parameters) use ($currentLocaleId) {
             static::assertSame(
                 'SELECT locale.id, locale.code
              FROM language
@@ -184,17 +192,20 @@ class ShopConfiguratorTest extends TestCase
             return ['id' => $currentLocaleId, 'code' => 'en-GB'];
         });
 
-        $viLocaleId = Uuid::randomHex();
+        $viLocaleId = Uuid::randomBytes();
 
-        $this->connection->expects(static::atLeast(2))->method('fetchOne')->willReturn($viLocaleId);
+        $this->connection->expects($this->atLeast(2))->method('fetchOne')->willReturnOnConsecutiveCalls(
+            $viLocaleId,
+            $languageId
+        );
 
         $methodReturns = array_values(array_filter([$expectedMissingTranslations, $expectedStateTranslations], static fn (array $item) => $item !== []));
 
         $methodCalls = \count($methodReturns);
 
-        $this->connection->expects(static::atLeast($methodCalls))->method('fetchAllKeyValue')->willReturnOnConsecutiveCalls($expectedStateTranslations, $expectedMissingTranslations);
+        $this->connection->expects($this->atLeast($methodCalls))->method('fetchAllKeyValue')->willReturnOnConsecutiveCalls($expectedStateTranslations, $expectedMissingTranslations);
 
-        $this->connection->expects(static::exactly($expectedInsertCall))->method('insert')->willReturnCallback($insertCallback);
+        $this->connection->expects($this->exactly($expectedInsertCall))->method('insert')->willReturnCallback($insertCallback);
         $this->shopConfigurator->setDefaultLanguage('de_DE');
     }
 
@@ -206,13 +217,15 @@ class ShopConfiguratorTest extends TestCase
         /**
          * @param array<string, string> $parameters
          */
-        $insertCallback = static function (string $table, array $parameters): void {
+        $insertCallback = static function (string $table, array $parameters): int {
             static::assertSame('country_state_translation', $table);
             static::assertArrayHasKey('language_id', $parameters);
             static::assertArrayHasKey('name', $parameters);
             static::assertArrayHasKey('country_state_id', $parameters);
             static::assertArrayHasKey('created_at', $parameters);
             static::assertSame(Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM), $parameters['language_id']);
+
+            return 1;
         };
 
         yield 'empty country state translations' => [
@@ -259,7 +272,7 @@ class ShopConfiguratorTest extends TestCase
             /**
              * @param array<string, string> $parameters
              */
-            'insertCallback' => function (string $table, array $parameters): void {
+            'insertCallback' => function (string $table, array $parameters): int {
                 static::assertSame('country_state_translation', $table);
                 static::assertArrayHasKey('language_id', $parameters);
                 static::assertArrayHasKey('name', $parameters);
@@ -286,6 +299,8 @@ class ShopConfiguratorTest extends TestCase
                 if ($countryStateId === 'id_de_rp') {
                     static::assertSame('Rheinland-Pfalz', $parameters['name']);
                 }
+
+                return 1;
             },
         ];
 

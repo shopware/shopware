@@ -1,0 +1,150 @@
+name: Acceptance test suite
+description: "Run the acceptance testsuite"
+author: "shopware AG"
+branding:
+  color: "blue"
+  icon: "download"
+
+inputs:
+  project:
+    required: true
+    description: Project to run
+  directory:
+    default: "tests/acceptance"
+    required: false
+    description: Directory of the ats
+  install:
+    default: "true"
+    required: false
+    description: Install
+  build:
+    default: "true"
+    required: false
+    description: Build assets
+  major:
+    default: ""
+    required: false
+    description: Simulate major
+  php-version:
+    default: "8.4"
+    required: false
+    description: php version
+  extra-options:
+    default: ""
+    required: false
+    description: Extra playwright cmd options
+
+  use-currents:
+    default: ""
+    required: false
+    description: Use currents pwc cli instead of playwright
+
+  currents-project-id:
+    default: ""
+    required: false
+    description: Currents project id
+
+  currents-record-key:
+    default: ""
+    required: false
+    description: Currents record key
+
+  # optimizations
+  workers:
+    default: "2"
+    required: false
+    description: Number of workers
+  shard:
+    required: false
+    description: Shard to run
+    default: "1"
+  shard-count:
+    required: false
+    description: Number of shards
+    default: "1"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Start redis
+      shell: bash
+      run: docker run --name redis -p 6379:6379 -d redis:alpine
+    - name: Start mailpit
+      shell: bash
+      run: docker run --name mailpit -p 1025:1025 -p 8025:8025 -d axllent/mailpit
+
+    - name: Define environment
+      shell: bash
+      run: |
+        echo "FEATURE_ALL=${{ inputs.major && 'major' }}" >> $GITHUB_ENV
+        echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
+        echo "MAILER_DSN=smtp://localhost:1025" >> $GITHUB_ENV
+        echo "MAILPIT_BASE_URL=http://localhost:8025" >> $GITHUB_ENV
+        echo "SHOPWARE_HTTP_CACHE_ENABLED=0" >> $GITHUB_ENV
+        echo "SHOPWARE_DISABLE_UPDATE_CHECK=true" >> $GITHUB_ENV
+        echo "BLUE_GREEN_DEPLOYMENT=1" >> $GITHUB_ENV
+
+    - name: Setup Shopware
+      uses: shopware/setup-shopware@main
+      with:
+        mysql-version: "builtin"
+        shopware-version: ${{ github.ref }}
+        shopware-repository: ${{ github.repository }}
+        install: ${{ inputs.install }}
+        install-admin: ${{ inputs.install }}
+        install-storefront: ${{ inputs.install }}
+        env: prod
+        composer-root-version: ${{ inputs.major != '' && '6.8.9999999-dev' || '.auto' }}
+        php-version: ${{ inputs.php-version }}
+
+    - name: Build js
+      if: ${{ inputs.build && (inputs.install == '' || inputs.install == 'false') }}
+      shell: bash
+      run: |
+        mkdir -p config/jwt
+        composer run build:js:admin
+        composer npm:storefront run production # we cannot use build:js because it requires a db
+        (cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js)
+
+    - name: Start Webserver
+      if: ${{ inputs.install == '' || inputs.install == 'false' }}
+      shell: bash
+      working-directory: ${{ inputs.path }}
+      env:
+        SYMFONY_DAEMON: "1"
+        SYMFONY_NO_TLS: "1"
+        SYMFONY_ALLOW_HTTP: "1"
+        SYMFONY_PORT: "8000"
+        SYMFONY_ALLOW_ALL_IP: "1"
+      run: symfony server:start
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Install dependencies
+      shell: bash
+      working-directory: ${{ inputs.directory }}
+      run: npm ci
+
+    - name: Install Playwright Browsers
+      shell: bash
+      working-directory: ${{ inputs.directory }}
+      run: npx playwright install --with-deps chromium
+
+    - name: Run your tests
+      shell: bash
+      working-directory: ${{ inputs.directory }}
+      env:
+        CURRENTS_PROJECT_ID: ${{ inputs.currents-project-id }}
+        CURRENTS_RECORD_KEY: ${{ inputs.currents-record-key }}
+        CURRENTS_BUILD_ID: "${{ format('{0}-{1}-{2}', github.repository, github.run_id, github.run_attempt) }}${{ matrix.major && 'major' }}"
+        ATS_CMD: ${{ inputs.use-currents && 'pwc' || 'playwright'}}
+      run: npx $ATS_CMD test --project=${{ inputs.project }} --workers=${{ inputs.workers }} --shard=${{ inputs.shard }}/${{ inputs.shard-count }} ${{ inputs.extra-options }}
+
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: ats-${{ inputs.project }}-${{ inputs.shard }}-php${{ inputs.php-version }}-${{ inputs.major && '-major' || '' }}
+        path: ${{ inputs.directory }}/test-results/
+        retention-days: 3

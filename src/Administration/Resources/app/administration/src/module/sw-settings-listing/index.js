@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 const { Module } = Shopware;
 
@@ -76,7 +76,7 @@ Module.register('sw-settings-listing', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'commerce',
         to: 'sw.settings.listing.index',
         icon: 'regular-products',
         privilege: 'system.system_config',

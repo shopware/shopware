@@ -44,7 +44,7 @@ class ElasticsearchStagingHandlerTest extends TestCase
 
         $detector = $this->createMock(ElasticsearchOutdatedIndexDetector::class);
         $detector
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('getAllUsedIndices');
         $handler = new ElasticsearchStagingHandler($check, $helper, $detector);
 

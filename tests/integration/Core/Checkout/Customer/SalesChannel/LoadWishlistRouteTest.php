@@ -7,6 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -20,6 +22,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  * @internal
  */
 #[Group('store-api')]
+#[Package('checkout')]
 class LoadWishlistRouteTest extends TestCase
 {
     use CustomerTestTrait;
@@ -45,7 +48,7 @@ class LoadWishlistRouteTest extends TestCase
         ]);
         $this->assignSalesChannelContext($this->browser);
 
-        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $this->systemConfigService = static::getContainer()->get(SystemConfigService::class);
         $this->systemConfigService->set('core.cart.wishlistEnabled', true);
 
         $email = Uuid::randomHex() . '@example.com';
@@ -119,9 +122,9 @@ class LoadWishlistRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $errors = $response['errors'][0];
         static::assertSame(403, $this->browser->getResponse()->getStatusCode());
-        static::assertEquals('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $errors['code']);
-        static::assertEquals('Forbidden', $errors['title']);
-        static::assertEquals('Customer is not logged in.', $errors['detail']);
+        static::assertSame(RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE, $errors['code']);
+        static::assertSame('Forbidden', $errors['title']);
+        static::assertSame('Customer is not logged in.', $errors['detail']);
     }
 
     public function testLoadShouldThrowCustomerWishlistNotFoundException(): void
@@ -142,7 +145,7 @@ class LoadWishlistRouteTest extends TestCase
     public function testLoadWithHideCloseoutProductsWhenOutOfStockEnabled(): void
     {
         // enable hideCloseoutProductsWhenOutOfStock filter
-        $this->getContainer()->get(SystemConfigService::class)
+        static::getContainer()->get(SystemConfigService::class)
             ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);
 
         $productId = $this->createProduct($this->context, ['stock' => 0, 'isCloseout' => true]);
@@ -162,7 +165,7 @@ class LoadWishlistRouteTest extends TestCase
     public function testLoadWithHideCloseoutProductsWhenOutOfStockDisabled(): void
     {
         // disabled hideCloseoutProductsWhenOutOfStock filter
-        $this->getContainer()->get(SystemConfigService::class)
+        static::getContainer()->get(SystemConfigService::class)
             ->set('core.listing.hideCloseoutProductsWhenOutOfStock', false);
 
         $productId = $this->createProduct($this->context, ['stock' => 0, 'isCloseout' => true]);
@@ -205,7 +208,7 @@ class LoadWishlistRouteTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('product.repository')->create([array_merge($data, $attributes)], $context);
+        static::getContainer()->get('product.repository')->create([array_merge($data, $attributes)], $context);
 
         return $productId;
     }
@@ -213,7 +216,7 @@ class LoadWishlistRouteTest extends TestCase
     private function createCustomerWishlist(Context $context, string $customerId, string $productId): string
     {
         $customerWishlistId = Uuid::randomHex();
-        $customerWishlistRepository = $this->getContainer()->get('customer_wishlist.repository');
+        $customerWishlistRepository = static::getContainer()->get('customer_wishlist.repository');
 
         $customerWishlistRepository->create([
             [

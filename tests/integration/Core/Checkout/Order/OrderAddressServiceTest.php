@@ -4,13 +4,16 @@ namespace Shopware\Tests\Integration\Core\Checkout\Order;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\OrderAddressService;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -20,24 +23,31 @@ use Shopware\Core\Test\Integration\Traits\OrderFixture;
  * @internal
  */
 #[CoversClass(OrderAddressService::class)]
+#[Package('checkout')]
 class OrderAddressServiceTest extends TestCase
 {
     use AdminApiTestBehaviour;
     use IntegrationTestBehaviour;
     use OrderFixture;
 
+    /**
+     * @var EntityRepository<OrderCollection>
+     */
     private EntityRepository $orderRepository;
 
+    /**
+     * @var EntityRepository<CustomerAddressCollection>
+     */
     private EntityRepository $customerAddressRepository;
 
     private OrderAddressService $orderAddressService;
 
     protected function setUp(): void
     {
-        $this->orderRepository = $this->getContainer()->get('order.repository');
-        $this->customerAddressRepository = $this->getContainer()->get('customer_address.repository');
-        $orderDeliveryRepository = $this->getContainer()->get('order_delivery.repository');
-        $orderAddressRepository = $this->getContainer()->get('order_address.repository');
+        $this->orderRepository = static::getContainer()->get('order.repository');
+        $this->customerAddressRepository = static::getContainer()->get('customer_address.repository');
+        $orderDeliveryRepository = static::getContainer()->get('order_delivery.repository');
+        $orderAddressRepository = static::getContainer()->get('order_address.repository');
 
         $this->orderAddressService = new OrderAddressService(
             $this->orderRepository,

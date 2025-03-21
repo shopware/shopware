@@ -1,8 +1,9 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
+import selectMtSelectOptionByText from 'test/_helper_/select-mt-select-by-text';
 
 async function createWrapper() {
     return mount(
@@ -22,25 +23,15 @@ async function createWrapper() {
                     },
                 },
                 stubs: {
-                    'sw-switch-field': true,
-                    'sw-select-field': {
-                        template:
-                            '<select class="sw-select-field" :value="value" @change="$emit(\'change\', $event.target.value)"><slot></slot></select>',
-                        props: [
-                            'value',
-                            'options',
-                        ],
-                    },
                     'sw-text-field': true,
                     'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field'),
                     'sw-media-upload-v2': true,
                     'sw-upload-listener': true,
                     'sw-dynamic-url-field': true,
-                    'sw-alert': true,
+
                     'sw-media-modal-v2': true,
                     'sw-context-button': true,
                     'sw-context-menu-item': true,
-                    'sw-icon': true,
                 },
             },
             props: {
@@ -78,6 +69,10 @@ async function createWrapper() {
                             source: 'static',
                             value: null,
                         },
+                        isDecorative: {
+                            source: 'static',
+                            value: false,
+                        },
                     },
                     data: {},
                 },
@@ -100,15 +95,35 @@ describe('src/module/sw-cms/elements/image/config', () => {
 
     it('should keep minHeight value when changing display mode', async () => {
         const wrapper = await createWrapper('settings');
-        const displayModeSelect = wrapper.find('.sw-cms-el-config-image__display-mode');
 
-        await displayModeSelect.setValue('cover');
+        await selectMtSelectOptionByText(
+            wrapper,
+            'sw-cms.elements.general.config.label.displayModeCover',
+            '.sw-cms-el-config-image__display-mode input',
+        );
 
         expect(wrapper.vm.element.config.minHeight.value).toBe('340px');
 
-        await displayModeSelect.setValue('standard');
+        await selectMtSelectOptionByText(
+            wrapper,
+            'sw-cms.elements.general.config.label.displayModeStandard',
+            '.sw-cms-el-config-image__display-mode input',
+        );
 
         // Should still have the previous value
         expect(wrapper.vm.element.config.minHeight.value).toBe('340px');
+    });
+
+    it('should change the isDecorative value', async () => {
+        const wrapper = await createWrapper();
+        const isDecorativeSwitch = wrapper.find('.sw-cms-el-config-image__is-decorative input');
+
+        await isDecorativeSwitch.setValue(true);
+
+        expect(wrapper.vm.element.config.isDecorative.value).toBe(true);
+
+        await isDecorativeSwitch.setValue(false);
+
+        expect(wrapper.vm.element.config.isDecorative.value).toBe(false);
     });
 });

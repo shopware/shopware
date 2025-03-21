@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import template from './sw-app-app-url-changed-modal.html.twig';
@@ -12,8 +12,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-app-app-url-changed-modal', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['appUrlChangeService'],
 

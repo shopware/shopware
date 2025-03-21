@@ -1,5 +1,5 @@
 /**
- * @package content
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-media/mixin/media-sidebar-modal.mixin';
@@ -26,7 +26,6 @@ async function createWrapper() {
             stubs: {
                 'sw-media-collapse': true,
                 'sw-media-quickinfo-metadata-item': true,
-                'sw-icon': true,
                 'sw-confirm-field': true,
                 'sw-media-modal-folder-settings': true,
                 'sw-media-modal-folder-dissolve': true,
@@ -47,12 +46,13 @@ describe('src/module/sw-media/component/sidebar/sw-media-folder-info', () => {
     });
 
     it('should have error class while having folder name error', async () => {
-        Shopware.State.dispatch('error/addApiError', {
+        Shopware.Store.get('error').addApiError({
             expression: 'media_folder.jest.name',
             error: {
                 code: 'some-error-code',
             },
         });
+
         const wrapper = await createWrapper(true);
 
         expect(wrapper.vm.nameItemClasses).toStrictEqual({

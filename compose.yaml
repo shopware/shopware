@@ -1,6 +1,6 @@
 services:
     database:
-        image: chainguard/mariadb:latest
+        image: mariadb:latest
         environment:
             MARIADB_ROOT_PASSWORD: root
             MARIADB_DATABASE: shopware
@@ -32,7 +32,7 @@ services:
             - '9080:8080'
 
     valkey:
-        image: chainguard/valkey
+        image: valkey/valkey:alpine
         command: [ "--maxmemory-policy", "volatile-lfu" ]
         ports:
             - '6379:6379'
@@ -44,7 +44,7 @@ services:
             - '1025:1025'
 
     opensearch:
-        image: chainguard/opensearch:latest
+        image: opensearchproject/opensearch:latest
         ports:
             - '9200:9200'
         environment:

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Api;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiException;
+use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Exception\ExpectationFailedException;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException;
@@ -24,7 +25,7 @@ use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(ApiException::class)]
 class ApiExceptionTest extends TestCase
 {
@@ -264,5 +265,21 @@ class ApiExceptionTest extends TestCase
         $exception = ApiException::salesChannelInMaintenanceMode();
 
         static::assertEquals(ApiException::API_SALES_CHANNEL_MAINTENANCE_MODE, $exception->getErrorCode());
+    }
+
+    public function testAdminApiSourceExpected(): void
+    {
+        $exception = ApiException::invalidAdminSource('fooSource');
+
+        static::assertEquals(InvalidContextSourceException::class, $exception::class);
+        static::assertEquals(ApiException::API_INVALID_CONTEXT_SOURCE, $exception->getErrorCode());
+    }
+
+    public function testUserNotLoggedIn(): void
+    {
+        $exception = ApiException::userNotLoggedIn();
+
+        static::assertEquals(ApiException::class, $exception::class);
+        static::assertEquals(ApiException::API_EXPECTED_USER, $exception->getErrorCode());
     }
 }

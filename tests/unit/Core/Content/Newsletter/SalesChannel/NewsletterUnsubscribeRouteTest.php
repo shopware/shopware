@@ -23,7 +23,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 #[CoversClass(NewsletterUnsubscribeRoute::class)]
 class NewsletterUnsubscribeRouteTest extends TestCase
 {
@@ -31,7 +31,7 @@ class NewsletterUnsubscribeRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->salesChannelContext = Generator::createSalesChannelContext();
+        $this->salesChannelContext = Generator::generateSalesChannelContext();
     }
 
     public function testUnsubscribe(): void
@@ -53,7 +53,7 @@ class NewsletterUnsubscribeRouteTest extends TestCase
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->willReturnOnConsecutiveCalls(
                 static::isInstanceOf(NewsletterUnsubscribeEvent::class),
@@ -88,7 +88,7 @@ class NewsletterUnsubscribeRouteTest extends TestCase
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('dispatch')
             ->willReturnOnConsecutiveCalls(
                 static::isInstanceOf(NewsletterUnsubscribeEvent::class),
@@ -118,7 +118,7 @@ class NewsletterUnsubscribeRouteTest extends TestCase
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('dispatch')
             ->willReturnOnConsecutiveCalls(
                 static::isInstanceOf(NewsletterUnsubscribeEvent::class),

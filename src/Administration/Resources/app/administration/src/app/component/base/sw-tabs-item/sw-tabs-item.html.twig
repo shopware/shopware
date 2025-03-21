@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_side_navigation_item %}
 <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
 <a
@@ -6,14 +5,15 @@
     class="sw-tabs-item"
     :class="tabsItemClasses"
     v-bind="$attrs"
+    role="tab"
+    tabindex="0"
     @click="clickEvent"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_tabs_item_slot %}
     <slot></slot>
     {% endblock %}
 
-    <sw-icon
+    <mt-icon
         v-if="hasError"
         v-tooltip="{ message: errorTooltip }"
         class="sw-tabs-item__error-badge"
@@ -21,7 +21,7 @@
         size="12px"
     />
 
-    <sw-icon
+    <mt-icon
         v-if="!hasError && hasWarning"
         v-tooltip="{ message: warningTooltip }"
         class="sw-tabs-item__warning-badge"
@@ -37,19 +37,20 @@
     v-bind="$attrs"
     class="sw-tabs-item"
     :to="route"
+    role="tab"
+    tabindex="0"
     @click="clickEvent"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_tabs_item_slot_native %}
     <slot></slot>
-    <sw-icon
+    <mt-icon
         v-if="hasError"
         v-tooltip="{ message: errorTooltip }"
         class="sw-tabs-item__error-badge"
         name="solid-exclamation-circle"
         size="12px"
     />
-    <sw-icon
+    <mt-icon
         v-if="!hasError && hasWarning"
         v-tooltip="{ message: warningTooltip }"
         class="sw-tabs-item__warning-badge"

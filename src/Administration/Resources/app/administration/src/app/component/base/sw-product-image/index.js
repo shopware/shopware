@@ -4,7 +4,7 @@ import './sw-product-image.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Component which renders an image.
@@ -15,8 +15,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-product-image', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'sw-product-image-cover',
@@ -30,7 +28,7 @@ Component.register('sw-product-image', {
         },
 
         /**
-         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+         * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
          */
         isSpatial: {
             type: Boolean,
@@ -39,7 +37,7 @@ Component.register('sw-product-image', {
         },
 
         /**
-         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+         * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
          */
         isArReady: {
             type: Boolean,

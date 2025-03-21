@@ -35,6 +35,6 @@ trait RateLimiterTestTrait
 
     private function clearCache(): void
     {
-        $this->getContainer()->get('cache.rate_limiter')->clear();
+        static::getContainer()->get('cache.rate_limiter')->clear();
     }
 }

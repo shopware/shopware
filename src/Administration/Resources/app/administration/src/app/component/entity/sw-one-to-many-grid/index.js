@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import template from './sw-one-to-many-grid.html.twig';
@@ -63,8 +63,19 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
             page: 1,
             limit: 25,
             total: 0,
-            intial: true,
+            initial: true,
         };
+    },
+
+    watch: {
+        collection: {
+            handler() {
+                if (!this.initial) {
+                    this.load();
+                }
+            },
+            deep: true,
+        },
     },
 
     methods: {
@@ -74,7 +85,7 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
             // assign collection as records for the sw-data-grid
             this.applyResult(this.collection);
 
-            this.intial = false;
+            this.initial = false;
 
             // local mode means, the records are loaded with the parent record
             if (this.localMode) {
@@ -92,7 +103,7 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
             );
 
             // records contains a pre loaded offset
-            if (this.records.length > 0) {
+            if (Array.isArray(this.records) && this.records.length > 0) {
                 return Promise.resolve();
             }
 
@@ -102,7 +113,7 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
         applyResult(result) {
             this.result = result;
 
-            if (!this.dataSource || !this.intial) {
+            if (!this.collection || !this.initial) {
                 this.records = result;
             }
 
@@ -138,6 +149,11 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
         },
 
         load() {
+            // If in local mode, return early since data is loaded with parent
+            if (this.localMode) {
+                return Promise.resolve();
+            }
+
             return this.repository.search(this.result.criteria, this.result.context).then((response) => {
                 this.applyResult(response);
                 this.$emit('load-finish');
@@ -182,7 +198,8 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
             return this.repository
                 .syncDeleted(selectedIds, this.result.context)
                 .then(() => {
-                    return this.deleteItemsFinish();
+                    this.resetSelection();
+                    this.load();
                 })
                 .catch(() => {
                     return this.deleteItemsFinish();

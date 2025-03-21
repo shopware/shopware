@@ -73,7 +73,7 @@ class TimeBackoffLimiterTest extends TestCase
         $this->limiter = $factory->create('example');
         $this->limiter->reset();
 
-        $this->getContainer()->get('cache.rate_limiter')->clear();
+        static::getContainer()->get('cache.rate_limiter')->clear();
     }
 
     public function testConsume(): void

@@ -6,18 +6,20 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxAdjustment;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxAdjustmentCalculator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class TaxAdjustmentTest extends TestCase
 {
     use KernelTestBehaviour;
 
     public function testUsesCorrectCalculator(): void
     {
-        $adjustment = $this->getContainer()->get(TaxAdjustment::class);
+        $adjustment = static::getContainer()->get(TaxAdjustment::class);
         $ref = new \ReflectionClass(TaxAdjustment::class);
 
         static::assertTrue($ref->hasProperty('amountCalculator'));

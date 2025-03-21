@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\RedisCartPersister;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
@@ -20,6 +21,7 @@ use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
  * @internal
  */
 #[Group('redis')]
+#[Package('checkout')]
 class RedisCartPersisterTest extends TestCase
 {
     private RedisCartPersister $persister;

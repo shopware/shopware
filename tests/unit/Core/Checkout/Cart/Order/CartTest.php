@@ -8,11 +8,13 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(Cart::class)]
+#[Package('checkout')]
 class CartTest extends TestCase
 {
     public function testEmptyCartHasNoGoods(): void

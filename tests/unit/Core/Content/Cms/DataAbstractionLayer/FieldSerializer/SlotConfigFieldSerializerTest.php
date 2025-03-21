@@ -23,7 +23,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(SlotConfigFieldSerializer::class)]
 class SlotConfigFieldSerializerTest extends TestCase
 {
@@ -73,7 +73,7 @@ class SlotConfigFieldSerializerTest extends TestCase
     {
         $validator = $this->createMock(ValidatorInterface::class);
         $validator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('validate')
             ->with($value, $expected)
             ->willReturn(new ConstraintViolationList());

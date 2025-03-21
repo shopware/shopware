@@ -29,7 +29,7 @@ use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
  * @internal
  */
 #[CoversClass(Executor::class)]
-#[Package('core')]
+#[Package('framework')]
 class ExecutorTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -47,8 +47,8 @@ class ExecutorTest extends TestCase
     {
         $this->app = new AppEntity();
         $this->app->setAppSecret('s3cr3t');
-        $this->executor = $this->getContainer()->get(Executor::class);
-        $this->schemaLocation = $this->getContainer()->getParameter('kernel.project_dir') . self::SCHEMA_LOCATION;
+        $this->executor = static::getContainer()->get(Executor::class);
+        $this->schemaLocation = static::getContainer()->getParameter('kernel.project_dir') . self::SCHEMA_LOCATION;
     }
 
     public function testExecutorUsesCorrectSchema(): void
@@ -190,6 +190,7 @@ class ExecutorTest extends TestCase
             'url' => $shopUrl,
             'appVersion' => $appVersion,
             'shopId' => $shopId,
+            'inAppPurchases' => null,
         ];
         $expectedData = [
             'ids' => $affectedIds,
@@ -310,7 +311,7 @@ class ExecutorTest extends TestCase
     public function testThrowsExceptionIfAppUrlChangeIsDetected(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
         $systemConfigService->set(
             ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY,
             [

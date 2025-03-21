@@ -1,7 +1,7 @@
 const { types } = Shopware.Utils;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @module core/service/validation
  */

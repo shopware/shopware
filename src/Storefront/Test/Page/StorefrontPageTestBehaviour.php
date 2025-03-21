@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -35,7 +34,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 trait StorefrontPageTestBehaviour
 {
@@ -97,7 +96,7 @@ trait StorefrontPageTestBehaviour
             ->setRemovable(true)
             ->setStackable(true);
 
-        $cartService = $this->getContainer()->get(CartService::class);
+        $cartService = static::getContainer()->get(CartService::class);
         $cart = $cartService->getCart($context->getToken(), $context);
         $cart->add($lineItem);
 
@@ -111,7 +110,7 @@ trait StorefrontPageTestBehaviour
     {
         $id = Uuid::randomHex();
         $productNumber = Uuid::randomHex();
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
 
         $data = [
             'id' => $id,
@@ -127,7 +126,7 @@ trait StorefrontPageTestBehaviour
                 ['id' => Uuid::randomHex(), 'name' => 'asd'],
             ],
             'visibilities' => [
-                ['salesChannelId' => $context->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['salesChannelId' => $context->getSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
 
@@ -137,7 +136,7 @@ trait StorefrontPageTestBehaviour
         $this->addTaxDataToSalesChannel($context, $data['tax']);
 
         /** @var SalesChannelRepository<ProductCollection> $storefrontProductRepository */
-        $storefrontProductRepository = $this->getContainer()->get('sales_channel.product.repository');
+        $storefrontProductRepository = static::getContainer()->get('sales_channel.product.repository');
         $product = $storefrontProductRepository->search(new Criteria([$id]), $context)->getEntities()->first();
         static::assertNotNull($product);
 
@@ -265,7 +264,7 @@ trait StorefrontPageTestBehaviour
      */
     protected function catchEvent(string $eventName, ?Event &$eventResult): void
     {
-        $this->addEventListener($this->getContainer()->get('event_dispatcher'), $eventName, static function (Event $event) use (&$eventResult): void {
+        $this->addEventListener(static::getContainer()->get('event_dispatcher'), $eventName, static function (Event $event) use (&$eventResult): void {
             $eventResult = $event;
         });
     }
@@ -300,12 +299,8 @@ trait StorefrontPageTestBehaviour
             'customerNumber' => '12345',
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
         /** @var EntityRepository<CustomerCollection> $repo */
-        $repo = $this->getContainer()->get('customer.repository');
+        $repo = static::getContainer()->get('customer.repository');
 
         $repo->create([$customer], Context::createDefaultContext());
 
@@ -321,8 +316,8 @@ trait StorefrontPageTestBehaviour
      */
     private function createContext(array $salesChannel, array $options): SalesChannelContext
     {
-        $factory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $factory = static::getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
 
         $salesChannelId = Uuid::randomHex();
         $salesChannel['id'] = $salesChannelId;
@@ -332,7 +327,7 @@ trait StorefrontPageTestBehaviour
 
         $context = $factory->create(Uuid::randomHex(), $salesChannelId, $options);
 
-        $ruleLoader = $this->getContainer()->get(CartRuleLoader::class);
+        $ruleLoader = static::getContainer()->get(CartRuleLoader::class);
         $ruleLoader->loadByToken($context, $context->getToken());
 
         return $context;

@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -99,7 +100,7 @@ class CheapestPriceTest extends TestCase
                 'shortName' => 'TE',
                 'name' => 'Test',
             ];
-            $this->getContainer()->get('currency.repository')
+            static::getContainer()->get('currency.repository')
                 ->create([$currency], Context::createDefaultContext());
 
             $products = [
@@ -338,10 +339,10 @@ class CheapestPriceTest extends TestCase
                     ->build(),
             ];
 
-            $this->getContainer()->get('product.repository')
+            static::getContainer()->get('product.repository')
                 ->create($products, Context::createDefaultContext());
             $criteria = new Criteria($ids->all());
-            $result = $this->getContainer()->get('product.repository')
+            $result = static::getContainer()->get('product.repository')
                 ->searchIds($criteria, Context::createDefaultContext());
             static::assertNotNull($result);
 
@@ -359,10 +360,10 @@ class CheapestPriceTest extends TestCase
         try {
             $cases = $this->calculationProvider($ids);
 
-            $default = $this->getContainer()->get(SalesChannelContextFactory::class)
+            $default = static::getContainer()->get(SalesChannelContextFactory::class)
                 ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-            $currency = $this->getContainer()->get(SalesChannelContextFactory::class)
+            $currency = static::getContainer()->get(SalesChannelContextFactory::class)
                 ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, ['currencyId' => $ids->get('currency')]);
 
             $contexts = [
@@ -381,7 +382,7 @@ class CheapestPriceTest extends TestCase
 
                 $criteria = new Criteria($ids->getList($keys));
 
-                $products = $this->getContainer()->get('sales_channel.product.repository')
+                $products = static::getContainer()->get('sales_channel.product.repository')
                     ->search($criteria, $context);
 
                 foreach ($assertions as $key => $assertion) {
@@ -431,7 +432,7 @@ class CheapestPriceTest extends TestCase
             $prices = str_replace(\sprintf('__id_placeholder_%s__', $key), $id, $prices);
         }
         foreach (\json_decode($prices, true, 512, \JSON_THROW_ON_ERROR) as $productName => $serializedPrice) {
-            $cheapestPriceQuery->executeStatement([
+            StatementHelper::executeStatement($cheapestPriceQuery, [
                 'price' => $serializedPrice,
                 'id' => $ids->getBytes($productName),
                 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
@@ -441,10 +442,10 @@ class CheapestPriceTest extends TestCase
         try {
             $cases = $this->calculationProvider($ids);
 
-            $default = $this->getContainer()->get(SalesChannelContextFactory::class)
+            $default = static::getContainer()->get(SalesChannelContextFactory::class)
                 ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-            $currency = $this->getContainer()->get(SalesChannelContextFactory::class)
+            $currency = static::getContainer()->get(SalesChannelContextFactory::class)
                 ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, ['currencyId' => $ids->get('currency')]);
 
             $contexts = [
@@ -463,7 +464,7 @@ class CheapestPriceTest extends TestCase
 
                 $criteria = new Criteria($ids->getList($keys));
 
-                $products = $this->getContainer()->get('sales_channel.product.repository')
+                $products = static::getContainer()->get('sales_channel.product.repository')
                     ->search($criteria, $context);
 
                 foreach ($assertions as $key => $assertion) {
@@ -505,7 +506,7 @@ class CheapestPriceTest extends TestCase
         try {
             $cases = $this->providerFilterPercentage();
 
-            $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            $context = static::getContainer()->get(SalesChannelContextFactory::class)
                 ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
             foreach ($cases as $message => $case) {
@@ -523,7 +524,7 @@ class CheapestPriceTest extends TestCase
                     $context->setRuleIds($ids->getList($case['rules']));
                 }
 
-                $result = $this->getContainer()->get('sales_channel.product.repository')
+                $result = static::getContainer()->get('sales_channel.product.repository')
                     ->searchIds($criteria, $context);
 
                 static::assertCount(\count($case['expected']), $result->getIds(), $message . ' failed');
@@ -545,7 +546,7 @@ class CheapestPriceTest extends TestCase
         try {
             $cases = $this->providerFilterPrice();
 
-            $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            $context = static::getContainer()->get(SalesChannelContextFactory::class)
                 ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
             foreach ($cases as $message => $case) {
@@ -563,7 +564,7 @@ class CheapestPriceTest extends TestCase
                     $context->setRuleIds($ids->getList($case['rules']));
                 }
 
-                $result = $this->getContainer()->get('sales_channel.product.repository')
+                $result = static::getContainer()->get('sales_channel.product.repository')
                     ->searchIds($criteria, $context);
 
                 static::assertCount(\count($case['expected']), $result->getIds(), $message . ' failed');
@@ -583,7 +584,7 @@ class CheapestPriceTest extends TestCase
     public function testSorting(IdsCollection $ids): void
     {
         try {
-            $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            $context = static::getContainer()->get(SalesChannelContextFactory::class)
                 ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
             $cases = $this->providerSorting();
@@ -608,14 +609,14 @@ class CheapestPriceTest extends TestCase
             $criteria = new Criteria(array_values($ids->all()));
             $criteria->addAggregation(new StatsAggregation('price', 'product.cheapestPrice'));
 
-            $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            $context = static::getContainer()->get(SalesChannelContextFactory::class)
                 ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
             $cases = $this->providerAggregation();
             foreach ($cases as $message => $case) {
                 $context->setRuleIds($ids->getList($case['rules']));
 
-                $result = $this->getContainer()->get('sales_channel.product.repository')
+                $result = static::getContainer()->get('sales_channel.product.repository')
                     ->aggregate($criteria, $context);
 
                 $aggregation = $result->get('price');
@@ -1261,7 +1262,7 @@ class CheapestPriceTest extends TestCase
             new EqualsFilter('product.childCount', 0),
         ]));
 
-        $result = $this->getContainer()->get('sales_channel.product.repository')
+        $result = static::getContainer()->get('sales_channel.product.repository')
             ->searchIds($criteria, $context);
 
         $expected = $case['ids'];

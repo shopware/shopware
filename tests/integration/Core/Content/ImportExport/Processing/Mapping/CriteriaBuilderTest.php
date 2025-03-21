@@ -13,14 +13,14 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class CriteriaBuilderTest extends TestCase
 {
     use KernelTestBehaviour;
 
     public function testNoAssociations(): void
     {
-        $criteriaBuild = new CriteriaBuilder($this->getContainer()->get(ProductDefinition::class));
+        $criteriaBuild = new CriteriaBuilder(static::getContainer()->get(ProductDefinition::class));
 
         $criteria = new Criteria();
         $config = new Config(
@@ -37,7 +37,7 @@ class CriteriaBuilderTest extends TestCase
 
     public function testAssociations(): void
     {
-        $criteriaBuild = new CriteriaBuilder($this->getContainer()->get(ProductDefinition::class));
+        $criteriaBuild = new CriteriaBuilder(static::getContainer()->get(ProductDefinition::class));
 
         $criteria = new Criteria();
         $config = new Config(

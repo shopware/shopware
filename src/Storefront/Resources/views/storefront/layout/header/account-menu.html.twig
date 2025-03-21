@@ -23,8 +23,11 @@
 
                     {% block layout_header_actions_account_widget_dropdown_login_register %}
                         <div class="account-menu-register">
-                            {{ 'account.orRegister'|trans|sw_sanitize }} <a href="{{ path('frontend.account.login.page') }}"
-                                                                            title="{{ 'account.orRegisterLink'|trans|striptags }}">{{ 'account.orRegisterLink'|trans|striptags|lower }}</a>
+                            {{ 'account.orRegister'|trans|sw_sanitize }}
+                            <a href="{{ path('frontend.account.login.page') }}"
+                               title="{{ 'account.orRegisterLink'|trans|striptags }}">
+                                {{ 'account.orRegisterLink'|trans|striptags|lower }}
+                            </a>
                         </div>
                     {% endblock %}
                 </div>

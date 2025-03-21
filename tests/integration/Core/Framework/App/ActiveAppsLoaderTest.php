@@ -19,7 +19,7 @@ class ActiveAppsLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->activeAppsLoader = $this->getContainer()->get(ActiveAppsLoader::class);
+        $this->activeAppsLoader = static::getContainer()->get(ActiveAppsLoader::class);
     }
 
     public function testGetActiveAppsWithActiveApp(): void

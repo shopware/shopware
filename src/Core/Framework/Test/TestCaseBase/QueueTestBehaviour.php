@@ -20,8 +20,8 @@ trait QueueTestBehaviour
     #[After]
     public function clearQueue(): void
     {
-        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM messenger_messages');
-        $bus = $this->getContainer()->get('messenger.bus.test_shopware');
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM messenger_messages');
+        $bus = static::getContainer()->get('messenger.bus.test_shopware');
         static::assertInstanceOf(TraceableMessageBus::class, $bus);
         $bus->reset();
     }
@@ -30,14 +30,14 @@ trait QueueTestBehaviour
     {
         $eventDispatcher = new EventDispatcher();
         $eventDispatcher->addSubscriber(new StopWorkerWhenIdleListener());
-        $eventDispatcher->addSubscriber($this->getContainer()->get(MessageQueueStatsSubscriber::class));
+        $eventDispatcher->addSubscriber(static::getContainer()->get(MessageQueueStatsSubscriber::class));
 
-        $locator = $this->getContainer()->get('messenger.test_receiver_locator');
+        $locator = static::getContainer()->get('messenger.test_receiver_locator');
         static::assertInstanceOf(ServiceLocator::class, $locator);
 
         $receiver = $locator->get('async');
 
-        $bus = $this->getContainer()->get('messenger.bus.test_shopware');
+        $bus = static::getContainer()->get('messenger.bus.test_shopware');
         static::assertInstanceOf(MessageBusInterface::class, $bus);
 
         $worker = new Worker([$receiver], $bus, $eventDispatcher);

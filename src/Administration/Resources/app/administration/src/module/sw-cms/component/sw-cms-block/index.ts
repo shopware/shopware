@@ -6,19 +6,17 @@ import type CmsVisibility from '../../shared/CmsVisibility';
 const { Filter, Store } = Shopware;
 
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['block-overlay-click'],
 
     props: {
         block: {
-            type: Object as PropType<EntitySchema.Entity<'cms_block'>>,
+            type: Object as PropType<Entity<'cms_block'>>,
             required: true,
         },
 
@@ -146,9 +144,8 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         createdComponent() {
-            if (!this.block.backgroundMediaMode) {
-                this.block.backgroundMediaMode = 'cover';
-            }
+            this.block.backgroundMediaMode ??= 'cover';
+            this.block.backgroundColor ??= '';
         },
 
         onBlockOverlayClick() {

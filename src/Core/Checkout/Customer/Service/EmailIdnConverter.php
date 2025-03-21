@@ -23,7 +23,7 @@ class EmailIdnConverter
     {
         $parts = explode('@', $email);
 
-        if (\count($parts) !== 2 || mb_check_encoding($email, 'ASCII')) {
+        if (\count($parts) !== 2 || $parts[1] === '' || mb_check_encoding($email, 'ASCII')) {
             return $email;
         }
 

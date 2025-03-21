@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import template from './sw-card-filter.html.twig';
@@ -12,8 +12,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-card-filter', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['sw-card-filter-term-change'],
 

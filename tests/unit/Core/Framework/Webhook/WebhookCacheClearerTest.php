@@ -4,8 +4,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Webhook;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Framework\Webhook\WebhookCacheClearer;
-use Shopware\Core\Framework\Webhook\WebhookDispatcher;
 
 /**
  * @internal
@@ -16,41 +16,40 @@ class WebhookCacheClearerTest extends TestCase
     public function testGetSubscribedEvents(): void
     {
         static::assertEquals([
-            'webhook.written' => 'clearWebhookCache',
             'acl_role.written' => 'clearPrivilegesCache',
         ], WebhookCacheClearer::getSubscribedEvents());
     }
 
     public function testReset(): void
     {
-        $dispatcherMock = $this->createMock(WebhookDispatcher::class);
-        $dispatcherMock->expects(static::once())
+        $manager = $this->createMock(WebhookManager::class);
+        $manager->expects($this->once())
             ->method('clearInternalWebhookCache');
 
-        $dispatcherMock->expects(static::once())
+        $manager->expects($this->once())
             ->method('clearInternalPrivilegesCache');
 
-        $cacheClearer = new WebhookCacheClearer($dispatcherMock);
+        $cacheClearer = new WebhookCacheClearer($manager);
         $cacheClearer->reset();
     }
 
     public function testClearWebhookCache(): void
     {
-        $dispatcherMock = $this->createMock(WebhookDispatcher::class);
-        $dispatcherMock->expects(static::once())
+        $manager = $this->createMock(WebhookManager::class);
+        $manager->expects($this->once())
             ->method('clearInternalWebhookCache');
 
-        $cacheClearer = new WebhookCacheClearer($dispatcherMock);
+        $cacheClearer = new WebhookCacheClearer($manager);
         $cacheClearer->clearWebhookCache();
     }
 
     public function testClearPrivilegesCache(): void
     {
-        $dispatcherMock = $this->createMock(WebhookDispatcher::class);
-        $dispatcherMock->expects(static::once())
+        $manager = $this->createMock(WebhookManager::class);
+        $manager->expects($this->once())
             ->method('clearInternalPrivilegesCache');
 
-        $cacheClearer = new WebhookCacheClearer($dispatcherMock);
+        $cacheClearer = new WebhookCacheClearer($manager);
         $cacheClearer->clearPrivilegesCache();
     }
 }

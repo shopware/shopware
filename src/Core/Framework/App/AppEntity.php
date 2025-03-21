@@ -27,78 +27,33 @@ use Shopware\Core\System\TaxProvider\TaxProviderCollection;
  * @phpstan-type Module array{name: string, label: array<string, string>, parent: string, source: string|null, position: int}
  * @phpstan-type Cookie array{snippet_name: string, snippet_description?: string, cookie: string, value?: string, expiration?: int, entries?: list<array{snippet_name: string, snippet_description?: string, cookie: string, value?: string, expiration?: int}>}
  */
-#[Package('core')]
+#[Package('framework')]
 class AppEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $id;
+    protected string $name;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected string $path;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $path;
+    protected ?string $author = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $author;
+    protected ?string $copyright = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $copyright;
+    protected ?string $license = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $license;
+    protected ?string $privacy = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $privacy;
+    protected string $version;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $version;
-
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $allowDisable;
+    protected bool $allowDisable;
 
     protected ?string $baseAppUrl = null;
 
     protected ?string $checkoutGatewayUrl = null;
+
+    protected ?string $inAppPurchasesGatewayUrl = null;
 
     /**
      * @var list<Module>
@@ -122,184 +77,73 @@ class AppEntity extends Entity
 
     /**
      * @internal
-     *
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $iconRaw;
+    protected ?string $iconRaw = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $icon;
+    protected ?string $icon = null;
 
-    /**
-     * @var AppTranslationCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translations;
+    protected ?AppTranslationCollection $translations = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $label;
+    protected ?string $label = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $privacyPolicyExtensions;
+    protected ?string $privacyPolicyExtensions = null;
 
     /**
      * @internal
-     *
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $appSecret;
+    protected ?string $appSecret = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $integrationId;
+    protected string $integrationId;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $active;
+    protected bool $active;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $configurable;
+    protected bool $configurable;
 
-    /**
-     * @var IntegrationEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $integration;
+    protected ?IntegrationEntity $integration = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $aclRoleId;
+    protected string $aclRoleId;
 
-    /**
-     * @var AclRoleEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $aclRole;
+    protected ?AclRoleEntity $aclRole = null;
 
-    /**
-     * @var TemplateCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $templates;
+    protected ?TemplateCollection $templates = null;
 
     /**
      * @internal
      */
     protected ?ScriptCollection $scripts = null;
 
-    /**
-     * @var CustomFieldSetCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customFieldSets;
+    protected ?CustomFieldSetCollection $customFieldSets = null;
 
-    /**
-     * @var ActionButtonCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $actionButtons;
+    protected ?ActionButtonCollection $actionButtons = null;
 
-    /**
-     * @var WebhookCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $webhooks;
+    protected ?WebhookCollection $webhooks = null;
 
-    /**
-     * @var AppPaymentMethodCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $paymentMethods;
+    protected ?AppPaymentMethodCollection $paymentMethods = null;
 
     protected ?TaxProviderCollection $taxProviders = null;
 
     /**
      * @internal
-     *
-     * @var AppScriptConditionCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $scriptConditions;
+    protected ?AppScriptConditionCollection $scriptConditions = null;
 
     /**
      * @internal
-     *
-     * @var AppCmsBlockCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $cmsBlocks;
+    protected ?AppCmsBlockCollection $cmsBlocks = null;
 
-    /**
-     * @var AppFlowActionCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $flowActions;
+    protected ?AppFlowActionCollection $flowActions = null;
 
-    /**
-     * @var AppFlowEventCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $flowEvents;
+    protected ?AppFlowEventCollection $flowEvents = null;
 
     /**
      * @var EntityCollection<AppShippingMethodEntity>|null
      */
     protected ?EntityCollection $appShippingMethods = null;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $templateLoadPriority;
+    protected int $templateLoadPriority;
 
     protected string $sourceType = 'local';
 
@@ -309,16 +153,6 @@ class AppEntity extends Entity
     protected array $sourceConfig = [];
 
     protected bool $selfManaged = false;
-
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
-    public function setId(string $id): void
-    {
-        $this->id = $id;
-    }
 
     public function getName(): string
     {
@@ -411,6 +245,16 @@ class AppEntity extends Entity
     public function setCheckoutGatewayUrl(?string $checkoutGatewayUrl): void
     {
         $this->checkoutGatewayUrl = $checkoutGatewayUrl;
+    }
+
+    public function getInAppPurchasesGatewayUrl(): ?string
+    {
+        return $this->inAppPurchasesGatewayUrl;
+    }
+
+    public function setInAppPurchasesGatewayUrl(?string $inAppPurchasesGatewayUrl): void
+    {
+        $this->inAppPurchasesGatewayUrl = $inAppPurchasesGatewayUrl;
     }
 
     /**

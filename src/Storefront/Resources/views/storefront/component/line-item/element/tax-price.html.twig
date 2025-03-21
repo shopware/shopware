@@ -11,7 +11,12 @@
 
     {% block component_line_item_tax_price_inner %}
         {% for calculatedTax in lineItem.price.calculatedTaxes %}
-            {{ calculatedTax.tax|currency }}
+            {% set calculatedTaxValue = calculatedTax.tax ?? 0 %}
+            {% if calculatedTaxValue < 0 %}
+                &minus;
+            {% endif %}
+
+            {{ calculatedTaxValue|abs|currency }}
             <br>
         {% endfor %}
     {% endblock %}

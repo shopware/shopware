@@ -17,7 +17,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class StoreApiSeoResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -193,7 +193,7 @@ class StoreApiSeoResolverTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('category.repository')
+        static::getContainer()->get('category.repository')
             ->create([$data], Context::createDefaultContext());
     }
 
@@ -209,7 +209,7 @@ class StoreApiSeoResolverTest extends TestCase
             ];
         }
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->update($products, Context::createDefaultContext());
     }
 }

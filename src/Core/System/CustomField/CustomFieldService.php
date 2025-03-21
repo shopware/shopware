@@ -14,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -23,16 +22,16 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class CustomFieldService implements EventSubscriberInterface, ResetInterface
 {
     // Custom field names should be valid twig variable names (https://github.com/twigphp/Twig/blob/21df1ad7824ced2abcbd33863f04c6636674481f/src/Lexer.php#L46)
     public const CUSTOM_FIELD_NAME_PATTERN = '/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/';
 
     /**
-     * @var array<string, mixed>
+     * @var ?array<string, mixed>
      */
-    private array $customFields = [];
+    private ?array $customFields = null;
 
     /**
      * @internal
@@ -75,11 +74,6 @@ class CustomFieldService implements EventSubscriberInterface, ResetInterface
 
     public function validateBeforeWrite(EntityWriteEvent $event): void
     {
-        /** @deprecated tag:v6.7.0 - remove if condition */
-        if (!Feature::isActive('v6.7.0.0')) {
-            return;
-        }
-
         $commands = $event->getCommands();
 
         if (empty($commands)) {
@@ -98,7 +92,7 @@ class CustomFieldService implements EventSubscriberInterface, ResetInterface
 
     public function reset(): void
     {
-        $this->customFields = [];
+        $this->customFields = null;
     }
 
     /**
@@ -122,17 +116,13 @@ class CustomFieldService implements EventSubscriberInterface, ResetInterface
      */
     private function getCustomFields(): array
     {
-        if (!empty($this->customFields)) {
+        if ($this->customFields !== null) {
             return $this->customFields;
         }
 
-        /** @var array<string, mixed> $customField */
-        $customField = $this->connection->fetchAllKeyValue('SELECT `name`, `type` FROM `custom_field` WHERE `active` = 1');
+        /** @var array<string, mixed> */
+        $customFields = $this->connection->fetchAllKeyValue('SELECT `name`, `type` FROM `custom_field` WHERE `active` = 1');
 
-        if (!empty($customField)) {
-            $this->customFields = $customField;
-        }
-
-        return $this->customFields;
+        return $this->customFields = $customFields;
     }
 }

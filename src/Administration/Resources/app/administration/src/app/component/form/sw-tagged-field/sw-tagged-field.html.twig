@@ -1,13 +1,10 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_tagged_field %}
 <sw-block-field
     class="sw-tagged-field"
     :class="taggedFieldClasses"
     v-bind="$attrs"
-    v-on="listeners"
 >
     <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_tagged_field_inner %}
         <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
         <ul
@@ -27,10 +24,8 @@
                     {{ tag }}
                 </sw-label>
             </li>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_tagged_field_item_input %}
             <li class="sw-tagged-field__input-list-entry">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_tagged_field_input %}
                 <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
                 <input

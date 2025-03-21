@@ -1,19 +1,16 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_category_detail_seo %}
 <div class="sw-category-detail-seo">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_seo_config %}
-    <sw-card
+    <mt-card
         position-identifier="sw-category-detail-seo"
         :title="$tc('sw-category.base.seo.title')"
         :is-loading="isLoading"
     >
         <sw-category-seo-form :category="category" />
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_seo_list %}
     <sw-seo-url
         v-if="category.seoUrls"

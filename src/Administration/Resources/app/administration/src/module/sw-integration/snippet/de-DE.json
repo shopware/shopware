@@ -24,7 +24,6 @@
       "confirmDelete": "Möchtest Du diese Integration wirklich löschen?",
       "buttonApply": "Integration speichern",
       "buttonApplyEdit": "Änderungen speichern",
-      "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
       "buttonCreateNewApiKeys": "API-Zugangsschlüssel neu generieren",
       "hintCreateNewApiKeys": "Die Neuerstellung des API-Zugangsschlüssels macht die Aktualisierung aller zugehörigen Skripte und/oder Anwendungen erforderlich.",

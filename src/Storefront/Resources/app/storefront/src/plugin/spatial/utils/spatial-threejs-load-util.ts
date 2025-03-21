@@ -1,7 +1,7 @@
 /**
  * @package innovation
  *
- * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+ * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
  */
 export async function loadThreeJs(): Promise<void> {
 
@@ -62,6 +62,10 @@ export async function loadThreeJs(): Promise<void> {
 
     if (!window.threeJsAddons?.DRACOLibPath) {
         window.threeJsAddons.DRACOLibPath = 'three/examples/jsm/libs/draco/';
+    }
+
+    if (!window.threeJsAddons?.MathUtils) {
+        window.threeJsAddons.MathUtils = await import('three/src/math/MathUtils.js');
     }
 
     window.loadThreeJsUtil.promiseResolve();

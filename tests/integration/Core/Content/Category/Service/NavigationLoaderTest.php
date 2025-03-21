@@ -35,11 +35,11 @@ class NavigationLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('category.repository');
+        $this->repository = static::getContainer()->get('category.repository');
 
         $this->ids = new IdsCollection();
 
-        $this->navigationLoader = $this->getContainer()->get(NavigationLoader::class);
+        $this->navigationLoader = static::getContainer()->get(NavigationLoader::class);
     }
 
     public function testTreeBuilderWithSimpleTree(): void
@@ -70,7 +70,7 @@ class NavigationLoaderTest extends TestCase
     {
         $this->createCategoryTree();
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->getSalesChannel()->setNavigationCategoryId($this->ids->get('rootId'));
 
         $tree = $this->navigationLoader->load($this->ids->get('category1'), $context, $this->ids->get('category1'));
@@ -82,7 +82,7 @@ class NavigationLoaderTest extends TestCase
     public function testLoadChildOfRootCategory(): void
     {
         $this->createCategoryTree();
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->getSalesChannel()->setNavigationCategoryId($this->ids->get('rootId'));
 
         $tree = $this->navigationLoader->load($this->ids->get('category1_1'), $context, $this->ids->get('category1'));
@@ -93,7 +93,7 @@ class NavigationLoaderTest extends TestCase
     public function testLoadCategoryNotFound(): void
     {
         static::expectException(CategoryNotFoundException::class);
-        $this->navigationLoader->load(Uuid::randomHex(), Generator::createSalesChannelContext(), Uuid::randomHex());
+        $this->navigationLoader->load(Uuid::randomHex(), Generator::generateSalesChannelContext(), Uuid::randomHex());
     }
 
     public function testLoadNotChildOfRootCategoryThrowsException(): void
@@ -101,7 +101,7 @@ class NavigationLoaderTest extends TestCase
         $this->createCategoryTree();
 
         static::expectException(CategoryNotFoundException::class);
-        $this->navigationLoader->load($this->ids->get('category2_1'), Generator::createSalesChannelContext(), $this->ids->get('category1'));
+        $this->navigationLoader->load($this->ids->get('category2_1'), Generator::generateSalesChannelContext(), $this->ids->get('category1'));
     }
 
     public function testLoadParentOfRootCategoryThrowsException(): void
@@ -109,7 +109,7 @@ class NavigationLoaderTest extends TestCase
         $this->createCategoryTree();
 
         static::expectException(CategoryNotFoundException::class);
-        $this->navigationLoader->load($this->ids->get('rootId'), Generator::createSalesChannelContext(), $this->ids->get('category1'));
+        $this->navigationLoader->load($this->ids->get('rootId'), Generator::generateSalesChannelContext(), $this->ids->get('category1'));
     }
 
     public function testLoadDeepNestedTree(): void
@@ -129,7 +129,7 @@ class NavigationLoaderTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->getSalesChannel()->setNavigationCategoryId($this->ids->get('rootId'));
 
         $tree = $this->navigationLoader->load($this->ids->get('category_1_1_1_1'), $context, $this->ids->get('rootId'));
@@ -159,9 +159,9 @@ class NavigationLoaderTest extends TestCase
             ]],
         ];
 
-        $this->getContainer()->get('category.repository')->create($categories, Context::createDefaultContext());
+        static::getContainer()->get('category.repository')->create($categories, Context::createDefaultContext());
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->getSalesChannel()->setNavigationCategoryId($ids->get('root'));
 
         $tree = $this->navigationLoader->load($ids->get('root'), $context, $ids->get('root'), 5);
@@ -209,7 +209,7 @@ class NavigationLoaderTest extends TestCase
 
         $this->repository->create($categories, Context::createDefaultContext());
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->getSalesChannel()->setNavigationCategoryId($data->get('root'));
 
         $tree = $this->navigationLoader->load(
@@ -259,7 +259,7 @@ class NavigationLoaderTest extends TestCase
     {
         $this->createCategoryTree();
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->getSalesChannel()->setNavigationCategoryId($this->ids->get('rootId'));
 
         $tree = $this->navigationLoader->load($this->ids->get('rootId'), $context, $this->ids->get('rootId'));

@@ -44,9 +44,7 @@ class PaymentDistinguishableNameGenerator
             ->addAssociation('plugin.translations')
             ->addAssociation('appPaymentMethod.app.translations');
 
-        return $this->paymentMethodRepository
-            ->search($criteria, $context)
-            ->getEntities();
+        return $this->paymentMethodRepository->search($criteria, $context)->getEntities();
     }
 
     /**

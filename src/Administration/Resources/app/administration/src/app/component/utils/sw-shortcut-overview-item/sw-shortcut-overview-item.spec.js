@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 
@@ -53,7 +53,7 @@ describe('app/component/utils/sw-shortcut-overview-item', () => {
         expect(shortcut.at(1).text()).toBe('C');
     });
 
-    it('should not show the item because the privilege does not exists', async () => {
+    it('should not show the item because the privilege does not exist', async () => {
         const wrapper = await wrapperFactory({
             propsData: {
                 title: 'Clear cache',

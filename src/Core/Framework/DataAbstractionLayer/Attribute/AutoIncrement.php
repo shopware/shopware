@@ -4,9 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Attribute;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-class AutoIncrement extends Field
+final class AutoIncrement extends Field
 {
     public const TYPE = 'auto-increment';
 

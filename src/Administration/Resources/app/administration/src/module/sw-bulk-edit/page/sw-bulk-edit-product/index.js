@@ -1,22 +1,20 @@
 import template from './sw-bulk-edit-product.html.twig';
 import './sw-bulk-edit-product.scss';
-import swProductDetailState from '../../../sw-product/page/sw-product-detail/state';
+import '../../../sw-product/page/sw-product-detail/store';
+import '../../store/sw-bulk-edit.store';
 
-const { Component, Context } = Shopware;
+const { Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { types } = Shopware.Utils;
 const { chunk } = Shopware.Utils.array;
-const { mapState, mapGetters } = Component.getComponentHelper();
 const { cloneDeep } = Shopware.Utils.object;
 
 /**
- * @package services-settings
+ * @sw-package inventory
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'feature',
@@ -51,19 +49,28 @@ export default {
     },
 
     computed: {
-        ...mapState('swProductDetail', [
-            'product',
-            'parentProduct',
-            'taxes',
-        ]),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
 
-        ...mapGetters('swProductDetail', [
-            'defaultCurrency',
-            'defaultPrice',
-        ]),
+        parentProduct() {
+            return Shopware.Store.get('swProductDetail').parentProduct;
+        },
+
+        taxes() {
+            return Shopware.Store.get('swProductDetail').taxes;
+        },
+
+        defaultCurrency() {
+            return Shopware.Store.get('swProductDetail').defaultCurrency;
+        },
+
+        defaultPrice() {
+            return Shopware.Store.get('swProductDetail').defaultPrice;
+        },
 
         selectedIds() {
-            return Shopware.State.get('shopwareApps').selectedIds;
+            return Shopware.Store.get('shopwareApps').selectedIds;
         },
 
         customFieldSetRepository() {
@@ -92,11 +99,6 @@ export default {
             criteria.addFilter(Criteria.equals('relations.entityName', 'product'));
 
             return criteria;
-        },
-
-        /** @deprecated tag:v6.7.0 - Will be removed. */
-        currencyCriteria() {
-            return new Criteria(1, 25).addSorting(Criteria.sort('name', 'ASC'));
         },
 
         taxCriteria() {
@@ -241,7 +243,7 @@ export default {
                     name: 'price',
                     config: {
                         componentName: 'sw-price-field',
-                        price: this.product.price,
+                        price: this.product?.price,
                         taxRate: this.taxRate,
                         currency: this.currency,
                         changeLabel: this.isChild
@@ -255,7 +257,7 @@ export default {
                     name: 'purchasePrices',
                     config: {
                         componentName: 'sw-price-field',
-                        price: this.product.purchasePrices,
+                        price: this.product?.purchasePrices,
                         taxRate: this.taxRate,
                         currency: this.currency,
                         changeLabel: this.isChild
@@ -269,7 +271,7 @@ export default {
                     name: 'listPrice',
                     config: {
                         componentName: 'sw-price-field',
-                        price: this.product.listPrice,
+                        price: this.product?.listPrice,
                         taxRate: this.taxRate,
                         currency: this.currency,
                         changeLabel: this.isChild
@@ -285,7 +287,7 @@ export default {
                     name: 'regulationPrice',
                     config: {
                         componentName: 'sw-price-field',
-                        price: this.product.regulationPrice,
+                        price: this.product?.regulationPrice,
                         taxRate: this.taxRate,
                         currency: this.currency,
                         changeLabel: this.isChild
@@ -357,7 +359,7 @@ export default {
                     type: 'int',
                     canInherit: false,
                     config: {
-                        componentName: 'sw-number-field',
+                        componentName: 'mt-number-field',
                         changeLabel: this.$tc('sw-bulk-edit.product.deliverability.stock.changeLabel'),
                         placeholder: this.$tc('sw-bulk-edit.product.deliverability.stock.placeholderStock'),
                         numberType: 'int',
@@ -394,7 +396,7 @@ export default {
                     type: 'int',
                     canInherit: this.isChild,
                     config: {
-                        componentName: 'sw-number-field',
+                        componentName: 'mt-number-field',
                         changeLabel: this.$tc('sw-bulk-edit.product.deliverability.restockTime.changeLabel'),
                         placeholder: this.$tc('sw-bulk-edit.product.deliverability.restockTime.placeholderRestockTime'),
                         numberType: 'int',
@@ -421,7 +423,7 @@ export default {
                     type: 'int',
                     canInherit: this.isChild,
                     config: {
-                        componentName: 'sw-number-field',
+                        componentName: 'mt-number-field',
                         changeLabel: this.$tc('sw-bulk-edit.product.deliverability.minOrderQuantity.changeLabel'),
                         placeholder: this.$tc(
                             'sw-bulk-edit.product.deliverability.minOrderQuantity.placeholderMinOrderQuantity',
@@ -439,7 +441,7 @@ export default {
                     type: 'int',
                     canInherit: this.isChild,
                     config: {
-                        componentName: 'sw-number-field',
+                        componentName: 'mt-number-field',
                         changeLabel: this.$tc('sw-bulk-edit.product.deliverability.purchaseSteps.changeLabel'),
                         placeholder: this.$tc('sw-bulk-edit.product.deliverability.purchaseSteps.placeholderPurchaseSteps'),
                         numberType: 'int',
@@ -455,7 +457,7 @@ export default {
                     type: 'int',
                     canInherit: this.isChild,
                     config: {
-                        componentName: 'sw-number-field',
+                        componentName: 'mt-number-field',
                         changeLabel: this.$tc('sw-bulk-edit.product.deliverability.maxOrderQuantity.changeLabel'),
                         placeholder: this.$tc(
                             'sw-bulk-edit.product.deliverability.maxOrderQuantity.placeholderMaxOrderQuantity',
@@ -497,7 +499,7 @@ export default {
                     canInherit: this.isChild,
                     config: {
                         componentName: 'sw-category-tree-field',
-                        categoriesCollection: this.product.categories,
+                        categoriesCollection: this.product?.categories,
                         allowOverwrite: true,
                         allowClear: true,
                         allowAdd: true,
@@ -512,7 +514,7 @@ export default {
                     canInherit: this.isChild,
                     config: {
                         componentName: 'sw-entity-tag-select',
-                        entityCollection: this.product.tags,
+                        entityCollection: this.product?.tags,
                         entityName: 'tag',
                         allowOverwrite: true,
                         allowClear: true,
@@ -528,7 +530,7 @@ export default {
                     canInherit: this.isChild,
                     config: {
                         componentName: 'sw-multi-tag-select',
-                        value: this.product.searchKeywords,
+                        value: this.product?.searchKeywords,
                         allowOverwrite: true,
                         allowClear: true,
                         allowAdd: false,
@@ -622,7 +624,7 @@ export default {
                     type: 'float',
                     canInherit: this.isChild,
                     config: {
-                        componentName: 'sw-number-field',
+                        componentName: 'mt-number-field',
                         changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.widthTitle.changeLabel'),
                         placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.widthTitle.placeholder'),
                         numberType: 'float',
@@ -636,7 +638,7 @@ export default {
                     type: 'float',
                     canInherit: this.isChild,
                     config: {
-                        componentName: 'sw-number-field',
+                        componentName: 'mt-number-field',
                         changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.heightTitle.changeLabel'),
                         placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.heightTitle.placeholder'),
                         numberType: 'float',
@@ -762,7 +764,7 @@ export default {
                 return null;
             }
 
-            return this.repositoryFactory.create(this.product.prices.entity, this.product.prices.source);
+            return this.repositoryFactory.create(this.product?.prices.entity, this.product?.prices.source);
         },
 
         ruleCriteria() {
@@ -778,11 +780,11 @@ export default {
         },
 
         priceRuleGroups() {
-            if (!this.product.prices) {
+            if (!this.product?.prices) {
                 return {};
             }
 
-            return this.product.prices.reduce((r, a) => {
+            return this.product?.prices.reduce((r, a) => {
                 r[a.ruleId] = [
                     ...(r[a.ruleId] || []),
                     a,
@@ -798,8 +800,8 @@ export default {
                 return;
             }
 
-            const ids = this.product.prices?.getIds();
-            ids.forEach((id) => this.product.prices.remove(id));
+            const ids = this.product?.prices?.getIds();
+            ids.forEach((id) => this.product?.prices.remove(id));
         },
         'product.visibilities': {
             handler(productVisibilities) {
@@ -807,11 +809,7 @@ export default {
                     return;
                 }
 
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.bulkEditProduct.visibilities, 'value', productVisibilities);
-                } else {
-                    this.bulkEditProduct.visibilities.value = productVisibilities;
-                }
+                this.bulkEditProduct.visibilities.value = productVisibilities;
             },
         },
         'bulkEditProduct.isPriceInherited.isChanged': {
@@ -820,17 +818,10 @@ export default {
                     return;
                 }
 
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.bulkEditProduct.price, 'isChanged', isChanged);
-                    this.$set(this.bulkEditProduct.purchasePrices, 'isChanged', isChanged);
-                    this.$set(this.bulkEditProduct.listPrice, 'isChanged', isChanged);
-                    this.$set(this.bulkEditProduct.regulationPrice, 'isChanged', isChanged);
-                } else {
-                    this.bulkEditProduct.price.isChanged = isChanged;
-                    this.bulkEditProduct.purchasePrices.isChanged = isChanged;
-                    this.bulkEditProduct.listPrice.isChanged = isChanged;
-                    this.bulkEditProduct.regulationPrice.isChanged = isChanged;
-                }
+                this.bulkEditProduct.price.isChanged = isChanged;
+                this.bulkEditProduct.purchasePrices.isChanged = isChanged;
+                this.bulkEditProduct.listPrice.isChanged = isChanged;
+                this.bulkEditProduct.regulationPrice.isChanged = isChanged;
             },
         },
         'bulkEditProduct.isPriceInherited.isInherited': {
@@ -839,17 +830,10 @@ export default {
                     return;
                 }
 
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.bulkEditProduct.price, 'isInherited', isInherited);
-                    this.$set(this.bulkEditProduct.purchasePrices, 'isInherited', isInherited);
-                    this.$set(this.bulkEditProduct.listPrice, 'isInherited', isInherited);
-                    this.$set(this.bulkEditProduct.regulationPrice, 'isInherited', isInherited);
-                } else {
-                    this.bulkEditProduct.price.isInherited = isInherited;
-                    this.bulkEditProduct.purchasePrices.isInherited = isInherited;
-                    this.bulkEditProduct.listPrice.isInherited = isInherited;
-                    this.bulkEditProduct.regulationPrice.isInherited = isInherited;
-                }
+                this.bulkEditProduct.price.isInherited = isInherited;
+                this.bulkEditProduct.purchasePrices.isInherited = isInherited;
+                this.bulkEditProduct.listPrice.isInherited = isInherited;
+                this.bulkEditProduct.regulationPrice.isInherited = isInherited;
             },
         },
         'product.listPrice': {
@@ -865,11 +849,7 @@ export default {
                     return;
                 }
 
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.bulkEditProduct.price.value[0], 'listPrice', listPrice[0]);
-                } else {
-                    this.bulkEditProduct.price.value[0].listPrice = listPrice[0];
-                }
+                this.bulkEditProduct.price.value[0].listPrice = listPrice[0];
             },
         },
         'product.regulationPrice': {
@@ -885,21 +865,9 @@ export default {
                     return;
                 }
 
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.bulkEditProduct.price.value[0], 'regulationPrice', regulationPrice[0]);
-                } else {
-                    this.bulkEditProduct.price.value[0].regulationPrice = regulationPrice[0];
-                }
+                this.bulkEditProduct.price.value[0].regulationPrice = regulationPrice[0];
             },
         },
-    },
-
-    beforeCreate() {
-        Shopware.State.registerModule('swProductDetail', swProductDetailState);
-    },
-
-    beforeUnmount() {
-        Shopware.State.unregisterModule('swProductDetail');
     },
 
     created() {
@@ -927,7 +895,7 @@ export default {
                 this.loadBulkEditData();
 
                 const product = this.isChild ? this.parentProduct : this.productRepository.create();
-                Shopware.State.commit('swProductDetail/setProduct', product);
+                Shopware.Store.get('swProductDetail').product = product;
                 this.definePricesBulkEdit();
 
                 if (this.isChild) {
@@ -940,22 +908,13 @@ export default {
         },
 
         setRouteMetaModule() {
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.$route.meta.$module, 'color', '#57D9A3');
-                this.$set(this.$route.meta.$module, 'icon', 'regular-products');
-            } else {
-                this.$route.meta.$module.color = '#57D9A3';
-                this.$route.meta.$module.icon = 'regular-products';
-            }
+            this.$route.meta.$module.color = '#57D9A3';
+            this.$route.meta.$module.icon = 'regular-products';
         },
 
         setBulkEditProductValue() {
             Object.keys(this.bulkEditProduct).forEach((key) => {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.bulkEditProduct[key], 'value', cloneDeep(this.parentProduct?.[key]));
-                } else {
-                    this.bulkEditProduct[key].value = cloneDeep(this.parentProduct?.[key]);
-                }
+                this.bulkEditProduct[key].value = cloneDeep(this.parentProduct?.[key]);
 
                 if (key === 'searchKeywords') {
                     this.setProductSearchKeywords();
@@ -968,11 +927,11 @@ export default {
                 .get(this.$route.params.parentId, Shopware.Context.api, this.productCriteria)
                 .then((parentProduct) => {
                     parentProduct.stock = null;
-                    Shopware.State.commit('swProductDetail/setParentProduct', parentProduct);
+                    Shopware.Store.get('swProductDetail').parentProduct = parentProduct;
                     this.parentProductFrozen = JSON.stringify(parentProduct);
                 })
                 .catch(() => {
-                    Shopware.State.commit('swProductDetail/setParentProduct', {});
+                    Shopware.Store.get('swProductDetail').parentProduct = {};
                 });
         },
 
@@ -988,39 +947,21 @@ export default {
             }
 
             if (name === 'stock') {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.bulkEditProduct, name, {
-                        value,
-                        type,
-                        isChanged,
-                        isInherited: false,
-                    });
-                } else {
-                    this.bulkEditProduct[name] = {
-                        value,
-                        type,
-                        isChanged,
-                        isInherited: false,
-                    };
-                }
+                this.bulkEditProduct[name] = {
+                    value,
+                    type,
+                    isChanged,
+                    isInherited: false,
+                };
                 return;
             }
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.bulkEditProduct, name, {
-                    isChanged: isChanged,
-                    type: type,
-                    value: value,
-                    isInherited: this.isChild,
-                });
-            } else {
-                this.bulkEditProduct[name] = {
-                    isChanged: isChanged,
-                    type: type,
-                    value: value,
-                    isInherited: this.isChild,
-                };
-            }
+            this.bulkEditProduct[name] = {
+                isChanged: isChanged,
+                type: type,
+                value: value,
+                isInherited: this.isChild,
+            };
         },
 
         loadBulkEditData() {
@@ -1054,7 +995,7 @@ export default {
         loadTaxes() {
             return this.taxRepository.search(this.taxCriteria).then((taxes) => {
                 this.taxRate = this.isChild ? this.parentProduct?.tax : taxes[0];
-                Shopware.State.commit('swProductDetail/setTaxes', taxes);
+                Shopware.Store.get('swProductDetail').setTaxes(taxes);
             });
         },
 
@@ -1064,13 +1005,13 @@ export default {
             }
 
             return this.taxes.find((tax) => {
-                return tax.id === this.product.taxId;
+                return tax.id === this.product?.taxId;
             });
         },
 
         loadCurrencies() {
             return this.currencyRepository.search(new Criteria(1, 500)).then((res) => {
-                Shopware.State.commit('swProductDetail/setCurrencies', res);
+                Shopware.Store.get('swProductDetail').currencies = res;
             });
         },
 
@@ -1080,13 +1021,8 @@ export default {
             }
 
             if (this.isChild && !types.isEmpty(this.parentProduct)) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.product, 'price', this.parentProduct.price);
-                    this.$set(this.product, 'purchasePrices', this.parentProduct.purchasePrices);
-                } else {
-                    this.product.price = this.parentProduct.price;
-                    this.product.purchasePrices = this.parentProduct.purchasePrices;
-                }
+                this.product.price = this.parentProduct.price;
+                this.product.purchasePrices = this.parentProduct.purchasePrices;
                 this.setProductPrice('listPrice');
                 this.setProductPrice('regulationPrice');
 
@@ -1140,16 +1076,8 @@ export default {
                 },
             ];
 
-            if (!types.isEmpty(this.parentProduct.price[0][price])) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.product, `${price}`, [
-                        this.parentProduct.price[0][price],
-                    ]);
-                } else {
-                    this.product[price] = [this.parentProduct.price[0][price]];
-                }
-            } else if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.product, `${price}`, emptyPrice);
+            if (!types.isEmpty(this.parentProduct.price?.[0][price])) {
+                this.product[price] = [this.parentProduct.price[0][price]];
             } else {
                 this.product[price] = emptyPrice;
             }
@@ -1167,11 +1095,7 @@ export default {
             }
 
             if (value && typeof value !== 'boolean') {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.product, `${item}`, [value]);
-                } else {
-                    this.product[item] = [value];
-                }
+                this.product[item] = [value];
             }
         },
 
@@ -1271,11 +1195,7 @@ export default {
             });
 
             if (priceField) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(priceField.value[0], 'listPrice', this.product.listPrice[0]);
-                } else {
-                    priceField.value[0].listPrice = this.product.listPrice[0];
-                }
+                priceField.value[0].listPrice = this.product?.listPrice[0];
             }
         },
 
@@ -1285,11 +1205,7 @@ export default {
             });
 
             if (priceField) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(priceField.value[0], 'regulationPrice', this.product.regulationPrice[0]);
-                } else {
-                    priceField.value[0].regulationPrice = this.product.regulationPrice[0];
-                }
+                priceField.value[0].regulationPrice = this.product?.regulationPrice[0];
             }
         },
 
@@ -1333,7 +1249,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').setApiLanguageId(languageId);
         },
 
         loadRules() {
@@ -1343,10 +1259,10 @@ export default {
         },
 
         onRuleChange(rules) {
-            if (rules.length > this.product.prices.length) {
+            if (rules.length > this.product?.prices.length) {
                 const newPriceRule = this.priceRepository.create();
 
-                newPriceRule.productId = this.product.id;
+                newPriceRule.productId = this.product?.id;
                 newPriceRule.quantityStart = 1;
                 newPriceRule.quantityEnd = null;
                 newPriceRule.currencyId = this.defaultCurrency.id;
@@ -1380,57 +1296,43 @@ export default {
                 }
 
                 rules.forEach((rule) => {
-                    if (this.product.prices.some((item) => item.ruleId === rule.ruleId)) {
+                    if (this.product?.prices.some((item) => item.ruleId === rule.ruleId)) {
                         return;
                     }
 
                     newPriceRule.ruleId = rule.id;
                     newPriceRule.ruleName = rule.name;
 
-                    this.product.prices.add(newPriceRule);
+                    this.product?.prices.add(newPriceRule);
                 });
 
                 return;
             }
 
-            this.product.prices.forEach((price) => {
+            this.product?.prices.forEach((price) => {
                 if (rules.some((rule) => price.ruleId === rule.ruleId)) {
                     return;
                 }
 
-                this.product.prices.remove(price.id);
+                this.product?.prices.remove(price.id);
             });
         },
 
         onInheritanceRestore(item) {
             const parentProductFrozen = JSON.parse(this.parentProductFrozen);
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.bulkEditProduct[item.name], 'isInherited', true);
-                this.$set(this.bulkEditProduct[item.name], 'value', parentProductFrozen[item.name]);
-            } else {
-                this.bulkEditProduct[item.name].isInherited = true;
-                this.bulkEditProduct[item.name].value = parentProductFrozen[item.name];
-            }
+            this.bulkEditProduct[item.name].isInherited = true;
+            this.bulkEditProduct[item.name].value = parentProductFrozen[item.name];
 
             if (item.name === 'taxId') {
                 this.taxRate = parentProductFrozen.tax;
 
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.product, 'taxId', parentProductFrozen.taxId);
-                } else {
-                    this.product.taxId = parentProductFrozen.taxId;
-                }
+                this.product.taxId = parentProductFrozen.taxId;
                 return;
             }
             if (item.name === 'isPriceInherited') {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.product.price, 0, parentProductFrozen.price[0]);
-                    this.$set(this.product.purchasePrices, 0, parentProductFrozen.purchasePrices[0]);
-                } else {
-                    this.product.price[0] = parentProductFrozen.price[0];
-                    this.product.purchasePrices[0] = parentProductFrozen.purchasePrices[0];
-                }
+                this.product.price[0] = parentProductFrozen.price[0];
+                this.product.purchasePrices[0] = parentProductFrozen.purchasePrices[0];
 
                 const listPrice = !types.isEmpty(parentProductFrozen.price[0].listPrice)
                     ? parentProductFrozen.price[0].listPrice
@@ -1440,13 +1342,8 @@ export default {
                           linked: true,
                           gross: null,
                       };
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.product, 'listPrice', [listPrice]);
-                    this.$set(this.product.price[0], 'listPrice', listPrice);
-                } else {
-                    this.product.listPrice = [listPrice];
-                    this.product.price[0].listPrice = listPrice;
-                }
+                this.product.listPrice = [listPrice];
+                this.product.price[0].listPrice = listPrice;
 
                 const regulationPrice = !types.isEmpty(parentProductFrozen.price[0].regulationPrice)
                     ? parentProductFrozen.price[0].regulationPrice
@@ -1456,15 +1353,8 @@ export default {
                           linked: true,
                           gross: null,
                       };
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.product, 'regulationPrice', [
-                        regulationPrice,
-                    ]);
-                    this.$set(this.product.price[0], 'regulationPrice', regulationPrice);
-                } else {
-                    this.product.regulationPrice = [regulationPrice];
-                    this.product.price[0].regulationPrice = regulationPrice;
-                }
+                this.product.regulationPrice = [regulationPrice];
+                this.product.price[0].regulationPrice = regulationPrice;
 
                 return;
             }
@@ -1473,11 +1363,7 @@ export default {
                 return;
             }
             if (item.name === 'media') {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.product, 'media', parentProductFrozen.media);
-                } else {
-                    this.product.media = parentProductFrozen.media;
-                }
+                this.product.media = parentProductFrozen.media;
                 return;
             }
             if (item.name === 'prices') {
@@ -1493,7 +1379,7 @@ export default {
                 return;
             }
 
-            this.$set(this.product, item.name, parentProductFrozen[item.name]);
+            this.product[item.name] = parentProductFrozen[item.name];
         },
 
         onInheritanceRemove(item) {
@@ -1506,33 +1392,19 @@ export default {
                 this.setProductAssociation(item.name);
             }
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.bulkEditProduct[item.name], 'isInherited', false);
-            } else {
-                this.bulkEditProduct[item.name].isInherited = false;
-            }
+            this.bulkEditProduct[item.name].isInherited = false;
         },
 
         setProductSearchKeywords() {
             if (types.isEmpty(this.parentProduct?.customSearchKeywords)) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.bulkEditProduct.searchKeywords, 'value', []);
-                    this.$set(this.product, 'searchKeywords', []);
-                } else {
-                    this.bulkEditProduct.searchKeywords.value = [];
-                    this.product.searchKeywords = [];
-                }
+                this.bulkEditProduct.searchKeywords.value = [];
+                this.product.searchKeywords = [];
 
                 return;
             }
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.bulkEditProduct.searchKeywords, 'value', this.parentProduct.customSearchKeywords);
-                this.$set(this.product, 'searchKeywords', this.parentProduct.customSearchKeywords);
-            } else {
-                this.bulkEditProduct.searchKeywords.value = this.parentProduct.customSearchKeywords;
-                this.product.searchKeywords = this.parentProduct.customSearchKeywords;
-            }
+            this.bulkEditProduct.searchKeywords.value = this.parentProduct.customSearchKeywords;
+            this.product.searchKeywords = this.parentProduct.customSearchKeywords;
         },
 
         setProductAssociation(entityName, parentProduct = null) {
@@ -1540,11 +1412,7 @@ export default {
             ids.forEach((id) => this.product[entityName].remove(id));
 
             if (!parentProduct) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.bulkEditProduct[entityName], 'value', []);
-                } else {
-                    this.bulkEditProduct[entityName].value = [];
-                }
+                this.bulkEditProduct[entityName].value = [];
                 return;
             }
 

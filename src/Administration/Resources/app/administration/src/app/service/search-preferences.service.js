@@ -1,3 +1,7 @@
+/**
+ * @sw-package inventory
+ */
+
 import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.service';
 
 /**
@@ -205,7 +209,7 @@ export default function SearchPreferencesService({ userConfigRepository: _userCo
      * @private
      */
     function _getCurrentUser() {
-        return Shopware.State.get('session').currentUser;
+        return Shopware.Store.get('session').currentUser;
     }
 
     /**

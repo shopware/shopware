@@ -4,7 +4,7 @@ import template from './sw-inherit-wrapper.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Wrapper for inherited data with toggle
@@ -38,8 +38,6 @@ const { Component } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-inherit-wrapper', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 

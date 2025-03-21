@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Symfony\Contracts\Service\ResetInterface;
 
-#[Package('buyers-experience')]
+#[Package('fundamentals@framework')]
 class CurrencyFormatter implements ResetInterface
 {
     /**

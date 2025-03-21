@@ -11,15 +11,18 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('services-settings')]
+/**
+ * @final
+ */
+#[Package('fundamentals@after-sales')]
 class OrderDocumentTypeRule extends FlowRule
 {
     public const RULE_NAME = 'orderDocumentType';
 
     /**
-     * @internal
-     *
      * @param list<string> $documentIds
+     *
+     * @internal
      */
     public function __construct(
         public string $operator = Rule::OPERATOR_EQ,

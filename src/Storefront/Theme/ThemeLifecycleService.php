@@ -50,7 +50,8 @@ class ThemeLifecycleService
         private readonly EntityRepository $languageRepository,
         private readonly EntityRepository $themeChildRepository,
         private readonly Connection $connection,
-        private readonly AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory
+        private readonly AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory,
+        private readonly ThemeRuntimeConfigService $runtimeConfigService,
     ) {
     }
 
@@ -115,6 +116,9 @@ class ThemeLifecycleService
         $toDeleteIds = $this->themeChildRepository->searchIds($parentCriteria, $context)->getIds();
         $this->themeChildRepository->delete($toDeleteIds, $context);
         $this->themeChildRepository->upsert($parentThemes, $context);
+
+        // we don't resolve files as theme can be refreshed before it's built
+        $this->runtimeConfigService->updateRuntimeConfig($themeData['id'], $themeData['technicalName'], $context);
     }
 
     public function removeTheme(string $technicalName, Context $context): void

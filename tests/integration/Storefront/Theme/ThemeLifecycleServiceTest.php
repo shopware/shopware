@@ -32,6 +32,7 @@ use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeFilesystemResolver;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\ThemeWithFileAssociations\ThemeWithFileAssociations;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\ThemeWithLabels\ThemeWithLabels;
 
@@ -86,6 +87,9 @@ class ThemeLifecycleServiceTest extends TestCase
         $this->mediaRepository = static::getContainer()->get('media.repository');
         $this->mediaFolderRepository = static::getContainer()->get('media_folder.repository');
         $this->connection = static::getContainer()->get(Connection::class);
+
+        $themeRuntimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+
         $this->themeLifecycleService = new ThemeLifecycleService(
             static::getContainer()->get(StorefrontPluginRegistry::class),
             $this->themeRepository,
@@ -98,7 +102,8 @@ class ThemeLifecycleServiceTest extends TestCase
             static::getContainer()->get('language.repository'),
             static::getContainer()->get('theme_child.repository'),
             $this->connection,
-            static::getContainer()->get(StorefrontPluginConfigurationFactory::class)
+            static::getContainer()->get(StorefrontPluginConfigurationFactory::class),
+            $themeRuntimeConfigService,
         );
 
         $this->context = Context::createDefaultContext();

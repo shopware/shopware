@@ -15,8 +15,8 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\TemplateDataSubscriber;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
-use Shopware\Storefront\Theme\StorefrontPluginRegistry;
+use Shopware\Storefront\Theme\ThemeRuntimeConfig;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -29,24 +29,24 @@ class TemplateDataSubscriberTest extends TestCase
 
     private ShopIdProvider&MockObject $shopIdProvider;
 
-    private StorefrontPluginRegistry&MockObject $themeRegistry;
-
     private ActiveAppsLoader&MockObject $activeAppsLoader;
 
     private TemplateDataSubscriber $subscriber;
+
+    private ThemeRuntimeConfigService&MockObject $themeRuntimeConfigService;
 
     protected function setUp(): void
     {
         $this->hreflangLoader = $this->createMock(HreflangLoaderInterface::class);
         $this->shopIdProvider = $this->createMock(ShopIdProvider::class);
-        $this->themeRegistry = $this->createMock(StorefrontPluginRegistry::class);
         $this->activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
+        $this->themeRuntimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
 
         $this->subscriber = new TemplateDataSubscriber(
             $this->hreflangLoader,
             $this->shopIdProvider,
-            $this->themeRegistry,
-            $this->activeAppsLoader
+            $this->activeAppsLoader,
+            $this->themeRuntimeConfigService,
         );
     }
 
@@ -185,9 +185,9 @@ class TemplateDataSubscriberTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $this->themeRegistry
+        $this->themeRuntimeConfigService
             ->expects($this->never())
-            ->method('getByTechnicalName');
+            ->method('getRuntimeConfigByName');
 
         $this->subscriber->addIconSetConfig($event);
     }
@@ -204,9 +204,9 @@ class TemplateDataSubscriberTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $this->themeRegistry
+        $this->themeRuntimeConfigService
             ->expects($this->once())
-            ->method('getByTechnicalName');
+            ->method('getRuntimeConfigByName');
 
         $this->subscriber->addIconSetConfig($event);
         static::assertArrayNotHasKey('themeIconConfig', $event->getParameters());
@@ -224,49 +224,21 @@ class TemplateDataSubscriberTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $themeConfig = new StorefrontPluginConfiguration('Storefront');
-        $themeConfig->setIconSets(['default' => '@Storefront/icons/default']);
+        $themeConfig = ThemeRuntimeConfig::fromArray([
+            'themeId' => '123',
+            'technicalName' => 'Storefront',
+            'resolvedConfig' => [],
+            'iconSets' => ['default' => ['path' => '@Storefront/icons/default', 'namespace' => '']],
+            'updatedAt' => new \DateTime(),
+        ]);
 
-        $this->themeRegistry
-            ->method('getByTechnicalName')
+        $this->themeRuntimeConfigService
+            ->method('getRuntimeConfigByName')
             ->willReturn($themeConfig);
 
         $this->subscriber->addIconSetConfig($event);
 
         static::assertArrayHasKey('themeIconConfig', $event->getParameters());
-    }
-
-    public function testAddIconSetConfigWithRegistryWithGetByTechnicalName(): void
-    {
-        $request = new Request();
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, 'Storefront');
-
-        $event = new StorefrontRenderEvent(
-            'test',
-            [],
-            $request,
-            Generator::generateSalesChannelContext()
-        );
-
-        $themeConfig = new StorefrontPluginConfiguration('Storefront');
-        $themeConfig->setIconSets(['default' => '@Storefront/icons/default']);
-
-        $themeRegistry = $this->createMock(StorefrontPluginRegistry::class);
-
-        $themeRegistry
-            ->expects($this->once())
-            ->method('getByTechnicalName')
-            ->willReturn($themeConfig);
-
-        $subscriber = new TemplateDataSubscriber(
-            $this->hreflangLoader,
-            $this->shopIdProvider,
-            $themeRegistry,
-            $this->activeAppsLoader
-        );
-
-        $subscriber->addIconSetConfig($event);
-
-        static::assertArrayHasKey('themeIconConfig', $event->getParameters());
+        static::assertSame($themeConfig->iconSets, $event->getParameters()['themeIconConfig']);
     }
 }

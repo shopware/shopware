@@ -6,7 +6,7 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  * @status ready
  * @description The <u>sw-select-rule-create</u> component is used to create or select a rule.
  * @example-type code-only
@@ -22,8 +22,6 @@ Component.register('sw-select-rule-create', {
     template,
     inheritAttrs: false,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'feature',
@@ -33,6 +31,7 @@ Component.register('sw-select-rule-create', {
     emits: [
         'save-rule',
         'dismiss-rule',
+        'update:rules',
     ],
 
     props: {
@@ -132,6 +131,10 @@ Component.register('sw-select-rule-create', {
             if (event !== this.ruleId) {
                 this.onSaveRule(event);
             }
+        },
+
+        onUpdateCollection(collection) {
+            this.$emit('update:rules', collection);
         },
 
         openCreateRuleModal() {

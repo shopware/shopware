@@ -6,7 +6,7 @@ import NativeEventEmitter from 'src/helper/emitter.helper';
 /**
  * @package innovation
  *
- * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+ * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
  *
  * util class for loading spatial objects
  */

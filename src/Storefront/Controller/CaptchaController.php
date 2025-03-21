@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
-use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
@@ -19,7 +18,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
-#[Package('storefront')]
+#[Package('framework')]
 class CaptchaController extends StorefrontController
 {
     /**
@@ -60,15 +59,9 @@ class CaptchaController extends StorefrontController
             return new JsonResponse(['session' => $fakeSession]);
         }
 
-        $violations = $this->basicCaptcha->getViolations();
-        $formViolations = new ConstraintViolationException($violations, []);
         $response[] = [
             'type' => 'danger',
             'error' => 'invalid_captcha',
-            'input' => $this->renderView('@Storefront/storefront/component/captcha/basicCaptchaFields.html.twig', [
-                'formId' => $request->get('formId'),
-                'formViolations' => $formViolations,
-            ]),
         ];
 
         return new JsonResponse($response);

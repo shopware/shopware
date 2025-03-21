@@ -1,3 +1,7 @@
+/**
+ * @sw-package checkout
+ */
+
 import template from './sw-settings-cart.html.twig';
 
 const { Mixin } = Shopware;
@@ -5,8 +9,6 @@ const { Mixin } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     mixins: [
         Mixin.getByName('notification'),

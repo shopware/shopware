@@ -1,3 +1,7 @@
+/**
+ * @sw-package discovery
+ */
+
 import ApiService from '../api.service';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

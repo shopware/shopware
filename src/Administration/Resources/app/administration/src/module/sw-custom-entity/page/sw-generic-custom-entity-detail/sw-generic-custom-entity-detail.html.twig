@@ -1,3 +1,4 @@
+{% block sw_generic_custom_entity_detail %}
 <sw-page
     class="sw-generic-custom-entity-detail"
     :header-border-color="entityAccentColor"
@@ -74,7 +75,7 @@
                             v-if="active === tab.name"
                             class="sw-generic-custom-entity-detail__tab"
                         >
-                            <sw-card
+                            <mt-card
                                 v-for="card in tab.cards"
                                 :key="`card-${card.name}`"
                                 class="sw-generic-custom-entity-detail__card"
@@ -93,7 +94,7 @@
                                         :help-text="getHelpText('fields', field.ref)"
                                     />
                                 </template>
-                            </sw-card>
+                            </mt-card>
                         </div>
                     </template>
 
@@ -133,3 +134,4 @@
         </sw-card-view>
     </template>
 </sw-page>
+{% endblock %}

@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@discovery
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
@@ -45,6 +45,7 @@ function getSnippetSetData() {
 }
 
 describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
+    const saveSpy = jest.fn(() => Promise.resolve());
     async function createWrapper(privileges = []) {
         return mount(
             await wrapTestComponent('sw-settings-snippet-set-list', {
@@ -78,6 +79,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
                         repositoryFactory: {
                             create: () => ({
                                 search: () => Promise.resolve(getSnippetSetData()),
+                                save: saveSpy,
                             }),
                         },
                         searchRankingService: {},
@@ -86,9 +88,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
                         'sw-page': {
                             template: '<div class="sw-page"><slot name="content"></slot></div>',
                         },
-                        'sw-icon': true,
-                        'sw-button': true,
-                        'sw-card': {
+                        'mt-card': {
                             template: '<div><slot></slot><slot name="grid"></slot></div>',
                         },
                         'sw-card-view': {
@@ -148,26 +148,26 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
 
         await flushPromises();
 
-        const gridCheckboxes = wrapper.find('.sw-grid .sw-grid__header sw-checkbox-field-stub');
+        const gridCheckboxes = wrapper.find('.sw-grid .sw-grid__header .mt-field--checkbox__container');
 
         expect(gridCheckboxes.exists()).toBe(displayCheckboxes);
     });
 
     it.each([
         [
-            'true',
+            true,
             'snippet.viewer',
         ],
         [
-            'true',
+            true,
             'snippet.viewer, snippet.editor',
         ],
         [
-            undefined,
+            false,
             'snippet.viewer, snippet.editor, snippet.creator',
         ],
         [
-            'true',
+            true,
             'snippet.viewer, snippet.editor, snippet.deleter',
         ],
     ])('should have a create snippet set button with a disabled state of %p when having role: %s', async (state, role) => {
@@ -178,7 +178,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
 
         const createSetButton = wrapper.find('.sw-settings-snippet-set-list__action-add');
 
-        expect(createSetButton.attributes('disabled')).toBe(state);
+        expect(createSetButton.attributes('disabled') !== undefined).toBe(state);
     });
 
     it.each([
@@ -271,5 +271,20 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
         }
 
         expect(duplicateButton.classes()).toContain('is--disabled');
+    });
+
+    it('adds a new snippet', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+        const createSetButton = wrapper.findByText('button', 'sw-settings-snippet.setList.buttonAddSet');
+        await createSetButton.trigger('click');
+        await flushPromises();
+
+        const nameInput = wrapper.findByPlaceholder('sw-settings-snippet.setList.placeholderName');
+        await nameInput.setValue('test');
+        await wrapper.findByText('button', 'global.default.save').trigger('click');
+        await flushPromises();
+
+        expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({ name: 'test' }));
     });
 });

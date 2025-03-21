@@ -32,7 +32,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @phpstan-type ImageSize array{width: int<1, max>, height: int<1, max>}
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class ThumbnailService
 {
     /**
@@ -145,8 +145,6 @@ class ThumbnailService
         if ($config === null) {
             return 0;
         }
-
-        $strict = \func_get_args()[2] ?? false;
 
         if ($config->getMediaThumbnailSizes() === null) {
             return 0;

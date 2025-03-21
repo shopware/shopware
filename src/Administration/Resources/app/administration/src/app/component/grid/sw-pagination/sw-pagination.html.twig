@@ -1,10 +1,8 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_pagination %}
 <div
     v-if="shouldBeVisible"
     class="sw-pagination"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_pagination_page_prev %}
     <button
         :disabled="currentPage === 1"
@@ -12,23 +10,20 @@
         class="sw-pagination__page-button sw-pagination__page-button-prev"
         @click="prevPage"
     >
-        <sw-icon
+        <mt-icon
             name="regular-chevron-left-xs"
         />
     </button>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_pagination_page_list %}
     <ul class="sw-pagination__list">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_pagination_page_list_item %}
         <li
             v-for="(pageNum, index) in displayedPages"
             :key="index"
             class="sw-pagination__list-item"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_pagination_page_list_item_button %}
             <button
                 v-if="typeof(pageNum) === 'number'"
@@ -41,7 +36,6 @@
             </button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_pagination_page_list_item_separator %}
             <span
                 v-else
@@ -55,7 +49,6 @@
     </ul>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_pagination_page_next %}
     <button
         :disabled="currentPage === maxPage"
@@ -63,35 +56,27 @@
         class="sw-pagination__page-button sw-pagination__page-button-next"
         @click="nextPage"
     >
-        <sw-icon
+        <mt-icon
             name="regular-chevron-right-xs"
-            small
+            size="16px"
         />
     </button>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_pagination_per_page_selection %}
     <div
         v-if="steps.length > 1"
         class="sw-pagination__per-page"
     >
-        <sw-select-field
+        <mt-select
             size="small"
             name="perPage"
             :label="$tc('global.sw-pagination.labelItemsPerPage')"
-            :value="String(perPage)"
-            aside
-            @update:value="onPageSizeChange"
-        >
-            <option
-                v-for="step in possibleSteps"
-                :key="step"
-                :value="step"
-            >
-                {{ step }}
-            </option>
-        </sw-select-field>
+            :model-value="String(perPage)"
+            :options="possibleStepsOptions"
+            hide-clearable-button
+            @update:model-value="onPageSizeChange"
+        />
     </div>
     {% endblock %}
 </div>

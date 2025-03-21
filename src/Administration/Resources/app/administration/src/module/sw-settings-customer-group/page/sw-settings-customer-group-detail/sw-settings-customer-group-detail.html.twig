@@ -1,19 +1,14 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_customer_group_detail %}
 <sw-page class="sw-settings-customer-group-detail">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_customer_group_detail_search_bar %}
     <template #search-bar></template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_customer_group_detail_smart_bar_header %}
     <template #smart-bar-header>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_customer_group_detail_smart_bar_header_title %}
         <h2>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_customer_group_detail_smart_bar_header_title_text %}
             {{ placeholder(customerGroup, 'name', $tc('sw-settings-customer-group.detail.placeholderNewCustomerGroup')) }}
             {% endblock %}
@@ -22,7 +17,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_customer_group_detail_language_switch %}
     <template #language-switch>
         <sw-language-switch
@@ -32,24 +26,23 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_customer_group_detail_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_customer_group_detail_actions_cancel %}
-        <sw-button
+        <mt-button
             v-tooltip.bottom="tooltipCancel"
             class="sw-settings-customer-group-detail__cancel"
+            variant="secondary"
+            size="default"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_customer_group_detail_actions_save %}
         <sw-button-process
-            v-model:processSuccess="isSaveSuccessful"
+            v-model:process-success="isSaveSuccessful"
             v-tooltip.bottom="tooltipSave"
             class="sw-settings-customer-group-detail__save"
             variant="primary"
@@ -63,21 +56,18 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_customer_group_detail_cardview %}
     <template #content>
         <sw-card-view>
             <sw-skeleton v-if="isLoading" />
 
             <template v-else>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_customer_group_detail_content_language_info %}
                 <sw-language-info :entity-description="entityDescription" />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_customer_group_detail_content_card %}
-                <sw-card
+                <mt-card
                     :is-loading="isLoading"
                     :title="$tc('sw-settings-customer-group.detail.cardTitle')"
                     position-identifier="sw-settings-customer-group-detail-content"
@@ -89,8 +79,9 @@
                         >
                             <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/attributes-order -->
                             {% block sw_settings_customer_group_detail_content_card_name %}
-                            <sw-text-field
-                                v-model:value="customerGroup.name"
+
+                            <mt-text-field
+                                v-model="customerGroup.name"
                                 name="sw-field--customerGroup-name"
                                 class="sw-settings-customer-group-detail__name"
                                 required
@@ -102,7 +93,6 @@
                             />
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_customer_group_detail_content_card_display_gross %}
                             <sw-boolean-radio-group
                                 v-model:value="customerGroup.displayGross"
@@ -116,8 +106,9 @@
 
                             <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/attributes-order -->
                             {% block sw_settings_customer_group_detail_content_card_registration_form %}
-                            <sw-switch-field
-                                v-model:value="customerGroup.registrationActive"
+
+                            <mt-switch
+                                v-model="customerGroup.registrationActive"
                                 name="sw-field--customerGroup-registrationActive"
                                 class="sw-settings-customer-group-detail__registration-form-switch"
                                 :label="$tc('sw-settings-customer-group.detail.registrationForm')"
@@ -126,12 +117,11 @@
                             {% endblock %}
                         </sw-container>
                     </template>
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_customer_group_detail_content_registration_card %}
-                <sw-card
+                <mt-card
                     v-if="customerGroup && customerGroup.registrationActive"
                     position-identifier="sw-settings-customer-group-detail-content-registration-card"
                     :is-loading="isLoading"
@@ -141,10 +131,10 @@
                         {{ $tc('sw-settings-customer-group.registration.infoText') }}
                     </div>
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_customer_group_detail_content_registration_card_title %}
-                    <sw-text-field
-                        v-model:value="customerGroup.registrationTitle"
+
+                    <mt-text-field
+                        v-model="customerGroup.registrationTitle"
                         name="sw-field--customerGroup-registrationTitle"
                         required
                         validation="required"
@@ -155,10 +145,9 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_customer_group_detail_content_registration_card_introduction %}
-                    <sw-text-editor
-                        v-model:value="customerGroup.registrationIntroduction"
+                    <mt-text-editor
+                        v-model="customerGroup.registrationIntroduction"
                         :label="$tc('sw-settings-customer-group.registration.introduction')"
                         :placeholder="placeholder(customerGroup, 'registrationIntroduction', $tc('sw-settings-customer-group.registration.placeholderIntroduction'))"
                         :disabled="!acl.can('customer_groups.editor') || undefined"
@@ -167,10 +156,9 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_customer_group_detail_content_registration_card_seo_meta_description %}
-                    <sw-textarea-field
-                        v-model:value="customerGroup.registrationSeoMetaDescription"
+                    <mt-textarea
+                        v-model="customerGroup.registrationSeoMetaDescription"
                         name="sw-field--customerGroup-registrationSeoMetaDescription"
                         :label="$tc('sw-settings-customer-group.registration.seoMetaDescription')"
                         :placeholder="placeholder(customerGroup, 'registrationSeoMetaDescription', $tc('sw-settings-customer-group.registration.placeholderSeoMetaDescription'))"
@@ -178,33 +166,32 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_customer_group_detail_content_registration_card_only_companies_can_register %}
-                    <sw-switch-field
-                        v-model:value="customerGroup.registrationOnlyCompanyRegistration"
+
+                    <mt-switch
+                        v-model="customerGroup.registrationOnlyCompanyRegistration"
                         name="sw-field--customerGroup-registrationOnlyCompanyRegistration"
+                        class="sw-settings-customer-group-detail__registration-only-companies-can-register"
                         :label="$tc('sw-settings-customer-group.registration.onlyCompaniesCanRegister')"
                         :help-text="$tc('sw-settings-customer-group.registration.onlyCompaniesCanRegisterHelpText')"
                         :disabled="!acl.can('customer_groups.editor') || undefined"
                     />
                     {% endblock %}
 
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_customer_group_detail_content_registration_url_card %}
-                <sw-card
+                <mt-card
                     v-if="customerGroup && customerGroup.registrationActive"
                     position-identifier="sw-settings-customer-group-detail-content-registration-url-card"
                     :is-loading="isLoading"
                     :title="$tc('sw-settings-customer-group.registration.linkUrlsTitle')"
                 >
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_customer_group_detail_content_registration_url_card_sales_channel %}
                     <sw-entity-multi-select
-                        v-model:entityCollection="customerGroup.registrationSalesChannels"
+                        v-model:entity-collection="customerGroup.registrationSalesChannels"
                         name="sw-field--customerGroup-registrationSalesChannels"
                         class="sw-settings-customer-group-detail__sales-channel"
                         :label="$tc('sw-settings-customer-group.registration.availabilitySalesChannel')"
@@ -212,11 +199,11 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_customer_group_detail_content_registration_technical_urls %}
-                    <sw-text-field
+
+                    <mt-text-field
                         v-if="customerGroupId"
-                        v-model:value="technicalUrl"
+                        v-model="technicalUrl"
                         name="sw-field--technicalUrl"
                         :label="$tc('sw-settings-customer-group.registration.technicalUrl')"
                         :copyable="true"
@@ -225,30 +212,28 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_customer_group_detail_content_registration_url_card_seo_url %}
                     <div
                         v-for="seoUrl in seoUrls"
                         :key="seoUrl.id"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_customer_group_detail_content_registration_url_card_seo_url_inner %}
                         <!-- eslint-disable vue/valid-v-model -->
-                        <sw-text-field
-                            :value="getSeoUrl(seoUrl)"
-                            :label="$tc('sw-settings-customer-group.registration.seoUrlLabel', 0, { salesChannelName: seoUrl.salesChannel.translated.name})"
+
+                        <mt-text-field
+                            :model-value="getSeoUrl(seoUrl)"
+                            :label="$tc('sw-settings-customer-group.registration.seoUrlLabel', { salesChannelName: seoUrl.salesChannel.translated.name}, 0)"
                             :copyable="true"
                             :disabled="true"
                         />
                         {% endblock %}
                     </div>
                     {% endblock %}
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_customer_group_detail_custom_field_sets %}
-                <sw-card
+                <mt-card
                     v-if="showCustomFields"
                     position-identifier="sw-settings-customer-group-detail-custom-field-sets"
                     :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
@@ -259,7 +244,7 @@
                         :disabled="!acl.can('customer_groups.editor')"
                         :sets="customFieldSets"
                     />
-                </sw-card>
+                </mt-card>
                 {% endblock %}
             </template>
         </sw-card-view>

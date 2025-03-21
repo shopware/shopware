@@ -1,13 +1,10 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_customer_base_info %}
 <sw-container
     class="sw-customer-base-info"
     columns="repeat(auto-fit, minmax(250px, 1fr))"
     gap="0px 15px"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_base_info_metadata %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_base_info_metadata_left %}
     <sw-loader v-if="isLoading" />
 
@@ -37,24 +34,20 @@
             </sw-description-list>
         </template>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_customer_group %}
         <sw-description-list>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_customer_group_label %}
             <dt class="sw-customer-base-info__label">
                 {{ $tc('sw-customer.baseInfo.labelCustomerGroup') }}
             </dt>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_customer_group_content %}
             <dd v-if="!customerEditMode">
                 {{ customer.group.translated.name }}
             </dd>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_customer_group_editor %}
             <dd v-else>
                 <sw-entity-single-select
@@ -70,59 +63,14 @@
         </sw-description-list>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {# @deprecated tag:v6.7.0 - customer default payment method will be removed #}
-        {% block sw_customer_base_metadata_default_payment %}
-        <sw-description-list v-if="!feature.isActive('v6.7.0.0')">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {# @deprecated tag:v6.7.0 - customer default payment method will be removed #}
-            {% block sw_customer_base_metadata_default_payment_label %}
-            <dt class="sw-customer-base-info__label">
-                {{ $tc('sw-customer.baseInfo.labelDefaultPayment') }}
-            </dt>
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {# @deprecated tag:v6.7.0 - customer default payment method will be removed #}
-            {% block sw_customer_base_metadata_default_payment_content %}
-            <dd
-                v-if="!customerEditMode"
-                class="sw-customer-base__label-default-payment-method"
-            >
-                {{ customer.defaultPaymentMethod.translated.distinguishableName }}
-            </dd>
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {# @deprecated tag:v6.7.0 - customer default payment method will be removed #}
-            {% block sw_customer_base_metadata_default_payment_editor %}
-            <dd v-else>
-                <sw-entity-single-select
-                    v-model:value="customer.defaultPaymentMethodId"
-                    name="sw-field--customer-defaultPaymentMethodId"
-                    class="sw-customer-base-info__payment-select"
-                    entity="payment_method"
-                    label-property="distinguishableName"
-                    size="small"
-                    show-clearable-button
-                    :error="customerDefaultPaymentMethodIdError"
-                />
-            </dd>
-            {% endblock %}
-        </sw-description-list>
-        {% endblock %}
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_active %}
         <sw-description-list>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_active_label %}
             <dt class="sw-customer-base-info__label">
                 {{ $tc('sw-customer.baseInfo.labelActive') }}
             </dt>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_active_content %}
             <dd
                 v-if="!customerEditMode"
@@ -132,11 +80,10 @@
             </dd>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_active_editor %}
             <dd v-else>
-                <sw-checkbox-field
-                    v-model:value="customer.active"
+                <mt-checkbox
+                    v-model:checked="customer.active"
                     name="sw-field--customer-active"
                     class="sw-customer-base-info__checkbox-field"
                     :label="$tc('sw-customer.baseInfo.contentActive')"
@@ -147,17 +94,14 @@
         </sw-description-list>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_confirmed %}
         <sw-description-list v-if="customer.doubleOptInRegistration">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_confirmed_label %}
             <dt class="sw-customer-base-info__label">
                 {{ $tc('sw-customer.baseInfo.labelConfirmed') }}
             </dt>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_confirmed_content %}
             <dd
                 v-if="!customerEditMode"
@@ -167,33 +111,29 @@
             </dd>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_confirmed_editor %}
             <dd v-else>
-                <sw-checkbox-field
+                <mt-checkbox
                     name="sw-field--customer-confirmed"
                     class="sw-customer-base-info__checkbox-field"
-                    :value="!!customer.doubleOptInConfirmDate"
+                    :checked="!!customer.doubleOptInConfirmDate"
                     :label="$tc('sw-customer.baseInfo.contentConfirmed')"
                     size="small"
-                    @update:value="customer.doubleOptInConfirmDate = $event ? new Date() : null"
+                    @update:checked="customer.doubleOptInConfirmDate = $event ? new Date() : null"
                 />
             </dd>
             {% endblock %}
         </sw-description-list>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_language %}
         <sw-description-list>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_language_label %}
             <dt class="sw-customer-base-info__label">
                 {{ $tc('sw-customer.baseInfo.labelLanguage') }}
             </dt>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_language_content %}
             <dd
                 v-if="!customerEditMode"
@@ -203,7 +143,6 @@
             </dd>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_language_editor %}
             <dd v-else>
                 <sw-entity-single-select
@@ -220,7 +159,6 @@
         </sw-description-list>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block ssw_customer_base_metadata_affiliate %}
         <sw-description-list>
             <dt>{{ $tc('sw-customer.baseInfo.labelAffiliateCode') }}</dt>
@@ -228,8 +166,9 @@
                 {{ customer.affiliateCode || '-' }}
             </dd>
             <dd v-else>
-                <sw-text-field
-                    v-model:value="customer.affiliateCode"
+
+                <mt-text-field
+                    v-model="customer.affiliateCode"
                     name="sw-field--customer-customerAffiliateCode"
                     :placeholder="$tc('sw-customer.baseInfo.placeholderCustomerAffiliateCode')"
                     size="small"
@@ -238,7 +177,6 @@
         </sw-description-list>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_campaign %}
         <sw-description-list>
             <dt>{{ $tc('sw-customer.baseInfo.labelCampaignCode') }}</dt>
@@ -246,8 +184,9 @@
                 {{ customer.campaignCode || '-' }}
             </dd>
             <dd v-else>
-                <sw-text-field
-                    v-model:value="customer.campaignCode"
+
+                <mt-text-field
+                    v-model="customer.campaignCode"
                     name="sw-field--customer-customerCampaignCode"
                     :placeholder="$tc('sw-customer.baseInfo.placeholderCustomerCampaignCode')"
                     size="small"
@@ -258,10 +197,8 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_base_info_metadata_right %}
     <div class="sw-customer-base-info-columns">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_customer_number %}
         <sw-description-list>
             <dt class="sw-customer-base-info__label">
@@ -273,10 +210,8 @@
         </sw-description-list>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_bound_sales_channel %}
         <sw-description-list>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_bound_sales_channel_label %}
             <dt class="sw-customer-base-info__label sw-bound-sales-channel__label">
                 {{ $tc('sw-customer.baseInfo.labelBoundSalesChannel') }}
@@ -284,7 +219,6 @@
             </dt>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_bound_saleschannel_content %}
             <dd class="sw-customer-base__label-bound-sales-channel">
                 <template v-if="customer.boundSalesChannelId">
@@ -298,7 +232,6 @@
         </sw-description-list>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_last_login %}
         <sw-description-list>
             <dt class="sw-customer-base-info__label">
@@ -315,7 +248,6 @@
         </sw-description-list>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_turnover %}
         <sw-description-list>
             <dt class="sw-customer-base-info__label">
@@ -327,7 +259,6 @@
         </sw-description-list>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_orders %}
         <sw-description-list>
             <dt class="sw-customer-base-info__label">
@@ -337,17 +268,14 @@
         </sw-description-list>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_birthday %}
         <sw-description-list>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_birthday_label %}
             <dt class="sw-customer-base-info__label">
                 {{ $tc('sw-customer.baseInfo.labelBirthday') }}
             </dt>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_birthday_content %}
             <dd
                 v-if="!customerEditMode"
@@ -362,11 +290,10 @@
             </dd>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_custoemr_base_metadata_birthday_editor %}
             <dd v-else>
-                <sw-datepicker
-                    v-model:value="customer.birthday"
+                <mt-datepicker
+                    v-model="customer.birthday"
                     name="sw-field--customer-birthday"
                     size="small"
                     date-type="date"

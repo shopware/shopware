@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Cart;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('checkout')]
 class CartCompressor
 {
     public const COMPRESSION_TYPE_NONE = 0;

@@ -1,10 +1,11 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
+import { ref } from 'vue';
 
-const createWrapper = async (additionalOptions = {}, value = null) => {
+const createWrapper = async ({ provide, ...additionalOptions } = {}, value = null) => {
     return mount(await wrapTestComponent('sw-number-field-deprecated', { sync: true }), {
         global: {
             stubs: {
@@ -21,6 +22,7 @@ const createWrapper = async (additionalOptions = {}, value = null) => {
             },
             provide: {
                 validationService: {},
+                ...provide,
             },
         },
         props: {
@@ -366,5 +368,16 @@ describe('app/component/form/sw-number-field-deprecated', () => {
         expect(wrapper.emitted('ends-with-decimal-separator')).toStrictEqual([
             [false],
         ]);
+    });
+
+    it('injects ariaLabel prop from global injection', async () => {
+        const wrapper = await createWrapper({
+            provide: {
+                ariaLabel: ref('Aria Label'),
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.find('input').attributes('aria-label')).toBe('Aria Label');
     });
 });

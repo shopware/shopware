@@ -5,7 +5,7 @@ const { Component } = Shopware;
 const utils = Shopware.Utils;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Modal box component which can be displayed in different variants and sizes
@@ -18,8 +18,6 @@ const utils = Shopware.Utils;
  */
 Component.register('sw-modal', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inheritAttrs: false,
 
@@ -133,7 +131,7 @@ Component.register('sw-modal', {
         },
 
         showHelpSidebar() {
-            return Shopware.State.get('adminHelpCenter').showHelpSidebar;
+            return Shopware.Store.get('adminHelpCenter').showHelpSidebar;
         },
     },
 

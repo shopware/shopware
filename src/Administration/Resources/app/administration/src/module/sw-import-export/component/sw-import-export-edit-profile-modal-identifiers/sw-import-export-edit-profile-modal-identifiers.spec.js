@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import { mount } from '@vue/test-utils';
 
@@ -80,7 +80,6 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                         'sw-select-base': await wrapTestComponent('sw-select-base'),
                         'sw-single-select': await wrapTestComponent('sw-single-select'),
                         'sw-empty-state': true,
-                        'sw-icon': true,
                         'sw-field-error': true,
                         'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                         'sw-popover': await wrapTestComponent('sw-popover'),
@@ -97,12 +96,12 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                         'sw-data-grid-column-boolean': true,
                         'sw-data-grid-inline-edit': true,
                         'router-link': true,
-                        'sw-button': true,
                         'sw-data-grid-skeleton': true,
                         'sw-loader': true,
                         'sw-inheritance-switch': true,
                         'sw-ai-copilot-badge': true,
                         'sw-help-text': true,
+                        'sw-provide': { template: `<slot/>`, inheritAttrs: false },
                     },
                 },
             },

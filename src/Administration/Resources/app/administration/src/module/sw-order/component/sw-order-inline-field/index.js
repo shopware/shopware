@@ -2,14 +2,12 @@ import './sw-order-inline-field.scss';
 import template from './sw-order-inline-field.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['update:value'],
 

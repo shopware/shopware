@@ -14,7 +14,7 @@ use Shopware\Core\Migration\V6_6\Migration1723193659UpdateVatPatternForCountry;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(Migration1723193659UpdateVatPatternForCountry::class)]
 class Migration1723193659UpdateVatPatternForCountryTest extends TestCase
 {

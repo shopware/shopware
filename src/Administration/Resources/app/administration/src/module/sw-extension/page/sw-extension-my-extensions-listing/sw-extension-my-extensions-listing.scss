@@ -16,7 +16,7 @@
                 margin-bottom: 8px;
             }
 
-            .sw-button {
+            .mt-button {
                 margin-block-start: 1em;
             }
 
@@ -33,10 +33,6 @@
         .sw-extension-my-extensions-listing__runtime-extension-warning {
             max-width: 960px;
             margin-bottom: 32px;
-
-            .sw-alert__actions {
-                padding: 16px;
-            }
         }
     }
 
@@ -47,10 +43,6 @@
     &__container {
         max-width: 960px;
         margin: 0 auto;
-
-        .sw-extension-my-extensions-listing-controls {
-            margin-bottom: 32px;
-        }
     }
 
     .sw-pagination {

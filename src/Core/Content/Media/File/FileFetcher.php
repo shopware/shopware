@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class FileFetcher
 {
     /**
@@ -46,6 +46,7 @@ class FileFetcher
             FileInfoHelper::getMimeType($fileName, $extension),
             $extension,
             $bytesWritten,
+            // Change length of db field `media`.`file_hash` if algorithm is changed
             Hasher::hashFile($fileName, 'md5')
         );
     }
@@ -85,6 +86,7 @@ class FileFetcher
             $mimeType,
             $extension,
             $writtenBytes,
+            // Change length of db field `media`.`file_hash` if algorithm is changed
             Hasher::hashFile($fileName, 'md5')
         );
     }

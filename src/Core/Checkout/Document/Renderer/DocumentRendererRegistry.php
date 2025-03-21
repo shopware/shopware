@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('after-sales')]
 final class DocumentRendererRegistry
 {
     /**
@@ -20,7 +20,7 @@ final class DocumentRendererRegistry
     }
 
     /**
-     * @param DocumentGenerateOperation[] $operations
+     * @param array<string, DocumentGenerateOperation> $operations
      */
     public function render(string $documentType, array $operations, Context $context, DocumentRendererConfig $rendererConfig): RendererResult
     {

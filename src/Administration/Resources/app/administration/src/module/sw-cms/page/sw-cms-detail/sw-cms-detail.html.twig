@@ -1,18 +1,14 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_detail %}
 <sw-page
     class="sw-cms-detail"
     :show-search-bar="false"
     :show-smart-bar="false"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_detail_content %}
     <template #content>
         <div class="sw-cms-detail__content">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_detail_toolbar %}
             <sw-cms-toolbar>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_toolbar_language_switch %}
                 <template #language-switch>
                     <sw-language-switch
@@ -25,11 +21,9 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_toolbar_title %}
                 <template #title>
                     <div class="sw-cms-detail__page-info">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_detail_toolbar_back_button %}
                         <a
                             class="sw-cms-detail__back-btn"
@@ -39,18 +33,16 @@
                             @click="onClickBack"
                             @keyup.enter="onClickBack"
                         >
-                            <sw-icon name="regular-times" />
+                            <mt-icon name="regular-times" />
                         </a>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_detail_toolbar_page_name %}
                         <h2 class="sw-cms-detail__page-name">
                             {{ placeholder(page, 'name') }}
                         </h2>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_detail_toolbar_page_type %}
                         <div
                             v-if="page.type"
@@ -70,43 +62,38 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_toolbar_device_actions %}
                 <template #tools>
                     <div
                         v-if="pageHasSections"
                         class="sw-cms-detail__device-actions"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_detail_toolbar_device_actions_mobile %}
-                        <sw-icon
+                        <mt-icon
                             name="regular-mobile"
                             :class="{ 'is--active': currentDeviceView === 'mobile' }"
                             @click="onDeviceViewChange('mobile')"
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_detail_toolbar_device_actions_tablet_landscape %}
-                        <sw-icon
+                        <mt-icon
                             name="regular-tablet"
                             :class="{ 'is--active': currentDeviceView === 'tablet-landscape' }"
                             @click="onDeviceViewChange('tablet-landscape')"
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_detail_toolbar_device_actions_desktop %}
-                        <sw-icon
+                        <mt-icon
                             name="regular-desktop"
                             :class="{ 'is--active': currentDeviceView === 'desktop' }"
                             @click="onDeviceViewChange('desktop')"
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_detail_toolbar_device_actions_form %}
-                        <sw-icon
+                        <mt-icon
                             name="regular-bars-square"
                             :class="{ 'is--active': currentDeviceView === 'form', 'is--disabled': !acl.can('cms.editor') }"
                             @click="onDeviceViewChange('form')"
@@ -116,12 +103,10 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_toolbar_actions %}
                 <template #actions>
                     <div class="sw-cms-detail__actions">
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_detail_toolbar_actions_save %}
                         <sw-button-process
                             v-tooltip.bottom="tooltipSave"
@@ -142,34 +127,30 @@
             </sw-cms-toolbar>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_detail_stage_container %}
             <div class="sw-cms-detail__stage-container">
                 <sw-overlay v-if="page.locked" />
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_loader %}
                 <sw-loader v-if="isLoading" />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_stage_form_view %}
                 <div
                     v-if="currentDeviceView === 'form'"
                     class="sw-cms-detail__page-form"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_detail_page_notification %}
                     <div
                         v-if="page.locked"
                         class="sw-cms-detail__page-notification"
                     >
-                        <sw-alert
+                        <mt-banner
                             class="sw-cms-detail__page-notification-alert"
                             variant="info"
                         >
                             {{ $tc('sw-cms.detail.label.lockedNotification') }}
-                        </sw-alert>
+                        </mt-banner>
                     </div>
                     {% endblock %}
 
@@ -180,24 +161,21 @@
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_stage_wrapper %}
                 <div
                     v-else
                     class="sw-cms-detail__stage"
                 >
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_detail_toolbar_notification %}
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_detail_toolbar_notification_errors %}
                     <div
                         v-if="hasPageErrors"
                         class="sw-cms-detail__page-notification"
                     >
-                        <sw-alert
+                        <mt-banner
                             class="sw-cms-detail__page-notification-alert is--error"
-                            variant="error"
+                            variant="critical"
                         >
                             {{ $tc('sw-cms.detail.notification.errorCollectionText') }}
                             <li
@@ -206,19 +184,18 @@
                             >
                                 {{ error.detail }}
                             </li>
-                        </sw-alert>
+                        </mt-banner>
                     </div>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_detail_toolbar_notification_warnings %}
                     <div
                         v-if="validationWarnings.length > 0"
                         class="sw-cms-detail__page-notification"
                     >
-                        <sw-alert
+                        <mt-banner
                             class="sw-cms-detail__page-notification-alert is--warning"
-                            variant="warning"
+                            variant="attention"
                         >
                             {{ $tc('sw-cms.detail.notification.warningCollectionText') }}
                             <li
@@ -227,34 +204,31 @@
                             >
                                 {{ warning }}
                             </li>
-                        </sw-alert>
+                        </mt-banner>
                     </div>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_detail_toolbar_notification_infos %}
                     <div
                         v-if="page.locked"
                         class="sw-cms-detail__page-notification is--info"
                     >
-                        <sw-alert
+                        <mt-banner
                             class="sw-cms-detail__page-notification-alert"
                             variant="info"
                         >
                             {{ $tc('sw-cms.detail.label.lockedNotification') }}
-                        </sw-alert>
+                        </mt-banner>
                     </div>
                     {% endblock %}
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_detail_stage_empty_stage %}
                     <div
                         v-if="!isLoading && !pageHasSections"
                         class="sw-cms-detail__empty-stage"
                     >
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_detail_stage_empty_stade_content %}
                         <div class="sw-cms-detail__empty-stage-content">
                             <h2 class="sw-cms-detail__empty-stage-headline">
@@ -274,7 +248,6 @@
                     </div>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_detail_stage %}
                     <div
                         v-else
@@ -283,7 +256,6 @@
                         :class="cmsStageClasses"
                     >
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_detail_stage_add_first_section %}
                         <sw-cms-stage-add-section
                             :key="0"
@@ -292,7 +264,6 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_detail_stage_content %}
                         <template v-if="!isLoading">
                             <template
@@ -300,7 +271,6 @@
                                 :key="section.id"
                             >
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_cms_detail_stage_content_section %}
                                 <sw-cms-section
                                     class="sw-cms-stage-section"
@@ -316,7 +286,6 @@
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_detail_stage_add_last_section %}
                         <sw-cms-stage-add-section
                             :key="page.sections.length + 1"
@@ -329,7 +298,6 @@
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_sidebar %}
                 <sw-cms-sidebar
                     ref="cmsSidebar"
@@ -350,7 +318,6 @@
                 />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_layout_assignment_modal %}
                 <sw-cms-layout-assignment-modal
                     v-if="showLayoutAssignmentModal"
@@ -369,7 +336,6 @@
                     @close="onCloseLayoutSetAsDefault"
                 />
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_missing_element_modal %}
                 <sw-cms-missing-element-modal
                     v-if="showMissingElementModal"

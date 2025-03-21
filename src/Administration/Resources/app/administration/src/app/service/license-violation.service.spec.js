@@ -12,7 +12,7 @@ const cacheApiServiceMock = {
 };
 
 /**
- * @package services-settings
+ * @sw-package framework
  */
 describe('app/service/license-violation.service.js', () => {
     Shopware.Service().register('shopwareExtensionService', () => extensionApiServiceMock);

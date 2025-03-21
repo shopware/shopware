@@ -35,7 +35,8 @@ Shopware.Component.register('sw-first-run-wizard-finish', () => import('./view/s
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 /**
- * @package checkout
+ * @sw-package fundamentals@after-sales
+ *
  * @private
  */
 Module.register('sw-first-run-wizard', {

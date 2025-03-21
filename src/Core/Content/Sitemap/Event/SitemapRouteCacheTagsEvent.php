@@ -5,7 +5,10 @@ namespace Shopware\Core\Content\Sitemap\Event;
 use Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheTagsEvent;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('discovery')]
+/**
+ * @deprecated tag:v6.8.0 - Will be removed in 6.8.0 as it was not used anymore
+ */
 class SitemapRouteCacheTagsEvent extends StoreApiRouteCacheTagsEvent
 {
 }

@@ -10,8 +10,10 @@ use Shopware\Core\Framework\Util\ArrayNormalizer;
 
 /**
  * @phpstan-import-type MappingArray from Mapping
+ *
+ * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class KeyMappingPipe extends AbstractPipe
 {
     private MappingCollection $mapping;

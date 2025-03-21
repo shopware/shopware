@@ -1,3 +1,7 @@
+/**
+ * @sw-package fundamentals@after-sales
+ */
+
 import { mount } from '@vue/test-utils';
 
 async function createWrapper({ type, value, visibleValue }) {
@@ -10,7 +14,6 @@ async function createWrapper({ type, value, visibleValue }) {
         global: {
             renderStubDefaultSlot: true,
             stubs: {
-                'sw-icon': true,
                 'sw-popover': true,
             },
         },

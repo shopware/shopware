@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import { mount } from '@vue/test-utils';
 
@@ -56,11 +56,10 @@ async function createWrapper(
             global: {
                 stubs: {
                     'sw-select-base': true,
-                    'sw-button': true,
                     'sw-tabs': true,
                     'sw-tabs-item': true,
                     'sw-modal': true,
-                    'sw-alert': true,
+
                     'sw-import-export-edit-profile-general': true,
                     'sw-import-export-edit-profile-field-indicators': true,
                     'sw-import-export-edit-profile-import-settings': true,

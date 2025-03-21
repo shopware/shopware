@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package inventory
+ * @sw-package inventory
  */
 describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', () => {
     function getProductSortings() {
@@ -145,7 +145,6 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
                     },
                     stubs: {
                         'sw-page': true,
-                        'sw-button': true,
                         'sw-language-switch': true,
                         'sw-settings-listing-option-general-info': true,
                         'sw-settings-listing-option-criteria-grid': true,

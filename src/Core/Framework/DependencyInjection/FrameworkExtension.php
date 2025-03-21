@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 
-#[Package('core')]
+#[Package('framework')]
 class FrameworkExtension extends Extension
 {
     private const ALIAS = 'shopware';

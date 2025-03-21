@@ -2,7 +2,7 @@ import template from './sw-settings-delivery-time-list.html.twig';
 import './sw-settings-delivery-time-list.scss';
 
 /**
- * @package checkout
+ * @sw-package discovery
  */
 
 const { Mixin } = Shopware;
@@ -11,8 +11,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',

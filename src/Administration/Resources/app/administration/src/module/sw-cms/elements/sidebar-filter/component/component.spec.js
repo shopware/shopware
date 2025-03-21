@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
@@ -14,9 +14,6 @@ async function createWrapper() {
                 element: {},
             },
             global: {
-                stubs: {
-                    'sw-icon': true,
-                },
                 provide: {
                     cmsService: {
                         getCmsElementRegistry: () => ({

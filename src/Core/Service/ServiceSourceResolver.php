@@ -23,7 +23,7 @@ use Symfony\Component\Filesystem\Path;
  *
  * @phpstan-type ServiceSourceConfig array{version: string, hash: string, revision: string, zip-url: string}
  */
-#[Package('core')]
+#[Package('framework')]
 class ServiceSourceResolver implements Source
 {
     public function __construct(

@@ -18,7 +18,7 @@ use Symfony\Contracts\Service\ResetInterface;
  *
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class BatchImportStrategy extends OneByOneImportStrategy implements ResetInterface
 {
     /**

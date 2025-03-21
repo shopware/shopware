@@ -2,12 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 abstract class EntityExtension
 {
     /**
@@ -30,23 +28,5 @@ abstract class EntityExtension
     {
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - Implement `getEntityName` instead or use `BulkEntityExtension`
-     * Defines which entity definition should be extended by this class.
-     *
-     * When removing this method. Make sure to remove all child implementations
-     */
-    abstract public function getDefinitionClass(): string;
-
-    /**
-     * @deprecated tag:v6.7.0 - reason:visibility-change - Becomes abstract
-     */
-    public function getEntityName(): string
-    {
-        if (EnvironmentHelper::getVariable('APP_ENV') === 'dev') {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0', 'Method will be abstract'));
-        }
-
-        return '';
-    }
+    abstract public function getEntityName(): string;
 }

@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-step-display.html.twig';
 
 const { Component } = Shopware;
@@ -29,8 +33,6 @@ const { Component } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-step-display', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     provide() {
         return {

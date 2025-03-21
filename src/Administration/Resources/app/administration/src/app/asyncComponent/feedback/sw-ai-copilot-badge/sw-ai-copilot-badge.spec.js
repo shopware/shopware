@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -11,9 +11,6 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-ai-copilot-badge', { sync: true }), {
         attachTo: document.body,
         global: {
-            stubs: {
-                'sw-icon': true,
-            },
             directives: {
                 tooltip: Shopware.Directive.getByName('tooltip'),
             },

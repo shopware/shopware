@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_country_currency_dependent_modal %}
 <sw-modal
     class="sw-settings-country-currency-dependent-modal"
@@ -6,7 +5,6 @@
     @modal-close="closeModal"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_country_currency_dependent_modal_content %}
     <sw-data-grid
         class="sw-settings-country-currency-dependent-modal__grid"
@@ -17,7 +15,6 @@
         :columns="countryCurrencyColumns"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_country_currency_dependent_modal_content_hamburger_menu %}
         <template #customSettings>
             <sw-settings-country-currency-hamburger-menu
@@ -27,7 +24,6 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block  sw_settings_country_currency_dependent_modal_content_currency_name %}
         <template #column-currencyId="{ item }">
             <div class="sw-settings-country-currency-dependent-modal__inheritance-wrapper">
@@ -37,20 +33,18 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_country_currency_dependent_grid_column_value %}
         <template #column-amount="{ item }">
-            <sw-number-field
-                v-model:value="item.amount"
+            <mt-number-field
+                v-model="item.amount"
                 class="sw-settings-country-currency-dependent-modal__input"
                 :min="0"
                 :disabled="(!item.enabled || !acl.can('country.editor')) || undefined"
-                @update:value="reCalculatorInherited(item)"
+                @update:model-value="reCalculatorInherited(item)"
             />
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_country_currency_dependent_grid_column_is_base_currency %}
         <template #column-enabled="{ item }">
             <sw-radio-field
@@ -63,11 +57,9 @@
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_country_currency_dependent_column_actions %}
         <template #actions="{ item }">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_currency_dependent_grid_column_action_delete %}
             <sw-context-menu-item
                 variant="danger"
@@ -84,21 +76,20 @@
     </sw-data-grid>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_country_currency_dependent_modal_footer %}
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_country_currency_dependent_modal_close %}
-        <sw-button
+        <mt-button
             class="sw-settings-country-currency-dependent-modal__cancel-button"
             size="small"
             :disabled="!acl.can('country.editor') || undefined"
+            variant="secondary"
             @click="closeModal"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
 
-        <sw-button
+        <mt-button
             class="sw-settings-country-currency-dependent-modal__save-button"
             variant="primary"
             size="small"
@@ -106,7 +97,7 @@
             @click="saveModal"
         >
             {{ $tc('global.default.save') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

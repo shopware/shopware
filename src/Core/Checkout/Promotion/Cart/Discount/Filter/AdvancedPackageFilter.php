@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\MaxUsage\MaxUsage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class AdvancedPackageFilter extends PackageFilter
 {
     final public const APPLIER_ALL = 'ALL';
@@ -104,6 +104,9 @@ class AdvancedPackageFilter extends PackageFilter
         return true;
     }
 
+    /**
+     * @param list<int> $applierIndexes
+     */
     private function collectPackageItems(DiscountPackage $package, array $applierIndexes): LineItemQuantityCollection
     {
         $items = new LineItemQuantityCollection();

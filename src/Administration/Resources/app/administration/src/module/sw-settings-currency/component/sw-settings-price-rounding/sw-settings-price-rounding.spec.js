@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package fundamentals@framework
  */
 
 /* eslint-disable max-len */
@@ -14,10 +14,8 @@ async function createWrapper() {
             global: {
                 stubs: {
                     'sw-container': true,
-                    'sw-switch-field': true,
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-single-select': true,
-                    'sw-alert': true,
                 },
             },
         },

@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(ProductNameCmsElementResolver::class)]
 class ProductNameCmsElementResolverTest extends TestCase
 {
@@ -31,7 +31,7 @@ class ProductNameCmsElementResolverTest extends TestCase
     public function testEnrichSetsEmptyTextStructWithoutConfig(): void
     {
         $slot = new CmsSlotEntity();
-        $context = new ResolverContext(Generator::createSalesChannelContext(), new Request());
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
         $data = new ElementDataCollection();
 
         $resolver = new ProductNameCmsElementResolver();
@@ -51,7 +51,7 @@ class ProductNameCmsElementResolverTest extends TestCase
         $slot = new CmsSlotEntity();
         $slot->setFieldConfig($config);
 
-        $context = new ResolverContext(Generator::createSalesChannelContext(), new Request());
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
         $data = new ElementDataCollection();
 
         $resolver = new ProductNameCmsElementResolver();

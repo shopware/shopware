@@ -5,7 +5,7 @@ namespace Shopware\Core\System\NumberRange\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-#[Package('checkout')]
+#[Package('framework')]
 class IncrementStorageNotFoundException extends ShopwareHttpException
 {
     /**

@@ -1,9 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_upload_v2 %}
 <div class="sw-media-upload-v2 sw-media-compact-upload-v2">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_upload_v2_compact %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_upload_v2_compact_label %}
     <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
     <label
@@ -19,36 +16,34 @@
         class="sw-media-upload-v2__content"
     >
         <sw-button-group split-button>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_upload_v2_compact_button_file_upload %}
-            <sw-button
+            <mt-button
                 :disabled="disabled"
                 class="sw-media-upload-v2__button-compact-upload"
                 variant="primary"
                 @click="onClickUpload"
             >
                 {{ buttonFileUploadLabel }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_upload_v2_compact_button_context_menu %}
             <sw-context-button
                 v-if="uploadUrlFeatureEnabled"
                 :disabled="disabled"
             >
                 <template #button>
-                    <sw-button
+                    <mt-button
                         :disabled="disabled"
                         square
                         variant="primary"
                         class="sw-media-upload-v2__button-context-menu"
                     >
-                        <sw-icon
+                        <mt-icon
                             name="regular-chevron-down-xs"
                             size="16"
                         />
-                    </sw-button>
+                    </mt-button>
                 </template>
 
                 <sw-context-menu-item
@@ -61,7 +56,6 @@
             {% endblock %}
         </sw-button-group>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_upload_v2_compact_url_form %}
         <sw-media-url-form
             v-if="isUrlUpload"
@@ -73,17 +67,14 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_upload_v2_regular %}
     <div
         v-if="variant == 'regular'"
         class="sw-media-upload-v2__content"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_upload_v2_regular_header %}
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_upload_v2_regular_drop_zone %}
         <div
             ref="dropzone"
@@ -91,7 +82,6 @@
             :class="isDragActiveClass"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_upload_v2_preview %}
             <div class="sw-media-compact-upload-v2__preview-wrapper">
                 <template v-if="allowMultiSelect && mediaPreview">
@@ -131,7 +121,6 @@
                 </template>
 
                 <template v-else-if="!allowMultiSelect && (preview || source)">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_media_upload_v2_regular_preview_file %}
                     <sw-media-preview-v2
                         v-if="source || preview"
@@ -142,13 +131,12 @@
                     {% endblock %}
                 </template>
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_upload_v2_regular_preview_fallback %}
                 <div
                     v-else
                     class="sw-media-upload-v2__preview is--fallback"
                 >
-                    <sw-icon
+                    <mt-icon
                         class="sw-media-upload-v2__fallback-icon"
                         name="regular-image"
                     />
@@ -157,7 +145,6 @@
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_upload_v2_actions %}
             <div
                 class="sw-media-upload-v2__actions"
@@ -170,7 +157,7 @@
                     <div class="sw-media-upload-v2__file-headline">
                         {{ mediaNameFilter(source) }}
                     </div>
-                    <sw-icon
+                    <mt-icon
                         class="sw-media-upload-v2__remove-icon"
                         name="regular-times-xs"
                         @click="onRemoveMediaItem"
@@ -178,7 +165,6 @@
                 </div>
 
                 <template v-else>
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_media_upload_v2_regular_actions_url %}
                     <sw-media-url-form
                         v-if="isUrlUpload"
@@ -188,34 +174,33 @@
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_media_upload_v2_regular_actions_add %}
                     <template v-if="!isUrlUpload">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_media_upload_v2_regular_upload_button %}
-                        <sw-button
+                        <mt-button
                             class="sw-media-upload-v2__button upload"
                             :disabled="isLoading || disabled"
-                            variant="ghost"
+                            ghost
                             size="small"
+                            variant="secondary"
                             @click="onClickUpload"
                         >
                             {{ buttonFileUploadLabel }}
-                        </sw-button>
+                        </mt-button>
                         {% endblock %}
 
                         <template v-if="!privateFilesystem">
-                            <sw-button
+                            <mt-button
                                 variant="primary"
                                 :disabled="disabled"
                                 class="sw-media-compact-upload-v2__browse-button"
                                 @click="mediaModalIsOpen = true"
                             >
-                                <sw-icon
+                                <mt-icon
                                     class="sw-media-compact-upload-v2__browse-icon"
                                     name="regular-image"
                                 />
-                            </sw-button>
+                            </mt-button>
 
                             <sw-media-modal-v2
                                 v-if="mediaModalIsOpen"
@@ -225,7 +210,6 @@
                             />
                         </template>
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_media_upload_v2_regular_media_sidebar_button %}{% endblock %}
                     </template>
                     {% endblock %}
@@ -237,7 +221,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_upload_v2_file_input %}
     <form
         ref="fileForm"

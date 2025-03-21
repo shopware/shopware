@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(CustomerCreatedByAdminRule::class)]
 #[Group('rules')]
 class CustomerCreatedByAdminRuleTest extends TestCase
@@ -74,7 +74,7 @@ class CustomerCreatedByAdminRuleTest extends TestCase
         $customer = new CustomerEntity();
         $customer->assign(['createdById' => Uuid::randomHex()]);
 
-        $salesChannelContext->expects(static::once())
+        $salesChannelContext->expects($this->once())
             ->method('getCustomer')
             ->willReturn(null);
 
@@ -88,7 +88,7 @@ class CustomerCreatedByAdminRuleTest extends TestCase
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
 
-        $salesChannelContext->expects(static::once())
+        $salesChannelContext->expects($this->once())
             ->method('getCustomer')
             ->willReturn($customer);
 

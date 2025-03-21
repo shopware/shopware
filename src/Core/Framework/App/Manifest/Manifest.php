@@ -24,10 +24,10 @@ use Symfony\Component\Config\Util\XmlUtils;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class Manifest
 {
-    private const XSD_FILE = __DIR__ . '/Schema/manifest-2.0.xsd';
+    private const XSD_FILE = __DIR__ . '/Schema/manifest-3.0.xsd';
 
     private bool $managedByComposer = false;
 

@@ -1,75 +1,56 @@
 import path from 'path';
 import fs from 'fs';
-import { contentType } from "mime-types";
+import { contentType } from 'mime-types';
+import type { Plugin } from 'vite';
+import { copyDir, ExtensionDefinition } from '../utils';
 
 /**
- * @package admin
+ * @sw-package framework
+ * @private
  *
- * This plugin simply copies the static folder into public for production and
- * serves the assets for the dev server.
+ * This plugin serves static assets for the administration and administration extensions.
+ *
+ * In production, it copies assets from Resources/app/administration/static into Resources/public/administration/static,
+ * which are then copied over into their respective <root>/public/bundles/<bundle>/administration/static directory in a later build step.
+ *
+ * In development, it directly serves the static assets from Resources/app/administration/static over the vite server.
  */
-
-// Utility function to copy directory recursively
-function copyDir(src, dest) {
-    // Create destination directory
-    if (!fs.existsSync(dest)) {
-        fs.mkdirSync(dest, { recursive: true });
-    }
-
-    // Read source directory
-    const entries = fs.readdirSync(src, { withFileTypes: true });
-
-    for (const entry of entries) {
-        const srcPath = path.join(src, entry.name);
-        const destPath = path.join(dest, entry.name);
-
-        if (entry.isDirectory()) {
-            // Recursively copy directory
-            copyDir(srcPath, destPath);
-        } else {
-            // Copy file
-            fs.copyFileSync(srcPath, destPath);
-        }
-    }
-}
-
-export default (isProd: boolean, adminDir: string) => {
+export default function viteAssetPlugin(isProd: boolean, adminDir: string, extensions: ExtensionDefinition[] = []): Plugin {
     // Copy over all static assets for production
     if (isProd) {
         return {
-            name: 'shopware-copy-static-assets',
+            name: 'shopware-vite-plugin-copy-static-assets',
             // Hook into the build process after it's done
-            closeBundle: async () => {
+            closeBundle() {
                 const staticDir = path.resolve(adminDir, 'static');
-                const outDir = path.resolve(adminDir, '../../public/static');
+                const outDir = path.resolve(adminDir, '../../public/administration/static');
 
                 // Ensure the static directory exists
                 if (fs.existsSync(staticDir)) {
                     // Copy the entire static directory to outDir/static
-                    await copyDir(staticDir, outDir);
+                    copyDir(staticDir, outDir);
                 }
             },
         };
     }
 
     return {
-        name: 'shopware-serve-multiple-static',
+        name: 'shopware-vite-plugin-serve-multiple-static',
 
         configureServer(server) {
+            /**
+             * The mapping is used to serve static assets from the platform/extension source directory (e.g. Resources/app/administration/static)
+             * during development mode instead of their public directory, which is only updated during build.
+             */
             const staticMappings = [
                 {
                     directory: path.resolve(adminDir, 'static'),
-                    publicPath: '/static',
+                    publicPath: '/bundles/administration/administration/static',
                 },
-                {
-                    directory: path.resolve(adminDir, 'static'),
-                    publicPath: '/administration/static',
-                },
-                {
-                    directory: path.resolve(adminDir, 'static'),
-                    publicPath: '/bundles/administration/static',
-                },
-                // TODO: add plugin entries from Webpack here
+                ...extensions.map((extension) => ({
+                    directory: path.resolve(extension.basePath, 'Resources/app/administration/static'),
+                    publicPath: `/bundles/${extension.technicalFolderName}/administration/static`,
+                })),
             ];
 
             server.middlewares.use((req, res, next) => {
@@ -77,6 +58,21 @@ export default (isProd: boolean, adminDir: string) => {
 
                 if (!originalUrl) {
                     return next();
+                }
+
+                // Add a custom route for sw-plugin-dev.json
+                if (originalUrl.endsWith('sw-plugin-dev.json')) {
+                    const pluginDevContent = fs.readFileSync(
+                        path.resolve(adminDir, '../../public/administration/sw-plugin-dev.json'),
+                        'utf8',
+                    );
+
+                    res.writeHead(200, {
+                        'Content-Type': 'application/json',
+                        'Content-Length': Buffer.byteLength(pluginDevContent),
+                    });
+                    res.end(pluginDevContent);
+                    return;
                 }
 
                 // Check if the URL matches any of the static mappings and use the first match
@@ -103,12 +99,12 @@ export default (isProd: boolean, adminDir: string) => {
                 }
 
                 // Set the content type based on the file extension
-                const type = contentType(path.basename(filePath));
+                const type = contentType(path.basename(filePath)) as string;
 
                 // Write correct headers and pipe the file to the response
                 res.writeHead(200, {
                     'Content-Length': stats.size,
-                    'Content-Type': type || undefined,
+                    'Content-Type': type,
                 });
 
                 const stream = fs.createReadStream(filePath);
@@ -116,4 +112,4 @@ export default (isProd: boolean, adminDir: string) => {
             });
         },
     };
-};
+}

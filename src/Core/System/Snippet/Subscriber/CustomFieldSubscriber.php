@@ -16,7 +16,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 class CustomFieldSubscriber implements EventSubscriberInterface
 {
     private const CUSTOM_FIELD_ID_FIELD = 'custom_field_id';
@@ -78,7 +78,7 @@ class CustomFieldSubscriber implements EventSubscriberInterface
             'DELETE FROM `snippet`
             WHERE JSON_EXTRACT(`custom_fields`, "$.custom_field_id") IN (:customFieldIds)',
             ['customFieldIds' => $event->getIds()],
-            ['customFieldIds' => ArrayParameterType::BINARY]
+            ['customFieldIds' => ArrayParameterType::STRING]
         );
     }
 

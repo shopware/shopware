@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import template from './sw-custom-field-type-number.html.twig';
 
@@ -40,7 +40,7 @@ export default {
     methods: {
         createdComponent() {
             if (!this.currentCustomField.config.numberType) {
-                this.$set(this.currentCustomField.config, 'numberType', 'int');
+                this.currentCustomField.config.numberType = 'int';
             }
         },
     },

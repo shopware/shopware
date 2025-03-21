@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @final
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class MediaUrlLoader
 {
     /**

@@ -1,0 +1,51 @@
+<style type="text/css">
+    {% block document_style_html %}
+        body {
+            max-width: 1200px;
+            margin: auto;
+            font-size: 14px;
+            line-height: 18px;
+        }
+
+        header {
+            top: 20px;
+        }
+
+        main {
+            padding: 20px 30px;
+            margin-bottom: 60px;
+        }
+
+        .letter-header {
+            min-height: 300px;
+            height: auto;
+            top: 0;
+        }
+
+        .page-count {
+            display: none;
+        }
+
+        .line-item-table-header > th.incl-vat > span {
+            font-size: 12px;
+            margin-top: 16px;
+        }
+
+        .line-item-table tbody tr .line-item-product-number {
+            padding-right: 14px;
+        }
+
+        footer {
+            max-width: 1200px;
+            margin: auto;
+            font-size: 12px;
+            line-height: 14px;
+            display: flex;
+            justify-content: space-between;
+            position: fixed;
+            bottom: 0;
+            padding: 1rem;
+            background-color: #FFFFFF;
+        }
+    {% endblock %}
+</style>

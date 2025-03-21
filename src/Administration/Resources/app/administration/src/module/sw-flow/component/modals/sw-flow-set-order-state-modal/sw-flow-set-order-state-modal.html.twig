@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_flow_set_order_state_modal %}
 <sw-modal
     class="sw-flow-set-order-state-modal"
@@ -6,12 +5,10 @@
     :closable="false"
     @modal-close="onClose"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_set_order_state_modal_content %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_set_order_state_modal_payment_status %}
-    <sw-select-field
-        v-model:value="config.order_transaction"
+    <mt-select
+        v-model="config.order_transaction"
         name="sw-field--config-order_transaction"
         class="sw-flow-set-order-state-modal__payment-status"
         :options="paymentOptions"
@@ -20,10 +17,9 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_set_order_state_modal_delivery_status %}
-    <sw-select-field
-        v-model:value="config.order_delivery"
+    <mt-select
+        v-model="config.order_delivery"
         name="sw-field--config-order_delivery"
         class="sw-flow-set-order-state-modal__delivery-status"
         :options="deliveryOptions"
@@ -32,10 +28,9 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_set_order_state_modal_order_status %}
-    <sw-select-field
-        v-model:value="config.order"
+    <mt-select
+        v-model="config.order"
         name="sw-field--config-order"
         class="sw-flow-set-order-state-modal__order-status"
         :options="orderOptions"
@@ -44,10 +39,9 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_set_order_state_modal_force_transition %}
-    <sw-checkbox-field
-        v-model:value="config.force_transition"
+    <mt-checkbox
+        v-model:checked="config.force_transition"
         name="sw-field--config-force_transition"
         class="sw-flow-set-order-state-modal__force-transition"
         :label="$tc('sw-flow.modals.status.forceTransition')"
@@ -56,30 +50,28 @@
     {% endblock %}
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_set_order_state_modal_footer %}
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_set_order_state_modal_footer_cancel_button %}
-        <sw-button
+        <mt-button
             class="sw-flow-set-order-state-modal__cancel-button"
             size="small"
+            variant="secondary"
             @click="onClose"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_set_order_state_modal_footer_save_button %}
-        <sw-button
+        <mt-button
             class="sw-flow-set-order-state-modal__save-button"
             variant="primary"
             size="small"
             @click="onAddAction"
         >
             {{ sequence.id ? $tc('sw-flow.modals.buttonSaveAction') : $tc('sw-flow.modals.buttonAddAction') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

@@ -6,10 +6,11 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Document\Event\DeliveryNoteOrdersEvent;
-use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
+use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
+use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -25,7 +26,7 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 class DeliveryNoteRendererTest extends TestCase
 {
     use DocumentTrait;
@@ -66,9 +67,10 @@ class DeliveryNoteRendererTest extends TestCase
 
         $orderId = $this->cartService->order($cart, $this->salesChannelContext, new RequestDataBag());
 
-        $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, [
+        $operation = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, [
             'documentNumber' => $deliveryNoteNumber,
             'itemsPerPage' => 2,
+            'fileTypes' => [PdfRenderer::FILE_EXTENSION, HtmlRenderer::FILE_EXTENSION],
         ]);
 
         $caughtEvent = null;
@@ -95,8 +97,8 @@ class DeliveryNoteRendererTest extends TestCase
 
         static::assertInstanceOf(RenderedDocument::class, $rendered);
         static::assertCount(1, $caughtEvent->getOrders());
-        static::assertStringContainsString('<html>', $rendered->getHtml());
-        static::assertStringContainsString('</html>', $rendered->getHtml());
+        static::assertStringContainsString('<html lang="en-GB">', $rendered->getContent());
+        static::assertStringContainsString('</html>', $rendered->getContent());
 
         $assertionCallback($deliveryNoteNumber, $order->getOrderNumber(), $rendered);
     }
@@ -106,8 +108,8 @@ class DeliveryNoteRendererTest extends TestCase
         yield 'render delivery_note successfully' => [
             '2000',
             function (string $deliveryNoteNumber, string $orderNumber, RenderedDocument $rendered): void {
-                $html = $rendered->getHtml();
-                static::assertStringContainsString('<html>', $html);
+                $html = $rendered->getContent();
+                static::assertStringContainsString('<html lang="en-GB">', $html);
                 static::assertStringContainsString('</html>', $html);
 
                 static::assertStringContainsString('Delivery note ' . $deliveryNoteNumber, $html);
@@ -121,8 +123,8 @@ class DeliveryNoteRendererTest extends TestCase
                 static::assertEquals('DELIVERY_NOTE_9999', $rendered->getNumber());
                 static::assertEquals('delivery_note_DELIVERY_NOTE_9999', $rendered->getName());
 
-                static::assertStringContainsString("Delivery note $deliveryNoteNumber for Order $orderNumber", $rendered->getHtml());
-                static::assertStringContainsString("Delivery note $deliveryNoteNumber for Order $orderNumber", $rendered->getHtml());
+                static::assertStringContainsString("Delivery note $deliveryNoteNumber for Order $orderNumber", $rendered->getContent());
+                static::assertStringContainsString("Delivery note $deliveryNoteNumber for Order $orderNumber", $rendered->getContent());
             },
         ];
     }

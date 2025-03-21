@@ -1,10 +1,8 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_import_export_progress %}
 <div class="sw-import-export-progress">
     <div class="sw-import-export-progress__progress">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_progress_start_process %}
-        <sw-button
+        <mt-button
             :disabled="disableButton || undefined"
             class="sw-import-export-progress__start-process-action"
             size="small"
@@ -17,20 +15,20 @@
             <template v-else>
                 {{ $tc('sw-import-export.progress.startExportLabel') }}
             </template>
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_progress_start_process_dryrun %}
-        <sw-button
+        <mt-button
             v-if="activityType === 'import'"
             :disabled="disableButton || undefined"
             class="sw-import-export-progress__start-process-dryrun-action"
             size="small"
+            variant="secondary"
             @click="$emit('process-start-dryrun')"
         >
             {{ $tc('sw-import-export.progress.startImportDryrunLabel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </div>
 </div>

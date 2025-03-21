@@ -17,7 +17,8 @@
             "placeholderSearchBar": "Search promotions...",
             "textDeleteConfirm": "Are you sure you want to delete the promotion \"{name}\"?",
             "titleSidebarItemRefresh": "Refresh",
-            "duplicatePromotionInfo": "Promotion codes are not duplicated and need to be generated again."
+            "duplicatePromotionInfo": "Promotion codes are not duplicated and need to be generated again.",
+            "deleteDisabledToolTip": "Promotion is currently in use and cannot be deleted."
         },
         "detail": {
             "header": {

@@ -5,14 +5,12 @@ const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -112,7 +110,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').api.languageId = languageId;
             this.getList();
         },
 
@@ -121,7 +119,7 @@ export default {
                 .then(() => {
                     if (this.selectedDefaultTaxRateId === this.defaultTaxRateId) {
                         this.createNotificationSuccess({
-                            message: this.$tc('sw-settings-tax.detail.messageSaveSuccess', 0, { name: tax.name }),
+                            message: this.$tc('sw-settings-tax.detail.messageSaveSuccess', { name: tax.name }, 0),
                         });
 
                         return;
@@ -135,7 +133,7 @@ export default {
                             this.defaultTaxRateId = this.selectedDefaultTaxRateId;
 
                             this.createNotificationSuccess({
-                                message: this.$tc('sw-settings-tax.detail.messageSaveSuccess', 0, { name: tax.name }),
+                                message: this.$tc('sw-settings-tax.detail.messageSaveSuccess', { name: tax.name }, 0),
                             });
                         })
                         .catch(() => {

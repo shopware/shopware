@@ -18,14 +18,9 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('core')]
+#[Package('framework')]
 class ScriptStoreApiRoute
 {
-    /**
-     * @deprecated tag:v6.7.0 - Will be removed, use HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER instead
-     */
-    final public const INVALIDATION_STATES_HEADER = HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER;
-
     public function __construct(
         private readonly ScriptExecutor $executor,
         private readonly ScriptResponseEncoder $scriptResponseEncoder,

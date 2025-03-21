@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Controller;
 
-use Shopware\Core\Content\Flow\Exception\CustomTriggerByNameNotFoundException;
+use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\App\Event\CustomAppEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('services-settings')]
+#[Package('after-sales')]
 class TriggerFlowController extends AbstractController
 {
     /**
@@ -50,6 +50,6 @@ class TriggerFlowController extends AbstractController
         $criteria->addFilter(new EqualsFilter('name', $eventName));
         $criteria->addFilter(new EqualsFilter('app.active', 1));
 
-        $this->appFlowEventRepository->search($criteria, $context)->first() ?? throw new CustomTriggerByNameNotFoundException($eventName);
+        $this->appFlowEventRepository->search($criteria, $context)->first() ?? throw FlowException::customTriggerByNameNotFound($eventName);
     }
 }

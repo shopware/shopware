@@ -12,7 +12,7 @@ use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1607581275AddProductSearchConfiguration extends MigrationStep
 {
     use ImportTranslationsTrait;

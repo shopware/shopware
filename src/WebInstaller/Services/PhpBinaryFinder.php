@@ -13,7 +13,7 @@ use Symfony\Component\Process\Process;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class PhpBinaryFinder
 {
     private const PHP_BINARY_NAMES = ['php8.3', 'php8.2', 'php8.1', 'php'];
@@ -110,9 +110,9 @@ class PhpBinaryFinder
                 '{extra}',
             ],
             [
-                \PHP_MAJOR_VERSION,
-                \PHP_MINOR_VERSION,
-                \PHP_RELEASE_VERSION,
+                (string) \PHP_MAJOR_VERSION,
+                (string) \PHP_MINOR_VERSION,
+                (string) \PHP_RELEASE_VERSION,
                 \PHP_EXTRA_VERSION,
             ],
             $path

@@ -4,13 +4,17 @@ namespace Shopware\Core\Framework\Plugin\Exception;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginEntity;
-use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\Framework\Plugin\PluginException;
+use Symfony\Component\HttpFoundation\Response;
 
-#[Package('core')]
-class PluginHasActiveDependantsException extends ShopwareHttpException
+/**
+ * @codeCoverageIgnore
+ */
+#[Package('framework')]
+class PluginHasActiveDependantsException extends PluginException
 {
     /**
-     * @param PluginEntity[] $dependants
+     * @param list<PluginEntity> $dependants
      */
     public function __construct(
         string $dependency,
@@ -19,6 +23,8 @@ class PluginHasActiveDependantsException extends ShopwareHttpException
         $dependantNameList = array_map(static fn ($plugin) => \sprintf('"%s"', $plugin->getName()), $dependants);
 
         parent::__construct(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'FRAMEWORK__PLUGIN_HAS_DEPENDANTS',
             'The following plugins depend on "{{ dependency }}": {{ dependantNames }}. They need to be deactivated before "{{ dependency }}" can be deactivated or uninstalled itself.',
             [
                 'dependency' => $dependency,
@@ -26,10 +32,5 @@ class PluginHasActiveDependantsException extends ShopwareHttpException
                 'dependantNames' => implode(', ', $dependantNameList),
             ]
         );
-    }
-
-    public function getErrorCode(): string
-    {
-        return 'FRAMEWORK__PLUGIN_HAS_DEPENDANTS';
     }
 }

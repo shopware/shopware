@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_first_run_wizard_store %}
 <div class="sw-first-run-wizard-store">
     <template v-if="loadStatus">
@@ -17,7 +16,7 @@
             appearance="pill"
             variant="success"
         >
-            <sw-icon
+            <mt-icon
                 name="regular-check-circle"
                 size="30px"
             />
@@ -44,7 +43,7 @@
             appearance="pill"
             variant="danger"
         >
-            <sw-icon
+            <mt-icon
                 name="regular-times-circle"
                 size="30px"
             />
@@ -60,7 +59,7 @@
 
     <template v-else>
         <img
-            :src="assetFilter('/administration/static/img/extension-store/store_illustration.svg')"
+            :src="assetFilter('/administration/administration/static/img/extension-store/store_illustration.svg')"
             alt=""
         >
 

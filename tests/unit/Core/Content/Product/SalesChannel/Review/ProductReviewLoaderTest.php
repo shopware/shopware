@@ -21,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -41,8 +40,6 @@ class ProductReviewLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('v6.7.0.0', $this);
-
         $this->systemConfigService = new StaticSystemConfigService();
         $this->systemConfigService->set('core.listing.reviewsPerPage', 10, 'salesChannelId');
     }
@@ -274,10 +271,9 @@ class ProductReviewLoaderTest extends TestCase
             $customer->setId(Uuid::randomHex());
         }
 
-        return Generator::createSalesChannelContext(
+        return Generator::generateSalesChannelContext(
             salesChannel: $salesChannelEntity,
-            customer: $customer,
-            createCustomer: $setCustomer
+            overrides: ['customer' => $customer],
         );
     }
 
@@ -301,7 +297,7 @@ class ProductReviewLoaderTest extends TestCase
 
         if ($request->get('language') === 'filter-language') {
             $criteria->addPostFilter(
-                new EqualsFilter('languageId', $context->getContext()->getLanguageId())
+                new EqualsFilter('languageId', $context->getLanguageId())
             );
         } else {
             $criteria->addAssociation('language.translationCode.code');
@@ -310,7 +306,7 @@ class ProductReviewLoaderTest extends TestCase
         $reviewFilters[] = new EqualsFilter('status', true);
 
         if ($context->getCustomer() !== null) {
-            $reviewFilters[] = new EqualsFilter('customerId', $context->getCustomer()->getId());
+            $reviewFilters[] = new EqualsFilter('customerId', $context->getCustomerId());
         }
 
         $criteria->addAggregation(
@@ -325,7 +321,7 @@ class ProductReviewLoaderTest extends TestCase
                 'language-filter',
                 new TermsAggregation('languageMatrix', 'languageId'),
                 [
-                    new EqualsFilter('languageId', $context->getContext()->getLanguageId()),
+                    new EqualsFilter('languageId', $context->getLanguageId()),
                     new MultiFilter(MultiFilter::CONNECTION_OR, $reviewFilters),
                 ]
             )

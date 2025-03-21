@@ -4,7 +4,7 @@ namespace Shopware\Elasticsearch\Admin;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class AdminIndexingBehavior
 {
     /**

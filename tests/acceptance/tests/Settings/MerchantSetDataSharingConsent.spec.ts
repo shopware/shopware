@@ -8,11 +8,8 @@ test('Merchant is able accept or decline the data sharing consent.', { tag: '@Da
     AdminDataSharing,
     AdminApiContext,
 }) => {
-    // eslint-disable-next-line playwright/no-conditional-in-test
-    if (await isSaaSInstance(AdminApiContext)) {
-        // eslint-disable-next-line playwright/no-skipped-test
-        test.skip(true,'Skipping test for merchants consent process, because it is disabled on SaaS instances.');
-    }
+    test.skip(await isSaaSInstance(AdminApiContext),'Skipping test for merchants consent process, because it is disabled on SaaS instances.');
+
     let consentResponsePromise: Promise<Response>;
     let response: Response;
 

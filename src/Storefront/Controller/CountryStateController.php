@@ -2,11 +2,9 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Pagelet\Country\CountrySateDataPageletLoadedHook;
 use Shopware\Storefront\Pagelet\Country\CountryStateDataPageletLoadedHook;
 use Shopware\Storefront\Pagelet\Country\CountryStateDataPageletLoader;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,7 +17,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
-#[Package('buyers-experience')]
+#[Package('fundamentals@discovery')]
 class CountryStateController extends StorefrontController
 {
     /**
@@ -41,11 +39,6 @@ class CountryStateController extends StorefrontController
         $countryStateDataPagelet = $this->countryStateDataPageletLoader->load($countryId, $request, $context);
 
         $this->hook(new CountryStateDataPageletLoadedHook($countryStateDataPagelet, $context));
-
-        Feature::callSilentIfInactive(
-            'v6.7.0.0',
-            fn () => $this->hook(new CountrySateDataPageletLoadedHook($countryStateDataPagelet, $context))
-        );
 
         return new JsonResponse([
             'states' => $countryStateDataPagelet->getStates(),

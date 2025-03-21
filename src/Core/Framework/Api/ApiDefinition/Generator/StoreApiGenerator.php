@@ -22,7 +22,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
  * @phpstan-import-type Api from DefinitionService
  * @phpstan-import-type OpenApiSpec from DefinitionService
  */
-#[Package('core')]
+#[Package('framework')]
 class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 {
     final public const FORMAT = 'openapi-3';
@@ -57,7 +57,9 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
     public function generate(array $definitions, string $api, string $apiType, ?string $bundleName): array
     {
-        $openApi = new OpenApi([]);
+        $openApi = new OpenApi([
+            'openapi' => '3.1.0',
+        ]);
         $this->openApiBuilder->enrich($openApi, $api);
 
         $forSalesChannel = $api === DefinitionService::STORE_API;

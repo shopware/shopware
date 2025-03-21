@@ -1,8 +1,9 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
+import selectMtSelectOptionByText from 'test/_helper_/select-mt-select-by-text';
 
 const mediaDataMock = [
     {
@@ -51,7 +52,7 @@ async function createWrapper(activeTab = 'content') {
                     'sw-media-modal-v2': true,
                     'sw-media-list-selection-v2': await wrapTestComponent('sw-media-list-selection-v2'),
                     'sw-field': true,
-                    'sw-switch-field': true,
+
                     'sw-select-field': {
                         // eslint-disable-next-line max-len
                         template:
@@ -62,7 +63,7 @@ async function createWrapper(activeTab = 'content') {
                         ],
                     },
                     'sw-text-field': true,
-                    'sw-alert': true,
+
                     'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field'),
                     'sw-upload-listener': true,
                     'sw-media-upload-v2': true,
@@ -73,7 +74,9 @@ async function createWrapper(activeTab = 'content') {
                     'sw-loader': true,
                     'sw-context-button': true,
                     'sw-context-menu-item': true,
-                    'sw-icon': true,
+                    'mt-popover-deprecated': {
+                        template: '<div class="mt-popover-deprecated"><slot></slot></div>',
+                    },
                 },
             },
             props: {
@@ -89,7 +92,7 @@ async function createWrapper(activeTab = 'content') {
                         },
                         navigationDots: {
                             source: 'static',
-                            value: null,
+                            value: 'none',
                         },
                         galleryPosition: {
                             source: 'static',
@@ -204,13 +207,20 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
 
     it('should keep minHeight value when changing display mode', async () => {
         const wrapper = await createWrapper('settings');
-        const displayModeSelect = wrapper.find('.sw-cms-el-config-image-gallery__setting-display-mode');
 
-        await displayModeSelect.setValue('cover');
+        await selectMtSelectOptionByText(
+            wrapper,
+            'sw-cms.elements.general.config.label.displayModeCover',
+            '.sw-cms-el-config-image-gallery__setting-display-mode input',
+        );
 
         expect(wrapper.vm.element.config.minHeight.value).toBe('340px');
 
-        await displayModeSelect.setValue('standard');
+        await selectMtSelectOptionByText(
+            wrapper,
+            'sw-cms.elements.general.config.label.displayModeStandard',
+            '.sw-cms-el-config-image-gallery__setting-display-mode input',
+        );
 
         // Should still have the previous value
         expect(wrapper.vm.element.config.minHeight.value).toBe('340px');

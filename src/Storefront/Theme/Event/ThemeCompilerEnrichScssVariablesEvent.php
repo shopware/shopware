@@ -7,11 +7,11 @@ use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('storefront')]
+#[Package('framework')]
 class ThemeCompilerEnrichScssVariablesEvent extends Event implements ShopwareEvent
 {
     /**
-     * @param array<string, string|int> $variables
+     * @param array<string, string|int|null> $variables
      */
     public function __construct(
         private array $variables,
@@ -30,7 +30,7 @@ class ThemeCompilerEnrichScssVariablesEvent extends Event implements ShopwareEve
     }
 
     /**
-     * @return array<string, string|int>
+     * @return array<string, string|int|null>
      */
     public function getVariables(): array
     {

@@ -3,12 +3,10 @@ import './sw-cms-stage-add-section.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['stage-section-add'],
 
@@ -32,7 +30,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     data() {
         return {
-            showSelection: this.forceChoose as boolean,
+            showSelection: this.forceChoose,
         };
     },
 

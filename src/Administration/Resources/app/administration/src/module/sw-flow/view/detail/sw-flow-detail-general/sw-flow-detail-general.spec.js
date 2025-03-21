@@ -1,10 +1,9 @@
 import { mount } from '@vue/test-utils';
+import { createPinia } from 'pinia';
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
-
-import flowState from 'src/module/sw-flow/state/flow.state';
 
 async function createWrapper(privileges = [], query = {}) {
     return mount(
@@ -13,6 +12,7 @@ async function createWrapper(privileges = [], query = {}) {
         }),
         {
             global: {
+                plugins: [createPinia()],
                 provide: {
                     acl: {
                         can: (identifier) => {
@@ -36,17 +36,16 @@ async function createWrapper(privileges = [], query = {}) {
                     },
                 },
                 stubs: {
-                    'sw-number-field': true,
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot></slot></div>',
                     },
-                    'sw-text-field': true,
-                    'sw-textarea-field': true,
+                    'mt-text-field': true,
+                    'mt-textarea': true,
+                    'mt-number-field': true,
                     'sw-container': {
                         template: '<div><slot></slot></div>',
                     },
-                    'sw-switch-field': true,
-                    'sw-alert': true,
+                    'mt-switch': true,
                 },
             },
         },
@@ -54,10 +53,6 @@ async function createWrapper(privileges = [], query = {}) {
 }
 
 describe('module/sw-flow/view/detail/sw-flow-detail-general', () => {
-    beforeAll(() => {
-        Shopware.State.registerModule('swFlowState', flowState);
-    });
-
     it('should enabled element when have privilege', async () => {
         const wrapper = await createWrapper([
             'flow.editor',
@@ -91,8 +86,8 @@ describe('module/sw-flow/view/detail/sw-flow-detail-general', () => {
         ];
 
         elementClasses.forEach((element) => {
-            const inputElement = wrapper.find(`${element}`);
-            expect(inputElement.attributes().disabled).toBeTruthy();
+            const inputElement = wrapper.find(element);
+            expect(inputElement.attributes('disabled')).toBeDefined();
         });
     });
 

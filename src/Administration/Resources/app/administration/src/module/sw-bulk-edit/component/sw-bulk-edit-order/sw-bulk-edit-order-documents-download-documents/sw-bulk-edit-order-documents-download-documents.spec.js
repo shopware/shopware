@@ -1,8 +1,7 @@
 /**
- * @package services-settings
+ * @sw-package checkout
  */
 import { mount } from '@vue/test-utils';
-import swBulkEditState from 'src/module/sw-bulk-edit/state/sw-bulk-edit.state';
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-bulk-edit-order-documents-download-documents', { sync: true }), {
@@ -26,10 +25,6 @@ async function createWrapper() {
 describe('sw-bulk-edit-order-documents-download-documents', () => {
     let wrapper;
 
-    beforeAll(() => {
-        Shopware.State.registerModule('swBulkEdit', swBulkEditState);
-    });
-
     beforeEach(async () => {
         wrapper = await createWrapper();
     });
@@ -48,7 +43,7 @@ describe('sw-bulk-edit-order-documents-download-documents', () => {
     });
 
     it('should be able to get document types', async () => {
-        wrapper.vm.documentTypeRepository.search = jest.fn(() => {
+        const spy = jest.spyOn(wrapper.vm.documentTypeRepository, 'search').mockImplementation(() => {
             return Promise.resolve([
                 {
                     id: 1,
@@ -77,6 +72,6 @@ describe('sw-bulk-edit-order-documents-download-documents', () => {
                 }),
             ]),
         );
-        wrapper.vm.documentTypeRepository.search.mockRestore();
+        spy.mockRestore();
     });
 });

@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ExtensionRule implements Rule
 {
     public function getNodeType(): string
@@ -70,14 +70,14 @@ class ExtensionRule implements Rule
         } catch (MissingConstantFromReflectionException) {
             $errors[] = RuleErrorBuilder::message('Extension classes should have a public NAME constant')
                 ->identifier('shopware.extensionPublicNameConst')
-                ->line($node->getLine())
+                ->line($node->getStartLine())
                 ->build();
         }
 
         if ($nameConstant && !$nameConstant->isPublic()) {
             $errors[] = RuleErrorBuilder::message('Extension classes should have a public NAME constant')
                 ->identifier('shopware.extensionPublicNameConst')
-                ->line($node->getLine())
+                ->line($node->getStartLine())
                 ->build();
         }
 
@@ -85,7 +85,7 @@ class ExtensionRule implements Rule
         if (!$node->getClassReflection()->isFinal()) {
             $errors[] = RuleErrorBuilder::message('Extension classes should be final')
                 ->identifier('shopware.extensionFinal')
-                ->line($node->getLine())
+                ->line($node->getStartLine())
                 ->build();
         }
 
@@ -94,7 +94,7 @@ class ExtensionRule implements Rule
         if (!$internal) {
             $errors[] = RuleErrorBuilder::message('Extension classes constructor should be marked as internal')
                 ->identifier('shopware.extensionConstructInternal')
-                ->line($node->getLine())
+                ->line($node->getStartLine())
                 ->build();
         }
 

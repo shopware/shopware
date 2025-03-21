@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Event;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
-use Shopware\Core\Checkout\Customer\Event\CustomerChangedPaymentMethodEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerDeletedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted;
@@ -28,7 +27,7 @@ use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 final class BusinessEvents
 {
     public const CHECKOUT_CUSTOMER_BEFORE_LOGIN = CustomerBeforeLoginEvent::EVENT_NAME;
@@ -40,11 +39,6 @@ final class BusinessEvents
     public const CHECKOUT_CUSTOMER_DELETED = CustomerDeletedEvent::EVENT_NAME;
 
     public const USER_RECOVERY_REQUEST = UserRecoveryRequestEvent::EVENT_NAME;
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed, customer has no default payment method anymore
-     */
-    public const CHECKOUT_CUSTOMER_CHANGED_PAYMENT_METHOD = CustomerChangedPaymentMethodEvent::EVENT_NAME;
 
     public const CHECKOUT_ORDER_PLACED = CheckoutOrderPlacedEvent::EVENT_NAME;
 

@@ -12,7 +12,7 @@ const { getObjectDiff } = Shopware.Utils.object;
 /**
  * @class
  *
- * @package services-settings
+ * @sw-package framework
  */
 class BulkEditBaseHandler {
     constructor() {

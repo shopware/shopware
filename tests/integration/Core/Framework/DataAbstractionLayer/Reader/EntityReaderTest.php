@@ -39,10 +39,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ConsistsOfManyToManyDefinition;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\NonIdPrimaryKeyTestDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\NonIdFieldNamePrimaryKeyTestDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
@@ -94,7 +93,7 @@ class EntityReaderTest extends TestCase
         $this->customerRepository = static::getContainer()->get('customer.repository');
         $this->deLanguageId = $this->getDeDeLanguageId();
 
-        $this->registerDefinition(NonIdPrimaryKeyTestDefinition::class);
+        $this->registerDefinition(NonIdFieldNamePrimaryKeyTestDefinition::class);
         $this->registerDefinition(ConsistsOfManyToManyDefinition::class);
 
         $this->connection->rollBack();
@@ -103,6 +102,7 @@ class EntityReaderTest extends TestCase
             DROP TABLE IF EXISTS `non_id_primary_key_test`;
             CREATE TABLE `non_id_primary_key_test` (
                 `test_field` BINARY(16) NOT NULL,
+                `non_pk` BINARY(16) NULL,
                 `name` VARCHAR(255) NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
@@ -146,7 +146,7 @@ class EntityReaderTest extends TestCase
         $this->productRepository
             ->create([$product->build()], Context::createDefaultContext());
 
-        $criteria = new Criteria();
+        $criteria = new Criteria([$ids->get('p1')]);
         $criteria->addFields(['productNumber', 'name', 'categories.name']);
 
         $values = $this->productRepository
@@ -182,7 +182,7 @@ class EntityReaderTest extends TestCase
         static::getContainer()->get('product.repository')
             ->create([$product->build()], Context::createDefaultContext());
 
-        $criteria = new Criteria();
+        $criteria = new Criteria([$ids->get('p1')]);
         $criteria->addFields(['id', 'productNumber', 'name', 'manufacturer.id', 'manufacturer.name']);
 
         $values = static::getContainer()
@@ -1047,10 +1047,6 @@ class EntityReaderTest extends TestCase
             ],
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
         $this->customerRepository->upsert([$customer], $context);
 
         $criteria = new Criteria([$id]);
@@ -1101,10 +1097,6 @@ class EntityReaderTest extends TestCase
             ],
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
         $this->customerRepository->upsert([$customer], $context);
 
         $addresses = $this->connection->fetchOne('SELECT COUNT(id) FROM customer_address WHERE customer_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
@@ -1150,10 +1142,6 @@ class EntityReaderTest extends TestCase
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'group' => ['name' => 'test'],
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         $this->customerRepository->upsert([
             array_merge(
@@ -1254,10 +1242,6 @@ class EntityReaderTest extends TestCase
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'group' => ['name' => 'test'],
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         $this->customerRepository->upsert([
             array_merge(
@@ -1395,10 +1379,6 @@ class EntityReaderTest extends TestCase
             ],
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
         $this->customerRepository->upsert([$customer], $context);
 
         $criteria = new Criteria([$id]);
@@ -1469,10 +1449,6 @@ class EntityReaderTest extends TestCase
                 $address,
             ],
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         $this->customerRepository->upsert([$customer], $context);
 
@@ -2176,7 +2152,7 @@ class EntityReaderTest extends TestCase
 
         $this->productRepository->create($products, Context::createDefaultContext());
 
-        $criteria = new Criteria();
+        $criteria = new Criteria([$ids->get('product-1'), $ids->get('product-2')]);
         $criteria->addAssociation('translations.language.categoryTranslations');
 
         $products = $this->productRepository
@@ -2206,6 +2182,7 @@ class EntityReaderTest extends TestCase
     {
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
+        $id3 = Uuid::randomHex();
 
         $data = [
             [
@@ -2214,7 +2191,13 @@ class EntityReaderTest extends TestCase
             ],
             [
                 'testField' => $id2,
+                'nonPk' => null,
                 'name' => 'test2',
+            ],
+            [
+                'testField' => $id3,
+                'nonPk' => $id3,
+                'name' => 'test3',
             ],
         ];
 
@@ -2225,8 +2208,20 @@ class EntityReaderTest extends TestCase
 
         $result = $repository->search(new Criteria(), Context::createDefaultContext());
 
-        static::assertEquals(2, $result->getTotal());
-        static::assertEquals(2, $result->count());
+        static::assertEquals(3, $result->getTotal());
+        static::assertEquals(3, $result->count());
+
+        $foundIds = [];
+        foreach ($result as $entity) {
+            $foundIds[] = $entity->getUniqueIdentifier();
+            if ($entity->getUniqueIdentifier() === $id3) {
+                static::assertSame($id3, $entity->get('nonPk'));
+            } else {
+                static::assertNull($entity->get('nonPk'));
+            }
+        }
+
+        static::assertEqualsCanonicalizing([$id1, $id2, $id3], $foundIds);
     }
 
     public function testReadWithNonIdPKOverPropertyName(): void

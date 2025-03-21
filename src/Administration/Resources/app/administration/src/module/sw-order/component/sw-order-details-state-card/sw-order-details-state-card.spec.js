@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
- * @package customer-order
+ * @sw-package checkout
  */
 
 jest.useFakeTimers().setSystemTime(new Date(170363865609544));
@@ -105,6 +105,7 @@ async function createWrapper() {
                         };
                     },
                 },
+                swOrderDetailAskAndSaveEdits: () => Promise.resolve(true),
             },
             stubs: {
                 'sw-order-state-select-v2': true,
@@ -113,10 +114,6 @@ async function createWrapper() {
                 'sw-container': await wrapTestComponent('sw-container', {
                     sync: true,
                 }),
-                'sw-card': await wrapTestComponent('sw-card', {
-                    sync: true,
-                }),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-time-ago': {
                     template: '<div class="sw-time-ago"></div>',
                     props: ['date'],
@@ -135,12 +132,9 @@ async function createWrapper() {
 
 describe('src/module/sw-order/component/sw-order-details-state-card', () => {
     beforeEach(async () => {
-        if (Shopware.State.get('swOrderDetail')) {
-            Shopware.State.unregisterModule('swOrderDetail');
-        }
-
-        Shopware.State.registerModule('swOrderDetail', {
-            namespaced: true,
+        Shopware.Store.unregister('swOrderDetail');
+        Shopware.Store.register({
+            id: 'swOrderDetail',
             state: {
                 isLoading: false,
                 isSavedSuccessful: false,

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package inventory
  */
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
@@ -34,7 +34,7 @@ Module.register('sw-settings-seo', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'content',
         to: 'sw.settings.seo.index',
         icon: 'regular-search',
         privilege: 'system.system_config',

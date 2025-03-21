@@ -4,7 +4,7 @@ import './sw-select-result-list.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -13,8 +13,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-select-result-list', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     provide() {
         return {
@@ -111,9 +109,6 @@ Component.register('sw-select-result-list', {
         createdComponent() {
             this.addEventListeners();
         },
-
-        // @deprecated tag:v6.7.0 - Will be removed without replacement
-        mountedComponent() {},
 
         beforeDestroyedComponent() {
             this.removeEventListeners();

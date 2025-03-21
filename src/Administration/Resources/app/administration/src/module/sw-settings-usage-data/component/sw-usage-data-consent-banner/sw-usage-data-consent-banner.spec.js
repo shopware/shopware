@@ -8,7 +8,7 @@ const usageDataService = {
 };
 
 /**
- * @package data-services
+ * @sw-package data-services
  */
 async function createWrapper(canBeHidden = false, isPrivileged = true) {
     const wrapper = mount(
@@ -21,19 +21,13 @@ async function createWrapper(canBeHidden = false, isPrivileged = true) {
             },
             global: {
                 stubs: {
-                    'sw-icon': await wrapTestComponent('sw-icon', {
-                        sync: true,
-                    }),
-                    'sw-button': await wrapTestComponent('sw-button', {
-                        sync: true,
-                    }),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-external-link': true,
                     'sw-internal-link': true,
                     'sw-help-text': true,
                     i18n: true,
-                    'i18n-t': true,
-                    'sw-icon-deprecated': true,
+                    'i18n-t': {
+                        template: '<div class="i18n-stub"><slot></slot></div>',
+                    },
                     'router-link': true,
                     'sw-loader': true,
                 },
@@ -56,8 +50,8 @@ describe('src/module/sw-settings-usage-data/component/sw-usage-data-consent-bann
     let wrapper = null;
 
     beforeEach(async () => {
-        if (Shopware.State.get('usageData')) {
-            Shopware.State.commit('usageData/updateConsent', {
+        if (Shopware.Store.get('usageData')) {
+            Shopware.Store.get('usageData').updateConsent({
                 isConsentGiven: false,
                 isBannerHidden: false,
             });
@@ -105,7 +99,7 @@ describe('src/module/sw-settings-usage-data/component/sw-usage-data-consent-bann
     });
 
     it('should reject the consent when the reject button is clicked', async () => {
-        Shopware.State.commit('usageData/updateIsConsentGiven', true);
+        Shopware.Store.get('usageData').updateIsConsentGiven(true);
 
         const revokeConsentSpy = jest.spyOn(usageDataService, 'revokeConsent');
 

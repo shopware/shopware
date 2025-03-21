@@ -91,12 +91,12 @@
             background: $color-gray-100;
         }
 
-        .sw-icon {
+        .mt-icon {
             color: $color-darkgray-200;
         }
     }
 
-    &__support-item-link.sw-external-link {
+    &__support-item-link.sw-external-link[target="_blank"] {
         display: grid;
         grid-auto-flow: column;
         align-items: center;
@@ -111,7 +111,7 @@
         }
     }
 
-    &__support-item-button.sw-button {
+    &__support-item-button.mt-button {
         @include reset-button;
 
         color: $color-darkgray-700;
@@ -131,7 +131,7 @@
             background: $color-gray-200;
         }
 
-        .sw-icon {
+        .mt-icon {
             color: $color-darkgray-200;
         }
     }

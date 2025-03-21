@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(TransportConfigProvider::class)]
 class TransportConfigProviderTest extends TestCase
 {
@@ -41,7 +41,7 @@ class TransportConfigProviderTest extends TestCase
 
         $metricConfigProvider = $this->createMock(MetricConfigProvider::class);
 
-        $metricConfigProvider->expects(static::once())
+        $metricConfigProvider->expects($this->once())
             ->method('all')
             ->willReturn($configs);
 

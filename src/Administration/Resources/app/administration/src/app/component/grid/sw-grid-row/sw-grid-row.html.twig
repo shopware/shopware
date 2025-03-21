@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_grid_row %}
 <div
     ref="swGridRow"
@@ -7,33 +6,31 @@
     tabindex="0"
     @dblclick="onInlineEditStart($event.currentTarget)"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_grid_row_actions %}
     <div class="sw-grid-row__actions">
         <slot name="actions">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_grid_row_slot_actions %}
-            <sw-button
+            <mt-button
                 size="small"
+                variant="secondary"
                 @click="onInlineEditCancel(id, index)"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
-            <sw-button
+            </mt-button>
+            <mt-button
                 class="sw-grid-row__inline-edit-action"
                 variant="primary"
                 size="small"
                 @click="onInlineEditFinish"
             >
                 {{ $tc('global.default.save') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </slot>
     </div>
     {% endblock %}
 
     <slot>
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_grid_row_slot_default %}{% endblock %}
     </slot>
 </div>

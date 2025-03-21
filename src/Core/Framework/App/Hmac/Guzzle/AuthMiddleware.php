@@ -12,7 +12,7 @@ use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class AuthMiddleware
 {
     final public const APP_REQUEST_TYPE = 'request_type';

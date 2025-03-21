@@ -19,13 +19,12 @@ abstract class AbstractBenchCase
 
     protected SalesChannelContext $context;
 
-    public function setup(): void
+    public function setUp(): void
     {
         $this->ids = clone Fixtures::getIds();
 
         $this->context = clone Fixtures::context();
 
-        static::getContainer()->get(Connection::class)->setNestTransactionsWithSavepoints(true);
         static::getContainer()->get(Connection::class)->beginTransaction();
     }
 

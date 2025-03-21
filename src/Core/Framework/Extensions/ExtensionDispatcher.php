@@ -5,10 +5,7 @@ namespace Shopware\Core\Framework\Extensions;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @experimental stableVersion:v6.7.0 feature:EXTENSION_SYSTEM
- */
-#[Package('core')]
+#[Package('framework')]
 final class ExtensionDispatcher
 {
     /**

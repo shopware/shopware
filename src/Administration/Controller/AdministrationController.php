@@ -8,9 +8,9 @@ use League\Flysystem\FilesystemOperator;
 use Shopware\Administration\Events\PreResetExcludedSearchTermEvent;
 use Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollectorInterface;
 use Shopware\Administration\Snippet\SnippetFinderInterface;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -28,7 +28,7 @@ use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\Currency\CurrencyEntity;
+use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -41,7 +41,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['administration']])]
-#[Package('administration')]
+#[Package('framework')]
 class AdministrationController extends AbstractController
 {
     private readonly bool $esAdministrationEnabled;
@@ -52,6 +52,8 @@ class AdministrationController extends AbstractController
      * @internal
      *
      * @param array<int, int> $supportedApiVersions
+     * @param EntityRepository<CustomerCollection> $customerRepository
+     * @param EntityRepository<CurrencyCollection> $currencyRepository
      */
     public function __construct(
         private readonly TemplateFinder $finder,
@@ -62,7 +64,7 @@ class AdministrationController extends AbstractController
         private readonly Connection $connection,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly string $shopwareCoreDir,
-        private readonly EntityRepository $customerRepo,
+        private readonly EntityRepository $customerRepository,
         private readonly EntityRepository $currencyRepository,
         private readonly HtmlSanitizer $htmlSanitizer,
         private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
@@ -85,8 +87,7 @@ class AdministrationController extends AbstractController
     {
         $template = $this->finder->find('@Administration/administration/index.html.twig');
 
-        /** @var CurrencyEntity $defaultCurrency */
-        $defaultCurrency = $this->currencyRepository->search(new Criteria([Defaults::CURRENCY]), $context)->first();
+        $defaultCurrency = $this->currencyRepository->search(new Criteria([Defaults::CURRENCY]), $context)->getEntities()->first();
 
         $refreshTokenInterval = new \DateInterval($this->refreshTokenTtl);
         $refreshTokenTtl = $refreshTokenInterval->s + $refreshTokenInterval->i * 60 + $refreshTokenInterval->h * 3600 + $refreshTokenInterval->d * 86400;
@@ -96,9 +97,7 @@ class AdministrationController extends AbstractController
             'systemLanguageId' => Defaults::LANGUAGE_SYSTEM,
             'defaultLanguageIds' => [Defaults::LANGUAGE_SYSTEM],
             'systemCurrencyId' => Defaults::CURRENCY,
-            // @deprecated tag:v6.7.0 - remove as read-only extension manager is a better solution
-            'disableExtensions' => EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false),
-            'systemCurrencyISOCode' => $defaultCurrency->getIsoCode(),
+            'systemCurrencyISOCode' => $defaultCurrency?->getIsoCode(),
             'liveVersionId' => Defaults::LIVE_VERSION,
             'firstRunWizard' => $this->firstRunWizardService->frwShouldRun(),
             'apiVersion' => $this->getLatestApiVersion(),
@@ -142,15 +141,15 @@ class AdministrationController extends AbstractController
     public function pluginIndex(string $pluginName): Response
     {
         try {
-            $webpackIndexHtml = $this->fileSystem->read('bundles/' . $pluginName . '/administration/index.html');
             $publicAssetBaseUrl = $this->fileSystem->publicUrl('/');
+            $viteIndexHtml = $this->fileSystem->read('bundles/' . $pluginName . '/meteor-app/index.html');
         } catch (FilesystemException $e) {
             return new Response('Plugin index.html not found', Response::HTTP_NOT_FOUND);
         }
 
-        $webpackIndexHtml = str_replace('__$ASSET_BASE_PATH$__', $publicAssetBaseUrl, $webpackIndexHtml);
+        $indexHtml = str_replace('__$ASSET_BASE_PATH$__', \sprintf('%sbundles/%s/meteor-app/', $publicAssetBaseUrl, $pluginName), $viteIndexHtml);
 
-        $response = new Response($webpackIndexHtml, Response::HTTP_OK, [
+        $response = new Response($indexHtml, Response::HTTP_OK, [
             'Content-Type' => 'text/html',
             'Content-Security-Policy' => 'script-src * \'unsafe-eval\' \'unsafe-inline\'',
             PlatformRequest::HEADER_FRAME_OPTIONS => 'sameorigin',
@@ -182,7 +181,6 @@ class AdministrationController extends AbstractController
 
                 break;
             default:
-                /** @var PreResetExcludedSearchTermEvent $preResetExcludedSearchTermEvent */
                 $preResetExcludedSearchTermEvent = $this->eventDispatcher->dispatch(new PreResetExcludedSearchTermEvent($searchConfigId, [], $context));
                 $defaultExcludedTerm = $preResetExcludedSearchTermEvent->getExcludedTerms();
         }
@@ -230,7 +228,7 @@ class AdministrationController extends AbstractController
 
         if ($customer->getBoundSalesChannel()) {
             $message .= ' in the Sales Channel {{ salesChannel }}';
-            $params['{{ salesChannel }}'] = $customer->getBoundSalesChannel()->getName();
+            $params['{{ salesChannel }}'] = (string) $customer->getBoundSalesChannel()->getName();
         }
 
         $violations = new ConstraintViolationList();
@@ -332,9 +330,6 @@ class AdministrationController extends AbstractController
             new EqualsFilter('boundSalesChannelId', $boundSalesChannelId),
         ]));
 
-        /** @var ?CustomerEntity $customer */
-        $customer = $this->customerRepo->search($criteria, $context)->first();
-
-        return $customer;
+        return $this->customerRepository->search($criteria, $context)->getEntities()->first();
     }
 }

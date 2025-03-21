@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import template from './sw-settings-custom-field-set-list.html.twig';
 import './sw-settings-custom-field-set-list.scss';
@@ -13,8 +13,6 @@ const {
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'acl',
@@ -50,9 +48,13 @@ export default {
         // Settings Listing mixin override
         messageSaveSuccess() {
             if (this.deleteEntity) {
-                return this.$tc('sw-settings-custom-field.set.list.messageDeleteSuccess', 0, {
-                    name: this.getInlineSnippet(this.deleteEntity.config.label) || this.deleteEntity.name,
-                });
+                return this.$tc(
+                    'sw-settings-custom-field.set.list.messageDeleteSuccess',
+                    {
+                        name: this.getInlineSnippet(this.deleteEntity.config.label) || this.deleteEntity.name,
+                    },
+                    0,
+                );
             }
             return '';
         },

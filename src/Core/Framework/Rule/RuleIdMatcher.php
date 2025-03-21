@@ -10,10 +10,8 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * This service filters the given input data, based on the given ruleIds.
  * It will return a filtered array of objects, which have a ruleId that is present in the given ruleIds array.
- *
- * @psalm-type Option =
  */
-#[Package('core')]
+#[Package('framework')]
 class RuleIdMatcher
 {
     /**

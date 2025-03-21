@@ -1,11 +1,9 @@
-{% apply spaceless %}
-    {% macro foo(x) %}
-        {% if x == 1 %}
-            {% return 1 %}
-        {% else %}
-            {% return 2 %}
-        {% endif %}
-    {% endmacro %}
+{% macro ifCase(x) %}
+    {% if x == 1 %}
+        {% return 1 %}
+    {% else %}
+        {% return 2 %}
+    {% endif %}
+{% endmacro %}
 
-    {{ _self.foo(x) }}
-{% endapply  %}
+{{ _self.ifCase(x) }}

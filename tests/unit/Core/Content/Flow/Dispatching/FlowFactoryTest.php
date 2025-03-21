@@ -20,7 +20,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(FlowFactory::class)]
 class FlowFactoryTest extends TestCase
 {
@@ -30,7 +30,7 @@ class FlowFactoryTest extends TestCase
         $order = new OrderEntity();
         $order->setId($ids->get('orderId'));
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $awareEvent = new CheckoutOrderPlacedEvent($context, $order);
 
@@ -50,16 +50,16 @@ class FlowFactoryTest extends TestCase
         $order->setId($ids->get('orderId'));
 
         $entitySearchResult = $this->createMock(EntitySearchResult::class);
-        $entitySearchResult->expects(static::once())
+        $entitySearchResult->expects($this->once())
             ->method('get')
             ->willReturn($order);
 
         $orderRepo = $this->createMock(EntityRepository::class);
-        $orderRepo->expects(static::once())
+        $orderRepo->expects($this->once())
             ->method('search')
             ->willReturn($entitySearchResult);
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $awareEvent = new CheckoutOrderPlacedEvent($context, $order);
 

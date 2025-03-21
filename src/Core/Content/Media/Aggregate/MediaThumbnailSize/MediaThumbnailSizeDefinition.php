@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class MediaThumbnailSizeDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'media_thumbnail_size';

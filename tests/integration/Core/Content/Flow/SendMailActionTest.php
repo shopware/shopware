@@ -26,9 +26,9 @@ use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
-use Shopware\Core\Content\Mail\Service\MailerTransportDecorator;
 use Shopware\Core\Content\Mail\Service\MailFactory;
 use Shopware\Core\Content\Mail\Service\MailService;
+use Shopware\Core\Content\Mail\Transport\MailerTransportDecorator;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
@@ -41,7 +41,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -58,7 +57,7 @@ use Symfony\Component\Mime\Part\DataPart;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class SendMailActionTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -101,7 +100,7 @@ class SendMailActionTest extends TestCase
         $criteria = new Criteria();
         $criteria->setLimit(1);
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $customerId = $this->createCustomer($context->getContext());
         $orderId = $this->createOrder($customerId, $context->getContext());
@@ -395,7 +394,7 @@ class SendMailActionTest extends TestCase
         $criteria = new Criteria();
         $criteria->setLimit(1);
 
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $context->addExtension(SendMailAction::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
 
@@ -773,10 +772,6 @@ class SendMailActionTest extends TestCase
             ],
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
         static::getContainer()
             ->get('customer.repository')
             ->upsert([$customer], $context);
@@ -971,7 +966,7 @@ class SendMailActionTest extends TestCase
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class TestEmailService extends MailService
 {
     public float $calls = 0;

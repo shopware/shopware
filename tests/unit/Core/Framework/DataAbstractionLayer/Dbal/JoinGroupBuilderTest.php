@@ -29,7 +29,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(JoinGroupBuilder::class)]
 class JoinGroupBuilderTest extends TestCase
 {

@@ -5,15 +5,13 @@ namespace Shopware\Core\Framework\Routing;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('core')]
+#[Package('framework')]
 abstract class AbstractRouteScope
 {
     /**
-     * @var array<string>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @var list<string>
      */
-    protected $allowedPaths = [];
+    protected array $allowedPaths = [];
 
     public function isAllowedPath(string $path): bool
     {
@@ -26,6 +24,9 @@ abstract class AbstractRouteScope
 
     abstract public function getId(): string;
 
+    /**
+     * @return list<string>
+     */
     public function getRoutePrefixes(): array
     {
         return $this->allowedPaths;

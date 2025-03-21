@@ -33,13 +33,13 @@
             cursor: pointer;
 
             &:checked {
-                ~ .sw-icon {
+                ~ .mt-icon {
                     color: $color-shopware-brand-500;
                 }
             }
         }
 
-        .sw-icon {
+        .mt-icon {
             color: $color-gray-900;
         }
     }

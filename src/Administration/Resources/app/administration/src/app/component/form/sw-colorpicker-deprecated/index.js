@@ -5,7 +5,7 @@ const { Component, Mixin } = Shopware;
 const debounce = Shopware.Utils.debounce;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description
@@ -37,8 +37,6 @@ Component.register('sw-colorpicker-deprecated', {
         Mixin.getByName('sw-form-field'),
         Mixin.getByName('remove-api-error'),
     ],
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         value: {

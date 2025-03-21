@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package inventory
+ * @sw-package inventory
  */
 describe('src/module/sw-settings-listing/component/sw-settings-listing-option-criteria-grid', () => {
     const customFieldRelations = [];
@@ -43,7 +43,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                         },
                     },
                     stubs: {
-                        'sw-card': {
+                        'mt-card': {
                             template: '<div><slot></slot></div>',
                         },
                         'sw-empty-state': {
@@ -54,9 +54,6 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                         'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', {
                             sync: true,
                         }),
-                        'sw-icon': {
-                            template: '<i></i>',
-                        },
                         'sw-base-field': await wrapTestComponent('sw-base-field'),
                         'sw-block-field': await wrapTestComponent('sw-block-field'),
                         'sw-field-error': await wrapTestComponent('sw-field-error'),
@@ -80,7 +77,6 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                         'sw-data-grid-column-boolean': true,
                         'sw-data-grid-inline-edit': true,
                         'router-link': true,
-                        'sw-button': true,
                         'sw-data-grid-skeleton': true,
                         'sw-data-grid-settings': true,
                         'sw-product-variant-info': true,
@@ -88,6 +84,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                         'sw-inheritance-switch': true,
                         'sw-ai-copilot-badge': true,
                         'sw-help-text': true,
+                        'sw-provide': true,
                     },
                 },
                 props: {

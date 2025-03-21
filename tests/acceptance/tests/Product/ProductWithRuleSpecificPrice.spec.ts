@@ -35,7 +35,7 @@ test('Customer gets a special product price depending on rules.', {
     expect(priceResponse.ok()).toBeTruthy();
 
     await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
-    await ShopCustomer.expects(StorefrontProductDetail.productSinglePrice).toHaveText('€10.00*');
+    await ShopCustomer.expects(StorefrontProductDetail.productSinglePrice).toContainText('€10.00');
     await ShopCustomer.attemptsTo(AddProductToCart(product));
-    await ShopCustomer.expects(StorefrontProductDetail.offCanvasSummaryTotalPrice).toHaveText('€8.99*');
+    await ShopCustomer.expects(StorefrontProductDetail.offCanvasSummaryTotalPrice).toContainText('€8.99');
 });

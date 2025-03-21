@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\SalesChannel;
 
-use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -17,140 +16,45 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Currency\CurrencyEntity;
-use Shopware\Core\System\SalesChannel\Exception\ContextPermissionsLockedException;
-use Shopware\Core\System\Tax\Exception\TaxNotFoundException;
+use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\Tax\TaxCollection;
 
-#[Package('core')]
+#[Package('framework')]
 class SalesChannelContext extends Struct
 {
     use StateAwareTrait;
 
     /**
-     * Unique token for context, e.g. stored in session or provided in request headers
-     *
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $token;
-
-    /**
-     * @var CustomerGroupEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currentCustomerGroup;
-
-    /**
-     * @var CurrencyEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currency;
-
-    /**
-     * @var SalesChannelEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannel;
-
-    /**
-     * @var TaxCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $taxRules;
-
-    /**
-     * @var CustomerEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customer;
-
-    /**
-     * @var PaymentMethodEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $paymentMethod;
-
-    /**
-     * @var ShippingMethodEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingMethod;
-
-    /**
-     * @var ShippingLocation
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingLocation;
-
-    /**
      * @var array<string, bool>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $permissions = [];
+    protected array $permissions = [];
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $permisionsLocked = false;
+    protected bool $permisionsLocked = false;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $imitatingUserId;
-
-    /**
-     * @var Context
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $context;
+    protected ?string $imitatingUserId = null;
 
     /**
      * @internal
      *
-     * @param array<string, string[]> $areaRuleIds
+     * @param array<string, array<string>> $areaRuleIds
      */
     public function __construct(
-        Context $baseContext,
-        string $token,
+        protected Context $context,
+        protected string $token,
         private ?string $domainId,
-        SalesChannelEntity $salesChannel,
-        CurrencyEntity $currency,
-        CustomerGroupEntity $currentCustomerGroup,
-        TaxCollection $taxRules,
-        PaymentMethodEntity $paymentMethod,
-        ShippingMethodEntity $shippingMethod,
-        ShippingLocation $shippingLocation,
-        ?CustomerEntity $customer,
+        protected SalesChannelEntity $salesChannel,
+        protected CurrencyEntity $currency,
+        protected CustomerGroupEntity $currentCustomerGroup,
+        protected TaxCollection $taxRules,
+        protected PaymentMethodEntity $paymentMethod,
+        protected ShippingMethodEntity $shippingMethod,
+        protected ShippingLocation $shippingLocation,
+        protected ?CustomerEntity $customer,
         protected CashRoundingConfig $itemRounding,
         protected CashRoundingConfig $totalRounding,
-        protected array $areaRuleIds = []
+        protected LanguageInfo $languageInfo,
+        protected array $areaRuleIds = [],
     ) {
-        $this->currentCustomerGroup = $currentCustomerGroup;
-        $this->currency = $currency;
-        $this->salesChannel = $salesChannel;
-        $this->taxRules = $taxRules;
-        $this->customer = $customer;
-        $this->paymentMethod = $paymentMethod;
-        $this->shippingMethod = $shippingMethod;
-        $this->shippingLocation = $shippingLocation;
-        $this->token = $token;
-        $this->context = $baseContext;
-        $this->imitatingUserId = null;
     }
 
     public function getCurrentCustomerGroup(): CustomerGroupEntity
@@ -181,15 +85,17 @@ class SalesChannelContext extends Struct
     {
         $tax = $this->taxRules->get($taxId);
 
-        if ($tax === null || $tax->getRules() === null) {
-            throw new TaxNotFoundException($taxId);
+        if ($tax?->getRules() === null) {
+            throw SalesChannelException::taxNotFound($taxId);
         }
 
-        if ($tax->getRules()->first() !== null) {
+        $firstTaxRule = $tax->getRules()->first();
+
+        if ($firstTaxRule) {
             // NEXT-21735 - This is covered randomly
             // @codeCoverageIgnoreStart
             return new TaxRuleCollection([
-                new TaxRule($tax->getRules()->first()->getTaxRate(), 100),
+                new TaxRule($firstTaxRule->getTaxRate(), 100),
             ]);
             // @codeCoverageIgnoreEnd
         }
@@ -225,11 +131,11 @@ class SalesChannelContext extends Struct
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getRuleIds(): array
     {
-        return $this->getContext()->getRuleIds();
+        return $this->context->getRuleIds();
     }
 
     /**
@@ -237,13 +143,13 @@ class SalesChannelContext extends Struct
      */
     public function setRuleIds(array $ruleIds): void
     {
-        $this->getContext()->setRuleIds($ruleIds);
+        $this->context->setRuleIds($ruleIds);
     }
 
     /**
      * @internal
      *
-     * @return array<string, string[]>
+     * @return array<string, array<string>>
      */
     public function getAreaRuleIds(): array
     {
@@ -253,9 +159,9 @@ class SalesChannelContext extends Struct
     /**
      * @internal
      *
-     * @param string[] $areas
+     * @param array<string> $areas
      *
-     * @return string[]
+     * @return array<string>
      */
     public function getRuleIdsByAreas(array $areas): array
     {
@@ -275,7 +181,7 @@ class SalesChannelContext extends Struct
     /**
      * @internal
      *
-     * @param array<string, string[]> $areaRuleIds
+     * @param array<string, array<string>> $areaRuleIds
      */
     public function setAreaRuleIds(array $areaRuleIds): void
     {
@@ -284,7 +190,7 @@ class SalesChannelContext extends Struct
 
     public function lockRules(): void
     {
-        $this->getContext()->lockRules();
+        $this->context->lockRules();
     }
 
     public function lockPermissions(): void
@@ -309,7 +215,7 @@ class SalesChannelContext extends Struct
 
     public function getTaxCalculationType(): string
     {
-        return $this->getSalesChannel()->getTaxCalculationType();
+        return $this->salesChannel->getTaxCalculationType();
     }
 
     /**
@@ -326,7 +232,7 @@ class SalesChannelContext extends Struct
     public function setPermissions(array $permissions): void
     {
         if ($this->permisionsLocked) {
-            throw new ContextPermissionsLockedException();
+            throw SalesChannelException::contextPermissionsLocked();
         }
 
         $this->permissions = array_filter($permissions);
@@ -344,7 +250,7 @@ class SalesChannelContext extends Struct
 
     public function getSalesChannelId(): string
     {
-        return $this->getSalesChannel()->getId();
+        return $this->salesChannel->getId();
     }
 
     public function addState(string ...$states): void
@@ -363,7 +269,7 @@ class SalesChannelContext extends Struct
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getStates(): array
     {
@@ -381,7 +287,7 @@ class SalesChannelContext extends Struct
     }
 
     /**
-     * @return string[]
+     * @return non-empty-list<string>
      */
     public function getLanguageIdChain(): array
     {
@@ -425,17 +331,17 @@ class SalesChannelContext extends Struct
 
     public function getCurrencyId(): string
     {
-        return $this->getCurrency()->getId();
+        return $this->currency->getId();
     }
 
     public function ensureLoggedIn(bool $allowGuest = true): void
     {
         if ($this->customer === null) {
-            throw CartException::customerNotLoggedIn();
+            throw SalesChannelException::customerNotLoggedIn();
         }
 
         if (!$allowGuest && $this->customer->getGuest()) {
-            throw CartException::customerNotLoggedIn();
+            throw SalesChannelException::customerNotLoggedIn();
         }
     }
 
@@ -482,5 +388,15 @@ class SalesChannelContext extends Struct
     public function getCustomerGroupId(): string
     {
         return $this->currentCustomerGroup->getId();
+    }
+
+    public function getLanguageInfo(): LanguageInfo
+    {
+        return $this->languageInfo;
+    }
+
+    public function setLanguageInfo(LanguageInfo $languageInfo): void
+    {
+        $this->languageInfo = $languageInfo;
     }
 }

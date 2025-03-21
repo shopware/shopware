@@ -1,19 +1,16 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_import_export_new_profile_wizard_mapping_page %}
 <div class="sw-import-export-new-profile-wizard-mapping-page">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_new_profile_wizard_mapping_page_text %}
     <p class="sw-import-export-new-profile-wizard-mapping-page__text">
         <template v-if="automatedCount < 1">
             {{ $tc('sw-import-export.profile.mappingDescription') }}
         </template>
         <template v-else>
-            {{ $tc('sw-import-export.profile.mappingAutomatedDescription', 0, { automatedCount }) }}
+            {{ $tc('sw-import-export.profile.mappingAutomatedDescription', { automatedCount }, 0) }}
         </template>
     </p>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_new_profile_wizard_mapping_page_mapping %}
     <sw-import-export-edit-profile-modal-mapping
         class="sw-import-export-new-profile-wizard-mapping-page__mapping"

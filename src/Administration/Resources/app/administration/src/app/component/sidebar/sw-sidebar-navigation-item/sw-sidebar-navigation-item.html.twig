@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sidebar_navigation_item %}
 <button
     class="sw-sidebar-navigation-item"
@@ -8,10 +7,10 @@
     @click="emitButtonClicked"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sidebar_navigation_item_content %}
-    <sw-icon
+    <mt-icon
         :name="sidebarItem.icon"
+        size="20px"
     />
     <i
         v-if="!sidebarItem.hasSimpleBadge && sidebarItem.badge > 0"

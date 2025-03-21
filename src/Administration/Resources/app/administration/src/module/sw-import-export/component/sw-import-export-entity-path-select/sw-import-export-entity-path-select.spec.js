@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import { mount } from '@vue/test-utils';
 
@@ -14,9 +14,6 @@ async function createWrapper(entityType = 'product') {
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-icon': {
-                        template: '<div></div>',
-                    },
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                     'sw-popover': await wrapTestComponent('sw-popover'),

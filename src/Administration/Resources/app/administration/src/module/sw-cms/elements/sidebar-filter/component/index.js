@@ -3,12 +3,10 @@ import './sw-cms-el-sidebar-filter.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     mixins: [
         Shopware.Mixin.getByName('cms-element'),

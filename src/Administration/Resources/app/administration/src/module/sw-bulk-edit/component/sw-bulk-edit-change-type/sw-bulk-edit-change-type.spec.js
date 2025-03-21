@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 
@@ -16,7 +16,6 @@ async function createWrapper(propsData = {}) {
                 'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
-                'sw-icon': true,
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-loader': true,
                 'sw-inheritance-switch': true,

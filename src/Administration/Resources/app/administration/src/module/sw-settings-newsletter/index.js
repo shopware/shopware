@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package after-sales
  */
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
@@ -32,7 +32,7 @@ Module.register('sw-settings-newsletter', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'content',
         to: 'sw.settings.newsletter.index',
         icon: 'regular-inbox',
         privilege: 'system.system_config',

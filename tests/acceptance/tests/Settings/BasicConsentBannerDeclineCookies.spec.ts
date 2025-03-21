@@ -1,13 +1,15 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('As a shop customer, I want to continue shopping without accepting the cookies in the storefront.', { tag: '@Settings' }, async ({
+test(
+    'As a shop customer, I want to continue shopping without accepting the cookies in the storefront.', { tag: '@Settings' }, async ({
     ShopCustomer,
     StorefrontHome,
     TestDataService,
-    DefaultSalesChannel,
+    InstanceMeta,
 }) => {
+    test.skip(InstanceMeta.isSaaS, 'Cache invalidation does not happen immediately on SaaS');
 
-    await TestDataService.createSystemConfigEntry('core.basicInformation.acceptAllCookies', true, DefaultSalesChannel.salesChannel.id);
+    await TestDataService.setSystemConfig({'core.basicInformation.acceptAllCookies': true});
     const product = await TestDataService.createBasicProduct();
     const category = await TestDataService.createCategory();
     await TestDataService.assignProductCategory(product.id, category.id);
@@ -30,8 +32,8 @@ test('As a shop customer, I want to continue shopping without accepting the cook
     });
 
     await test.step('Navigate to the product page and verify the cookie banner', async () => {
-        const productListItemLocators = await StorefrontHome.getListingItemByProductId(product.id);
-        await productListItemLocators.productImage.click();
+        const productListItemLocators = await StorefrontHome.getListingItemByProductName(product.name);
+        await productListItemLocators.productName.click();
         await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).toBeVisible();
     });
 });

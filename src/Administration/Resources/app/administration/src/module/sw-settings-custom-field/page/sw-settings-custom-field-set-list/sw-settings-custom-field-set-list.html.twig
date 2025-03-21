@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_custom_field_set_list %}
 <sw-page class="sw-settings-custom-field-set-list">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_custom_field_set_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -13,14 +11,13 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_custom_field_set_list_header %}
     <template #smart-bar-header>
         <h2>
             {{ $tc('sw-settings.index.title') }}
-            <sw-icon
+            <mt-icon
                 name="regular-chevron-right-xs"
-                small
+                size="16px"
             />
             {{ $tc('sw-settings-custom-field.set.list.textHeadline') }}
 
@@ -34,12 +31,10 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_custom_field_set_list_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_custom_field_set_list_actions_add %}
-        <sw-button
+        <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('custom_field.creator'),
@@ -47,26 +42,24 @@
             }"
             class="sw-settings-custom-field-set-list__button-create"
             :disabled="!acl.can('custom_field.creator') || undefined"
-            :router-link="{ name: 'sw.settings.custom.field.create' }"
             variant="primary"
+            size="default"
+            @click="$router.push({ name: 'sw.settings.custom.field.create' })"
         >
             {{ $tc('sw-settings-custom-field.set.list.buttonAdd') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_custom_field_set_list_content %}
     <template #content>
         <sw-card-view>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_custom_field_set_list_content_inner %}
-            <sw-card
+            <mt-card
                 class="sw-settings-custom-field-set-list__card"
                 position-identifier="sw-settings-custom-field-set-list"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_custom_field_set_list_grid %}
                 <template #grid>
                     <sw-grid
@@ -76,13 +69,11 @@
                         :items="items"
                         table
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_custom_field_set_list_grid_columns %}
                         <template
                             #columns="{ item }"
                         >
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_custom_field_set_list_grid_column_label %}
                             <sw-grid-column
                                 flex="minmax(180px, 2fr)"
@@ -107,7 +98,6 @@
                             </sw-grid-column>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_custom_field_set_list_grid_column_actions %}
                             <sw-grid-column
                                 flex="minmax(70px, 70px)"
@@ -142,7 +132,6 @@
                             </sw-grid-column>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_custom_field_set_list_grid_delete_modal %}
                             <sw-modal
                                 v-if="showDeleteModal === item.id"
@@ -151,36 +140,33 @@
                                 @modal-close="onCloseDeleteModal"
                             >
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_custom_field_set_list_grid_delete_modal_text %}
                                 <p>
-                                    {{ $tc('sw-settings-custom-field.set.list.textDeleteConfirm', 0, { name: getInlineSnippet(item.config.label) || item.name }) }}
+                                    {{ $tc('sw-settings-custom-field.set.list.textDeleteConfirm', { name: getInlineSnippet(item.config.label) || item.name }, 0) }}
                                 </p>
                                 {% endblock %}
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_custom_field_set_list_grid_delete_modal_footer %}
                                 <template #modal-footer>
 
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_settings_custom_field_set_list_grid_delete_modal_cancel %}
-                                    <sw-button
+                                    <mt-button
                                         size="small"
+                                        variant="secondary"
                                         @click="onCloseDeleteModal"
                                     >
                                         {{ $tc('global.default.cancel') }}
-                                    </sw-button>
+                                    </mt-button>
                                     {% endblock %}
 
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_settings_custom_field_set_list_grid_delete_modal_delete %}
-                                    <sw-button
-                                        variant="danger"
+                                    <mt-button
+                                        variant="critical"
                                         size="small"
                                         @click="onConfirmDelete(item.id)"
                                     >
                                         {{ $tc('sw-settings-custom-field.set.list.buttonDelete') }}
-                                    </sw-button>
+                                    </mt-button>
                                     {% endblock %}
                                 </template>
                                 {% endblock %}
@@ -189,7 +175,6 @@
                         </template>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_custom_field_set_list_content_columns_pagination %}
                         <template #pagination>
                             <sw-pagination
@@ -204,7 +189,6 @@
                     </sw-grid>
                 </template>
                 {% endblock %}
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_custom_fields_set_list_empty_message %}
                 <sw-empty-state
                     v-if="!isLoading && items.length <= 0"
@@ -212,7 +196,7 @@
                     :title="$tc('sw-settings-custom-field.set.list.messageEmpty')"
                 />
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
         </sw-card-view>
     </template>

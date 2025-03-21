@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 
 import template from './sw-sales-channel-modal.html.twig';
@@ -11,8 +11,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 
@@ -29,9 +27,13 @@ export default {
     computed: {
         modalTitle() {
             if (this.detailType) {
-                return this.$tc('sw-sales-channel.modal.titleDetailPrefix', 0, {
-                    name: this.detailType.name,
-                });
+                return this.$tc(
+                    'sw-sales-channel.modal.titleDetailPrefix',
+                    {
+                        name: this.detailType.name,
+                    },
+                    0,
+                );
             }
 
             return this.$tc('sw-sales-channel.modal.title');

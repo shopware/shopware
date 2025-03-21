@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Api;
 
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
-use Shopware\Core\Framework\Api\Controller\Exception\ExpectedUserHttpException;
 use Shopware\Core\Framework\Api\Exception\ExpectationFailedException;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException;
@@ -13,23 +12,20 @@ use Shopware\Core\Framework\Api\Exception\LiveVersionDeleteException;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Exception\NoEntityClonedException;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
-use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingReverseAssociation;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException as SymfonyHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
 
-#[Package('core')]
+#[Package('framework')]
 class ApiException extends HttpException
 {
     public const API_INVALID_SYNC_CRITERIA_EXCEPTION = 'API_INVALID_SYNC_CRITERIA_EXCEPTION';
@@ -49,6 +45,7 @@ class ApiException extends HttpException
     public const API_CUSTOMER_ID_PARAMETER_IS_MISSING = 'FRAMEWORK__API_CUSTOMER_ID_PARAMETER_IS_MISSING';
     public const API_SHIPPING_COSTS_PARAMETER_IS_MISSING = 'FRAMEWORK__API_SHIPPING_COSTS_PARAMETER_IS_MISSING';
     public const API_UNABLE_GENERATE_BUNDLE = 'FRAMEWORK__API_UNABLE_GENERATE_BUNDLE';
+
     public const API_INVALID_ACCESS_KEY_EXCEPTION = 'FRAMEWORK__API_INVALID_ACCESS_KEY';
     public const API_INVALID_ACCESS_KEY_IDENTIFIER_EXCEPTION = 'FRAMEWORK__API_INVALID_ACCESS_KEY_IDENTIFIER';
 
@@ -62,6 +59,10 @@ class ApiException extends HttpException
     public const API_INVALID_SCOPE_ACCESS_TOKEN = 'FRAMEWORK__INVALID_SCOPE_ACCESS_TOKEN';
 
     public const API_ROUTES_ARE_LOADED_ALREADY = 'FRAMEWORK__API_ROUTES_ARE_LOADED_ALREADY';
+
+    public const API_NOTIFICATION_THROTTLED = 'FRAMEWORK__NOTIFICATION_THROTTLED';
+
+    public const API_DIRECTORY_NOT_CREATED = 'FRAMEWORK__API_DIRECTORY_NOT_CREATED';
 
     /**
      * @param array<array{pointer: string, entity: string}> $exceptions
@@ -322,19 +323,8 @@ class ApiException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:exception-change - Will return status code 403 instead of 500
-     */
     public static function invalidAccessKey(): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new self(
-                Response::HTTP_INTERNAL_SERVER_ERROR,
-                self::API_INVALID_ACCESS_KEY_EXCEPTION,
-                'Access key is invalid and could not be identified.',
-            );
-        }
-
         return new self(
             Response::HTTP_FORBIDDEN,
             self::API_INVALID_ACCESS_KEY_EXCEPTION,
@@ -370,15 +360,8 @@ class ApiException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function unsupportedEncoderInput(): self|UnsupportedEncoderInputException
+    public static function unsupportedEncoderInput(): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new UnsupportedEncoderInputException();
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::API_UNSUPPORTED_ENCODER_INPUT,
@@ -400,15 +383,8 @@ class ApiException extends HttpException
         return new InvalidContextSourceException(AdminApiSource::class, $actual);
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function userNotLoggedIn(): self|ExpectedUserHttpException
+    public static function userNotLoggedIn(): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new ExpectedUserHttpException();
-        }
-
         return new self(
             Response::HTTP_FORBIDDEN,
             self::API_EXPECTED_USER,
@@ -416,20 +392,34 @@ class ApiException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function invalidScopeAccessToken(string $identifier): self|AccessDeniedHttpException
+    public static function invalidScopeAccessToken(string $identifier): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new AccessDeniedHttpException(\sprintf('This access token does not have the scope "%s" to process this Request', $identifier));
-        }
-
         return new self(
             Response::HTTP_FORBIDDEN,
             self::API_INVALID_SCOPE_ACCESS_TOKEN,
             'This access token does not have the scope "{{ scope }}" to process this Request',
             ['scope' => $identifier]
+        );
+    }
+
+    public static function notificationThrottled(int $waitTime, \Throwable $e): self
+    {
+        return new self(
+            Response::HTTP_TOO_MANY_REQUESTS,
+            self::API_NOTIFICATION_THROTTLED,
+            'Notification throttled for {{ seconds }} seconds.',
+            ['seconds' => $waitTime],
+            $e
+        );
+    }
+
+    public static function directoryWasNotCreated(string $directory): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::API_DIRECTORY_NOT_CREATED,
+            'Directory "{{ directory }}" was not created.',
+            ['directory' => $directory]
         );
     }
 }

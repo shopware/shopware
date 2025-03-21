@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import template from './sw-inheritance-switch.html.twig';
 import './sw-inheritance-switch.scss';
@@ -11,8 +11,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-inheritance-switch', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: {
         restoreInheritanceHandler: {
@@ -57,10 +55,8 @@ Component.register('sw-inheritance-switch', {
             }
             this.$emit('inheritance-restore');
 
-            if (!this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                if (this.restoreInheritanceHandler) {
-                    this.restoreInheritanceHandler();
-                }
+            if (this.restoreInheritanceHandler) {
+                this.restoreInheritanceHandler();
             }
         },
 
@@ -70,10 +66,8 @@ Component.register('sw-inheritance-switch', {
             }
             this.$emit('inheritance-remove');
 
-            if (!this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                if (this.removeInheritanceHandler) {
-                    this.removeInheritanceHandler();
-                }
+            if (this.removeInheritanceHandler) {
+                this.removeInheritanceHandler();
             }
         },
     },

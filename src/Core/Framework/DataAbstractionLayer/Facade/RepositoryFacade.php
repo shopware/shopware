@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @script-service data_loading
  */
-#[Package('core')]
+#[Package('framework')]
 class RepositoryFacade
 {
     /**

@@ -12,7 +12,6 @@ shopware:
             ban_method: "BAN" # This can defer from used reverse proxy
             hosts: [ "http://varnish" ]
             max_parallel_invalidations: 2
-            redis_url: "redis://redis"
             purge_all:
             fastly:
 
@@ -147,9 +146,10 @@ shopware:
         theme:
         asset:
         sitemap:
-        allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "ico", "glb", "csv", "xls", "xlsx"]
-        private_allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "ico", "glb", "zip", "rar", "csv", "xls", "xlsx"]
+        allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "ico", "glb", "csv", "xls", "xlsx", "html"]
+        private_allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "ico", "glb", "zip", "rar", "csv", "xls", "xlsx", "html", "xml"]
         private_local_download_strategy: "php"
+        private_local_path_prefix: ""
 
     cdn:
         url: ''
@@ -185,9 +185,6 @@ shopware:
         store:
             context_lifetime: 'P1D' # 1 day interval, see also https://www.php.net/manual/en/dateinterval.construct.php#refsect1-dateinterval.construct-parameters
             max_limit: 100
-        jwt_key:
-            # tag:v6.7.0 - delete setting, as it should be always enabled
-            use_app_secret: false
         rate_limiter:
             login:
                 enabled: true
@@ -437,7 +434,12 @@ shopware:
             CHECKOUT__CART_LINE_ITEM_NOT_STACKABLE: notice
             CHECKOUT__CART_LINE_ITEM_TYPE_NOT_UPDATABLE: notice
             CHECKOUT__INVALID_PAYMENT_TOKEN: notice
+            CHECKOUT__DELIVERY_WITHOUT_ADDRESS: notice
             DOCUMENT__INVALID_GENERATOR_TYPE: notice
+            DOCUMENT__INVALID_RENDERER_TYPE: notice
+            DOCUMENT__NUMBER_ALREADY_EXISTS: notice
+            DOCUMENT__DOCUMENT_NOT_FOUND: notice
+            DOCUMENT__GENERATION_ERROR: notice
             DOCUMENT__ORDER_NOT_FOUND: notice
             CHECKOUT__PROMOTION__NOT_FOUND: notice
             CHECKOUT__PROMOTION_DISCOUNT_NOT_FOUND: notice
@@ -504,32 +506,10 @@ shopware:
 
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'
-        tagging:
-            each_snippet: true
-            each_config: true
-            each_theme_config: true
         invalidation:
-            delay: 0
             delay_options:
-                storage: redis
+                storage: mysql
             http_cache: ['logged-in', 'cart-filled']
-            product_listing_route: []
-            product_detail_route: []
-            product_review_route: []
-            product_search_route: []
-            product_suggest_route: []
-            product_cross_selling_route: []
-            payment_method_route: []
-            shipping_method_route: []
-            navigation_route: []
-            category_route: []
-            landing_page_route: []
-            language_route: []
-            currency_route: []
-            country_route: []
-            country_state_route: []
-            salutation_route: []
-            sitemap_route: []
 
     twig:
         allowed_php_functions: []
@@ -542,6 +522,7 @@ shopware:
         enable_stock_management: true
 
     usage_data:
+        collection_enabled: true
         gateway:
             dispatch_enabled: true
             base_uri: 'https://data.shopware.io'

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<MailHeaderFooterEntity>
  */
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 class MailHeaderFooterCollection extends EntityCollection
 {
     public function getApiAlias(): string

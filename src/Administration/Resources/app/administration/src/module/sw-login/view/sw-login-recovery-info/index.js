@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import template from './sw-login-recovery-info.html.twig';
@@ -11,8 +11,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-login-recovery-info', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['is-not-loading'],
 

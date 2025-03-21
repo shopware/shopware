@@ -10,15 +10,13 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @implements \IteratorAggregate<array-key, TElement>
  */
-#[Package('core')]
+#[Package('framework')]
 abstract class Collection extends Struct implements \IteratorAggregate, \Countable
 {
     /**
      * @var array<array-key, TElement>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $elements = [];
+    protected array $elements = [];
 
     /**
      * @param iterable<TElement> $elements

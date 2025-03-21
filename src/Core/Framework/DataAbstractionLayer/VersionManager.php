@@ -6,6 +6,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeVersionMergeEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
@@ -54,7 +55,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class VersionManager
 {
     final public const DISABLE_AUDIT_LOG = 'disable-audit-log';
@@ -179,6 +180,11 @@ class VersionManager
 
         // group all payloads by their action (insert, update, delete) and by their entity name
         $writes = $this->buildWrites($commits);
+
+        $this->eventDispatcher->dispatch($event = new BeforeVersionMergeEvent($writes));
+        $writes = $event->filterWrites(static function ($operation) {
+            return !empty($operation);
+        });
 
         // execute writes and get access to the write result to dispatch events later on
         $result = $this->executeWrites($writes, $liveContext);
@@ -410,6 +416,7 @@ class VersionManager
             }
         }
 
+        /** @phpstan-ignore empty.variable (might be overridden by reference) */
         if (!empty($extensions)) {
             $payload['extensions'] = $extensions;
         }
@@ -781,14 +788,21 @@ class VersionManager
     private function executeWrites(array $writes, WriteContext $liveContext): WriteResult
     {
         $operations = [];
-        foreach ($writes['insert'] as $entity => $payload) {
+
+        foreach (array_filter($writes['insert'] ?? []) as $entity => $payload) {
             $operations[] = new SyncOperation('insert-' . $entity, $entity, 'upsert', $payload);
         }
-        foreach ($writes['update'] as $entity => $payload) {
+
+        foreach (array_filter($writes['update'] ?? []) as $entity => $payload) {
             $operations[] = new SyncOperation('update-' . $entity, $entity, 'upsert', $payload);
         }
-        foreach ($writes['delete'] as $entity => $payload) {
+
+        foreach (array_filter($writes['delete'] ?? []) as $entity => $payload) {
             $operations[] = new SyncOperation('delete-' . $entity, $entity, 'delete', $payload);
+        }
+
+        if (empty($operations)) {
+            return new WriteResult([], [], []);
         }
 
         return $this->entityWriter->sync($operations, $liveContext);

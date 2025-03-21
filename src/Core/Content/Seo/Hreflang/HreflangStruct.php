@@ -5,22 +5,12 @@ namespace Shopware\Core\Content\Seo\Hreflang;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class HreflangStruct extends Struct
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $url;
+    protected string $url;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $locale;
+    protected string $locale;
 
     public function getUrl(): string
     {

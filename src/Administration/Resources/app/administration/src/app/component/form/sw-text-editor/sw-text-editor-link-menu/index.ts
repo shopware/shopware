@@ -1,6 +1,5 @@
 import type CriteriaType from 'src/core/data/criteria.data';
 import type RepositoryType from 'src/core/data/repository.data';
-import type EntityCollectionType from 'src/core/data/entity-collection.data';
 import template from './sw-text-editor-link-menu.html.twig';
 import './sw-text-editor-link-menu.scss';
 
@@ -23,14 +22,13 @@ interface TextEditorLinkMenuConfig {
 }
 
 /**
- * @package admin
+ * @sw-package framework
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-text-editor instead.
  *
  * @private
  */
 Component.register('sw-text-editor-link-menu', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -51,7 +49,7 @@ Component.register('sw-text-editor-link-menu', {
         displayAsButton: boolean;
         buttonVariant: ButtonVariant;
         linkCategory: LinkCategories;
-        categoryCollection?: EntityCollectionType<'category'>;
+        categoryCollection?: EntityCollection<'category'>;
         buttonVariantList: Array<{ id: ButtonVariant; name: string }>;
     } {
         return {
@@ -107,6 +105,41 @@ Component.register('sw-text-editor-link-menu', {
         categoryRepository(): RepositoryType<'category'> {
             return this.repositoryFactory.create('category');
         },
+
+        linkCategoryOptions() {
+            return [
+                {
+                    id: 1,
+                    value: 'link',
+                    label: this.$tc('sw-text-editor-toolbar.link.labelUrl'),
+                },
+                {
+                    id: 2,
+                    value: 'detail',
+                    label: this.$tc('sw-text-editor-toolbar.link.labelProduct'),
+                },
+                {
+                    id: 3,
+                    value: 'navigation',
+                    label: this.$tc('sw-text-editor-toolbar.link.labelCategory'),
+                },
+                {
+                    id: 4,
+                    value: 'media',
+                    label: this.$tc('sw-text-editor-toolbar.link.labelMedia'),
+                },
+                {
+                    id: 5,
+                    value: 'email',
+                    label: this.$tc('sw-text-editor-toolbar.link.labelEmail'),
+                },
+                {
+                    id: 6,
+                    value: 'phone',
+                    label: this.$tc('sw-text-editor-toolbar.link.labelPhoneNumber'),
+                },
+            ];
+        },
     },
 
     watch: {
@@ -144,12 +177,12 @@ Component.register('sw-text-editor-link-menu', {
             this.$emit('mounted');
         },
 
-        getCategoryCollection(categoryId: string): Promise<EntityCollectionType<'category'>> {
+        getCategoryCollection(categoryId: string): Promise<EntityCollection<'category'>> {
             const categoryCriteria = new Criteria(1, 25).addFilter(Criteria.equals('id', categoryId));
             return this.categoryRepository.search(categoryCriteria);
         },
 
-        getEmptyCategoryCollection(): EntityCollectionType<'category'> {
+        getEmptyCategoryCollection(): EntityCollection<'category'> {
             return new EntityCollection(
                 this.categoryRepository.route,
                 this.categoryRepository.entityName,

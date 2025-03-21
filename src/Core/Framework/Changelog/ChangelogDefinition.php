@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ChangelogDefinition
 {
     private const VIOLATION_MESSAGE_SECTION_SEPARATOR = 'You should use "___" to separate %s and %s section';
@@ -20,9 +20,7 @@ class ChangelogDefinition
     #[Assert\NotBlank(message: 'The title should not be blank')]
     private string $title;
 
-    #[Assert\NotBlank(message: 'No issue was referenced')]
-    #[Assert\Regex(pattern: '/^(NEXT-|#)\d+$/', message: 'The issue has an invalid format')]
-    private string $issue;
+    private ?string $issue = null;
 
     private ?string $flag = null;
 
@@ -96,10 +94,10 @@ class ChangelogDefinition
 
     public function getIssue(): string
     {
-        return $this->issue;
+        return $this->issue ?? '';
     }
 
-    public function setIssue(string $issue): ChangelogDefinition
+    public function setIssue(?string $issue): ChangelogDefinition
     {
         $this->issue = $issue;
 
@@ -230,8 +228,7 @@ class ChangelogDefinition
     {
         $template = <<<EOD
 ---
-title: $this->title
-issue: $this->issue
+title: $this->title%ISSUE%
 %FEATURE_FLAG%
 %AUTHOR%
 %AUTHOR_EMAIL%
@@ -268,6 +265,7 @@ to
 self
 ```
 EOD;
+        $template = str_replace('%ISSUE%', $this->issue ? "\nissue: {$this->issue}" : '', $template);
         $template = str_replace('%FEATURE_FLAG%', $this->flag ? 'flag: ' . $this->flag : '', $template);
         $template = str_replace('%AUTHOR%', $this->author ? 'author: ' . $this->author : '', $template);
         $template = str_replace('%AUTHOR_EMAIL%', $this->authorEmail ? 'author_email: ' . $this->authorEmail : '', $template);

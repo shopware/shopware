@@ -16,7 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('services-settings')]
+#[Package('discovery')]
 class SitemapExporter implements SitemapExporterInterface
 {
     /**
@@ -71,7 +71,7 @@ class SitemapExporter implements SitemapExporterInterface
             true,
             $lastProvider,
             null,
-            $context->getSalesChannel()->getId(),
+            $context->getSalesChannelId(),
             $context->getLanguageId()
         );
     }
@@ -95,7 +95,7 @@ class SitemapExporter implements SitemapExporterInterface
 
     private function generateCacheKeyForSalesChannel(SalesChannelContext $salesChannelContext): string
     {
-        return \sprintf('sitemap-exporter-running-%s-%s', $salesChannelContext->getSalesChannel()->getId(), $salesChannelContext->getLanguageId());
+        return \sprintf('sitemap-exporter-running-%s-%s', $salesChannelContext->getSalesChannelId(), $salesChannelContext->getLanguageId());
     }
 
     private function initSitemapHandles(SalesChannelContext $context): void
@@ -131,7 +131,6 @@ class SitemapExporter implements SitemapExporterInterface
 
         $sitemapHandles = [];
         foreach ($sitemapDomains as $sitemapDomain) {
-            /** @phpstan-ignore-next-line This ignore should be removed when the deprecated method signature is updated */
             $sitemapHandles[$sitemapDomain['url']] = $this->sitemapHandleFactory->create($this->filesystem, $context, $sitemapDomain['url'], $sitemapDomain['domainId']);
         }
 

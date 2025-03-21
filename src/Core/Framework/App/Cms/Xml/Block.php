@@ -29,7 +29,7 @@ use Shopware\Core\Framework\Log\Package;
  *       }>
  *  }
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class Block extends XmlElement
 {
     private const TRANSLATABLE_FIELDS = [

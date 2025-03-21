@@ -1,6 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import DeviceDetection from 'src/helper/device-detection.helper';
-import Iterator from 'src/helper/iterator.helper';
 
 export default class NavbarPlugin extends Plugin {
     static options = {
@@ -12,6 +11,10 @@ export default class NavbarPlugin extends Plugin {
          * Class to select the top level links.
          */
         topLevelLinksSelector: '.main-navigation-link',
+        /**
+         * Class to select the current page to add aria label current page to it.
+         */
+        ariaCurrentPageSelector: '.nav-item-{id}-link',
     };
 
     init() {
@@ -25,12 +28,16 @@ export default class NavbarPlugin extends Plugin {
         const closeEvent = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'mouseleave';
         const clickEvent = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
 
-        Iterator.iterate(this._topLevelLinks, el => {
+        this._topLevelLinks.forEach(el => {
             el.addEventListener(openEvent, this._toggleNavbar.bind(this, el));
             el.addEventListener(closeEvent, this._toggleNavbar.bind(this, el));
-            el.addEventListener(clickEvent, this._navigateToLinkOnClick.bind(this, el));
+            if (el.getAttribute('href') !== null) {
+                el.addEventListener(clickEvent, this._navigateToLinkOnClick.bind(this, el));
+            }
         });
-
+        window.addEventListener('load', () => {
+            this._setAriaCurrentPage();
+        });
     }
 
     _toggleNavbar(topLevelLink, event) {
@@ -69,9 +76,11 @@ export default class NavbarPlugin extends Plugin {
      */
     _navigateToLinkOnClick(topLevelLink, event) {
         if (event.type === 'click' && event.pageX !== 0) {
-            event.preventDefault();
-            event.stopPropagation();
-            window.location.replace(topLevelLink.href);
+            if (topLevelLink.target === '_blank') {
+                window.open(topLevelLink.href, '_blank', 'noopener, noreferrer');
+                return;
+            }
+            window.location.href = topLevelLink.href;
         }
     }
 
@@ -98,5 +107,18 @@ export default class NavbarPlugin extends Plugin {
      */
     _clearDebounce() {
         clearTimeout(this._debouncer);
+    }
+
+    /**
+     * Sets the aria-current attribute on the configured selector.
+     * @private
+     */
+    _setAriaCurrentPage() {
+        if (!window.activeNavigationId) { return; }
+        const selector = this.options.ariaCurrentPageSelector.replace('{id}', window.activeNavigationId);
+        const activeNavItem = this.el.querySelector(selector);
+        if (activeNavItem) {
+            activeNavItem.setAttribute('aria-current', 'page');
+        }
     }
 }

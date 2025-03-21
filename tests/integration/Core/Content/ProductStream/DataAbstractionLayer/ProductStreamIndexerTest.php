@@ -26,7 +26,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('inventory')]
 class ProductStreamIndexerTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -433,7 +433,7 @@ class ProductStreamIndexerTest extends TestCase
             'product_stream_filter',
             [
                 'id' => Uuid::randomBytes(),
-                'type' => 'equals',
+                'type' => 'equalsAny',
                 'field' => 'id',
                 'value' => '',
                 'position' => 1,

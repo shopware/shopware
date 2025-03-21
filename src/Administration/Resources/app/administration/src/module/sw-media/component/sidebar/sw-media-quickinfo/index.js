@@ -5,13 +5,11 @@ const { Mixin, Context, Utils } = Shopware;
 const { dom, format } = Utils;
 
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'mediaService',
@@ -86,7 +84,7 @@ export default {
         },
 
         /**
-         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+         * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
          */
         isSpatial() {
             // we need to check the media url since media.fileExtension is set directly after upload
@@ -114,7 +112,7 @@ export default {
         },
 
         /**
-         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+         * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
          */
         fetchSpatialItemConfig() {
             this.systemConfigApiService.getValues('core.media').then((values) => {
@@ -127,7 +125,7 @@ export default {
         },
 
         /**
-         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+         * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
          */
         buildAugmentedRealityTooltip(snippet) {
             const route = { name: 'sw.settings.media.index' };
@@ -239,9 +237,13 @@ export default {
             switch (error.code) {
                 case 'CONTENT__MEDIA_FILE_NAME_IS_TOO_LONG':
                     this.createNotificationError({
-                        message: this.$tc('global.sw-media-media-item.notification.fileNameTooLong.message', 0, {
-                            length: error.meta.parameters.maxLength,
-                        }),
+                        message: this.$tc(
+                            'global.sw-media-media-item.notification.fileNameTooLong.message',
+                            {
+                                length: error.meta.parameters.maxLength,
+                            },
+                            0,
+                        ),
                     });
                     break;
                 default:
@@ -285,7 +287,7 @@ export default {
         },
 
         /**
-         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+         * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
          */
         toggleAR(newValue) {
             const newSpatialConfig = {

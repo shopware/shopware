@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @implements \ArrayAccess<string, mixed>
  */
-#[Package('core')]
+#[Package('framework')]
 class ArrayEntity extends Entity implements \ArrayAccess
 {
     protected ?string $_entityName = 'array-entity';
@@ -63,7 +63,7 @@ class ArrayEntity extends Entity implements \ArrayAccess
 
     public function getUniqueIdentifier(): string
     {
-        if (!$this->_uniqueIdentifier) {
+        if (!isset($this->_uniqueIdentifier)) {
             return $this->data['id'];
         }
 

@@ -3,12 +3,10 @@ import './sw-cms-visibility-toggle.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         text: {

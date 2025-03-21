@@ -16,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'media:delete-local-thumbnails',
     description: 'Deletes all physical media thumbnails when remote thumbnails is enabled.',
 )]
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class DeleteThumbnailsCommand extends Command
 {
     /**

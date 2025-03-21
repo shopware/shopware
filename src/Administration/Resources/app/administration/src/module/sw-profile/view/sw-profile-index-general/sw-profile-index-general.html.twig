@@ -1,28 +1,26 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_profile_index_general %}
 <div class="sw-profile-index-general">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_profile_index_general_information %}
-    <sw-card
+    <mt-card
         position-identifier="sw-profile-index-general"
         :title="$tc('sw-profile.index.titleInfoCard')"
         :is-loading="isUserLoading || !languageId"
     >
         <sw-container v-bind="{ columns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '0 30px' }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_profile_index_general_information_firstname %}
-            <sw-text-field
-                v-model:value="user.firstName"
+
+            <mt-text-field
+                v-model="user.firstName"
                 name="sw-field--user-firstName"
                 :label="$tc('sw-profile.index.labelFirstNameField')"
                 :disabled="isDisabled || !acl.can('user.update_profile')"
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_profile_index_general_information_lastname %}
-            <sw-text-field
-                v-model:value="user.lastName"
+
+            <mt-text-field
+                v-model="user.lastName"
                 name="sw-field--user-lastName"
                 :label="$tc('sw-profile.index.labelLastNameField')"
                 :disabled="isDisabled || !acl.can('user.update_profile')"
@@ -31,42 +29,34 @@
         </sw-container>
 
         <sw-container v-bind="{ columns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '0 30px' }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_profile_index_general_information_username %}
-            <sw-text-field
-                v-model:value="user.username"
+
+            <mt-text-field
+                v-model="user.username"
                 name="sw-field--user-username"
                 :label="$tc('sw-profile.index.labelUsernameField')"
                 :disabled="isDisabled || !acl.can('user.update_profile')"
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_profile_index_general_information_language %}
-            <sw-select-field
-                v-model:value="user.localeId"
+            <mt-select
+                v-model="user.localeId"
                 name="sw-field--user-localeId"
                 :label="$tc('sw-users-permissions.users.user-detail.labelLanguage')"
                 :disabled="!acl.can('user.update_profile')"
                 :placeholder="$tc('sw-users-permissions.users.user-detail.labelLanguagePlaceholder')"
-            >
-                <option
-                    v-for="language in languages"
-                    :key="language.locale.id"
-                    :value="language.locale.id"
-                    :selected="user.localeId === language.locale.id"
-                >
-                    {{ language.customLabel }}
-                </option>
-            </sw-select-field>
+                :options="localeOptions"
+            />
             {% endblock %}
         </sw-container>
 
         <sw-container v-bind="{ columns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '0 30px' }">
             <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/no-duplicate-attributes,vue/no-parsing-error -->
             {% block sw_profile_index_general_information_email %}
-            <sw-text-field
-                v-model:value="user.email"
+
+            <mt-text-field
+                v-model="user.email"
                 name="sw-field--user-email"
                 validation="email"
                 required
@@ -75,7 +65,6 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_profile_index_general_information_timezone %}
             <sw-single-select
                 v-model:value="user.timeZone"
@@ -89,18 +78,16 @@
             />
             {% endblock %}
         </sw-container>
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_profile_index_general_image %}
-    <sw-card
+    <mt-card
         v-if="acl.can('media.creator')"
         position-identifier="sw-profile-index-general-image"
         :title="$tc('sw-profile.index.titleImageCard')"
         :is-loading="isUserLoading || !languageId"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_profile_index_general_image_content %}
         <sw-upload-listener
             auto-upload
@@ -120,20 +107,18 @@
             @media-upload-remove-image="onRemoveMedia"
         />
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_profile_index_general_password %}
-    <sw-card
+    <mt-card
         position-identifier="sw-profile-index-general-password"
         :title="$tc('sw-profile.index.titlePasswordCard')"
         :is-loading="isUserLoading || !languageId"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_profile_index_general_password_new_password %}
-        <sw-password-field
-            v-model:value="computedNewPassword"
+        <mt-password-field
+            v-model="computedNewPassword"
             name="sw-field--computedNewPassword"
             :label="$tc('sw-profile.index.labelNewPassword')"
             :disabled="!acl.can('user.update_profile')"
@@ -143,10 +128,9 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_profile_index_general_password_new_password_confirm %}
-        <sw-password-field
-            v-model:value="computedNewPasswordConfirm"
+        <mt-password-field
+            v-model="computedNewPasswordConfirm"
             name="sw-field--computedNewPasswordConfirm"
             :label="$tc('sw-profile.index.labelNewPasswordConfirm')"
             :disabled="!acl.can('user.update_profile')"
@@ -155,7 +139,7 @@
             autocomplete="off"
         />
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>
 {% endblock %}

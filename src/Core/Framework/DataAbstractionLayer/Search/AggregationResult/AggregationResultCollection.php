@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Struct\StateAwareTrait;
 /**
  * @extends Collection<AggregationResult>
  */
-#[Package('core')]
+#[Package('framework')]
 class AggregationResultCollection extends Collection
 {
     use StateAwareTrait;

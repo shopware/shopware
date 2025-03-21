@@ -12,13 +12,11 @@ type ComponentData = {
 };
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     beforeRouteEnter(to, from, next) {
         next((vm) => {
@@ -56,11 +54,13 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         myExtensions(): Extension[] {
-            return Shopware.State.get('shopwareExtensions').myExtensions.data;
+            return Shopware.Store.get('shopwareExtensions').myExtensions.data;
         },
 
         defaultThemeAsset(): string {
-            return Shopware.Filter.getByName('asset')('administration/static/img/theme/default_theme_preview.jpg');
+            return Shopware.Filter.getByName('asset')(
+                'administration/administration/static/img/theme/default_theme_preview.jpg',
+            );
         },
 
         image(): string {

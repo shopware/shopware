@@ -3,7 +3,7 @@ import template from './sw-customer-detail-addresses.html.twig';
 import './sw-customer-detail-addresses.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { ShopwareError } = Shopware.Classes;
@@ -13,8 +13,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 
@@ -232,13 +230,11 @@ export default {
 
             Object.assign(address, this.currentAddress);
 
-            if (this.customer.addresses.has(address.id)) {
-                this.customer.addresses.remove(address.id);
-            }
+            this.customerAddressRepository.save(address).then(() => {
+                this.currentAddress = null;
 
-            this.customer.addresses.push(address);
-
-            this.currentAddress = null;
+                this.refreshList();
+            });
         },
 
         isValidAddress(address) {
@@ -253,7 +249,7 @@ export default {
 
                 isValid = false;
 
-                Shopware.State.dispatch('error/addApiError', {
+                Shopware.Store.get('error').addApiError({
                     expression: `customer_address.${this.currentAddress.id}.${field}`,
                     error: new ShopwareError({
                         code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
@@ -282,6 +278,8 @@ export default {
 
         onEditAddress(id) {
             const currentAddress = this.addressRepository.create(Shopware.Context.api, id);
+            // Otherwise repository save will do a POST call instead of PATCH
+            currentAddress._isNew = false;
 
             // assign values and id to new address
             Object.assign(currentAddress, this.activeCustomer.addresses.get(id));

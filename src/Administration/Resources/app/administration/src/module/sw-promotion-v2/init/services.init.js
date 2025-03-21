@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package checkout
  */
 import PromotionCodeApiService from '../service/promotion-code.api.service';
 

@@ -3,10 +3,8 @@ import './sw-cms-block-image-cover.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 };

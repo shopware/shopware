@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -363,18 +363,14 @@ describe('app/plugins/shortcut.plugin', () => {
                     'sw-text-editor': await Shopware.Component.build('sw-text-editor'),
                     'sw-text-editor-toolbar': await Shopware.Component.build('sw-text-editor-toolbar'),
                     'sw-text-editor-toolbar-button': await Shopware.Component.build('sw-text-editor-toolbar-button'),
-                    'sw-icon': { template: '<div class="sw-icon"></div>' },
                     'sw-text-field': await Shopware.Component.build('sw-text-field'),
                     'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
                     'sw-block-field': await Shopware.Component.build('sw-block-field'),
                     'sw-base-field': await Shopware.Component.build('sw-base-field'),
                     'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
-                    'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
+
                     'sw-field-error': true,
-                    'sw-compact-colorpicker': await Shopware.Component.build('sw-compact-colorpicker'),
-                    'sw-colorpicker': await Shopware.Component.build('sw-colorpicker'),
                     'sw-container': await Shopware.Component.build('sw-container'),
-                    'sw-button': await Shopware.Component.build('sw-button'),
                     'sw-text-editor-table-toolbar': true,
                     'sw-code-editor': true,
                     'sw-text-editor-link-menu': true,

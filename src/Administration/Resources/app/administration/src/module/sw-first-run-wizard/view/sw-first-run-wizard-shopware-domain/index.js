@@ -2,13 +2,11 @@ import template from './sw-first-run-wizard-shopware-domain.html.twig';
 import './sw-first-run-wizard-shopware-domain.scss';
 
 /**
- * @package checkout
+ * @sw-package fundamentals@after-sales
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['firstRunWizardService'],
 
@@ -40,11 +38,21 @@ export default {
         },
 
         nextAction() {
-            if (Shopware.State.get('context').app.config.settings.disableExtensionManagement) {
+            if (Shopware.Store.get('context').app.config.settings.disableExtensionManagement) {
                 return 'sw.first.run.wizard.index.finish';
             }
 
             return 'sw.first.run.wizard.index.store';
+        },
+
+        domainOptions() {
+            return this.licenceDomains.map((domain) => {
+                return {
+                    id: domain.domain,
+                    value: domain.domain,
+                    label: domain.domain,
+                };
+            });
         },
     },
 
@@ -94,7 +102,7 @@ export default {
                     key: 'back',
                     label: this.$tc('sw-first-run-wizard.general.buttonBack'),
                     position: 'left',
-                    variant: null,
+                    variant: 'secondary',
                     action: 'sw.first.run.wizard.index.shopware.account',
                     disabled: false,
                 },

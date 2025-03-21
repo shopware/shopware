@@ -19,7 +19,7 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 /**
  * @internal
  */
-#[Package('inventory')]
+#[Package('discovery')]
 class EntryPointValidator implements EventSubscriberInterface
 {
     private const ERROR_CODE = 'CONTENT__INVALID_CATEGORY_TYPE_AS_ENTRY_POINT';

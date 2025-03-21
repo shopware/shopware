@@ -65,7 +65,7 @@ class ProductDetailRouteTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->context = Generator::createSalesChannelContext();
+        $this->context = Generator::generateSalesChannelContext();
         $this->idsCollection = new IdsCollection();
         $this->productRepository = $this->createMock(SalesChannelRepository::class);
         $this->systemConfig = $this->createMock(SystemConfigService::class);
@@ -95,7 +95,7 @@ class ProductDetailRouteTest extends TestCase
         $productEntity->setId(Uuid::randomHex());
         $productEntity->setCmsPageId('4');
         $productEntity->setUniqueIdentifier('mainVariant');
-        $this->productRepository->expects(static::exactly(1))
+        $this->productRepository->expects($this->exactly(1))
             ->method('search')
             ->willReturn(
                 new EntitySearchResult(
@@ -137,7 +137,7 @@ class ProductDetailRouteTest extends TestCase
             ->willReturn(
                 $idsSearchResult
             );
-        $this->productRepository->expects(static::once())
+        $this->productRepository->expects($this->once())
             ->method('search')
             ->willReturnOnConsecutiveCalls(
                 new EntitySearchResult('product', 4, new ProductCollection([$productEntity]), null, new Criteria(), $this->context->getContext())
@@ -153,7 +153,7 @@ class ProductDetailRouteTest extends TestCase
     public function testLoadVariantListingConfig(): void
     {
         $this->connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAssociative')
             ->willReturn([
                 'variantListingConfig' => '{"displayParent": false, "mainVariantId": "2"}',
@@ -166,7 +166,7 @@ class ProductDetailRouteTest extends TestCase
         $productEntity->setCmsPageId('4');
         $productEntity->setUniqueIdentifier('2');
         $productEntity->setAvailable(true);
-        $this->productRepository->expects(static::once())
+        $this->productRepository->expects($this->once())
             ->method('search')
             ->willReturn(
                 new EntitySearchResult(
@@ -193,7 +193,7 @@ class ProductDetailRouteTest extends TestCase
     public function testResolveVariantIdFromEvent(): void
     {
         $this->connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAssociative')
             ->willReturn([
                 'variantListingConfig' => '{"displayParent": true, "mainVariantId": "2"}',
@@ -205,7 +205,7 @@ class ProductDetailRouteTest extends TestCase
         $productEntity->setId($variantId);
         $productEntity->setCmsPageId('4');
         $productEntity->setAvailable(true);
-        $this->productRepository->expects(static::once())
+        $this->productRepository->expects($this->once())
             ->method('search')
             ->with(static::callback(function (Criteria $criteria) use ($variantId): bool {
                 $ids = $criteria->getIds();
@@ -253,7 +253,7 @@ class ProductDetailRouteTest extends TestCase
         $criteria2->addFilter($filter);
 
         $this->productRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->willReturnOnConsecutiveCalls(
                 new EntitySearchResult('product', 4, new ProductCollection([$productEntity]), null, new Criteria(), $this->context->getContext())

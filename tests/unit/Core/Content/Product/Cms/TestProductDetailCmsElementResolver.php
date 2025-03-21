@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class TestProductDetailCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
     public function getType(): string

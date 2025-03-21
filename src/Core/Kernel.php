@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Util\VersionParser;
-use Shopware\Core\Service\Service;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Loader\LoaderInterface;
@@ -30,7 +29,7 @@ use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\Route;
 
-#[Package('core')]
+#[Package('framework')]
 class Kernel extends HttpKernel
 {
     use MicroKernelTrait;
@@ -40,30 +39,13 @@ class Kernel extends HttpKernel
     /**
      * @var string Fallback version if nothing is provided via kernel constructor
      */
-    final public const SHOPWARE_FALLBACK_VERSION = '6.6.9999999-dev';
+    final public const SHOPWARE_FALLBACK_VERSION = '6.7.9999999-dev';
 
     protected static ?Connection $connection = null;
 
-    /**
-     * @var KernelPluginLoader
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $pluginLoader;
+    protected string $shopwareVersion;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shopwareVersion;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shopwareVersionRevision;
+    protected ?string $shopwareVersionRevision;
 
     private bool $rebooting = false;
 
@@ -75,7 +57,7 @@ class Kernel extends HttpKernel
     public function __construct(
         string $environment,
         bool $debug,
-        KernelPluginLoader $pluginLoader,
+        protected KernelPluginLoader $pluginLoader,
         private string $cacheId,
         string $version,
         Connection $connection,
@@ -85,8 +67,6 @@ class Kernel extends HttpKernel
 
         parent::__construct($environment, $debug);
         self::$connection = $connection;
-
-        $this->pluginLoader = $pluginLoader;
 
         $version = VersionParser::parseShopwareVersion($version);
         $this->shopwareVersion = $version['version'];
@@ -132,11 +112,6 @@ class Kernel extends HttpKernel
                     yield $additionalBundle;
                 }
             }
-        }
-
-        if ((!Feature::has('v6.7.0.0') || !Feature::isActive('v6.7.0.0')) && !isset($bundles[Service::class])) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', \sprintf('The %s bundle should be added to config/bundles.php', Service::class));
-            yield new Service();
         }
 
         yield from $this->pluginLoader->getBundles($kernelParameters, $instanciatedBundleNames);
@@ -185,8 +160,6 @@ class Kernel extends HttpKernel
             }
         }
 
-        $this->initializeDatabaseConnectionVariables();
-
         parent::boot();
     }
 
@@ -204,11 +177,10 @@ class Kernel extends HttpKernel
     public function getCacheDir(): string
     {
         return \sprintf(
-            '%s/var/cache/%s_h%s%s',
+            '%s/var/cache/%s_h%s',
             EnvironmentHelper::getVariable('APP_CACHE_DIR', $this->getProjectDir()),
             $this->getEnvironment(),
             $this->getCacheHash(),
-            EnvironmentHelper::getVariable('TEST_TOKEN') ?? ''
         );
     }
 
@@ -341,6 +313,8 @@ class Kernel extends HttpKernel
             $plugins[$plugin['name']] = $plugin['version'];
         }
 
+        asort($plugins);
+
         return Hasher::hash([
             $this->cacheId,
             (string) $this->shopwareVersionRevision,
@@ -348,39 +322,14 @@ class Kernel extends HttpKernel
         ]);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - removed: all connection variables are configured in MySQLFactory
+     */
     protected function initializeDatabaseConnectionVariables(): void
     {
-        $shopwareSkipConnectionVariables = EnvironmentHelper::getVariable('SHOPWARE_SKIP_CONNECTION_VARIABLES', false);
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'The method initializeDatabaseConnectionVariables is deprecated and will be removed in 6.8.0.0. All MySQL connection variables are configured in ' . MySQLFactory::class);
 
-        if ($shopwareSkipConnectionVariables) {
-            return;
-        }
-
-        $connection = self::getConnection();
-
-        try {
-            $setSessionVariables = (bool) EnvironmentHelper::getVariable('SQL_SET_DEFAULT_SESSION_VARIABLES', true);
-            $connectionVariables = [];
-
-            /**
-             * @deprecated tag:v6.7.0 - remove if clause and enforce timezone setting
-             */
-            $timeZoneSupportEnabled = (bool) EnvironmentHelper::getVariable('SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED', Feature::isActive('v6.7.0.0'));
-            if ($timeZoneSupportEnabled) {
-                $connectionVariables[] = 'SET @@session.time_zone = "+00:00"';
-            }
-
-            if ($setSessionVariables) {
-                $connectionVariables[] = 'SET @@group_concat_max_len = CAST(IF(@@group_concat_max_len > 320000, @@group_concat_max_len, 320000) AS UNSIGNED)';
-                $connectionVariables[] = 'SET sql_mode=(SELECT REPLACE(@@sql_mode,\'ONLY_FULL_GROUP_BY\',\'\'))';
-            }
-
-            if (empty($connectionVariables)) {
-                return;
-            }
-            $connection->executeQuery(implode(';', $connectionVariables));
-        } catch (\Throwable) {
-        }
+        self::$connection = self::getConnection();
     }
 
     /**
@@ -389,7 +338,7 @@ class Kernel extends HttpKernel
     protected function dumpContainer(ConfigCache $cache, ContainerBuilder $container, string $class, string $baseClass): void
     {
         parent::dumpContainer($cache, $container, $class, $baseClass);
-        $cacheDir = $this->getCacheDir();
+        $cacheDir = $container->getParameter('kernel.cache_dir');
         $cacheName = basename($cacheDir);
         $fileName = substr(basename($cache->getPath()), 0, -3) . 'preload.php';
 

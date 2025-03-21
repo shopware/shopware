@@ -2,7 +2,7 @@ import template from './sw-order-list.html.twig';
 import './sw-order-list.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Mixin } = Shopware;
@@ -11,8 +11,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -32,20 +30,11 @@ export default {
             sortBy: 'orderDateTime',
             sortDirection: 'DESC',
             isLoading: false,
+            /**
+             * @deprecated tag:v6.8.0 - will be removed without replacement
+             */
             filterLoading: false,
             showDeleteModal: false,
-            /**
-             * @deprecated tag:v6.7.0 - will be removed without replacement
-             */
-            availableAffiliateCodes: [],
-            /**
-             * @deprecated tag:v6.7.0 - will be removed without replacement
-             */
-            availableCampaignCodes: [],
-            /**
-             * @deprecated tag:v6.7.0 - will be removed without replacement
-             */
-            availablePromotionCodes: [],
             filterCriteria: [],
             defaultFilters: [
                 'order-number-filter',
@@ -128,6 +117,9 @@ export default {
             return criteria;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         filterSelectCriteria() {
             const criteria = new Criteria(1, 1);
 
@@ -210,7 +202,6 @@ export default {
                     placeholder: this.$tc('sw-order.filters.affiliateCodeFilter.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
-                    options: this.availableAffiliateCodes,
                 },
                 'campaign-code-filter': {
                     property: 'campaignCode',
@@ -219,7 +210,6 @@ export default {
                     placeholder: this.$tc('sw-order.filters.campaignCodeFilter.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
-                    options: this.availableCampaignCodes,
                 },
                 'promotion-code-filter': {
                     property: 'lineItems.payload.code',
@@ -228,7 +218,6 @@ export default {
                     placeholder: this.$tc('sw-order.filters.promotionCodeFilter.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
-                    options: this.availablePromotionCodes,
                 },
                 'document-filter': {
                     property: 'documents',
@@ -505,30 +494,6 @@ export default {
             );
 
             return style.colorCode;
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - will be removed without replacement
-         */
-        loadFilterValues() {
-            this.filterLoading = true;
-
-            return this.orderRepository
-                .search(this.filterSelectCriteria)
-                .then(({ aggregations }) => {
-                    const { affiliateCodes, campaignCodes, promotionCodes } = aggregations;
-
-                    this.availableAffiliateCodes = affiliateCodes?.buckets.filter(({ key }) => key.length > 0) ?? [];
-                    this.availableCampaignCodes = campaignCodes?.buckets.filter(({ key }) => key.length > 0) ?? [];
-                    this.availablePromotionCodes = promotionCodes?.buckets.filter(({ key }) => key.length > 0) ?? [];
-
-                    this.filterLoading = false;
-
-                    return aggregations;
-                })
-                .catch(() => {
-                    this.filterLoading = false;
-                });
         },
 
         onDelete(id) {

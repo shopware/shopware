@@ -8,11 +8,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\DownloadRoute;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadEntity;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -23,6 +26,7 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[CoversClass(DownloadRoute::class)]
+#[Package('checkout')]
 class DownloadRouteTest extends TestCase
 {
     private MockObject&EntityRepository $downloadRepository;
@@ -64,7 +68,11 @@ class DownloadRouteTest extends TestCase
     {
         $this->salesChannelContext->method('getCustomer')->willReturn(new CustomerEntity());
 
-        static::expectException(RoutingException::class);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(RoutingException::class);
+        } else {
+            $this->expectException(CustomerException::class);
+        }
         $this->downloadRoute->load(new Request(), $this->salesChannelContext);
     }
 
@@ -94,8 +102,9 @@ class DownloadRouteTest extends TestCase
 
         $searchResult = $this->createMock(EntitySearchResult::class);
         $download = new OrderLineItemDownloadEntity();
+        $download->setId('foo');
         $download->setMedia(new MediaEntity());
-        $searchResult->method('first')->willReturn($download);
+        $searchResult->method('getEntities')->willReturn(new OrderLineItemDownloadCollection([$download]));
         $this->downloadRepository->method('search')->willReturn($searchResult);
 
         $this->downloadResponseGenerator->method('getResponse')->willReturn(new Response());

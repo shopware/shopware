@@ -1,43 +1,42 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_data_grid_inline_edit %}
 <div
     class="sw-data-grid-inline-edit"
     :class="classes"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_data_grid_inline_edit_type_string %}
-    <sw-text-field
+
+    <mt-text-field
         v-if="column.inlineEdit === 'string'"
         key="string"
-        v-model:value="currentValue"
+        v-model="currentValue"
         name="sw-field--currentValue"
         :size="inputFieldSize"
+        @update:model-value="emitInput"
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_data_grid_inline_edit_type_number %}
-    <sw-number-field
+    <mt-number-field
         v-else-if="column.inlineEdit === 'number'"
         key="number"
-        v-model:value="currentValue"
+        v-model="currentValue"
         name="sw-field--currentValue"
         :size="inputFieldSize"
         :number-align-end="true"
+        @update:model-value="emitInput"
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_data_grid_inline_edit_type_boolean %}
-    <sw-checkbox-field
+    <mt-checkbox
         v-else-if="column.inlineEdit === 'boolean'"
         key="boolean"
-        v-model:value="currentValue"
+        v-model:checked="currentValue"
         name="sw-field--currentValue"
+        @update:checked="emitInput"
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_data_grid_inline_edit_type_unknown %}
     <span
         v-else

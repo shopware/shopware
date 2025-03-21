@@ -17,7 +17,6 @@ use Shopware\Core\Framework\Api\EventListener\Acl\CreditOrderLineItemListener;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -576,9 +575,9 @@ class SalesChannelProxyControllerTest extends TestCase
     {
         $salesChannelContext = $this->createDefaultSalesChannelContext();
 
-        $payload = $this->contextPersister->load($salesChannelContext->getToken(), $salesChannelContext->getSalesChannel()->getId());
+        $payload = $this->contextPersister->load($salesChannelContext->getToken(), $salesChannelContext->getSalesChannelId());
         $payload[SalesChannelContextService::PERMISSIONS][ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES] = true;
-        $this->contextPersister->save($salesChannelContext->getToken(), $payload, $salesChannelContext->getSalesChannel()->getId());
+        $this->contextPersister->save($salesChannelContext->getToken(), $payload, $salesChannelContext->getSalesChannelId());
 
         $browser = $this->createCart(TestDefaults::SALES_CHANNEL);
 
@@ -678,9 +677,9 @@ class SalesChannelProxyControllerTest extends TestCase
     {
         $salesChannelContext = $this->createDefaultSalesChannelContext();
 
-        $payload = $this->contextPersister->load($salesChannelContext->getToken(), $salesChannelContext->getSalesChannel()->getId());
+        $payload = $this->contextPersister->load($salesChannelContext->getToken(), $salesChannelContext->getSalesChannelId());
         $payload[SalesChannelContextService::PERMISSIONS][ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES] = true;
-        $this->contextPersister->save($salesChannelContext->getToken(), $payload, $salesChannelContext->getSalesChannel()->getId());
+        $this->contextPersister->save($salesChannelContext->getToken(), $payload, $salesChannelContext->getSalesChannelId());
 
         $browser = $this->createCart(TestDefaults::SALES_CHANNEL);
 
@@ -806,9 +805,9 @@ class SalesChannelProxyControllerTest extends TestCase
     {
         $salesChannelContext = $this->createDefaultSalesChannelContext();
         $productId = $this->ids->get('p1');
-        $payload = $this->contextPersister->load($salesChannelContext->getToken(), $salesChannelContext->getSalesChannel()->getId());
+        $payload = $this->contextPersister->load($salesChannelContext->getToken(), $salesChannelContext->getSalesChannelId());
         $payload[SalesChannelContextService::PERMISSIONS][ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES] = true;
-        $this->contextPersister->save($salesChannelContext->getToken(), $payload, $salesChannelContext->getSalesChannel()->getId());
+        $this->contextPersister->save($salesChannelContext->getToken(), $payload, $salesChannelContext->getSalesChannelId());
 
         $this->createTestFixtureProduct($productId, 119, 19, static::getContainer(), $salesChannelContext);
 
@@ -907,7 +906,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $browser->request(
             'PATCH',
             $this->getRootProxyUrl('/disable-automatic-promotions'),
-            ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId()]
+            ['salesChannelId' => $salesChannelContext->getSalesChannelId()]
         );
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
 
@@ -945,7 +944,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $browser->request(
             'PATCH',
             $this->getRootProxyUrl('/disable-automatic-promotions'),
-            ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId()]
+            ['salesChannelId' => $salesChannelContext->getSalesChannelId()]
         );
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
@@ -977,7 +976,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $browser->request(
             'PATCH',
             $this->getRootProxyUrl('/disable-automatic-promotions'),
-            ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId()]
+            ['salesChannelId' => $salesChannelContext->getSalesChannelId()]
         );
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
@@ -991,7 +990,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $browser->request(
             'PATCH',
             $this->getRootProxyUrl('/enable-automatic-promotions'),
-            ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId()]
+            ['salesChannelId' => $salesChannelContext->getSalesChannelId()]
         );
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
@@ -1020,13 +1019,13 @@ class SalesChannelProxyControllerTest extends TestCase
             $salesChannelContext = $this->createDefaultSalesChannelContext();
             $customerId = $this->createCustomer($salesChannelContext, 'info@example.com');
             $productId = $this->ids->get('p1');
-            $payload = $this->contextPersister->load($salesChannelContext->getToken(), $salesChannelContext->getSalesChannel()->getId());
+            $payload = $this->contextPersister->load($salesChannelContext->getToken(), $salesChannelContext->getSalesChannelId());
             $payload[SalesChannelContextService::PERMISSIONS][ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES] = true;
             $payload = array_merge($payload, [
                 'customerId' => $customerId,
                 'paymentMethodId' => $this->getAvailablePaymentMethod()->getId(),
             ]);
-            $this->contextPersister->save($salesChannelContext->getToken(), $payload, $salesChannelContext->getSalesChannel()->getId());
+            $this->contextPersister->save($salesChannelContext->getToken(), $payload, $salesChannelContext->getSalesChannelId());
 
             $this->createTestFixtureProduct($productId, 119, 19, static::getContainer(), $salesChannelContext);
 
@@ -1083,7 +1082,7 @@ class SalesChannelProxyControllerTest extends TestCase
                     $browser->getContainer()->get(Connection::class),
                     $testOrderOnly ? $orderPrivileges : ['api_proxy_switch-customer', CreditOrderLineItemListener::ACL_ORDER_CREATE_DISCOUNT_PRIVILEGE],
                 )->authorizeBrowser($browser);
-                $browser->request('POST', $this->getCreateOrderApiUrl($salesChannelContext->getSalesChannel()->getId()));
+                $browser->request('POST', $this->getCreateOrderApiUrl($salesChannelContext->getSalesChannelId()));
 
                 $response = $browser->getResponse()->getContent();
                 $response = json_decode($response ?: '', true, 512, \JSON_THROW_ON_ERROR);
@@ -1100,7 +1099,7 @@ class SalesChannelProxyControllerTest extends TestCase
                 $browser->getContainer()->get(Connection::class),
                 array_merge($orderPrivileges, [CreditOrderLineItemListener::ACL_ORDER_CREATE_DISCOUNT_PRIVILEGE])
             )->authorizeBrowser($browser);
-            $browser->request('POST', $this->getCreateOrderApiUrl($salesChannelContext->getSalesChannel()->getId()));
+            $browser->request('POST', $this->getCreateOrderApiUrl($salesChannelContext->getSalesChannelId()));
 
             $response = $browser->getResponse();
 
@@ -1494,14 +1493,6 @@ class SalesChannelProxyControllerTest extends TestCase
             'salutationId' => $this->getValidSalutationId(),
             'customerNumber' => '12345',
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethod'] = [
-                'name' => 'Invoice',
-                'technicalName' => 'payment_test',
-                'description' => 'Default payment method',
-            ];
-        }
 
         $this->customerRepository->create([$customer], $salesChannelContext->getContext());
 

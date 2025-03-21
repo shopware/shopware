@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityNotExists;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LocaleDefinition;
@@ -43,6 +44,32 @@ class EntityNotExistsValidatorTest extends TestCase
 
         static::assertCount(0, $criteria->getFilters());
         static::assertSame(50, $criteria->getLimit());
+    }
+
+    public function testPrimaryPropertyIsString(): void
+    {
+        $context = Context::createDefaultContext();
+        $constraint = new EntityNotExists(
+            ['context' => $context, 'entity' => LocaleDefinition::ENTITY_NAME, 'primaryProperty' => 'code']
+        );
+
+        $validator = $this->getValidator();
+
+        $violations = $validator->validate(Uuid::randomHex(), $constraint);
+        static::assertCount(0, $violations);
+    }
+
+    public function testPrimaryPropertyIsNotString(): void
+    {
+        static::expectException(FrameworkException::class);
+
+        $context = Context::createDefaultContext();
+        /* @phpstan-ignore-next-line wrong type for testing */
+        $constraint = new EntityNotExists(['context' => $context, 'entity' => LocaleDefinition::ENTITY_NAME, 'primaryProperty' => 1]);
+
+        $validator = $this->getValidator();
+
+        $validator->validate(Uuid::randomHex(), $constraint);
     }
 
     public function testValidatorWorks(): void

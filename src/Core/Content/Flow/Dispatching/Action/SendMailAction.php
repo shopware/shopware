@@ -10,7 +10,6 @@ use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
-use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
@@ -31,7 +30,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class SendMailAction extends FlowAction implements DelayableAction
 {
     final public const ACTION_NAME = 'action.mail.send';
@@ -72,7 +71,6 @@ class SendMailAction extends FlowAction implements DelayableAction
 
     /**
      * @throws MailEventConfigurationException
-     * @throws SalesChannelNotFoundException
      * @throws InconsistentCriteriaIdsException
      */
     public function handleFlow(StorableFlow $flow): void
@@ -225,10 +223,12 @@ class SendMailAction extends FlowAction implements DelayableAction
             return;
         }
 
-        $this->mailTemplateTypeRepository->update([[
-            'id' => $mailTemplate->getMailTemplateTypeId(),
-            'templateData' => $templateData,
-        ]], $context);
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mailTemplate, $templateData): void {
+            $this->mailTemplateTypeRepository->update([[
+                'id' => $mailTemplate->getMailTemplateTypeId(),
+                'templateData' => $templateData,
+            ]], $context);
+        });
     }
 
     private function getMailTemplate(string $id, Context $context): ?MailTemplateEntity

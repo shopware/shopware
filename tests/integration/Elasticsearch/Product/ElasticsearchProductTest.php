@@ -8,10 +8,10 @@ use PHPUnit\Framework\Attributes\AfterClass;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
@@ -75,6 +75,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\SalesChannelLanguageLoader;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -94,7 +95,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 class ElasticsearchProductTest extends TestCase
 {
     use CacheTestBehaviour;
@@ -110,6 +110,9 @@ class ElasticsearchProductTest extends TestCase
 
     private ProductDefinition $productDefinition;
 
+    /**
+     * @var EntityRepository<LanguageCollection>
+     */
     private EntityRepository $languageRepository;
 
     private ElasticsearchHelper $helper;
@@ -118,6 +121,9 @@ class ElasticsearchProductTest extends TestCase
 
     private Connection $connection;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     private string $navigationId;
@@ -3070,62 +3076,52 @@ class ElasticsearchProductTest extends TestCase
     }
 
     #[Depends('testIndexing')]
-    #[DataProvider('variantListingConfigProvider')]
-    public function testVariantListingConfig(string $productIds, int $expected, IdsCollection $ids): void
+    public function testVariantListingConfigShouldIndexMainProductWhenDisplayParentIsTrue(IdsCollection $ids): void
     {
-        $criteria = new Criteria($ids->prefixed($productIds));
+        $criteria = new Criteria($ids->prefixed('variant-1'));
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
         $searcher = $this->createEntitySearcher();
 
         $result = $searcher->search($this->productDefinition, $criteria, $this->context)->getIds();
-        static::assertCount($expected, $result);
+        static::assertCount(3, $result);
     }
 
-    /**
-     * @return array<string, array{productIds: string, expected: int}>
-     */
-    public static function variantListingConfigProvider(): iterable
-    {
-        yield 'Should index main product when displayParent is true' => ['productIds' => 'variant-1', 'expected' => 3];
-        yield 'Should not index main product when displayParent is false' => ['productIds' => 'variant-2', 'expected' => 2];
-    }
-
-    /**
-     * @return array<string, array{rangesDefinition: mixed, rangesExpectedResult: mixed}>
-     */
-    public static function rangeAggregationDataProvider(): iterable
-    {
-        yield 'default ranges test cases' => [
-            'rangesDefinition' => [
-                [],
-                ['key' => 'all'],
-                ['key' => 'custom_key', 'from' => 0, 'to' => 200],
-                ['to' => 100],
-                ['from' => 100, 'to' => 160],
-                ['from' => 200, 'to' => 500],
-                ['to' => 500],
-            ],
-            'rangesExpectedResult' => [
-                '*-*' => 7,
-                'all' => 7,
-                'custom_key' => 3,
-                '*-100' => 2,
-                '100-160' => 1,
-                '200-500' => 4,
-                '*-500' => 7,
-            ],
-        ];
-    }
-
-    /**
-     * @param array<int, array<string, string|float>> $rangesDefinition
-     * @param array<string, int> $rangesExpectedResult
-     */
     #[Depends('testIndexing')]
-    #[DataProvider('rangeAggregationDataProvider')]
-    public function testRangeAggregation(array $rangesDefinition, array $rangesExpectedResult, IdsCollection $data): void
+    public function testVariantListingConfigShouldNotIndexMainProductWhenDisplayParentIsFalse(IdsCollection $ids): void
     {
+        $criteria = new Criteria($ids->prefixed('variant-2'));
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+
+        $searcher = $this->createEntitySearcher();
+
+        $result = $searcher->search($this->productDefinition, $criteria, $this->context)->getIds();
+        static::assertCount(2, $result);
+    }
+
+    #[Depends('testIndexing')]
+    public function testRangeAggregation(IdsCollection $data): void
+    {
+        $rangesDefinition = [
+            [],
+            ['key' => 'all'],
+            ['key' => 'custom_key', 'from' => 0, 'to' => 200],
+            ['to' => 100],
+            ['from' => 100, 'to' => 160],
+            ['from' => 200, 'to' => 500],
+            ['to' => 500],
+        ];
+
+        $rangesExpectedResult = [
+            '*-*' => 7,
+            'all' => 7,
+            'custom_key' => 3,
+            '*-100' => 2,
+            '100-160' => 1,
+            '200-500' => 4,
+            '*-500' => 7,
+        ];
+
         $aggregator = $this->createEntityAggregator();
         $criteria = new Criteria($data->prefixed('product-'));
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
@@ -3400,7 +3396,7 @@ class ElasticsearchProductTest extends TestCase
                 ->property('red', 'color')
                 ->build(),
             (new ProductBuilder($this->ids, 'zanother-product-3b'))
-                ->name('Foo Sti')
+                ->name('Bar Sti')
                 ->manufacturer('m2')
                 ->price(100, 100, 'default', 100, 100)
                 ->purchasePrice(100)
@@ -4055,6 +4051,8 @@ class ElasticsearchProductTest extends TestCase
 
 /**
  * @internal
+ *
+ * @phpstan-ignore class.extendsFinalByPhpDoc
  */
 class EsAwareCriteria extends Criteria
 {

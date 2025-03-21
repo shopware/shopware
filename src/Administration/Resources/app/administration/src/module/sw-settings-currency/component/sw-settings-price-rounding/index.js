@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package fundamentals@framework
  */
 import template from './sw-settings-price-rounding.html.twig';
 import './sw-settings-price-rounding.scss';
@@ -7,8 +7,6 @@ import './sw-settings-price-rounding.scss';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         itemRounding: {

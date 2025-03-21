@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPage;
 use Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoadedEvent;
@@ -38,16 +38,9 @@ class OffcanvasCartPageLoaderTest extends TestCase
             ->method('load')
             ->willReturn(new Page());
 
-        $offcanvasCartPageLoader = new OffcanvasCartPageLoader(
-            $this->createMock(EventDispatcher::class),
-            $this->createMock(StorefrontCartFacade::class),
-            $pageLoader,
-            $this->createMock(ShippingMethodRoute::class)
-        );
+        $this->expectNotToPerformAssertions();
 
-        static::expectNotToPerformAssertions();
-
-        $page = $offcanvasCartPageLoader->load(
+        $this->createLoader(pageLoader: $pageLoader)->load(
             new Request(),
             $this->createMock(SalesChannelContext::class)
         );
@@ -63,14 +56,7 @@ class OffcanvasCartPageLoaderTest extends TestCase
             ->method('load')
             ->willReturn($page);
 
-        $offcanvasCartPageLoader = new OffcanvasCartPageLoader(
-            $this->createMock(EventDispatcher::class),
-            $this->createMock(StorefrontCartFacade::class),
-            $pageLoader,
-            $this->createMock(ShippingMethodRoute::class)
-        );
-
-        $page = $offcanvasCartPageLoader->load(
+        $page = $this->createLoader(pageLoader: $pageLoader)->load(
             new Request(),
             $this->createMock(SalesChannelContext::class)
         );
@@ -79,7 +65,6 @@ class OffcanvasCartPageLoaderTest extends TestCase
         static::assertSame('noindex,follow', $page->getMetaInformation()->getRobots());
     }
 
-    #[DisabledFeatures(['v6.5.0.0'])]
     public function testRobotsMetaNotSetIfGiven(): void
     {
         $page = new OffcanvasCartPage();
@@ -89,14 +74,7 @@ class OffcanvasCartPageLoaderTest extends TestCase
             ->method('load')
             ->willReturn($page);
 
-        $offcanvasCartPageLoader = new OffcanvasCartPageLoader(
-            $this->createMock(EventDispatcher::class),
-            $this->createMock(StorefrontCartFacade::class),
-            $pageLoader,
-            $this->createMock(ShippingMethodRoute::class)
-        );
-
-        $page = $offcanvasCartPageLoader->load(
+        $page = $this->createLoader(pageLoader: $pageLoader)->load(
             new Request(),
             $this->createMock(SalesChannelContext::class)
         );
@@ -128,14 +106,7 @@ class OffcanvasCartPageLoaderTest extends TestCase
             ->withAnyParameters()
             ->willReturn($shippingMethodResponse);
 
-        $offcanvasCartPageLoader = new OffcanvasCartPageLoader(
-            $this->createMock(EventDispatcher::class),
-            $this->createMock(StorefrontCartFacade::class),
-            $this->createMock(GenericPageLoader::class),
-            $shippingMethodRoute,
-        );
-
-        $page = $offcanvasCartPageLoader->load(
+        $page = $this->createLoader(shippingMethodRoute: $shippingMethodRoute)->load(
             new Request(),
             $this->createMock(SalesChannelContext::class)
         );
@@ -147,20 +118,41 @@ class OffcanvasCartPageLoaderTest extends TestCase
     {
         $eventDispatcher = $this->createMock(EventDispatcher::class);
         $eventDispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(OffcanvasCartPageLoadedEvent::class));
 
-        $offcanvasCartPageLoader = new OffcanvasCartPageLoader(
-            $eventDispatcher,
-            $this->createMock(StorefrontCartFacade::class),
-            $this->createMock(GenericPageLoader::class),
-            $this->createMock(ShippingMethodRoute::class)
-        );
-
-        $offcanvasCartPageLoader->load(
+        $this->createLoader(eventDispatcher: $eventDispatcher)->load(
             new Request(),
             $this->createMock(SalesChannelContext::class)
+        );
+    }
+
+    public function testOnlyAvailableFlagIsSet(): void
+    {
+        $request = new Request(['onlyAvailable' => true]);
+        $context = Generator::generateSalesChannelContext();
+
+        $shippingMethodRoute = $this->createMock(ShippingMethodRoute::class);
+        $shippingMethodRoute
+            ->expects($this->once())
+            ->method('load')
+            ->with($request, $context, static::equalTo(new Criteria()));
+
+        $loader = $this->createLoader(shippingMethodRoute: $shippingMethodRoute);
+        $loader->load(new Request(), $context);
+    }
+
+    private function createLoader(
+        ?EventDispatcher $eventDispatcher = null,
+        ?GenericPageLoader $pageLoader = null,
+        ?ShippingMethodRoute $shippingMethodRoute = null,
+    ): OffcanvasCartPageLoader {
+        return new OffcanvasCartPageLoader(
+            $eventDispatcher ?? $this->createMock(EventDispatcher::class),
+            $this->createMock(StorefrontCartFacade::class),
+            $pageLoader ?? $this->createMock(GenericPageLoader::class),
+            $shippingMethodRoute ?? $this->createMock(ShippingMethodRoute::class),
         );
     }
 }

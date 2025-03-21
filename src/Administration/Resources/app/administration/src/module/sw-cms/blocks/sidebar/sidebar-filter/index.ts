@@ -2,7 +2,7 @@ import CMS from '../../../constant/sw-cms.constant';
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-preview-sidebar-filter', () => import('./preview'));
 /**
@@ -12,7 +12,7 @@ Shopware.Component.register('sw-cms-block-sidebar-filter', () => import('./compo
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'sidebar-filter',
@@ -24,8 +24,8 @@ Shopware.Service('cmsService').registerCmsBlock({
     defaultConfig: {
         marginBottom: '20px',
         marginTop: '20px',
-        marginLeft: '20px',
-        marginRight: '20px',
+        marginLeft: null,
+        marginRight: null,
         sizingMode: 'boxed',
     },
     slots: {

@@ -14,11 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
-use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Shopware\Storefront\Page\MetaInformation;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -30,17 +28,17 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('checkout')]
 class AccountOrderPageLoader
 {
+    private const DEFAULT_LIMIT = 10;
+
     /**
      * @internal
-     *
-     * @deprecated tag:v6.7.0 - translator will be mandatory from 6.7
      */
     public function __construct(
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AbstractOrderRoute $orderRoute,
         private readonly AccountService $accountService,
-        private readonly ?AbstractTranslator $translator = null
+        private readonly AbstractTranslator $translator
     ) {
     }
 
@@ -56,16 +54,13 @@ class AccountOrderPageLoader
         $this->setMetaInformation($page);
 
         $orders = $this->getOrders($request, $salesChannelContext);
-        if (!Feature::isActive('v6.7.0.0')) {
-            $orders = StorefrontSearchResult::createFrom($orders);
-        }
 
         $page->setOrders($orders);
 
         $page->setDeepLinkCode($request->get('deepLinkCode'));
 
         $firstOrder = $page->getOrders()->getEntities()->first();
-        $orderCustomerId = $firstOrder?->getOrderCustomer()?->getCustomer()?->getId();
+        $orderCustomerId = $firstOrder?->getOrderCustomer()?->getCustomerId();
         if ($request->get('deepLinkCode') && $orderCustomerId !== null) {
             $this->accountService->loginById($orderCustomerId, $salesChannelContext);
         }
@@ -83,15 +78,13 @@ class AccountOrderPageLoader
             $page->getMetaInformation()->setRobots('noindex,follow');
         }
 
-        if ($this->translator !== null && $page->getMetaInformation() === null) {
+        if ($page->getMetaInformation() === null) {
             $page->setMetaInformation(new MetaInformation());
         }
 
-        if ($this->translator !== null) {
-            $page->getMetaInformation()?->setMetaTitle(
-                $this->translator->trans('account.ordersMetaTitle') . ' | ' . $page->getMetaInformation()->getMetaTitle()
-            );
-        }
+        $page->getMetaInformation()?->setMetaTitle(
+            $this->translator->trans('account.ordersMetaTitle') . ' | ' . $page->getMetaInformation()->getMetaTitle()
+        );
     }
 
     /**
@@ -123,8 +116,6 @@ class AccountOrderPageLoader
 
     private function createCriteria(Request $request): Criteria
     {
-        $limit = $request->get('limit');
-        $limit = $limit ? (int) $limit : 10;
         $page = $request->get('p');
         $page = $page ? (int) $page : 1;
 
@@ -142,8 +133,10 @@ class AccountOrderPageLoader
             ->addAssociation('currency')
             ->addAssociation('stateMachineState')
             ->addAssociation('documents.documentType')
-            ->setLimit($limit)
-            ->setOffset(($page - 1) * $limit)
+            ->addAssociation('documents.documentMediaFile')
+            ->addAssociation('documents.documentA11yMediaFile')
+            ->setLimit(self::DEFAULT_LIMIT)
+            ->setOffset(($page - 1) * self::DEFAULT_LIMIT)
             ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
         $criteria

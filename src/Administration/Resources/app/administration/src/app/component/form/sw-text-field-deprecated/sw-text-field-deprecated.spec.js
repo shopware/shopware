@@ -1,11 +1,12 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
 import 'src/app/component/form/sw-text-field';
+import { ref } from 'vue';
 
-async function createWrapper(options = {}) {
+async function createWrapper({ provide, ...options } = {}) {
     const wrapper = mount(await wrapTestComponent('sw-text-field-deprecated', { sync: true }), {
         global: {
             stubs: {
@@ -21,36 +22,10 @@ async function createWrapper(options = {}) {
             },
             provide: {
                 validationService: {},
+                ...provide,
             },
         },
         ...options,
-    });
-
-    await flushPromises();
-
-    return wrapper;
-}
-
-async function createWrappedComponent() {
-    const wrapper = mount(await Shopware.Component.build('sw-text-field-mock'), {
-        global: {
-            stubs: {
-                'sw-text-field': await wrapTestComponent('sw-text-field'),
-                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-field-error': true,
-                'sw-help-text': true,
-                'sw-ai-copilot-badge': true,
-                'mt-text-field': true,
-                'sw-field-copyable': true,
-                'sw-inheritance-switch': true,
-            },
-            provide: {
-                validationService: {},
-            },
-        },
     });
 
     await flushPromises();
@@ -73,22 +48,6 @@ describe('src/app/component/form/sw-text-field', () => {
                 };
             },
         });
-    });
-
-    it('should render without idSuffix correctly', async () => {
-        const wrapper = await createWrappedComponent();
-        const noSuffix = wrapper.find('.no-suffix');
-
-        expect(noSuffix.exists()).toBeTruthy();
-        expect(noSuffix.find('#sw-field--mockVar').exists()).toBeTruthy();
-    });
-
-    it('should render with idSuffix correctly and generated a correct HTML-ID', async () => {
-        const wrapper = await createWrappedComponent();
-        const withSuffix = wrapper.find('.with-suffix');
-
-        expect(withSuffix.exists()).toBeTruthy();
-        expect(withSuffix.find('#sw-field--mockVar-iShallBeSuffix').exists()).toBeTruthy();
     });
 
     it('should render with custom html attributes like minlength and maxlength', async () => {
@@ -124,5 +83,16 @@ describe('src/app/component/form/sw-text-field', () => {
         });
 
         expect(wrapper.find('label').text()).toBe('Label from slot');
+    });
+
+    it('injects ariaLabel prop from global injection', async () => {
+        const wrapper = await createWrapper({
+            provide: {
+                ariaLabel: ref('Aria Label'),
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.find('input').attributes('aria-label')).toBe('Aria Label');
     });
 });

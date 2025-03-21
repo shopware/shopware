@@ -1,28 +1,24 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_customer_address_form_options %}
 <div class="sw-customer-address-form__options">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_address_form_options_default_shipping_address %}
-    <sw-checkbox-field
-        v-model:value="isDefaultShippingAddressId"
+    <mt-checkbox
+        v-model:checked="isDefaultShippingAddressId"
         name="sw-field--isDefaultShippingAddressId"
         :label="$tc('sw-customer.detailAddresses.contextMenuDefaultShippingAddress')"
-        @update:value="onChangeDefaultShippingAddress"
+        @update:checked="onChangeDefaultShippingAddress"
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_address_form_options_default_billing_address %}
-    <sw-checkbox-field
-        v-model:value="isDefaultBillingAddressId"
+    <mt-checkbox
+        v-model:checked="isDefaultBillingAddressId"
         name="sw-field--isDefaultBillingAddressId"
         class="sw-customer-address-form__set-default-billing-address-action"
         :label="$tc('sw-customer.detailAddresses.contextMenuDefaultBillingAddress')"
-        @update:value="onChangeDefaultBillingAddress"
+        @update:checked="onChangeDefaultBillingAddress"
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_address_form_options_custom_field_sets %}
     <sw-custom-field-set-renderer
         :entity="address"

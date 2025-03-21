@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -42,8 +42,6 @@ async function createWrapper() {
                 },
                 'sw-extension-component-section': await wrapTestComponent('sw-extension-component-section', { sync: true }),
                 'sw-textarea-field': true,
-                'sw-button': true,
-                'sw-icon': true,
             },
             provide: {
                 searchRankingService: {},

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import template from './sw-radio-panel.html.twig';
@@ -24,8 +24,6 @@ const utils = Shopware.Utils;
  */
 Component.register('sw-radio-panel', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 

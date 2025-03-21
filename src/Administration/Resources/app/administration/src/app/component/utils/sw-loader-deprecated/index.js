@@ -4,7 +4,7 @@ import template from './sw-loader.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Renders a loading indicator for panels, input fields, buttons, etc.
@@ -16,8 +16,6 @@ const { Component } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-loader-deprecated', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         size: {

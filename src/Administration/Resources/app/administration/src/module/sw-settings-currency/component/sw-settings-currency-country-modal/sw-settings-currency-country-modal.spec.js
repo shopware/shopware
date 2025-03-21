@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package fundamentals@framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -29,7 +29,6 @@ async function createWrapper() {
                     'sw-modal': true,
                     'sw-entity-single-select': true,
                     'sw-settings-price-rounding': true,
-                    'sw-button': true,
                     'sw-highlight-text': true,
                     'sw-select-result': true,
                 },

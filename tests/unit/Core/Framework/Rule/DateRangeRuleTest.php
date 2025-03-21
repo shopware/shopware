@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(DateRangeRule::class)]
 class DateRangeRuleTest extends TestCase
 {

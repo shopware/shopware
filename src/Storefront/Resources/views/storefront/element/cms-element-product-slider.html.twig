@@ -15,11 +15,12 @@
                     <div class="cms-element-alignment{% if sliderConfig.verticalAlign.value == "center" %} align-self-center{% elseif sliderConfig.verticalAlign.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
                 {% endif %}
 
+                {# @todo NEXT-40267 - Re-implement autoplay, when tiny-slider solution has been replaced #}
                 {% set productSliderOptionsSlider  = {
                     controls: sliderConfig.navigationArrows.value in visibleValues,
                     nav: sliderConfig.navigationArrows.value in visibleValues,
                     mouseDrag: true,
-                    autoplay: sliderConfig.rotate.value ? true : false,
+                    autoplay: false,
                     autoplayButtonOutput: false,
                     autoplayTimeout: sliderConfig.autoplayTimeout.value,
                     speed: sliderConfig.speed.value,
@@ -27,12 +28,10 @@
                     gutter: 30
                 }%}
 
-                {% if feature('v6.7.0.0') %}
-                    {% set productSliderOptionsSlider = productSliderOptionsSlider|merge({
-                        loop: false,
-                        rewind: true,
-                    }) %}
-                {% endif %}
+                {% set productSliderOptionsSlider = productSliderOptionsSlider|merge({
+                    loop: false,
+                    rewind: true,
+                }) %}
 
                 {% set productSliderOptions = {
                     productboxMinWidth: sliderConfig.elMinWidth.value ? sliderConfig.elMinWidth.value : '',
@@ -85,7 +84,8 @@
                                 {% if productSliderOptions.slider.controls %}
                                     <div class="product-slider-controls-container">
                                         <div class="base-slider-controls"
-                                             data-product-slider-controls="true">
+                                             data-product-slider-controls="true"
+                                             role="navigation">
                                             {% block element_product_slider_controls_items %}
                                                 {% set positionClassesPrev = '' %}
                                                 {% if sliderConfig.navigationArrows.value is not null %}
@@ -94,13 +94,15 @@
                                                 {% endif %}
 
                                                 <button
-                                                    class="base-slider-controls-prev product-slider-controls-prev{{ positionClassesPrev }}{% if sliderConfig.border.value %} has-border{% endif %}">
+                                                    class="base-slider-controls-prev product-slider-controls-prev{{ positionClassesPrev }}{% if sliderConfig.border.value %} has-border{% endif %}"
+                                                    aria-label="{{ 'general.previous'|trans|striptags }}">
                                                     {% block element_product_slider_controls_items_prev_icon %}
                                                         {% sw_icon 'arrow-head-left' %}
                                                     {% endblock %}
                                                 </button>
                                                 <button
-                                                    class="base-slider-controls-next product-slider-controls-next{{ positionClassesNext }}{% if sliderConfig.border.value %} has-border{% endif %}">
+                                                    class="base-slider-controls-next product-slider-controls-next{{ positionClassesNext }}{% if sliderConfig.border.value %} has-border{% endif %}"
+                                                    aria-label="{{ 'general.next'|trans|striptags }}">
                                                     {% block element_product_slider_controls_items_next_icon %}
                                                         {% sw_icon 'arrow-head-right' %}
                                                     {% endblock %}

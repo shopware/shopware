@@ -1,22 +1,22 @@
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-el-preview-product-slider', () => import('./preview'));
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-el-config-product-slider', () => import('./config'));
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-el-product-slider', () => import('./component'));
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'product-slider',
@@ -45,11 +45,6 @@ Shopware.Service('cmsService').registerCmsElement({
         boxLayout: {
             source: 'static',
             value: 'standard',
-        },
-        /** @deprecated tag:v6.7.0 - Will be removed. Use `navigationArrows` instead */
-        navigation: {
-            source: 'static',
-            value: true,
         },
         navigationArrows: {
             source: 'static',

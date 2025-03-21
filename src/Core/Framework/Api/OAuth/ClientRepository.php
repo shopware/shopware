@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('core')]
+#[Package('framework')]
 class ClientRepository implements ClientRepositoryInterface
 {
     /**
@@ -22,17 +22,13 @@ class ClientRepository implements ClientRepositoryInterface
     {
     }
 
-    public function validateClient($clientIdentifier, $clientSecret, $grantType): bool
+    public function validateClient(string $clientIdentifier, ?string $clientSecret, ?string $grantType): bool
     {
         if (($grantType === 'password' || $grantType === 'refresh_token') && $clientIdentifier === 'administration') {
             return true;
         }
 
         if ($grantType === 'client_credentials' && $clientSecret !== null) {
-            if (!\is_string($clientIdentifier)) {
-                return false;
-            }
-
             $values = $this->getByAccessKey($clientIdentifier);
             if (!$values) {
                 return false;
@@ -54,14 +50,13 @@ class ClientRepository implements ClientRepositoryInterface
         // @codeCoverageIgnoreEnd
     }
 
-    public function getClientEntity($clientIdentifier): ?ClientEntityInterface
+    /**
+     * @param non-empty-string $clientIdentifier
+     */
+    public function getClientEntity(string $clientIdentifier): ?ClientEntityInterface
     {
-        if (!\is_string($clientIdentifier)) {
-            return null;
-        }
-
         if ($clientIdentifier === 'administration') {
-            return new ApiClient('administration', true);
+            return new ApiClient('administration', true, confidential: false);
         }
 
         $values = $this->getByAccessKey($clientIdentifier);
@@ -70,7 +65,12 @@ class ClientRepository implements ClientRepositoryInterface
             return null;
         }
 
-        return new ApiClient($clientIdentifier, true, $values['label'] ?? Uuid::fromBytesToHex((string) $values['user_id']));
+        return new ApiClient(
+            $clientIdentifier,
+            true,
+            name: $values['label'] ?? Uuid::fromBytesToHex((string) $values['user_id']),
+            confidential: true
+        );
     }
 
     public function updateLastUsageDate(string $integrationId): void

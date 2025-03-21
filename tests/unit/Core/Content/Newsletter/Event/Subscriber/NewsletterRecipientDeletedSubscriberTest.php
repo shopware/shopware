@@ -16,7 +16,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 #[CoversClass(NewsletterRecipientDeletedSubscriber::class)]
 class NewsletterRecipientDeletedSubscriberTest extends TestCase
 {
@@ -39,7 +39,7 @@ class NewsletterRecipientDeletedSubscriberTest extends TestCase
         $message->setIndexer('newsletter_recipient.indexer');
 
         $messageBus = $this->createMock(MessageBusInterface::class);
-        $messageBus->expects(static::once())->method('dispatch')->with($message)->willReturn(Envelope::wrap($message));
+        $messageBus->expects($this->once())->method('dispatch')->with($message)->willReturn(Envelope::wrap($message));
 
         $subscriber = new NewsletterRecipientDeletedSubscriber($messageBus);
         $subscriber->onNewsletterRecipientDeleted($event);

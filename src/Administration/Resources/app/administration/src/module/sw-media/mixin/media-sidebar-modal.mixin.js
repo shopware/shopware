@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Mixin.register('media-sidebar-modal-mixin', {
     inject: [

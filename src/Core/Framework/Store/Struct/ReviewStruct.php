@@ -16,68 +16,26 @@ class ReviewStruct extends StoreStruct
     final public const MAX_RATING = 5;
     final public const MIN_RATING = 1;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $extensionId;
+    protected int $extensionId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $headline;
+    protected string $headline;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $authorName;
+    protected string $authorName;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $rating;
+    protected int $rating;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $text;
+    protected ?string $text;
 
-    /**
-     * @var \DateTimeImmutable
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $lastChangeDate;
+    protected \DateTimeImmutable $lastChangeDate;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $version;
+    protected string $version;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $acceptGuidelines;
+    protected bool $acceptGuidelines;
 
     /**
      * @var list<array{text: string, creationDate: \DateTimeImmutable}>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $replies = [];
+    protected array $replies = [];
 
     /**
      * @return ReviewStruct

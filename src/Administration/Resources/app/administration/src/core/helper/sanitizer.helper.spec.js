@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -108,23 +108,26 @@ describe('core/helper/sanitizer.helper.js', () => {
 
     it('should sanitize untrusted HTML in a component', async () => {
         const $route = {
-            meta: { $module: { icon: null } },
+            meta: { $module: { icon: 'regular-storefront' } },
         };
+
+        const unsanitized = '<x oncut=alert()>x';
+        const sanitized = '<x oncut="alert()">x</x>';
 
         const wrapper = mount(await Shopware.Component.build('sw-empty-state'), {
             global: {
                 plugins: [SanitizePlugin],
-                stubs: ['sw-icon'],
                 mocks: {
                     $route,
                 },
             },
             props: {
                 title: 'Foo bar',
-                subline: '<x oncut=alert()>x',
+                subline: unsanitized,
             },
         });
 
-        expect(wrapper.element).toMatchSnapshot();
+        expect(wrapper.html()).not.toContain(unsanitized);
+        expect(wrapper.html()).toContain(sanitized);
     });
 });

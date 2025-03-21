@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 readonly class CacheControlListener
 {
     public function __construct(private bool $reverseProxyEnabled)

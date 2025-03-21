@@ -9,10 +9,10 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class TestRuleHelper
 {
-    public static function isTestClass(ClassReflection $class): bool
+    public static function isTestClass(TestReflectionClassInterface|ClassReflection $class): bool
     {
         foreach ($class->getParents() as $parent) {
             if ($parent->getName() === TestCase::class) {
@@ -23,7 +23,7 @@ class TestRuleHelper
         return false;
     }
 
-    public static function isUnitTestClass(ClassReflection $class): bool
+    public static function isUnitTestClass(TestReflectionClassInterface|ClassReflection $class): bool
     {
         if (!static::isTestClass($class)) {
             return false;

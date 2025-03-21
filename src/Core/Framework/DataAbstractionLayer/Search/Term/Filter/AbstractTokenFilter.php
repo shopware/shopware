@@ -6,9 +6,11 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Service\ResetInterface;
 
-#[Package('core')]
+#[Package('framework')]
 abstract class AbstractTokenFilter implements ResetInterface
 {
+    final public const DEFAULT_MIN_SEARCH_TERM_LENGTH = 2;
+
     public function reset(): void
     {
         $this->getDecorated()->reset();

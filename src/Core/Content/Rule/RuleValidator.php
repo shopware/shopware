@@ -33,7 +33,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class RuleValidator implements EventSubscriberInterface
 {
     /**
@@ -262,7 +262,7 @@ class RuleValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<int|string> $parameters
+     * @param array<string> $parameters
      */
     private function buildViolation(
         string $messageTemplate,

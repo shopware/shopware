@@ -100,7 +100,7 @@ class PromotionProcessorTest extends TestCase
 
     public static function processorProvider(): \Generator
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->setTaxState(CartPrice::TAX_STATE_GROSS);
         $context->setItemRounding(new CashRoundingConfig(2, 0.01, true));
 
@@ -119,7 +119,7 @@ class PromotionProcessorTest extends TestCase
 
     public static function processorPromotionTypeProvider(): \Generator
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->setTaxState(CartPrice::TAX_STATE_GROSS);
         $context->setItemRounding(new CashRoundingConfig(2, 0.01, true));
 

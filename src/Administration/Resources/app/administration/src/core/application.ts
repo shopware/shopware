@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/prefer-promise-reject-errors */
 import type Bottle from 'bottlejs';
 import type { App } from 'vue';
 import { reactive } from 'vue';
-import type { ContextState } from '../app/state/context.store';
+import type { ContextStore } from '../app/store/context.store';
 import type VueAdapter from '../app/adapter/view/vue.adapter';
 /**
- * @package admin
+ * @sw-package framework
  *
  * @module core/application
  */
@@ -12,6 +13,7 @@ import type VueAdapter from '../app/adapter/view/vue.adapter';
 interface bundlesSinglePluginResponse {
     css?: string | string[];
     js?: string | string[];
+    hmrSrc?: string;
     html?: string;
     baseUrl?: null | string;
     type?: 'app' | 'plugin';
@@ -55,11 +57,8 @@ class ApplicationBootstrapper {
         this.$container.service('service', noop);
         this.$container.service('init', noop);
         this.$container.service('factory', noop);
-
-        if (window._features_.ADMIN_VITE) {
-            this.$container.service('init-post', noop);
-            this.$container.service('init-pre', noop);
-        }
+        this.$container.service('init-pre', noop);
+        this.$container.service('init-post', noop);
     }
 
     /**
@@ -148,16 +147,7 @@ class ApplicationBootstrapper {
      *    return HttpFactory(container.apiContext);
      * });
      */
-    addInitializer<I extends keyof InitContainer>(name: I, initializer: () => InitContainer[I]): ApplicationBootstrapper {
-        this.$container.factory(`init.${name}`, initializer.bind(this));
-        return this;
-    }
-
-    /**
-     * Adds an initializer to the Vite application.
-     */
-    // eslint-disable-next-line max-len
-    addInitializerVite<I extends keyof InitContainer>(
+    addInitializer<I extends keyof InitContainer>(
         name: I,
         initializer: () => InitContainer[I],
         suffix: string = '',
@@ -186,7 +176,7 @@ class ApplicationBootstrapper {
         return this;
     }
 
-    registerConfig(config: { apiContext?: ContextState['api']; appContext?: ContextState['app'] }): ApplicationBootstrapper {
+    registerConfig(config: { apiContext?: ContextStore['api']; appContext?: ContextStore['app'] }): ApplicationBootstrapper {
         if (config.apiContext) {
             this.registerApiContext(config.apiContext);
         }
@@ -200,7 +190,7 @@ class ApplicationBootstrapper {
     /**
      * Registers the api context (api path, path to resources etc.)
      */
-    registerApiContext(context: ContextState['api']): ApplicationBootstrapper {
+    registerApiContext(context: ContextStore['api']): ApplicationBootstrapper {
         Shopware.Context.api = Shopware.Classes._private.ApiContextFactory(context);
 
         return this;
@@ -209,7 +199,7 @@ class ApplicationBootstrapper {
     /**
      * Registers the app context (firstRunWizard, etc.)
      */
-    registerAppContext(context: ContextState['app']): ApplicationBootstrapper {
+    registerAppContext(context: ContextStore['app']): ApplicationBootstrapper {
         Shopware.Context.app = Shopware.Classes._private.AppContextFactory(context);
 
         return this;
@@ -326,15 +316,8 @@ class ApplicationBootstrapper {
      * Get the global state
      */
     initState(): ApplicationBootstrapper {
-        let initaliziation;
-
-        if (window._features_.ADMIN_VITE) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            initaliziation = this.getContainer('init-pre').state;
-        } else {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            initaliziation = this.getContainer('init').state;
-        }
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const initaliziation = this.getContainer('init-pre').state;
 
         if (initaliziation) {
             return this;
@@ -386,10 +369,6 @@ class ApplicationBootstrapper {
             loginService.restartAutoTokenRefresh(expiry);
         }
 
-        if (window._features_.ADMIN_VITE) {
-            return this.bootFullApplicationVite();
-        }
-
         return this.bootFullApplication();
     }
 
@@ -421,22 +400,16 @@ class ApplicationBootstrapper {
     }
 
     /**
-     * Boot the whole webpack application.
+     * Boot the whole vite application.
      */
     bootFullApplication(): Promise<void | ApplicationBootstrapper> {
+        const initPreContainer = this.getContainer('init-pre');
         const initContainer = this.getContainer('init');
+        const initPostContainer = this.getContainer('init-post');
 
-        /**
-         * Normal Application Booting:
-         *
-         * 1. Initialize all initializer
-         * 2. Load plugins
-         * 3. Wait until plugin promises are resolved
-         * 4. Initialize the conversion of dependencies in view adapter
-         * 5. Create the application root
-         */
-
-        return this.initializeInitializers(initContainer)
+        return this.initializeInitializers(initPreContainer, '-pre')
+            .then(() => this.initializeInitializers(initContainer))
+            .then(() => this.initializeInitializers(initPostContainer, '-post'))
             .then(() => this.loadPlugins())
             .then(() => Promise.all(Shopware.Plugin.getBootPromises()))
             .then(() => {
@@ -448,32 +421,6 @@ class ApplicationBootstrapper {
             })
             .then(() => this.createApplicationRoot())
             .catch((error) => this.createApplicationRootError(error));
-    }
-
-    /**
-     * Boot the whole vite application.
-     */
-    bootFullApplicationVite(): Promise<void | ApplicationBootstrapper> {
-        const initPreContainer = this.getContainer('init-pre');
-        const initContainer = this.getContainer('init');
-        const initPostContainer = this.getContainer('init-post');
-
-        return (
-            this.initializeInitializersVite(initPreContainer, '-pre')
-                .then(() => this.initializeInitializersVite(initContainer))
-                .then(() => this.initializeInitializersVite(initPostContainer, '-post'))
-                // .then(() => this.loadPlugins())
-                .then(() => Promise.all(Shopware.Plugin.getBootPromises()))
-                .then(() => {
-                    if (!this.view) {
-                        return Promise.reject();
-                    }
-
-                    return this.view.initDependencies();
-                })
-                .then(() => this.createApplicationRoot())
-        );
-        // .catch((error) => this.createApplicationRootError(error));
     }
 
     /**
@@ -568,24 +515,10 @@ class ApplicationBootstrapper {
     }
 
     /**
-     * Initialize the initializers right away cause these are the mandatory services for the application
-     * to boot successfully.
-     */
-    private initializeInitializers(container: InitContainer, prefix = 'init'): Promise<unknown[]> {
-        const services = container.$list().map((serviceName) => {
-            return `${prefix}.${serviceName}`;
-        });
-        this.$container.digest(services);
-
-        const asyncInitializers = this.getAsyncInitializers(container);
-        return Promise.all(asyncInitializers);
-    }
-
-    /**
      * Initialize the initializers for Vite.
      */
     // eslint-disable-next-line max-len
-    private initializeInitializersVite(
+    private initializeInitializers(
         container: InitContainer | InitPreContainer | InitPostContainer,
         suffix: '' | '-pre' | '-post' = '',
     ): Promise<unknown[]> {
@@ -596,7 +529,7 @@ class ApplicationBootstrapper {
 
         this.$container.digest(services);
 
-        const asyncInitializers = this.getAsyncInitializersVite(container, suffix);
+        const asyncInitializers = this.getAsyncInitializers(container, suffix);
         return Promise.all(asyncInitializers);
     }
 
@@ -609,52 +542,46 @@ class ApplicationBootstrapper {
             'login',
             'baseComponents',
             'locale',
-            'apiServices',
             'coreDirectives',
+            'apiServices',
+            'store',
         ];
 
         const initContainer = this.getContainer('init');
+        const initPreContainer = this.getContainer('init-pre');
+        const initPostContainer = this.getContainer('init-post');
+        const pre = [] as string[];
+        const init = [] as string[];
+        const post = [] as string[];
+
         loginInitializer.forEach((key) => {
-            const exists = initContainer.hasOwnProperty(key);
-
-            if (!exists) {
-                console.error(`The initializer "${key}" does not exists`);
+            if (initPreContainer.hasOwnProperty(key)) {
+                pre.push(`init-pre.${key}`);
+                return;
             }
+
+            if (initContainer.hasOwnProperty(key)) {
+                init.push(`init.${key}`);
+                return;
+            }
+
+            if (initPostContainer.hasOwnProperty(key)) {
+                post.push(`init-post.${key}`);
+                return;
+            }
+
+            console.error(`The login initializer "${key}" does not exist`);
         });
 
-        this.$container.digest(loginInitializer.map((key) => `init.${key}`));
+        this.$container.digest(pre);
+        this.$container.digest(init);
+        this.$container.digest(post);
 
-        let asyncInitializers = [];
-        if (window._features_.ADMIN_VITE) {
-            asyncInitializers = this.getAsyncInitializersVite(loginInitializer);
-        } else {
-            asyncInitializers = this.getAsyncInitializers(loginInitializer);
-        }
-
-        return Promise.all(asyncInitializers);
-    }
-
-    getAsyncInitializers(initializer: InitContainer | string[]): unknown[] {
-        const initContainer = this.getContainer('init');
-        const asyncInitializers: unknown[] = [];
-
-        Object.keys(initializer).forEach((serviceKey) => {
-            // @ts-expect-error
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const service = initContainer[serviceKey];
-
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            if (service?.constructor?.name === 'Promise') {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                asyncInitializers.push(service);
-            }
-        });
-
-        return asyncInitializers;
+        return Promise.all(this.getAsyncInitializers(loginInitializer));
     }
 
     // eslint-disable-next-line max-len
-    getAsyncInitializersVite(
+    getAsyncInitializers(
         initializer: InitContainer | InitPostContainer | InitPreContainer | string[],
         suffix: '' | '-pre' | '-post' = '',
     ): unknown[] {
@@ -696,7 +623,7 @@ class ApplicationBootstrapper {
             const response = await fetch('./sw-plugin-dev.json');
             plugins = (await response.json()) as bundlesPluginResponse;
 
-            // Added via webpack.config.js@193
+            // Added via webpack.config.js@193 || plugins.vite.ts@123
             if (Shopware.Utils.object.hasOwnProperty(plugins, 'metadata')) {
                 delete plugins.metadata;
             }
@@ -716,10 +643,12 @@ class ApplicationBootstrapper {
 
         const injectAllPlugins = Object.entries(plugins)
             .filter(([pluginName]) => {
-                // Filter the swag-commercial plugin because it was loaded beforehand
+                // Filter the swag-commercial bundle because it was loaded beforehand
+                // Filter the Administration bundle because it is the main application
                 return ![
                     'swag-commercial',
                     'SwagCommercial',
+                    'Administration',
                 ].includes(pluginName);
             })
             .map(
@@ -737,10 +666,6 @@ class ApplicationBootstrapper {
                 bundleName,
                 bundle,
             ]) => {
-                if (!bundle.baseUrl) {
-                    return;
-                }
-
                 if (isDevelopmentMode) {
                     // replace the baseUrl with the webpack url of the html file
                     Object.entries(plugins).forEach(
@@ -763,6 +688,10 @@ class ApplicationBootstrapper {
                     );
                 }
 
+                if (!bundle.baseUrl) {
+                    return;
+                }
+
                 this.injectIframe({
                     active: bundle.active,
                     integrationId: bundle.integrationId,
@@ -774,29 +703,6 @@ class ApplicationBootstrapper {
             },
         );
 
-        if (isDevelopmentMode) {
-            // inject iFrames of plugins which aren't detected yet from the config (no files in public folder)
-            Object.entries(plugins).forEach(
-                ([
-                    pluginName,
-                    entryFiles,
-                ]) => {
-                    const stringUtils = Shopware.Utils.string;
-                    const camelCasePluginName = stringUtils.upperFirst(stringUtils.camelCase(pluginName));
-
-                    if (Object.keys(bundles).includes(camelCasePluginName) || !entryFiles.html) {
-                        return;
-                    }
-
-                    this.injectIframe({
-                        bundleVersion: undefined,
-                        bundleName: camelCasePluginName,
-                        iframeSrc: entryFiles.html,
-                    });
-                },
-            );
-        }
-
         return Promise.all(injectAllPlugins);
     }
 
@@ -806,6 +712,22 @@ class ApplicationBootstrapper {
     private async injectPlugin(plugin: bundlesSinglePluginResponse): Promise<unknown[] | null> {
         let allScripts = [];
         let allStyles = [];
+
+        // If we are in development mode and the plugin has a hmrSrc, we load the hmrSrc first
+        if (process.env.NODE_ENV === 'development' && plugin.hmrSrc && plugin.js) {
+            allScripts.push(this.injectJs(plugin.hmrSrc));
+            allScripts.push(this.injectJs(plugin.js as string));
+
+            try {
+                return await Promise.all([
+                    ...allScripts,
+                ]);
+            } catch (_) {
+                console.warn('Error while loading plugin', plugin);
+
+                return null;
+            }
+        }
 
         // load multiple js scripts
         if (plugin.js && Array.isArray(plugin.js)) {
@@ -842,8 +764,9 @@ class ApplicationBootstrapper {
             const script = document.createElement('script');
             script.src = scriptSrc;
             script.async = true;
+            script.type = 'module';
 
-            // resolve when script was loaded succcessfully
+            // resolve when script was loaded successfully
             script.onload = (): void => {
                 resolve();
             };
@@ -914,22 +837,22 @@ class ApplicationBootstrapper {
             name: string;
             baseUrl: string;
             version?: string;
-            type?: 'app' | 'plugin';
-            permissions?: Record<string, unknown>;
+            type: 'app' | 'plugin';
+            permissions: Record<string, unknown>;
         } = {
             active,
             integrationId,
             name: bundleName,
             baseUrl: iframeSrc,
             version: bundleVersion,
-            type: bundleType,
-            permissions: undefined,
+            type: bundleType ?? 'plugin',
+            permissions: {},
         };
 
         // To keep permissions reactive no matter if empty or not
         extension.permissions = permissions ?? reactive({});
 
-        Shopware.State.commit('extensions/addExtension', extension);
+        Shopware.Store.get('extensions').addExtension(extension);
     }
 }
 

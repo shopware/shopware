@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
@@ -11,9 +11,7 @@ async function createWrapper() {
         }),
         {
             global: {
-                stubs: {
-                    'sw-alert': true,
-                },
+                stubs: {},
             },
         },
     );

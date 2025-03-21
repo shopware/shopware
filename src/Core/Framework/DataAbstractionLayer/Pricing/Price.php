@@ -5,74 +5,18 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Pricing;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('core')]
+#[Package('framework')]
 class Price extends Struct
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currencyId;
-
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $net;
-
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $gross;
-
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $linked;
-
-    /**
-     * @var Price|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $listPrice;
-
-    /**
-     * @var array|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $percentage;
-
-    /**
-     * @var Price|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $regulationPrice;
-
     public function __construct(
-        string $currencyId,
-        float $net,
-        float $gross,
-        bool $linked,
-        ?Price $listPrice = null,
-        ?array $percentage = null,
-        ?Price $regulationPrice = null
+        protected string $currencyId,
+        protected float $net,
+        protected float $gross,
+        protected bool $linked,
+        protected ?Price $listPrice = null,
+        protected ?array $percentage = null,
+        protected ?Price $regulationPrice = null
     ) {
-        $this->net = $net;
-        $this->gross = $gross;
-        $this->linked = $linked;
-        $this->currencyId = $currencyId;
-        $this->listPrice = $listPrice;
-        $this->percentage = $percentage;
-        $this->regulationPrice = $regulationPrice;
     }
 
     public function getNet(): float

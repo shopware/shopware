@@ -5,9 +5,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Filesystem;
 use League\Flysystem\Visibility;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\LocalFactory;
-use Shopware\Core\Framework\Adapter\Filesystem\Exception\AdapterFactoryNotFoundException;
-use Shopware\Core\Framework\Adapter\Filesystem\Exception\DuplicateFilesystemFactoryException;
 use Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory;
 
 /**
@@ -18,7 +17,7 @@ class FilesystemFactoryTest extends TestCase
 {
     public function testMultipleSame(): void
     {
-        static::expectException(DuplicateFilesystemFactoryException::class);
+        static::expectExceptionObject(AdapterException::duplicateFilesystemFactory('local'));
         new FilesystemFactory([new LocalFactory(), new LocalFactory()]);
     }
 
@@ -41,7 +40,7 @@ class FilesystemFactoryTest extends TestCase
     public function testCreateUnknown(): void
     {
         $factory = new FilesystemFactory([new LocalFactory()]);
-        static::expectException(AdapterFactoryNotFoundException::class);
+        static::expectExceptionObject(AdapterException::filesystemFactoryNotFound('test2'));
         $factory->factory([
             'type' => 'test2',
         ]);

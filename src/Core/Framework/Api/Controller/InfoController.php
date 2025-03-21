@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
@@ -13,7 +14,6 @@ use Shopware\Core\Framework\Api\Route\RouteInfo;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
@@ -25,8 +25,8 @@ use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Asset\Packages;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,7 +35,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('core')]
+#[Package('framework')]
 class InfoController extends AbstractController
 {
     private const API_SCOPE_ADMIN = 'api';
@@ -47,7 +47,6 @@ class InfoController extends AbstractController
         private readonly DefinitionService $definitionService,
         private readonly ParameterBagInterface $params,
         private readonly Kernel $kernel,
-        private readonly Packages $packages,
         private readonly BusinessEventCollector $eventCollector,
         private readonly IncrementGatewayRegistry $incrementGatewayRegistry,
         private readonly Connection $connection,
@@ -57,6 +56,8 @@ class InfoController extends AbstractController
         private readonly SystemConfigService $systemConfigService,
         private readonly ApiRouteInfoResolver $apiRouteInfoResolver,
         private readonly InAppPurchase $inAppPurchase,
+        private readonly ViteFileAccessorDecorator $viteFileAccessorDecorator,
+        private readonly Filesystem $filesystem,
     ) {
     }
 
@@ -126,42 +127,6 @@ class InfoController extends AbstractController
         $events = $this->eventCollector->collect($context);
 
         return new JsonResponse($events);
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Will be removed in v6.7.0. Use api.info.stoplightio instead
-     */
-    #[Route(
-        path: '/api/_info/swagger.html',
-        name: 'api.info.swagger',
-        defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'],
-        methods: ['GET']
-    )]
-    public function infoHtml(Request $request): Response
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            'Route "/api/_info/swagger.html" is deprecated. Use "/api/_info/stoplightio.html" instead.'
-        );
-
-        $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
-        $apiType = $request->query->getAlpha('type', DefinitionService::TYPE_JSON);
-        $response = $this->render(
-            '@Framework/swagger.html.twig',
-            [
-                'schemaUrl' => 'api.info.openapi3',
-                'cspNonce' => $nonce,
-                'apiType' => $apiType,
-            ]
-        );
-
-        $cspTemplate = trim($this->params->get('shopware.security.csp_templates')['administration'] ?? '');
-        if ($cspTemplate !== '') {
-            $csp = str_replace(['%nonce%', "\n", "\r"], [$nonce, ' ', ' '], $cspTemplate);
-            $response->headers->set('Content-Security-Policy', $csp);
-        }
-
-        return $response;
     }
 
     #[Route(
@@ -268,30 +233,17 @@ class InfoController extends AbstractController
     private function getBundles(): array
     {
         $assets = [];
-        $package = $this->packages->getPackage('asset');
 
         foreach ($this->kernel->getBundles() as $bundle) {
             if (!$bundle instanceof Bundle) {
                 continue;
             }
 
-            $bundleDirectoryName = preg_replace('/bundle$/', '', mb_strtolower($bundle->getName()));
-            if ($bundleDirectoryName === null) {
-                throw ApiException::unableGenerateBundle($bundle->getName());
-            }
+            $viteEntryPoints = $this->viteFileAccessorDecorator->getBundleData($bundle);
 
-            $styles = array_map(static function (string $filename) use ($package, $bundleDirectoryName) {
-                $url = 'bundles/' . $bundleDirectoryName . '/' . $filename;
-
-                return $package->getUrl($url);
-            }, $this->getAdministrationStyles($bundle));
-
-            $scripts = array_map(static function (string $filename) use ($package, $bundleDirectoryName) {
-                $url = 'bundles/' . $bundleDirectoryName . '/' . $filename;
-
-                return $package->getUrl($url);
-            }, $this->getAdministrationScripts($bundle));
-
+            $technicalBundleName = $this->getTechnicalBundleName($bundle);
+            $styles = $viteEntryPoints['entryPoints'][$technicalBundleName]['css'] ?? [];
+            $scripts = $viteEntryPoints['entryPoints'][$technicalBundleName]['js'] ?? [];
             $baseUrl = $this->getBaseUrl($bundle);
 
             if (empty($styles) && empty($scripts) && $baseUrl === null) {
@@ -321,36 +273,6 @@ class InfoController extends AbstractController
         return $assets;
     }
 
-    /**
-     * @return list<string>
-     */
-    private function getAdministrationStyles(Bundle $bundle): array
-    {
-        $path = 'administration/css/' . str_replace('_', '-', $bundle->getContainerPrefix()) . '.css';
-        $bundlePath = $bundle->getPath();
-
-        if (!file_exists($bundlePath . '/Resources/public/' . $path) && !file_exists($bundlePath . '/Resources/.administration-css')) {
-            return [];
-        }
-
-        return [$path];
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function getAdministrationScripts(Bundle $bundle): array
-    {
-        $path = 'administration/js/' . str_replace('_', '-', $bundle->getContainerPrefix()) . '.js';
-        $bundlePath = $bundle->getPath();
-
-        if (!file_exists($bundlePath . '/Resources/public/' . $path) && !file_exists($bundlePath . '/Resources/.administration-js')) {
-            return [];
-        }
-
-        return [$path];
-    }
-
     private function getBaseUrl(Bundle $bundle): ?string
     {
         if (!$bundle instanceof Plugin) {
@@ -361,10 +283,7 @@ class InfoController extends AbstractController
             return $bundle->getAdminBaseUrl();
         }
 
-        $defaultEntryFile = 'administration/index.html';
-        $bundlePath = $bundle->getPath();
-
-        if (!file_exists($bundlePath . '/Resources/public/' . $defaultEntryFile)) {
+        if (!$this->filesystem->exists($bundle->getPath() . '/Resources/public/meteor-app/index.html')) {
             return null;
         }
 
@@ -427,5 +346,10 @@ WHERE app.active = 1 AND app.base_app_url is not null');
         }
 
         return $shopwareVersion;
+    }
+
+    private function getTechnicalBundleName(Bundle $bundle): string
+    {
+        return str_replace('_', '-', $bundle->getContainerPrefix());
     }
 }

@@ -4,7 +4,7 @@ import './sw-sidebar-item.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -21,8 +21,6 @@ const { Component } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sidebar-item', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: {
         registerSidebarItem: {
@@ -132,21 +130,6 @@ Component.register('sw-sidebar-item', {
 
     methods: {
         createdComponent() {
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                let parent = this.$parent;
-
-                while (parent) {
-                    if (parent.$options.name === 'sw-sidebar' || parent.$options.name === 'sw-sidebar__wrapped') {
-                        parent.registerSidebarItem(this);
-                        return;
-                    }
-
-                    parent = parent.$parent;
-                }
-
-                throw new Error('Component sw-sidebar-item must be registered as a (indirect) child of sw-sidebar');
-            }
-
             if (this.registerSidebarItem) {
                 this.registerSidebarItem(this);
             }

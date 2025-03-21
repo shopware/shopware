@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-entity-advanced-selection-modal.html.twig';
 import './sw-entity-advanced-selection-modal.scss';
 
@@ -15,8 +19,6 @@ const { Criteria } = Shopware.Data;
  */
 Component.register('sw-entity-advanced-selection-modal', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'acl',
@@ -153,9 +155,13 @@ Component.register('sw-entity-advanced-selection-modal', {
 
     computed: {
         modalTitle() {
-            return this.$tc('global.sw-entity-advanced-selection-modal.title', 1, {
-                entity: this.entityDisplayText,
-            });
+            return this.$tc(
+                'global.sw-entity-advanced-selection-modal.title',
+                {
+                    entity: this.entityDisplayText,
+                },
+                1,
+            );
         },
 
         entityRepository() {

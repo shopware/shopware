@@ -2,13 +2,12 @@ import template from './sw-first-run-wizard-mailer-selection.html.twig';
 import './sw-first-run-wizard-mailer-selection.scss';
 
 /**
- * @package checkout
+ * @sw-package fundamentals@after-sales
+ *
  * @private
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['systemConfigApiService'],
 
@@ -31,7 +30,7 @@ export default {
         },
 
         buttonConfig() {
-            const disabledExtensionManagement = Shopware.State.get('context').app.config.settings.disableExtensionManagement;
+            const disabledExtensionManagement = Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
             const nextRoute = disabledExtensionManagement ? 'shopware.account' : 'paypal.info';
 
             return [
@@ -39,7 +38,7 @@ export default {
                     key: 'back',
                     label: this.$tc('sw-first-run-wizard.general.buttonBack'),
                     position: 'left',
-                    variant: null,
+                    variant: 'secondary',
                     action: 'sw.first.run.wizard.index.defaults',
                     disabled: false,
                 },
@@ -47,7 +46,7 @@ export default {
                     key: 'configure-later',
                     label: this.$tc('sw-first-run-wizard.general.buttonConfigureLater'),
                     position: 'right',
-                    variant: null,
+                    variant: 'secondary',
                     action: `sw.first.run.wizard.index.${nextRoute}`,
                     disabled: false,
                 },

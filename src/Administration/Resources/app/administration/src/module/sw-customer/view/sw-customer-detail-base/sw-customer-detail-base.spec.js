@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const customFields = [
@@ -62,7 +62,7 @@ async function createWrapper() {
             },
 
             stubs: {
-                'sw-card': {
+                'mt-card': {
                     template: '<div><slot></slot></div>',
                 },
                 'sw-customer-card': {
@@ -82,7 +82,6 @@ async function createWrapper() {
                 'sw-skeleton': true,
                 'sw-button-process': true,
                 'sw-media-collapse': true,
-                'sw-icon': true,
                 'sw-extension-component-section': true,
                 'router-link': true,
                 'sw-inheritance-switch': true,

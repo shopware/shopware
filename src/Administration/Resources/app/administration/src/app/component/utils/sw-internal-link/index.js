@@ -4,7 +4,7 @@ import './sw-internal-link.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Link to another route inside the administration
@@ -19,8 +19,6 @@ const { Component } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-internal-link', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['click'],
 

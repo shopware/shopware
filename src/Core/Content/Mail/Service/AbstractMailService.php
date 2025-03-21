@@ -6,10 +6,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Mime\Email;
 
-#[Package('services-settings')]
+#[Package('after-sales')]
 abstract class AbstractMailService
 {
     abstract public function getDecorated(): AbstractMailService;
 
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string, mixed> $templateData
+     */
     abstract public function send(array $data, Context $context, array $templateData = []): ?Email;
 }

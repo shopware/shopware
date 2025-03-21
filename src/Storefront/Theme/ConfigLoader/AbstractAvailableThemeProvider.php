@@ -6,7 +6,7 @@ namespace Shopware\Storefront\Theme\ConfigLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('storefront')]
+#[Package('framework')]
 abstract class AbstractAvailableThemeProvider
 {
     abstract public function getDecorated(): AbstractAvailableThemeProvider;

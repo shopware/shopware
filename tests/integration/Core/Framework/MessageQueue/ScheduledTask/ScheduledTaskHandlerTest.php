@@ -90,6 +90,7 @@ class ScheduledTaskHandlerTest extends TestCase
     public static function allowedStatus(): array
     {
         return [
+            [ScheduledTaskDefinition::STATUS_RUNNING],
             [ScheduledTaskDefinition::STATUS_QUEUED],
             [ScheduledTaskDefinition::STATUS_FAILED],
         ];
@@ -196,7 +197,7 @@ class ScheduledTaskHandlerTest extends TestCase
         $task = new TestRescheduleOnFailureTask();
         $task->setTaskId($taskId);
 
-        $this->logger->expects(static::once())->method('error');
+        $this->logger->expects($this->once())->method('error');
 
         $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId, true);
 
@@ -265,7 +266,6 @@ class ScheduledTaskHandlerTest extends TestCase
     public static function notAllowedStatus(): array
     {
         return [
-            [ScheduledTaskDefinition::STATUS_RUNNING],
             [ScheduledTaskDefinition::STATUS_SCHEDULED],
             [ScheduledTaskDefinition::STATUS_INACTIVE],
         ];

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @codeCoverageIgnore
  */
-#[Package('services-settings')]
+#[Package('fundamentals@framework')]
 class Migration1672743034AddDefaultAdminUserPasswordMinLength extends MigrationStep
 {
     private const CONFIG_KEY = 'core.userPermission.passwordMinLength';

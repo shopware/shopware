@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import template from './sw-custom-field-type-select.html.twig';
 import './sw-custom-field-type-select.scss';
@@ -7,8 +7,6 @@ import './sw-custom-field-type-select.scss';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     data() {
         return {
@@ -35,11 +33,7 @@ export default {
     methods: {
         createdComponent() {
             if (!this.currentCustomField.config.hasOwnProperty('options')) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.currentCustomField.config, 'options', []);
-                } else {
-                    this.currentCustomField.config.options = [];
-                }
+                this.currentCustomField.config.options = [];
 
                 this.addOption();
                 this.addOption();
@@ -66,11 +60,7 @@ export default {
                 return option;
             });
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.currentCustomField.config, 'options', options);
-            } else {
-                this.currentCustomField.config.options = options;
-            }
+            this.currentCustomField.config.options = options;
         },
 
         addOption() {

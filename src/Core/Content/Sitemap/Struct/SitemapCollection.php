@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @extends Collection<Sitemap>
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 class SitemapCollection extends Collection
 {
     protected function getExpectedClass(): ?string

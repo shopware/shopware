@@ -54,7 +54,10 @@ async function createWrapper(privileges = []) {
                 }),
                 ruleConditionDataProviderService: {
                     getConditions: () => {
-                        return [{ type: 'foo', label: 'bar' }, { type: 'bar', snippets: { label: 'foo' } }];
+                        return [
+                            { type: 'foo', label: 'bar' },
+                            { type: 'bar', snippets: { label: 'foo' } },
+                        ];
                     },
                     getGroups: () => {
                         return [{ id: 'foo', name: 'bar' }];

@@ -53,7 +53,7 @@ describe('app/mixin/generic-condition', () => {
                 },
                 provide: {
                     conditionDataProviderService: {},
-                }
+                },
             },
         });
 

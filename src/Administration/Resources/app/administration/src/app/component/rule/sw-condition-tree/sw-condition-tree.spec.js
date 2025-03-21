@@ -210,7 +210,7 @@ describe('src/app/component/rule/sw-condition-tree', () => {
                 appScriptCondition: null,
                 snippets: {
                     label: 'test condition',
-                }
+                },
             });
 
             it('returns unordered conditions if no groups are available', async () => {

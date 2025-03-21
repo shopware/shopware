@@ -182,7 +182,13 @@ export default Mixin.register(
         methods: {
             getBind(field: Field) {
                 const fieldClone = Shopware.Utils.object.cloneDeep(field);
-
+                const snippetBasePath = [
+                    'global',
+                    'sw-condition-generic',
+                    // @ts-expect-error
+                    this.condition.type,
+                    fieldClone.name,
+                ];
                 if (
                     [
                         'multi-entity-id-select',
@@ -197,11 +203,19 @@ export default Mixin.register(
                     fieldClone.config.options = fieldClone.config.options.map((value) => {
                         const labelSnippet = (this.conditionDataProviderService as RuleConditionService)
                             // @ts-expect-error - condition is available in base component
-                            .getByType(this.condition.type as string)?.
-                            snippets?.fields?.[fieldClone.name]?.options?.[value as string];
+                            .getByType(this.condition.type as string)?.snippets?.fields?.[fieldClone.name]?.options?.[
+                            value as string
+                        ];
 
                         return {
-                            label: this.$tc(labelSnippet ?? value as string),
+                            label: this.$tc(
+                                labelSnippet ??
+                                    [
+                                        ...snippetBasePath,
+                                        'options',
+                                        value,
+                                    ].join('.'),
+                            ),
                             value,
                         };
                     });

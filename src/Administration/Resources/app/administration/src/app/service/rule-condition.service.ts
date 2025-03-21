@@ -11,7 +11,7 @@ type condition = {
     /**
      * @deprecated tag:v6.8.0 - Will be removed, use snippets.label instead
      */
-    label: string
+    label: string;
     scopes: string[];
     group: string;
     scriptId: string;

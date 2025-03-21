@@ -3,7 +3,7 @@ title: Restructure snippet configuration in Rule Builder
 issue: NEXT-40678
 author: Simon Fiebranz
 author_email: s.fiebranz@shopware.com
-author_github: @Simon Fiebranz
+author_github: @CR0YD
 ---
 # Administration
 * Deprecated the `genericRuleCondition` util. It will be removed with v6.8.0.
@@ -14,7 +14,7 @@ ___
 ## New way of configuring snippets when adding a rule
 We changed the snippet configuration of rules in the administration so that the whole configuration takes place when adding a rule via `RuleConditionService.addCondition`.  
 Now a condition object also takes the `snippets` property in which all relevant snippet paths like the general rule label can be configured.  
-There is also the option now to configure the placeholders of certain fields of the rule via the `snippets.fields.<fieldName>.plceholder`.  
+There is also the option now to configure the placeholders of certain fields of the rule via the `snippets.fields.<fieldName>.placeholder`.  
 As some rules do not configure the fields themselves but instead are relying on specific components, the fields of these components got static `<fieldNames>` which will be listed below.
 ### Static field names
 - `sw-condition-billing-zip-code`

@@ -8,7 +8,7 @@ const snippets = {
     'sw-product.settingsForm.placeholderTime': 'eg. 31...',
     'global.sw-tagged-field.text-default-placeholder': 'Press the enter key to add values.',
     'global.sw-condition.condition.zipCodeWildcardPlaceholder': 'Use "*" as a wildcard character...',
-}
+};
 
 async function createWrapper(customProps = {}, condition = {}, conditionTypeData = {}) {
     return mount(await wrapTestComponent('sw-condition-base', { sync: true }), {
@@ -38,7 +38,7 @@ async function createWrapper(customProps = {}, condition = {}, conditionTypeData
             },
             mocks: {
                 $tc: (snippetKey) => snippets[snippetKey] ?? snippetKey,
-            }
+            },
         },
     });
 }
@@ -112,7 +112,7 @@ describe('src/app/component/rule/sw-condition-base', () => {
         const wrapper = await createWrapper(
             {},
             { type: 'customerDaysSinceLastLogin' },
-            { snippets: { fields: { daysPassed: { placeholder: placeholder } } } }
+            { snippets: { fields: { daysPassed: { placeholder: placeholder } } } },
         );
         await flushPromises();
 
@@ -120,40 +120,49 @@ describe('src/app/component/rule/sw-condition-base', () => {
     });
 
     it('should return empty string on missing placeholder', async () => {
-        const wrapper = await createWrapper(
-            {},
-            { type: 'customerDaysSinceLastLogin' },
-            {}
-        );
+        const wrapper = await createWrapper({}, { type: 'customerDaysSinceLastLogin' }, {});
         await flushPromises();
 
         expect(wrapper.vm.getPlaceholder('daysPassed')).toBe('');
     });
 
     it('should return combined placeholder', async () => {
-        const placeholder = ['global.sw-tagged-field.text-default-placeholder', ' ', 'global.sw-condition.condition.zipCodeWildcardPlaceholder'];
+        const placeholder = [
+            'global.sw-tagged-field.text-default-placeholder',
+            ' ',
+            'global.sw-condition.condition.zipCodeWildcardPlaceholder',
+        ];
 
         const wrapper = await createWrapper(
             {},
             { type: 'customerBillingZipCode' },
-            { snippets: { fields: { alphanumericZipCodes: { placeholder: placeholder } } } }
+            { snippets: { fields: { alphanumericZipCodes: { placeholder: placeholder } } } },
         );
         await flushPromises();
 
-        expect(wrapper.vm.getPlaceholder('alphanumericZipCodes')).toBe(`${snippets[placeholder[0]]} ${snippets[placeholder[2]]}`);
+        expect(wrapper.vm.getPlaceholder('alphanumericZipCodes')).toBe(
+            `${snippets[placeholder[0]]} ${snippets[placeholder[2]]}`,
+        );
     });
 
     it('should filter undefined placeholder', async () => {
-        const placeholder = ['global.sw-tagged-field.text-default-placeholder', ' ', undefined, 'global.sw-condition.condition.zipCodeWildcardPlaceholder'];
+        const placeholder = [
+            'global.sw-tagged-field.text-default-placeholder',
+            ' ',
+            undefined,
+            'global.sw-condition.condition.zipCodeWildcardPlaceholder',
+        ];
 
         const wrapper = await createWrapper(
             {},
             { type: 'customerBillingZipCode' },
-            { snippets: { fields: { alphanumericZipCodes: { placeholder: placeholder } } } }
+            { snippets: { fields: { alphanumericZipCodes: { placeholder: placeholder } } } },
         );
         await flushPromises();
 
-        expect(wrapper.vm.getPlaceholder('alphanumericZipCodes')).toBe(`${snippets[placeholder[0]]} ${snippets[placeholder[3]]}`);
+        expect(wrapper.vm.getPlaceholder('alphanumericZipCodes')).toBe(
+            `${snippets[placeholder[0]]} ${snippets[placeholder[3]]}`,
+        );
     });
 
     it('should emit create-before event', async () => {

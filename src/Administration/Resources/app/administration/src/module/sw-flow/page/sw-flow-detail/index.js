@@ -312,25 +312,24 @@ export default {
             return Store.get('swFlow').setFlow(flow);
         },
 
-        getDetailFlow() {
+        async getDetailFlow() {
             this.isLoading = true;
-            Shopware.Store.get('swFlow').fetchTriggerActions();
+            const flowStore = Store.get('swFlow');
 
-            return this.flowRepository
-                .get(this.flowId, Context.api, this.flowCriteria)
-                .then((data) => {
-                    Store.get('swFlow').setFlow(data);
-                    Store.get('swFlow').setOriginFlow(cloneDeep(data));
-                    this.getDataForActionDescription();
-                })
-                .catch(() => {
-                    this.createNotificationError({
-                        message: this.$tc('sw-flow.flowNotification.messageError'),
-                    });
-                })
-                .finally(() => {
-                    this.isLoading = false;
+            try {
+                await flowStore.fetchTriggerActions();
+                const data = await this.flowRepository.get(this.flowId, Context.api, this.flowCriteria);
+
+                flowStore.setFlow(data);
+                flowStore.setOriginFlow(cloneDeep(data));
+                await this.getDataForActionDescription();
+            } catch  {
+                this.createNotificationError({
+                    message: this.$tc('sw-flow.flowNotification.messageError'),
                 });
+            } finally {
+                this.isLoading = false;
+            }
         },
 
         getAppFlowAction() {

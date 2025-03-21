@@ -50,7 +50,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->cacheInvalidatorMock->expects(static::once())
+        $this->cacheInvalidatorMock->expects($this->once())
             ->method('invalidate')
             ->with(static::countOf(1));
 
@@ -69,7 +69,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->cacheInvalidatorMock->expects(static::once())
+        $this->cacheInvalidatorMock->expects($this->once())
             ->method('invalidate')
             ->with(static::countOf(1));
 
@@ -93,7 +93,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->cacheInvalidatorMock->expects(static::once())
+        $this->cacheInvalidatorMock->expects($this->once())
             ->method('invalidate')
             ->with(static::countOf(0));
 
@@ -112,7 +112,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->cacheInvalidatorMock->expects(static::once())
+        $this->cacheInvalidatorMock->expects($this->once())
             ->method('invalidate')
             ->with(static::countOf(1));
 
@@ -131,7 +131,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->cacheInvalidatorMock->expects(static::once())
+        $this->cacheInvalidatorMock->expects($this->once())
             ->method('invalidate')
             ->with(static::countOf(0));
 
@@ -150,7 +150,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->cacheInvalidatorMock->expects(static::once())
+        $this->cacheInvalidatorMock->expects($this->once())
             ->method('invalidate')
             ->with(static::countOf(1));
 
@@ -169,7 +169,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->cacheInvalidatorMock->expects(static::once())
+        $this->cacheInvalidatorMock->expects($this->once())
             ->method('invalidate')
             ->with(static::countOf(0));
 
@@ -186,7 +186,7 @@ class CacheInvalidationSubscriberTest extends TestCase
 
         $event = static::getContainer()->get('product.repository')->create([$builder->build()], Context::createDefaultContext());
 
-        $this->cacheInvalidatorMock->expects(static::once())
+        $this->cacheInvalidatorMock->expects($this->once())
             ->method('invalidate')
             ->with(static::countOf(0));
 

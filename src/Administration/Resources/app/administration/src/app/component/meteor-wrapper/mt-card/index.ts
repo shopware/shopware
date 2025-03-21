@@ -17,6 +17,8 @@ Shopware.Component.register('mt-card', {
         'mt-card-original': MtCard,
     },
 
+    inheritAttrs: false,
+
     props: {
         positionIdentifier: {
             type: String,

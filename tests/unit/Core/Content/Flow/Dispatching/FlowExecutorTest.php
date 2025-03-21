@@ -180,12 +180,12 @@ class FlowExecutorTest extends TestCase
             $appActionSequence->action = 'app.action';
             $actionSequences[] = $appActionSequence;
             $flow = new Flow($ids->get('flowId'), $actionSequences);
-            $this->appFlowActionProviderMock->expects(static::once())
+            $this->appFlowActionProviderMock->expects($this->once())
                 ->method('getWebhookPayloadAndHeaders')->willReturn([
                     'headers' => [],
                     'payload' => [],
                 ]);
-            $invocations = static::exactly(3);
+            $invocations = $this->exactly(3);
             $this->eventDispatcherMock->expects($invocations)
                 ->method('dispatch')
                 ->with(
@@ -205,21 +205,21 @@ class FlowExecutorTest extends TestCase
         }
 
         if (\in_array(self::ACTION_ADD_ORDER_TAG, array_merge_recursive($actionSequencesExecuted, $actionSequencesTrueCase, $actionSequencesFalseCase), true)) {
-            $this->addOrderTagActionMock->expects(static::once())->method('handleFlow')->with($storableFlow);
+            $this->addOrderTagActionMock->expects($this->once())->method('handleFlow')->with($storableFlow);
         } else {
-            $this->addOrderTagActionMock->expects(static::never())->method('handleFlow');
+            $this->addOrderTagActionMock->expects($this->never())->method('handleFlow');
         }
 
         if (\in_array(self::ACTION_ADD_CUSTOMER_TAG, array_merge_recursive($actionSequencesExecuted, $actionSequencesTrueCase, $actionSequencesFalseCase), true)) {
-            $this->addCustomerTagActionMock->expects(static::once())->method('handleFlow')->with($storableFlow);
+            $this->addCustomerTagActionMock->expects($this->once())->method('handleFlow')->with($storableFlow);
         } else {
-            $this->addCustomerTagActionMock->expects(static::never())->method('handleFlow');
+            $this->addCustomerTagActionMock->expects($this->never())->method('handleFlow');
         }
 
         if (\in_array(self::ACTION_STOP_FLOW, array_merge_recursive($actionSequencesExecuted, $actionSequencesTrueCase, $actionSequencesFalseCase), true)) {
-            $this->stopFlowActionMock->expects(static::once())->method('handleFlow')->with($storableFlow);
+            $this->stopFlowActionMock->expects($this->once())->method('handleFlow')->with($storableFlow);
         } else {
-            $this->stopFlowActionMock->expects(static::never())->method('handleFlow');
+            $this->stopFlowActionMock->expects($this->never())->method('handleFlow');
         }
 
         $this->flowExecutor->executeFlows(
@@ -248,7 +248,7 @@ class FlowExecutorTest extends TestCase
                 'error',
             ));
 
-        $this->loggerMock->expects(static::once())
+        $this->loggerMock->expects($this->once())
             ->method('error')
             ->with(
                 'Could not execute flow with error message:' . "\n"
@@ -281,7 +281,7 @@ class FlowExecutorTest extends TestCase
         $this->eventDispatcherMock->method('dispatch')
             ->willThrowException(new \Exception('error'));
 
-        $this->loggerMock->expects(static::once())
+        $this->loggerMock->expects($this->once())
             ->method('error')
             ->with(
                 'Could not execute flow with error message:' . "\n"
@@ -374,12 +374,12 @@ class FlowExecutorTest extends TestCase
             $appActionSequence->action = 'app.action';
             $actionSequences[] = $appActionSequence;
             $flow = new Flow($ids->get('flowId'), $actionSequences);
-            $this->appFlowActionProviderMock->expects(static::once())
+            $this->appFlowActionProviderMock->expects($this->once())
                 ->method('getWebhookPayloadAndHeaders')->willReturn([
                     'headers' => [],
                     'payload' => [],
                 ]);
-            $invocations = static::exactly(3);
+            $invocations = $this->exactly(3);
             $this->eventDispatcherMock->expects($invocations)
                 ->method('dispatch')
                 ->with(
@@ -399,21 +399,21 @@ class FlowExecutorTest extends TestCase
         }
 
         if (\in_array(self::ACTION_ADD_ORDER_TAG, array_merge_recursive($actionSequencesExecuted, $actionSequencesTrueCase, $actionSequencesFalseCase), true)) {
-            $this->addOrderTagActionMock->expects(static::once())->method('handleFlow')->with($storableFlow);
+            $this->addOrderTagActionMock->expects($this->once())->method('handleFlow')->with($storableFlow);
         } else {
-            $this->addOrderTagActionMock->expects(static::never())->method('handleFlow');
+            $this->addOrderTagActionMock->expects($this->never())->method('handleFlow');
         }
 
         if (\in_array(self::ACTION_ADD_CUSTOMER_TAG, array_merge_recursive($actionSequencesExecuted, $actionSequencesTrueCase, $actionSequencesFalseCase), true)) {
-            $this->addCustomerTagActionMock->expects(static::once())->method('handleFlow')->with($storableFlow);
+            $this->addCustomerTagActionMock->expects($this->once())->method('handleFlow')->with($storableFlow);
         } else {
-            $this->addCustomerTagActionMock->expects(static::never())->method('handleFlow');
+            $this->addCustomerTagActionMock->expects($this->never())->method('handleFlow');
         }
 
         if (\in_array(self::ACTION_STOP_FLOW, array_merge_recursive($actionSequencesExecuted, $actionSequencesTrueCase, $actionSequencesFalseCase), true)) {
-            $this->stopFlowActionMock->expects(static::once())->method('handleFlow')->with($storableFlow);
+            $this->stopFlowActionMock->expects($this->once())->method('handleFlow')->with($storableFlow);
         } else {
-            $this->stopFlowActionMock->expects(static::never())->method('handleFlow');
+            $this->stopFlowActionMock->expects($this->never())->method('handleFlow');
         }
 
         $this->flowExecutor->execute($flow, $storableFlow);
@@ -523,10 +523,10 @@ class FlowExecutorTest extends TestCase
         $actionSequence->sequenceId = $ids->get($action::class);
         $actionSequence->action = $action::class;
 
-        $this->connectionMock->expects(static::once())
+        $this->connectionMock->expects($this->once())
             ->method('beginTransaction');
 
-        $this->connectionMock->expects(static::once())
+        $this->connectionMock->expects($this->once())
             ->method('commit');
 
         $flow = new StorableFlow('some-flow', Context::createCLIContext());
@@ -572,7 +572,7 @@ class FlowExecutorTest extends TestCase
         $actionSequence->sequenceId = $ids->get($action::class);
         $actionSequence->action = $action::class;
 
-        $this->connectionMock->expects(static::once())
+        $this->connectionMock->expects($this->once())
             ->method('beginTransaction');
 
         $e = new TableNotFoundException(
@@ -580,11 +580,11 @@ class FlowExecutorTest extends TestCase
             null
         );
 
-        $this->connectionMock->expects(static::once())
+        $this->connectionMock->expects($this->once())
             ->method('commit')
             ->willThrowException($e);
 
-        $this->connectionMock->expects(static::once())
+        $this->connectionMock->expects($this->once())
             ->method('rollBack');
 
         $flow = new StorableFlow('some-flow', Context::createCLIContext());
@@ -636,10 +636,10 @@ class FlowExecutorTest extends TestCase
         $actionSequence->sequenceId = $ids->get($action::class);
         $actionSequence->action = $action::class;
 
-        $this->connectionMock->expects(static::once())
+        $this->connectionMock->expects($this->once())
             ->method('beginTransaction');
 
-        $this->connectionMock->expects(static::once())
+        $this->connectionMock->expects($this->once())
             ->method('rollBack');
 
         $flow = new StorableFlow('some-flow', Context::createCLIContext());
@@ -692,10 +692,10 @@ class FlowExecutorTest extends TestCase
         $actionSequence->sequenceId = $ids->get($action::class);
         $actionSequence->action = $action::class;
 
-        $this->connectionMock->expects(static::once())
+        $this->connectionMock->expects($this->once())
             ->method('beginTransaction');
 
-        $this->connectionMock->expects(static::once())
+        $this->connectionMock->expects($this->once())
             ->method('rollBack');
 
         $flow = new StorableFlow('some-flow', Context::createCLIContext());
@@ -729,12 +729,12 @@ class FlowExecutorTest extends TestCase
         $storableFlow = new StorableFlow('', Context::createCLIContext());
 
         $pre = $this->createMock(CallableClass::class);
-        $pre->expects(static::once())->method('__invoke');
+        $pre->expects($this->once())->method('__invoke');
 
         $post = $this->createMock(CallableClass::class);
-        $post->expects(static::once())->method('__invoke');
+        $post->expects($this->once())->method('__invoke');
 
-        $invocations = static::exactly(2);
+        $invocations = $this->exactly(2);
         $this->eventDispatcherMock->expects($invocations)
             ->method('dispatch')
             ->with(

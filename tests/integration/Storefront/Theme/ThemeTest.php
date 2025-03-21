@@ -538,7 +538,7 @@ class ThemeTest extends TestCase
         $_expectedColor = '';
         $_expectedTheme = '';
         $themeCompilerMock = $this->createMock(ThemeCompiler::class);
-        $themeCompilerMock->expects(static::exactly(2))
+        $themeCompilerMock->expects($this->exactly(2))
             ->method('compileTheme')
             ->with(
                 new IsEqual(TestDefaults::SALES_CHANNEL),

@@ -19,7 +19,7 @@ class CacheControllerTest extends TestCase
     public function testClearCache(): void
     {
         $cacheClearerMock = $this->createMock(CacheClearer::class);
-        $cacheClearerMock->expects(static::once())
+        $cacheClearerMock->expects($this->once())
             ->method('clear');
 
         $controller = new CacheController(
@@ -35,7 +35,7 @@ class CacheControllerTest extends TestCase
     public function testClearDelayedCache(): void
     {
         $cacheInvalidatorMock = $this->createMock(CacheInvalidator::class);
-        $cacheInvalidatorMock->expects(static::once())
+        $cacheInvalidatorMock->expects($this->once())
             ->method('invalidateExpired');
 
         $controller = new CacheController(

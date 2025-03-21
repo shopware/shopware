@@ -29,9 +29,9 @@ class MeterTest extends TestCase
     {
         [$configuredMetric, $metricConfig, $_, $transportCall] = $this->buildCommonTestStubs();
         $transport1 = $this->createMock(MetricTransportInterface::class);
-        $transport1->expects(static::once())->method('emit')->with($transportCall);
+        $transport1->expects($this->once())->method('emit')->with($transportCall);
         $transport2 = $this->createMock(MetricTransportInterface::class);
-        $transport2->expects(static::once())->method('emit')->with($transportCall);
+        $transport2->expects($this->once())->method('emit')->with($transportCall);
 
         $collection = $this->createTransportCollectionMock([$transport1, $transport2]);
 
@@ -43,12 +43,12 @@ class MeterTest extends TestCase
     {
         [$configuredMetric, $metricConfig, $_, $transportCall] = $this->buildCommonTestStubs();
         $transport1 = $this->createMock(MetricTransportInterface::class);
-        $transport1->expects(static::once())->method('emit')->with($transportCall)->willThrowException(new \RuntimeException('Transport failed'));
+        $transport1->expects($this->once())->method('emit')->with($transportCall)->willThrowException(new \RuntimeException('Transport failed'));
         $transport2 = $this->createMock(MetricTransportInterface::class);
-        $transport2->expects(static::once())->method('emit')->with($transportCall);
+        $transport2->expects($this->once())->method('emit')->with($transportCall);
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects(static::once())->method('warning');
+        $logger->expects($this->once())->method('warning');
         $collection = $this->createTransportCollectionMock([$transport1, $transport2]);
 
         $meter = new Meter($collection, $this->configProviderWithSuccessfulExpectation($metricConfig), $logger, 'prod');
@@ -60,13 +60,13 @@ class MeterTest extends TestCase
         [$configuredMetric, $metricConfig, $metric, $transportCall] = $this->buildCommonTestStubs();
 
         $transport = $this->createMock(MetricTransportInterface::class);
-        $transport->expects(static::once())
+        $transport->expects($this->once())
             ->method('emit')
             ->with($transportCall)
             ->willThrowException(TelemetryException::metricNotSupported($metric, $transport));
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects(static::once())
+        $logger->expects($this->once())
             ->method('warning')
             ->with(
                 static::stringContains('Metric'),
@@ -82,7 +82,7 @@ class MeterTest extends TestCase
     public function testImproperlyConfiguredMetricIsNotEmitted(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects(static::once())
+        $logger->expects($this->once())
             ->method('error')
             ->with(
                 static::stringContains('Missing configuration'),
@@ -92,16 +92,16 @@ class MeterTest extends TestCase
         $configuredMetric = new ConfiguredMetric('test', 1, ['test' => 'test']);
 
         $metricConfigProvider = $this->createMock(MetricConfigProvider::class);
-        $metricConfigProvider->expects(static::once())
+        $metricConfigProvider->expects($this->once())
             ->method('get')
             ->with('test')
             ->willThrowException(TelemetryException::metricMissingConfiguration('test'));
 
         $transport = $this->createMock(MetricTransportInterface::class);
-        $transport->expects(static::never())->method('emit');
+        $transport->expects($this->never())->method('emit');
 
         $collection = $this->createMock(TransportCollection::class);
-        $collection->expects(static::never())->method('getIterator');
+        $collection->expects($this->never())->method('getIterator');
 
         $meter = new Meter($collection, $metricConfigProvider, $logger, 'prod');
         $meter->emit($configuredMetric);
@@ -127,7 +127,7 @@ class MeterTest extends TestCase
     public function configProviderWithSuccessfulExpectation(mixed $metricConfig): MetricConfigProvider&MockObject
     {
         $metricConfigProvider = $this->createMock(MetricConfigProvider::class);
-        $metricConfigProvider->expects(static::once())->method('get')->with('test')->willReturn($metricConfig);
+        $metricConfigProvider->expects($this->once())->method('get')->with('test')->willReturn($metricConfig);
 
         return $metricConfigProvider;
     }
@@ -140,7 +140,7 @@ class MeterTest extends TestCase
     private function createTransportCollectionMock(array $transports): TransportCollection
     {
         $collection = $this->createMock(TransportCollection::class);
-        $collection->expects(static::once())
+        $collection->expects($this->once())
             ->method('getIterator')
             ->willReturn(new \ArrayIterator($transports));
 

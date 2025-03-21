@@ -32,7 +32,7 @@ class RouteEventSubscriberTest extends TestCase
         $event = new RequestEvent($this->createMock(Kernel::class), $request, HttpKernelInterface::MAIN_REQUEST);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
 
         $dispatcher = new EventDispatcher();
         $dispatcher->addListener('frontend.home.page.request', $listener);
@@ -49,7 +49,7 @@ class RouteEventSubscriberTest extends TestCase
         $event = new ResponseEvent($this->createMock(Kernel::class), $request, HttpKernelInterface::MAIN_REQUEST, new Response());
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
 
         $dispatcher = new EventDispatcher();
         $dispatcher->addListener('frontend.home.page.response', $listener);
@@ -71,7 +71,7 @@ class RouteEventSubscriberTest extends TestCase
         $event = new StorefrontRenderEvent('', [], $request, $this->createMock(SalesChannelContext::class));
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
 
         $dispatcher = new EventDispatcher();
         $dispatcher->addListener('frontend.home.page.render', $listener);
@@ -89,10 +89,10 @@ class RouteEventSubscriberTest extends TestCase
         $event = new RequestEvent($this->createMock(Kernel::class), $request, HttpKernelInterface::MAIN_REQUEST);
 
         $storefrontListener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $storefrontListener->expects(static::once())->method('__invoke');
+        $storefrontListener->expects($this->once())->method('__invoke');
 
         $apiListener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $apiListener->expects(static::once())->method('__invoke');
+        $apiListener->expects($this->once())->method('__invoke');
 
         $dispatcher = new EventDispatcher();
         $dispatcher->addListener('storefront.scope.request', $storefrontListener);
@@ -115,7 +115,7 @@ class RouteEventSubscriberTest extends TestCase
         );
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
 
         $dispatcher = new EventDispatcher();
         $dispatcher->addListener('frontend.home.page.controller', $listener);
@@ -138,10 +138,10 @@ class RouteEventSubscriberTest extends TestCase
         );
 
         $storefrontListener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $storefrontListener->expects(static::once())->method('__invoke');
+        $storefrontListener->expects($this->once())->method('__invoke');
 
         $apiListener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $apiListener->expects(static::once())->method('__invoke');
+        $apiListener->expects($this->once())->method('__invoke');
 
         $dispatcher = new EventDispatcher();
         $dispatcher->addListener('storefront.scope.controller', $storefrontListener);
@@ -165,10 +165,10 @@ class RouteEventSubscriberTest extends TestCase
         $event = new StorefrontRenderEvent('', [], $request, $this->createMock(SalesChannelContext::class));
 
         $storefrontListener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $storefrontListener->expects(static::once())->method('__invoke');
+        $storefrontListener->expects($this->once())->method('__invoke');
 
         $apiListener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $apiListener->expects(static::once())->method('__invoke');
+        $apiListener->expects($this->once())->method('__invoke');
 
         $dispatcher = new EventDispatcher();
         $dispatcher->addListener('storefront.scope.render', $storefrontListener);
@@ -196,14 +196,14 @@ class RouteEventSubscriberTest extends TestCase
         );
 
         $routeListener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $routeListener->expects(static::once())->method('__invoke');
+        $routeListener->expects($this->once())->method('__invoke');
 
         // These listeners should not be called as per current implementation
         $storefrontListener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $storefrontListener->expects(static::never())->method('__invoke');
+        $storefrontListener->expects($this->never())->method('__invoke');
 
         $apiListener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $apiListener->expects(static::never())->method('__invoke');
+        $apiListener->expects($this->never())->method('__invoke');
 
         $dispatcher = new EventDispatcher();
         $dispatcher->addListener('frontend.home.page.response', $routeListener);

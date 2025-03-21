@@ -21,12 +21,12 @@ class InAppPurchaseSyncHandlerTest extends TestCase
     public function testRunWithActiveInAppPurchases(): void
     {
         $syncService = $this->createMock(InAppPurchaseUpdater::class);
-        $syncService->expects(static::once())
+        $syncService->expects($this->once())
             ->method('update')
             ->with(Context::createCLIContext());
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects(static::never())
+        $logger->expects($this->never())
             ->method('error');
 
         $handler = new InAppPurchaseUpdateHandler(

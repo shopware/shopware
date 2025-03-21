@@ -50,13 +50,13 @@ class EntityRepositoryTest extends TestCase
         });
 
         $reader = $this->createMock(EntityReaderInterface::class);
-        $reader->expects(static::once())->method('read');
+        $reader->expects($this->once())->method('read');
 
         $searcher = $this->createMock(EntitySearcherInterface::class);
-        $searcher->expects(static::never())->method('search');
+        $searcher->expects($this->never())->method('search');
 
         $aggregator = $this->createMock(EntityAggregatorInterface::class);
-        $aggregator->expects(static::never())->method('aggregate');
+        $aggregator->expects($this->never())->method('aggregate');
 
         $repo = new EntityRepository(
             $this->createMock(EntityDefinition::class),
@@ -87,13 +87,13 @@ class EntityRepositoryTest extends TestCase
         });
 
         $reader = $this->createMock(EntityReaderInterface::class);
-        $reader->expects(static::once())->method('read');
+        $reader->expects($this->once())->method('read');
 
         $searcher = $this->createMock(EntitySearcherInterface::class);
-        $searcher->expects(static::never())->method('search');
+        $searcher->expects($this->never())->method('search');
 
         $aggregator = $this->createMock(EntityAggregatorInterface::class);
-        $aggregator->expects(static::once())->method('aggregate');
+        $aggregator->expects($this->once())->method('aggregate');
 
         $repo = new EntityRepository(
             new ProductDefinition(),
@@ -124,13 +124,13 @@ class EntityRepositoryTest extends TestCase
         });
 
         $reader = $this->createMock(EntityReaderInterface::class);
-        $reader->expects(static::never())->method('read');
+        $reader->expects($this->never())->method('read');
 
         $searcher = $this->createMock(EntitySearcherInterface::class);
-        $searcher->expects(static::once())->method('search');
+        $searcher->expects($this->once())->method('search');
 
         $aggregator = $this->createMock(EntityAggregatorInterface::class);
-        $aggregator->expects(static::never())->method('aggregate');
+        $aggregator->expects($this->never())->method('aggregate');
 
         $repo = new EntityRepository(
             new ProductDefinition(),
@@ -177,7 +177,7 @@ class EntityRepositoryTest extends TestCase
         $productEntity4->setUniqueIdentifier('test-4');
 
         $reader
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('read')
             ->willReturn(new ProductCollection([$productEntity, $productEntity2, $productEntity3, $productEntity4]));
 
@@ -188,12 +188,12 @@ class EntityRepositoryTest extends TestCase
             'test-3' => ['data' => [], 'primaryKey' => 'test-3'],
         ];
         $searcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->willReturn(new IdSearchResult(4, $data, new Criteria(), Context::createDefaultContext()));
 
         $aggregator = $this->createMock(EntityAggregatorInterface::class);
-        $aggregator->expects(static::never())->method('aggregate');
+        $aggregator->expects($this->never())->method('aggregate');
 
         $repo = new EntityRepository(
             new ProductDefinition(),
@@ -357,7 +357,7 @@ class EntityRepositoryTest extends TestCase
 
         $versionManager = $this->createMock(VersionManager::class);
         $versionManager
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('insert')
             ->willReturn([[new EntityWriteResult('test', [], 'product', EntityWriteResult::OPERATION_INSERT)]]);
 
@@ -389,7 +389,7 @@ class EntityRepositoryTest extends TestCase
 
         $versionManager = $this->createMock(VersionManager::class);
         $versionManager
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('update')
             ->willReturn([[new EntityWriteResult('test', [], 'product', EntityWriteResult::OPERATION_UPDATE)]]);
 
@@ -421,7 +421,7 @@ class EntityRepositoryTest extends TestCase
 
         $versionManager = $this->createMock(VersionManager::class);
         $versionManager
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('upsert')
             ->willReturn([[new EntityWriteResult('test', [], 'product', EntityWriteResult::OPERATION_UPDATE)]]);
 
@@ -461,7 +461,7 @@ class EntityRepositoryTest extends TestCase
         );
 
         $versionManager
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('delete')
             ->willReturn($writeResult);
 
@@ -503,7 +503,7 @@ class EntityRepositoryTest extends TestCase
     public function testCreateVersionVersionAware(): void
     {
         $versionManager = $this->createMock(VersionManager::class);
-        $versionManager->expects(static::once())->method('createVersion');
+        $versionManager->expects($this->once())->method('createVersion');
         $definition = $this->createMock(EntityDefinition::class);
         $definition->method('isVersionAware')->willReturn(true);
 
@@ -541,7 +541,7 @@ class EntityRepositoryTest extends TestCase
     public function testMergeVersionVersionAware(): void
     {
         $versionManager = $this->createMock(VersionManager::class);
-        $versionManager->expects(static::once())->method('merge');
+        $versionManager->expects($this->once())->method('merge');
         $definition = $this->createMock(EntityDefinition::class);
         $definition->method('isVersionAware')->willReturn(true);
 
@@ -586,7 +586,7 @@ class EntityRepositoryTest extends TestCase
 
         $versionManager = $this->createMock(VersionManager::class);
         $versionManager
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('clone')
             ->willReturn([[new EntityWriteResult('new-id', [], 'product', EntityWriteResult::OPERATION_UPDATE)]]);
 

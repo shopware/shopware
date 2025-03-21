@@ -115,7 +115,7 @@ class IconCacheTwigFilterTest extends TestCase
         $twig = new Environment($loader, ['cache' => false]);
 
         $kernel = $this->createMock(Kernel::class);
-        $kernel->expects(static::any())
+        $kernel->expects($this->any())
             ->method('getBundles')
             ->willReturn($bundles);
 
@@ -125,7 +125,7 @@ class IconCacheTwigFilterTest extends TestCase
             ->willReturn(['Storefront' => 0]);
 
         $scopeDetector = $this->createMock(TemplateScopeDetector::class);
-        $scopeDetector->expects(static::any())
+        $scopeDetector->expects($this->any())
             ->method('getScopes')
             ->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 

@@ -51,17 +51,17 @@ class OrderConverterControllerTest extends TestCase
 
         $cart = new Cart('test');
         $converter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('convertToCart')
             ->with($order)
             ->willReturn($cart);
         $converter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('assembleSalesChannelContext')
             ->willReturn($this->createMock(SalesChannelContext::class));
 
         $persister
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('save')
             ->with($cart);
 

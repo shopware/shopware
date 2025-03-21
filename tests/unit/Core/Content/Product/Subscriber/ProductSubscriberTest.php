@@ -164,19 +164,19 @@ class ProductSubscriberTest extends TestCase
     public function testEnsureServicesAreCalled(): void
     {
         $isNewDetector = $this->createMock(IsNewDetector::class);
-        $isNewDetector->expects(static::once())->method('isNew');
+        $isNewDetector->expects($this->once())->method('isNew');
 
         $maxPurchaseCalculator = $this->createMock(ProductMaxPurchaseCalculator::class);
-        $maxPurchaseCalculator->expects(static::once())->method('calculate');
+        $maxPurchaseCalculator->expects($this->once())->method('calculate');
 
         $calculator = $this->createMock(AbstractProductPriceCalculator::class);
-        $calculator->expects(static::once())->method('calculate');
+        $calculator->expects($this->once())->method('calculate');
 
         $productVariationBuilder = $this->createMock(ProductVariationBuilder::class);
-        $productVariationBuilder->expects(static::once())->method('build');
+        $productVariationBuilder->expects($this->once())->method('build');
 
         $propertyGroupSorter = $this->createMock(AbstractPropertyGroupSorter::class);
-        $propertyGroupSorter->expects(static::once())->method('sort');
+        $propertyGroupSorter->expects($this->once())->method('sort');
 
         $subscriber = new ProductSubscriber(
             $productVariationBuilder,

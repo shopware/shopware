@@ -63,7 +63,7 @@ class SitemapExporterTest extends TestCase
         $cache = $this->createMock(CacheItemPoolInterface::class);
         $cache->method('getItem')->willReturn($this->createCacheItem('', true, false));
 
-        $exporter = $this->sitemapExporter($cache);
+        $exporter = $this->createSitemapExporter($cache);
 
         $result = $exporter->generate($this->context);
 
@@ -75,7 +75,7 @@ class SitemapExporterTest extends TestCase
         $cache = $this->createMock(CacheItemPoolInterface::class);
         $cache->method('getItem')->willReturn($this->createCacheItem('', true, true));
 
-        $exporter = $this->sitemapExporter($cache);
+        $exporter = $this->createSitemapExporter($cache);
 
         $this->expectException(AlreadyLockedException::class);
         $exporter->generate($this->context);
@@ -86,7 +86,7 @@ class SitemapExporterTest extends TestCase
         $cache = $this->createMock(CacheItemPoolInterface::class);
         $cache->method('getItem')->willReturn($this->createCacheItem('', true, true));
 
-        $exporter = $this->sitemapExporter($cache);
+        $exporter = $this->createSitemapExporter($cache);
 
         $result = $exporter->generate($this->context, true);
 
@@ -121,7 +121,7 @@ class SitemapExporterTest extends TestCase
             return true;
         });
 
-        $exporter = $this->sitemapExporter($cache);
+        $exporter = $this->createSitemapExporter($cache);
 
         $result = $exporter->generate($this->context);
 
@@ -215,7 +215,7 @@ class SitemapExporterTest extends TestCase
         $cache = $this->createMock(CacheItemPoolInterface::class);
         $cache->method('getItem')->willReturn($this->createCacheItem('', true, false));
 
-        $exporter = $this->sitemapExporter($cache, [$handler], $factory);
+        $exporter = $this->createSitemapExporter($cache, [$handler], $factory);
 
         $salesChannel = Generator::generateSalesChannelContext();
         $salesChannel->getSalesChannel()->setDomains(new SalesChannelDomainCollection([
@@ -278,7 +278,7 @@ class SitemapExporterTest extends TestCase
     /**
      * @param iterable<AbstractUrlProvider>|null $urlProvider
      */
-    private function sitemapExporter(
+    private function createSitemapExporter(
         CacheItemPoolInterface&MockObject $cache,
         ?iterable $urlProvider = null,
         (SitemapHandleFactoryInterface&MockObject)|null $sitemapHandleFactory = null,

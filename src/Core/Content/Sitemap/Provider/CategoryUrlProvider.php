@@ -68,8 +68,8 @@ class CategoryUrlProvider extends AbstractUrlProvider
         $keys = FetchModeHelper::keyPair($categories);
 
         // Load categories from the repository to allow decorators and event listeners to modify the result.
-        /** @var EntitySearchResult<CategoryEntity> $categoryEntities */
         $categoryEntities = $this->categoryRepository->search(new Criteria(array_values($keys)), $context);
+        \assert($categoryEntities->first() === null || $categoryEntities->first() instanceof CategoryEntity);
         $activeCategories = array_filter(
             $categories,
             fn (array $category) => $categoryEntities->get($category['id'])?->getActive() ?? true

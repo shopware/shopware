@@ -167,6 +167,7 @@ export default {
                 'sequences',
                 'appActions',
                 'getSelectedAppAction',
+                'hasAvailableAction',
             ],
         ),
     },

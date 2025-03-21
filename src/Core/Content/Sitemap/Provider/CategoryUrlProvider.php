@@ -13,8 +13,8 @@ use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -68,7 +68,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
         $keys = FetchModeHelper::keyPair($categories);
 
         // Load categories from the repository to allow decorators and event listeners to modify the result.
-        /** @var EntityCollection<CategoryEntity> $categoryEntities */
+        /** @var EntitySearchResult<CategoryEntity> $categoryEntities */
         $categoryEntities = $this->categoryRepository->search(new Criteria(array_values($keys)), $context);
         $activeCategories = array_filter(
             $categories,

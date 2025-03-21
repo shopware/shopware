@@ -528,10 +528,6 @@ export default {
             return actions;
         },
 
-        hasAvailableAction(actionName) {
-            return this.availableActions.includes(actionName);
-        },
-
         isValidAction(actionName) {
             return actionName && this.hasAvailableAction(actionName);
         },

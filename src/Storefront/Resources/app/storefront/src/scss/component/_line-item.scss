@@ -590,18 +590,6 @@ a.line-item-label {
     }
 }
 
-.is-offcanvas {
-    .line-item-unit-price-value-descriptor {
-        display: inline;
-    }
-
-    .line-item-unit-price-label,
-    .line-item-tax-price-label,
-    .line-item-total-price-label {
-        @include visually-hidden();
-    }
-}
-
 @include media-breakpoint-up(md) {
     .line-item-details-container {
         padding-left: $spacer-xs;

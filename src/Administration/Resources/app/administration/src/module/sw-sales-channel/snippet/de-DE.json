@@ -253,7 +253,7 @@
           "trackingId": {
             "label": "Tracking-ID",
             "placeHolder": "Tracking-ID eingeben ...",
-            "helpText": "Nach der Anmeldung in Deinem Google-Analytics-Konto erhältst Du eine Tracking-ID. Tracking-IDs können wie folgt aussehen: G-XXXXXXXXXX"
+            "helpText": "Nach der Anmeldung in Deinem Google-Analytics-Konto erhältst Du eine Tracking-ID. Tracking-IDs können wie folgt aussehen `G-XXXXXXXXXX`. Beginnt die ID mit `GTM-`, wird in der Storefront automatisch das Google Tag Manager-Skript eingebunden: `https://www.googletagmanager.com/gtm.js?id=...`. Andernfalls wird `https://www.googletagmanager.com/gtag/js?id=...` verwendet."
           },
           "active": {
             "label": "Google Analytics aktivieren"

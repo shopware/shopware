@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoade
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -117,18 +118,30 @@ class ProductController extends StorefrontController
     #[Route(path: '/product/{productId}/rating', name: 'frontend.detail.review.save', defaults: ['XmlHttpRequest' => true, '_loginRequired' => true], methods: ['POST'])]
     public function saveReview(string $productId, RequestDataBag $data, SalesChannelContext $context): Response
     {
-        try {
-            $this->productReviewSaveRoute->save($productId, $data, $context);
-        } catch (ConstraintViolationException $formViolations) {
-            return $this->forwardToRoute('frontend.product.reviews', [
-                'productId' => $productId,
-                'success' => -1,
-                'formViolations' => $formViolations,
-                'data' => $data,
-            ], ['productId' => $productId]);
-        } catch (ReviewNotActiveExeption $e) {
-            /** @deprecated tag:v6.8.0 Remove this catch, the exception is then `ProductException::reviewNotActive` */
-            throw StorefrontException::reviewNotActive();
+        if (!Feature::isActive('v6.8.0.0')) {
+            try {
+                $this->productReviewSaveRoute->save($productId, $data, $context);
+            } catch (ConstraintViolationException $formViolations) {
+                return $this->forwardToRoute('frontend.product.reviews', [
+                    'productId' => $productId,
+                    'success' => -1,
+                    'formViolations' => $formViolations,
+                    'data' => $data,
+                ], ['productId' => $productId]);
+            } catch (ReviewNotActiveExeption $e) {
+                throw StorefrontException::reviewNotActive();
+            }
+        } else {
+            try {
+                $this->productReviewSaveRoute->save($productId, $data, $context);
+            } catch (ConstraintViolationException $formViolations) {
+                return $this->forwardToRoute('frontend.product.reviews', [
+                    'productId' => $productId,
+                    'success' => -1,
+                    'formViolations' => $formViolations,
+                    'data' => $data,
+                ], ['productId' => $productId]);
+            }
         }
 
         $forwardParams = [
@@ -148,11 +161,14 @@ class ProductController extends StorefrontController
     #[Route(path: '/product/{productId}/reviews', name: 'frontend.product.reviews', defaults: ['XmlHttpRequest' => true], methods: ['GET', 'POST'])]
     public function loadReviews(string $productId, Request $request, SalesChannelContext $context): Response
     {
-        /** @deprecated tag:v6.8.0 Remove complete try catch block, the exception is then `ProductException::reviewNotActive` */
-        try {
+        if (!Feature::isActive('v6.8.0.0')) {
+            try {
+                $reviews = $this->productReviewLoader->load($request, $context, $productId, $request->get('parentId'));
+            } catch (ReviewNotActiveExeption $e) {
+                throw StorefrontException::reviewNotActive();
+            }
+        } else {
             $reviews = $this->productReviewLoader->load($request, $context, $productId, $request->get('parentId'));
-        } catch (ReviewNotActiveExeption $e) {
-            throw StorefrontException::reviewNotActive();
         }
 
         $this->hook(new ProductReviewsWidgetLoadedHook($reviews, $context));

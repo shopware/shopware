@@ -4,6 +4,7 @@
 
 import Plugin from 'src/plugin-system/plugin.class';
 import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading-indicator.util';
+/** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
 
 /**
@@ -22,6 +23,7 @@ export default class VariantSwitchPlugin extends Plugin {
     };
 
     init() {
+        /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._httpClient = new HttpClient();
         this._radioFields = this.el.querySelectorAll(this.options.radioFieldSelector);
         this._selectFields = this.el.querySelectorAll(this.options.selectFieldSelector);
@@ -184,10 +186,11 @@ export default class VariantSwitchPlugin extends Plugin {
 
         const url = `${this.options.url}?${new URLSearchParams(data).toString()}`;
 
-        this._httpClient.get(`${url}`, (response) => {
-            const data = JSON.parse(response);
-            window.location.replace(data.url);
-        });
+        fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
+            .then(response => response.json())
+            .then(data => window.location.replace(data.url));
     }
 
     /**

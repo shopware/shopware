@@ -12,6 +12,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
+use Shopware\Core\System\Snippet\Event\StorefrontSnippetsAfterCurrentLocaleEvent;
+use Shopware\Core\System\Snippet\Event\StorefrontSnippetsAfterDatabaseOverwritesEvent;
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
@@ -19,6 +21,7 @@ use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
 /**
@@ -47,6 +50,7 @@ class SnippetService
          * We need to get StorefrontPluginRegistry service from service_container lazily because it depends on kernel service.
          */
         private readonly ContainerInterface $container,
+        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ?DatabaseSalesChannelThemeLoader $salesChannelThemeLoader = null
     ) {
     }
@@ -122,11 +126,31 @@ class SnippetService
             $locale === $fallbackLocale ? $fallbackSnippets : $this->getSnippetsByLocale($snippetCollection, $locale)
         );
 
+        $event = $this->eventDispatcher->dispatch(new StorefrontSnippetsAfterCurrentLocaleEvent(
+                $snippets,
+                $locale,
+                $catalog,
+                $snippetSetId,
+                $fallbackLocale,
+                $salesChannelId
+            ));
+
         // at least overwrite the snippets with the database customer overwrites
-        return array_replace_recursive(
-            $snippets,
+        $snippets=array_replace_recursive(
+            $event->snippets,
             $this->fetchSnippetsFromDatabase($snippetSetId, $unusedThemes)
         );
+
+        $event = $this->eventDispatcher->dispatch(new StorefrontSnippetsAfterDatabaseOverwritesEvent(
+            $snippets,
+            $locale,
+            $catalog,
+            $snippetSetId,
+            $fallbackLocale,
+            $salesChannelId
+        ));
+
+        return $event->snippets;
     }
 
     /**

@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace Shopware\Tests\Integration\Core\System\Snippet;
 
@@ -7,10 +8,13 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Snippet\Event\StorefrontSnippetsAfterCurrentLocaleEvent;
+use Shopware\Core\System\Snippet\Event\StorefrontSnippetsAfterDatabaseOverwritesEvent;
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
@@ -18,6 +22,7 @@ use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\SnippetService;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Tests\Integration\Core\System\Snippet\Mock\MockSnippetFile;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Translation\MessageCatalogue;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
@@ -35,6 +40,95 @@ class SnippetServiceTest extends TestCase
     protected function tearDown(): void
     {
         MockSnippetFile::cleanup();
+    }
+
+    public function testStorefrontSnippetsAfterCurrentLocaleEvent(): void
+    {
+        $locale = 'en-GB';
+
+        $service = $this->getSnippetService(
+            new MockSnippetFile(
+                $locale, $locale, (string) json_encode([
+                'foo' => [
+                    'baz' => 'foo_baz_default0',
+                    'bas' => 'foo_bas_default1',
+                ],
+                'bar' => 'bar_default2'
+            ])
+            )
+        );
+
+        $snippetSetId = $this->getSnippetSetIdForLocale($locale);
+        static::assertNotNull($snippetSetId);
+
+        $snippetRepository = static::getContainer()->get('snippet.repository');
+        $snippetRepository->create([
+            [
+                'translationKey' => 'foo.bas',
+                'value' => 'foo_bas_override_db',
+                'author' => 'test',
+                'setId' => $snippetSetId,
+            ]
+        ], Context::createDefaultContext());
+
+        $listener = function (StorefrontSnippetsAfterCurrentLocaleEvent $event) {
+            $event->snippets['foo.baz'] = 'foo_baz_override0';
+            $event->snippets['foo.bas'] = 'foo_bas_override1';
+        };
+
+        /** @var EventDispatcherInterface $eventDispatcher */
+        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $eventDispatcher->addListener(StorefrontSnippetsAfterCurrentLocaleEvent::class, $listener);
+
+        $snippets = $service->getStorefrontSnippets($this->getCatalog([], $locale), $snippetSetId);
+
+        static::assertEquals([
+            'foo.baz' => 'foo_baz_override0',
+            'foo.bas' => 'foo_bas_override_db',
+            'bar' => 'bar_default2'
+        ], $snippets);
+
+        $eventDispatcher->removeListener(StorefrontSnippetsAfterCurrentLocaleEvent::class, $listener);
+
+        $snippetRepository->delete([
+            ['setId' => $snippetSetId]
+        ], Context::createDefaultContext());
+    }
+
+    public function testStorefrontSnippetsAfterDatabaseOverwritesEvent():void {
+
+        $locale = 'en-GB';
+        $service = $this->getSnippetService(
+            new MockSnippetFile(
+                $locale, $locale, (string) json_encode([
+                'foo' => [
+                    'bar' => 'foo_baz_default0',
+                    'bas' => 'foo_bas_default1',
+                ],
+                'baz' => ['bar'=>'baz_bar_default2']
+            ])
+            )
+        );
+        $snippetSetId = $this->getSnippetSetIdForLocale($locale);
+        static::assertNotNull($snippetSetId);
+        $listener = function (StorefrontSnippetsAfterCurrentLocaleEvent $event) {
+
+            $event->snippets['foo.bar'] = 'foo_bar_override';
+        };
+
+        /** @var EventDispatcherInterface $eventDispatcher */
+        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $eventDispatcher->addListener(StorefrontSnippetsAfterCurrentLocaleEvent::class, $listener);
+
+        $snippets = $service->getStorefrontSnippets($this->getCatalog([], $locale), $snippetSetId);
+
+        static::assertEquals([
+            'foo.bar' => 'foo_bar_override',
+            'foo.bas' => 'foo_bas_default1',
+            'baz.bar' => 'baz_bar_default2'
+        ], $snippets);
+
+        $eventDispatcher->removeListener(StorefrontSnippetsAfterCurrentLocaleEvent::class, $listener);
     }
 
     public function testGetStorefrontSnippetsForNotExistingSnippetSet(): void
@@ -982,7 +1076,7 @@ json
     }
 
     /**
-     * @param array<string> $messages
+     * @param array<array<string>> $messages
      */
     private function getCatalog(array $messages, string $local): MessageCatalogueInterface
     {
@@ -1025,7 +1119,10 @@ json
             static::getContainer()->get('snippet_set.repository'),
             static::getContainer()->get(SnippetFilterFactory::class),
             static::getContainer(),
-            static::getContainer()->has(DatabaseSalesChannelThemeLoader::class) ? static::getContainer()->get(DatabaseSalesChannelThemeLoader::class) : null
+            static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->has(DatabaseSalesChannelThemeLoader::class) ? static::getContainer()->get(
+                DatabaseSalesChannelThemeLoader::class
+            ) : null
         );
     }
 

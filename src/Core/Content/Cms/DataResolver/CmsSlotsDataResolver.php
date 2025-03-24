@@ -190,7 +190,7 @@ class CmsSlotsDataResolver
                     $result = $repository->search($criteria, $context->getContext());
                 }
 
-                $searchResults[$criteriaHash] = $result;
+                $searchResults[$definitionClass][$criteriaHash] = $result;
             }
         }
 
@@ -318,7 +318,7 @@ class CmsSlotsDataResolver
             return;
         }
 
-        foreach ($criteriaObjects[$slot->getUniqueIdentifier()] as $criterias) {
+        foreach ($criteriaObjects[$slot->getUniqueIdentifier()] as $definition => $criterias) {
             foreach ($criterias as $key => $criteria) {
                 if (!$criteria->hasExtension('criteriaHash')) {
                     continue;
@@ -327,11 +327,11 @@ class CmsSlotsDataResolver
                 /** @var ArrayEntity $hashArrayEntity */
                 $hashArrayEntity = $criteria->getExtension('criteriaHash');
                 $hash = $hashArrayEntity->get('hash');
-                if (!isset($searchResults[$hash])) {
+                if (!isset($searchResults[$definition][$hash])) {
                     continue;
                 }
 
-                $result->add($key, $searchResults[$hash]);
+                $result->add($key, $searchResults[$definition][$hash]);
             }
         }
     }

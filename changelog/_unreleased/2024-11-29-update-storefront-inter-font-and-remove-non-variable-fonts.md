@@ -1,6 +1,5 @@
 ---
 title: Update storefront Inter font and remove non-variable fonts
-issue: NEXT-0000
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999

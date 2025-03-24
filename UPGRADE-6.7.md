@@ -1824,7 +1824,7 @@ Before:
 ```
 After:
 ```html
-<mt-button ghost>Save</mt-button>
+<mt-button variant="primary" ghost>Save</mt-button>
 ```
 
 ### "mt-button" has no value "danger" in property "variant" anymore

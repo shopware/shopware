@@ -385,7 +385,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         blockIsRemovable(block: Entity<'cms_block'>) {
             const cmsBlocks = this.cmsService.getCmsBlockRegistry();
-            return cmsBlocks[block.type]?.removable && this.isSystemDefaultLanguage;
+            return (cmsBlocks[block.type]?.removable !== false) && this.isSystemDefaultLanguage;
         },
 
         blockIsUnique(block: Entity<'cms_block'>) {

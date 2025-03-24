@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - trunk
+      - "6.7.0.0"
       - 6.5.x
       - 6.6.x
   workflow_call:

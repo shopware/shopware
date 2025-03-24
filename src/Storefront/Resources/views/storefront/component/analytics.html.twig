@@ -2,11 +2,12 @@
     {% block component_head_analytics_gtag %}
         {% if storefrontAnalytics and storefrontAnalytics.isActive() %}
             {% set trackingId = storefrontAnalytics.getTrackingId() %}
+            {% set trackingUrl = 'https://www.googletagmanager.com/' ~ (trackingId starts with 'GTM-' ? 'gtm.js?id=' : 'gtag/js?id=') %}
 
             <script>
                 {% block component_head_analytics_gtag_config %}
                     window.gtagActive = true;
-                    window.gtagURL = 'https://www.googletagmanager.com/gtag/js?id={{ trackingId }}';
+                    window.gtagURL = '{{ trackingUrl }}{{ trackingId }}';
                     window.controllerName = '{{ controllerName|lower }}';
                     window.actionName = '{{ controllerAction|lower }}';
                     window.trackOrders = '{{ storefrontAnalytics.isTrackOrders() }}';

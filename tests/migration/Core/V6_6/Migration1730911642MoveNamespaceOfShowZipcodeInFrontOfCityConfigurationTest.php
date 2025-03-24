@@ -65,7 +65,7 @@ class Migration1730911642MoveNamespaceOfShowZipcodeInFrontOfCityConfigurationTes
         $afterValue = json_decode($afterValue, true);
 
         static::assertArrayHasKey('_value', $afterValue);
-        static::assertSame($previousValue['_value'], $afterValue['_value']);
+        static::assertTrue($afterValue['_value']);
 
         $qb = $this->connection->createQueryBuilder();
         $qb

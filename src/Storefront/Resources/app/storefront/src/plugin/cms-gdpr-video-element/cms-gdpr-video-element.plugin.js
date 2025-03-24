@@ -1,4 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
+/** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
 import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
 import { COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS } from 'src/plugin/cookie/cookie-configuration.plugin';
@@ -36,6 +37,7 @@ export default class CmsGdprVideoElement extends Plugin {
 
         this.checkConsentAndReplaceVideo();
 
+        /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._client = new HttpClient();
         this.backdropElement = this.createElementBackdrop();
         this.el.appendChild(this.backdropElement);

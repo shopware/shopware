@@ -19,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader;
@@ -33,15 +32,12 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ProductReviewsWidgetLoadedHook::class)]
 class ProductReviewsWidgetLoadedHookTest extends TestCase
 {
-    private MockObject&SystemConfigService $systemConfigServiceMock;
-
     private MockObject&ProductReviewLoader $productReviewLoaderMock;
 
     private ProductControllerStub $controller;
 
     protected function setUp(): void
     {
-        $this->systemConfigServiceMock = $this->createMock(SystemConfigService::class);
         $this->productReviewLoaderMock = $this->createMock(ProductReviewLoader::class);
 
         $this->controller = new ProductControllerStub(
@@ -51,15 +47,12 @@ class ProductReviewsWidgetLoadedHookTest extends TestCase
             $this->createMock(AbstractProductReviewSaveRoute::class),
             $this->createMock(SeoUrlPlaceholderHandlerInterface::class),
             $this->productReviewLoaderMock,
-            $this->systemConfigServiceMock,
         );
     }
 
     public function testHookTriggeredWhenProductReviewsWidgetIsLoaded(): void
     {
         $ids = new IdsCollection();
-
-        $this->systemConfigServiceMock->method('get')->with('core.listing.showReview')->willReturn(true);
 
         $productId = Uuid::randomHex();
         $parentId = Uuid::randomHex();

@@ -60,7 +60,7 @@ jobs:
           mv ./ludtwig /usr/local/bin
 
       - name: Run ludtwig linter
-        if: ludtwigStep
+        id: ludtwigStep
         run: |
           cd ./src/Storefront/Resources/views
           ludtwig .

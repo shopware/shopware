@@ -25,6 +25,9 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 #[Package('discovery')]
 #[CoversClass(CmsSlotsDataResolver::class)]
 class CmsSlotsMultiDataResolverTest extends TestCase

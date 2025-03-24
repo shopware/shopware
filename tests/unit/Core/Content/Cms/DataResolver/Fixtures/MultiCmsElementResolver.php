@@ -9,6 +9,9 @@ use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
+/**
+ * @internal
+ */
 class MultiCmsElementResolver implements CmsElementResolverInterface
 {
     public function __construct(

@@ -2,8 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Order\Validation;
 
-use Monolog\Test\MonologTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Validation\OrderValidationFactory;
@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  */
 #[Package('checkout')]
 #[CoversClass(OrderValidationFactory::class)]
-class OrderValidationFactoryTest extends MonologTestCase
+class OrderValidationFactoryTest extends TestCase
 {
     private SalesChannelContext $salesChannelContext;
 

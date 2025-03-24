@@ -765,6 +765,8 @@ We have made attribute classes final.
 
 </details>
 
+
+
 # Administration
 We made some changes in the administration, which might affect your plugins.
 <details>
@@ -2465,6 +2467,19 @@ After:
 <mt-checkbox @update:checked="updateValue" />
 ```
 </details>
+
+### Deprecated admin notification entity + related classes
+
+We have moved the notification entity, collection and definition to core. You should update your code to reference the new classes:
+
+* `Shopware\Core\Framework\Notification\NotificationCollection`
+* `Shopware\Core\Framework\Notification\NotificationDefinition`
+* `Shopware\Core\Framework\Notification\NotificationEntity`
+
+### Deprecated notification controller
+
+`\Shopware\Administration\Controller\NotificationController` is now moved to core `\Shopware\Core\Framework\Notification\Api\NotificationController` - if you type hint on this class, please update it. The HTTP route is still the same.
+
 </details>
 
 # Storefront

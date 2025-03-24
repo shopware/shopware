@@ -58,6 +58,19 @@ It allows filtering of `RuleIdAware` objects in either arrays or collections.
 
 # Administration
 
+## Removed admin notification entity + related classes
+
+You should update your code to reference the new classes:
+
+* `Shopware\Core\Framework\Notification\NotificationCollection`
+* `Shopware\Core\Framework\Notification\NotificationDefinition`
+* `Shopware\Core\Framework\Notification\NotificationEntity`
+
+## Removed notification controller
+
+`\Shopware\Administration\Controller\NotificationController` has been moved to core: `\Shopware\Core\Framework\Notification\Api\NotificationController` - if you type hint on this class, please update it. The HTTP route is still the same.
+
+
 # Storefront
 
 # App System

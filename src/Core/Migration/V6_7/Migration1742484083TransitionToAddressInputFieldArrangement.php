@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1742484083TransitionToAddressInputFieldArrangement extends MigrationStep
 {
     public const CONFIG_KEY = 'core.loginRegistration.addressInputFieldArrangement';

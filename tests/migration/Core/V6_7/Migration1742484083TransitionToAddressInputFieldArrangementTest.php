@@ -65,10 +65,39 @@ class Migration1742484083TransitionToAddressInputFieldArrangementTest extends Te
         static::assertEquals([], $oldConfiguration);
     }
 
+    public function testNotOverrideExistingConfig(): void
+    {
+        $this->revertMigration();
+        $this->prepareSystemConfig();
+
+        $migration = new Migration1742484083TransitionToAddressInputFieldArrangement();
+        $migration->update($this->connection);
+
+        $this->assertNewConfiguration();
+
+        $this->connection->update('system_config', [
+            'configuration_value' => '{"_value": "cityStateZip"}',
+        ], [
+            'configuration_key' => Migration1742484083TransitionToAddressInputFieldArrangement::CONFIG_KEY,
+            'sales_channel_id' => null,
+        ]);
+
+        $migration->update($this->connection);
+
+        $newConfiguration = $this->connection->fetchAllAssociativeIndexed(
+            'SELECT sales_channel_id, configuration_value FROM system_config WHERE configuration_key = ?',
+            [Migration1742484083TransitionToAddressInputFieldArrangement::CONFIG_KEY]
+        );
+
+        static::assertEquals([
+            '' => ['configuration_value' => '{"_value": "cityStateZip"}'],
+            Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL) => ['configuration_value' => '{"_value": "cityZipState"}'],
+        ], $newConfiguration);
+    }
+
     private function revertMigration(): void
     {
         $this->connection->delete('system_config', ['configuration_key' => Migration1742484083TransitionToAddressInputFieldArrangement::CONFIG_KEY]);
-        $this->connection->delete('system_config', ['configuration_key' => Migration1742484083TransitionToAddressInputFieldArrangement::OLD_CONFIG_KEY]);
     }
 
     private function prepareSystemConfig(): void

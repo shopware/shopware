@@ -102,7 +102,7 @@
                             {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
                             {% set showZipcodeInFrontOfCity = not feature('v6.8.0.0') and config('core.loginRegistration.showZipcodeInFrontOfCity') %}
 
-                            {% if showZipcodeInFrontOfCity || arrangement === 'zipCityState' %}
+                            {% if showZipcodeInFrontOfCity or arrangement === 'zipCityState' %}
                                 {{ zipcodeField }}
                                 {{ cityField }}
                             {% else %}

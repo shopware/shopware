@@ -6,15 +6,14 @@ use League\Flysystem\FilesystemOperator;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Content\Sitemap\Event\SitemapGeneratedEvent;
-use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
 use Shopware\Core\Content\Sitemap\Provider\AbstractUrlProvider;
+use Shopware\Core\Content\Sitemap\SitemapException;
 use Shopware\Core\Content\Sitemap\Struct\SitemapGenerationResult;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('discovery')]
@@ -84,7 +83,7 @@ class SitemapExporter implements SitemapExporterInterface
         $key = $this->generateCacheKeyForSalesChannel($salesChannelContext);
         $item = $this->cache->getItem($key);
         if ($item->isHit() && !$force) {
-            throw new AlreadyLockedException($salesChannelContext);
+            throw SitemapException::sitemapAlreadyLocked($salesChannelContext);
         }
 
         $item->set(true);
@@ -154,7 +153,7 @@ class SitemapExporter implements SitemapExporterInterface
         }
 
         if (empty($sitemapHandles)) {
-            throw new InvalidDomainException('Empty domain');
+            throw SitemapException::invalidDomain();
         }
 
         $this->sitemapHandles = $sitemapHandles;

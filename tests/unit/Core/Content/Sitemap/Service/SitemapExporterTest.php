@@ -6,6 +6,7 @@ use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Content\Sitemap\Provider\AbstractUrlProvider;
@@ -13,13 +14,17 @@ use Shopware\Core\Content\Sitemap\Provider\CustomUrlProvider;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporter;
 use Shopware\Core\Content\Sitemap\Service\SitemapHandleFactoryInterface;
 use Shopware\Core\Content\Sitemap\Service\SitemapHandleInterface;
+use Shopware\Core\Content\Sitemap\SitemapException;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
+use Shopware\Core\Framework\Api\Context\SystemSource;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Generator;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -79,7 +84,7 @@ class SitemapExporterTest extends TestCase
 
         $salesChannel->setDomains(new SalesChannelDomainCollection([$domainA, $domainB]));
 
-        $salesChannelContext = $this->mockSalesChannelContext($salesChannel);
+        $salesChannelContext = $this->createSalesChannelContext($salesChannel, []);
 
         $expectedUrls = [];
         foreach ($urls as $url) {
@@ -96,23 +101,51 @@ class SitemapExporterTest extends TestCase
     public function testDoesNotRefreshSalesChannelWithRules(): void
     {
         $salesChannel = $this->createSalesChannel('salesChannelWithRules');
-        $salesChannelRules = array_map(fn () => Uuid::randomHex(), range(0, 2));
+        $rules = array_map(fn () => Uuid::randomHex(), range(0, 2));
 
         $domain = $this->createSalesChannelDomain('testDomain', 'https://test.com', $salesChannel->getLanguageId());
         $salesChannel->setDomains(new SalesChannelDomainCollection([$domain]));
 
-        $salesChannelContext = $this->mockSalesChannelContext($salesChannel);
-        $salesChannelContext->expects(static::once())->method('getRuleIds')->willReturn($salesChannelRules);
+        $salesChannelContext = $this->createSalesChannelContext($salesChannel, $rules);
 
         $cache = $this->createMock(CacheItemPoolInterface::class);
         $cache->method('getItem')->willReturn(new CacheItem());
 
         $cartRuleLoader = $this->createMock(CartRuleLoader::class);
-        $exporter = $this->createSitemapExporter($cache, cartRuleLoader: $cartRuleLoader);
+        $exporter = $this->createSitemapExporter(cache: $cache, cartRuleLoader: $cartRuleLoader);
         $exporter->generate($salesChannelContext);
 
-        $salesChannelContext->expects(static::never())->method('getToken');
         $cartRuleLoader->expects(static::never())->method('loadByToken');
+    }
+
+    public function testGenerateThrowsExceptionINoSitemapHandlesCreated(): void
+    {
+        $cache = $this->createMock(CacheItemPoolInterface::class);
+        $cache->method('getItem')->willReturn(new CacheItemMock());
+
+        $exporter = $this->createSitemapExporter($cache);
+
+        $salesChannel = $this->createSalesChannel('testSalesChannel');
+        $salesChannelContext = $this->createSalesChannelContext($salesChannel, []);
+
+        $this->expectException(SitemapException::class);
+        $this->expectExceptionMessage('Invalid domain');
+        $exporter->generate($salesChannelContext, true);
+    }
+
+    public function testGenerateThrowsExceptionIfSitemapIsAlreadyLocked(): void
+    {
+        $cache = $this->createMock(CacheItemPoolInterface::class);
+        $cache->method('getItem')->willReturn(new CacheItemMock());
+
+        $exporter = $this->createSitemapExporter($cache);
+
+        $salesChannel = $this->createSalesChannel('testSalesChannel');
+        $salesChannelContext = $this->createSalesChannelContext($salesChannel, []);
+
+        $this->expectException(SitemapException::class);
+        $this->expectExceptionMessage('Cannot acquire lock for sales channel testSalesChannel and language ' . $salesChannel->getLanguageId());
+        $exporter->generate($salesChannelContext);
     }
 
     /**
@@ -159,13 +192,56 @@ class SitemapExporterTest extends TestCase
         return $salesChannelDomain;
     }
 
-    private function mockSalesChannelContext(
-        SalesChannelEntity $salesChannel,
-    ): SalesChannelContext&MockObject {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
-        $salesChannelContext->method('getLanguageId')->willReturn($salesChannel->getLanguageId());
+    /**
+     * @param array<string> $ruleIds
+     */
+    private function createSalesChannelContext(SalesChannelEntity $salesChannel, array $ruleIds): SalesChannelContext
+    {
+        $context = new Context(
+            source: new SystemSource(),
+            ruleIds: $ruleIds,
+            languageIdChain: [$salesChannel->getLanguageId()],
+        );
 
-        return $salesChannelContext;
+        return Generator::generateSalesChannelContext(
+            baseContext: $context,
+            salesChannel: $salesChannel,
+        );
+    }
+}
+
+/**
+ * @internal
+ */
+class CacheItemMock implements CacheItemInterface
+{
+    public function getKey(): string
+    {
+        return Uuid::randomHex();
+    }
+
+    public function get(): mixed
+    {
+        return null;
+    }
+
+    public function isHit(): bool
+    {
+        return true;
+    }
+
+    public function set(mixed $value): static
+    {
+        return $this;
+    }
+
+    public function expiresAt(?\DateTimeInterface $expiration): static
+    {
+        return $this;
+    }
+
+    public function expiresAfter(\DateInterval|int|null $time): static
+    {
+        return $this;
     }
 }

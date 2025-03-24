@@ -241,6 +241,9 @@ return (new Config())
             ->filter(fn (File $file) => in_array($file->status, [File::STATUS_ADDED, File::STATUS_MODIFIED, File::STATUS_RENAMED], true))
             ->matches('tests/unit/**/*Test.php');
 
+        $context->failure('Num unit tests: ' . $addedUnitTests->count());
+        $context->failure('Tests: ' . implode(", ", $addedUnitTests->map(fn ($file) => $file->name)));
+
         $addedSrcFiles = $context->platform->pullRequest->getFiles()->filterStatus(File::STATUS_ADDED)->matches('src/**/*.php');
         $missingUnitTests = [];
         $unitTestsName = [];

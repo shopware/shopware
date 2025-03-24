@@ -4,13 +4,11 @@ import template from './sw-inactivity-login.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  * @private
  */
 Component.register('sw-inactivity-login', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'loginService',
@@ -81,17 +79,12 @@ Component.register('sw-inactivity-login', {
             }
 
             this.forwardLogin();
-
-            // Vue router v4 behaves differently than v3 and does not require a reload
-            return;
-
-            window.location.reload();
         };
         this.lastKnownUser = lastKnownUser;
     },
 
     mounted() {
-        const dataUrl = localStorage.getItem(`inactivityBackground_${this.hash}`);
+        const dataUrl = sessionStorage.getItem(`inactivityBackground_${this.hash}`);
         if (!dataUrl) {
             return;
         }
@@ -103,7 +96,7 @@ Component.register('sw-inactivity-login', {
     beforeUnmount() {
         this.sessionChannel?.close();
 
-        localStorage.removeItem(`inactivityBackground_${this.hash}`);
+        sessionStorage.removeItem(`inactivityBackground_${this.hash}`);
     },
 
     methods: {

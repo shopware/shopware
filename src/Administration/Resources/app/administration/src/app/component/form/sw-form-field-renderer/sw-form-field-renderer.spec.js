@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -21,7 +21,7 @@ async function createWrapper(additionalOptions = {}) {
             },
             global: {
                 stubs: {
-                    'sw-text-field': {
+                    'sw-text-field-deprecated': {
                         template: '<div class="sw-text-field"><slot name="label"></slot><slot></slot></div>',
                     },
                     'sw-contextual-field': true,

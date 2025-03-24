@@ -45,7 +45,7 @@ class CustomFieldTranslationTest extends TestCase
     {
         parent::setUp();
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
         $this->connection->executeStatement('DROP TABLE IF EXISTS `attribute_test`');
         $this->connection->executeStatement('
             CREATE TABLE `attribute_test` (
@@ -554,7 +554,7 @@ class CustomFieldTranslationTest extends TestCase
     protected function addLanguage(string $id, ?string $rootLanguage): void
     {
         $translationCodeId = Uuid::randomHex();
-        $languageRepository = $this->getContainer()->get('language.repository');
+        $languageRepository = static::getContainer()->get('language.repository');
         $languageRepository->create(
             [
                 [
@@ -583,12 +583,12 @@ class CustomFieldTranslationTest extends TestCase
 
         return new EntityRepository(
             $definition,
-            $this->getContainer()->get(EntityReaderInterface::class),
-            $this->getContainer()->get(VersionManager::class),
-            $this->getContainer()->get(EntitySearcherInterface::class),
-            $this->getContainer()->get(EntityAggregatorInterface::class),
-            $this->getContainer()->get(EventDispatcherInterface::class),
-            $this->getContainer()->get(EntityLoadedEventFactory::class)
+            static::getContainer()->get(EntityReaderInterface::class),
+            static::getContainer()->get(VersionManager::class),
+            static::getContainer()->get(EntitySearcherInterface::class),
+            static::getContainer()->get(EntityAggregatorInterface::class),
+            static::getContainer()->get(EventDispatcherInterface::class),
+            static::getContainer()->get(EntityLoadedEventFactory::class)
         );
     }
 
@@ -597,7 +597,7 @@ class CustomFieldTranslationTest extends TestCase
      */
     private function addCustomFields(array $attributeTypes): void
     {
-        $attributeRepo = $this->getContainer()->get('custom_field.repository');
+        $attributeRepo = static::getContainer()->get('custom_field.repository');
 
         $attributes = [];
         foreach ($attributeTypes as $name => $type) {

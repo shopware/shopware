@@ -24,7 +24,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
@@ -84,7 +83,7 @@ CREATE TABLE `named` (
     CONSTRAINT `fk` FOREIGN KEY (`optional_group_id`) REFERENCES `named_optional_group` (`id`) ON DELETE SET NULL
 );
 EOF;
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
         $this->connection->executeStatement($dropStatement);
         $this->connection->executeStatement($namedOptionalGroupStatement);
         $this->connection->executeStatement($namedStatement);
@@ -189,6 +188,7 @@ EOF;
         $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
+        static::assertIsArray($responseData);
         static::assertArrayHasKey('data', $responseData);
         static::assertCount(1, $responseData['data'], \sprintf('Expected country %s has only one state', $id));
 
@@ -276,7 +276,7 @@ EOF;
 
     public function testCreateAndDeleteWithPermissions(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $user = TestUser::createNewTestUser($connection, ['product:create', 'product:delete', 'tax:create']);
 
@@ -581,6 +581,7 @@ EOF;
         $browser->request('POST', '/api/_action/version/product/' . $id);
         $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+        static::assertIsArray($response);
         static::assertArrayHasKey('versionId', $response);
         static::assertArrayHasKey('versionName', $response);
         static::assertArrayHasKey('id', $response);
@@ -596,7 +597,7 @@ EOF;
         $this->assertEntityExists($browser, 'product', $id);
 
         /** @var EntityRepository $productRepo */
-        $productRepo = $this->getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
+        $productRepo = static::getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
         $criteria = new Criteria([$id]);
         $criteria->addFilter(
             new EqualsFilter('versionId', $versionId)
@@ -624,7 +625,7 @@ EOF;
 
         $browser->request('POST', '/api/_action/version/' . Defaults::LIVE_VERSION . '/product/' . $id);
 
-        $repo = $this->getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
+        $repo = static::getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
         $criteria = new Criteria([$id]);
         $criteria->addFilter(new EqualsFilter('versionId', Defaults::LIVE_VERSION));
 
@@ -790,7 +791,7 @@ EOF;
         $this->getBrowser()->request('DELETE', '/api/product/' . $id . '/categories/' . $category);
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
 
-        $a = $this->getContainer()
+        $a = static::getContainer()
             ->get(Connection::class)
             ->executeQuery(
                 'SELECT * FROM product_category WHERE product_id = :pid AND category_id = :cid',
@@ -838,7 +839,7 @@ EOF;
         $browser->request('DELETE', '/api/product/' . $id . '/categories/' . $category);
         static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
 
-        $a = $this->getContainer()->get(Connection::class)->executeQuery('SELECT * FROM product_category WHERE product_id = :pid AND category_id = :cid', ['pid' => Uuid::fromHexToBytes($id), 'cid' => Uuid::fromHexToBytes($category)])->fetchAllAssociative();
+        $a = static::getContainer()->get(Connection::class)->executeQuery('SELECT * FROM product_category WHERE product_id = :pid AND category_id = :cid', ['pid' => Uuid::fromHexToBytes($id), 'cid' => Uuid::fromHexToBytes($category)])->fetchAllAssociative();
         static::assertNotEmpty($a);
 
         $this->assertEntityExists($browser, 'product', $id);
@@ -1182,7 +1183,7 @@ EOF;
         $ruleA = Uuid::randomHex();
         $ruleB = Uuid::randomHex();
 
-        $this->getContainer()->get('rule.repository')->create([
+        static::getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'priority' => 2],
         ], Context::createDefaultContext());
@@ -1211,7 +1212,7 @@ EOF;
             ],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$data], Context::createDefaultContext());
 
         $path = '/api/product/' . $id . '/prices';
@@ -1219,6 +1220,7 @@ EOF;
         $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), print_r($responseData, true));
 
+        static::assertIsArray($responseData);
         static::assertArrayHasKey('meta', $responseData);
         static::assertArrayHasKey('total', $responseData['meta']);
         static::assertSame(2, $responseData['meta']['total']);
@@ -1239,6 +1241,7 @@ EOF;
         $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), print_r($responseData, true));
+        static::assertIsArray($responseData);
         static::assertArrayHasKey('meta', $responseData);
         static::assertArrayHasKey('total', $responseData['meta']);
         static::assertSame(1, $responseData['meta']['total']);
@@ -1346,7 +1349,7 @@ EOF;
         $ruleA = Uuid::randomHex();
         $ruleB = Uuid::randomHex();
 
-        $this->getContainer()->get('rule.repository')->create([
+        static::getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'priority' => 2],
         ], Context::createDefaultContext());
@@ -1375,7 +1378,7 @@ EOF;
             ],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$data], Context::createDefaultContext());
 
         $path = '/api/product/' . $id . '/prices';
@@ -1383,6 +1386,7 @@ EOF;
         $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), print_r($responseData, true));
 
+        static::assertIsArray($responseData);
         static::assertArrayHasKey('meta', $responseData);
         static::assertArrayHasKey('total', $responseData['meta']);
         static::assertSame(2, $responseData['meta']['total']);
@@ -1427,7 +1431,7 @@ EOF;
             ],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$data], Context::createDefaultContext());
 
         $path = '/api/product/' . $id . '/categories';
@@ -1435,6 +1439,7 @@ EOF;
         $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), print_r($responseData, true));
 
+        static::assertIsArray($responseData);
         static::assertArrayHasKey('meta', $responseData);
         static::assertArrayHasKey('total', $responseData['meta']);
         static::assertSame(2, $responseData['meta']['total']);
@@ -1455,6 +1460,7 @@ EOF;
         $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), print_r($responseData, true));
+        static::assertIsArray($responseData);
         static::assertArrayHasKey('meta', $responseData);
         static::assertArrayHasKey('total', $responseData['meta']);
         static::assertSame(1, $responseData['meta']['total']);
@@ -1481,7 +1487,7 @@ EOF;
             ],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$data], Context::createDefaultContext());
 
         $path = '/api/search-ids/product-category';
@@ -1497,6 +1503,7 @@ EOF;
         $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), print_r($responseData, true));
 
+        static::assertIsArray($responseData);
         static::assertArrayHasKey('total', $responseData);
         static::assertSame(2, $responseData['total']);
         static::assertArrayHasKey('data', $responseData);
@@ -1540,7 +1547,7 @@ EOF;
             ],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$data], Context::createDefaultContext());
 
         $filter = [
@@ -1583,7 +1590,7 @@ EOF;
             ],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$data], Context::createDefaultContext());
 
         $filter = [
@@ -1766,6 +1773,7 @@ EOF;
 
         $respData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
+        static::assertIsArray($respData);
         static::assertArrayHasKey('data', $respData);
         static::assertArrayHasKey('links', $respData);
         static::assertArrayHasKey('included', $respData);
@@ -1807,6 +1815,7 @@ EOF;
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
         $respData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($respData);
         static::assertArrayHasKey('data', $respData);
         static::assertArrayHasKey('links', $respData);
         static::assertArrayHasKey('included', $respData);
@@ -1895,7 +1904,7 @@ EOF;
     {
         $field = (new OneToManyAssociationField('testSeoUrls', SeoUrlDefinition::class, 'sales_channel_id'))->addFlags(new ApiAware(), new Extension());
 
-        $this->getContainer()->get(SalesChannelDefinition::class)->getFields()->addNewField($field);
+        static::getContainer()->get(SalesChannelDefinition::class)->getFields()->addNewField($field);
 
         $salesChannelId = Uuid::randomHex();
         $this->createSalesChannel($salesChannelId);
@@ -1969,7 +1978,7 @@ EOF;
     {
         $field = (new OneToManyAssociationField('testSeoUrls', SeoUrlDefinition::class, 'sales_channel_id'))->addFlags(new ApiAware(), new Extension());
 
-        $this->getContainer()->get(SalesChannelDefinition::class)->getFields()->addNewField($field);
+        static::getContainer()->get(SalesChannelDefinition::class)->getFields()->addNewField($field);
 
         $salesChannelId = Uuid::randomHex();
         $this->createSalesChannel($salesChannelId);
@@ -2166,7 +2175,7 @@ EOF;
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
-        $userRepository = $this->getContainer()->get('user.repository');
+        $userRepository = static::getContainer()->get('user.repository');
 
         // Change user password
         $userRepository->update([[
@@ -2242,7 +2251,7 @@ EOF;
 
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
 
-        $repo = $this->getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
+        $repo = static::getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
         $criteria = new Criteria([$productId]);
 
         /** @var ProductEntity $product */
@@ -2279,7 +2288,7 @@ EOF;
 
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
 
-        $repo = $this->getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
+        $repo = static::getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
         $criteria = new Criteria([$productId]);
 
         /** @var ProductEntity $product */
@@ -2367,7 +2376,7 @@ EOF;
     #[DataProvider('provideEntityName')]
     public function testMustMatchEntityNameRegex(bool $match, string $entityName, string $routeName): void
     {
-        $router = $this->getContainer()->get(RouterInterface::class);
+        $router = static::getContainer()->get(RouterInterface::class);
         $routes = $router->getRouteCollection();
 
         $urlGenerator = new UrlGenerator(
@@ -2412,7 +2421,7 @@ EOF;
 
     public function testLoader(): void
     {
-        $definitionRegistry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
         $loader = new ApiRouteLoader($definitionRegistry);
 
         $routers = $loader->load('test');
@@ -2461,13 +2470,13 @@ EOF;
     {
         $data = $this->getSalesChannelData($id);
 
-        $this->getContainer()->get('sales_channel.repository')->create([$data], Context::createDefaultContext());
+        static::getContainer()->get('sales_channel.repository')->create([$data], Context::createDefaultContext());
     }
 
     private function getNonSystemLanguageId(): string
     {
         /** @var EntityRepository $languageRepository */
-        $languageRepository = $this->getContainer()->get('language.repository');
+        $languageRepository = static::getContainer()->get('language.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new NotFilter(
             MultiFilter::CONNECTION_AND,
@@ -2515,11 +2524,7 @@ EOF;
             ],
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $data['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
-        $this->getContainer()->get('customer.repository')
+        static::getContainer()->get('customer.repository')
             ->create([$data], Context::createDefaultContext());
 
         return $ids;

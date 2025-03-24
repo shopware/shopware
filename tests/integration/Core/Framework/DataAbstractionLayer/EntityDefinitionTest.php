@@ -38,19 +38,19 @@ class EntityDefinitionTest extends TestCase
 
     public function testEntityDefinitionCompilation(): void
     {
-        $definition = $this->getContainer()->get(ProductDefinition::class);
+        $definition = static::getContainer()->get(ProductDefinition::class);
 
         static::assertContainsOnlyInstancesOf(Field::class, $definition->getFields());
         $productManufacturerVersionIdField = $definition->getFields()->get('productManufacturerVersionId');
         static::assertInstanceOf(ReferenceVersionField::class, $productManufacturerVersionIdField);
         static::assertSame('product_manufacturer_version_id', $productManufacturerVersionIdField->getStorageName());
         static::assertInstanceOf(ProductManufacturerDefinition::class, $productManufacturerVersionIdField->getVersionReferenceDefinition());
-        static::assertSame($this->getContainer()->get(ProductManufacturerDefinition::class), $productManufacturerVersionIdField->getVersionReferenceDefinition());
+        static::assertSame(static::getContainer()->get(ProductManufacturerDefinition::class), $productManufacturerVersionIdField->getVersionReferenceDefinition());
     }
 
     public function testTranslationCompilation(): void
     {
-        $definition = $this->getContainer()->get(ProductTranslationDefinition::class);
+        $definition = static::getContainer()->get(ProductTranslationDefinition::class);
 
         static::assertContainsOnlyInstancesOf(Field::class, $definition->getFields());
         $languageIdField = $definition->getFields()->get('languageId');
@@ -61,8 +61,8 @@ class EntityDefinitionTest extends TestCase
     #[DataProvider('provideTranslatedDefinitions')]
     public function testTranslationsOnDefinitions(string $baseDefinitionClass, string $translationDefinitionClass): void
     {
-        $baseDefinition = $this->getContainer()->get($baseDefinitionClass);
-        $translationDefinition = $this->getContainer()->get($translationDefinitionClass);
+        $baseDefinition = static::getContainer()->get($baseDefinitionClass);
+        $translationDefinition = static::getContainer()->get($translationDefinitionClass);
 
         static::assertInstanceOf(EntityDefinition::class, $baseDefinition);
         static::assertInstanceOf(EntityTranslationDefinition::class, $translationDefinition);
@@ -90,7 +90,7 @@ class EntityDefinitionTest extends TestCase
 
     public function testGetFieldVisibility(): void
     {
-        $definition = $this->getContainer()->get(CustomerDefinition::class);
+        $definition = static::getContainer()->get(CustomerDefinition::class);
 
         $internalFields = [
             'password',

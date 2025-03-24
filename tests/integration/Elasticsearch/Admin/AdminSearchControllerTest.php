@@ -5,8 +5,8 @@ namespace Shopware\Tests\Integration\Elasticsearch\Admin;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
@@ -19,7 +19,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 class AdminSearchControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -29,17 +28,20 @@ class AdminSearchControllerTest extends TestCase
 
     private Connection $connection;
 
-    private EntityRepository $promotionRepo;
+    /**
+     * @var EntityRepository<PromotionCollection>
+     */
+    private EntityRepository $promotionRepository;
 
     protected function setUp(): void
     {
-        if (!$this->getContainer()->getParameter('elasticsearch.administration.enabled')) {
+        if (!static::getContainer()->getParameter('elasticsearch.administration.enabled')) {
             static::markTestSkipped('No OPENSEARCH configured');
         }
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
-        $this->promotionRepo = $this->getContainer()->get('promotion.repository');
+        $this->promotionRepository = static::getContainer()->get('promotion.repository');
     }
 
     public function testIndexing(): IdsCollection
@@ -168,7 +170,7 @@ class AdminSearchControllerTest extends TestCase
 
     protected function getDiContainer(): ContainerInterface
     {
-        return $this->getContainer();
+        return static::getContainer();
     }
 
     private function createData(IdsCollection $ids): void
@@ -215,6 +217,6 @@ class AdminSearchControllerTest extends TestCase
             ],
         ];
 
-        $this->promotionRepo->create($promotions, Context::createDefaultContext());
+        $this->promotionRepository->create($promotions, Context::createDefaultContext());
     }
 }

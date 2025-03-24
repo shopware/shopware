@@ -22,7 +22,7 @@ class Migration1718658881AddValidationDataToOrderTransactionTest extends TestCas
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
     }
 
     public function testMigrate(): void

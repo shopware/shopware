@@ -42,13 +42,13 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->mediaRepository = $this->getContainer()->get('media.repository');
-        $this->thumbnailRepository = $this->getContainer()->get('media_thumbnail.repository');
+        $this->mediaRepository = static::getContainer()->get('media.repository');
+        $this->thumbnailRepository = static::getContainer()->get('media_thumbnail.repository');
         $this->context = Context::createDefaultContext();
 
-        $this->handler = $this->getContainer()->get(GenerateThumbnailsHandler::class);
+        $this->handler = static::getContainer()->get(GenerateThumbnailsHandler::class);
 
-        $this->remoteThumbnailsEnable = $this->getContainer()->getParameter('shopware.media.remote_thumbnails.enable');
+        $this->remoteThumbnailsEnable = static::getContainer()->getParameter('shopware.media.remote_thumbnails.enable');
     }
 
     public function testGenerateThumbnails(): void
@@ -193,15 +193,15 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
         $updateMessage1 = new UpdateThumbnailsMessage();
         $updateMessage1->setMediaIds($testEntities2->getIds());
-        $updateMessage1->setIsStrict(true);
+        $updateMessage1->setStrict(true);
         $updateMessage1->setContext($this->context);
 
         $updateMessage2 = new UpdateThumbnailsMessage();
         $updateMessage2->setMediaIds($testEntities3->getIds());
-        $updateMessage2->setIsStrict(false);
+        $updateMessage2->setStrict(false);
         $updateMessage2->setContext($this->context);
 
-        $thumbnailServiceMock->expects(static::once())
+        $thumbnailServiceMock->expects($this->once())
             ->method('generate')
             ->with($testEntities1, $this->context)
             ->willReturn($testEntities1->count());
@@ -215,7 +215,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
         $parameters = [];
 
-        $thumbnailServiceMock->expects(static::exactly($testEntities2->count() + $testEntities3->count()))
+        $thumbnailServiceMock->expects($this->exactly($testEntities2->count() + $testEntities3->count()))
             ->method('updateThumbnails')
             ->willReturnCallback(function (...$params) use (&$parameters): void {
                 $parameters[] = $params;

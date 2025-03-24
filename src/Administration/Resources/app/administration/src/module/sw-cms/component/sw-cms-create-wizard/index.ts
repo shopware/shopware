@@ -5,13 +5,11 @@ import './sw-cms-create-wizard.scss';
 const { Filter } = Shopware;
 
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'feature',
@@ -26,7 +24,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     props: {
         page: {
-            type: Object as PropType<EntitySchema.Entity<'cms_page'>>,
+            type: Object as PropType<Entity<'cms_page'>>,
             required: true,
         },
     },
@@ -88,7 +86,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return '';
             }
 
-            const imgPath = 'administration/static/img/cms';
+            const imgPath = 'administration/administration/static/img/cms';
 
             return `url(${this.assetFilter(`${imgPath}/preview_${this.page.type}_${sections[0].type}.png`)})`;
         },
@@ -146,7 +144,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.goToStep('sectionType');
         },
 
-        onSectionSelect(section: EntitySchema.Entity<'cms_section'>) {
+        onSectionSelect(section: Entity<'cms_section'>) {
             this.goToStep('pageName');
 
             this.$emit('on-section-select', section);

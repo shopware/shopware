@@ -7,6 +7,7 @@ use Shopware\Core\Framework\App\AppService;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
@@ -29,13 +30,13 @@ trait AppSystemTestBehaviour
     {
         $appService = new AppService(
             new AppLifecycleIterator(
-                $this->getContainer()->get('app.repository'),
+                static::getContainer()->get('app.repository'),
                 $this->getAppLoader($appDir),
             ),
-            $this->getContainer()->get(AppLifecycle::class)
+            static::getContainer()->get(AppLifecycle::class)
         );
 
-        $fails = $appService->doRefreshApps($activateApps, Context::createDefaultContext());
+        $fails = $appService->doRefreshApps(new AppInstallParameters(activate: $activateApps), Context::createDefaultContext());
 
         if ($fails !== []) {
             $errors = \array_map(function (array $fail): string {
@@ -48,9 +49,9 @@ trait AppSystemTestBehaviour
 
     protected function reloadAppSnippets(): void
     {
-        $collection = $this->getContainer()->get(SnippetFileCollection::class);
+        $collection = static::getContainer()->get(SnippetFileCollection::class);
         $collection->clear();
-        $this->getContainer()->get(SnippetFileLoader::class)->loadSnippetFilesIntoCollection($collection);
+        static::getContainer()->get(SnippetFileLoader::class)->loadSnippetFilesIntoCollection($collection);
     }
 
     /**
@@ -58,7 +59,7 @@ trait AppSystemTestBehaviour
      */
     protected function getScriptTraces(): array
     {
-        return $this->getContainer()
+        return static::getContainer()
             ->get(ScriptTraces::class)
             ->getTraces();
     }

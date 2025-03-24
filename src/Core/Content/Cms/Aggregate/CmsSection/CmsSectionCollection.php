@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<CmsSectionEntity>
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class CmsSectionCollection extends EntityCollection
 {
     public function getBlocks(): CmsBlockCollection
@@ -34,7 +34,7 @@ class CmsSectionCollection extends EntityCollection
     }
 
     /**
-     * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+     * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
      */
     public function hasBlockWithType(string $type): bool
     {

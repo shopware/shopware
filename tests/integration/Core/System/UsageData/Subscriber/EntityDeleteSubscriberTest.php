@@ -36,12 +36,12 @@ class EntityDeleteSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
-        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $this->systemConfigService = static::getContainer()->get(SystemConfigService::class);
 
         /** @var MockHttpClient $client */
-        $client = $this->getContainer()->get('shopware.usage_data.gateway.client');
+        $client = static::getContainer()->get('shopware.usage_data.gateway.client');
         $client->setResponseFactory(function (string $method, string $url): ResponseInterface {
             if (\str_ends_with($url, '/killswitch')) {
                 $body = json_encode(['killswitch' => false]);
@@ -66,7 +66,7 @@ class EntityDeleteSubscriberTest extends TestCase
         $productBuilder->price(3.14);
 
         /** @var EntityRepository $productRepository */
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
 
         $productRepository->create([$productBuilder->build()], Context::createDefaultContext());
 
@@ -102,7 +102,7 @@ class EntityDeleteSubscriberTest extends TestCase
         $product['versionId'] = Uuid::randomHex();
 
         /** @var EntityRepository $productRepository */
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
 
         $productRepository->create([$product], Context::createDefaultContext());
 
@@ -127,7 +127,7 @@ class EntityDeleteSubscriberTest extends TestCase
         $category = $this->insertTestCategory($idsCollection, Defaults::LIVE_VERSION);
 
         /** @var EntityRepository $productCategoryRepository */
-        $productCategoryRepository = $this->getContainer()->get('product_category.repository');
+        $productCategoryRepository = static::getContainer()->get('product_category.repository');
         $productCategoryRepository->create([
             [
                 'productId' => $product['id'],
@@ -162,11 +162,11 @@ class EntityDeleteSubscriberTest extends TestCase
             'lastName' => 'Lastname',
             'password' => TestDefaults::HASHED_PASSWORD,
             'username' => 'foobar',
-            'localeId' => $this->getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+            'localeId' => static::getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
         ];
 
         /** @var EntityRepository $userRepository */
-        $userRepository = $this->getContainer()->get('user.repository');
+        $userRepository = static::getContainer()->get('user.repository');
         $userRepository->create([$userData], Context::createDefaultContext());
 
         $aclRoleId = Uuid::randomHex();
@@ -181,11 +181,11 @@ class EntityDeleteSubscriberTest extends TestCase
             ],
         ];
 
-        $aclRoleRepository = $this->getContainer()->get('acl_role.repository');
+        $aclRoleRepository = static::getContainer()->get('acl_role.repository');
         $aclRoleRepository->create([$aclRoleData], Context::createDefaultContext());
 
         /** @var EntityRepository $aclUserRoleRepository */
-        $aclUserRoleRepository = $this->getContainer()->get('acl_user_role.repository');
+        $aclUserRoleRepository = static::getContainer()->get('acl_user_role.repository');
         $aclUserRoleRepository->create([
             [
                 'userId' => $userId,
@@ -226,7 +226,7 @@ class EntityDeleteSubscriberTest extends TestCase
         $productBuilder->price(3.14);
 
         /** @var EntityRepository $productRepository */
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
 
         $product = $productBuilder->build();
         $product['versionId'] = $versionId;
@@ -241,7 +241,7 @@ class EntityDeleteSubscriberTest extends TestCase
      */
     private function insertTestCategory(IdsCollection $idsCollection, string $versionId): array
     {
-        $categoryRepository = $this->getContainer()->get('category.repository');
+        $categoryRepository = static::getContainer()->get('category.repository');
 
         $category = [
             'id' => $idsCollection->get('category-1'),

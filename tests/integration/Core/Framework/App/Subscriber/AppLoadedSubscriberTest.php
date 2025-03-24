@@ -28,7 +28,7 @@ class AppLoadedSubscriberTest extends TestCase
     public function testUnserialize(): void
     {
         /** @var EntityRepository<AppCollection> $appRepository */
-        $appRepository = $this->getContainer()->get('app.repository');
+        $appRepository = static::getContainer()->get('app.repository');
 
         $id = Uuid::randomHex();
 

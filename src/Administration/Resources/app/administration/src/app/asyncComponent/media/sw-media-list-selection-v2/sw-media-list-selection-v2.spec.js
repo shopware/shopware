@@ -1,5 +1,5 @@
 /**
- * @package content
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { reactive } from 'vue';
@@ -36,7 +36,6 @@ async function createWrapper() {
                 'sw-upload-listener': true,
                 'sw-media-upload-v2': true,
                 'sw-media-list-selection-item-v2': await wrapTestComponent('sw-media-list-selection-item-v2'),
-                'sw-icon': true,
                 'sw-media-preview-v2': {
                     props: ['source'],
                     template: '<div class="sw-media-preview-v2">{{ source }}</div>',

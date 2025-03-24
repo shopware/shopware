@@ -3,7 +3,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import Entity from 'src/core/data/entity.data';
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 
 const { Criteria } = Shopware.Data;
@@ -89,23 +89,17 @@ async function createWrapper(props = defaultProps) {
                     ),
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
-                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-settings-rule-category-tree': true,
                     'router-link': true,
                     'sw-loader': true,
                     'sw-card-filter': true,
                     'sw-product-variant-info': true,
-                    'sw-icon': true,
                     'sw-pagination': true,
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated'),
                     'sw-extension-component-section': true,
                     'sw-ai-copilot-badge': true,
                     'sw-context-button': true,
@@ -117,6 +111,7 @@ async function createWrapper(props = defaultProps) {
                     'sw-field-error': true,
                     'sw-inheritance-switch': true,
                     'sw-help-text': true,
+                    'sw-provide': true,
                 },
                 provide: {
                     repositoryFactory: {
@@ -183,7 +178,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-add-assignment-modal
 
         expect(wrapper.find('.sw-settings-rule-add-assignment-listing__card').exists()).toBe(true);
 
-        const checkbox = wrapper.find('.sw-data-grid__row--0 .sw-field--checkbox input');
+        const checkbox = wrapper.find('.sw-data-grid__row--0 .mt-field--checkbox__container input');
 
         expect(checkbox.element.checked).toBe(false);
         await checkbox.setChecked(true);

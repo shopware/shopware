@@ -18,7 +18,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-#[Package('core')]
+#[Package('framework')]
 class TestBootstrapper
 {
     private ?ClassLoader $classLoader = null;
@@ -80,7 +80,7 @@ class TestBootstrapper
 
     public function getStaticAnalyzeKernel(): StaticAnalyzeKernel
     {
-        $pluginLoader = new DbalKernelPluginLoader($this->getClassLoader(), null, $this->getContainer()->get(Connection::class));
+        $pluginLoader = new DbalKernelPluginLoader($this->getClassLoader(), null, $this->getKernelContainer()->get(Connection::class));
 
         KernelFactory::$kernelClass = StaticAnalyzeKernel::class;
 
@@ -102,7 +102,6 @@ class TestBootstrapper
         if ($this->classLoader !== null) {
             return $this->classLoader;
         }
-
         $classLoader = require $this->getProjectDir() . '/vendor/autoload.php';
 
         $this->addPluginAutoloadDev($classLoader);
@@ -150,12 +149,9 @@ class TestBootstrapper
 
         $dbUrlParts = parse_url($_SERVER['DATABASE_URL'] ?? '') ?: [];
 
-        $testToken = getenv('TEST_TOKEN');
         $dbUrlParts['path'] ??= 'root';
-
-        // allows using the same database during development, by setting TEST_TOKEN=none
-        if ($testToken !== 'none' && !str_ends_with($dbUrlParts['path'], 'test')) {
-            $dbUrlParts['path'] .= '_' . ($testToken ?: 'test');
+        if (!str_ends_with($dbUrlParts['path'], '_test')) {
+            $dbUrlParts['path'] .= '_test';
         }
 
         $auth = isset($dbUrlParts['user']) ? ($dbUrlParts['user'] . (isset($dbUrlParts['pass']) ? (':' . $dbUrlParts['pass']) : '') . '@') : '';
@@ -381,7 +377,7 @@ class TestBootstrapper
         return KernelLifecycleManager::getKernel();
     }
 
-    private function getContainer(): ContainerInterface
+    private function getKernelContainer(): ContainerInterface
     {
         return $this->getKernel()->getContainer();
     }
@@ -389,7 +385,7 @@ class TestBootstrapper
     private function dbExists(): bool
     {
         try {
-            $connection = $this->getContainer()->get(Connection::class);
+            $connection = $this->getKernelContainer()->get(Connection::class);
             $connection->executeQuery('SELECT 1 FROM `plugin`')->fetchAllAssociative();
 
             return true;

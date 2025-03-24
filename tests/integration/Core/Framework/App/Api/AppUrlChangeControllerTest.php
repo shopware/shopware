@@ -31,7 +31,7 @@ class AppUrlChangeControllerTest extends TestCase
 
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
 
-        $appUrlChangeResolver = $this->getContainer()->get(Resolver::class);
+        $appUrlChangeResolver = static::getContainer()->get(Resolver::class);
         static::assertEquals($appUrlChangeResolver->getAvailableStrategies(), $response);
     }
 
@@ -104,7 +104,7 @@ class AppUrlChangeControllerTest extends TestCase
     public function testGetUrlDiffWithApps(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
 
         $oldUrl = 'http://old.com';
         $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, [
@@ -125,7 +125,7 @@ class AppUrlChangeControllerTest extends TestCase
 
     public function testGetUrlDiffWithoutApps(): void
     {
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
 
         $oldUrl = 'http://old.com';
         $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, [

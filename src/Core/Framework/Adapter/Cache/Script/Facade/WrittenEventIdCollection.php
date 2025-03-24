@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @implements \IteratorAggregate<int, string|array>
  */
-#[Package('core')]
+#[Package('framework')]
 class WrittenEventIdCollection implements \IteratorAggregate
 {
     /**

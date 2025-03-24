@@ -2,7 +2,7 @@ import template from './sw-password-field-deprecated.html.twig';
 import './sw-password-field.scss';
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description password input field.

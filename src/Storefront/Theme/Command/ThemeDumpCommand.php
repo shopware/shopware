@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigDumper;
-use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
+use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeFileResolver;
@@ -18,6 +18,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -26,7 +27,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'theme:dump',
     description: 'Dump the theme configuration',
 )]
-#[Package('storefront')]
+#[Package('framework')]
 class ThemeDumpCommand extends Command
 {
     private readonly Context $context;
@@ -39,10 +40,9 @@ class ThemeDumpCommand extends Command
      * @param EntityRepository<ThemeCollection> $themeRepository
      */
     public function __construct(
-        private readonly StorefrontPluginRegistryInterface $pluginRegistry,
+        private readonly StorefrontPluginRegistry $pluginRegistry,
         private readonly ThemeFileResolver $themeFileResolver,
         private readonly EntityRepository $themeRepository,
-        private readonly string $projectDir,
         private readonly StaticFileConfigDumper $staticFileConfigDumper,
         private readonly ThemeFilesystemResolver $themeFilesystemResolver
     ) {
@@ -54,6 +54,7 @@ class ThemeDumpCommand extends Command
     {
         $this->addArgument('theme-id', InputArgument::OPTIONAL, 'Theme ID');
         $this->addArgument('domain-url', InputArgument::OPTIONAL, 'Sales channel domain URL');
+        $this->addOption('theme-name', null, InputOption::VALUE_OPTIONAL, 'Technical theme name');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -66,7 +67,13 @@ class ThemeDumpCommand extends Command
 
         $themeId = $input->getArgument('theme-id');
 
-        if (!$themeId) {
+        $themeName = $input->getOption('theme-name');
+
+        if ($themeId !== null) {
+            $criteria->setIds([$themeId]);
+        } elseif ($themeName !== null) {
+            $criteria->addFilter(new EqualsFilter('technicalName', $themeName));
+        } else {
             $choices = $this->getThemeChoices();
 
             if ($input->isInteractive() && \count($choices) > 1) {
@@ -78,20 +85,14 @@ class ThemeDumpCommand extends Command
 
                 $criteria->addFilter(new EqualsFilter('name', $themeName));
             }
-        } else {
-            $criteria->setIds([$themeId]);
         }
 
-        $themes = $this->themeRepository->search($criteria, $this->context);
-
-        if ($themes->count() === 0) {
+        $themeEntity = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
+        if (!$themeEntity) {
             $this->io->error('No theme found which is connected to a storefront sales channel');
 
             return self::FAILURE;
         }
-
-        /** @var ThemeEntity $themeEntity */
-        $themeEntity = $themes->first();
 
         $technicalName = $this->getTechnicalName($themeEntity->getId());
         if ($technicalName === null) {
@@ -129,14 +130,12 @@ class ThemeDumpCommand extends Command
         $dump['themeId'] = $themeEntity->getId();
         $dump['technicalName'] = $themeConfig->getTechnicalName();
         $dump['domainUrl'] = $domainUrl ?? '';
-        $dump['basePath'] = $this->stripProjectDir($fs->location);
 
-        $this->staticFileConfigDumper->prepareDump(
-            $this->projectDir . \DIRECTORY_SEPARATOR . 'var' . \DIRECTORY_SEPARATOR . 'theme-files.json',
-            $dump
-        );
+        $this->staticFileConfigDumper->dumpConfigInVar('theme-files.json', $dump);
 
         $this->staticFileConfigDumper->dumpConfig($this->context);
+
+        $this->io->writeln(\sprintf('Theme `%s` config dumped to file: %s', $themeEntity->getTechnicalName(), 'theme-files.json'));
 
         return self::SUCCESS;
     }
@@ -147,7 +146,7 @@ class ThemeDumpCommand extends Command
     protected function getThemeChoices(): array
     {
         $choices = [];
-        /** @var ThemeCollection $themes */
+
         $themes = $this->themeRepository->search(new Criteria(), Context::createCLIContext())->getEntities();
 
         foreach ($themes as $theme) {
@@ -191,23 +190,13 @@ class ThemeDumpCommand extends Command
         return $domainUrls[0] ?? null;
     }
 
-    private function stripProjectDir(string $path): string
-    {
-        if (str_starts_with($path, $this->projectDir)) {
-            return substr($path, \strlen($this->projectDir) + 1);
-        }
-
-        return $path;
-    }
-
     private function getTechnicalName(string $themeId): ?string
     {
         $technicalName = null;
 
         do {
-            $theme = $this->themeRepository->search(new Criteria([$themeId]), $this->context)->first();
-
-            if (!$theme instanceof ThemeEntity) {
+            $theme = $this->themeRepository->search(new Criteria([$themeId]), $this->context)->getEntities()->first();
+            if (!$theme) {
                 break;
             }
 

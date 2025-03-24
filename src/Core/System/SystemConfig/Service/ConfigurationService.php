@@ -11,13 +11,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
-use Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
-#[Package('services-settings')]
+#[Package('framework')]
 class ConfigurationService
 {
     /**
@@ -35,7 +34,7 @@ class ConfigurationService
     }
 
     /**
-     * @throws ConfigurationNotFoundException
+     * @throws SystemConfigException
      * @throws \InvalidArgumentException
      * @throws BundleConfigNotFoundException
      *

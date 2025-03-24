@@ -24,7 +24,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -80,7 +79,7 @@ class RemoteAddressFieldTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
-        $orderCustomer = $this->getContainer()->get('order_customer.repository')
+        $orderCustomer = static::getContainer()->get('order_customer.repository')
             ->search($criteria, Context::createDefaultContext())
             ->first();
 
@@ -99,7 +98,7 @@ class RemoteAddressFieldTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
-        $orderCustomer = $this->getContainer()->get('order_customer.repository')
+        $orderCustomer = static::getContainer()->get('order_customer.repository')
             ->search($criteria, Context::createDefaultContext())
             ->first();
 
@@ -113,12 +112,12 @@ class RemoteAddressFieldTest extends TestCase
 
         $customerId = $this->createCustomer();
 
-        $this->getContainer()->get(AccountService::class)
+        static::getContainer()->get(AccountService::class)
             ->loginByCredentials('test@example.com', 'shopware', $this->createSalesChannelContext());
 
         $criteria = new Criteria([$customerId]);
 
-        $customer = $this->getContainer()->get('customer.repository')
+        $customer = static::getContainer()->get('customer.repository')
             ->search($criteria, Context::createDefaultContext())
             ->first();
 
@@ -129,13 +128,13 @@ class RemoteAddressFieldTest extends TestCase
 
     private function setConfig(bool $value = false): void
     {
-        $this->getContainer()->get(SystemConfigService::class)
+        static::getContainer()->get(SystemConfigService::class)
             ->set('core.loginRegistration.customerIpAddressesNotAnonymously', $value);
     }
 
     private function createSalesChannelContext(): SalesChannelContext
     {
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
 
         return $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
@@ -144,7 +143,7 @@ class RemoteAddressFieldTest extends TestCase
     {
         $orderId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
-        $stateId = $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
+        $stateId = static::getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
 
         $customerId = $this->createCustomer();
 
@@ -187,7 +186,7 @@ class RemoteAddressFieldTest extends TestCase
             'payload' => '{}',
         ];
 
-        $this->getContainer()->get('order.repository')->upsert([$order], Context::createDefaultContext());
+        static::getContainer()->get('order.repository')->upsert([$order], Context::createDefaultContext());
 
         return $orderId;
     }
@@ -225,18 +224,14 @@ class RemoteAddressFieldTest extends TestCase
             ],
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
-        $this->getContainer()->get('customer.repository')->upsert([$customer], Context::createDefaultContext());
+        static::getContainer()->get('customer.repository')->upsert([$customer], Context::createDefaultContext());
 
         return $customerId;
     }
 
     private function getSerializer(): RemoteAddressFieldSerializer
     {
-        return $this->getContainer()->get(RemoteAddressFieldSerializer::class);
+        return static::getContainer()->get(RemoteAddressFieldSerializer::class);
     }
 
     private function getWriteParameterBagMock(): WriteParameterBag

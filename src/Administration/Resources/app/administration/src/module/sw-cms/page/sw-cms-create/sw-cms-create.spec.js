@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 
@@ -55,7 +55,6 @@ async function createWrapper(routeParams = {}) {
                     'sw-cms-toolbar': true,
                     'router-link': true,
                     'sw-page': true,
-                    'sw-icon': true,
                 },
                 mocks: {
                     $route: { params: routeParams },

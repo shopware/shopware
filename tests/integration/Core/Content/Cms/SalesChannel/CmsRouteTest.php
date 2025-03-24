@@ -120,6 +120,6 @@ class CmsRouteTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('cms_page.repository')->create([$cms], Context::createDefaultContext());
+        static::getContainer()->get('cms_page.repository')->create([$cms], Context::createDefaultContext());
     }
 }

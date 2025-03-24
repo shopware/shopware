@@ -35,7 +35,7 @@ class CustomerVatIdentificationValidatorTest extends TestCase
         $validation
             ->add('vatIds', $constraint);
 
-        $validator = $this->getContainer()->get(DataValidator::class);
+        $validator = static::getContainer()->get(DataValidator::class);
 
         try {
             $validator->validate(['vatIds' => $vatIds], $validation);

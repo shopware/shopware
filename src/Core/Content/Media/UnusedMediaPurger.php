@@ -25,7 +25,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @final
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class UnusedMediaPurger
 {
     private const VALID_ASSOCIATIONS = [
@@ -77,6 +77,7 @@ class UnusedMediaPurger
         // otherwise, we need to iterate over the entire result set in batches
         $iterator = new RepositoryIterator($this->mediaRepo, $context, $criteria);
         while (($ids = $iterator->fetchIds()) !== null) {
+            /** @phpstan-ignore argument.type (we can't narrow down argument type to list<string> in while loop) */
             $ids = $this->filterOutNewMedia($ids, $gracePeriodDays, $context);
             $unusedIds = $this->dispatchEvent($ids);
 

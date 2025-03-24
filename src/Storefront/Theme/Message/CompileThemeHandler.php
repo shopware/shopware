@@ -8,10 +8,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
 use Shopware\Storefront\Theme\Exception\ThemeException;
-use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
+use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCompilerInterface;
 use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -20,13 +20,16 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * @internal
  */
 #[AsMessageHandler]
-#[Package('storefront')]
+#[Package('framework')]
 final class CompileThemeHandler
 {
+    /**
+     * @param EntityRepository<SalesChannelCollection> $saleschannelRepository
+     */
     public function __construct(
         private readonly ThemeCompilerInterface $themeCompiler,
         private readonly AbstractConfigLoader $configLoader,
-        private readonly StorefrontPluginRegistryInterface $extensionRegistry,
+        private readonly StorefrontPluginRegistry $extensionRegistry,
         private readonly NotificationService $notificationService,
         private readonly EntityRepository $saleschannelRepository
     ) {
@@ -47,13 +50,12 @@ final class CompileThemeHandler
         if ($message->getContext()->getScope() !== Context::USER_SCOPE) {
             return;
         }
-        /** @var SalesChannelEntity|null $salesChannel */
+
         $salesChannel = $this->saleschannelRepository->search(
             new Criteria([$message->getSalesChannelId()]),
             $message->getContext()
-        )->first();
-
-        if ($salesChannel === null) {
+        )->getEntities()->first();
+        if (!$salesChannel) {
             throw ThemeException::salesChannelNotFound($message->getSalesChannelId());
         }
 

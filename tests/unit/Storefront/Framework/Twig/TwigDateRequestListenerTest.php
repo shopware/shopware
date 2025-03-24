@@ -12,7 +12,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Component\HttpKernel\KernelEvents;
 use Twig\Environment;
 use Twig\Extension\CoreExtension;
 use Twig\Loader\ArrayLoader;
@@ -23,16 +22,6 @@ use Twig\Loader\ArrayLoader;
 #[CoversClass(TwigDateRequestListener::class)]
 class TwigDateRequestListenerTest extends TestCase
 {
-    public function testGetSubscribedEvents(): void
-    {
-        static::assertSame(
-            [
-                KernelEvents::REQUEST => 'onKernelRequest',
-            ],
-            TwigDateRequestListener::getSubscribedEvents()
-        );
-    }
-
     public static function dataProviderOnKernelRequest(): \Generator
     {
         yield [
@@ -104,7 +93,7 @@ class TwigDateRequestListenerTest extends TestCase
         $container->set('twig', $service);
         $listener = new TwigDateRequestListener($container);
 
-        $listener->onKernelRequest($event);
+        $listener->__invoke($event);
 
         if ($changed) {
             static::assertNotSame(

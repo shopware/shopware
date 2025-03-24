@@ -4,13 +4,11 @@ import './sw-extension-card-base.scss';
 const { Utils, Filter } = Shopware;
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inheritAttrs: false,
 
@@ -52,7 +50,7 @@ export default {
         },
 
         defaultThemeAsset() {
-            return this.assetFilter('administration/static/img/theme/default_theme_preview.jpg');
+            return this.assetFilter('administration/administration/static/img/theme/default_theme_preview.jpg');
         },
 
         extensionCardClasses() {
@@ -137,7 +135,7 @@ export default {
         },
 
         isUpdateable() {
-            if (!this.extension || this.extension.latestVersion === null || this.extension.managedByComposer) {
+            if (!this.extension || this.extension.latestVersion === null || !this.extension.allowUpdate) {
                 return false;
             }
 
@@ -149,7 +147,7 @@ export default {
         },
 
         extensionMainModule() {
-            return Shopware.State.get('extensionMainModules').mainModules.find(
+            return Shopware.Store.get('extensionMainModules').mainModules.find(
                 (mainModule) => mainModule.extensionName === this.extension.name,
             );
         },
@@ -180,19 +178,27 @@ export default {
         },
 
         consentAffirmationModalTitle() {
-            return this.$tc('sw-extension-store.component.sw-extension-permissions-modal.titleNewPermissions', 1, {
-                extensionLabel: this.extension.label,
-            });
+            return this.$tc(
+                'sw-extension-store.component.sw-extension-permissions-modal.titleNewPermissions',
+                {
+                    extensionLabel: this.extension.label,
+                },
+                1,
+            );
         },
 
         consentAffirmationModalDescription() {
-            return this.$tc('sw-extension-store.component.sw-extension-permissions-modal.descriptionNewPermissions', 1, {
-                extensionLabel: this.extension.label,
-            });
+            return this.$tc(
+                'sw-extension-store.component.sw-extension-permissions-modal.descriptionNewPermissions',
+                {
+                    extensionLabel: this.extension.label,
+                },
+                1,
+            );
         },
 
         extensionManagementDisabled() {
-            return Shopware.State.get('context').app.config.settings.disableExtensionManagement;
+            return Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
         },
 
         showContextMenu() {
@@ -323,10 +329,10 @@ export default {
             }
         },
 
-        async closeModalAndRemoveExtension() {
+        async closeModalAndRemoveExtension(removeData) {
             // we close the modal in the called methods before updating the listing
             if (this.extension.storeLicense === null || this.extension.storeLicense.variant !== 'rent') {
-                await this.removeExtension();
+                await this.removeExtension(removeData);
                 this.showRemovalModal = false;
 
                 return;
@@ -387,12 +393,12 @@ export default {
             Utils.debug.warn(this._name, 'No implementation of installAndActivateExtension found');
         },
 
-        async removeExtension() {
+        async removeExtension(removeData) {
             try {
                 this.showRemovalModal = false;
                 this.isLoading = true;
 
-                await this.shopwareExtensionService.removeExtension(this.extension.name, this.extension.type);
+                await this.shopwareExtensionService.removeExtension(this.extension.name, this.extension.type, removeData);
                 this.extension.active = false;
             } catch (e) {
                 this.showStoreError(e);

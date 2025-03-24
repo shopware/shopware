@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
 
@@ -23,8 +23,6 @@ async function createWrapper() {
 
                 stubs: {
                     'sw-modal': await wrapTestComponent('sw-modal'),
-                    'sw-button': true,
-                    'sw-icon': true,
                     'sw-loader': true,
                 },
             },

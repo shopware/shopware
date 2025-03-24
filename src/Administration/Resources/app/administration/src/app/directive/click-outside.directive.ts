@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 // @ts-expect-error
 import vClickOutside from 'v-click-outside';
 

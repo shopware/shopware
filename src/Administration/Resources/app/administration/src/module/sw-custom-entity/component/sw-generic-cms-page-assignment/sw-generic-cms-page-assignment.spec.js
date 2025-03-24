@@ -33,7 +33,7 @@ const pageMock = {
 };
 
 /**
- * @package content
+ * @sw-package discovery
  */
 async function createWrapper() {
     return mount(
@@ -43,16 +43,12 @@ async function createWrapper() {
         {
             global: {
                 stubs: {
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot></slot></div>',
+                    'mt-card': {
+                        template: '<div class="mt-card"><slot></slot></div>',
                     },
                     'sw-cms-list-item': {
                         template: '<div class="sw-cms-list-item"></div>',
                         props: ['page'],
-                    },
-                    'sw-button': {
-                        emits: ['click'],
-                        template: '<div class="sw-button" @click="$emit(`click`)"></div>',
                     },
                     'sw-cms-layout-modal': {
                         template: '<div class="sw-cms-layout-modal"></div>',
@@ -61,7 +57,6 @@ async function createWrapper() {
                         template: '<div class="sw-cms-page-form"></div>',
                         props: ['page'],
                     },
-                    'sw-icon': true,
                 },
                 provide: {
                     cmsPageTypeService: {
@@ -90,7 +85,7 @@ async function createWrapper() {
 }
 
 /**
- * @package content
+ * @sw-package discovery
  */
 describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () => {
     beforeEach(() => {

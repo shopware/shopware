@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 
 import template from './sw-admin-menu-extension.html.twig';
@@ -8,8 +8,6 @@ const { Component } = Shopware;
 
 Component.override('sw-admin-menu', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['acl'],
 

@@ -17,7 +17,7 @@ class InstallTest extends TestCase
     public function testCommandWhenNoServicesAreInstalled(): void
     {
         $installer = $this->createMock(AllServiceInstaller::class);
-        $installer->expects(static::once())->method('install');
+        $installer->expects($this->once())->method('install');
 
         $command = new Install($installer);
         $tester = new CommandTester($command);
@@ -29,7 +29,7 @@ class InstallTest extends TestCase
     public function testCommandWritesListOfInstalledServices(): void
     {
         $installer = $this->createMock(AllServiceInstaller::class);
-        $installer->expects(static::once())->method('install')->willReturn([
+        $installer->expects($this->once())->method('install')->willReturn([
             'MyCoolService1',
             'MyCoolService2',
         ]);

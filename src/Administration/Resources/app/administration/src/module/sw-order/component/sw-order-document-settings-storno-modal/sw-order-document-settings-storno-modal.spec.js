@@ -1,7 +1,8 @@
 import { mount } from '@vue/test-utils';
+import selectMtSelectOptionByText from '../../../../../test/_helper_/select-mt-select-by-text';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const orderFixture = {
@@ -86,21 +87,14 @@ async function createWrapper() {
                     'sw-text-field': true,
                     'sw-datepicker': true,
                     'sw-checkbox-field': true,
-                    'sw-switch-field': true,
+
                     'sw-context-button': {
                         template: '<div class="sw-context-button"><slot></slot></div>',
                     },
-                    'sw-button': await wrapTestComponent('sw-button', {
-                        sync: true,
-                    }),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-button-group': await wrapTestComponent('sw-button-group', { sync: true }),
                     'sw-context-menu-item': true,
                     'sw-upload-listener': true,
                     'sw-textarea-field': true,
-                    'sw-icon': true,
-                    'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
-                    'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
                     'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
                     'sw-base-field': await wrapTestComponent('sw-base-field', {
                         sync: true,
@@ -141,13 +135,14 @@ describe('src/module/sw-order/component/sw-order-document-settings-storno-modal'
     it('should show only invoice numbers in invoice number select field', async () => {
         const wrapper = await createWrapper();
 
-        const invoiceSelect = wrapper.find('.sw-order-document-settings-storno-modal__invoice-select');
+        const invoiceSelect = wrapper.find('.mt-select input');
         await invoiceSelect.trigger('click');
 
-        const invoiceOptions = wrapper.find('.sw-order-document-settings-storno-modal__invoice-select').findAll('option');
+        const invoiceOptions = wrapper.find('.mt-select').findAll('.mt-highlight-text');
+        const optionTexts = invoiceOptions.map((option) => option.text());
 
-        expect(invoiceOptions.at(1).text()).toBe('1000');
-        expect(invoiceOptions.at(2).text()).toBe('1001');
+        expect(optionTexts).toContain('1000');
+        expect(optionTexts).toContain('1001');
     });
 
     it('should disable create button if there is no selected invoice', async () => {
@@ -156,20 +151,14 @@ describe('src/module/sw-order/component/sw-order-document-settings-storno-modal'
         const createButton = wrapper.find('.sw-order-document-settings-modal__create');
         expect(createButton.attributes().disabled).toBeDefined();
 
-        const createContextMenu = wrapper.find('.sw-context-button');
+        const createContextMenu = wrapper.findAll('.sw-context-button').at(1);
         expect(createContextMenu.attributes().disabled).toBeDefined();
     });
 
     it('should enable create button if there is at least one selected invoice', async () => {
         const wrapper = await createWrapper();
 
-        const invoiceSelect = wrapper.find('.sw-order-document-settings-storno-modal__invoice-select');
-        await invoiceSelect.trigger('click');
-
-        const invoiceOptions = wrapper.find('.sw-order-document-settings-storno-modal__invoice-select').findAll('option');
-
-        await invoiceOptions.at(1).setSelected();
-        await wrapper.vm.$nextTick();
+        await selectMtSelectOptionByText(wrapper, '1001', '.sw-order-document-settings-storno-modal__invoice-select input');
 
         const createButton = wrapper.find('.sw-order-document-settings-modal__create');
         expect(createButton.attributes().disabled).toBeUndefined();

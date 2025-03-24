@@ -31,7 +31,7 @@ class MediaEntityTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('media.repository');
+        $this->repository = static::getContainer()->get('media.repository');
         $this->context = Context::createDefaultContext();
     }
 

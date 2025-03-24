@@ -67,11 +67,11 @@ class ProductListingRouteTest extends TestCase
         $this->createSalesChannelContext(['id' => $this->ids->create('sales-channel')]);
 
         /** @var EntityRepository $categoryRepository */
-        $categoryRepository = $this->getContainer()->get('category.repository');
+        $categoryRepository = static::getContainer()->get('category.repository');
         $this->categoryRepository = $categoryRepository;
 
         /** @var EntityRepository $productRepository */
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $this->productRepository = $productRepository;
     }
 
@@ -172,23 +172,23 @@ class ProductListingRouteTest extends TestCase
     #[DataProvider('filterAggregationsWithProducts')]
     public function testFilterAggregationsWithProducts(IdsCollection $ids, array $product, Request $request, array $expected): void
     {
-        $parent = $this->getContainer()->get(Connection::class)->fetchOne(
+        $parent = static::getContainer()->get(Connection::class)->fetchOne(
             'SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = :id',
             ['id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL)]
         );
 
-        $this->getContainer()->get('category.repository')
+        static::getContainer()->get('category.repository')
             ->create([['id' => $ids->get('category'), 'name' => 'test', 'parentId' => $parent]], Context::createDefaultContext());
 
         $categoryId = $product['categories'][0]['id'];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product], Context::createDefaultContext());
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        $listing = $this->getContainer()
+        $listing = static::getContainer()
             ->get(ProductListingRoute::class)
             ->load($categoryId, $request, $context, new Criteria())
             ->getResult();
@@ -708,7 +708,7 @@ class ProductListingRouteTest extends TestCase
             'products' => $products,
         ];
 
-        $this->getContainer()->get('product_stream.repository')->create([[
+        static::getContainer()->get('product_stream.repository')->create([[
             'id' => $this->ids->create('productStream'),
             'name' => 'test',
             'filters' => [[

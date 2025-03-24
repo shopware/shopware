@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 import 'src/app/decorator/state-styling-provider.decorator';
 

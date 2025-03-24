@@ -29,7 +29,7 @@ class ProductTagTest extends TestCase
     {
         parent::setUp();
 
-        $this->repository = $this->getContainer()->get('product.repository');
+        $this->repository = static::getContainer()->get('product.repository');
     }
 
     public function testEqualsAnyFilter(): void

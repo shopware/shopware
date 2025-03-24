@@ -1,21 +1,17 @@
 import type { PropType } from 'vue';
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import type Repository from 'src/core/data/repository.data';
-import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import template from './sw-settings-tax-provider-sorting-modal.html.twig';
 import './sw-settings-tax-provider-sorting-modal.scss';
 
 const { Component, Mixin } = Shopware;
 
 /**
- * @package checkout
+ * @sw-package checkout
  *
  * @private
  */
 export default Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'acl',

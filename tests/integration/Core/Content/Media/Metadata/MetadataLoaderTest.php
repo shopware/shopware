@@ -84,7 +84,7 @@ class MetadataLoaderTest extends TestCase
 
     private function getMetadataLoader(): MetadataLoader
     {
-        return $this->getContainer()
+        return static::getContainer()
             ->get(MetadataLoader::class);
     }
 

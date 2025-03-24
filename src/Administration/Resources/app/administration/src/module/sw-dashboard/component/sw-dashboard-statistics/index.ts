@@ -1,4 +1,3 @@
-import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import template from './sw-dashboard-statistics.html.twig';
 import './sw-dashboard-statistics.scss';
 
@@ -48,15 +47,12 @@ interface ComponentData {
 }
 
 /**
- * @package services-settings
- * @deprecated tag:v6.7.0 - Will be removed without replacement
+ * @sw-package after-sales
  *
- * @private
+ * @private might get removed with any update (even minor!) as it likely gets replaced by shopware analytics
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -274,7 +270,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         isSessionLoaded() {
-            return !Shopware.State.get('session')?.userPending;
+            return !Shopware.Store.get('session')?.userPending;
         },
 
         currencyFilter() {
@@ -364,7 +360,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             const initContainer = Shopware.Application.getContainer('init');
             const httpClient = initContainer.httpClient;
-            const timezone = Shopware.State.get('session').currentUser?.timeZone ?? 'UTC';
+            const timezone = Shopware.Store.get('session').currentUser?.timeZone ?? 'UTC';
 
             return httpClient
                 .get<
@@ -525,6 +521,6 @@ export default Shopware.Component.wrapComponentConfig({
 });
 
 /**
- * @private
+ * @private might get removed with any update (even minor!) as it likely gets replaced by shopware analytics
  */
 export type { HistoryDateRange };

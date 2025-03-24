@@ -28,7 +28,7 @@ class TaskRegistryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->scheduledTaskRepo = $this->getContainer()->get('scheduled_task.repository');
+        $this->scheduledTaskRepo = static::getContainer()->get('scheduled_task.repository');
 
         $this->registry = new TaskRegistry(
             [
@@ -41,7 +41,7 @@ class TaskRegistryTest extends TestCase
 
     public function testOnNonRegisteredTask(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $connection->executeStatement('DELETE FROM scheduled_task');
 
         $this->registry->registerTasks();
@@ -60,7 +60,7 @@ class TaskRegistryTest extends TestCase
 
     public function testUpdatesRunIntervalOnAlreadyRegisteredTaskWhenRunIntervalMatchesDefault(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $connection->executeStatement('DELETE FROM scheduled_task');
 
         $this->scheduledTaskRepo->create([
@@ -90,7 +90,7 @@ class TaskRegistryTest extends TestCase
 
     public function testDoesNotUpdateRunIntervalOnAlreadyRegisteredTaskWhenRunIntervalWasChanged(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $connection->executeStatement('DELETE FROM scheduled_task');
 
         $this->scheduledTaskRepo->create([
@@ -139,7 +139,7 @@ class TaskRegistryTest extends TestCase
 
     public function testItDeletesNotAvailableTasks(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $connection->executeStatement('DELETE FROM scheduled_task');
 
         $this->scheduledTaskRepo->create([

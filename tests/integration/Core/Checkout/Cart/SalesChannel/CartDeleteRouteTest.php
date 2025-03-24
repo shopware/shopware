@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -35,6 +36,9 @@ class CartDeleteRouteTest extends TestCase
 
     private IdsCollection $ids;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     private AbstractSalesChannelContextFactory $salesChannelFactory;
@@ -51,9 +55,9 @@ class CartDeleteRouteTest extends TestCase
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
 
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->cartPersister = $this->getContainer()->get(CartPersister::class);
-        $this->salesChannelFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->cartPersister = static::getContainer()->get(CartPersister::class);
+        $this->salesChannelFactory = static::getContainer()->get(SalesChannelContextFactory::class);
     }
 
     public function testEmptyCart(): void

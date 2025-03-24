@@ -13,7 +13,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 abstract class AppChangedEvent extends Event implements ShopwareEvent, Hookable
 {
     public function __construct(

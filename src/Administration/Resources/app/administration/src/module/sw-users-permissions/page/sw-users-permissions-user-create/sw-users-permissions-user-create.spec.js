@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 import { mount } from '@vue/test-utils';
 import TimezoneService from 'src/core/service/timezone.service';
@@ -83,29 +83,20 @@ async function createWrapper(privileges = []) {
                         template: '<div><slot name="content"></slot></div>',
                     },
                     'sw-card-view': true,
-                    'sw-card': true,
                     'sw-text-field': true,
                     'sw-upload-listener': true,
                     'sw-media-upload-v2': true,
-                    'sw-password-field': {
-                        template: `
-                        <input type="password" :value="value" @input="$emit('update:value', $event.target.value)">
-                    `,
-                        props: ['value'],
-                    },
                     'sw-select-field': true,
-                    'sw-switch-field': true,
+
                     'sw-entity-multi-select': true,
                     'sw-single-select': true,
                     'sw-skeleton': true,
                     'sw-empty-state': true,
                     'sw-data-grid': true,
-                    'sw-button': true,
                     'sw-context-menu-item': true,
                     'sw-button-process': true,
                     'sw-verify-user-modal': true,
                     'sw-media-modal-v2': true,
-                    'sw-alert': true,
                 },
             },
         },
@@ -121,13 +112,13 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
     });
 
     beforeEach(async () => {
-        Shopware.State.get('session').languageId = '123456789';
+        Shopware.Store.get('session').languageId = '123456789';
         wrapper = await createWrapper();
         await flushPromises();
     });
 
     afterEach(() => {
-        Shopware.State.get('session').languageId = '';
+        Shopware.Store.get('session').languageId = '';
     });
 
     it('should be a Vue.js component', async () => {
@@ -150,7 +141,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
         await wrapper.setData({ isLoading: false });
         expect(wrapper.vm.user.password).toBe('');
 
-        const fieldPassword = wrapper.find('.sw-settings-user-detail__grid-password');
+        const fieldPassword = wrapper.findByLabel('sw-users-permissions.users.user-detail.labelPassword');
         await fieldPassword.setValue('Passw0rd!');
         await flushPromises();
 

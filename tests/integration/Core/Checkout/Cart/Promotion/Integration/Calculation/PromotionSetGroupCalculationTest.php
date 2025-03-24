@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -30,10 +32,16 @@ class PromotionSetGroupCalculationTest extends TestCase
     use PromotionIntegrationTestBehaviour;
     use PromotionTestFixtureBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     protected EntityRepository $productRepository;
 
     protected CartService $cartService;
 
+    /**
+     * @var EntityRepository<PromotionCollection>
+     */
     protected EntityRepository $promotionRepository;
 
     private SalesChannelContext $context;
@@ -42,9 +50,9 @@ class PromotionSetGroupCalculationTest extends TestCase
     {
         parent::setUp();
 
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->promotionRepository = $this->getContainer()->get('promotion.repository');
-        $this->cartService = $this->getContainer()->get(CartService::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->promotionRepository = static::getContainer()->get('promotion.repository');
+        $this->cartService = static::getContainer()->get(CartService::class);
 
         $this->context = $this->getContext();
     }
@@ -64,7 +72,7 @@ class PromotionSetGroupCalculationTest extends TestCase
     #[Group('promotions')]
     public function testPercentageOnMultipleItemsAndSubsetQuantities(): void
     {
-        $container = $this->getContainer();
+        $container = static::getContainer();
         $productId1 = Uuid::randomHex();
         $productId2 = Uuid::randomHex();
 
@@ -103,7 +111,7 @@ class PromotionSetGroupCalculationTest extends TestCase
     #[Group('promotions')]
     public function testAbsoluteOnMultipleItemsAndSubsetQuantities(): void
     {
-        $container = $this->getContainer();
+        $container = static::getContainer();
         $productId1 = Uuid::randomHex();
         $productId2 = Uuid::randomHex();
 
@@ -149,7 +157,7 @@ class PromotionSetGroupCalculationTest extends TestCase
     #[Group('promotions')]
     public function testFixedUnitPriceOnMultipleItemsAndSubsetQuantities(): void
     {
-        $container = $this->getContainer();
+        $container = static::getContainer();
         $productId1 = Uuid::randomHex();
         $productId2 = Uuid::randomHex();
 
@@ -195,7 +203,7 @@ class PromotionSetGroupCalculationTest extends TestCase
     #[Group('promotions')]
     public function testFixedPriceOnMultipleItemsAndSubsetQuantities(): void
     {
-        $container = $this->getContainer();
+        $container = static::getContainer();
         $productId1 = Uuid::randomHex();
         $productId2 = Uuid::randomHex();
 

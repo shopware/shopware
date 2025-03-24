@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Api\Sync;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class SyncBehavior
 {
     /**

@@ -13,7 +13,7 @@ use Symfony\Component\Messenger\Transport\TransportInterface;
 /**
  * @implements TransportFactoryInterface<DoctrineTransport>
  */
-#[Package('core')]
+#[Package('framework')]
 class DoctrineTransportFactory implements TransportFactoryInterface
 {
     public function __construct(private readonly DBALConnection $connection)

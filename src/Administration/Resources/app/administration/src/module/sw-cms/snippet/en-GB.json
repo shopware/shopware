@@ -78,7 +78,6 @@
       "chooseSectionHelpText": "Sections divide your working space into areas and help you to be more creative. You may combine different sections and move or delete them at any time.",
       "chooseNameTitle": "How do you want to label your new layout?",
       "createLayout": "Create layout",
-      "abortCreation": "Cancel",
       "stepBack": "Back"
     },
     "detail": {
@@ -118,7 +117,6 @@
         "blockCategoryHtml": "HTML",
         "blockCategoryApp": "Apps",
         "buttonElementSettingsConfirm": "Done",
-        "buttonElementChangeAbort": "Cancel",
         "blockNameField": "Block name",
         "blockNameFieldPlaceholder": "Enter name...",
         "blockSizingField": "Sizing mode",
@@ -212,16 +210,16 @@
             "displayModeCover": "Cropped",
             "displayModeStretch": "Scaled",
             "displayModeContain": "Fixed height",
-            "autoSlide": "Auto slide",
+            "autoSlide": "Automatic transition",
             "autoplayTimeout": "Delay",
-            "speed": "Animation delay",
+            "speed": "Animation duration",
             "horizontalAlign": "Horizontal align",
             "horizontalAlignLeft": "Left",
             "horizontalAlignCenter": "Center",
             "horizontalAlignRight": "Right"
           },
           "helpText": {
-            "autoSlide": "The slide will be slided automatically.",
+            "autoSlide": "Temporarily disabled due to lack of accessibility.",
             "autoplayTimeout": "The millisecond duration for how long the slide should stay still.",
             "speed": "The millisecond duration of the sliding animation.",
             "displayMode": "<strong>Original:</strong> The image is displayed in its original resolution or shrunk down to current CMS page's width.<br><br><strong>Scaled:</strong> The image is scaled to the CMS page's width without any height restrictions.<br><br><strong>Cropped:</strong> The image is scaled to the current CMS page's width. Any vertical overflow is cropped to the configured maximum height."
@@ -248,6 +246,7 @@
           "label": {
             "minHeight": "Minimum height",
             "minHeightHelpText": "Enter the minimum height with your desired unit. For example: 200px",
+            "isDecorative": "Mark image as decorative",
             "linkNewTab": "Open link in new tab",
             "linkTo": "Link target"
           },
@@ -306,7 +305,12 @@
             "layoutType": "Layout type",
             "layoutTypeStandard": "Standard",
             "layoutTypeImage": "Big image",
-            "layoutTypeMinimal": "Minimal content"
+            "layoutTypeMinimal": "Minimal content",
+            "headlineLevel": "Headline level for product boxes",
+            "headlineLevelHelp": "Choose a headline level for the product box titles in this product listing. If \"No headline\" is selected, no headline level will be applied.",
+            "headlineLevelOption": "Headline {level}",
+            "headlineLevelDefaultOption": "Headline 2 (recommended default)",
+            "headlineLevelEmptyOption": "No headline (not recommended)"
           },
           "placeholder": {
             "selection": "Select a product..."
@@ -362,9 +366,12 @@
             "title": "Slider title",
             "selection": "Products",
             "navigation": "Navigation",
-            "rotate": "Automatic sliding",
             "border": "Border",
             "minWidth": "Minimal width",
+            "navigationArrows": "Arrow navigation",
+            "navigationPositionNone": "None",
+            "navigationPositionInside": "Inside",
+            "navigationPositionOutside": "Outside",
             "productAssignmentType": "Product assignment",
             "productStreamSorting": "Sorting",
             "productStreamLimit": "Maximum number of products",
@@ -377,6 +384,10 @@
             "productStreamChoice": "Select a dynamic product group",
             "productStreamSorting": "Select a sorting..."
           },
+          "helpText": {
+            "minWidth": "Enter the minimum width with your desired unit. For example: 200px",
+            "displayMode": "<strong>Original:</strong> The images are scaled to the height or width of the product box, so that they always fit into their designated area. The images are never scaled up.<br><br><strong>Fixed height:</strong> The images are scaled to the height or width of the product box, so that they always fit into their designated area. The images can be scaled up.<br><br><strong>Cropped:</strong> The images are scaled to the height or width of the product box. Any overflow is cropped."
+          },
           "productAssignmentTypeOptions": {
             "manual": "Manual assignment",
             "productStream": "Dynamic product group"
@@ -388,6 +399,8 @@
             "priceDesc": "Price descending",
             "creationDateAsc": "Creation date ascending",
             "creationDateDesc": "Creation date descending",
+            "releaseDateAsc": "Release date ascending",
+            "releaseDateDesc": "Release date descending",
             "random": "Random"
           },
           "textProductStreamPreviewLink": "Preview dynamic product group",
@@ -440,10 +453,12 @@
             "start": "Start video at",
             "end": "End video at",
             "needsConfirmation": "Load video only after confirmation by the user",
-            "previewImage": "Preview image"
+            "previewImage": "Preview image",
+            "videoTitle" : "Video title"
           },
           "placeholder": {
-            "videoId": "Enter a video link..."
+            "videoId": "Enter a video link...",
+            "videoTitle": "Enter a descriptive title..."
           },
           "helpText": {
             "autoPlay": "Some browser prevent videos from starting automatically.",
@@ -732,7 +747,6 @@
         "infoText": "Please note that all products that are currently assigned to a default layout will be reassigned to this layout and newly created products will automatically be assigned to it as well. Do you really want to use this layout as default? | Please note that all categories that are currently assigned to a default layout will be reassigned to this layout and newly created categories will automatically be assigned to it as well. Do you really want to use this layout as default?"
       },
       "cmsLayoutModal": {
-        "actionCancel": "Cancel",
         "actionConfirm": "Save",
         "modalTitle": "Select layout",
         "headline": "Landing page / product listing"
@@ -749,9 +763,6 @@
         "resetOptionSalesChannel": "All Sales Channels",
         "helpTextSalesChannel": "Layouts assigned to specific Sales Channels will override layout assignments in \"All Sales Channels\".",
         "labelShopPages": "Shop pages",
-        "confirmChanges": "Apply",
-        "confirmChangesConfirm": "Apply",
-        "confirmChangesRestorePrev": "Discard",
         "confirmChangesTextCategories": "You have removed layout assignments from categories. If you confirm these changes, those categories will no longer have a layout assigned.",
         "confirmChangesTextCategoriesAssignedLayouts": "Some of the selected categories already have a layout assigned. If you proceed those previous assignments will be replaced with the current layout.",
         "confirmChangesTextLandingPages": "You have removed layout assignments from landing pages. If you confirm these changes, those landing pages will no longer have a layout assigned.",
@@ -813,7 +824,6 @@
           "textRenameConfirm": "Choose a new name for \"{pageName}\":",
           "textDeleteConfirm": "Are you sure you really want to delete the layout \"{pageName}\"?",
           "buttonRename": "Rename",
-          "buttonCancel": "Cancel",
           "buttonDelete": "Delete"
         }
       }

@@ -11,7 +11,6 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -64,11 +63,11 @@ class CartTaxTest extends TestCase
     {
         $this->ids = new IdsCollection();
 
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
-        $this->countryRepository = $this->getContainer()->get('country.repository');
-        $this->currencyRepository = $this->getContainer()->get('currency.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
+        $this->countryRepository = static::getContainer()->get('country.repository');
+        $this->currencyRepository = static::getContainer()->get('currency.repository');
     }
 
     /**
@@ -447,10 +446,6 @@ class CartTaxTest extends TestCase
             'company' => 'Test',
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
         $this->customerRepository->create([$customer], Context::createDefaultContext());
     }
 
@@ -531,7 +526,7 @@ class CartTaxTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('shipping_method.repository')
+        static::getContainer()->get('shipping_method.repository')
             ->create($data, Context::createDefaultContext());
     }
 }

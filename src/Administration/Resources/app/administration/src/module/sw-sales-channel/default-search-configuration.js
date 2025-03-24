@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';

@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import './sw-wizard-dot-navigation.scss';
 import template from './sw-wizard-dot-navigation.html.twig';
 
@@ -10,8 +14,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-wizard-dot-navigation', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         pages: {

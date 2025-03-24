@@ -27,7 +27,7 @@ class WriteCommandQueueTest extends TestCase
     public function testCommandsInOrder(): void
     {
         /** @var DefinitionInstanceRegistry */
-        $definitionRegistry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
         $queue = new WriteCommandQueue();
 

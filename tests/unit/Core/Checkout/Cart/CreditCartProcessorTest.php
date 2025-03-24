@@ -35,12 +35,12 @@ class CreditCartProcessorTest extends TestCase
         $original->add($item);
 
         $toCalculate = new Cart('toCalculate');
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $behavior = new CartBehavior($context->getPermissions());
 
         $calculator = $this->createMock(AbsolutePriceCalculator::class);
         $calculator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('calculate')
             ->with(
                 static::equalTo(5.0),
@@ -66,12 +66,12 @@ class CreditCartProcessorTest extends TestCase
         $original->add($item);
 
         $toCalculate = new Cart('toCalculate');
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $behavior = new CartBehavior($context->getPermissions());
 
         $calculator = $this->createMock(AbsolutePriceCalculator::class);
         $calculator
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('calculate');
 
         $processor = new CreditCartProcessor($calculator);
@@ -90,12 +90,12 @@ class CreditCartProcessorTest extends TestCase
         $original->add($item);
 
         $toCalculate = new Cart('toCalculate');
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $behavior = new CartBehavior($context->getPermissions());
 
         $calculator = $this->createMock(AbsolutePriceCalculator::class);
         $calculator
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('calculate');
 
         $processor = new CreditCartProcessor($calculator);

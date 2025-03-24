@@ -25,7 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class CmsSectionDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'cms_section';
@@ -57,8 +57,11 @@ class CmsSectionDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        $collection = new FieldCollection([
+        return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            new VersionField(),
+            (new ReferenceVersionField(CmsPageDefinition::class))->addFlags(new Required(), new ApiAware()),
+
             (new IntField('position', 'position'))->addFlags(new ApiAware(), new Required()),
             (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required()),
             new LockedField(),
@@ -80,10 +83,5 @@ class CmsSectionDefinition extends EntityDefinition
             (new OneToManyAssociationField('blocks', CmsBlockDefinition::class, 'cms_section_id'))->addFlags(new ApiAware(), new CascadeDelete()),
             (new CustomFields())->addFlags(new ApiAware()),
         ]);
-
-        $collection->add(new VersionField());
-        $collection->add((new ReferenceVersionField(CmsPageDefinition::class))->addFlags(new Required(), new ApiAware()));
-
-        return $collection;
     }
 }

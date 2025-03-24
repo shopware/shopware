@@ -5,7 +5,7 @@ namespace Shopware\Core\System\SalesChannel;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelIndexerEvent;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class SalesChannelEvents
 {
     final public const SALES_CHANNEL_WRITTEN = 'sales_channel.written';

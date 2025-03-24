@@ -4,7 +4,7 @@ import './sw-product-variant-info.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Component which renders the variations of variant products.
@@ -15,8 +15,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-product-variant-info', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 

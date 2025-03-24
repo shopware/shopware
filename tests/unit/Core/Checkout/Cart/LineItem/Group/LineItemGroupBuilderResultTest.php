@@ -278,4 +278,97 @@ class LineItemGroupBuilderResultTest extends TestCase
         static::assertEquals('ID3', $data[1]->getItems()[1]->getLineItemId());
         static::assertEquals(2, $data[1]->getItems()[1]->getQuantity());
     }
+
+    /**
+     * Similar to testGroupResultHasAllFoundGroupsOfDefinition, the method is used to get the result of given definition
+     */
+    #[Group('lineitemgroup')]
+    public function testResultHasAllFoundGroupsOfDefinition(): void
+    {
+        $groupDefinition1 = new LineItemGroupDefinition('GROUP_ID1', 'COUNT', 2, 'PRICE_ASC', new RuleCollection());
+        $groupDefinition2 = new LineItemGroupDefinition('GROUP_ID2', 'COUNT', 3, 'PRICE_ASC', new RuleCollection());
+
+        $group1 = new LineItemGroup();
+        $group1->addItem('ID1', 2);
+        $group1->addItem('ID2', 1);
+
+        $group2 = new LineItemGroup();
+        $group2->addItem('ID1', 3);
+        $group2->addItem('ID3', 2);
+
+        $result = new LineItemGroupBuilderResult();
+        $result->addGroup($groupDefinition1, $group1);
+        $result->addGroup($groupDefinition2, $group2);
+
+        $resultGroupNone = $result->getResult('IDFOO');
+
+        static::assertNull($resultGroupNone);
+
+        $resultGroup1 = $result->getResult($groupDefinition1->getId());
+        $resultGroup2 = $result->getResult($groupDefinition2->getId());
+
+        static::assertInstanceOf(LineItemGroupBuilderResult::class, $resultGroup1);
+        static::assertInstanceOf(LineItemGroupBuilderResult::class, $resultGroup2);
+
+        static::assertCount(1, $resultGroup1->getGroupResult($groupDefinition1));
+        static::assertInstanceOf(LineItemGroup::class, $resultGroup1->getGroupResult($groupDefinition1)[0]);
+        static::assertCount(2, $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems());
+        static::assertEquals('ID1', $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems()[0]->getLineItemId());
+        static::assertEquals(2, $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems()[0]->getQuantity());
+        static::assertEquals('ID2', $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems()[1]->getLineItemId());
+        static::assertEquals(1, $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems()[1]->getQuantity());
+
+        static::assertCount(1, $resultGroup2->getGroupResult($groupDefinition2));
+        static::assertInstanceOf(LineItemGroup::class, $resultGroup2->getGroupResult($groupDefinition2)[0]);
+        static::assertCount(2, $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems());
+        static::assertEquals('ID1', $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems()[0]->getLineItemId());
+        static::assertEquals(3, $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems()[0]->getQuantity());
+        static::assertEquals('ID3', $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems()[1]->getLineItemId());
+        static::assertEquals(2, $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems()[1]->getQuantity());
+    }
+
+    public function testAddGroupResult(): void
+    {
+        $groupDefinition1 = new LineItemGroupDefinition('GROUP_ID1', 'COUNT', 2, 'PRICE_ASC', new RuleCollection());
+        $groupDefinition2 = new LineItemGroupDefinition('GROUP_ID2', 'COUNT', 3, 'PRICE_ASC', new RuleCollection());
+
+        $group1 = new LineItemGroup();
+        $group1->addItem('ID1', 2);
+        $group1->addItem('ID2', 1);
+
+        $group2 = new LineItemGroup();
+        $group2->addItem('ID1', 3);
+        $group2->addItem('ID3', 2);
+
+        $subResult1 = new LineItemGroupBuilderResult();
+        $subResult1->addGroup($groupDefinition1, $group1);
+        $subResult2 = new LineItemGroupBuilderResult();
+        $subResult2->addGroup($groupDefinition2, $group2);
+
+        $result = new LineItemGroupBuilderResult();
+        $result->addGroupResult($groupDefinition1->getId(), $subResult1);
+        $result->addGroupResult($groupDefinition2->getId(), $subResult2);
+
+        $resultGroup1 = $result->getResult($groupDefinition1->getId());
+        $resultGroup2 = $result->getResult($groupDefinition2->getId());
+
+        static::assertInstanceOf(LineItemGroupBuilderResult::class, $resultGroup1);
+        static::assertInstanceOf(LineItemGroupBuilderResult::class, $resultGroup2);
+
+        static::assertCount(1, $resultGroup1->getGroupResult($groupDefinition1));
+        static::assertInstanceOf(LineItemGroup::class, $resultGroup1->getGroupResult($groupDefinition1)[0]);
+        static::assertCount(2, $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems());
+        static::assertEquals('ID1', $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems()[0]->getLineItemId());
+        static::assertEquals(2, $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems()[0]->getQuantity());
+        static::assertEquals('ID2', $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems()[1]->getLineItemId());
+        static::assertEquals(1, $resultGroup1->getGroupResult($groupDefinition1)[0]->getItems()[1]->getQuantity());
+
+        static::assertCount(1, $resultGroup2->getGroupResult($groupDefinition2));
+        static::assertInstanceOf(LineItemGroup::class, $resultGroup2->getGroupResult($groupDefinition2)[0]);
+        static::assertCount(2, $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems());
+        static::assertEquals('ID1', $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems()[0]->getLineItemId());
+        static::assertEquals(3, $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems()[0]->getQuantity());
+        static::assertEquals('ID3', $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems()[1]->getLineItemId());
+        static::assertEquals(2, $resultGroup2->getGroupResult($groupDefinition2)[0]->getItems()[1]->getQuantity());
+    }
 }

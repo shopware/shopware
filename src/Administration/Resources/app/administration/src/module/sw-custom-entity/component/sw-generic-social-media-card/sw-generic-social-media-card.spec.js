@@ -10,14 +10,14 @@ const TEST_OG_IMAGE = {
 };
 
 /**
- * @package content
+ * @sw-package discovery
  */
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-generic-social-media-card', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': {
-                    template: '<div class="sw-card"><slot></slot></div>',
+                'mt-card': {
+                    template: '<div class="mt-card"><slot></slot></div>',
                 },
                 'sw-text-field': {
                     // eslint-disable-next-line max-len
@@ -31,12 +31,12 @@ async function createWrapper() {
                         'maxlength',
                     ],
                 },
-                'sw-textarea-field': {
+                'mt-textarea': {
                     // eslint-disable-next-line max-len
                     template:
-                        '<textarea class="sw-text-field" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
+                        '<textarea class="sw-text-field" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
                     props: [
-                        'value',
+                        'modelValue',
                         'label',
                         'help-text',
                         'placeholder',
@@ -93,7 +93,7 @@ async function createWrapper() {
 }
 
 /**
- * @package content
+ * @sw-package discovery
  */
 describe('src/module/sw-custom-entity/component/sw-generic-social-media-card', () => {
     it('should display the ogTitle and allow changing it', async () => {
@@ -102,26 +102,20 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-card', (
         const ogTitleInput = wrapper.getComponent('.sw-generic-social-media-card__og-title-input');
         const ogTitleDisplay = wrapper.findAll('.sw-generic-social-media-card__media-preview-content-title');
 
-        expect(ogTitleInput.props()).toEqual({
-            helpText: 'sw-landing-page.base.seo.helpTextMetaTitle',
-            label: 'sw-landing-page.base.seo.labelSocialMediaTitle',
-            maxlength: '255',
-            placeholder: 'sw-landing-page.base.seo.placeholderSocialMediaTitle',
-            value: '',
-        });
+        expect(ogTitleInput.props('helpText')).toBe('sw-landing-page.base.seo.helpTextMetaTitle');
+        expect(ogTitleInput.props('label')).toBe('sw-landing-page.base.seo.labelSocialMediaTitle');
+        expect(ogTitleInput.props('placeholder')).toBe('sw-landing-page.base.seo.placeholderSocialMediaTitle');
+        expect(ogTitleInput.props('modelValue')).toBe('');
+        expect(ogTitleInput.props('maxLength')).toBe(255);
 
-        expect(ogTitleInput.props('value')).toBe('');
         expect(ogTitleDisplay.map((element) => element.text())).toEqual([
             '',
             '',
         ]);
 
-        await ogTitleInput.vm.$emit('update:value', TEST_OG_TITLE);
-        expect(wrapper.emitted('update:og-title')).toEqual([[TEST_OG_TITLE]]);
-
         await wrapper.setProps({ ogTitle: TEST_OG_TITLE });
 
-        expect(ogTitleInput.props('value')).toBe(TEST_OG_TITLE);
+        expect(ogTitleInput.props('modelValue')).toBe(TEST_OG_TITLE);
         expect(ogTitleDisplay.map((element) => element.text())).toEqual([
             TEST_OG_TITLE,
             TEST_OG_TITLE,
@@ -134,23 +128,22 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-card', (
         const ogDescriptionInput = wrapper.getComponent('.sw-generic-social-media-card__og-description-input');
         const ogDescriptionDisplay = wrapper.get('.sw-generic-social-media-card__media-preview-content-description');
 
-        expect(ogDescriptionInput.props()).toEqual({
-            helpText: 'sw-landing-page.base.seo.helpTextMetaDescription',
-            label: 'sw-landing-page.base.seo.labelSocialMediaDescription',
-            maxlength: '255',
-            placeholder: 'sw-landing-page.base.seo.placeholderSocialMediaDescription',
-            value: '',
-        });
+        expect(ogDescriptionInput.props().helpText).toBe('sw-landing-page.base.seo.helpTextMetaDescription');
+        expect(ogDescriptionInput.props().label).toBe('sw-landing-page.base.seo.labelSocialMediaDescription');
+        expect(ogDescriptionInput.props().placeholder).toBe('sw-landing-page.base.seo.placeholderSocialMediaDescription');
+        expect(ogDescriptionInput.props().modelValue).toBe('');
+        expect(ogDescriptionInput.attributes()['max-length']).toBe('255');
+
         expect(ogDescriptionDisplay.text()).toBe('');
 
-        await ogDescriptionInput.vm.$emit('update:value', TEST_OG_DESCRIPTION);
+        await ogDescriptionInput.vm.$emit('update:modelValue', TEST_OG_DESCRIPTION);
         expect(wrapper.emitted('update:og-description')).toEqual([
             [TEST_OG_DESCRIPTION],
         ]);
 
         await wrapper.setProps({ ogDescription: TEST_OG_DESCRIPTION });
 
-        expect(ogDescriptionInput.props('value')).toBe(TEST_OG_DESCRIPTION);
+        expect(ogDescriptionInput.props('modelValue')).toBe(TEST_OG_DESCRIPTION);
         expect(ogDescriptionDisplay.text()).toBe(TEST_OG_DESCRIPTION);
     });
 

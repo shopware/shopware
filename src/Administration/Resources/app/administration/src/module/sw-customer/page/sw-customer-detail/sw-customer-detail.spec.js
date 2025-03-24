@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 async function createWrapper(privileges = [], editMode = false) {
@@ -20,14 +20,12 @@ async function createWrapper(privileges = [], editMode = false) {
                         <slot></slot>
                     </div>`,
                     },
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-language-switch': true,
                     'sw-card-view': {
                         template: '<div><slot></slot></div>',
                     },
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot></slot></div>',
                     },
                     'sw-container': true,
@@ -38,9 +36,6 @@ async function createWrapper(privileges = [], editMode = false) {
                     },
                     'sw-tabs-item': true,
                     'router-view': true,
-                    'sw-alert': {
-                        template: '<div><slot></slot></div>',
-                    },
                     'sw-customer-card': {
                         template: '<div></div>',
                     },

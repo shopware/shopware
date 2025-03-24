@@ -128,7 +128,6 @@
     },
     "detail": {
       "titleCard": "General information",
-      "buttonCancel": "Cancel",
       "buttonSave": "Save",
       "labelName": "Name",
       "placeholderName": "Enter title...",

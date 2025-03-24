@@ -16,6 +16,6 @@ class DisabledTwigCacheWarmupTest extends TestCase
     public function testServiceIsRemoved(): void
     {
         static::expectException(ServiceNotFoundException::class);
-        $this->getContainer()->get('twig.template_cache_warmer');
+        static::getContainer()->get('twig.template_cache_warmer');
     }
 }

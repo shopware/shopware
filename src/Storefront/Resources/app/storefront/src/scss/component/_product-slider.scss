@@ -35,6 +35,11 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
 .product-slider-controls-next {
     border: 0;
     background: none;
+
+    &.is-arrow-prev-inside,
+    &.is-arrow-next-inside {
+        background: var(--bs-gray-200);
+    }
 }
 
 .product-slider-controls-prev {
@@ -43,6 +48,14 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     &.has-border {
         left: 0;
     }
+
+    &.is-arrow-prev-inside {
+        left: 20px;
+
+        &.has-border {
+            left: 30px;
+        }
+    }
 }
 
 .product-slider-controls-next {
@@ -50,5 +63,13 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
 
     &.has-border {
         right: 0;
+    }
+
+    &.is-arrow-next-inside {
+        right: 20px;
+
+        &.has-border {
+            right: 30px;
+        }
     }
 }

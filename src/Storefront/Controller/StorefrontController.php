@@ -33,20 +33,13 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
-#[Package('storefront')]
+#[Package('framework')]
 abstract class StorefrontController extends AbstractController
 {
     public const SUCCESS = 'success';
     public const DANGER = 'danger';
     public const INFO = 'info';
     public const WARNING = 'warning';
-
-    /**
-     * @deprecated tag:v6.7.0 - setTwig is not necessary, setContainer is enough reason:decoration-will-be-removed
-     */
-    public function setTwig(Environment $twig): void
-    {
-    }
 
     public static function getSubscribedServices(): array
     {

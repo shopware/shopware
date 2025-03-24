@@ -4,9 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Attribute;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-class CustomFields extends Field
+final class CustomFields extends Field
 {
     public const TYPE = 'custom-fields';
 

@@ -6,11 +6,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdminExtensionApiController;
-use Shopware\Administration\Controller\Exception\AppByNameNotFoundException;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Executor;
+use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Hmac\QuerySigner;
-use Shopware\Core\Framework\App\Manifest\Exception\UnallowedHostException;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -33,13 +34,16 @@ class AdminExtensionApiControllerTest extends TestCase
 
     private AdminExtensionApiController $adminExtensionApiController;
 
+    /**
+     * @var EntityRepository<AppCollection>
+     */
     private EntityRepository $appRepository;
 
     private MockObject&Executor $executor;
 
     protected function setUp(): void
     {
-        $container = $this->getContainer();
+        $container = static::getContainer();
         $this->appRepository = $container->get('app.repository');
         $this->executor = $this->createMock(Executor::class);
         $this->context = Context::createDefaultContext();
@@ -92,8 +96,8 @@ class AdminExtensionApiControllerTest extends TestCase
         }
 
         if (!($appName === self::EXISTING_APP_NAME)) {
-            $this->expectException(AppByNameNotFoundException::class);
-            $this->expectExceptionMessage(\sprintf('The provided name %s is invalid and no app could be found.', $appName));
+            $this->expectException(AppNotFoundException::class);
+            $this->expectExceptionMessage(\sprintf('Could not find app with name "%s"', $appName));
 
             $this->adminExtensionApiController->runAction($requestDataBag, $this->context);
 
@@ -101,9 +105,10 @@ class AdminExtensionApiControllerTest extends TestCase
         }
 
         if (empty($hosts)) {
-            $this->expectException(UnallowedHostException::class);
+            $this->expectException(AppException::class);
+            $this->expectExceptionMessage(\sprintf('The host "%s" you tried to call is not listed in the allowed hosts in the manifest file for app "%s".', $targetUrl, $appName));
         } else {
-            $this->executor->expects(static::once())->method('execute')->with(static::callback(static fn (AppAction $action) => $action->getTargetUrl() === $targetUrl))->willReturn(new Response());
+            $this->executor->expects($this->once())->method('execute')->with(static::callback(static fn (AppAction $action) => $action->getTargetUrl() === $targetUrl))->willReturn(new Response());
         }
 
         $response = $this->adminExtensionApiController->runAction($requestDataBag, $this->context);
@@ -158,7 +163,7 @@ class AdminExtensionApiControllerTest extends TestCase
         ], $this->context);
 
         if ($expectAppNotFoundError) {
-            $this->expectException(AppByNameNotFoundException::class);
+            $this->expectException(AppNotFoundException::class);
         }
 
         $response = $this->adminExtensionApiController->signUri($requestDataBag, $this->context);

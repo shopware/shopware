@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import template from './sw-sales-channel-config.html.twig';
 
@@ -11,8 +11,6 @@ const { Criteria } = Shopware.Data;
  */
 Component.register('sw-sales-channel-config', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'systemConfigApiService',

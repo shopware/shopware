@@ -10,12 +10,14 @@ use Shopware\Core\Checkout\Promotion\Gateway\Template\PermittedGlobalCodePromoti
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 /**
  * @internal
  */
 #[CoversClass(PermittedGlobalCodePromotions::class)]
+#[Package('checkout')]
 class PermittedGlobalCodePromotionsTest extends TestCase
 {
     private SalesChannelEntity $salesChannel;

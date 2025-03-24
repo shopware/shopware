@@ -275,7 +275,7 @@ class NavigationRouteTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('category.repository')
+        static::getContainer()->get('category.repository')
             ->create([$data], Context::createDefaultContext());
     }
 

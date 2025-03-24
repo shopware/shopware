@@ -1,20 +1,17 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import template from './sw-product-detail-layout.html.twig';
 import './sw-product-detail-layout.scss';
 
-const { Component, State, Context, Utils } = Shopware;
+const { Context, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapState, mapGetters } = Component.getComponentHelper();
 const { cloneDeep, merge, get } = Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -43,13 +40,13 @@ export default {
             return (!this.isLoading || !this.isConfigLoading) && !this.currentPage.locked;
         },
 
-        ...mapState('swProductDetail', [
-            'product',
-        ]),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
 
-        ...mapGetters('swProductDetail', [
-            'isLoading',
-        ]),
+        isLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
 
         cmsPageCriteria() {
             const criteria = new Criteria(1, 25);
@@ -145,7 +142,7 @@ export default {
 
             this.product.cmsPageId = cmsPageId;
             this.product.slotConfig = null;
-            State.commit('swProductDetail/setProduct', this.product);
+            Shopware.Store.get('swProductDetail').product = this.product;
         },
 
         handleGetCmsPage() {

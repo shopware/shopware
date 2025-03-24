@@ -10,11 +10,13 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('storefront')]
+#[Package('framework')]
 class ResolvedConfigLoader extends AbstractResolvedConfigLoader
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaCollection> $repository
      */
     public function __construct(
         private readonly EntityRepository $repository,
@@ -48,9 +50,10 @@ class ResolvedConfigLoader extends AbstractResolvedConfigLoader
         /** @var array<string> $mediaIds */
         $mediaIds = array_keys($mediaItems);
         if (!empty($mediaIds)) {
-            $criteria = new Criteria($mediaIds);
-            $criteria->setTitle('theme-service::resolve-media');
-            $result = $this->repository->search($criteria, $context->getContext());
+            $criteria = (new Criteria($mediaIds))
+                ->setTitle('theme-service::resolve-media');
+
+            $result = $this->repository->search($criteria, $context->getContext())->getEntities();
         }
 
         foreach ($result as $media) {

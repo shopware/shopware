@@ -1,9 +1,8 @@
 import { mount } from '@vue/test-utils';
-
-import flowState from 'src/module/sw-flow/state/flow.state';
+import { createPinia } from 'pinia';
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 
 const documentTypeMock = [
@@ -36,6 +35,7 @@ async function createWrapper() {
         }),
         {
             global: {
+                plugins: [createPinia()],
                 provide: {
                     repositoryFactory: {
                         create: () => {
@@ -61,9 +61,6 @@ async function createWrapper() {
                     </div>
                 `,
                     },
-                    'sw-button': {
-                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                    },
                     'sw-multi-select': await wrapTestComponent('sw-multi-select'),
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                     'sw-select-result': await wrapTestComponent('sw-select-result'),
@@ -74,7 +71,6 @@ async function createWrapper() {
                     'sw-popover': await wrapTestComponent('sw-popover'),
                     'sw-highlight-text': true,
                     'sw-label': true,
-                    'sw-icon': true,
                     'sw-field-error': true,
                     'sw-loader': true,
                     'sw-inheritance-switch': true,
@@ -90,16 +86,6 @@ async function createWrapper() {
 }
 
 describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
-    beforeAll(() => {
-        Shopware.State.registerModule('swFlowState', {
-            ...flowState,
-            state: {
-                invalidSequences: [],
-                documentTypes: [],
-            },
-        });
-    });
-
     it('should show validation if document multiple type field is empty', async () => {
         const wrapper = await createWrapper();
 

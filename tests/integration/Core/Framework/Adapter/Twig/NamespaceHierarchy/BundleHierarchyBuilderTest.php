@@ -19,7 +19,7 @@ class BundleHierarchyBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->appRepository = $this->getContainer()->get('app.repository');
+        $this->appRepository = static::getContainer()->get('app.repository');
     }
 
     public function testItAddsAppNamespace(): void
@@ -51,7 +51,7 @@ class BundleHierarchyBuilderTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $bundleHierarchyBuilder = $this->getContainer()->get(BundleHierarchyBuilder::class);
+        $bundleHierarchyBuilder = static::getContainer()->get(BundleHierarchyBuilder::class);
 
         $coreHierarchy = $this->getCoreNamespaceHierarchy();
 
@@ -88,7 +88,7 @@ class BundleHierarchyBuilderTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $bundleHierarchyBuilder = $this->getContainer()->get(BundleHierarchyBuilder::class);
+        $bundleHierarchyBuilder = static::getContainer()->get(BundleHierarchyBuilder::class);
 
         static::assertSame($this->getCoreNamespaceHierarchy(), array_keys($bundleHierarchyBuilder->buildNamespaceHierarchy([])));
     }
@@ -121,7 +121,7 @@ class BundleHierarchyBuilderTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $bundleHierarchyBuilder = $this->getContainer()->get(BundleHierarchyBuilder::class);
+        $bundleHierarchyBuilder = static::getContainer()->get(BundleHierarchyBuilder::class);
 
         static::assertSame($this->getCoreNamespaceHierarchy(), array_keys($bundleHierarchyBuilder->buildNamespaceHierarchy([])));
     }
@@ -147,7 +147,7 @@ class BundleHierarchyBuilderTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $bundleHierarchyBuilder = $this->getContainer()->get(BundleHierarchyBuilder::class);
+        $bundleHierarchyBuilder = static::getContainer()->get(BundleHierarchyBuilder::class);
 
         static::assertSame($this->getCoreNamespaceHierarchy(), array_keys($bundleHierarchyBuilder->buildNamespaceHierarchy([])));
     }
@@ -169,7 +169,7 @@ class BundleHierarchyBuilderTest extends TestCase
         return array_values(
             array_intersect(
                 $coreHierarchy,
-                array_keys($this->getContainer()->getParameter('kernel.bundles'))
+                array_keys(static::getContainer()->getParameter('kernel.bundles'))
             )
         );
     }

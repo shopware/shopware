@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 import template from './sw-settings-number-range-detail.html.twig';
 import './sw-settings-number-range-detail.scss';
@@ -14,8 +14,6 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'numberRangeService',
@@ -177,6 +175,26 @@ export default {
             'name',
             'typeId',
         ]),
+
+        stateInput: {
+            get() {
+                return String(this.state);
+            },
+
+            set(value) {
+                this.state = Number(value);
+            },
+        },
+
+        previewInput: {
+            get() {
+                return String(this.preview);
+            },
+
+            set(value) {
+                this.preview = Number(value);
+            },
+        },
     },
 
     watch: {
@@ -315,7 +333,7 @@ export default {
                 .catch((exception) => {
                     this.isLoading = false;
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-number-range.detail.messageSaveError', 0, { name: numberRangeName }),
+                        message: this.$tc('sw-settings-number-range.detail.messageSaveError', { name: numberRangeName }, 0),
                     });
                     throw exception;
                 })

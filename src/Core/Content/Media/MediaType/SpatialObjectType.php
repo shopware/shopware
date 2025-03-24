@@ -5,13 +5,10 @@ namespace Shopware\Core\Content\Media\MediaType;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+ * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class SpatialObjectType extends MediaType
 {
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name = 'SPATIAL_OBJECT';
+    protected string $name = 'SPATIAL_OBJECT';
 }

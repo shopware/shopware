@@ -26,7 +26,7 @@ class ExtensionListingLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->extensionListingLoader = $this->getContainer()->get(ExtensionListingLoader::class);
+        $this->extensionListingLoader = static::getContainer()->get(ExtensionListingLoader::class);
     }
 
     public function testServerNotReachable(): void

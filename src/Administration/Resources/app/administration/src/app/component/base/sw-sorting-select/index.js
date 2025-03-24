@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import template from './sw-sorting-select.html.twig';
@@ -12,8 +12,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-sorting-select', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['sorting-changed'],
 
@@ -70,6 +68,16 @@ Component.register('sw-sorting-select', {
 
         sortingConditionConcatenation() {
             return `${this.sortBy}:${this.sortDirection}`;
+        },
+
+        sortingConditionOptions() {
+            return this.sortOptions.map((option) => {
+                return {
+                    id: option.value,
+                    value: option.value,
+                    label: option.name,
+                };
+            });
         },
     },
 

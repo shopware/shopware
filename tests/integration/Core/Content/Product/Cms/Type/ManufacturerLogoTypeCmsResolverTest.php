@@ -33,7 +33,7 @@ class ManufacturerLogoTypeCmsResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->manufacturerLogoCmsElementResolver = $this->getContainer()->get(ManufacturerLogoCmsElementResolver::class);
+        $this->manufacturerLogoCmsElementResolver = static::getContainer()->get(ManufacturerLogoCmsElementResolver::class);
     }
 
     public function testType(): void
@@ -78,7 +78,7 @@ class ManufacturerLogoTypeCmsResolverTest extends TestCase
         $product = new SalesChannelProductEntity();
         $product->setId('product_01');
         $product->setManufacturer($manufacturer);
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->getContainer()->get(SalesChannelProductDefinition::class), $product);
+        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), static::getContainer()->get(SalesChannelProductDefinition::class), $product);
         $result = new ElementDataCollection();
 
         $media = new MediaEntity();

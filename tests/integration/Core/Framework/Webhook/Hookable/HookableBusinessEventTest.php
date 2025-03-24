@@ -36,11 +36,11 @@ class HookableBusinessEventTest extends TestCase
         $scalarEvent = new ScalarBusinessEvent();
         $event = HookableBusinessEvent::fromBusinessEvent(
             $scalarEvent,
-            $this->getContainer()->get(BusinessEventEncoder::class)
+            static::getContainer()->get(BusinessEventEncoder::class)
         );
 
         static::assertEquals($scalarEvent->getName(), $event->getName());
-        $shopwareVersion = $this->getContainer()->getParameter('kernel.shopware_version');
+        $shopwareVersion = static::getContainer()->getParameter('kernel.shopware_version');
         static::assertEquals($scalarEvent->getEncodeValues($shopwareVersion), $event->getWebhookPayload());
     }
 
@@ -49,7 +49,7 @@ class HookableBusinessEventTest extends TestCase
     {
         $event = HookableBusinessEvent::fromBusinessEvent(
             $rootEvent,
-            $this->getContainer()->get(BusinessEventEncoder::class)
+            static::getContainer()->get(BusinessEventEncoder::class)
         );
 
         static::assertTrue($event->isAllowed(Uuid::randomHex(), new AclPrivilegeCollection([])));
@@ -60,7 +60,7 @@ class HookableBusinessEventTest extends TestCase
     {
         $event = HookableBusinessEvent::fromBusinessEvent(
             $rootEvent,
-            $this->getContainer()->get(BusinessEventEncoder::class)
+            static::getContainer()->get(BusinessEventEncoder::class)
         );
 
         $allowedPermissions = new AclPrivilegeCollection([

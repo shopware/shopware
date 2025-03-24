@@ -4,7 +4,7 @@ import './sw-context-button.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -18,8 +18,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-context-button', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -72,6 +70,12 @@ Component.register('sw-context-button', {
             type: String,
             required: false,
             default: 'solid-ellipsis-h-s',
+        },
+
+        iconSize: {
+            type: String,
+            required: false,
+            default: '16px',
         },
 
         disabled: {

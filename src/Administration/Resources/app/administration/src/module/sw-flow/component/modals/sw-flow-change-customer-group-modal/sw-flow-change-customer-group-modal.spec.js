@@ -1,8 +1,7 @@
 import { mount } from '@vue/test-utils';
-import flowState from 'src/module/sw-flow/state/flow.state';
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 
 const customerGroupMock = [
@@ -45,8 +44,6 @@ async function createWrapper() {
                 },
                 stubs: {
                     'sw-modal': await wrapTestComponent('sw-modal'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                     'sw-product-variant-info': await wrapTestComponent('sw-product-variant-info'),
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
@@ -55,7 +52,6 @@ async function createWrapper() {
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
-                    'sw-icon': await wrapTestComponent('sw-icon'),
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
                     'sw-popover': await wrapTestComponent('sw-popover'),
                     'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
@@ -64,7 +60,6 @@ async function createWrapper() {
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,
                     'sw-help-text': true,
-                    'sw-icon-deprecated': true,
                 },
             },
         },
@@ -72,10 +67,6 @@ async function createWrapper() {
 }
 
 describe('module/sw-flow/component/sw-flow-change-customer-group-modal', () => {
-    beforeAll(() => {
-        Shopware.State.registerModule('swFlowState', flowState);
-    });
-
     it('should show validation if customer group field is empty', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

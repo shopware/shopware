@@ -3,7 +3,7 @@ import template from './sw-checkbox-field.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -12,46 +12,48 @@ const { Component } = Shopware;
 Component.register('sw-checkbox-field', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    computed: {
-        useMeteorComponent() {
-            // Use new meteor component in major
-            if (Shopware.Feature.isActive('v6.7.0.0')) {
-                return true;
-            }
-
-            // Throw warning when deprecated component is used
-            Shopware.Utils.debug.warn(
-                'sw-checkbox-field',
-                // eslint-disable-next-line max-len
-                'The old usage of "sw-checkbox-field" is deprecated and will be removed in v6.7.0.0. Please use "mt-checkbox" instead.',
-            );
-
-            return false;
+    props: {
+        modelValue: {
+            type: String,
+            required: false,
+            default: null,
         },
 
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
+        value: {
+            type: Boolean,
+            required: false,
+            default: null,
+        },
+    },
 
-            return {};
+    computed: {
+        compatValue: {
+            get() {
+                if (this.value === null || this.value === undefined) {
+                    return this.modelValue;
+                }
+
+                return this.value;
+            },
+            set(value: string) {
+                this.$emit('update:value', value);
+                this.$emit('update:modelValue', value);
+            },
         },
     },
 
     methods: {
         getSlots() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return {
-                    ...this.$slots,
-                    ...this.$scopedSlots,
-                };
-            }
 
             return this.$slots;
+        },
+
+        handleUpdateChecked(event: unknown) {
+            this.$emit('update:checked', event);
+
+            // Emit old event for backwards compatibility
+            this.$emit('update:value', event);
         },
     },
 });

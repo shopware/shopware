@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use setasign\Fpdi\Tfpdf\Fpdi;
+use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentGenerationResult;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
@@ -33,7 +34,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 #[Group('slow')]
 class DocumentMergerTest extends TestCase
 {
@@ -45,6 +46,9 @@ class DocumentMergerTest extends TestCase
 
     private DocumentGenerator $documentGenerator;
 
+    /**
+     * @var EntityRepository<DocumentCollection>
+     */
     private EntityRepository $documentRepository;
 
     private DocumentMerger $documentMerger;
@@ -61,7 +65,7 @@ class DocumentMergerTest extends TestCase
 
         $customerId = $this->createCustomer();
 
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [
@@ -69,11 +73,11 @@ class DocumentMergerTest extends TestCase
             ]
         );
 
-        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
-        $this->documentRepository = $this->getContainer()->get('document.repository');
-        $this->documentMerger = $this->getContainer()->get(DocumentMerger::class);
+        $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
+        $this->documentRepository = static::getContainer()->get('document.repository');
+        $this->documentMerger = static::getContainer()->get(DocumentMerger::class);
 
-        $documentTypeRepository = $this->getContainer()->get('document_type.repository');
+        $documentTypeRepository = static::getContainer()->get('document_type.repository');
         $this->documentTypeId = $documentTypeRepository->searchIds(
             (new Criteria())->addFilter(new EqualsFilter('technicalName', InvoiceRenderer::TYPE)),
             Context::createDefaultContext()
@@ -95,11 +99,11 @@ class DocumentMergerTest extends TestCase
         $expectedBlob = 'expected blob';
 
         $mockFpdi = $this->getMockBuilder(Fpdi::class)->onlyMethods(['Output'])->getMock();
-        $mockFpdi->expects(static::once())->method('OutPut')->willReturn($expectedBlob);
+        $mockFpdi->expects($this->once())->method('OutPut')->willReturn($expectedBlob);
 
         $documentMerger = new DocumentMerger(
             $this->documentRepository,
-            $this->getContainer()->get(MediaService::class),
+            static::getContainer()->get(MediaService::class),
             $this->documentGenerator,
             $mockFpdi,
         );
@@ -136,13 +140,13 @@ class DocumentMergerTest extends TestCase
     public function testMergeWithoutStaticMedia(): void
     {
         $mockGenerator = $this->getMockBuilder(DocumentGenerator::class)->disableOriginalConstructor()->onlyMethods(['generate'])->getMock();
-        $mockGenerator->expects(static::once())->method('generate')->willReturn(new DocumentGenerationResult());
+        $mockGenerator->expects($this->once())->method('generate')->willReturn(new DocumentGenerationResult());
 
         $documentMerger = new DocumentMerger(
             $this->documentRepository,
-            $this->getContainer()->get(MediaService::class),
+            static::getContainer()->get(MediaService::class),
             $mockGenerator,
-            $this->getContainer()->get('pdf.merger'),
+            static::getContainer()->get('pdf.merger'),
         );
 
         $documentId = Uuid::randomHex();
@@ -193,19 +197,19 @@ class DocumentMergerTest extends TestCase
 
         $mockFpdi = $this->getMockBuilder(Fpdi::class)->onlyMethods(['Output', 'setSourceFile', 'importPage'])->getMock();
 
-        $mockFpdi->expects(static::any())->method('setSourceFile')->willReturn($numDocs);
-        $mockFpdi->expects(static::any())->method('importPage')->willReturn('');
+        $mockFpdi->expects($this->any())->method('setSourceFile')->willReturn($numDocs);
+        $mockFpdi->expects($this->any())->method('importPage')->willReturn('');
 
         // Only use merge when merging more than 1 documents
         if ($numDocs > 1 && $withMedia) {
-            $mockFpdi->expects(static::once())->method('OutPut')->willReturn($expectedBlob);
+            $mockFpdi->expects($this->once())->method('OutPut')->willReturn($expectedBlob);
         } else {
-            $mockFpdi->expects(static::exactly(0))->method('OutPut')->willReturn($expectedBlob);
+            $mockFpdi->expects($this->exactly(0))->method('OutPut')->willReturn($expectedBlob);
         }
 
         $documentMerger = new DocumentMerger(
             $this->documentRepository,
-            $this->getContainer()->get(MediaService::class),
+            static::getContainer()->get(MediaService::class),
             $this->documentGenerator,
             $mockFpdi,
         );

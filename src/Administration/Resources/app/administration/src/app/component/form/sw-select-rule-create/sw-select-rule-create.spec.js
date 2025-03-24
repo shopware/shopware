@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -73,7 +73,6 @@ describe('components/sw-select-rule-create', () => {
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                     'sw-field-error': true,
-                    'sw-icon': true,
                     'sw-loader': true,
                     'sw-highlight-text': {
                         props: ['text'],

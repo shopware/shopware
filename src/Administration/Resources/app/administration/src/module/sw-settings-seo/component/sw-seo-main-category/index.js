@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package inventory
  */
 
 import template from './sw-seo-main-category.html.twig';
@@ -7,8 +7,6 @@ import template from './sw-seo-main-category.html.twig';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 
@@ -58,11 +56,11 @@ export default {
         },
 
         isHeadlessSalesChannel() {
-            if (Shopware.State.get('swSeoUrl').salesChannelCollection === null) {
+            if (Shopware.Store.get('swSeoUrl').salesChannelCollection === null) {
                 return true;
             }
 
-            const salesChannel = Shopware.State.get('swSeoUrl').salesChannelCollection.find((entry) => {
+            const salesChannel = Shopware.Store.get('swSeoUrl').salesChannelCollection.find((entry) => {
                 return entry.id === this.currentSalesChannelId;
             });
 

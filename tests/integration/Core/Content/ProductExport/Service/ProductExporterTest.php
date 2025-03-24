@@ -43,12 +43,12 @@ class ProductExporterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('product_export.repository');
-        $this->service = $this->getContainer()->get(ProductExporter::class);
+        $this->repository = static::getContainer()->get('product_export.repository');
+        $this->service = static::getContainer()->get(ProductExporter::class);
         $this->context = Context::createDefaultContext();
-        $this->fileSystem = $this->getContainer()->get('shopware.filesystem.private');
+        $this->fileSystem = static::getContainer()->get('shopware.filesystem.private');
 
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), $this->getSalesChannelDomain()->getSalesChannelId());
     }
 
@@ -58,9 +58,9 @@ class ProductExporterTest extends TestCase
 
         $this->service->export($this->salesChannelContext, new ExportBehavior());
 
-        $filePath = \sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
+        $filePath = \sprintf('%s/Testexport.csv', static::getContainer()->getParameter('product_export.directory'));
 
-        static::assertTrue($this->fileSystem->directoryExists($this->getContainer()->getParameter('product_export.directory')));
+        static::assertTrue($this->fileSystem->directoryExists(static::getContainer()->getParameter('product_export.directory')));
         static::assertTrue($this->fileSystem->fileExists($filePath));
 
         $csvRows = explode(\PHP_EOL, $this->fileSystem->read($filePath));
@@ -88,7 +88,7 @@ class ProductExporterTest extends TestCase
     private function getSalesChannelId(): string
     {
         /** @var EntityRepository<SalesChannelCollection> $repository */
-        $repository = $this->getContainer()->get('sales_channel.repository');
+        $repository = static::getContainer()->get('sales_channel.repository');
 
         $first = $repository->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertInstanceOf(SalesChannelEntity::class, $first);
@@ -99,7 +99,7 @@ class ProductExporterTest extends TestCase
     private function getSalesChannelDomain(): SalesChannelDomainEntity
     {
         /** @var EntityRepository<SalesChannelDomainCollection> $repository */
-        $repository = $this->getContainer()->get('sales_channel_domain.repository');
+        $repository = static::getContainer()->get('sales_channel_domain.repository');
 
         $first = $repository->search(new Criteria(), $this->context)->getEntities()->first();
 
@@ -138,7 +138,7 @@ class ProductExporterTest extends TestCase
 
     private function createProductStream(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $randomProductIds = implode('|', \array_slice(array_column($this->createProducts(), 'id'), 0, 2));
 
@@ -168,7 +168,7 @@ class ProductExporterTest extends TestCase
      */
     private function createProducts(): array
     {
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $manufacturerId = Uuid::randomHex();
         $taxId = Uuid::randomHex();
         $salesChannelId = $this->getSalesChannelDomain()->getSalesChannelId();

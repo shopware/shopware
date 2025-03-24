@@ -1,7 +1,7 @@
 import './acl';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
@@ -103,7 +103,7 @@ Module.register('sw-settings-tax', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'localization',
         to: 'sw.settings.tax.index',
         icon: 'regular-chart-pie',
         privilege: 'tax.viewer',

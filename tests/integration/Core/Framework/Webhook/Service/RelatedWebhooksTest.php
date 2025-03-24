@@ -26,7 +26,7 @@ class RelatedWebhooksTest extends TestCase
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
         $this->connection->insert('webhook', [
             'id' => $this->ids->getBytes('wh-1'),
@@ -63,7 +63,7 @@ class RelatedWebhooksTest extends TestCase
 
     public function testUpdateRelated(): void
     {
-        $relatedWebhooks = $this->getContainer()->get(RelatedWebhooks::class);
+        $relatedWebhooks = static::getContainer()->get(RelatedWebhooks::class);
 
         $context = Context::createDefaultContext();
         $relatedWebhooks->updateRelated($this->ids->get('wh-1'), [

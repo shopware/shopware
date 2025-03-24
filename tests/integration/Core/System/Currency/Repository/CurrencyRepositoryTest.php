@@ -32,7 +32,7 @@ class CurrencyRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->currencyRepository = $this->getContainer()->get('currency.repository');
+        $this->currencyRepository = static::getContainer()->get('currency.repository');
     }
 
     public function testSearchRanking(): void
@@ -69,8 +69,8 @@ class CurrencyRepositoryTest extends TestCase
 
         $criteria = new Criteria();
 
-        $builder = $this->getContainer()->get(EntityScoreQueryBuilder::class);
-        $pattern = $this->getContainer()->get(SearchTermInterpreter::class)->interpret('match');
+        $builder = static::getContainer()->get(EntityScoreQueryBuilder::class);
+        $pattern = static::getContainer()->get(SearchTermInterpreter::class)->interpret('match');
         $context = Context::createDefaultContext();
         $queries = $builder->buildScoreQueries(
             $pattern,

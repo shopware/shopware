@@ -9,3 +9,25 @@ https://getbootstrap.com/docs/5.2/forms/overview
 .form-group {
     margin-bottom: 20px;
 }
+
+.was-validated .form-control,
+.was-validated .form-select,
+.form-control,
+.form-select {
+    &:invalid:focus,
+    &.is-invalid:focus,
+    &:valid:focus,
+    &.is-valid:focus {
+        box-shadow: $input-btn-focus-box-shadow;
+    }
+}
+
+.form-required-label {
+    color: $sw-color-danger;
+}
+
+.form-field-feedback {
+    .invalid-feedback {
+        display: block;
+    }
+}

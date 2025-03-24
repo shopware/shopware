@@ -25,7 +25,7 @@ class IntegrationRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('integration.repository');
+        $this->repository = static::getContainer()->get('integration.repository');
     }
 
     public function testCreationWithAccessKeys(): void

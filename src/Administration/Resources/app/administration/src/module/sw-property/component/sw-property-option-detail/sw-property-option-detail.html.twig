@@ -1,13 +1,12 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_property_option_detail %}
 <sw-modal
     :title="currentOption.name ? currentOption.name : $tc('sw-property.detail.textOptionHeadline')"
     @modal-close="onCancel"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_option_detail_name %}
-    <sw-text-field
-        v-model:value="currentOption.name"
+
+    <mt-text-field
+        v-model="currentOption.name"
         name="sw-field--currentOption-name"
         validation="required"
         :label="$tc('sw-property.detail.labelOptionName')"
@@ -18,10 +17,9 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_option_detail_position %}
-    <sw-number-field
-        v-model:value="currentOption.position"
+    <mt-number-field
+        v-model="currentOption.position"
         name="sw-field--currentOption-position"
         pattern="[0-9]"
         :step="1"
@@ -31,19 +29,16 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_option_detail_color %}
-    <sw-colorpicker
-        v-model:value="currentOption.colorHexCode"
+    <mt-colorpicker
+        v-model="currentOption.colorHexCode"
         name="sw-field--currentOption-colorHexCode"
-        color-output="hex"
         :disabled="!allowEdit"
         :label="$tc('sw-property.detail.labelOptionColor')"
         :z-index="1000"
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_option_detail_media %}
     <sw-upload-listener
         :upload-tag="currentOption.id"
@@ -61,22 +56,20 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_option_detail_footer %}
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_option_detail_footer_cancel %}
-        <sw-button
+        <mt-button
             size="small"
+            variant="secondary"
             @click="onCancel"
         >
-            {{ $tc('sw-property.detail.buttonCancel') }}
-        </sw-button>
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_option_detail_footer_save %}
-        <sw-button
+        <mt-button
             v-tooltip.bottom="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('property.editor'),
@@ -87,8 +80,8 @@
             :disabled="!allowEdit"
             @click="onSave"
         >
-            {{ $tc('sw-property.detail.buttonApply') }}
-        </sw-button>
+            {{ $tc('global.default.apply') }}
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

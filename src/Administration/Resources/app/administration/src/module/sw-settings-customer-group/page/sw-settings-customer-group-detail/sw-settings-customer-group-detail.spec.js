@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package discovery
  */
 
 import { mount } from '@vue/test-utils';
@@ -33,7 +33,7 @@ async function createWrapper(privileges = []) {
                     'sw-card-view': {
                         template: '<div><slot></slot></div>',
                     },
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot></slot></div>',
                     },
                     'sw-container': {
@@ -57,19 +57,17 @@ async function createWrapper(privileges = []) {
                           <slot></slot>
                         </div>`,
                     },
-                    'sw-textarea-field': true,
-                    'sw-text-editor': true,
+                    'mt-textarea': true,
+                    'mt-text-editor': true,
                     'sw-language-info': true,
-                    'sw-button': true,
                     'sw-button-process': true,
-                    'sw-switch-field': true,
+
                     'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select'),
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-label': true,
-                    'sw-icon': true,
                     'sw-loader': true,
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                     'sw-highlight-text': true,
@@ -188,20 +186,20 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             },
             {
                 name: 'registration form switch',
-                selector: 'sw-switch-field-stub[label="sw-settings-customer-group.detail.registrationForm"]',
+                selector: '.sw-settings-customer-group-detail__registration-form-switch',
             },
             {
                 name: 'form title field',
-                selector: '.sw-text-field-stub[label="sw-settings-customer-group.registration.title"]',
+                selector: '.mt-text-field',
             },
-            { name: 'form editor', selector: 'sw-text-editor-stub' },
+            { name: 'form editor', selector: 'mt-text-editor-stub' },
             {
                 name: 'only company switch',
-                selector: 'sw-switch-field-stub[label="sw-settings-customer-group.registration.onlyCompaniesCanRegister"]',
+                selector: '.sw-settings-customer-group-detail__registration-only-companies-can-register',
             },
             {
                 name: 'seo meta field',
-                selector: 'sw-textarea-field-stub[label="sw-settings-customer-group.registration.seoMetaDescription"]',
+                selector: 'mt-textarea-stub[label="sw-settings-customer-group.registration.seoMetaDescription"]',
             },
             {
                 name: 'sales channel multiple select',
@@ -255,20 +253,20 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             },
             {
                 name: 'registration form switch',
-                selector: 'sw-switch-field-stub[label="sw-settings-customer-group.detail.registrationForm"]',
+                selector: '.sw-settings-customer-group-detail__registration-form-switch',
             },
             {
                 name: 'form title field',
-                selector: '.sw-text-field-stub[label="sw-settings-customer-group.registration.title"]',
+                selector: '.mt-text-field',
             },
-            { name: 'form editor', selector: 'sw-text-editor-stub' },
+            { name: 'form editor', selector: 'mt-text-editor-stub' },
             {
                 name: 'only company switch',
-                selector: 'sw-switch-field-stub[label="sw-settings-customer-group.registration.onlyCompaniesCanRegister"]',
+                selector: '.sw-settings-customer-group-detail__registration-only-companies-can-register',
             },
             {
                 name: 'seo meta field',
-                selector: 'sw-textarea-field-stub[label="sw-settings-customer-group.registration.seoMetaDescription"]',
+                selector: 'mt-textarea-stub[label="sw-settings-customer-group.registration.seoMetaDescription"]',
             },
             {
                 name: 'sales channel multiple select',

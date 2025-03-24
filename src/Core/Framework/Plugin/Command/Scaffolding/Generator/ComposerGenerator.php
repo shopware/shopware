@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ComposerGenerator implements ScaffoldingGenerator
 {
     public function hasCommandOption(): bool

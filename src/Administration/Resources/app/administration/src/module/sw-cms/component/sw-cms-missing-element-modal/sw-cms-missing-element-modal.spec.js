@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 
@@ -14,7 +14,7 @@ async function createWrapper() {
             },
             global: {
                 mocks: {
-                    $tc: (key, number, value) => {
+                    $tc: (key, value) => {
                         if (!value) {
                             return key;
                         }
@@ -29,8 +29,6 @@ async function createWrapper() {
                 },
                 stubs: {
                     'sw-modal': await wrapTestComponent('sw-modal'),
-                    'sw-button': true,
-                    'sw-icon': true,
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),

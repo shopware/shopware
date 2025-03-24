@@ -4,7 +4,7 @@ const { Component, Mixin } = Shopware;
 const { debounce, get } = Shopware.Utils;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -26,8 +26,6 @@ const { debounce, get } = Shopware.Utils;
  */
 Component.register('sw-multi-select', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inheritAttrs: false,
 
@@ -103,6 +101,11 @@ Component.register('sw-multi-select', {
                 });
             },
         },
+        label: {
+            type: String,
+            required: false,
+            default: undefined,
+        },
     },
 
     data() {
@@ -165,15 +168,6 @@ Component.register('sw-multi-select', {
             }
 
             return this.options;
-        },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 
@@ -246,6 +240,11 @@ Component.register('sw-multi-select', {
         onSelectCollapsed() {
             this.searchTerm = '';
             this.$refs.selectionList.blur();
+
+            // Focus on the input field when the select is collapsed
+            if (this.$refs.selectionList?.$refs?.swSelectInput) {
+                this.$refs.selectionList.$refs.swSelectInput.focus();
+            }
         },
 
         getKey(object, keyPath, defaultValue) {

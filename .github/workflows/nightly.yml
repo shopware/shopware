@@ -6,44 +6,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  clean-ghcr:
-    name: Delete old unused container images
-    runs-on: ubuntu-latest
-    steps:
-      - name: Collect skipped SHAs
-        id: skip-sha
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: |
-          result="skip-sha="
-          while read tag; do
-            docker_manifest=$(docker manifest inspect ghcr.io/shopware/shopware/ci-e2e:${tag} 2>&1 || true)
-            # If the image does not exist or an error happens
-            if ! jq '.' <<<"${docker_manifest}" > /dev/null 2>&1; then
-              echo "${tag}: ${docker_manifest}"
-              continue
-            fi
-            # Only collect the shas of multi-arch images
-            if [[ $(jq -r '.manifests | length' <<<"${docker_manifest}") -gt 0 ]]; then
-              result="${result}$(jq -r '.manifests[] | .digest' <<<"${docker_manifest}" | paste -s -d ',' -),"
-            fi
-          done<<<$(gh api '/orgs/shopware/packages/container/shopware%2Fci-e2e/versions?per_page=100' --jq '.[] | .metadata.container.tags[] | select(. == "latest" or . == "trunk" or . == "6.5.x" or startswith("v"))')
-          echo "${result}" >> "${GITHUB_OUTPUT}"
-      - name: Delete old images
-        uses: snok/container-retention-policy@v3.0.0
-        with:
-          account: shopware
-          token: ${{ github.token }}
-          cut-off: 2d
-          image-names: ${{ github.event.repository.name }}/ci-e2e
-          image-tags: "!latest, !trunk, !6.5.x, !v*"
-          skip-shas: ${{ steps.skip-sha.outputs.skip-sha }}
-          keep-n-most-recent: 1
-          dry-run: ${{ env.ACT && true || false }}
-
   redis:
     name: Redis
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    if: github.repository == 'shopware/shopware'
     strategy:
       fail-fast: false
       matrix:
@@ -58,7 +24,7 @@ jobs:
           - "6379:6379"
     env:
       REDIS_URL: redis://localhost:6379
-      COMPOSER_ROOT_VERSION: 6.6.9999999-dev
+      COMPOSER_ROOT_VERSION: 6.7.9999999-dev
 
     steps:
       - name: Setup Shopware
@@ -68,23 +34,50 @@ jobs:
           shopware-repository: ${{ github.repository }}
       - name: Run PHPUnit
         run: |
-          ./vendor/bin/phpunit --group=redis
+          ./vendor/bin/phpunit --group=redis --testsuite migration,unit,integration,devops
 
   admin:
     uses: ./.github/workflows/admin.yml
     secrets: inherit
+    if: github.repository == 'shopware/shopware'
   integration:
     uses: ./.github/workflows/integration.yml
     secrets: inherit
+    if: github.repository == 'shopware/shopware'
+    with:
+      nightly: true
   php:
     uses: ./.github/workflows/php.yml
     secrets: inherit
+    if: github.repository == 'shopware/shopware'
   storefront:
     uses: ./.github/workflows/storefront.yml
     secrets: inherit
+    if: github.repository == 'shopware/shopware'
   downstream:
     uses: ./.github/workflows/downstream.yml
     secrets: inherit
+    if: github.repository == 'shopware/shopware'
     with:
       nightly: true
+  prepare-release: # This will only execute dry-runs and push current trunk to the many-repos
+    uses: ./.github/workflows/05-prepare-release.yml
+    secrets: inherit
+    if: github.repository == 'shopware/shopware'
 
+  nightly-6-6-x:
+    runs-on: ubuntu-24.04
+    if: github.repository == 'shopware/shopware' && github.ref == 'refs/heads/trunk'
+    permissions:
+      id-token: write
+    steps:
+      - name: Delay
+        run: sleep 20m
+      - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
+        id: sts
+        with:
+          scope: shopware
+          identity: ShopwareNightly
+      - env:
+          GH_TOKEN: ${{ steps.sts.outputs.token }}
+        run: gh workflow run "${{ github.workflow }}" --repo "${{ github.repository }}" --ref "6.6.x"

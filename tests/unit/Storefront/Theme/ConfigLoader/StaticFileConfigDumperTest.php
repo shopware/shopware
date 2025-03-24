@@ -28,7 +28,8 @@ class StaticFileConfigDumperTest extends TestCase
         $loader = $this->createMock(DatabaseConfigLoader::class);
         $loader->method('load')->willReturn($salesChannelToTheme);
 
-        $fs = new Filesystem(new InMemoryFilesystemAdapter());
+        $privateFileSystem = new Filesystem(new InMemoryFilesystemAdapter());
+        $temporaryFileSystem = new Filesystem(new InMemoryFilesystemAdapter());
 
         $themeProvider = $this->createMock(DatabaseAvailableThemeProvider::class);
         $themeProvider->method('load')->willReturn(['test' => 'test']);
@@ -36,32 +37,35 @@ class StaticFileConfigDumperTest extends TestCase
         $dumper = new StaticFileConfigDumper(
             $loader,
             $themeProvider,
-            $fs
+            $privateFileSystem,
+            $temporaryFileSystem
         );
 
         $location = StaticFileAvailableThemeProvider::THEME_INDEX;
 
         $dumper->dumpConfig(Context::createDefaultContext());
-        static::assertEquals('{"test":"test"}', $fs->read($location));
+        static::assertEquals('{"test":"test"}', $privateFileSystem->read($location));
 
         $dumper->dumpConfigFromEvent();
-        static::assertEquals('{"test":"test"}', $fs->read($location));
+        static::assertEquals('{"test":"test"}', $privateFileSystem->read($location));
     }
 
-    public function testPrepareDump(): void
+    public function testDumpConfigInVar(): void
     {
-        $fs = new Filesystem(new InMemoryFilesystemAdapter());
+        $privateFileSystem = new Filesystem(new InMemoryFilesystemAdapter());
+        $temporaryFileSystem = new Filesystem(new InMemoryFilesystemAdapter());
         $dumper = new StaticFileConfigDumper(
             $this->createMock(DatabaseConfigLoader::class),
             $this->createMock(DatabaseAvailableThemeProvider::class),
-            $fs,
+            $privateFileSystem,
+            $temporaryFileSystem
         );
 
-        $location = __DIR__ . '../fixtures/var/theme-files.json';
+        $location = 'theme-files.json';
         $dump = ['test' => '123'];
 
-        $dumper->prepareDump($location, $dump);
-        static::assertJsonStringEqualsJsonString('{"test": "123"}', $fs->read($location));
+        $dumper->dumpConfigInVar($location, $dump);
+        static::assertJsonStringEqualsJsonString('{"test": "123"}', $temporaryFileSystem->read($location));
     }
 
     public function testgetSubscribedEvents(): void

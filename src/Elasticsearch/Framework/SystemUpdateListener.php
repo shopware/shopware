@@ -12,7 +12,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[AsEventListener]
 class SystemUpdateListener
 {

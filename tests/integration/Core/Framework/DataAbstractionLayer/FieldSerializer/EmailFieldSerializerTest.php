@@ -43,7 +43,7 @@ class EmailFieldSerializerTest extends TestCase
         $emailField = new EmailField('email', 'email');
         $emailField->addFlags(new ApiAware(), new Required());
 
-        $this->serializer = $this->getContainer()->get(EmailFieldSerializer::class);
+        $this->serializer = static::getContainer()->get(EmailFieldSerializer::class);
         $this->field = $emailField;
 
         $definition = $this->registerDefinition(EmailDefinition::class);
@@ -59,7 +59,7 @@ class EmailFieldSerializerTest extends TestCase
 
     public function testRequiredValidationThrowsError(): void
     {
-        $this->field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+        $this->field->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
 
         $kvPair = new KeyValuePair('email', null, true);
 

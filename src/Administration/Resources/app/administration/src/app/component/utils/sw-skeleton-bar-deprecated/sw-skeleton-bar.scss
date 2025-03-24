@@ -17,6 +17,7 @@ $sw-skeleton-shimmer-light: $color-gray-100;
 
     &__shimmer {
         height: 100%;
+        /* stylelint-disable-next-line max-line-length */
         background-image: linear-gradient(89.17deg, $sw-skeleton-shimmer-light 0.8%, $sw-skeleton-shimmer-dark 50.09%, $sw-skeleton-shimmer-light 96.31%);
         background-size: 100%;
         background-repeat: no-repeat;

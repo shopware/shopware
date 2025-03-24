@@ -10,7 +10,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class WebhookCacheClearer implements EventSubscriberInterface, ResetInterface
 {
     /**
@@ -23,7 +23,6 @@ class WebhookCacheClearer implements EventSubscriberInterface, ResetInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            'webhook.written' => 'clearWebhookCache',
             'acl_role.written' => 'clearPrivilegesCache',
         ];
     }

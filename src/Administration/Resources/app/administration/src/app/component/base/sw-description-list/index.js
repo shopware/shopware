@@ -4,7 +4,7 @@ import './sw-description-list.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description A definition list which uses CSS grid for a column layout.
@@ -22,8 +22,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-description-list', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         grid: {

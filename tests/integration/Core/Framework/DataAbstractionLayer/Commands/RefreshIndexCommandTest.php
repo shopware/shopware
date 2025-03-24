@@ -32,8 +32,8 @@ class RefreshIndexCommandTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->refreshIndexCommand = $this->getContainer()->get(RefreshIndexCommand::class);
-        $this->categoryRepository = $this->getContainer()->get('category.repository');
+        $this->refreshIndexCommand = static::getContainer()->get(RefreshIndexCommand::class);
+        $this->categoryRepository = static::getContainer()->get('category.repository');
     }
 
     public function testExecuteWithSkipIndexerOption(): void
@@ -65,10 +65,10 @@ class RefreshIndexCommandTest extends TestCase
 
     public function testExecuteWithSkipSeoUpdaterOption(): void
     {
-        if (!$this->getContainer()->has(NavigationPageSeoUrlRoute::class)) {
+        if (!static::getContainer()->has(NavigationPageSeoUrlRoute::class)) {
             static::markTestSkipped('SeoUrl tests need storefront bundle to be installed');
         }
-        $repo = $this->getContainer()->get('seo_url.repository');
+        $repo = static::getContainer()->get('seo_url.repository');
         $context = Context::createDefaultContext();
         $skip = 'sales_channel.indexer,customer.indexer,landing_page.indexer,payment_method.indexer,media.indexer,media_folder_configuration.indexer';
         $categoryA = $this->createCategoryWithoutSeoUrl();
@@ -109,7 +109,7 @@ class RefreshIndexCommandTest extends TestCase
 
         $this->categoryRepository->upsert([$data], Context::createDefaultContext());
 
-        $this->getContainer()->get(Connection::class)->executeStatement(
+        static::getContainer()->get(Connection::class)->executeStatement(
             'DELETE FROM seo_url WHERE path_info = :pathInfo',
             ['pathInfo' => \sprintf('/navigation/%s', $id)]
         );

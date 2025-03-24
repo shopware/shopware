@@ -19,7 +19,7 @@ use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 class CustomFieldSubscriberTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -47,10 +47,10 @@ class CustomFieldSubscriberTest extends TestCase
     protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
-        $this->customFieldSetRepository = $this->getContainer()->get('custom_field_set.repository');
-        $this->customFieldRepository = $this->getContainer()->get('custom_field.repository');
-        $this->snippetSetRepository = $this->getContainer()->get('snippet_set.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->customFieldSetRepository = static::getContainer()->get('custom_field_set.repository');
+        $this->customFieldRepository = static::getContainer()->get('custom_field.repository');
+        $this->snippetSetRepository = static::getContainer()->get('snippet_set.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
     }
 
     /**

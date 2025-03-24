@@ -41,13 +41,13 @@ class PriceDefinitionFieldSerializerTest extends TestCase
     #[DataProvider('serializerProvider')]
     public function testSerializer(PriceDefinitionInterface $definition): void
     {
-        $serializer = $this->getContainer()->get(PriceDefinitionFieldSerializer::class);
+        $serializer = static::getContainer()->get(PriceDefinitionFieldSerializer::class);
 
         $encoded = $serializer->encode(
             new PriceDefinitionField('test', 'test'),
             new EntityExistence('', [], false, false, false, []),
             new KeyValuePair('test', $definition, true),
-            new WriteParameterBag($this->getContainer()->get(CurrencyDefinition::class), WriteContext::createFromContext(Context::createDefaultContext()), '', new WriteCommandQueue())
+            new WriteParameterBag(static::getContainer()->get(CurrencyDefinition::class), WriteContext::createFromContext(Context::createDefaultContext()), '', new WriteCommandQueue())
         );
 
         $encoded = iterator_to_array($encoded);

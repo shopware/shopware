@@ -5,11 +5,10 @@
     <sw-loader v-if="isLoading" />
 
     <div class="sw-extension-card-base__switch">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_card_base_activation_switch_switch %}
 
-        <sw-switch-field
-            v-model:value="isActive"
+        <mt-switch
+            v-model="isActive"
             v-tooltip="{
                 showDelay: 300,
                 message: $tc('sw-extension-store.component.sw-extension-card-base.allowDisableTooltip'),
@@ -23,7 +22,6 @@
 
     <sw-extension-icon :src="image" />
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_card_base_activation_switch %}
     <div class="sw-extension-card-base__info">
         <section>
@@ -31,7 +29,6 @@
                 {{ extension.label }}
             </span>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_extension_card_base_info_inactive_label %}
             <span
                 v-if="isInstalled && !extension.active"
@@ -45,7 +42,6 @@
     {% endblock %}
 
     <div class="sw-extension-card-base__meta-info">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_card_base_info_content %}
         <section>
             <span
@@ -101,7 +97,6 @@
         class="sw-extension-card-base__context-menu"
         :menu-width="180"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_card_base_context_menu_actions %}
         <sw-context-menu-item
             v-if="openLinkExists && extension.active"
@@ -117,7 +112,7 @@
         >
             <span class="sw-extension-card-base__context-menu-privacy-link">
                 {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.privacyAndSafetyLabel') }}
-                <sw-icon
+                <mt-icon
                     name="regular-external-link-s"
                     size="10px"
                 />
@@ -144,8 +139,10 @@
             v-if="!extensionManagementDisabled && isUpdateable"
             @click="updateExtension(false)"
         >
-            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.updateLabel', 0, { version: extension.latestVersion }) }}
+            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.updateLabel', { version: extension.latestVersion }, 0) }}
         </sw-context-menu-item>
+
+        {% block sw_extension_card_base_context_menu_actions_additional %}{% endblock %}
 
         <sw-context-menu-item
             v-if="!extensionManagementDisabled && extension.storeLicense && extension.storeLicense.variant === 'rent' && extension.storeLicense.expirationDate === null"
@@ -175,7 +172,6 @@
         {% endblock %}
     </sw-context-button>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_card_base_modals %}
     <sw-extension-uninstall-modal
         v-if="showUninstallModal"

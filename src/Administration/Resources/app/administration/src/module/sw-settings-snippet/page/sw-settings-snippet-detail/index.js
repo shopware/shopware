@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import template from './sw-settings-snippet-detail.html.twig';
 
@@ -13,8 +13,6 @@ const utils = Shopware.Utils;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'snippetSetService',
@@ -100,7 +98,7 @@ export default {
 
         currentAuthor: {
             get() {
-                return this._currentAuthor || `user/${Shopware.State.get('session').currentUser.username}`;
+                return this._currentAuthor || `user/${Shopware.Store.get('session').currentUser.username}`;
             },
         },
     },
@@ -218,7 +216,7 @@ export default {
             if (!this.isSaveable) {
                 this.isLoading = false;
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-snippet.detail.messageSaveError', 0, { key: this.translationKey }),
+                    message: this.$tc('sw-settings-snippet.detail.messageSaveError', { key: this.translationKey }, 0),
                 });
 
                 return;
@@ -265,7 +263,7 @@ export default {
                     }
                     this.createNotificationError({
                         message:
-                            this.$tc('sw-settings-snippet.detail.messageSaveError', 0, { key: this.translationKey }) +
+                            this.$tc('sw-settings-snippet.detail.messageSaveError', { key: this.translationKey }, 0) +
                             errormsg,
                     });
                 });

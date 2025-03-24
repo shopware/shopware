@@ -14,19 +14,21 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\Struct\ThemeDependencies;
 
-#[Package('storefront')]
+#[Package('framework')]
 class ThemeLifecycleHandler
 {
     public const STATE_SKIP_THEME_COMPILATION = 'skip-theme-compilation';
 
     /**
      * @internal
+     *
+     * @param EntityRepository<ThemeCollection> $themeRepository
      */
     public function __construct(
         private readonly ThemeLifecycleService $themeLifecycleService,
         private readonly ThemeService $themeService,
         private readonly EntityRepository $themeRepository,
-        private readonly StorefrontPluginRegistryInterface $storefrontPluginRegistry,
+        private readonly StorefrontPluginRegistry $storefrontPluginRegistry,
         private readonly Connection $connection
     ) {
     }

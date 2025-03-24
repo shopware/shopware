@@ -19,7 +19,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
  *
  * @phpstan-type PluginData array{'composerName': string, 'active': bool, 'version': string}
  */
-#[Package('core')]
+#[Package('framework')]
 class ExpectationSubscriber implements EventSubscriberInterface
 {
     private const SHOPWARE_CORE_PACKAGES = [

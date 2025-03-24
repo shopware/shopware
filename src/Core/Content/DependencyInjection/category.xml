@@ -32,26 +32,8 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Core\Content\Category\SalesChannel\CachedNavigationRoute" decorates="Shopware\Core\Content\Category\SalesChannel\NavigationRoute" decoration-priority="-1000" public="true">
-            <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\CachedNavigationRoute.inner"/>
-            <argument type="service" id="cache.object"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument>%shopware.cache.invalidation.navigation_route%</argument>
-        </service>
-
         <service id="Shopware\Core\Content\Category\SalesChannel\TreeBuildingNavigationRoute" decorates="Shopware\Core\Content\Category\SalesChannel\NavigationRoute" decoration-priority="-2000" public="true">
             <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\TreeBuildingNavigationRoute.inner"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Category\SalesChannel\CachedCategoryRoute" decorates="Shopware\Core\Content\Category\SalesChannel\CategoryRoute" decoration-priority="-1000" public="true">
-            <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\CachedCategoryRoute.inner"/>
-            <argument type="service" id="cache.object"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument>%shopware.cache.invalidation.category_route%</argument>
         </service>
 
         <service id="Shopware\Core\Content\Category\SalesChannel\CategoryRoute" public="true">
@@ -73,7 +55,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater"/>
             <argument type="service" id="Shopware\Core\Content\Category\DataAbstractionLayer\CategoryBreadcrumbUpdater"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="messenger.default_bus"/>
             <tag name="shopware.entity_indexer"/>
         </service>
 
@@ -108,8 +90,20 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Content\Category\Subscriber\CategoryTreeMovedSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Content\Category\DataAbstractionLayer\CategoryNonExistentExceptionHandler">
             <tag name="shopware.dal.exception_handler"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Category\Cms\CategoryNavigationCmsElementResolver">
+            <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoader"/>
+
+            <tag name="shopware.cms.data_resolver"/>
         </service>
     </services>
 </container>

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
@@ -47,7 +47,6 @@ async function createWrapper() {
                         template: '<div>Product-Box</div>',
                         props: ['element'],
                     },
-                    'sw-icon': true,
                 },
                 provide: {
                     cmsService: {

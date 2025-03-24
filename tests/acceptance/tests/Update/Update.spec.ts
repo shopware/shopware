@@ -1,7 +1,5 @@
-/* eslint-disable playwright/no-conditional-in-test */
 import { test, expect } from '@fixtures/AcceptanceTest';
 
-// eslint-disable-next-line playwright/no-skipped-test
 test(`Update an existing Shopware ${process.env.SHOPWARE_UPDATE_FROM} instance.`, { tag: '@Update' }, async ({
     page,
     AdminApiContext,
@@ -41,7 +39,7 @@ test(`Update an existing Shopware ${process.env.SHOPWARE_UPDATE_FROM} instance.`
 
     await page.getByRole('button', { name: 'Open Administration' }).click();
 
-    await expect(page.getByText(/6\.6\.9999999\.9999999/)).toBeVisible({
+    await expect(page.getByText(/6\.7\.9999999\.9999999/)).toBeVisible({
         timeout: 60000,
     });
 

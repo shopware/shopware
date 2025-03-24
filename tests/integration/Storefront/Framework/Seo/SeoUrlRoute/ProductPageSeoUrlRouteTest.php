@@ -39,7 +39,7 @@ class ProductPageSeoUrlRouteTest extends TestCase
             ->mainCategory($salesChannel['id'], 'c2')
             ->build();
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product], Context::createDefaultContext());
 
         $this->generateAndAssert(
@@ -65,7 +65,7 @@ class ProductPageSeoUrlRouteTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        $channels = $this->getContainer()
+        $channels = static::getContainer()
             ->get('sales_channel.repository')
             ->search(new Criteria([$salesChannelId]), $context);
 
@@ -73,12 +73,12 @@ class ProductPageSeoUrlRouteTest extends TestCase
 
         static::assertInstanceOf(SalesChannelEntity::class, $channel);
 
-        $generator = $this->getContainer()->get(SeoUrlGenerator::class);
+        $generator = static::getContainer()->get(SeoUrlGenerator::class);
 
         $urls = $generator->generate(
             ids: $ids,
             template: $template,
-            route: $this->getContainer()->get(ProductPageSeoUrlRoute::class),
+            route: static::getContainer()->get(ProductPageSeoUrlRoute::class),
             context: $context,
             salesChannel: $channel
         );

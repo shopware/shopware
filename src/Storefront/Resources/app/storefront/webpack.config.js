@@ -1,5 +1,5 @@
 /**
- * @package storefront
+ * @sw-package framework
  */
 const chalk = require('chalk');
 
@@ -9,6 +9,7 @@ const webpack = require('webpack');
 const fs = require('fs');
 const TerserPlugin = require('terser-webpack-plugin');
 const WebpackBar = require('webpackbar');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const FilenameToChunkNamePlugin = require('./build/webpack/FilenameToChunkNamePlugin');
 
@@ -225,7 +226,7 @@ const coreConfig = {
     name: 'shopware-6-storefront',
     optimization: {
         moduleIds: 'deterministic',
-        chunkIds: 'named', // named is only used in development mode
+        chunkIds: false, // chunk name is set by FilenameToChunkNamePlugin
         ...(() => {
             if (isProdMode) {
                 return {
@@ -264,16 +265,33 @@ const coreConfig = {
             filename: './css/[name].css',
             chunkFilename: './css/[name].css',
         }),
+        new webpack.ids.DeterministicChunkIdsPlugin({
+            maxLength: 5,
+        }),
+        new FilenameToChunkNamePlugin(),
         ...(() => {
             if (isHotMode) {
                 return [
                     new webpack.HotModuleReplacementPlugin(),
                 ];
             }
-
-            if (isProdMode) {
+            return [];
+        })(),
+        ...(() => {
+            if (fs.existsSync(path.resolve(__dirname, 'static'))) {
+                // copy custom static assets
                 return [
-                    new FilenameToChunkNamePlugin(),
+                    new CopyWebpackPlugin({
+                        patterns: [
+                            {
+                                from: path.resolve(__dirname, 'static'),
+                                to: path.resolve(__dirname, '../../../Resources/public/assets'),
+                                globOptions: {
+                                    ignore: ['.*'],
+                                },
+                            },
+                        ],
+                    }),
                 ];
             }
 
@@ -303,19 +321,6 @@ const pluginConfigs = pluginEntries.map((plugin) => {
     // add custom config optionally when it exists
     let customPluginConfig = {};
 
-    if (isHotMode) {
-        if (plugin.isTheme && plugin.name === themeFiles.technicalName) {
-            console.log(chalk.bgYellowBright.black(`# Compiling Theme "${plugin.name}" in HotMode`));
-        }
-        if (plugin.isTheme && plugin.name !== themeFiles.technicalName) {
-            console.log(chalk.bgYellowBright.black(`# Skipping "${plugin.name}" Theme in HotMode`));
-            return merge([
-                coreConfig,
-                {},
-                customPluginConfig,
-            ]);
-        }
-    }
     if (plugin.webpackConfig) {
         // eslint-disable-next-line no-console
         console.log(chalk.green(`# Plugin "${plugin.name}": Extends the webpack config successfully`));
@@ -331,6 +336,25 @@ const pluginConfigs = pluginEntries.map((plugin) => {
             technicalFolderName: plugin.technicalFolderName,
             plugin,
         });
+    }
+
+    if (isHotMode) {
+        const scriptAssetNames = themeFiles.script.map(script => script.assetName);
+        const pluginNameDashes = plugin.name
+            .replace(/[A-Z]/g, m => '-' + m.toLowerCase())
+            .replace(/^-/, '');
+
+        if (plugin.isTheme && scriptAssetNames.includes(pluginNameDashes)) {
+            console.log(chalk.bgYellowBright.black(`# Compiling Theme "${plugin.name}" in HotMode`));
+        }
+        if (plugin.isTheme && !scriptAssetNames.includes(pluginNameDashes)) {
+            console.log(chalk.bgHex('#fbbc39').black(`# Skipping "${plugin.name}" Theme in HotMode`));
+            return merge([
+                coreConfig,
+                {},
+                customPluginConfig,
+            ]);
+        }
     }
 
     return merge([
@@ -442,7 +466,7 @@ if (isHotMode) {
         throw new Error(`Unable to write file "${scssEntryFilePath}". ${error.message}`);
     }
 
-    coreConfig.entry.css = [scssEntryFilePath];
+    coreConfig.entry['hot-reloading'] = [scssEntryFilePath];
 }
 
 const mergedCoreConfig = merge([

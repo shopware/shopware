@@ -2,10 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\Services;
 
-use Doctrine\DBAL\Cache\ArrayResult;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\MySQL80Platform;
-use Doctrine\DBAL\Result;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -21,6 +19,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\UsageData\Services\ManyToManyAssociationService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\Stub\Doctrine\FakeResultFactory;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -35,8 +34,8 @@ class ManyToManyAssociationServiceTest extends TestCase
     {
         $ids = new IdsCollection();
         $connection = $this->createMock(Connection::class);
-        $connection->method('getDatabasePlatform')->willReturn(new MySQL80Platform());
-        $connection->expects(static::once())
+        $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
+        $connection->expects($this->once())
             ->method('executeQuery')
             ->with(
                 'SELECT `referenceColumn`, `localColumn` FROM `ManyToManyEntity` WHERE (`localColumn` IN (:ids)) AND (`product_version_id` = UNHEX(:versionId))',
@@ -50,8 +49,8 @@ class ManyToManyAssociationServiceTest extends TestCase
                 ]
             )
             ->willReturn(
-                new Result(
-                    new ArrayResult([
+                FakeResultFactory::createResult(
+                    [
                         [
                             'localColumn' => Uuid::fromHexToBytes($ids->get('1')),
                             'referenceColumn' => Uuid::fromHexToBytes($ids->get('referenceColumn-1')),
@@ -68,8 +67,8 @@ class ManyToManyAssociationServiceTest extends TestCase
                             'localColumn' => Uuid::fromHexToBytes($ids->get('3')),
                             'referenceColumn' => Uuid::fromHexToBytes($ids->get('referenceColumn-1')),
                         ],
-                    ]),
-                    $connection
+                    ],
+                    $connection,
                 )
             );
 

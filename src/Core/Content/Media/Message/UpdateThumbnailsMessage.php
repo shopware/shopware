@@ -4,18 +4,21 @@ namespace Shopware\Core\Content\Media\Message;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+/**
+ * @codeCoverageIgnore
+ */
+#[Package('discovery')]
 class UpdateThumbnailsMessage extends GenerateThumbnailsMessage
 {
-    private bool $isStrict = false;
+    private bool $strict = false;
 
     public function isStrict(): bool
     {
-        return $this->isStrict;
+        return $this->strict;
     }
 
-    public function setIsStrict(bool $isStrict): void
+    public function setStrict(bool $isStrict): void
     {
-        $this->isStrict = $isStrict;
+        $this->strict = $isStrict;
     }
 }

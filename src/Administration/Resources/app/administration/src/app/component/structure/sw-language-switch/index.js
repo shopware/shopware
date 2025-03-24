@@ -6,7 +6,7 @@ const { warn } = Shopware.Utils.debug;
 const { Criteria } = Shopware.Data;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description
@@ -19,8 +19,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-language-switch', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['on-change'],
 
@@ -92,19 +90,11 @@ Component.register('sw-language-switch', {
             this.languageId = Shopware.Context.api.languageId;
             this.lastLanguageId = this.languageId;
 
-            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                this.$root.$on('on-change-language-clicked', this.changeToNewLanguage);
-            } else {
-                Shopware.Utils.EventBus.on('on-change-language-clicked', this.changeToNewLanguage);
-            }
+            Shopware.Utils.EventBus.on('on-change-language-clicked', this.changeToNewLanguage);
         },
 
         destroyedComponent() {
-            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                this.$root.$off('on-change-language-clicked', this.changeToNewLanguage);
-            } else {
-                Shopware.Utils.EventBus.off('on-change-language-clicked', this.changeToNewLanguage);
-            }
+            Shopware.Utils.EventBus.off('on-change-language-clicked', this.changeToNewLanguage);
         },
 
         onInput(newLanguageId) {
@@ -137,16 +127,10 @@ Component.register('sw-language-switch', {
             this.lastLanguageId = this.languageId;
 
             if (this.changeGlobalLanguage) {
-                Shopware.State.commit('context/setApiLanguageId', this.languageId);
-                if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                    this.$root.$emit('on-change-application-language', {
-                        languageId: this.languageId,
-                    });
-                } else {
-                    Shopware.Utils.EventBus.emit('sw-language-switch-change-application-language', {
-                        languageId: this.languageId,
-                    });
-                }
+                Shopware.Store.get('context').api.languageId = this.languageId;
+                Shopware.Utils.EventBus.emit('sw-language-switch-change-application-language', {
+                    languageId: this.languageId,
+                });
             }
 
             this.$emit('on-change', this.languageId);

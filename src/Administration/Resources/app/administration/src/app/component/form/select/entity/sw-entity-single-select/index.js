@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import './sw-entity-single-select.scss';
 import template from './sw-entity-single-select.html.twig';
 
@@ -10,8 +14,6 @@ const { debounce, get } = Shopware.Utils;
  */
 Component.register('sw-entity-single-select', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -160,6 +162,11 @@ Component.register('sw-entity-single-select', {
             // eslint-disable-next-line vue/no-boolean-default
             default: undefined,
         },
+        label: {
+            type: String,
+            required: false,
+            default: undefined,
+        },
     },
 
     data() {
@@ -211,15 +218,6 @@ Component.register('sw-entity-single-select', {
             }
 
             return this.searchTerm;
-        },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 
@@ -318,10 +316,14 @@ Component.register('sw-entity-single-select', {
                             this.resultCollection = result;
 
                             const newEntity = this.repository.create(this.context, -1);
-                            newEntity.name = this.$tc('global.sw-single-select.labelEntityAdd', 0, {
-                                term: this.searchTerm,
-                                entity: this.entityCreationLabel,
-                            });
+                            newEntity.name = this.$tc(
+                                'global.sw-single-select.labelEntityAdd',
+                                {
+                                    term: this.searchTerm,
+                                    entity: this.entityCreationLabel,
+                                },
+                                0,
+                            );
 
                             this.resultCollection.unshift(newEntity);
 
@@ -581,17 +583,25 @@ Component.register('sw-entity-single-select', {
 
                     this.$emit('option-select', Utils.string.camelCase(this.entity), entity);
                     this.createNotificationSuccess({
-                        message: this.$tc('global.sw-single-select.labelEntityAddedSuccess', 0, {
-                            term: entity.name,
-                            entity: this.entityCreationLabel,
-                        }),
+                        message: this.$tc(
+                            'global.sw-single-select.labelEntityAddedSuccess',
+                            {
+                                term: entity.name,
+                                entity: this.entityCreationLabel,
+                            },
+                            0,
+                        ),
                     });
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('global.notification.notificationSaveErrorMessage', 0, {
-                            entityName: this.entity,
-                        }),
+                        message: this.$tc(
+                            'global.notification.notificationSaveErrorMessage',
+                            {
+                                entityName: this.entity,
+                            },
+                            0,
+                        ),
                     });
                     Shopware.Utils.debug.error('Only Entities with "name" as the only required field are creatable.');
                     this.isLoading = false;

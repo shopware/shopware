@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
@@ -19,7 +18,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 class DeleteCascadeAppsHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -34,10 +32,10 @@ class DeleteCascadeAppsHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->scheduledTaskRepo = $this->getContainer()->get('scheduled_task.repository');
-        $this->aclRoleRepo = $this->getContainer()->get('acl_role.repository');
-        $this->integrationRepo = $this->getContainer()->get('integration.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->scheduledTaskRepo = static::getContainer()->get('scheduled_task.repository');
+        $this->aclRoleRepo = static::getContainer()->get('acl_role.repository');
+        $this->integrationRepo = static::getContainer()->get('integration.repository');
     }
 
     public function testCanDelete(): void

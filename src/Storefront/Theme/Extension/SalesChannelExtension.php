@@ -10,7 +10,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Storefront\Theme\Aggregate\ThemeSalesChannelDefinition;
 use Shopware\Storefront\Theme\ThemeDefinition;
 
-#[Package('storefront')]
+#[Package('framework')]
 class SalesChannelExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void
@@ -18,11 +18,6 @@ class SalesChannelExtension extends EntityExtension
         $collection->add(
             new ManyToManyAssociationField('themes', ThemeDefinition::class, ThemeSalesChannelDefinition::class, 'sales_channel_id', 'theme_id')
         );
-    }
-
-    public function getDefinitionClass(): string
-    {
-        return SalesChannelDefinition::class;
     }
 
     public function getEntityName(): string

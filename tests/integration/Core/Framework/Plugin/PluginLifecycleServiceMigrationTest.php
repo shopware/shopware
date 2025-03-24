@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
@@ -28,7 +29,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
-use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -38,7 +38,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @internal
  */
 #[Group('slow')]
-#[Group('skip-paratest')]
 class PluginLifecycleServiceMigrationTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -77,7 +76,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         // force kernel boot
         KernelLifecycleManager::bootKernel();
 
-        $this->container = $this->getContainer();
+        $this->container = static::getContainer();
         $this->pluginRepo = $this->container->get('plugin.repository');
         $this->connection = $this->container->get(Connection::class);
         $this->pluginLifecycleService = $this->createPluginLifecycleService();
@@ -157,7 +156,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
 
     private function assertMigrationCount(MigrationCollection $migrationCollection, int $expectedCount): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         /** @var MigrationSource $migrationSource */
         $migrationSource = ReflectionHelper::getPropertyValue($migrationCollection, 'migrationSource');
@@ -187,9 +186,9 @@ class PluginLifecycleServiceMigrationTest extends TestCase
             $this->container->get(SystemConfigService::class),
             $this->container->get(CustomEntityPersister::class),
             $this->container->get(CustomEntitySchemaUpdater::class),
-            $this->container->get(CustomEntityLifecycleService::class),
             $this->container->get(PluginService::class),
             $this->container->get(VersionSanitizer::class),
+            $this->container->get(DefinitionInstanceRegistry::class),
         );
     }
 

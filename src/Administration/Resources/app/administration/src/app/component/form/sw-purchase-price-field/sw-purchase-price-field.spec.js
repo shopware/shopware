@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -61,7 +61,6 @@ const setup = async (propOverride) => {
             stubs: [
                 'sw-price-field',
                 'sw-field',
-                'sw-icon',
             ],
         },
         props,

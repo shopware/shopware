@@ -30,7 +30,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class NoInconfiguredMetricAllowed implements Rule
 {
     use InTestClassTrait;

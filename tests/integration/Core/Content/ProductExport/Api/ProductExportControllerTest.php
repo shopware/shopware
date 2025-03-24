@@ -275,7 +275,7 @@ class ProductExportControllerTest extends TestCase
     private function getSalesChannelDomain(): SalesChannelDomainEntity
     {
         /** @var EntityRepository<SalesChannelDomainCollection> $repository */
-        $repository = $this->getContainer()->get('sales_channel_domain.repository');
+        $repository = static::getContainer()->get('sales_channel_domain.repository');
 
         $first = $repository->search(new Criteria(), $this->context)->getEntities()->first();
 
@@ -291,7 +291,7 @@ class ProductExportControllerTest extends TestCase
 
     private function createProductStream(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $randomProductIds = implode('|', \array_slice(array_column($this->createProducts(), 'id'), 0, 2));
 
@@ -321,7 +321,7 @@ class ProductExportControllerTest extends TestCase
      */
     private function createProducts(): array
     {
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $manufacturerId = Uuid::randomHex();
         $taxId = Uuid::randomHex();
         $salesChannelId = $this->getSalesChannelDomain()->getSalesChannelId();

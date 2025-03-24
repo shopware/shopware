@@ -25,7 +25,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(BuyBoxCmsElementResolver::class)]
 class BuyBoxCmsElementResolverTest extends TestCase
 {
@@ -54,7 +54,7 @@ class BuyBoxCmsElementResolverTest extends TestCase
         $slot->setId('slot-1');
         $slot->setFieldConfig($config);
 
-        $context = new ResolverContext(Generator::createSalesChannelContext(), new Request());
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
 
         $result = $this->createMock(EntitySearchResult::class);
 
@@ -86,7 +86,7 @@ class BuyBoxCmsElementResolverTest extends TestCase
         $slot = new CmsSlotEntity();
         $slot->setId('slot-1');
 
-        $context = new ResolverContext(Generator::createSalesChannelContext(), new Request());
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
         $data = new ElementDataCollection();
 
         $resolver->enrich($slot, $context, $data);

@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-entity-multi-select.html.twig';
 import './sw-entity-multi-select.scss';
 
@@ -12,8 +16,6 @@ Component.register('sw-entity-multi-select', {
     template,
 
     inheritAttrs: false,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -157,6 +159,11 @@ Component.register('sw-entity-multi-select', {
             required: false,
             default: false,
         },
+        label: {
+            type: String,
+            required: false,
+            default: undefined,
+        },
     },
 
     data() {
@@ -172,15 +179,6 @@ Component.register('sw-entity-multi-select', {
     },
 
     computed: {
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
-        },
-
         repository() {
             return this.repositoryFactory.create(this.entityName || this.entityCollection.entity);
         },

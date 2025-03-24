@@ -57,5 +57,10 @@ class MediaUrlGeneratorTest extends TestCase
             new UrlParams('id', UrlParamsSource::MEDIA, 'test.jpg', new \DateTimeImmutable('2021-01-01')),
             'http://localhost:8000/test.jpg?ts=1609459200',
         ];
+
+        yield 'Test with path is an external url' => [
+            new UrlParams('id', UrlParamsSource::MEDIA, 'https://test.com/photo/flower.jpg', null),
+            'https://test.com/photo/flower.jpg',
+        ];
     }
 }

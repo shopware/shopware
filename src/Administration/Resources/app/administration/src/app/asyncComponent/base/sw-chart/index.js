@@ -1,4 +1,4 @@
-import VueApexCharts from 'vue-apexcharts';
+import VueApexCharts from 'vue3-apexcharts';
 import apexLocales from './locales';
 import template from './sw-chart.html.twig';
 import './sw-chart.scss';
@@ -7,7 +7,7 @@ const { object } = Shopware.Utils;
 const { warn } = Shopware.Utils.debug;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -85,8 +85,6 @@ const { warn } = Shopware.Utils.debug;
 export default {
     template,
     inheritAttrs: false,
-
-    compatConfig: Shopware.compatConfig,
 
     components: {
         apexchart: VueApexCharts,
@@ -239,7 +237,7 @@ export default {
         },
 
         defaultLocale() {
-            const adminLocaleLanguage = Shopware.State.getters.adminLocaleLanguage;
+            const adminLocaleLanguage = Shopware.Store.get('session').adminLocaleLanguage;
 
             if (Object.keys(apexLocales).includes(adminLocaleLanguage)) {
                 return adminLocaleLanguage;
@@ -316,19 +314,6 @@ export default {
                     },
                 },
             };
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - Can be removed. Event listerns will be in $attrs.
-         */
-        listeners() {
-            let listeners = {};
-
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                listeners = this.$listeners;
-            }
-
-            return listeners;
         },
     },
 

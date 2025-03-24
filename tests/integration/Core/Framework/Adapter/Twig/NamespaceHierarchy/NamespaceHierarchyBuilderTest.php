@@ -18,7 +18,7 @@ class NamespaceHierarchyBuilderTest extends TestCase
     public function testItAddsAppTemplateNamespaces(): void
     {
         /** @var EntityRepository $appRepository */
-        $appRepository = $this->getContainer()->get('app.repository');
+        $appRepository = static::getContainer()->get('app.repository');
 
         $appRepository->create([
             [
@@ -63,7 +63,7 @@ class NamespaceHierarchyBuilderTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $hierarchyBuilder = $this->getContainer()->get(NamespaceHierarchyBuilder::class);
+        $hierarchyBuilder = static::getContainer()->get(NamespaceHierarchyBuilder::class);
 
         $coreHierarchy = [
             'Profiling',
@@ -73,7 +73,7 @@ class NamespaceHierarchyBuilderTest extends TestCase
             'Storefront',
         ];
         // Remove not installed core bundles from hierarchy
-        $coreHierarchy = array_intersect($coreHierarchy, array_keys($this->getContainer()->getParameter('kernel.bundles')));
+        $coreHierarchy = array_intersect($coreHierarchy, array_keys(static::getContainer()->getParameter('kernel.bundles')));
 
         static::assertSame([
             ...$coreHierarchy,

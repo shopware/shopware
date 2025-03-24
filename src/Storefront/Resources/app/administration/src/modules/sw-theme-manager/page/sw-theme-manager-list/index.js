@@ -2,7 +2,7 @@ import template from './sw-theme-manager-list.html.twig';
 import './sw-theme-manager-list.scss';
 
 /**
- * @package buyers-experience
+ * @package discovery
  */
 
 const { Component, Mixin } = Shopware;
@@ -51,10 +51,10 @@ Component.register('sw-theme-manager-list', {
 
         sortOptions() {
             return [
-                { value: 'createdAt:DESC', name: this.$tc('sw-theme-manager.sorting.labelSortByCreatedDsc') },
-                { value: 'createdAt:ASC', name: this.$tc('sw-theme-manager.sorting.labelSortByCreatedAsc') },
-                { value: 'updatedAt:DESC', name: this.$tc('sw-theme-manager.sorting.labelSortByUpdatedDsc') },
-                { value: 'updatedAt:ASC', name: this.$tc('sw-theme-manager.sorting.labelSortByUpdatedAsc') }
+                { value: 'createdAt:DESC', label: this.$tc('sw-theme-manager.sorting.labelSortByCreatedDsc') },
+                { value: 'createdAt:ASC', label: this.$tc('sw-theme-manager.sorting.labelSortByCreatedAsc') },
+                { value: 'updatedAt:DESC', label: this.$tc('sw-theme-manager.sorting.labelSortByUpdatedDsc') },
+                { value: 'updatedAt:ASC', label: this.$tc('sw-theme-manager.sorting.labelSortByUpdatedAsc') }
             ];
         },
 

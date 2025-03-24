@@ -8,16 +8,13 @@ async function createWrapper(propsData = {}) {
         {
             global: {
                 mocks: {
-                    $tc: (path, choice, values) => {
+                    $tc: (path, values) => {
                         if (values) {
                             return path + Object.values(values);
                         }
 
                         return path;
                     },
-                },
-                stubs: {
-                    'sw-button': true,
                 },
             },
             props: {
@@ -31,7 +28,7 @@ async function createWrapper(propsData = {}) {
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('src/module/sw-extension/component/sw-extension-deactivation-modal', () => {
     it('should show the correct remove hint (is licensed)', async () => {

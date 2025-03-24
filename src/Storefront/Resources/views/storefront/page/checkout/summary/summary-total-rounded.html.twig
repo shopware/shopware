@@ -7,7 +7,7 @@
 
     {% block page_checkout_summary_total_rounded_value %}
         <dd class="col-5 checkout-aside-summary-value checkout-aside-summary-total-rounded">
-            {{ summary.price.totalPrice|currency(decimals=decimals) }}{{ 'general.star'|trans|sw_sanitize }}
+            {{ summary.price.totalPrice|currency(decimals=decimals) }}
         </dd>
     {% endblock %}
 {% endblock %}

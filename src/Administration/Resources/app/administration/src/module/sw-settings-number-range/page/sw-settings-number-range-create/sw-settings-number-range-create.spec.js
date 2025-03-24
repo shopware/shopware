@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 
@@ -55,19 +55,14 @@ async function createWrapper() {
                         <slot />
                     </div>`,
                     },
-                    'sw-button': {
-                        template: '<div class="sw-button"><slot /></div>',
-                        props: ['disabled'],
-                    },
                     'sw-button-process': {
                         template: '<div class="sw-button-process"><slot /></div>',
                         props: ['disabled'],
                     },
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot /></div>',
+                    'mt-card': {
+                        template: '<div class="mt-card"><slot /></div>',
                     },
-                    'sw-switch-field': true,
-                    'sw-number-field': true,
+
                     'sw-text-field': {
                         template: '<div class="sw-field"></div>',
                         props: ['disabled'],
@@ -94,7 +89,7 @@ async function createWrapper() {
                         />
                       `,
                     },
-                    'sw-alert': true,
+
                     'sw-skeleton': true,
                     'sw-language-switch': true,
                     'sw-custom-field-set-renderer': true,

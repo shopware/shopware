@@ -13,36 +13,42 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
+use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(QuerySigner::class)]
 class QuerySignerTest extends TestCase
 {
     public function testSignUri(): void
     {
+        $inAppPurchase = StaticInAppPurchaseFactory::createWithFeatures(['extension-1' => ['purchase-1', 'purchase-2'], 'extension-2' => ['purchase-3']]);
+
         $context = new Context(new AdminApiSource(null));
 
         $localeProvider = $this->createMock(LocaleProvider::class);
         $localeProvider
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getLocaleFromContext')
             ->with($context)
             ->willReturn('en-GB');
 
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getShopId')
             ->willReturn('shopId');
 
         $app = new AppEntity();
+        $app->setName('extension-1');
         $app->setAppSecret('devSecret');
-        $app->setId('extension-1');
+        $app->setId(Uuid::randomHex());
+        $app->setVersion('1.0.0');
 
-        $querySigner = new QuerySigner('http://shop.url', '1.0.0', $localeProvider, $shopIdProvider);
+        $querySigner = new QuerySigner('http://shop.url', '1.0.0', $localeProvider, $shopIdProvider, $inAppPurchase);
         $signedQuery = $querySigner->signUri('http://app.url/?foo=bar', $app, $context);
 
         \parse_str($signedQuery->getQuery(), $url);
@@ -51,16 +57,20 @@ class QuerySignerTest extends TestCase
         static::assertArrayHasKey('shop-url', $url);
         static::assertArrayHasKey('timestamp', $url);
         static::assertArrayHasKey('sw-version', $url);
+        static::assertArrayHasKey('in-app-purchases', $url);
         static::assertArrayHasKey('sw-context-language', $url);
         static::assertArrayHasKey('sw-user-language', $url);
         static::assertArrayHasKey('shopware-shop-signature', $url);
+        static::assertArrayHasKey('app-version', $url);
 
         static::assertSame('shopId', $url['shop-id']);
         static::assertSame('http://shop.url', $url['shop-url']);
         static::assertIsNumeric($url['timestamp']);
         static::assertSame('1.0.0', $url['sw-version']);
+        static::assertSame('a6a4063ffda65516983ad40e8dc91db6', $url['in-app-purchases']);
         static::assertSame(Defaults::LANGUAGE_SYSTEM, $url['sw-context-language']);
         static::assertSame('en-GB', $url['sw-user-language']);
+        static::assertSame('1.0.0', $url['app-version']);
     }
 
     public function testThrowsWithoutAppSecret(): void
@@ -73,7 +83,8 @@ class QuerySignerTest extends TestCase
             'http://shop.url',
             '1.0.0',
             $this->createMock(LocaleProvider::class),
-            $this->createMock(ShopIdProvider::class)
+            $this->createMock(ShopIdProvider::class),
+            StaticInAppPurchaseFactory::createWithFeatures(),
         );
 
         $this->expectException(AppException::class);

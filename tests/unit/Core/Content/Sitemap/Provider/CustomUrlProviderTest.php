@@ -12,7 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 #[CoversClass(CustomUrlProvider::class)]
 class CustomUrlProviderTest extends TestCase
 {
@@ -49,7 +49,7 @@ class CustomUrlProviderTest extends TestCase
                     'lastMod' => new \DateTimeImmutable(),
                     'changeFreq' => 'weekly',
                     'priority' => 0.5,
-                    'salesChannelId' => $salesChannelContext->getSalesChannel()->getId(),
+                    'salesChannelId' => $salesChannelContext->getSalesChannelId(),
                 ],
             ]);
 

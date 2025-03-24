@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  *
  * Shopware End Developer API
  * @module Shopware
@@ -31,6 +31,7 @@ import FlatTreeHelper from 'src/core/helper/flattree.helper';
 import SanitizerHelper from 'src/core/helper/sanitizer.helper';
 import DeviceHelper from 'src/core/helper/device.helper';
 import MiddlewareHelper from 'src/core/helper/middleware.helper';
+import { DiscountScopes, DiscountTypes, PromotionPermissions } from 'src/module/sw-promotion-v2/helper/promotion.helper';
 import data from 'src/core/data/index';
 import ApplicationBootstrapper from 'src/core/application';
 
@@ -42,12 +43,14 @@ import AppContextFactory from 'src/core/factory/app-context.factory';
 import RouterFactory from 'src/core/factory/router.factory';
 import ApiServices from 'src/core/service/api';
 import ModuleFilterFactory from 'src/core/data/filter-factory.data';
-import type { VueI18n } from 'vue-i18n';
 import Store from 'src/app/store';
 import { createExtendableSetup, overrideComponentSetup } from 'src/app/adapter/composition-extension-system';
 import * as Vue from 'vue';
 import type { DefineComponent, Ref } from 'vue';
+import InAppPurchase from './in-app-purchase';
 import ExtensionApi from './extension-api';
+import { LineItemType } from '../module/sw-order/order.types';
+import useContext from '../app/composables/use-context';
 
 /** Initialize feature flags at the beginning */
 if (window.hasOwnProperty('_features_')) {
@@ -206,6 +209,8 @@ class ShopwareClass implements CustomShopwareProperties {
 
     public Feature = Feature;
 
+    public InAppPurchase = InAppPurchase;
+
     public Vue = Vue;
 
     public ApiService = {
@@ -251,10 +256,13 @@ class ShopwareClass implements CustomShopwareProperties {
 
     public Data = data;
 
-    public get Snippet(): VueI18n {
-        // @ts-expect-error - type is currently not available
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
-        return Shopware.Application.view.i18n.global;
+    public get Snippet() {
+        return {
+            // @ts-expect-error - type is currently not available
+            ...Shopware.Application.view.i18n.global,
+            // @ts-expect-error - type is currently not available
+            tc: Shopware.Application.view.i18n.global.t,
+        };
     }
 
     public Classes = {
@@ -276,67 +284,18 @@ class ShopwareClass implements CustomShopwareProperties {
         RefreshTokenHelper: RefreshTokenHelper,
         SanitizerHelper: SanitizerHelper,
         DeviceHelper: DeviceHelper,
+        PromotionHelper: {
+            DiscountScopes,
+            DiscountTypes,
+            PromotionPermissions,
+        },
+        OrderHelper: {
+            LineItemType,
+        },
     };
 
-    /**
-     * @private
-     *
-     * This is a compatibility configuration for the Vue 2 to Vue 3 migration.
-     * With activated feature flag, the compat configuration will be disabled
-     * for a single component.
-     *
-     * Usage:
-     *
-     * Component.register('your-component', {
-     *     ...
-     *     compatConfig: Shopware.compatConfig,
-     *     ...
-     *   * });
-     */
-    public compatConfig = {
-        GLOBAL_MOUNT: !window._features_.DISABLE_VUE_COMPAT,
-        GLOBAL_EXTEND: !window._features_.DISABLE_VUE_COMPAT,
-        GLOBAL_PROTOTYPE: !window._features_.DISABLE_VUE_COMPAT,
-        GLOBAL_SET: !window._features_.DISABLE_VUE_COMPAT,
-        GLOBAL_DELETE: !window._features_.DISABLE_VUE_COMPAT,
-        GLOBAL_OBSERVABLE: !window._features_.DISABLE_VUE_COMPAT,
-        CONFIG_KEY_CODES: !window._features_.DISABLE_VUE_COMPAT,
-        CONFIG_WHITESPACE: !window._features_.DISABLE_VUE_COMPAT,
-        INSTANCE_SET: !window._features_.DISABLE_VUE_COMPAT,
-        INSTANCE_ATTRS_CLASS_STYLE: !window._features_.DISABLE_VUE_COMPAT,
-        INSTANCE_DELETE: !window._features_.DISABLE_VUE_COMPAT,
-        INSTANCE_EVENT_EMITTER: !window._features_.DISABLE_VUE_COMPAT,
-        INSTANCE_EVENT_HOOKS: !window._features_.DISABLE_VUE_COMPAT,
-        INSTANCE_CHILDREN: !window._features_.DISABLE_VUE_COMPAT,
-        INSTANCE_LISTENERS: !window._features_.DISABLE_VUE_COMPAT,
-        INSTANCE_SCOPED_SLOTS: !window._features_.DISABLE_VUE_COMPAT,
-        OPTIONS_DATA_FN: !window._features_.DISABLE_VUE_COMPAT,
-        OPTIONS_DATA_MERGE: !window._features_.DISABLE_VUE_COMPAT,
-        OPTIONS_BEFORE_DESTROY: !window._features_.DISABLE_VUE_COMPAT,
-        OPTIONS_DESTROYED: !window._features_.DISABLE_VUE_COMPAT,
-        WATCH_ARRAY: !window._features_.DISABLE_VUE_COMPAT,
-        V_ON_KEYCODE_MODIFIER: !window._features_.DISABLE_VUE_COMPAT,
-        CUSTOM_DIR: !window._features_.DISABLE_VUE_COMPAT,
-        ATTR_FALSE_VALUE: !window._features_.DISABLE_VUE_COMPAT,
-        ATTR_ENUMERATED_COERCION: !window._features_.DISABLE_VUE_COMPAT,
-        TRANSITION_GROUP_ROOT: !window._features_.DISABLE_VUE_COMPAT,
-        COMPONENT_ASYNC: !window._features_.DISABLE_VUE_COMPAT,
-        COMPONENT_FUNCTIONAL: !window._features_.DISABLE_VUE_COMPAT,
-        COMPONENT_V_MODEL: !window._features_.DISABLE_VUE_COMPAT,
-        RENDER_FUNCTION: !window._features_.DISABLE_VUE_COMPAT,
-        FILTERS: !window._features_.DISABLE_VUE_COMPAT,
-        COMPILER_IS_ON_ELEMENT: !window._features_.DISABLE_VUE_COMPAT,
-        COMPILER_V_BIND_SYNC: !window._features_.DISABLE_VUE_COMPAT,
-        COMPILER_V_BIND_PROP: !window._features_.DISABLE_VUE_COMPAT,
-        COMPILER_V_BIND_OBJECT_ORDER: !window._features_.DISABLE_VUE_COMPAT,
-        COMPILER_V_ON_NATIVE: !window._features_.DISABLE_VUE_COMPAT,
-        COMPILER_V_FOR_REF: !window._features_.DISABLE_VUE_COMPAT,
-        COMPILER_NATIVE_TEMPLATE: !window._features_.DISABLE_VUE_COMPAT,
-        COMPILER_FILTERS: !window._features_.DISABLE_VUE_COMPAT,
-    };
-
-    public get Context(): VuexRootState['context'] {
-        return this.State.get('context');
+    public get Context() {
+        return useContext();
     }
 
     public _private = {
@@ -346,10 +305,8 @@ class ShopwareClass implements CustomShopwareProperties {
 
 const ShopwareInstance = new ShopwareClass();
 
-// Only works for webpack order of imports
-if (!window._features_.ADMIN_VITE) {
-    window.Shopware = ShopwareInstance;
-}
+// Freeze InAppPurchase to prevent modifications
+Object.defineProperty(ShopwareInstance, 'InAppPurchase', { configurable: false, writable: false });
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export { ShopwareClass, ShopwareInstance };

@@ -93,7 +93,7 @@ class ProductPriceCalculatorTest extends TestCase
         $context->method('getContext')->willReturn(Context::createDefaultContext());
         $context->method('getTaxState')->willReturn($state);
         $context->method('buildTaxRules')->willReturn(new TaxRuleCollection([new TaxRule(10)]));
-        $context->method('getItemRounding')->willreturn(new CashRoundingConfig(2, 0.01, true));
+        $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
 
         $this->calculator->calculate([$product], $context);
 

@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class FlowIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -20,11 +20,11 @@ class FlowIndexerTest extends TestCase
 
     public function testIndexingHappensAfterPluginLifecycle(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $connection->executeStatement('UPDATE `flow` SET `payload` = null, `invalid` = 0');
 
-        $indexer = $this->getContainer()->get(FlowIndexerSubscriber::class);
+        $indexer = static::getContainer()->get(FlowIndexerSubscriber::class);
         $indexer->refreshPlugin();
 
         $this->runWorker();

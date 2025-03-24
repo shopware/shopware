@@ -20,9 +20,12 @@ use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\App\Event\Hooks\AppDeletedHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppInstalledHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppUpdatedHook;
+use Shopware\Core\Framework\App\Event\PostAppDeletedEvent;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Flow\Action\Action;
 use Shopware\Core\Framework\App\Flow\Event\Event;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
@@ -65,7 +68,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class AppLifecycle extends AbstractAppLifecycle
 {
     /**
@@ -118,7 +121,7 @@ class AppLifecycle extends AbstractAppLifecycle
         throw new DecorationPatternException(self::class);
     }
 
-    public function install(Manifest $manifest, bool $activate, Context $context): void
+    public function install(Manifest $manifest, AppInstallParameters $parameters, Context $context): void
     {
         $this->ensureIsCompatible($manifest);
 
@@ -133,26 +136,44 @@ class AppLifecycle extends AbstractAppLifecycle
         $roleId = Uuid::randomHex();
         $metadata = $this->enrichInstallMetadata($manifest, $metadata, $roleId);
 
-        $app = $this->updateApp($manifest, $metadata, $appId, $roleId, $defaultLocale, $context, true);
+        $app = $this->updateApp(
+            $manifest,
+            new AppUpdateParameters(acceptPermissions: $parameters->acceptPermissions),
+            $metadata,
+            $appId,
+            $roleId,
+            $defaultLocale,
+            $context,
+            true
+        );
 
         $event = new AppInstalledEvent($app, $manifest, $context);
         $this->eventDispatcher->dispatch($event);
         $this->scriptExecutor->execute(new AppInstalledHook($event));
 
-        if ($activate) {
+        if ($parameters->activate) {
             $this->appStateService->activateApp($appId, $context);
         }
 
         $this->updateAclRole($app->getName(), $context);
     }
 
-    public function update(Manifest $manifest, array $app, Context $context): void
+    public function update(Manifest $manifest, AppUpdateParameters $parameters, array $app, Context $context): void
     {
         $this->ensureIsCompatible($manifest);
 
         $defaultLocale = $this->getDefaultLocale($context);
         $metadata = $manifest->getMetadata()->toArray($defaultLocale);
-        $appEntity = $this->updateApp($manifest, $metadata, $app['id'], $app['roleId'], $defaultLocale, $context, false);
+        $appEntity = $this->updateApp(
+            $manifest,
+            $parameters,
+            $metadata,
+            $app['id'],
+            $app['roleId'],
+            $defaultLocale,
+            $context,
+            false
+        );
 
         $event = new AppUpdatedEvent($appEntity, $manifest, $context);
         $this->eventDispatcher->dispatch($event);
@@ -170,6 +191,9 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->removeAppAndRole($appEntity, $context, $keepUserData, true);
         $this->assetService->removeAssets($appEntity->getName());
         $this->customEntitySchemaUpdater->update();
+
+        $event = new PostAppDeletedEvent($appEntity->getName(), $appEntity->getSourceType(), $context, $keepUserData);
+        $this->eventDispatcher->dispatch($event);
     }
 
     public function ensureIsCompatible(Manifest $manifest): void
@@ -185,6 +209,7 @@ class AppLifecycle extends AbstractAppLifecycle
      */
     private function updateApp(
         Manifest $manifest,
+        AppUpdateParameters $parameters,
         array $metadata,
         string $id,
         string $roleId,
@@ -206,6 +231,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $metadata['checkoutGatewayUrl'] = $manifest->getGateways()?->getCheckout()?->getUrl();
         $metadata['sourceType'] = $manifest->getSourceType() ?? $this->sourceResolver->resolveSourceType($manifest);
         $metadata['sourceConfig'] = $manifest->getSourceConfig();
+        $metadata['inAppPurchasesGatewayUrl'] = $manifest->getGateways()?->getInAppPurchasesGateway()?->getUrl();
 
         $this->updateMetadata($metadata, $context);
 
@@ -265,10 +291,9 @@ class AppLifecycle extends AbstractAppLifecycle
         }
 
         $this->shippingMethodPersister->updateShippingMethods($manifest, $id, $defaultLocale, $context);
-
         $this->ruleConditionPersister->updateConditions($manifest, $id, $defaultLocale, $context);
         $this->actionButtonPersister->updateActions($manifest, $id, $defaultLocale, $context);
-        $this->templatePersister->updateTemplates($manifest, $id, $context);
+        $this->templatePersister->updateTemplates($manifest, $id, $context, $install);
         $this->scriptPersister->updateScripts($id, $context);
         $this->customFieldPersister->updateCustomFields($manifest, $id, $context);
         $this->assetService->copyAssetsFromApp($app->getName(), $app->getPath());
@@ -281,8 +306,8 @@ class AppLifecycle extends AbstractAppLifecycle
 
         $updatePayload = [
             'id' => $app->getId(),
-            'configurable' => $this->handleConfigUpdates($app, $manifest, $install, $context),
-            'allowDisable' => $this->doesAllowDisabling($app, $context),
+            'configurable' => $this->handleConfigUpdates($app, $manifest, $install),
+            'allowDisable' => $this->doesAllowDisabling($app),
         ];
         $this->updateMetadata($updatePayload, $context);
 
@@ -507,10 +532,10 @@ class AppLifecycle extends AbstractAppLifecycle
     private function getDefaultLocale(Context $context): string
     {
         $criteria = new Criteria([Defaults::LANGUAGE_SYSTEM]);
-        $criteria->addAssociation('locale');
+        $criteria->addAssociation('translationCode');
 
         $language = $this->languageRepository->search($criteria, $context)->getEntities()->first();
-        $locale = $language?->getLocale();
+        $locale = $language?->getTranslationCode();
         \assert($locale !== null);
 
         return $locale->getCode();
@@ -594,17 +619,14 @@ class AppLifecycle extends AbstractAppLifecycle
         }
     }
 
-    private function handleConfigUpdates(AppEntity $app, Manifest $manifest, bool $install, Context $context): bool
+    private function handleConfigUpdates(AppEntity $app, Manifest $manifest, bool $install): bool
     {
         $config = $this->getAppConfig($app);
-
         if ($config === null) {
             return false;
         }
 
-        $errors = $this->configValidator->validate($manifest, null);
-        $configError = $errors->first();
-
+        $configError = $this->configValidator->validate($manifest, null)->first();
         if ($configError) {
             // only one error can be in the returned collection
             throw AppException::invalidConfiguration($manifest->getMetadata()->getName(), $configError);
@@ -615,7 +637,7 @@ class AppLifecycle extends AbstractAppLifecycle
         return true;
     }
 
-    private function doesAllowDisabling(AppEntity $app, Context $context): bool
+    private function doesAllowDisabling(AppEntity $app): bool
     {
         $allow = true;
 
@@ -630,7 +652,9 @@ class AppLifecycle extends AbstractAppLifecycle
             foreach ($fields as $field) {
                 $restricted = $field['onDelete'] ?? null;
 
-                $allow = $restricted === AssociationField::RESTRICT ? false : $allow;
+                if ($restricted === AssociationField::RESTRICT) {
+                    $allow = false;
+                }
             }
         }
 
@@ -666,7 +690,8 @@ class AppLifecycle extends AbstractAppLifecycle
         }
 
         $manifestWebhooks = $manifest->getWebhooks()?->getWebhooks() ?? [];
-        $webhooks = array_merge($webhooks, array_map(function (Webhook $webhook) use ($defaultLocale, $appId) {
+
+        return array_merge($webhooks, array_map(function (Webhook $webhook) use ($defaultLocale, $appId) {
             /** @var array{name: string, event: string, url: string} $payload */
             $payload = $webhook->toArray($defaultLocale);
             $payload['appId'] = $appId;
@@ -674,8 +699,6 @@ class AppLifecycle extends AbstractAppLifecycle
 
             return $payload;
         }, $manifestWebhooks));
-
-        return $webhooks;
     }
 
     private function getIcon(Manifest $manifest): ?string

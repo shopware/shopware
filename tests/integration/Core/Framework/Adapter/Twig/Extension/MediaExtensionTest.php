@@ -24,7 +24,7 @@ class MediaExtensionTest extends TestCase
             'fileName' => 'testImage',
         ];
 
-        $this->getContainer()->get('media.repository')
+        static::getContainer()->get('media.repository')
             ->create([$data], Context::createDefaultContext());
 
         $result = $this->render('search-media.html.twig', [
@@ -44,7 +44,7 @@ class MediaExtensionTest extends TestCase
             ['id' => $ids->create('media-2'), 'fileName' => 'image-2'],
         ];
 
-        $this->getContainer()->get('media.repository')
+        static::getContainer()->get('media.repository')
             ->create($data, Context::createDefaultContext());
 
         $result = $this->render('search-media.html.twig', [
@@ -70,7 +70,7 @@ class MediaExtensionTest extends TestCase
      */
     private function render(string $template, array $data): string
     {
-        $twig = $this->getContainer()->get('twig');
+        $twig = static::getContainer()->get('twig');
 
         $originalLoader = $twig->getLoader();
         $twig->setLoader(new ArrayLoader([

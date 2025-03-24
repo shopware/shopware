@@ -19,7 +19,7 @@ class PriceFieldAccessorBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->builder = $this->getContainer()->get(PriceFieldAccessorBuilder::class);
+        $this->builder = static::getContainer()->get(PriceFieldAccessorBuilder::class);
     }
 
     public function testWithPriceAccessor(): void

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -49,13 +49,12 @@ async function createWrapper() {
                 'sw-checkbox-field': true,
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
-                'sw-icon': true,
                 'sw-data-grid-settings': true,
                 'sw-data-grid-column-boolean': true,
                 'sw-data-grid-inline-edit': true,
                 'router-link': true,
-                'sw-button': true,
                 'sw-data-grid-skeleton': true,
+                'sw-provide': true,
             },
         },
     });
@@ -71,6 +70,19 @@ describe('app/component/entity/sw-one-to-many-grid', () => {
     it('should enable the context menu delete item', async () => {
         const wrapper = await createWrapper();
 
+        await wrapper.setData({
+            records: [
+                {
+                    name: 'name',
+                    shortCode: 'shortCode',
+                },
+                {
+                    name: 'name',
+                    shortCode: 'shortCode',
+                },
+            ],
+        });
+
         const firstRow = wrapper.find('.sw-data-grid__row--1');
         const firstRowActions = firstRow.find('.sw-data-grid__cell--actions');
         const firstRowActionDelete = firstRowActions.find('.sw-one-to-many-grid__delete-action');
@@ -84,6 +96,19 @@ describe('app/component/entity/sw-one-to-many-grid', () => {
 
         await wrapper.setProps({
             allowDelete: false,
+        });
+
+        await wrapper.setData({
+            records: [
+                {
+                    name: 'name',
+                    shortCode: 'shortCode',
+                },
+                {
+                    name: 'name',
+                    shortCode: 'shortCode',
+                },
+            ],
         });
 
         const firstRow = wrapper.find('.sw-data-grid__row--1');

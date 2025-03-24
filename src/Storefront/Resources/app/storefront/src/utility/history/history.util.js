@@ -1,9 +1,8 @@
 import { createBrowserHistory } from 'history';
-import querystring from 'query-string';
 import deepmerge from 'deepmerge';
 
 /**
- * @package storefront
+ * @sw-package framework
  */
 class HistoryUtilSingleton {
     constructor() {
@@ -68,8 +67,8 @@ class HistoryUtilSingleton {
      */
     pushParams(params, state) {
         const pathname = this.getLocation().pathname;
-        const parsed = querystring.parse(location.search);
-        const search = querystring.stringify(deepmerge(parsed, params));
+        const parsed = Object.fromEntries(new URLSearchParams(location.search).entries());
+        const search = new URLSearchParams(deepmerge(parsed, params)).toString();
 
         this.push(pathname, search, state);
     }
@@ -82,8 +81,8 @@ class HistoryUtilSingleton {
      */
     replaceParams(params, state) {
         const pathname = this.getLocation().pathname;
-        const parsed = querystring.parse(location.search);
-        const search = querystring.stringify(deepmerge(parsed, params));
+        const parsed = Object.fromEntries(new URLSearchParams(location.search).entries());
+        const search = new URLSearchParams(deepmerge(parsed, params)).toString();
 
         this.replace(pathname, search, state);
     }

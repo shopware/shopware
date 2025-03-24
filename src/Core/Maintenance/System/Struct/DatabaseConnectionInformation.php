@@ -8,9 +8,9 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Maintenance\MaintenanceException;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal
+ * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class DatabaseConnectionInformation extends Struct
 {
     protected string $hostname = '';
@@ -31,12 +31,7 @@ class DatabaseConnectionInformation extends Struct
 
     protected ?bool $sslDontVerifyServerCert = null;
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Native return type will be added
-     *
-     * @return DatabaseConnectionInformation
-     */
-    public function assign(array $options)
+    public function assign(array $options): DatabaseConnectionInformation
     {
         // We pass request values directly to the assign method,
         // so we need to cast them to the correct type first
@@ -92,17 +87,31 @@ class DatabaseConnectionInformation extends Struct
     }
 
     /**
-     * @return array{url: string, charset: string, driverOptions: array<int, string|bool>}
+     * @return array{host: string, port: int, charset: string, driver: 'pdo_mysql', dbname?: string, user?: string, password?: string, driverOptions: array<int, string|bool>}
      */
     public function toDBALParameters(bool $withoutDatabaseName = false): array
     {
         $parameters = [
-            'url' => $this->asDsn($withoutDatabaseName),
+            'host' => $this->hostname,
+            'port' => $this->port,
             'charset' => 'utf8mb4',
+            'driver' => 'pdo_mysql',
             'driverOptions' => [
                 \PDO::ATTR_STRINGIFY_FETCHES => true,
             ],
         ];
+
+        if (!$withoutDatabaseName) {
+            $parameters['dbname'] = $this->databaseName;
+        }
+
+        if ($this->username !== null) {
+            $parameters['user'] = $this->username;
+        }
+
+        if ($this->password !== null) {
+            $parameters['password'] = $this->password;
+        }
 
         if ($this->sslCaPath) {
             $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_CA] = $this->sslCaPath;

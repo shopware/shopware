@@ -117,7 +117,7 @@ class ProductReviewRouteTest extends TestCase
             'active' => true,
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product], Context::createDefaultContext());
     }
 
@@ -131,7 +131,7 @@ class ProductReviewRouteTest extends TestCase
                 ],
             ],
         ];
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->update($update, Context::createDefaultContext());
     }
 
@@ -150,7 +150,7 @@ class ProductReviewRouteTest extends TestCase
             ];
         }
 
-        $this->getContainer()->get('product_review.repository')
+        static::getContainer()->get('product_review.repository')
             ->create($reviews, Context::createDefaultContext());
     }
 

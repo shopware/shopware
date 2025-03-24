@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package fundamentals@after-sales
  */
 describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins', () => {
     async function createWrapper() {
@@ -19,7 +19,6 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins', () =
                         'sw-plugin-card': true,
                         'sw-loader': true,
                         'sw-color-badge': true,
-                        'sw-icon': true,
                     },
                     provide: {
                         recommendationsService: {

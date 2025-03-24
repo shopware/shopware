@@ -1,6 +1,6 @@
 /**
  * @private
- * @package admin
+ * @sw-package framework
  */
 export default [
     'sw-admin',
@@ -52,4 +52,5 @@ export default [
     'sw-settings-product-feature-sets-detail',
     'sw-system-config',
     'sw-settings-search-searchable-content',
+    'sw-in-app-purchase-checkout',
 ];

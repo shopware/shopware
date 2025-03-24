@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { reactive } from 'vue';
 import { mount } from '@vue/test-utils';
@@ -64,11 +64,11 @@ async function createWrapper(activeTab = 'sorting') {
                     'sw-simple-search-field': true,
                     'sw-entity-multi-select': true,
                     'sw-select-field': true,
-                    'sw-switch-field': true,
+
                     'sw-pagination': true,
                     'sw-container': true,
                     'sw-tabs-item': true,
-                    'sw-alert': true,
+
                     'sw-empty-state': true,
                     'sw-tabs': {
                         data() {
@@ -84,15 +84,14 @@ async function createWrapper(activeTab = 'sorting') {
                     'sw-highlight-text': true,
                     'sw-select-result': true,
                     'sw-checkbox-field': true,
-                    'sw-icon': true,
                     'sw-context-menu-item': true,
                     'sw-context-button': true,
                     'sw-data-grid-settings': true,
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-inline-edit': true,
                     'router-link': true,
-                    'sw-button': true,
                     'sw-data-grid-skeleton': true,
+                    'sw-provide': true,
                 },
                 provide: {
                     cmsService: {
@@ -162,10 +161,10 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         const wrapper = await createWrapper();
 
         const showSortingSwitchField = wrapper.find(
-            'sw-switch-field-stub[label="sw-cms.elements.productListing.config.sorting.labelShowSorting"]',
+            'input[aria-label="sw-cms.elements.productListing.config.sorting.labelShowSorting"]',
         );
         const useDefaultSortingSwitchField = wrapper.find(
-            'sw-switch-field-stub[label="sw-cms.elements.productListing.config.sorting.labelUseCustomSortings"]',
+            'input[aria-label="sw-cms.elements.productListing.config.sorting.labelUseCustomSortings"]',
         );
         const defaultSortingIdSelect = wrapper.find('sw-entity-single-select-stub[entity="product_sorting"]');
         const productSortingsSelect = wrapper.find('sw-entity-multi-select-stub');
@@ -188,10 +187,10 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         await wrapper.vm.$nextTick();
 
         const showSortingSwitchField = wrapper.find(
-            'sw-switch-field-stub[label="sw-cms.elements.productListing.config.sorting.labelShowSorting"]',
+            'input[aria-label="sw-cms.elements.productListing.config.sorting.labelShowSorting"]',
         );
         const useDefaultSortingSwitchField = wrapper.find(
-            'sw-switch-field-stub[label="sw-cms.elements.productListing.config.sorting.labelUseCustomSortings"]',
+            'input[aria-label="sw-cms.elements.productListing.config.sorting.labelUseCustomSortings"]',
         );
         const defaultSortingIdSelect = wrapper.find('sw-entity-single-select-stub[entity="product_sorting"]');
         const productSortingsSelect = wrapper.find('sw-entity-multi-select-stub');
@@ -299,16 +298,16 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         await flushPromises();
 
         const showFilterManufacturerSwitchField = wrapper.find(
-            'sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelFilterByManufacturer"]',
+            'input[aria-label="sw-cms.elements.productListing.config.filter.labelFilterByManufacturer"]',
         );
         const showFilterRatingSwitchField = wrapper.find(
-            'sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelFilterByRating"]',
+            'input[aria-label="sw-cms.elements.productListing.config.filter.labelFilterByRating"]',
         );
         const showFilterPriceSwitchField = wrapper.find(
-            'sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelFilterByPrice"]',
+            'input[aria-label="sw-cms.elements.productListing.config.filter.labelFilterByPrice"]',
         );
         const showFilterForFreeShippingSwitchField = wrapper.find(
-            'sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelFilterForFreeShipping"]',
+            'input[aria-label="sw-cms.elements.productListing.config.filter.labelFilterForFreeShipping"]',
         );
 
         expect(showFilterManufacturerSwitchField.exists()).toBeTruthy();
@@ -327,7 +326,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         await wrapper.vm.$nextTick(); // re-render view
 
         const showUseFilterByPropertiesSwitchField = wrapper.find(
-            'sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelUseFilterByProperties"]',
+            'input[aria-label="sw-cms.elements.productListing.config.filter.labelUseFilterByProperties"]',
         );
         const showPropertySearchField = wrapper.find(
             'sw-simple-search-field-stub.sw-cms-element-product-listing-config-filter-property-search',

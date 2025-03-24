@@ -8,7 +8,7 @@ import './sw-datepicker.scss';
 const { Mixin } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Datepicker wrapper for date inputs. For all configuration options visit:
@@ -19,13 +19,13 @@ const { Mixin } = Shopware;
  * @status ready
  * @example-type static
  * @component-example
- * <sw-datepicker
+ * <sw-datepicker-deprecated
  *      dateType="date"
  *      label="SW-Field Date"
  *      size="default"
  *      placeholder="Enter date..."
  *      value="12.10.2019">
- * </sw-datepicker>
+ * </sw-datepicker-deprecated>
  */
 const allEvents = [
     'onChange',
@@ -46,8 +46,6 @@ const allEvents = [
 export default {
     template,
     inheritAttrs: false,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'update:value',
@@ -128,7 +126,7 @@ export default {
 
     computed: {
         locale() {
-            return Shopware.State.getters.adminLocaleLanguage || 'en';
+            return Shopware.Store.get('session').adminLocaleLanguage || 'en';
         },
 
         currentFlatpickrConfig() {
@@ -167,33 +165,6 @@ export default {
             return this.noCalendar || this.dateType === 'datetime';
         },
 
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed. Event listeners are bound via additionalAttrs
-         */
-        additionalEventListeners() {
-            const listeners = {};
-
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                /**
-                 * Do not pass "change" or "input" event listeners to the form elements
-                 * because the component implements its own listeners for this event types.
-                 * The callback methods will emit the corresponding event to the parent.
-                 */
-                Object.keys(this.$listeners).forEach((key) => {
-                    if (
-                        ![
-                            'change',
-                            'input',
-                        ].includes(key)
-                    ) {
-                        listeners[key] = this.$listeners[key];
-                    }
-                });
-            }
-
-            return listeners;
-        },
-
         additionalAttrs() {
             const attrs = {};
 
@@ -211,11 +182,38 @@ export default {
                 }
             });
 
+            /**
+             * Convert the events for the date picker to another format:
+             * from: 'on-month-change' to: { camelCase: 'onMonthChange', kebabCase: 'on-month-change' }
+             * So this can be used as a parameter to flatpickr to specify which events will be thrown
+             * and also emit the right event from vue.
+             */
+            Object.entries(attrs).forEach(
+                ([
+                    key,
+                    value,
+                ]) => {
+                    // Check if the key is an event, e.g. starts with "on-"
+                    if (!key.startsWith('on-')) {
+                        return;
+                    }
+
+                    // Remove the "on-" prefix
+                    const eventName = key.replace('on-', '');
+                    // Convert the kebab-case to camelCase
+                    const camelCase = this.kebabToCamel(eventName);
+                    // Add the new event name to the object
+                    attrs[camelCase] = value;
+                    // Remove the old event name from the object
+                    delete attrs[key];
+                },
+            );
+
             return attrs;
         },
 
         userTimeZone() {
-            return Shopware?.State?.get('session')?.currentUser?.timeZone ?? 'UTC';
+            return Shopware?.Store?.get('session')?.currentUser?.timeZone ?? 'UTC';
         },
 
         timezoneFormattedValue: {
@@ -256,7 +254,6 @@ export default {
 
                     return;
                 }
-
                 // convert from user timezone (represented as UTC) to UTC timezone
                 const utcDate = zonedTimeToUtc(new Date(newValue), this.userTimeZone);
 
@@ -275,6 +272,13 @@ export default {
             }
 
             return 'UTC';
+        },
+
+        is24HourFormat() {
+            const locale = Shopware.Store.get('session').currentLocale;
+            const formatter = new Intl.DateTimeFormat(locale, { hour: 'numeric' });
+            const intlOptions = formatter.resolvedOptions();
+            return !intlOptions.hour12;
         },
     },
 
@@ -375,6 +379,11 @@ export default {
                 );
             }
 
+            // To fix receiving `time_24hr` as a string
+            if (typeof newConfig.time_24hr === 'string') {
+                newConfig.time_24hr = newConfig.time_24hr === 'true';
+            }
+
             return {
                 ...this.defaultConfig,
                 enableTime: this.enableTime,
@@ -472,7 +481,11 @@ export default {
          */
         getEventNames() {
             const events = [];
-            Object.keys(this.additionalEventListeners).forEach((event) => {
+            Object.keys(this.additionalAttrs).forEach((event) => {
+                // Check if the key is an event, e.g. starts with "on-"
+                if (!event.startsWith('on-')) {
+                    return;
+                }
                 events.push({
                     kebabCase: event,
                     camelCase: this.kebabToCamel(event),
@@ -524,26 +537,60 @@ export default {
         },
 
         createConfig() {
+            this.defaultConfig = {
+                time_24hr: this.is24HourFormat,
+                locale: this.locale,
+                altInput: true,
+                allowInput: true,
+            };
+
             let dateFormat = 'Y-m-dTH:i:S';
-            let altFormat = 'Y-m-d H:i';
+            let altFormat = this.getDateStringFormat({
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+            });
 
             if (this.dateType === 'time') {
                 dateFormat = 'H:i:S';
-                altFormat = 'H:i';
+                altFormat = this.getDateStringFormat({
+                    hour: '2-digit',
+                    minute: '2-digit',
+                });
             }
 
             if (this.dateType === 'date') {
-                altFormat = 'Y-m-d';
+                altFormat = this.getDateStringFormat({
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                });
             }
 
-            this.defaultConfig = {
-                time_24hr: true,
-                locale: this.locale,
+            Object.assign(this.defaultConfig, {
                 dateFormat,
-                altInput: true,
                 altFormat,
-                allowInput: true,
+            });
+        },
+
+        getDateStringFormat(options) {
+            const locale = Shopware.Store.get('session').currentLocale;
+            const formatter = new Intl.DateTimeFormat(locale, options);
+            const parts = formatter.formatToParts(new Date(2000, 0, 1, 0, 0, 0));
+            const mergedConfig = this.getMergedConfig(this.config);
+            const flatpickrMapping = {
+                // https://flatpickr.js.org/formatting/
+                year: 'Y', // 4-digit year
+                month: 'm', // 2-digit month
+                day: 'd', // 2-digit day
+                hour: mergedConfig.time_24hr ? 'H' : 'h', // 24-hour or 12-hour
+                minute: 'i', // 2-digit minute
+                dayPeriod: mergedConfig.time_24hr ? '' : 'K', // AM/PM
             };
+            // 'literal' parts are the separators
+            return parts.map((part) => (part.type === 'literal' ? part.value : flatpickrMapping[part.type])).join('');
         },
     },
 };

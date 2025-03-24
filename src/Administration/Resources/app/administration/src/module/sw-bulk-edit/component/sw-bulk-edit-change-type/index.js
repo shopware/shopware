@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import template from './sw-bulk-edit-change-type.html.twig';
 import './sw-bulk-edit-change-type.scss';
@@ -7,8 +7,6 @@ import './sw-bulk-edit-change-type.scss';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -78,14 +76,14 @@ export default {
             if (this.allowAdd) {
                 options.push({
                     value: 'add',
-                    label: this.$tc('sw-bulk-edit.changeTypes.add'),
+                    label: this.$tc('global.default.add'),
                 });
             }
 
             if (this.allowRemove) {
                 options.push({
                     value: 'remove',
-                    label: this.$tc('sw-bulk-edit.changeTypes.remove'),
+                    label: this.$tc('global.default.remove'),
                 });
             }
 

@@ -26,10 +26,10 @@ class ReferenceVersionFieldSerializerTest extends TestCase
             ->manufacturer('m1')
             ->build();
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product], Context::createDefaultContext());
 
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $value = $connection->fetchOne('SELECT LOWER(HEX(product_manufacturer_version_id)) FROM product WHERE id = :id', ['id' => $ids->getBytes('p1')]);
         static::assertEquals(Defaults::LIVE_VERSION, $value);
@@ -44,7 +44,7 @@ class ReferenceVersionFieldSerializerTest extends TestCase
             'manufacturerId' => $ids->get('m1'),
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->update([$update], Context::createDefaultContext());
 
         $value = $connection->fetchOne('SELECT LOWER(HEX(product_manufacturer_version_id)) FROM product WHERE id = :id', ['id' => $ids->getBytes('p1')]);

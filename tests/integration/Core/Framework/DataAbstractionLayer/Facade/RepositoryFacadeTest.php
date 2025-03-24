@@ -42,7 +42,7 @@ class RepositoryFacadeTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->factory = $this->getContainer()->get(RepositoryFacadeHookFactory::class);
+        $this->factory = static::getContainer()->get(RepositoryFacadeHookFactory::class);
     }
 
     /**
@@ -260,7 +260,7 @@ class RepositoryFacadeTest extends TestCase
             ]
         );
 
-        $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
+        static::getContainer()->get(ScriptExecutor::class)->execute($hook);
 
         static::assertTrue($page->hasExtension('myProduct'));
         $product = $page->getExtension('myProduct');
@@ -287,7 +287,7 @@ class RepositoryFacadeTest extends TestCase
             ]
         );
 
-        $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
+        static::getContainer()->get(ScriptExecutor::class)->execute($hook);
 
         static::assertTrue($page->hasExtension('myProduct'));
         $product = $page->getExtension('myProduct');
@@ -315,7 +315,7 @@ class RepositoryFacadeTest extends TestCase
             ]
         );
 
-        $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
+        static::getContainer()->get(ScriptExecutor::class)->execute($hook);
 
         static::assertTrue($page->hasExtension('myProduct'));
         $product = $page->getExtension('myProduct');
@@ -347,7 +347,7 @@ class RepositoryFacadeTest extends TestCase
             ]
         );
 
-        $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
+        static::getContainer()->get(ScriptExecutor::class)->execute($hook);
 
         static::assertTrue($page->hasExtension('myProductIds'));
         $extension = $page->getExtension('myProductIds');
@@ -374,7 +374,7 @@ class RepositoryFacadeTest extends TestCase
             ]
         );
 
-        $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
+        static::getContainer()->get(ScriptExecutor::class)->execute($hook);
 
         static::assertTrue($page->hasExtension('myProductAggregations'));
         $extension = $page->getExtension('myProductAggregations');
@@ -399,7 +399,7 @@ class RepositoryFacadeTest extends TestCase
         $product3 = (new ProductBuilder($this->ids, 'p3'))
             ->price(300);
 
-        $this->getContainer()->get('product.repository')->create([
+        static::getContainer()->get('product.repository')->create([
             $product1->build(),
             $product2->build(),
             $product3->build(),
@@ -411,7 +411,7 @@ class RepositoryFacadeTest extends TestCase
         $this->loadAppsFromDir($appDir);
 
         /** @var EntityRepository<AppCollection> $repository */
-        $repository = $this->getContainer()->get('app.repository');
+        $repository = static::getContainer()->get('app.repository');
         $app = $repository
             ->search(new Criteria(), Context::createDefaultContext())
             ->getEntities()

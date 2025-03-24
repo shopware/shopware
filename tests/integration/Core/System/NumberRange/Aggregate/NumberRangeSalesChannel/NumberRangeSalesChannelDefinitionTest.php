@@ -33,8 +33,8 @@ class NumberRangeSalesChannelDefinitionTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->numberRangeRepository = $this->getContainer()->get('number_range.repository');
-        $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $this->numberRangeRepository = static::getContainer()->get('number_range.repository');
+        $this->salesChannelRepository = static::getContainer()->get('sales_channel.repository');
     }
 
     public function testNumberRangeSalesChannelCollectionFromNumberRange(): void

@@ -3,14 +3,11 @@
 namespace Shopware\Core\Content\Cms;
 
 use Shopware\Core\Content\Cms\Exception\DuplicateCriteriaKeyException;
-use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
-use Shopware\Core\Content\Cms\Exception\UnexpectedFieldConfigValueType;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class CmsException extends HttpException
 {
     final public const DELETION_OF_DEFAULT_CODE = 'CONTENT__DELETION_DEFAULT_CMS_PAGE';
@@ -59,15 +56,8 @@ class CmsException extends HttpException
         return new DuplicateCriteriaKeyException($key);
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' with next major version
-     */
-    public static function pageNotFound(string $pageId): self|PageNotFoundException
+    public static function pageNotFound(string $pageId): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new PageNotFoundException($pageId);
-        }
-
         return new self(
             Response::HTTP_NOT_FOUND,
             self::CMS_PAGE_NOT_FOUND,
@@ -76,22 +66,11 @@ class CmsException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' with next major version
-     */
     public static function unexpectedFieldConfigValueType(
         string $fieldConfigName,
         string $expectedType,
         string $givenType
-    ): self|UnexpectedFieldConfigValueType {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new UnexpectedFieldConfigValueType(
-                $fieldConfigName,
-                $expectedType,
-                $givenType
-            );
-        }
-
+    ): self {
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::UNEXPECTED_VALUE_TYPE,

@@ -28,7 +28,7 @@ class OrderPersisterTest extends TestCase
 {
     public function testPersist(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $cart = new Cart('hatoken');
         $cart->add(new LineItem('hatoken', 'product'));
@@ -40,14 +40,14 @@ class OrderPersisterTest extends TestCase
 
         $orderConverter = $this->createMock(OrderConverter::class);
         $orderConverter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('convertToOrder')
             ->with($cart, $context, static::equalTo(new OrderConversionContext()))
             ->willReturn(['id' => $order->getId()]);
 
         $repo = $this->createMock(EntityRepository::class);
         $repo
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('create')
             ->with([['id' => $order->getId()]], $context->getContext());
 
@@ -59,7 +59,7 @@ class OrderPersisterTest extends TestCase
 
     public function testWithBlockingCart(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $cart = new Cart('hatoken');
         $cart->add(new LineItem('hatoken', 'product'));
@@ -88,7 +88,7 @@ class OrderPersisterTest extends TestCase
 
     public function testPersistWithoutCustomer(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
 
         $cart = new Cart('hatoken');
@@ -108,7 +108,7 @@ class OrderPersisterTest extends TestCase
 
     public function testPersistWithEmptyCart(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $cart = new Cart('hatoken');
 
@@ -126,7 +126,7 @@ class OrderPersisterTest extends TestCase
 
     public function testPersistWithCartCleaner(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $lineItem = new LineItem('hatoken', 'product');
         $lineItem->setPayloadValue('customFields', ['test' => 'test']);
@@ -150,7 +150,7 @@ class OrderPersisterTest extends TestCase
 
         $orderConverter = $this->createMock(OrderConverter::class);
         $orderConverter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('convertToOrder')
             ->willReturn(['id' => $order->getId()]);
 

@@ -3,12 +3,10 @@ import template from './sw-cms-block-app-renderer.html.twig';
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         block: {

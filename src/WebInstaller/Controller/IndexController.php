@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class IndexController extends AbstractController
 {
     #[Route('/', name: 'index', defaults: ['step' => 0])]

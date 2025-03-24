@@ -28,7 +28,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class ContactFormRoute extends AbstractContactFormRoute
 {
     /**
@@ -75,7 +75,7 @@ class ContactFormRoute extends AbstractContactFormRoute
         }
 
         if (empty($mailConfigs['receivers'])) {
-            $mailConfigs['receivers'][] = $this->systemConfigService->get('core.basicInformation.email', $context->getSalesChannel()->getId());
+            $mailConfigs['receivers'][] = $this->systemConfigService->get('core.basicInformation.email', $context->getSalesChannelId());
         }
 
         $recipientStructs = [];
@@ -86,7 +86,7 @@ class ContactFormRoute extends AbstractContactFormRoute
         /** @var array<string, mixed> $recipientStructs */
         $event = new ContactFormEvent(
             $context->getContext(),
-            $context->getSalesChannel()->getId(),
+            $context->getSalesChannelId(),
             new MailRecipientStruct($recipientStructs),
             $data
         );

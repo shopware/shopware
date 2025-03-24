@@ -30,9 +30,9 @@ class AppSnippetFileLoaderTest extends TestCase
     {
         $this->snippetFileLoader = new SnippetFileLoader(
             $this->createMock(KernelInterface::class),
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(AppSnippetFileLoader::class),
-            $this->getContainer()->get(ActiveAppsLoader::class)
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(AppSnippetFileLoader::class),
+            static::getContainer()->get(ActiveAppsLoader::class)
         );
     }
 

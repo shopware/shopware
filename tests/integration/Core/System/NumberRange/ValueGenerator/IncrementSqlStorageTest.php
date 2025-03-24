@@ -21,9 +21,9 @@ class IncrementSqlStorageTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->storage = $this->getContainer()->get(IncrementSqlStorage::class);
+        $this->storage = static::getContainer()->get(IncrementSqlStorage::class);
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
         $this->connection->executeStatement('DELETE FROM `number_range_state`');
     }

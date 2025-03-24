@@ -25,7 +25,7 @@ class MySQLKeyValueStorageTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
         $this->keyValueStorage = new MySQLKeyValueStorage($this->connection);
     }
 

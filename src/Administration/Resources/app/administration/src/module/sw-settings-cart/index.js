@@ -1,3 +1,7 @@
+/**
+ * @sw-package checkout
+ */
+
 const { Module } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -28,7 +32,7 @@ Module.register('sw-settings-cart', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'general',
         to: 'sw.settings.cart.index',
         icon: 'regular-shopping-cart',
         privilege: 'system.system_config',

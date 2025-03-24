@@ -17,7 +17,7 @@ class IncrementerGatewayRegistryTest extends TestCase
 
     public function testGet(): void
     {
-        $registry = $this->getContainer()->get('shopware.increment.gateway.registry');
+        $registry = static::getContainer()->get('shopware.increment.gateway.registry');
 
         static::assertInstanceOf(AbstractIncrementer::class, $registry->get(IncrementGatewayRegistry::USER_ACTIVITY_POOL));
         static::assertInstanceOf(AbstractIncrementer::class, $registry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL));
@@ -28,7 +28,7 @@ class IncrementerGatewayRegistryTest extends TestCase
         static::expectException(IncrementGatewayNotFoundException::class);
         static::expectExceptionMessage('Increment gateway for pool "custom_pool" was not found.');
 
-        $registry = $this->getContainer()->get('shopware.increment.gateway.registry');
+        $registry = static::getContainer()->get('shopware.increment.gateway.registry');
         static::assertNull($registry->get('custom_pool'));
     }
 }

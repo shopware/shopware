@@ -21,7 +21,7 @@ class ProductUpdaterTest extends TestCase
     {
         static::assertSame([
             ProductIndexerEvent::class => 'update',
-            ProductStockAlteredEvent::class => 'stockUpdate',
+            ProductStockAlteredEvent::class => 'update',
         ], ProductUpdater::getSubscribedEvents());
     }
 
@@ -30,7 +30,7 @@ class ProductUpdaterTest extends TestCase
         $indexer = $this->createMock(ElasticsearchIndexer::class);
         $definition = $this->createMock(EntityDefinition::class);
 
-        $indexer->expects(static::once())->method('updateIds')->with($definition, ['id1', 'id2']);
+        $indexer->expects($this->once())->method('updateIds')->with($definition, ['id1', 'id2']);
 
         $event = new ProductIndexerEvent(['id1', 'id2'], Context::createDefaultContext());
 
@@ -43,11 +43,11 @@ class ProductUpdaterTest extends TestCase
         $indexer = $this->createMock(ElasticsearchIndexer::class);
         $definition = $this->createMock(EntityDefinition::class);
 
-        $indexer->expects(static::once())->method('updateIds')->with($definition, ['id1', 'id2']);
+        $indexer->expects($this->once())->method('updateIds')->with($definition, ['id1', 'id2']);
 
         $event = new ProductStockAlteredEvent(['id1', 'id2'], Context::createDefaultContext());
 
         $updater = new ProductUpdater($indexer, $definition);
-        $updater->stockUpdate($event);
+        $updater->update($event);
     }
 }

@@ -15,7 +15,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\DemodataService">
-            <argument type="tagged" tag="shopware.demodata_generator" />
+            <argument type="tagged_iterator" tag="shopware.demodata_generator" />
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>

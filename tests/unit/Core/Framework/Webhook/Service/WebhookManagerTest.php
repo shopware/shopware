@@ -11,6 +11,7 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -28,6 +29,7 @@ use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
+use Shopware\Core\Framework\Webhook\Webhook;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Messenger\Envelope;
@@ -35,13 +37,13 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @internal
- *
- * @phpstan-import-type Webhook from WebhookLoader
  */
 #[CoversClass(WebhookManager::class)]
 class WebhookManagerTest extends TestCase
 {
     private WebhookLoader&MockObject $webhookLoader;
+
+    private EventDispatcherInterface&MockObject $eventDispatcher;
 
     private Connection&MockObject $connection;
 
@@ -56,6 +58,7 @@ class WebhookManagerTest extends TestCase
     protected function setUp(): void
     {
         $this->webhookLoader = $this->createMock(WebhookLoader::class);
+        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->connection = $this->createMock(Connection::class);
         $this->clientMock = new MockHandler([new Response(200)]);
         $this->client = new Client(['handler' => HandlerStack::create($this->clientMock)]);
@@ -63,52 +66,31 @@ class WebhookManagerTest extends TestCase
         $this->bus = new CollectingMessageBus();
     }
 
+    public function testDispatchesTwoConsecutiveEventsCorrectly(): void
+    {
+        $event1 = new AppFlowActionEvent('foobar', ['foo' => 'bar'], ['foo' => 'bar']);
+        $event2 = new class('foobar.event', ['foo' => 'bar'], ['foo' => 'bar']) extends AppFlowActionEvent {};
+
+        $this->eventFactory
+            ->expects($this->exactly(2))
+            ->method('createHookablesFor')
+            ->willReturn([$event1], [$event2]);
+
+        $webhookManager = $this->getWebhookManager(true);
+        $webhookManager->dispatch($event1);
+        $request = $this->clientMock->getLastRequest();
+        static::assertNull($request);
+
+        $webhook = $this->prepareWebhook($event2->getName());
+        $this->assertSyncWebhookIsSent($webhook, $event2, $webhookManager);
+    }
+
     public function testDispatchWithWebhooksSync(): void
     {
         $event = $this->prepareEvent();
         $webhook = $this->prepareWebhook($event->getName());
 
-        $expectedRequest = new Request(
-            'POST',
-            $webhook['webhookUrl'],
-            [
-                'foo' => 'bar',
-                'Content-Type' => 'application/json',
-                'sw-version' => '0.0.0',
-                'sw-context-language' => [Defaults::LANGUAGE_SYSTEM],
-                'sw-user-language' => [''],
-            ],
-            json_encode([
-                'foo' => 'bar',
-                'source' => [
-                    'url' => 'https://example.com',
-                    'appVersion' => $webhook['appVersion'],
-                    'shopId' => 'foobar',
-                    'action' => $event->getName(),
-                ],
-            ], \JSON_THROW_ON_ERROR)
-        );
-
-        $this->getWebhookManager(true)->dispatch($event);
-
-        $request = $this->clientMock->getLastRequest();
-
-        static::assertInstanceOf(RequestInterface::class, $request);
-        static::assertEquals('foo.bar', $request->getUri()->getHost());
-
-        $headers = $request->getHeaders();
-        static::assertArrayHasKey(RequestSigner::SHOPWARE_SHOP_SIGNATURE, $headers);
-        unset($headers[RequestSigner::SHOPWARE_SHOP_SIGNATURE], $headers['Content-Length'], $headers['User-Agent']);
-        static::assertEquals($expectedRequest->getHeaders(), $headers);
-
-        $expectedContents = json_decode($expectedRequest->getBody()->getContents(), true);
-        $contents = json_decode($request->getBody()->getContents(), true);
-        static::assertIsArray($contents);
-        static::assertArrayHasKey('timestamp', $contents);
-        static::assertArrayHasKey('source', $contents);
-        static::assertArrayHasKey('eventId', $contents['source']);
-        unset($contents['timestamp'], $contents['source']['eventId']);
-        static::assertEquals($expectedContents, $contents);
+        $this->assertSyncWebhookIsSent($webhook, $event);
     }
 
     public function testDispatchWithWebhooksAsync(): void
@@ -134,18 +116,19 @@ class WebhookManagerTest extends TestCase
             'foo' => 'bar',
             'source' => [
                 'url' => 'https://example.com',
-                'appVersion' => $webhook['appVersion'],
+                'appVersion' => $webhook->appVersion,
                 'shopId' => 'foobar',
                 'action' => $event->getName(),
+                'inAppPurchases' => null,
             ],
         ], $payload);
 
         static::assertEquals($message->getLanguageId(), Defaults::LANGUAGE_SYSTEM);
-        static::assertEquals($message->getAppId(), $webhook['appId']);
-        static::assertEquals($message->getSecret(), $webhook['appSecret']);
+        static::assertEquals($message->getAppId(), $webhook->appId);
+        static::assertEquals($message->getSecret(), $webhook->appSecret);
         static::assertEquals($message->getShopwareVersion(), '0.0.0');
         static::assertEquals($message->getUrl(), 'https://foo.bar');
-        static::assertEquals($message->getWebhookId(), $webhook['webhookId']);
+        static::assertEquals($message->getWebhookId(), $webhook->id);
     }
 
     public function testWebhookSettingForLiveVersionOnlyIsIgnoredIfEventTypeDoesNotMatch(): void
@@ -279,12 +262,59 @@ class WebhookManagerTest extends TestCase
         static::assertStringContainsString($secondId, json_encode($payload));
     }
 
+    private function assertSyncWebhookIsSent(Webhook $webhook, AppFlowActionEvent $event, ?WebhookManager $webhookManager = null): void
+    {
+        $expectedRequest = new Request(
+            'POST',
+            $webhook->url,
+            [
+                'foo' => 'bar',
+                'Content-Type' => 'application/json',
+                'sw-version' => '0.0.0',
+                'sw-context-language' => [Defaults::LANGUAGE_SYSTEM],
+                'sw-user-language' => [''],
+            ],
+            json_encode([
+                'foo' => 'bar',
+                'source' => [
+                    'url' => 'https://example.com',
+                    'appVersion' => $webhook->appVersion,
+                    'shopId' => 'foobar',
+                    'action' => $event->getName(),
+                    'inAppPurchases' => null,
+                ],
+            ], \JSON_THROW_ON_ERROR)
+        );
+
+        $webhookManager = $webhookManager ?? $this->getWebhookManager(true);
+        $webhookManager->dispatch($event);
+
+        $request = $this->clientMock->getLastRequest();
+
+        static::assertInstanceOf(RequestInterface::class, $request);
+        static::assertEquals('foo.bar', $request->getUri()->getHost());
+
+        $headers = $request->getHeaders();
+        static::assertArrayHasKey(RequestSigner::SHOPWARE_SHOP_SIGNATURE, $headers);
+        unset($headers[RequestSigner::SHOPWARE_SHOP_SIGNATURE], $headers['Content-Length'], $headers['User-Agent']);
+        static::assertEquals($expectedRequest->getHeaders(), $headers);
+
+        $expectedContents = json_decode($expectedRequest->getBody()->getContents(), true);
+        $contents = json_decode($request->getBody()->getContents(), true);
+        static::assertIsArray($contents);
+        static::assertArrayHasKey('timestamp', $contents);
+        static::assertArrayHasKey('source', $contents);
+        static::assertArrayHasKey('eventId', $contents['source']);
+        unset($contents['timestamp'], $contents['source']['eventId']);
+        static::assertEquals($expectedContents, $contents);
+    }
+
     private function prepareEvent(): AppFlowActionEvent
     {
         $event = new AppFlowActionEvent('foobar', ['foo' => 'bar'], ['foo' => 'bar']);
 
         $this->eventFactory
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('createHookablesFor')
             ->with($event)
             ->willReturn([$event]);
@@ -310,29 +340,25 @@ class WebhookManagerTest extends TestCase
         $eventByEntityName = $event->getEventByEntityName('product');
         $hookableEvent = HookableEntityWrittenEvent::fromWrittenEvent($eventByEntityName);
 
-        $this->eventFactory->expects(static::once())->method('createHookablesFor')->with($event)->willReturn([$hookableEvent]);
+        $this->eventFactory->expects($this->once())->method('createHookablesFor')->with($event)->willReturn([$hookableEvent]);
 
         return $event;
     }
 
-    /**
-     * @return Webhook
-     */
-    private function prepareWebhook(string $eventName, bool $onlyLiveVersion = false, bool $withAcl = false): array
+    private function prepareWebhook(string $eventName, bool $onlyLiveVersion = false, bool $withAcl = false): Webhook
     {
         $webhook = $this->getWebhook($eventName, $onlyLiveVersion);
 
-        $this->webhookLoader->expects(static::once())
-            ->method('getWebhooksForEvent')
-            ->with($eventName)
+        $this->webhookLoader->expects($this->once())
+            ->method('getWebhooks')
             ->willReturn([$webhook]);
 
         if ($withAcl) {
             $this->webhookLoader
-                ->expects(static::once())
+                ->expects($this->once())
                 ->method('getPrivilegesForRoles')
-                ->with([$webhook['appAclRoleId']])
-                ->willReturn([$webhook['appAclRoleId'] => new AclPrivilegeCollection(['product:read'])]);
+                ->with([$webhook->appAclRoleId])
+                ->willReturn([$webhook->appAclRoleId => new AclPrivilegeCollection(['product:read'])]);
         }
 
         return $webhook;
@@ -341,10 +367,11 @@ class WebhookManagerTest extends TestCase
     private function getWebhookManager(bool $isAdminWorkerEnabled): WebhookManager
     {
         $appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
-        $appPayloadServiceHelper->expects(static::any())->method('buildSource')->willReturn(new Source('https://example.com', 'foobar', '0.0.0'));
+        $appPayloadServiceHelper->expects($this->any())->method('buildSource')->willReturn(new Source('https://example.com', 'foobar', '0.0.0'));
 
         return new WebhookManager(
             $this->webhookLoader,
+            $this->eventDispatcher,
             $this->connection,
             $this->eventFactory,
             $this->createMock(AppLocaleProvider::class),
@@ -357,23 +384,21 @@ class WebhookManagerTest extends TestCase
         );
     }
 
-    /**
-     * @return Webhook
-     */
-    private function getWebhook(string $eventName, bool $onlyLiveVersion = false): array
+    private function getWebhook(string $eventName, bool $onlyLiveVersion = false): Webhook
     {
-        return [
-            'webhookId' => Uuid::randomHex(),
-            'webhookName' => 'Cool Webhook',
-            'eventName' => $eventName,
-            'webhookUrl' => 'https://foo.bar',
-            'onlyLiveVersion' => $onlyLiveVersion,
-            'appId' => Uuid::randomHex(),
-            'appName' => 'Cool App',
-            'appActive' => true,
-            'appVersion' => '0.0.0',
-            'appSecret' => 'verysecret',
-            'appAclRoleId' => Uuid::randomHex(),
-        ];
+        return new Webhook(
+            Uuid::randomHex(),
+            'Cool Webhook',
+            $eventName,
+            'https://foo.bar',
+            $onlyLiveVersion,
+            Uuid::randomHex(),
+            'Cool App',
+            'local',
+            true,
+            '0.0.0',
+            'verysecret',
+            Uuid::randomHex()
+        );
     }
 }

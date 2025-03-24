@@ -20,7 +20,7 @@
         </service>
 
         <service id="Shopware\Core\DevOps\Docs\Script\ScriptReferenceGeneratorCommand">
-            <argument type="tagged" tag="shopware.scripts_reference.generator"/>
+            <argument type="tagged_iterator" tag="shopware.scripts_reference.generator"/>
 
             <tag name="console.command"/>
         </service>

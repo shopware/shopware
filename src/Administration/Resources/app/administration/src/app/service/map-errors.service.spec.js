@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import * as mapErrors from 'src/app/service/map-errors.service';
 import ShopwareError from 'src/core/data/ShopwareError';
@@ -182,7 +182,7 @@ describe('app/service/map-errors.service.js', () => {
     });
 
     it('mapSystemConfigErrors: it should return an object', () => {
-        Shopware.State.dispatch('error/addApiError', {
+        Shopware.Store.get('error').addApiError({
             expression: 'SYSTEM_CONFIG.testSaleChannelId.dummyKey',
             error: new ShopwareError({ code: 'dummyCode' }),
         });

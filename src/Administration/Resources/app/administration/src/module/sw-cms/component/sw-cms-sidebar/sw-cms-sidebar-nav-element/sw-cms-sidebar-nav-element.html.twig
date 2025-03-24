@@ -1,15 +1,12 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_sidebar_navigator_element %}
 <div class="sw-cms-sidebar__navigator-element">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_sidebar_sidebar_navigator_element_label %}
     <div class="navigator-element__label">
         {{ block.name ? block.name : block.type }}
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_sidebar_sidebar_navigator_element_duplicate %}
     <div
         v-if="duplicable && removable"
@@ -19,7 +16,7 @@
         @click="onBlockDuplicate"
         @keydown.enter="onBlockDuplicate"
     >
-        <sw-icon
+        <mt-icon
             name="regular-duplicate"
             size="16"
         />
@@ -30,7 +27,6 @@
     ></div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_sidebar_sidebar_navigator_element_delete %}
     <div
         v-if="removable"
@@ -40,7 +36,7 @@
         @click="onBlockDelete"
         @keydown.enter="onBlockDelete"
     >
-        <sw-icon
+        <mt-icon
             name="regular-trash"
             size="16"
         />

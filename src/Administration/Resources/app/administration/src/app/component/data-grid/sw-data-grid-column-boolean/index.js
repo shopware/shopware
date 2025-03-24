@@ -4,14 +4,12 @@ import './sw-data-grid-column-boolean.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */
 Component.register('sw-data-grid-column-boolean', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['update:value'],
 

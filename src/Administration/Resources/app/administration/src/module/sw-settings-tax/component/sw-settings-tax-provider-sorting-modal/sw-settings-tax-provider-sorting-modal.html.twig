@@ -1,3 +1,4 @@
+{% block sw_settings_tax_provider_sorting_modal %}
 <sw-modal
     class="sw-settings-tax-provider-sorting-modal"
     :title="$tc('sw-settings-tax.list.taxProvider.sorting-modal.modalTitle')"
@@ -19,7 +20,7 @@
                         class="sw-settings-tax-provider-sorting-modal__tax-provider-list-item"
                         :class="!taxProvider.active ? 'is--disabled' : ''"
                     >
-                        <sw-icon
+                        <mt-icon
                             class="sw-settings-tax-provider-sorting-modal__tax-provider-list-item__action"
                             name="regular-grip-vertical"
                         />
@@ -34,12 +35,13 @@
     </template>
 
     <template #modal-footer>
-        <sw-button
+        <mt-button
             class="sw-settings-tax-provider-sorting-modal__cancel-button"
+            variant="secondary"
             @click="closeModal"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
 
         <sw-button-process
             class="sw-settings-tax-provider-sorting-modal__save-button"
@@ -53,3 +55,4 @@
         </sw-button-process>
     </template>
 </sw-modal>
+{% endblock %}

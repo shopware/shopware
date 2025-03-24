@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-advanced-selection-product.html.twig';
 
 const { Component } = Shopware;
@@ -12,8 +16,6 @@ const { Criteria } = Shopware.Data;
  */
 Component.register('sw-advanced-selection-product', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',

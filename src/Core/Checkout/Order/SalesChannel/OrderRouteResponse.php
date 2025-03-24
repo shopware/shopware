@@ -6,27 +6,23 @@ use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
-use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @extends StoreApiResponse<EntitySearchResult<OrderCollection>>
+ */
 #[Package('checkout')]
 class OrderRouteResponse extends StoreApiResponse
 {
     /**
-     * @var EntitySearchResult<OrderCollection>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @var array<string, bool>
      */
-    protected $object;
+    protected array $paymentChangeable = [];
 
     /**
-     * @var array<string, bool>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @phpstan-ignore method.childReturnType (Due to the dynamic adding of `paymentChangeable` property, it is not possible to define the correct generic type)
      */
-    protected $paymentChangeable = [];
-
-    public function getObject(): Struct
+    public function getObject(): ArrayStruct
     {
         return new ArrayStruct([
             'orders' => $this->object,

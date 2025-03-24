@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 import { mount } from '@vue/test-utils';
@@ -90,15 +90,12 @@ async function createWrapper() {
         <slot name="content"></slot>
     </div>`,
                 },
-                'sw-button': true,
                 'sw-button-group': true,
                 'sw-button-process': true,
                 'sw-context-button': true,
-                'sw-icon': true,
                 'sw-context-menu-item': true,
                 'sw-card-view': true,
                 'sw-skeleton': true,
-                'sw-card': true,
                 'sw-language-info': true,
                 'sw-text-field': true,
                 'sw-textarea-field': true,

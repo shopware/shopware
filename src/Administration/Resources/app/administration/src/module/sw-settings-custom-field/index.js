@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import './acl';
 
@@ -100,7 +100,7 @@ Module.register('sw-settings-custom-field', {
     },
 
     settingsItem: {
-        group: 'system',
+        group: 'content',
         to: 'sw.settings.custom.field.index',
         icon: 'regular-bars-square',
         privilege: 'custom_field.viewer',

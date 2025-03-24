@@ -1,6 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_country_state_list_card %}
-<sw-card
+<mt-card
     v-if="!isLoading"
     position-identifier="sw-settings-country-state"
 >
@@ -10,7 +9,6 @@
             gap="0 10px"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_attribute_list_toolbar_searchfield %}
             <sw-simple-search-field
                 v-model:value="term"
@@ -20,9 +18,8 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_state_list_toolbar_delete %}
-            <sw-button
+            <mt-button
                 v-tooltip.bottom="{
                     message: $tc('sw-privileges.tooltip.warning'),
                     disabled: acl.can('country.editor'),
@@ -32,18 +29,18 @@
                 size="small"
                 class="sw-settings-country-state-list__delete-button"
                 :disabled="deleteButtonDisabled || !acl.can('country.editor')"
+                variant="secondary"
                 @click="onDeleteCountryStates"
             >
-                <sw-icon
+                <mt-icon
                     name="regular-trash"
-                    small
+                    size="16px"
                 />
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_state_list_toolbar_add %}
-            <sw-button
+            <mt-button
                 v-tooltip.bottom="{
                     message: $tc('sw-privileges.tooltip.warning'),
                     disabled: acl.can('country.editor'),
@@ -56,7 +53,7 @@
                 @click="onAddCountryState"
             >
                 {{ $tc('sw-settings-country.detail.buttonAddCountryState') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
         </sw-container>
@@ -64,7 +61,6 @@
 
     <template #grid>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_country_state_list_listing %}
         <sw-one-to-many-grid
             ref="countryStateGrid"
@@ -86,7 +82,6 @@
 
             <template #column-name="{ item }">
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_country_state_list_listing_column_name %}
                 <a
                     class="sw-settings-country-state__link"
@@ -102,7 +97,6 @@
             </template>
 
             <template #more-actions="{ item }">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_country_state_list_listing_action_edit %}
                 <sw-context-menu-item
                     v-tooltip.top="{
@@ -120,7 +114,6 @@
             </template>
         </sw-one-to-many-grid>
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_country_state_list_empty %}
         <sw-empty-state
             v-if="showEmptyState"
@@ -131,7 +124,6 @@
         />
         {% endblock %}
     </template>
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_country_state_detail %}
     <sw-country-state-detail
         v-if="currentCountryState"
@@ -140,6 +132,6 @@
         @attribute-edit-cancel="onCancelCountryState"
     />
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}
 

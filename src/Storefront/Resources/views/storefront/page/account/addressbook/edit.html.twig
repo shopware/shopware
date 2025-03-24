@@ -3,10 +3,17 @@
 {% block page_account_main_content %}
     <div class="account-address account-address-form">
         {% block page_account_address_form_welcome %}
-            <div class="account-welcome">
+            <div class="account-welcome d-flex align-items-center">
+                <a
+                    href="{{ path('frontend.account.address.page') }}"
+                    class="account-address-back btn btn-outline-dark"
+                >
+                    {% sw_icon 'arrow-left' style {size: 's'} %}
+                </a>
+
                 {% block page_account_address_form_welcome_headline %}
-                    <h1>
-                        {{ 'account.addressEditWelcome'|trans|sw_sanitize }}
+                    <h1 class="mx-2 mb-0">
+                        {{ 'account.addressEditMetaTitle'|trans|sw_sanitize }}
                     </h1>
                 {% endblock %}
             </div>
@@ -18,7 +25,7 @@
                     {% block page_account_address_form_edit %}
                         <form method="post"
                               action="{{ path('frontend.account.address.edit.save', { addressId: page.address.id }) }}"
-                              data-form-validation="true">
+                              data-form-handler="true">
                             {% block page_account_address_form_edit_personal %}
                                 {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
                                     data: page.address,

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import template from './sw-sidebar-collapse.html.twig';
@@ -25,7 +25,7 @@ Component.extend('sw-sidebar-collapse', 'sw-collapse', {
                     'up',
                     'left',
                     'right',
-                    'bottom',
+                    'down',
                 ].includes(value),
         },
     },

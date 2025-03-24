@@ -13,7 +13,8 @@ use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
-use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
+use Shopware\Storefront\Theme\StorefrontPluginRegistry;
+use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeLifecycleHandler;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Shopware\Storefront\Theme\ThemeSalesChannel;
@@ -28,10 +29,11 @@ class ThemeLifecycleHandlerTest extends TestCase
 {
     private MockObject&ThemeService $themeServiceMock;
 
-    private StorefrontPluginRegistryInterface&MockObject $configurationRegistryMock;
+    private StorefrontPluginRegistry&MockObject $configurationRegistryMock;
 
     private ThemeLifecycleService&MockObject $themeLifecycleServiceMock;
 
+    /** @var EntityRepository<ThemeCollection>&MockObject */
     private EntityRepository&MockObject $themeRepositoryMock;
 
     private Connection&MockObject $connectionMock;
@@ -43,7 +45,7 @@ class ThemeLifecycleHandlerTest extends TestCase
     protected function setUp(): void
     {
         $this->themeServiceMock = $this->createMock(ThemeService::class);
-        $this->configurationRegistryMock = $this->createMock(StorefrontPluginRegistryInterface::class);
+        $this->configurationRegistryMock = $this->createMock(StorefrontPluginRegistry::class);
         $this->themeLifecycleServiceMock = $this->createMock(ThemeLifecycleService::class);
         $this->themeRepositoryMock = $this->createMock(EntityRepository::class);
         $this->connectionMock = $this->createMock(Connection::class);
@@ -71,11 +73,11 @@ class ThemeLifecycleHandlerTest extends TestCase
             $themeConfig,
         ]);
 
-        $this->configurationRegistryMock->expects(static::once())->method('getConfigurations')->willReturn(
+        $this->configurationRegistryMock->expects($this->once())->method('getConfigurations')->willReturn(
             $collection
         );
 
-        $this->themeRepositoryMock->expects(static::never())->method('upsert');
+        $this->themeRepositoryMock->expects($this->never())->method('upsert');
 
         $this->themeLifecycleHandler->handleThemeUninstall(
             $themeConfig,
@@ -95,7 +97,7 @@ class ThemeLifecycleHandlerTest extends TestCase
             $themeConfig,
         ]);
 
-        $this->configurationRegistryMock->expects(static::once())->method('getConfigurations')->willReturn(
+        $this->configurationRegistryMock->expects($this->once())->method('getConfigurations')->willReturn(
             $collection
         );
 
@@ -112,7 +114,7 @@ class ThemeLifecycleHandlerTest extends TestCase
             ],
         ]);
 
-        $this->themeRepositoryMock->expects(static::once())->method('upsert');
+        $this->themeRepositoryMock->expects($this->once())->method('upsert');
 
         $this->themeLifecycleHandler->handleThemeUninstall(
             $themeConfig,
@@ -230,17 +232,17 @@ class ThemeLifecycleHandlerTest extends TestCase
         $context->addState('skip-theme-compilation');
 
         $this->themeLifecycleServiceMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('refreshTheme')
             ->with($config, $context);
 
         $this->connectionMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([]);
 
-        $this->themeServiceMock->expects(static::never())->method('compileThemeById');
-        $this->themeServiceMock->expects(static::never())->method('compileTheme');
+        $this->themeServiceMock->expects($this->never())->method('compileThemeById');
+        $this->themeServiceMock->expects($this->never())->method('compileTheme');
 
         $this->themeLifecycleHandler->handleThemeInstallOrUpdate(
             $config,

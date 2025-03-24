@@ -21,7 +21,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * @script-service data_loading
  */
-#[Package('core')]
+#[Package('framework')]
 class SalesChannelRepositoryFacade
 {
     /**

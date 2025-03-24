@@ -1,12 +1,10 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_search_excluded_search_terms %}
-<sw-card
+<mt-card
     :title="$tc('sw-settings-search.generalTab.labelExcludedSearchTerms')"
     class="sw-settings-search-excluded-search-terms"
     position-identifier="sw-settings-search-excluded-search-terms"
 >
     <template #grid>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_excluded_search_terms_empty_state %}
         <sw-empty-state
             v-if="showEmptyState"
@@ -17,36 +15,33 @@
             class="sw-empty-state"
         >
             <template #icon>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_excluded_search_terms_empty_state_image %}
                 <img
-                    :src="assetFilter('administration/static/img/empty-states/settings-empty-state.svg')"
+                    :src="assetFilter('administration/administration/static/img/empty-states/settings-empty-state.svg')"
                     :alt="$tc('sw-settings-search.generalTab.textEmptyStateExcludedSearchTerms')"
                 >
                 {% endblock %}
             </template>
 
             <template #actions>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_excluded_search_terms_empty_state_action %}
-                <sw-button
+                <mt-button
                     class="sw-settings-search-excluded-search-terms__action-add"
-                    variant="ghost"
+                    ghost
                     size="small"
                     :disabled="!acl.can('product_search_config.creator')"
+                    variant="secondary"
                     @click="addExcludedSearchTerms"
                 >
                     {{ $tc('sw-settings-search.generalTab.buttonAddExcludedSearch') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </template>
         </sw-empty-state>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_search_excluded_search_terms_grid %}
         <div v-if="!showEmptyState">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_excluded_search_terms_header_bar %}
             <sw-container
                 class="sw-settings-search-excluded-search-terms__header-bar"
@@ -54,7 +49,6 @@
                 gap="10px"
                 align="center"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_excluded_search_terms_filter %}
                 <sw-card-filter
                     ref="itemFilter"
@@ -63,40 +57,38 @@
                 />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_excluded_search_terms_actions %}
                 <div class="sw-settings-search-excluded-search-terms-group-actions">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_search_excluded_search_terms_add_button %}
-                    <sw-button
+                    <mt-button
                         class="sw-settings-search-excluded-search-terms__insert-button"
-                        variant="ghost"
+                        ghost
                         size="small"
                         :disabled="!acl.can('product_search_config.creator')"
+                        variant="secondary"
                         @click="onInsertTerm"
                     >
                         {{ $tc('sw-settings-search.generalTab.buttonAddExcludedSearchTerms') }}
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_search_excluded_search_terms_reset_button %}
-                    <sw-button
+                    <mt-button
                         class="sw-settings-search-excluded-search-terms__reset-button"
                         size="small"
                         :disabled="!acl.can('product_search_config.creator')"
                         :is-loading="isLoading"
+                        variant="secondary"
                         @click="onResetExcludedSearchTermDefault"
                     >
                         {{ $tc('sw-settings-search.generalTab.buttonResetDefault') }}
-                    </sw-button>
+                    </mt-button>
                     {% endblock %}
                 </div>
                 {% endblock %}
             </sw-container>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_excluded_search_terms_grid_list %}
             <sw-container>
                 <sw-data-grid
@@ -112,18 +104,17 @@
                     @select-item="selectionChanged"
                 >
                     <template #bulk>
-                        <sw-button
-                            variant="danger"
+                        <mt-button
+                            variant="critical"
                             size="small"
                             :disabled="!acl.can('product_search_config.deleter')"
                             @click="onBulkDeleteExcludedTerm()"
                         >
                             {{ $tc('global.default.delete') }}
-                        </sw-button>
+                        </mt-button>
                     </template>
 
                     <template #actions="{ item }">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_search_excluded_terms_column_actions %}
                         <sw-context-menu-item
                             variant="danger"
@@ -136,7 +127,6 @@
                     </template>
 
                     <template #pagination>
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_search_excluded_terms_list_pagination %}
                         <sw-pagination
                             :page="page"
@@ -148,7 +138,6 @@
                         {% endblock %}
                     </template>
                 </sw-data-grid>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_search_excliuded_terms_no_results %}
                 <div v-if="items.length === 0">
                     <p class="sw-settings-search__no-data-results">
@@ -161,5 +150,5 @@
         </div>
         {% endblock %}
     </template>
-</sw-card>
+</mt-card>
 {% endblock %}

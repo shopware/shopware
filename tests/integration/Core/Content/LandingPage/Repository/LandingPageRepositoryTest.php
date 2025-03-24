@@ -39,10 +39,10 @@ class LandingPageRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('landing_page.repository');
-        $this->salesChannelRepo = $this->getContainer()->get('sales_channel.repository');
-        $this->cmsPageRepo = $this->getContainer()->get('cms_page.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->repository = static::getContainer()->get('landing_page.repository');
+        $this->salesChannelRepo = static::getContainer()->get('sales_channel.repository');
+        $this->cmsPageRepo = static::getContainer()->get('cms_page.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
     }
 
     public function testCreateLandingPage(): void

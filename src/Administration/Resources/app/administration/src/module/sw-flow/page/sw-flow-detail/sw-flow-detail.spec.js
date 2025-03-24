@@ -1,10 +1,10 @@
 import { mount } from '@vue/test-utils';
-import flowState from 'src/module/sw-flow/state/flow.state';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import FlowBuilderService from 'src/module/sw-flow/service/flow-builder.service';
+import { createPinia } from 'pinia';
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 
 class MockFlowBuilderService extends FlowBuilderService {
@@ -86,7 +86,40 @@ const mockBusinessEvents = [
     },
 ];
 
-async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess = true, param = {}) {
+const flowSequenceRepositorySyncDeletedMock = jest.fn((sequencesIds) => {
+    const ids = [];
+    sequencesIds.forEach((sequenceId) => {
+        ids.push(sequenceId);
+    });
+
+    // eslint-disable-next-line jest/no-standalone-expect
+    expect(ids).toEqual([
+        '2',
+        '4',
+    ]);
+});
+
+const flowSequenceRepositorySyncMock = jest.fn((sequences) => {
+    // eslint-disable-next-line jest/no-standalone-expect
+    expect(sequences).toHaveLength(2);
+
+    const ids = [];
+    sequences.forEach((sequence) => {
+        ids.push(sequence.id);
+    });
+
+    // eslint-disable-next-line jest/no-standalone-expect
+    expect(ids).toEqual([
+        '1',
+        '3',
+    ]);
+});
+
+const businessEventServiceMock = {
+    getBusinessEvents: () => Promise.resolve(mockBusinessEvents),
+};
+
+async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess = true, param = {}, customProvides = {}) {
     return mount(
         await wrapTestComponent('sw-flow-detail', {
             sync: true,
@@ -96,35 +129,14 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
                 flowId: flowId,
             },
             global: {
+                plugins: [createPinia()],
                 provide: {
                     repositoryFactory: {
                         create: (entity) => {
                             if (entity === 'flow_sequence') {
                                 return {
-                                    sync: jest.fn((sequences) => {
-                                        expect(sequences).toHaveLength(2);
-
-                                        const ids = [];
-                                        sequences.forEach((sequence) => {
-                                            ids.push(sequence.id);
-                                        });
-
-                                        expect(ids).toEqual([
-                                            '1',
-                                            '3',
-                                        ]);
-                                    }),
-                                    syncDeleted: jest.fn((sequencesIds) => {
-                                        const ids = [];
-                                        sequencesIds.forEach((sequenceId) => {
-                                            ids.push(sequenceId);
-                                        });
-
-                                        expect(ids).toEqual([
-                                            '2',
-                                            '4',
-                                        ]);
-                                    }),
+                                    sync: flowSequenceRepositorySyncMock,
+                                    syncDeleted: flowSequenceRepositorySyncDeletedMock,
                                     create: () => {
                                         return {};
                                     },
@@ -176,6 +188,7 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
                     ruleConditionDataProviderService: {
                         getRestrictedRules: () => Promise.resolve([]),
                     },
+                    ...customProvides,
                 },
                 mocks: {
                     $route: { params: param, query: query },
@@ -201,12 +214,7 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
                     }),
                     'router-view': true,
                     'sw-button-process': await wrapTestComponent('sw-button-process', { sync: true }),
-                    'sw-button': await wrapTestComponent('sw-button', {
-                        sync: true,
-                    }),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-skeleton': true,
-                    'sw-alert': true,
                     'sw-flow-leave-page-modal': true,
                     'sw-tabs': {
                         template: `
@@ -222,7 +230,6 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
                         </div>
                     `,
                     },
-                    'sw-icon': true,
                     'router-link': true,
                     'sw-loader': true,
                 },
@@ -233,23 +240,10 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
 
 describe('module/sw-flow/page/sw-flow-detail', () => {
     beforeAll(() => {
-        Shopware.State.registerModule('swFlowState', {
-            ...flowState,
-            state: {
-                flow: {
-                    eventName: '',
-                    sequences: getSequencesCollection([{ ...sequenceFixture }]),
-                },
-                invalidSequences: [],
-                appActions: [],
-                triggerEvents: [],
-            },
-        });
+        Shopware.Store.get('swFlow').setSequences(getSequencesCollection(sequencesFixture));
 
         Shopware.Service().register('businessEventService', () => {
-            return {
-                getBusinessEvents: () => Promise.resolve(mockBusinessEvents),
-            };
+            return businessEventServiceMock;
         });
     });
 
@@ -283,18 +277,18 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
             isNew: () => true,
         };
 
-        Shopware.State.commit('swFlowState/setFlow', {
+        Shopware.Store.get('swFlow').setFlow({
             ...flow,
             getOrigin: () => flow,
         });
 
-        let sequencesState = Shopware.State.getters['swFlowState/sequences'];
+        let sequencesState = Shopware.Store.get('swFlow').sequences;
         expect(sequencesState).toHaveLength(4);
 
         const saveButton = wrapper.find('.sw-flow-detail__save');
         await saveButton.trigger('click');
 
-        sequencesState = Shopware.State.getters['swFlowState/sequences'];
+        sequencesState = Shopware.Store.get('swFlow').sequences;
         expect(sequencesState).toHaveLength(2);
     });
 
@@ -309,12 +303,12 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
             sequences: getSequencesCollection(sequencesFixture),
         };
 
-        Shopware.State.commit('swFlowState/setFlow', {
+        Shopware.Store.get('swFlow').setFlow({
             ...flow,
             getOrigin: () => flow,
         });
 
-        const sequencesState = Shopware.State.getters['swFlowState/sequences'];
+        const sequencesState = Shopware.Store.get('swFlow').sequences;
         expect(sequencesState).toHaveLength(4);
 
         const saveButton = wrapper.find('.sw-flow-detail__save');
@@ -347,12 +341,12 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
             },
         };
 
-        Shopware.State.commit('swFlowState/setFlow', {
+        Shopware.Store.get('swFlow').setFlow({
             ...flowTemplate,
             getOrigin: () => flowTemplate,
         });
 
-        const sequencesState = Shopware.State.getters['swFlowState/sequences'];
+        const sequencesState = Shopware.Store.get('swFlow').sequences;
         expect(sequencesState).toHaveLength(4);
 
         await flushPromises();
@@ -373,7 +367,7 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
 
         wrapper.vm.createNotificationWarning = jest.fn();
 
-        Shopware.State.commit('swFlowState/setFlow', {
+        Shopware.Store.get('swFlow').setFlow({
             eventName: 'checkout.customer',
             name: 'Flow 1',
             sequences: getSequencesCollection([
@@ -384,14 +378,14 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
             ]),
         });
 
-        let invalidSequences = Shopware.State.get('swFlowState').invalidSequences;
+        let invalidSequences = Shopware.Store.get('swFlow').invalidSequences;
         expect(invalidSequences).toEqual([]);
 
         const saveButton = wrapper.find('.sw-flow-detail__save');
         await saveButton.trigger('click');
         await flushPromises();
 
-        invalidSequences = Shopware.State.get('swFlowState').invalidSequences;
+        invalidSequences = Shopware.Store.get('swFlow').invalidSequences;
         expect(invalidSequences).toEqual(['1']);
 
         expect(wrapper.vm.createNotificationWarning).toHaveBeenCalled();
@@ -452,7 +446,7 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
 
         await flushPromises();
 
-        const sequencesState = Shopware.State.getters['swFlowState/sequences'];
+        const sequencesState = Shopware.Store.get('swFlow').sequences;
         expect(sequencesState).toHaveLength(1);
 
         const saveButton = wrapper.find('.sw-flow-detail__save');
@@ -573,14 +567,95 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
             },
         );
 
-        Shopware.State.commit('swFlowState/setSequences', getSequencesCollection(sequencesFixture));
+        Shopware.Store.get('swFlow').setSequences(getSequencesCollection(sequencesFixture));
 
         await wrapper.vm.getRuleDataForFlowTemplate();
         await flushPromises();
 
-        const sequences = Shopware.State.getters['swFlowState/sequences'];
+        const sequences = Shopware.Store.get('swFlow').sequences;
         expect(sequences).toHaveLength(4);
         expect(sequences[0]).toHaveProperty('rule');
         expect(sequences[0].rule).toEqual({ id: '1111', name: 'test rule' });
+    });
+
+    it('should display an error when trying to save an empty flow', async () => {
+        global.activeAclRoles = ['flow.editor'];
+
+        const wrapper = await createWrapper();
+        const notificationSpy = jest.spyOn(wrapper.vm, 'createNotificationWarning');
+        await flushPromises();
+
+        const saveButton = wrapper.find('.sw-flow-detail__save');
+        await saveButton.trigger('click');
+        await flushPromises();
+
+        expect(notificationSpy).toHaveBeenNthCalledWith(1, {
+            message: 'sw-flow.flowNotification.emptyFields.general',
+        });
+    });
+
+    it('should wait for FlowData and TriggerEventsData requests before executing getDataForActionDescription', async () => {
+        global.activeAclRoles = ['flow.editor'];
+
+        let resolveEvents;
+        const eventsPromise = new Promise(resolve => {
+            resolveEvents = () => resolve(mockBusinessEvents);
+        });
+
+        let resolveFlowData;
+        const flowDataPromise = new Promise(resolve => {
+            resolveFlowData = () => resolve({
+                id: ID_FLOW,
+                name: 'Flow 1',
+                eventName: 'checkout.customer',
+                sequences: getSequencesCollection([])
+            });
+        });
+
+        const customBusinessEventServiceMock = {
+            getBusinessEvents: jest.fn().mockReturnValue(eventsPromise)
+        };
+
+        const customRepositoryFactoryMock = {
+            create: (entity) => {
+                if (entity === 'flow') {
+                    return {
+                        get: () => flowDataPromise
+                    };
+                }
+                return {
+                    create: () => ({}),
+                    search: () => Promise.resolve([])
+                };
+            }
+        };
+
+        const wrapper = await createWrapper(
+            {},
+            {},
+            ID_FLOW,
+            true,
+            {},
+            {
+                businessEventService: customBusinessEventServiceMock,
+                repositoryFactory: customRepositoryFactoryMock
+            }
+        );
+
+        await flushPromises();
+
+        const actionDescriptionSpy = jest.spyOn(wrapper.vm, 'getDataForActionDescription');
+
+        expect(actionDescriptionSpy).not.toHaveBeenCalled();
+
+        resolveEvents();
+        await flushPromises();
+        expect(actionDescriptionSpy).not.toHaveBeenCalled();
+
+        resolveFlowData();
+        await flushPromises();
+        expect(actionDescriptionSpy).toHaveBeenCalled();
+
+        actionDescriptionSpy.mockRestore();
     });
 });

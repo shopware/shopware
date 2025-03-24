@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(ManufacturerLogoCmsElementResolver::class)]
 class ManufacturerLogoCmsElementResolverTest extends TestCase
 {
@@ -43,7 +43,7 @@ class ManufacturerLogoCmsElementResolverTest extends TestCase
         $slot->setId('slot-1');
         $slot->setFieldConfig($config);
 
-        $context = new ResolverContext(Generator::createSalesChannelContext(), new Request());
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
 
         $resolver = new ManufacturerLogoCmsElementResolver();
         $collection = $resolver->collect($slot, $context);
@@ -73,7 +73,7 @@ class ManufacturerLogoCmsElementResolverTest extends TestCase
         $slot->setId('slot-1');
         $slot->setFieldConfig($config);
 
-        $context = new ResolverContext(Generator::createSalesChannelContext(), new Request());
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
 
         $resolver = new ManufacturerLogoCmsElementResolver();
         static::assertNull($resolver->collect($slot, $context));
@@ -91,7 +91,7 @@ class ManufacturerLogoCmsElementResolverTest extends TestCase
         $slot->setId('slot-1');
         $slot->setFieldConfig($config);
 
-        $context = new ResolverContext(Generator::createSalesChannelContext(), new Request());
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
 
         $media = new MediaEntity();
         $media->setId('media-1');

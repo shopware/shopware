@@ -3,12 +3,10 @@ import './sw-flow-sequence.scss';
 
 /**
  * @private
- * @package services-settings
+ * @sw-package after-sales
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         sequence: {

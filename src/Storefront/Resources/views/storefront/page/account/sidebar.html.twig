@@ -43,18 +43,6 @@
                                 </a>
                             {% endblock %}
 
-                            {# @deprecated tag:v6.7.0 - default payment method of a customer will be removed #}
-                            {% block page_account_sidebar_link_payment %}
-                                {% if not feature('v6.7.0.0') %}
-                                <a href="{{ path('frontend.account.payment.page') }}"
-                                   title="{{ 'account.paymentLink'|trans|striptags }}"
-                                   class="list-group-item list-group-item-action account-aside-item{% if activeRoute is same as('frontend.account.payment.page') %} is-active{% endif %}"
-                                   {% if activeRoute is same as('frontend.account.payment.page') %} aria-current="page"{% endif %}>
-                                    {{ 'account.paymentLink'|trans|sw_sanitize }}
-                                </a>
-                                {% endif %}
-                            {% endblock %}
-
                             {% block page_account_sidebar_link_orders %}
                                 <a href="{{ path('frontend.account.order.page') }}"
                                    title="{{ 'account.ordersLink'|trans|striptags }}"
@@ -75,7 +63,7 @@
                             {% block page_account_sidebar_logout %}
                                 <a href="{{ path('frontend.account.logout.page') }}"
                                    class="btn btn-link account-aside-btn">
-                                    {% sw_icon 'log-out' style { ariaHidden: true } %}
+                                    {% sw_icon 'log-out' %}
                                     {{ 'account.logout'|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}
@@ -86,7 +74,7 @@
                                 <a href="{{ path('frontend.account.logout.page') }}"
                                    data-account-guest-abort-button="true"
                                    class="btn btn-link account-aside-btn">
-                                    {% sw_icon 'log-out' style { ariaHidden: true } %}
+                                    {% sw_icon 'log-out' %}
                                     {{ 'account.guestAbort'|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}

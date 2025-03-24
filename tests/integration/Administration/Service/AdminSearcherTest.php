@@ -27,6 +27,9 @@ class AdminSearcherTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     private AdminSearcher $searcher;
@@ -37,11 +40,11 @@ class AdminSearcherTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->productRepository = static::getContainer()->get('product.repository');
 
-        $this->searcher = $this->getContainer()->get(AdminSearcher::class);
+        $this->searcher = static::getContainer()->get(AdminSearcher::class);
 
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $userId = (string) $connection->fetchOne('SELECT id FROM `user` WHERE username = "admin"');
         $this->userId = Uuid::fromBytesToHex($userId);
         $this->context = Context::createDefaultContext();

@@ -47,13 +47,13 @@ class MediaFolderServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->mediaRepo = $this->getContainer()->get('media.repository');
-        $this->mediaFolderRepo = $this->getContainer()->get('media_folder.repository');
-        $this->mediaFolderConfigRepo = $this->getContainer()->get('media_folder_configuration.repository');
+        $this->mediaRepo = static::getContainer()->get('media.repository');
+        $this->mediaFolderRepo = static::getContainer()->get('media_folder.repository');
+        $this->mediaFolderConfigRepo = static::getContainer()->get('media_folder_configuration.repository');
 
         $this->context = Context::createDefaultContext();
 
-        $this->mediaFolderService = $this->getContainer()->get(MediaFolderService::class);
+        $this->mediaFolderService = static::getContainer()->get(MediaFolderService::class);
     }
 
     public function testDissolveForNonExistingFolder(): void

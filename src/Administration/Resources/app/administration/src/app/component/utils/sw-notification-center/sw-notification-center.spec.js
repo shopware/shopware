@@ -1,22 +1,18 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
-import notificationStore from 'src/app/state/notification.store';
+import { createPinia, setActivePinia } from 'pinia';
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-notification-center', { sync: true }), {
         global: {
             stubs: {
                 'sw-context-button': await wrapTestComponent('sw-context-button'),
-                'sw-icon': await wrapTestComponent('sw-icon'),
-                'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated'),
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                 'sw-notification-center-item': await wrapTestComponent('sw-notification-center-item'),
                 'sw-time-ago': await wrapTestComponent('sw-time-ago'),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-loader': await wrapTestComponent('sw-loader'),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                 'sw-popover': {
@@ -30,18 +26,14 @@ async function createWrapper() {
 
 describe('src/app/component/utils/sw-notification-center', () => {
     beforeEach(() => {
-        if (Shopware.State.get('notification') !== undefined) {
-            Shopware.State.unregisterModule('notification');
-        }
-
-        Shopware.State.registerModule('notification', notificationStore);
+        setActivePinia(createPinia());
     });
 
     it('should show empty state', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.find('.sw-icon').trigger('click');
+        await wrapper.find('.mt-icon').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-notification-center__empty-text').isVisible()).toBe(true);
@@ -49,7 +41,7 @@ describe('src/app/component/utils/sw-notification-center', () => {
     });
 
     it('should show notifications', async () => {
-        Shopware.State.commit('notification/setNotifications', {
+        Shopware.Store.get('notification').setNotifications({
             '018d0c7c90f47a228894d117c9b442bc': {
                 visited: false,
                 metadata: {},
@@ -64,7 +56,7 @@ describe('src/app/component/utils/sw-notification-center', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.find('.sw-icon').trigger('click');
+        await wrapper.find('.mt-icon').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-notification-center__empty-text').isVisible()).toBe(false);
@@ -72,7 +64,7 @@ describe('src/app/component/utils/sw-notification-center', () => {
     });
 
     it('should show no notifications after clearing them', async () => {
-        Shopware.State.commit('notification/setNotifications', {
+        Shopware.Store.get('notification').setNotifications({
             '018d0c7c90f47a228894d117c9b442bc': {
                 visited: false,
                 metadata: {},
@@ -87,17 +79,17 @@ describe('src/app/component/utils/sw-notification-center', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.find('.sw-icon').trigger('click');
+        await wrapper.find('.mt-icon').trigger('click');
         await flushPromises();
 
         // opening the delete modal this way, because doing it via the DOM closes the context menu
         await wrapper.vm.openDeleteModal();
 
-        await wrapper.find('.sw-button--primary').trigger('click');
+        await wrapper.findByText('button', 'global.default.delete').trigger('click');
         await flushPromises();
 
         // re-opening the context menu, happens only in test
-        await wrapper.find('.sw-icon').trigger('click');
+        await wrapper.find('.mt-icon').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-notification-center__empty-text').isVisible()).toBe(true);

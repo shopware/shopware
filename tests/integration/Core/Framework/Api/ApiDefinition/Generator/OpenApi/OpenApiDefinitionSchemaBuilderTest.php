@@ -84,4 +84,22 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
         static::assertArrayNotHasKey('description', $build['Since']['properties']['id']);
         static::assertArrayNotHasKey('SinceJsonApi', $build);
     }
+
+    public function testIgnoreInOpenapiSchema(): void
+    {
+        $definition = $this->registerDefinition(SimpleDefinition::class);
+
+        $build = json_decode(json_encode(
+            $this->service->getSchemaByDefinition(
+                $definition,
+                '',
+                false,
+                false,
+                DefinitionService::TYPE_JSON
+            ),
+            \JSON_THROW_ON_ERROR
+        ), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayNotHasKey('ignoreApiAwareField', $build['Simple']['properties']);
+    }
 }

@@ -23,7 +23,7 @@ class RequirementsCheckCollectionTest extends TestCase
 
         $collection->add(new PathCheck('name', RequirementCheck::STATUS_SUCCESS));
 
-        static::expectException(\InvalidArgumentException::class);
+        static::expectExceptionMessage('Expected collection element of type Shopware\Core\Installer\Requirements\Struct\RequirementCheck got Shopware\Core\Content\Product\ProductEntity');
         $collection->add(new ProductEntity()); /** @phpstan-ignore-line */
     }
 

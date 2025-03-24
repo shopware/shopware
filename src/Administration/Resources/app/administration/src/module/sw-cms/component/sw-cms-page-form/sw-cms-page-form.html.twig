@@ -1,38 +1,32 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_page_form %}
 <div
     v-responsive="{ 'is--compact': el => el.width <= 1620, timeout: 100 }"
     class="sw-cms-page-form"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_page_form_content %}
     <template
         v-for="section in page.sections"
         :key="section.id"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_page_form_section %}
         <div
             class="sw-cms-page-form__section"
         >
             <div class="sw-cms-page-form__section-actions">
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_page_form_section_name_wrapper %}
                 <div class="sw-cms-page-form__section-action sw-cms-page-form__section-name">
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_page_form_section_name_icon %}
-                    <sw-icon
+                    <mt-icon
                         name="regular-layout"
                         size="20"
                         class="sw-cms-page-form__section-action-icon sw-cms-page-form__section-name-icon"
                     />
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_page_form__section_name %}
                     <span class="sw-cms-page-form__section-action-label sw-cms-page-form__section-name-label">
                         {{ getSectionName(section) }}
@@ -40,31 +34,29 @@
                     {% endblock %}
 
                     <div class="sw-cms-page-form__device-actions">
-                        <sw-icon :name="getDeviceActive('mobile', section)" />
+                        <mt-icon :name="getDeviceActive('mobile', section)" />
 
-                        <sw-icon :name="getDeviceActive('tablet', section)" />
+                        <mt-icon :name="getDeviceActive('tablet', section)" />
 
-                        <sw-icon :name="getDeviceActive('desktop', section)" />
+                        <mt-icon :name="getDeviceActive('desktop', section)" />
                     </div>
                 </div>
                 {% endblock %}
             </div>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_page_form_section_empty_state_block %}
-            <sw-card
+            <mt-card
                 v-if="section.blocks.length === 0"
                 position-identifier="sw-cms-page-form-empty"
                 class="sw-cms-page-form__block-card is--empty"
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_page_form_section_empty_state_block_text %}
                 <p class="sw-cms-page-form__empty-state-text">
                     {{ $tc('sw-cms.section.sectionEmptyState') }}
                 </p>
                 {% endblock %}
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
             <template
@@ -73,27 +65,24 @@
                 :key="block.id"
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_page_form_section_type_label_wrapper %}
                 <div
                     v-if="displaySectionType(block)"
                     class="sw-cms-page-form__section-type"
                 >
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_page_form_section_type_label %}
                     <div class="sw-cms-page-form__section-type-label">
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_page_form_section_type_label_icon %}
-                        <sw-icon
+                        <mt-icon
                             v-if="block.sectionPosition !== 'main'"
                             size="20"
                             name="regular-align-left-xs"
                             class="sw-cms-page-form__section-type-icon"
                         />
 
-                        <sw-icon
+                        <mt-icon
                             v-else
                             size="20"
                             name="regular-align-right-xs"
@@ -101,7 +90,6 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_page_form_section_type %}
                         <span class="sw-cms-page-form__section-type-name">
                             {{ getSectionPosition(block) }}
@@ -114,24 +102,22 @@
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_page_form_card %}
-                <sw-card
+                <mt-card
                     position-identifier="sw-cms-page-form-block"
                     class="sw-cms-page-form__block-card"
                     :title="$tc(getBlockTitle(block))"
                 >
-                    <template #header-right>
+                    <template #headerRight>
                         <div class="sw-cms-page-form__block-device-actions">
-                            <sw-icon :name="getDeviceActive('mobile', section, block)" />
+                            <mt-icon :name="getDeviceActive('mobile', section, block)" />
 
-                            <sw-icon :name="getDeviceActive('tablet', section, block)" />
+                            <mt-icon :name="getDeviceActive('tablet', section, block)" />
 
-                            <sw-icon :name="getDeviceActive('desktop', section, block)" />
+                            <mt-icon :name="getDeviceActive('desktop', section, block)" />
                         </div>
                     </template>
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_page_form_card_content %}
                     <div
                         v-for="(element, blockIndex) in block.slots"
@@ -140,12 +126,11 @@
                     >
 
                         <template v-if="displayNotification(section, block)">
-                            <sw-alert variant="info">
+                            <mt-banner variant="info">
                                 {{ $tc('sw-cms.blocks.blockDisableState') }}
-                            </sw-alert>
+                            </mt-banner>
                         </template>
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_page_form_element_config %}
                         <component
                             :is="cmsElements[element.type].configComponent"
@@ -156,7 +141,7 @@
                         {% endblock %}
                     </div>
                     {% endblock %}
-                </sw-card>
+                </mt-card>
                 {% endblock %}
             </template>
         </div>

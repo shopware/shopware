@@ -4,7 +4,7 @@ import template from './sw-error.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description
@@ -18,8 +18,6 @@ const { Component } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-error', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         errorObject: {

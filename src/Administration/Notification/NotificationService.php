@@ -3,8 +3,8 @@
 namespace Shopware\Administration\Notification;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
-use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -15,14 +15,22 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
+ * @phpstan-type Notification array{id: non-empty-string, status: string, message: string, adminOnly?: bool, requiredPrivileges: array<int, string>, createdByIntegrationId?: string|null, createdByUserId?: string|null}
  */
-#[Package('administration')]
+#[Package('framework')]
 class NotificationService
 {
+    /**
+     * @param EntityRepository<NotificationCollection> $notificationRepository
+     */
     public function __construct(private readonly EntityRepository $notificationRepository)
     {
     }
 
+    /**
+     * @param Notification $data
+     */
     public function createNotification(array $data, Context $context): void
     {
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($data): void {
@@ -30,11 +38,14 @@ class NotificationService
         });
     }
 
+    /**
+     * @return array{notifications: NotificationCollection, timestamp: string|null}
+     */
     public function getNotifications(Context $context, int $limit, ?string $latestTimestamp): array
     {
         $source = $context->getSource();
         if (!$source instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, $context->getSource()::class);
+            throw ApiException::invalidAdminSource($context->getSource()::class);
         }
 
         $criteria = new Criteria();
@@ -53,10 +64,7 @@ class NotificationService
         $criteria->setLimit($limit);
 
         $notifications = $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($criteria) {
-            /** @var NotificationCollection $notifications */
-            $notifications = $this->notificationRepository->search($criteria, $context)->getEntities();
-
-            return $notifications;
+            return $this->notificationRepository->search($criteria, $context)->getEntities();
         });
 
         if ($notifications->count() === 0) {
@@ -66,12 +74,7 @@ class NotificationService
             ];
         }
 
-        /** @var NotificationEntity $notification */
-        $notification = $notifications->last();
-
-        /** @var \DateTimeInterface $latestTimestamp */
-        $latestTimestamp = $notification->getCreatedAt();
-        $latestTimestamp = $latestTimestamp->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $latestTimestamp = $notifications->last()?->getCreatedAt()?->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         if ($isAdmin) {
             return [
@@ -102,6 +105,9 @@ class NotificationService
         return $responseNotifications;
     }
 
+    /**
+     * @param array<string> $privileges
+     */
     private function isAllow(array $privileges, AdminApiSource $source): bool
     {
         foreach ($privileges as $privilege) {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd">
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd">
     <meta>
         <name>testGateway</name>
         <label>Swag App Payments Test</label>
@@ -20,5 +20,6 @@
     </setup>
     <gateways>
         <checkout>https://foo.bar/example/checkout</checkout>
+        <inAppPurchases>https://foo.bar/example/iap-filter</inAppPurchases>
     </gateways>
 </manifest>

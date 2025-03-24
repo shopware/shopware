@@ -110,13 +110,14 @@
 
                             <p class="product-detail-tax">
                                 {% block buy_widget_tax_link %}
-                                    <a class="product-detail-tax-link"
-                                       href="{{ path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}"
-                                       title="{{ taxText }}"
-                                       data-ajax-modal="true"
-                                       data-url="{{ path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}">
+                                    {% set cmsPath = path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) %}
+
+                                    <button class="btn btn-link-inline product-detail-tax-link"
+                                            type="button"
+                                            data-ajax-modal="true"
+                                            data-url="{{ cmsPath }}">
                                         {{ taxText }}
-                                    </a>
+                                    </button>
                                 {% endblock %}
                             </p>
                         </div>
@@ -144,7 +145,6 @@
                                     style: 'text-primary'
                                 } %}
                                 <a
-                                    data-bs-toggle="tab"
                                     class="product-detail-reviews-link"
                                     data-off-canvas-tabs="true"
                                     data-remote-click="true"

@@ -27,6 +27,9 @@ Thumbs.db
 /vendor/*
 /composer.lock
 
+# Generated database schema files
+/schema
+
 # Symfony-CLI
 php.ini
 .php-version
@@ -109,6 +112,7 @@ src/Core/DevOps/Locust/**/__pycache__/
 !build/artifacts/.gitkeep
 tests/integration/Core/Framework/Plugin/_fixtures/SwagFashionTheme.zip
 tests/integration/Core/Framework/Plugin/_fixtures/TestShippingApp.zip
+.jest
 ###> symfony/phpunit-bridge ###
 .phpunit
 .phpunit.result.cache
@@ -152,3 +156,6 @@ http-client.private.env.json
 # Devenv
 .devenv*
 devenv.local.nix
+
+# danger.php
+danger.phar

@@ -34,7 +34,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\NestedEventCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
@@ -77,15 +76,15 @@ class WebhookManagerTest extends TestCase
     protected function setUp(): void
     {
         $this->shopUrl = $_SERVER['APP_URL'];
-        $this->shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
+        $this->shopIdProvider = static::getContainer()->get(ShopIdProvider::class);
         $this->bus = $this->createMock(MessageBusInterface::class);
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
-        $guzzleHistory = $this->getContainer()->get(GuzzleHistoryCollector::class);
+        $guzzleHistory = static::getContainer()->get(GuzzleHistoryCollector::class);
         static::assertInstanceOf(GuzzleHistoryCollector::class, $guzzleHistory);
         $this->guzzleHistory = $guzzleHistory;
 
-        $this->appRepository = $this->getContainer()->get('app.repository');
+        $this->appRepository = static::getContainer()->get('app.repository');
     }
 
     public function testDoesNotDispatchBusinessEventIfAppIsInactive(): void
@@ -105,10 +104,10 @@ class WebhookManagerTest extends TestCase
         $customerId = Uuid::randomHex();
         $this->createCustomer($customerId);
 
-        $customer = $this->getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->get($customerId);
+        $customer = static::getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->get($customerId);
         static::assertInstanceOf(CustomerEntity::class, $customer);
         $event = new CustomerLoginEvent(
-            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
             $customer,
             'testToken'
         );
@@ -125,10 +124,10 @@ class WebhookManagerTest extends TestCase
         $customerId = Uuid::randomHex();
         $this->createCustomer($customerId);
 
-        $customer = $this->getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->get($customerId);
+        $customer = static::getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->get($customerId);
         static::assertInstanceOf(CustomerEntity::class, $customer);
         $event = new CustomerLoginEvent(
-            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
             $customer,
             'testToken'
         );
@@ -151,10 +150,10 @@ class WebhookManagerTest extends TestCase
         $customerId = Uuid::randomHex();
         $this->createCustomer($customerId);
 
-        $customer = $this->getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->get($customerId);
+        $customer = static::getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->get($customerId);
         static::assertInstanceOf(CustomerEntity::class, $customer);
         $event = new CustomerLoginEvent(
-            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
             $customer,
             'testToken'
         );
@@ -185,6 +184,7 @@ class WebhookManagerTest extends TestCase
                 'url' => $this->shopUrl,
                 'shopId' => $this->shopIdProvider->getShopId(),
                 'appVersion' => '0.0.1',
+                'inAppPurchases' => null,
             ],
         ], $data);
 
@@ -204,7 +204,7 @@ class WebhookManagerTest extends TestCase
         $aclRoleId = Uuid::randomHex();
         $this->createApp(appId: $appId, aclRoleId: $aclRoleId, permissions: ['customer' => ['read']]);
 
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
         $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, [
             'app_url' => 'https://test.com',
             'value' => Uuid::randomHex(),
@@ -213,10 +213,10 @@ class WebhookManagerTest extends TestCase
         $customerId = Uuid::randomHex();
         $this->createCustomer($customerId);
 
-        $customer = $this->getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->get($customerId);
+        $customer = static::getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->get($customerId);
         static::assertInstanceOf(CustomerEntity::class, $customer);
         $event = new CustomerLoginEvent(
-            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
             $customer,
             'testToken'
         );
@@ -235,7 +235,7 @@ class WebhookManagerTest extends TestCase
         $this->appendNewResponse(new Response(200));
 
         $event = new CustomerBeforeLoginEvent(
-            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
             'test@example.com'
         );
 
@@ -277,7 +277,7 @@ class WebhookManagerTest extends TestCase
         $this->appendNewResponse(new Response(200));
 
         $event = new CustomerBeforeLoginEvent(
-            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
             'test@example.com'
         );
 
@@ -412,7 +412,7 @@ class WebhookManagerTest extends TestCase
     public function testNoRegisteredWebhook(): void
     {
         $event = new CustomerBeforeLoginEvent(
-            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
             'test@example.com'
         );
 
@@ -427,9 +427,9 @@ class WebhookManagerTest extends TestCase
     {
         $this->createWebhook('hook1', CustomerBeforeLoginEvent::EVENT_NAME, 'https://test.com');
 
-        $factory = $this->getContainer()->get(FlowFactory::class);
+        $factory = static::getContainer()->get(FlowFactory::class);
         $event = $factory->create(new CustomerBeforeLoginEvent(
-            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
             'test@example.com'
         ));
         $event->setFlowState(new FlowState());
@@ -459,7 +459,7 @@ class WebhookManagerTest extends TestCase
 
         $this->getManager(adminWorkerEnabled: false)->dispatch($event);
 
-        $this->createMock(MessageBusInterface::class)->expects(static::never())
+        $this->createMock(MessageBusInterface::class)->expects($this->never())
             ->method('dispatch');
 
         $request = $this->getLastRequest();
@@ -483,6 +483,7 @@ class WebhookManagerTest extends TestCase
                 'url' => $this->shopUrl,
                 'shopId' => $this->shopIdProvider->getShopId(),
                 'appVersion' => '0.0.1',
+                'inAppPurchases' => null,
             ],
         ], $data);
 
@@ -535,6 +536,7 @@ class WebhookManagerTest extends TestCase
                 'url' => $this->shopUrl,
                 'shopId' => $this->shopIdProvider->getShopId(),
                 'appVersion' => '0.0.1',
+                'inAppPurchases' => null,
             ],
         ], $data);
 
@@ -567,7 +569,7 @@ class WebhookManagerTest extends TestCase
             'handler' => new MockHandler([]),
         ]);
 
-        $this->createMock(MessageBusInterface::class)->expects(static::never())
+        $this->createMock(MessageBusInterface::class)->expects($this->never())
             ->method('dispatch');
 
         $this->getManager($client)->dispatch($event);
@@ -655,7 +657,7 @@ class WebhookManagerTest extends TestCase
         $this->appendNewResponse(new Response(200));
 
         $event = new CustomerBeforeLoginEvent(
-            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
             'test@example.com'
         );
 
@@ -684,6 +686,7 @@ class WebhookManagerTest extends TestCase
                 'url' => $this->shopUrl,
                 'shopId' => $this->shopIdProvider->getShopId(),
                 'appVersion' => '0.0.1',
+                'inAppPurchases' => null,
             ],
         ], $data);
 
@@ -710,7 +713,7 @@ class WebhookManagerTest extends TestCase
             ],
         ]);
 
-        $permissionPersister = $this->getContainer()->get(PermissionPersister::class);
+        $permissionPersister = static::getContainer()->get(PermissionPersister::class);
         $permissions = Permissions::fromArray([
             'permissions' => [
                 'product' => ['read'],
@@ -754,6 +757,7 @@ class WebhookManagerTest extends TestCase
                 'url' => $this->shopUrl,
                 'shopId' => $this->shopIdProvider->getShopId(),
                 'appVersion' => '0.0.1',
+                'inAppPurchases' => null,
             ],
         ], $data);
 
@@ -803,6 +807,7 @@ class WebhookManagerTest extends TestCase
                 'url' => $this->shopUrl,
                 'shopId' => $this->shopIdProvider->getShopId(),
                 'appVersion' => '0.0.1',
+                'inAppPurchases' => null,
             ],
         ], $data);
 
@@ -858,6 +863,7 @@ class WebhookManagerTest extends TestCase
                 'url' => $this->shopUrl,
                 'shopId' => $this->shopIdProvider->getShopId(),
                 'appVersion' => '0.0.1',
+                'inAppPurchases' => null,
             ],
         ];
 
@@ -865,7 +871,7 @@ class WebhookManagerTest extends TestCase
 
         $shopwareVersion = Kernel::SHOPWARE_FALLBACK_VERSION;
 
-        $this->bus->expects(static::once())
+        $this->bus->expects($this->once())
             ->method('dispatch')
             ->with(static::callback(function (WebhookEventMessage $message) use ($payload, $appId, $webhookId, $shopwareVersion) {
                 $actualPayload = $message->getPayload();
@@ -917,7 +923,7 @@ class WebhookManagerTest extends TestCase
 
         $webhookEventId = Uuid::randomHex();
         $shopwareVersion = Kernel::SHOPWARE_FALLBACK_VERSION;
-        $this->bus->expects(static::once())
+        $this->bus->expects($this->once())
             ->method('dispatch')
             ->with(static::callback(function (WebhookEventMessage $message) use ($payload, $webhookId, $shopwareVersion) {
                 $actualPayload = $message->getPayload();
@@ -956,10 +962,10 @@ class WebhookManagerTest extends TestCase
      * @param list<array{id?: string, name: string, event_name: string, url: string}>|null $webhooks
      * @param array<string, list<string>>|null $permissions
      */
-    private function createApp(?string $appId = null, bool $active = true, ?string $aclRoleId = null, ?array $webhooks = null, ?array $permissions = null): void
+    private function createApp(?string $appId = null, ?string $name = null, bool $active = true, ?string $aclRoleId = null, ?array $webhooks = null, ?array $permissions = null): void
     {
         $app = [
-            'name' => 'SwagApp',
+            'name' => $name ?? 'SwagApp',
             'active' => $active,
             'path' => __DIR__ . '/../Manifest/_fixtures/test',
             'version' => '0.0.1',
@@ -1005,7 +1011,7 @@ class WebhookManagerTest extends TestCase
         }
 
         if ($permissions !== null && $aclRoleId !== null) {
-            $permissionPersister = $this->getContainer()->get(PermissionPersister::class);
+            $permissionPersister = static::getContainer()->get(PermissionPersister::class);
             $permissions = Permissions::fromArray([
                 'permissions' => $permissions,
             ]);
@@ -1042,11 +1048,7 @@ class WebhookManagerTest extends TestCase
             'company' => 'Test',
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
-        $this->getContainer()->get('customer.repository')
+        static::getContainer()->get('customer.repository')
             ->create([$customer], Context::createDefaultContext());
     }
 
@@ -1055,12 +1057,13 @@ class WebhookManagerTest extends TestCase
         bool $adminWorkerEnabled = true
     ): WebhookManager {
         return new WebhookManager(
-            $this->getContainer()->get(WebhookLoader::class),
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(HookableEventFactory::class),
-            $this->getContainer()->get(AppLocaleProvider::class),
-            $this->getContainer()->get(AppPayloadServiceHelper::class),
-            $client ?? $this->getContainer()->get('shopware.app_system.guzzle'),
+            static::getContainer()->get(WebhookLoader::class),
+            static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(HookableEventFactory::class),
+            static::getContainer()->get(AppLocaleProvider::class),
+            static::getContainer()->get(AppPayloadServiceHelper::class),
+            $client ?? static::getContainer()->get('shopware.app_system.guzzle'),
             $this->bus,
             $this->shopUrl,
             Kernel::SHOPWARE_FALLBACK_VERSION,

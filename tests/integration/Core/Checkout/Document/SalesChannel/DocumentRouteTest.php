@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 #[Group('store-api')]
 class DocumentRouteTest extends TestCase
 {
@@ -50,8 +50,8 @@ class DocumentRouteTest extends TestCase
             'id' => $this->ids->create('sales-channel'),
         ]);
         $this->assignSalesChannelContext($this->browser);
-        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
-        $this->getContainer()->get(DocumentConfigLoader::class)->reset();
+        $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
+        static::getContainer()->get(DocumentConfigLoader::class)->reset();
         $this->customerId = $this->createCustomer();
         $this->guestId = $this->createCustomer('guest@example.com', true);
         $this->createOrder($this->customerId);
@@ -88,7 +88,6 @@ class DocumentRouteTest extends TestCase
             );
 
         $response = $this->browser->getResponse();
-        static::assertNotNull($this->browser->getResponse());
 
         $assertionCallback($response);
     }

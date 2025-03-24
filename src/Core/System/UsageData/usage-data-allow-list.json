@@ -1320,7 +1320,6 @@
   "customer": [
     "id",
     "groupId",
-    "defaultPaymentMethodId",
     "salesChannelId",
     "languageId",
     "lastPaymentMethodId",
@@ -1603,6 +1602,7 @@
     "availabilityRuleId",
     "mediaId",
     "salesChannels",
+    "technicalName",
     "createdAt",
     "updatedAt"
   ],

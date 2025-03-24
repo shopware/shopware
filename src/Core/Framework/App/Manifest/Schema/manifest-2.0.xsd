@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified">
     <xs:element name="manifest">
+        <!-- @deprecated tag:v6.8.0 - XSD file will be removed. Use `manifest-3.0.xsd` instead -->
+        <xs:annotation>
+            <xs:documentation xml:lang="en">
+                The whole XSD file is deprecated and will be removed with Shopware 6.8. Use `manifest-3.0.xsd` instead.
+            </xs:documentation>
+        </xs:annotation>
         <xs:complexType>
             <xs:all>
                 <xs:element name="meta" type="meta">
@@ -489,6 +496,7 @@
     <xs:complexType name="gateways">
         <xs:sequence>
             <xs:element name="checkout" type="xs:anyURI" minOccurs="0"/>
+            <xs:element name="inAppPurchases" type="xs:anyURI" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="payment-method">

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('core')]
+#[Package('framework')]
 class AppDeletedEvent extends Event implements ShopwareEvent, Hookable
 {
     final public const NAME = 'app.deleted';

@@ -10,9 +10,9 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal not intended for decoration or replacement
  *
- * @phpstan-type TFlows array<string, array<array{id: string, name: string, payload: array<mixed>}>>
+ * @phpstan-import-type EventGroupedFlowHolders from AbstractFlowLoader
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class FlowLoader extends AbstractFlowLoader
 {
     public function __construct(
@@ -21,9 +21,6 @@ class FlowLoader extends AbstractFlowLoader
     ) {
     }
 
-    /**
-     * @return TFlows
-     */
     public function load(): array
     {
         $flows = $this->connection->fetchAllAssociative(
@@ -54,10 +51,10 @@ class FlowLoader extends AbstractFlowLoader
             $flows[$key]['payload'] = $payload;
         }
 
-        /** @var list<array{id: string, name: string, payload: string}> $flows */
+        /** @var list<array<string, string>> $flows */
         $result = FetchModeHelper::group($flows);
 
-        /** @var TFlows $result */
+        /** @var EventGroupedFlowHolders $result */
         return $result;
     }
 }

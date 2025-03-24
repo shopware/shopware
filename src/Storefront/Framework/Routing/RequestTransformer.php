@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @phpstan-import-type Domain from AbstractDomainLoader
  * @phpstan-import-type ResolvedSeoUrl from AbstractSeoResolver
  */
-#[Package('storefront')]
+#[Package('framework')]
 class RequestTransformer implements RequestTransformerInterface
 {
     /**

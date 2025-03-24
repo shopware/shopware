@@ -1,10 +1,8 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_condition_and_container %}
 <div
     class="sw-condition-or-container"
     :class="containerRowClass"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_or_container_children %}
     <template
         v-for="(child, index) in condition[childAssociationField]"
@@ -26,42 +24,43 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_or_container_actions %}
     <div class="sw-condition-or-container__actions">
-        <sw-button
+        <mt-button
             v-tooltip.top="getNoPermissionsTooltip('product_stream.editor')"
-            variant="ghost"
+            ghost
             size="small"
             class="sw-condition-or-container__actions--or"
             :disabled="disabled"
+            variant="primary"
             @click="onAddPlaceholder"
         >
             {{ $tc('global.sw-condition.condition.AddOrCondition') }}
-        </sw-button>
-
-        <sw-button
+        </mt-button>
+        <mt-button
             v-if="level !== 0"
             v-tooltip.top="getNoPermissionsTooltip('product_stream.editor')"
-            variant="ghost"
+            ghost
             size="small"
             class="sw-condition-or-container__actions--sub"
             :disabled="disabled"
+            variant="primary"
             @click="onAddAndContainer"
         >
             {{ $tc('global.sw-condition.condition.AddSubCondition') }}
-        </sw-button>
+        </mt-button>
 
-        <sw-button
+        <mt-button
             v-tooltip.top="getNoPermissionsTooltip('product_stream.editor')"
             size="small"
             class="sw-condition-or-container__actions--delete"
             :disabled="disabled"
+            variant="secondary"
             @click="onDeleteAll"
         >
             <span v-if="level !== 0">{{ $tc('global.sw-condition.condition.deleteConditions') }}</span>
             <span v-else>{{ $tc('global.sw-condition.condition.deleteAllConditions') }}</span>
-        </sw-button>
+        </mt-button>
     </div>
     {% endblock %}
 </div>

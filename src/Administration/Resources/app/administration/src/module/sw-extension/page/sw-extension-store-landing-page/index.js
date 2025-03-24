@@ -2,15 +2,21 @@ import template from './sw-extension-store-landing-page.html.twig';
 import './sw-extension-store-landing-page.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['extensionHelperService'],
+
+    props: {
+        insideModal: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+    },
 
     data() {
         return {

@@ -11,7 +11,7 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
  *
  * @phpstan-import-type Api from DefinitionService
  */
-#[Package('core')]
+#[Package('framework')]
 class BundleSchemaPathCollection
 {
     /**

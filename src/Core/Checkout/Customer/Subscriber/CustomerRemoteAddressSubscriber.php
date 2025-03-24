@@ -58,7 +58,7 @@ readonly class CustomerRemoteAddressSubscriber implements EventSubscriberInterfa
         $this->connection->update('customer', [
             'remote_address' => $clientIp,
         ], [
-            'id' => Uuid::fromHexToBytes($event->getCustomer()->getId()),
+            'id' => Uuid::fromHexToBytes($event->getCustomerId()),
         ]);
     }
 }

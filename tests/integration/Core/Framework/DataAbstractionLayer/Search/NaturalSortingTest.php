@@ -35,8 +35,8 @@ class NaturalSortingTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->groupRepository = $this->getContainer()->get('property_group.repository');
-        $this->optionRepository = $this->getContainer()->get('property_group_option.repository');
+        $this->groupRepository = static::getContainer()->get('property_group.repository');
+        $this->optionRepository = static::getContainer()->get('property_group_option.repository');
     }
 
     /**

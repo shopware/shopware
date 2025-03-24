@@ -31,8 +31,8 @@ class StorefrontSeoUrlRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->seoUrlRepository = $this->getContainer()->get('seo_url.repository');
-        $this->salesChannelSeoUrlRepository = $this->getContainer()->get('sales_channel.seo_url.repository');
+        $this->seoUrlRepository = static::getContainer()->get('seo_url.repository');
+        $this->salesChannelSeoUrlRepository = static::getContainer()->get('sales_channel.seo_url.repository');
     }
 
     public function testOnlyCanonical(): void
@@ -279,7 +279,7 @@ class StorefrontSeoUrlRepositoryTest extends TestCase
 
     private function upsertLanguage(string $id, string $name): void
     {
-        $languageRepo = $this->getContainer()->get('language.repository');
+        $languageRepo = static::getContainer()->get('language.repository');
         $languageRepo->upsert([[
             'id' => $id,
             'name' => $name,

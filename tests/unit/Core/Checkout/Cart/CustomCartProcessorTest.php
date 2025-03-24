@@ -30,7 +30,7 @@ class CustomCartProcessorTest extends TestCase
     {
         $data = new CartDataCollection();
         $original = $this->getCart();
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $behavior = new CartBehavior($context->getPermissions());
 
         $processor = new CustomCartProcessor($this->createMock(QuantityPriceCalculator::class));
@@ -71,7 +71,7 @@ class CustomCartProcessorTest extends TestCase
         $original->add($item1);
 
         $toCalculate = new Cart('toCalculate');
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $behavior = new CartBehavior($context->getPermissions());
 
         $price = $original->getLineItems()->get('custom-1')?->getPriceDefinition();
@@ -79,7 +79,7 @@ class CustomCartProcessorTest extends TestCase
 
         $quantityPriceCalculator = $this->createMock(QuantityPriceCalculator::class);
         $quantityPriceCalculator
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('calculate')
             ->with($price, $context)
             ->willReturn(new CalculatedPrice(5.0, 5.0, new CalculatedTaxCollection(), new TaxRuleCollection()));

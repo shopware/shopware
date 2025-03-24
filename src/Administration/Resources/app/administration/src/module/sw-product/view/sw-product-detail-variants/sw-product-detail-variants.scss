@@ -1,21 +1,19 @@
 .sw-product-detail-variants {
-    &__generated-variants.sw-card {
-        .sw-card__content,
-        .sw-tabs__custom-content {
+    &__generated-variants.mt-card {
+        overflow: visible;
+
+        .mt-card__content,
+        .mt-tabs__custom-content {
             padding: 0;
+            background: #f8f9fa;
         }
     }
 
-    .sw-card__configurator .sw-card__content {
-        padding: 0;
-        background: #f8f9fa;
-    }
-
-    .sw-product-detail-variants__generated-variants.is--loading .sw-card__content {
+    .sw-product-detail-variants__generated-variants.is--loading .mt-card__content {
         min-height: 250px;
     }
 
-    .sw-product-detail-variants__generated-variants .sw-card__content {
+    .sw-product-detail-variants__generated-variants .mt-card__content {
         padding: 0;
         height: 100%;
 

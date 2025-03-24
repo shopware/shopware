@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 import template from './sw-settings-listing.html.twig';
 import './sw-settings-listing.scss';
@@ -10,8 +10,6 @@ const { ShopwareError } = Shopware.Classes;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -28,6 +26,7 @@ export default {
             isLoading: false,
             isSaveSuccessful: false,
             productSortingOptions: [],
+            searchResultSortingOptions: [],
             sortingOptionsGridLimit: 10,
             sortingOptionsGridPage: 1,
             modalVisible: false,
@@ -63,6 +62,14 @@ export default {
             criteria.addSorting(Criteria.sort('priority', 'DESC'));
 
             criteria.addFilter(Criteria.equals('locked', false));
+
+            return criteria;
+        },
+
+        searchResultSortingOptionCriteria() {
+            const criteria = new Criteria(this.sortingOptionsGridPage, this.sortingOptionsGridLimit);
+
+            criteria.addSorting(Criteria.sort('priority', 'DESC'));
 
             return criteria;
         },
@@ -133,6 +140,7 @@ export default {
 
         createdComponent() {
             this.fetchProductSortingOptions();
+            this.fetchSearchResultSortingOptions();
             this.fetchCustomFields();
         },
 
@@ -141,6 +149,16 @@ export default {
 
             this.productSortingOptionRepository.search(this.productSortingsOptionsCriteria).then((response) => {
                 this.productSortingOptions = response;
+
+                this.isProductSortingOptionsCardLoading = false;
+            });
+        },
+
+        fetchSearchResultSortingOptions() {
+            this.isProductSortingOptionsCardLoading = true;
+
+            this.productSortingOptionRepository.search(this.searchResultSortingOptionCriteria).then((response) => {
+                this.searchResultSortingOptions = response;
 
                 this.isProductSortingOptionsCardLoading = false;
             });
@@ -173,12 +191,15 @@ export default {
 
                     const saveProductSortingOptions = this.saveProductSortingOptions();
 
+                    const saveSearchResultSortingOptions = this.saveSearchResultSortingOptions();
+
                     const saveSalesChannelVisibilityConfig =
                         this.$refs.defaultSalesChannelCard.saveSalesChannelVisibilityConfig();
 
                     return Promise.all([
                         saveSalesChannelConfig,
                         saveProductSortingOptions,
+                        saveSearchResultSortingOptions,
                         saveSalesChannelVisibilityConfig,
                     ]);
                 })
@@ -204,6 +225,10 @@ export default {
 
         saveProductSortingOptions() {
             return this.productSortingOptionRepository.saveAll(this.productSortingOptions);
+        },
+
+        saveSearchResultSortingOptions() {
+            return this.productSortingOptionRepository.saveAll(this.searchResultSortingOptions);
         },
 
         onDeleteProductSorting(item) {

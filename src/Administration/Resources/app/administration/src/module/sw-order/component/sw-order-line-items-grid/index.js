@@ -3,7 +3,7 @@ import { LineItemType } from '../../order.types';
 import './sw-order-line-items-grid.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Utils } = Shopware;
@@ -14,13 +14,10 @@ const { get, format } = Utils;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'orderService',
         'acl',
-        'feature',
     ],
 
     emits: [
@@ -380,10 +377,14 @@ export default {
             });
 
             const decorateTaxes = sortTaxes.map((taxItem) => {
-                return this.$tc('sw-order.detailBase.taxDetail', 0, {
-                    taxRate: taxItem.taxRate,
-                    tax: format.currency(taxItem.tax, this.order.currency.isoCode),
-                });
+                return this.$tc(
+                    'sw-order.detailBase.taxDetail',
+                    {
+                        taxRate: taxItem.taxRate,
+                        tax: format.currency(taxItem.tax, this.order.currency.isoCode),
+                    },
+                    0,
+                );
             });
 
             return {
@@ -408,12 +409,32 @@ export default {
             return get(item, 'price.calculatedTaxes') && item.price.calculatedTaxes.length > 1;
         },
 
-        updateItemQuantity(item) {
-            if (item.type !== this.lineItemTypes.CUSTOM) {
+        updateItemQuantity(item, newQuantity = undefined) {
+            if (!Number.isInteger(newQuantity)) {
+                if (item.type === this.lineItemTypes.CUSTOM) {
+                    item.priceDefinition.quantity = item.quantity;
+                }
+
                 return;
             }
 
-            item.priceDefinition.quantity = item.quantity;
+            this.refreshChildrenQuantity([item], item.quantity, newQuantity);
+        },
+
+        refreshChildrenQuantity(children, oldParentQuantity, newParentQuantity) {
+            children.forEach((item) => {
+                const newQuantity = Math.floor(item.quantity / oldParentQuantity) * newParentQuantity;
+
+                if (this.hasChildren(item)) {
+                    this.refreshChildrenQuantity(item.children, item.quantity, newQuantity);
+                }
+
+                item.quantity = newQuantity;
+
+                if (item.type === this.lineItemTypes.CUSTOM) {
+                    item.priceDefinition.quantity = item.quantity;
+                }
+            });
         },
 
         showTaxRulesInlineEdit(item) {

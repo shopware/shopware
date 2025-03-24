@@ -147,8 +147,8 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterServiceRegistry">
-            <argument type="tagged" tag="promotion.filter.sorter"/>
-            <argument type="tagged" tag="promotion.filter.picker"/>
+            <argument type="tagged_iterator" tag="promotion.filter.sorter"/>
+            <argument type="tagged_iterator" tag="promotion.filter.picker"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Sorter\FilterSorterPriceAsc">
@@ -175,6 +175,7 @@
 
         <service id="Shopware\Core\Checkout\Promotion\Subscriber\PromotionIndividualCodeRedeemer">
             <argument type="service" id="promotion_individual_code.repository"/>
+            <argument type="service" id="order_customer.repository"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -201,6 +202,7 @@
 
         <service id="Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionRedemptionUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="order.repository"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

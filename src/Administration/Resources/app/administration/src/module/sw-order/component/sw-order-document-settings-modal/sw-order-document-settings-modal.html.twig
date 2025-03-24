@@ -1,28 +1,24 @@
 <!-- eslint-disable vuejs-accessibility/click-events-have-key-events -->
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_document_settings_modal %}
 <sw-modal
     :title="modalTitle"
     class="sw-order-document-settings-modal"
     @modal-close="onCancel"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_settings_modal_form_first_row %}
     <sw-container
         columns="1fr 1fr"
         gap="0px 14px"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_document_settings_modal_form_document_number %}
-        <sw-text-field
-            v-model:value="documentConfig.documentNumber"
+        <mt-text-field
+            v-model="documentNumber"
             :label="$tc('sw-order.documentModal.labelDocumentNumber')"
         />
         {% endblock %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_document_settings_modal_form_document_date %}
-        <sw-datepicker
-            v-model:value="documentConfig.documentDate"
+        <mt-datepicker
+            v-model="documentConfig.documentDate"
             date-type="date"
             required
             hide-hint
@@ -33,19 +29,17 @@
     </sw-container>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_settings_modal_form_file_upload %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_settings_modal_form_file_upload_toggle %}
-    <sw-switch-field
-        v-model:value="uploadDocument"
+
+    <mt-switch
+        v-model="uploadDocument"
         name="sw-field--uploadDocument"
         class="sw-order-document-settings-modal__file-toggle"
         :label="$tc('sw-order.documentModal.fileInputLabel')"
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_settings_modal_form_file_upload_input %}
     <sw-upload-listener
         v-if="uploadDocument"
@@ -72,7 +66,6 @@
     {% endblock %}
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_settings_modal_media_modal %}
     <sw-media-modal-v2
         v-if="showMediaModal"
@@ -83,52 +76,72 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_settings_modal_form_additional_content %}{% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_settings_modal_form_document_comment %}
-    <sw-textarea-field
-        v-model:value="documentConfig.documentComment"
+    <mt-textarea
+        v-model="documentConfig.documentComment"
         name="sw-field--documentConfig-documentComment"
         class="sw-order-document-settings-modal__comment"
         :label="$tc('sw-order.documentModal.labelDocumentComment')"
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_settings_modal_form_document_footer %}
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_order_document_settings_modal_form_document_footer_preview %}
-        <sw-button
-            class="sw-order-document-settings-modal__preview-button"
-            size="small"
-            :disabled="isLoadingDocument"
-            :is-loading="isLoadingPreview"
-            @click="onPreview"
-        >
-            {{ $tc('sw-order.documentModal.labelPreview') }}
-        </sw-button>
-        {% endblock %}
+        <sw-button-group split-button>
+            {% block sw_order_document_settings_modal_form_document_footer_preview %}
+            <mt-button
+                class="sw-order-document-settings-modal__preview-button"
+                size="small"
+                :disabled="isLoadingDocument"
+                :is-loading="isLoadingPreview"
+                variant="secondary"
+                @click="onPreview()"
+            >
+                {{ $tc('sw-order.documentModal.labelPreview') }}
+            </mt-button>
+            {% endblock %}
+
+            <sw-context-button :menu-width="160">
+                <template #button>
+                    <mt-button
+                        square
+                        size="small"
+                        variant="secondary"
+                    >
+                        <mt-icon
+                            name="regular-chevron-down-xs"
+                            size="16"
+                        />
+                    </mt-button>
+                </template>
+
+                <sw-context-menu-item
+                    class="sw-order-document-settings-modal__preview-button-html"
+                    :disabled="htmlPreviewDisabled"
+                    @click="onPreview('html')"
+                >
+                    {{ $tc('sw-order.documentModal.labelPreviewOnlyHtml') }}
+                </sw-context-menu-item>
+            </sw-context-button>
+        </sw-button-group>
 
         <div>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_document_settings_modal_form_document_footer_cancel %}
-            <sw-button
+            <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCancel"
             >
                 {{ $tc('sw-order.documentModal.labelCancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_document_settings_modal_form_document_footer_split_button %}
             <sw-button-group split-button>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_document_settings_modal_form_document_footer_split_button_create %}
-                <sw-button
+                <mt-button
                     class="sw-order-document-settings-modal__create"
                     variant="primary"
                     size="small"
@@ -137,32 +150,29 @@
                     @click="onCreateDocument"
                 >
                     {{ $tc('sw-order.documentModal.labelCreate') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_document_settings_modal_form_document_footer_split_button_context %}
                 <sw-context-button
                     :disabled="!documentPreconditionsFulfilled || undefined"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_document_settings_modal_form_document_footer_split_button_context_arrow %}
                     <template #button>
-                        <sw-button
+                        <mt-button
                             square
                             variant="primary"
                             size="small"
                             :disabled="!documentPreconditionsFulfilled"
                         >
-                            <sw-icon
+                            <mt-icon
                                 name="regular-chevron-down-xs"
                                 size="16"
                             />
-                        </sw-button>
+                        </mt-button>
                     </template>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_document_settings_modal_form_document_footer_split_button_context_create_send %}
                     <sw-context-menu-item
                         class="sw-order-document-settings-modal__send-button"
@@ -172,7 +182,6 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_document_settings_modal_form_document_footer_split_button_context_create_download %}
                     <sw-context-menu-item
                         class="sw-order-document-settings-modal__download-button"

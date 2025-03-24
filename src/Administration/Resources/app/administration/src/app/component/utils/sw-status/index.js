@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import template from './sw-status.html.twig';
@@ -22,8 +22,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-status', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         color: {

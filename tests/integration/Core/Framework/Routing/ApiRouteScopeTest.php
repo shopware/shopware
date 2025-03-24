@@ -48,7 +48,7 @@ class ApiRouteScopeTest extends TestCase
     #[DataProvider('provideAllowedData')]
     public function testAllowedCombinations(ContextSource $source, bool $authRequired): void
     {
-        $scope = $this->getContainer()->get(ApiRouteScope::class);
+        $scope = static::getContainer()->get(ApiRouteScope::class);
 
         $request = Request::create('/api/foo');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, Context::createDefaultContext($source));
@@ -61,7 +61,7 @@ class ApiRouteScopeTest extends TestCase
     #[DataProvider('provideForbiddenData')]
     public function testForbiddenCombinations(ContextSource $source, bool $authRequired): void
     {
-        $scope = $this->getContainer()->get(ApiRouteScope::class);
+        $scope = static::getContainer()->get(ApiRouteScope::class);
 
         $request = Request::create('/api/foo');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, Context::createDefaultContext($source));

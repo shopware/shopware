@@ -1,15 +1,12 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_customer_grid %}
-<sw-card
+<mt-card
     class="sw-order-customer-grid"
     position-identifier="sw-order-customer-grid"
     :is-loading="isSwitchingCustomer"
 >
     <template #toolbar>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_customer_grid_toolbar %}
         <div class="sw-order-customer-grid__toolbar">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_customer_grid_search_input %}
             <sw-card-filter
                 ref="customerFilter"
@@ -17,16 +14,16 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_customer_grid_add_new_customer %}
-            <sw-button
+            <mt-button
                 class="sw-order-customer-grid__add-customer"
-                variant="ghost"
+                ghost
                 size="small"
+                variant="secondary"
                 @click="onShowNewCustomerModal"
             >
                 {{ $tc('sw-order.initialModal.customerGrid.buttonAddNewCustomer') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </div>
         {% endblock %}
@@ -36,7 +33,6 @@
         <div
             class="sw-order-customer-grid__container"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_customer_grid_content %}
             <sw-entity-listing
                 class="sw-order-customer-grid__content"
@@ -48,7 +44,6 @@
                 :is-loading="isLoading"
                 :is-record-disabled="customerUnavailable"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_customer_grid_content_column_select %}
                 <template #column-select="{ item }">
                     <div class="sw-field__radio-input">
@@ -64,7 +59,6 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_customer_grid_content_grid_column_name %}
                 <template #column-firstName="{ item }">
                     <router-link
@@ -90,7 +84,6 @@
                     {{ item.boundSalesChannelId ? item?.boundSalesChannel.translated.name : $tc('sw-order.initialModal.customerGrid.labelAllChannel') }}
                 </template>
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_product_feature_set_list_grid_columns_actions %}
                 <template #actions="{ item }">
                     <sw-context-menu-item
@@ -105,7 +98,6 @@
             </sw-entity-listing>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_customer_grid_empty_state %}
             <sw-empty-state
                 v-if="showEmptyState"
@@ -113,11 +105,10 @@
                 :show-description="false"
                 :title="emptyTitle"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_customer_grid_empty_state_icon %}
                 <template #icon>
                     <img
-                        :src="assetFilter('/administration/static/img/empty-states/customer-empty-state.svg')"
+                        :src="assetFilter('/administration/administration/static/img/empty-states/customer-empty-state.svg')"
                         :alt="$tc('sw-customer.list.messageEmpty')"
                     >
                 </template>
@@ -126,7 +117,6 @@
             {% endblock %}
         </div>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_customer_grid_new_customer_modal %}
         <sw-order-new-customer-modal
             v-if="showNewCustomerModal"
@@ -149,7 +139,6 @@
                 </p>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_customer_grid_sales_channel_select %}
                 <sw-entity-single-select
                     class="sw-order-customer-grid__sales-channel-selection"
@@ -163,30 +152,29 @@
                 {% endblock %}
 
                 {% block sw_order_customer_grid_sales_channel_notification_alert %}
-                <sw-alert
+                <mt-banner
                     class="sw-order-customer-grid__sales-channel-selection--notification-alert"
-                    variant="warning"
+                    variant="attention"
                     :show-icon="false"
                 >
                     {{ $tc('sw-order.initialModal.customerGrid.alertSelectSalesChannel') }}
-                </sw-alert>
+                </mt-banner>
                 {% endblock %}
             </template>
 
             <template #modal-footer>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_customer_grid_sales_channel_action_close %}
-                <sw-button
+                <mt-button
                     size="small"
+                    variant="secondary"
                     @click="onCloseSalesChannelSelectModal"
                 >
                     {{ $tc('global.default.cancel') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_customer_grid_sales_channel_action_select %}
-                <sw-button
+                <mt-button
                     size="small"
                     variant="primary"
                     :is-loading="isLoading"
@@ -194,7 +182,7 @@
                     @click="onSelectSalesChannel"
                 >
                     {{ $tc('sw-order.initialModal.customerGrid.buttonSelectSalesChannel') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </template>
         </sw-modal>
@@ -216,30 +204,29 @@
             </template>
 
             <template #modal-footer>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_customer_grid_customer_changes_modal_action_close %}
-                <sw-button
+                <mt-button
                     size="small"
+                    variant="secondary"
                     @click="onCloseCustomerChangesModal"
                 >
                     {{ $tc('global.default.cancel') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_customer_grid_customer_changes_modal_action_changes %}
-                <sw-button
+                <mt-button
                     size="small"
                     variant="primary"
                     :is-loading="isLoading"
                     @click="onChangeCustomer"
                 >
                     {{ $tc('sw-order.initialModal.customerGrid.buttonChangeCustomer') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </template>
         </sw-modal>
         {% endblock %}
     </template>
-</sw-card>
+</mt-card>
 {% endblock %}

@@ -4,9 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Attribute;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-class ManyToOne extends Field
+final class ManyToOne extends Field
 {
     public const TYPE = 'many-to-one';
 

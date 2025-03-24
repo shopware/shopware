@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(MetricConfigProvider::class)]
 class MetricConfigProviderTest extends TestCase
 {

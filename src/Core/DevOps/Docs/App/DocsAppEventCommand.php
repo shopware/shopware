@@ -20,7 +20,7 @@ use Twig\Loader\ArrayLoader;
     name: 'docs:app-system-events',
     description: 'Dump the app events',
 )]
-#[Package('core')]
+#[Package('framework')]
 class DocsAppEventCommand extends Command
 {
     private const EVENT_DOCUMENT_PATH = __DIR__ . '/../../Resources/generated/webhook-events-reference.md';
@@ -134,7 +134,7 @@ class DocsAppEventCommand extends Command
             $eventsDoc[] = new HookableEventDoc(
                 $eventName,
                 Hookable::HOOKABLE_EVENTS_DESCRIPTION[$class],
-                '-',
+                Hookable::HOOKABLE_EVENTS_PRIVILEGES[$class] ? '`' . implode('` `', Hookable::HOOKABLE_EVENTS_PRIVILEGES[$class]) . '`' : '-',
                 null,
             );
         }

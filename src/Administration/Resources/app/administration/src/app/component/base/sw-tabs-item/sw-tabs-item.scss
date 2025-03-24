@@ -49,6 +49,11 @@ $sw-side-navigation-item-link-distance: 10px;
         color: $color-gray-600;
         cursor: not-allowed;
     }
+
+    &:focus {
+        box-shadow: inset 0 0 0 2px $color-shopware-brand-500;
+        outline: none;
+    }
 }
 
 .sw-tabs--vertical .sw-tabs-item {

@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import { mount } from '@vue/test-utils';
 
@@ -63,8 +63,6 @@ describe('components/sw-import-export-exporter', () => {
                         'sw-block-field': await wrapTestComponent('sw-block-field'),
                         'sw-base-field': await wrapTestComponent('sw-base-field'),
                         'sw-loader': true,
-                        'sw-icon': true,
-                        'sw-switch-field': true,
                         'sw-field-error': true,
                         'sw-import-export-progress': true,
                         'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
@@ -72,16 +70,11 @@ describe('components/sw-import-export-exporter', () => {
                         'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                         'sw-popover': await wrapTestComponent('sw-popover'),
                         'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
-                        'sw-alert': await wrapTestComponent('sw-alert'),
                         'sw-import-export-exporter': await wrapTestComponent('sw-import-export-exporter', { sync: true }),
-                        'sw-button': true,
                         'sw-product-variant-info': true,
                         'sw-inheritance-switch': true,
                         'sw-ai-copilot-badge': true,
                         'sw-help-text': true,
-                        'sw-alert-deprecated': {
-                            template: '<div><slot></slot></div>',
-                        },
                     },
                     provide: {
                         shortcutService: {

@@ -1,9 +1,8 @@
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 import { config, mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
-import { MtButton } from '@shopware-ag/meteor-component-library';
 
 async function createWrapper() {
     delete config.global.mocks.$router;
@@ -35,13 +34,7 @@ async function createWrapper() {
             plugins: [router],
             stubs: {
                 'sw-extension-component-section': true,
-                'sw-icon': true,
                 'sw-external-link': true,
-                'sw-button': await wrapTestComponent('sw-button', {
-                    sync: true,
-                }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-                'mt-button': MtButton,
                 'sw-loader': true,
             },
             provide: {
@@ -60,7 +53,7 @@ describe('src/app/asyncComponent/sidebar/sw-help-sidebar', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-        Shopware.State.commit('adminHelpCenter/setShowHelpSidebar', true);
+        Shopware.Store.get('adminHelpCenter').showHelpSidebar = true;
     });
 
     it('should be a Vue.js component', async () => {
@@ -70,7 +63,7 @@ describe('src/app/asyncComponent/sidebar/sw-help-sidebar', () => {
     it('should be able to open the help sidebar', async () => {
         expect(wrapper.find('.sw-help-sidebar').exists()).toBeTruthy();
 
-        Shopware.State.commit('adminHelpCenter/setShowHelpSidebar', false);
+        Shopware.Store.get('adminHelpCenter').showHelpSidebar = false;
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.sw-help-sidebar').exists()).toBeFalsy();
@@ -89,7 +82,7 @@ describe('src/app/asyncComponent/sidebar/sw-help-sidebar', () => {
 
         await wrapper.find('.sw-help-sidebar__shortcut-button').trigger('click');
 
-        expect(Shopware.State.get('adminHelpCenter').showShortcutModal).toBeTruthy();
+        expect(Shopware.Store.get('adminHelpCenter').showShortcutModal).toBeTruthy();
     });
 
     it('should close the sidebar if the user clicks outside of the sidebar', async () => {

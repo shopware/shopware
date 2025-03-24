@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 
 const fieldsClasses = [
@@ -66,13 +66,9 @@ async function createWrapper(privileges = []) {
                     </div>
                 `,
                     },
-                    'sw-button': {
-                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                    },
                     'sw-code-editor': await wrapTestComponent('sw-code-editor'),
                     'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
                     'sw-container': await wrapTestComponent('sw-container'),
-                    'sw-icon': true,
                     'sw-field-error': {
                         props: ['error'],
                         template: '<div class="sw-field__error"></div>',

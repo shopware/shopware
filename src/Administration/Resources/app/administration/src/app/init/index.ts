@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  *
  * These types of initializers are called in the middle of the initialization process.
  * They are not allowed to depend on another initializers to suppress circular references.
@@ -30,6 +30,7 @@ import initMainModules from './main-module.init';
 import initializeActionButtons from './action-button.init';
 import initializeActions from './actions.init';
 import initializeExtensionDataHandling from './extension-data-handling.init';
+import initializeInAppPurchaseCheckout from './in-app-purchase-checkout.init';
 import initializeTopBarButtons from './topbar-button.init';
 import initializeTeaserPopovers from './teaser-popover.init';
 
@@ -61,6 +62,7 @@ export default {
     actionButton: initializeActionButtons,
     actions: initializeActions,
     extensionDataHandling: initializeExtensionDataHandling,
+    inAppPurchaseCheckout: initializeInAppPurchaseCheckout,
     topbarButton: initializeTopBarButtons,
     teaserPopover: initializeTeaserPopovers,
 };

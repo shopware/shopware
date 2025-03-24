@@ -24,7 +24,7 @@ class UserCrudTest extends TestCase
     {
         $userId = 'c3e61243802b4d268527194b4c6bad5c';
 
-        $userRepository = $this->getContainer()->get('user.repository');
+        $userRepository = static::getContainer()->get('user.repository');
 
         $userRepository->create([[
             'id' => $userId,

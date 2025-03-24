@@ -24,7 +24,7 @@ class HookableValidatorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->hookableValidator = $this->getContainer()->get(HookableValidator::class);
+        $this->hookableValidator = static::getContainer()->get(HookableValidator::class);
         $this->roleId = Uuid::randomHex();
     }
 
@@ -74,7 +74,7 @@ class HookableValidatorTest extends TestCase
 
     private function createAppWithAclRole(string $appName): void
     {
-        $this->getContainer()->get('app.repository')->create([[
+        static::getContainer()->get('app.repository')->create([[
             'id' => Uuid::randomHex(),
             'name' => $appName,
             'path' => __DIR__ . '/../../App/Manifest/_fixtures/' . $appName,

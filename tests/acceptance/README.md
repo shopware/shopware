@@ -57,7 +57,7 @@ npx playwright test --ui
 Running a single test file
 
 ```
-npx playwright test product.spec.ts
+npx playwright test --project="Platform" product.spec.ts
 ```
 
 Running tests with a specific tag.  
@@ -168,6 +168,34 @@ With every test scenario our goal is to create a well-structured and comprehensi
 
 We achieve this by using a lightweight actor pattern on top of Playwright which enables us to write test scenarios in a readable way, that non-tech people are able to understand. We describe the concept in more detail in the following section.
 
+#### Write meaningful test descriptions
+Playwright provides a powerful feature, `test.step`, to write meaningful and structured test descriptions.
+This method allows you to describe test steps in a human-readable way, making it easier to understand test scenarios and debug failures.
+- **Use Descriptive Names**: Clearly describe each step’s purpose. The name should explain what the step does or what it's verifying.  
+- **Group Related Actions**: Combine logically related actions and assertions into a single step. For example, navigating to a page, filling out a form, or verifying multiple conditions.  
+- **Keep Steps Focused**: Each step should perform a single, well-defined task. If a step is too complex, break it into smaller steps.  
+- **Improve Error Localization**: Well-defined steps help pinpoint exactly where a test is failing, making debugging more efficient.  
+- **Maintain Consistency**: Use `test.step` consistently across your test suite to ensure a uniform structure, making tests easier to read and maintain.
+
+```JavaScript
+test('As a customer, I must be able to change my email via account.', { tag: '@Account' }, async ({ }) => {
+
+    const customer = {email: IdProvider.getIdPair().uuid + '@test.com', password: IdProvider.getIdPair().uuid};
+
+    await test.step('Register a valid account', async () => {
+        await ShopCustomer.goesTo(StorefrontAccountLogin.url());
+        await ShopCustomer.attemptsTo(Register(customer));
+        await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, {exact: true})).toBeVisible();
+    });
+
+    await test.step('Attempt to change email', async () => {
+        await ShopCustomer.goesTo(StorefrontAccountProfile.url());
+        await StorefrontAccountProfile.changeEmailButton.click();
+        await ShopCustomer.expects(StorefrontAccountProfile.emailAddressInput).toBeVisible();
+    });
+});
+```
+
 ### The Actor Pattern
 
 With the actor pattern we create tests in a readable language that follows a user-centric approach where a specific user / persona, called actor, performs several specific actions, called tasks. In addition, we use other types of artifacts that help to extract the actual test logic and make it reusable. There are these different artifacts that we use to simplify the test scenario:
@@ -265,3 +293,56 @@ await shopCustomer.attemptsTo(AddPromotionCodeToCart(promotionName, promotionCod
 ```
 
 This will execute the test code of the task. In addition, it will automatically wrap the execution in a Playwright test step, that will use the actor pattern to add meaningful description to the generated report of the test suite. When debugging your tests you can easily identify in which task an issue occurred.
+
+## Playwright Visual Tests
+
+Visual testing ensures that your application's UI remains consistent and free from unintended changes. Playwright also provides built-in capabilities for visual regression testing. 
+
+### Capturing and Comparing Screenshots
+Playwright enables visual testing by capturing and comparing screenshots using the `toHaveScreenshot` method:
+```JavaScript
+ await expect(page).toHaveScreenshot() 
+```
+
+This method can be customized with various options. For a full list of available options, refer to the [official Playwright documentation](https://playwright.dev/docs/api/class-pageassertions#page-assertions-to-have-screenshot-1)
+
+
+**Note:** When running visual tests for the first time, you may encounter an error like this:
+```
+Error: A snapshot doesn't exist at {TEST_OUTPUT_PATH}, writing actual.
+```
+This is expected since there is no baseline image to compare against. Playwright automatically saves the first screenshot, which can then be used as a reference for future tests.
+
+
+### Updating Screenshots
+If your UI changes intentionally, you may need to update the reference (base image) screenshots.
+To update the reference screenshot you can use the **--update-snapshots** flag (or **-u**) flag.
+
+```
+npx playwright test --update-snapshots
+```
+
+You can also update only some specific snapshots using test name:
+
+```
+npx playwright test -u "**/test_name*.spec.ts"
+```
+
+### Debugging Visual Tests
+The best way to debug visual test failures is by reviewing the "Actual" and "Expected" images in the Playwright HTML report or any other reporting tool you use. The "Diff" view highlights discrepancies between screenshots, making it easier to identify differences.
+
+
+### Configuring Sensitivity in Visual Tests
+By default, Playwright detects even a **1-pixel difference**, which might be too strict depending on your design needs. You can fine-tune visual comparison settings using these options:
+- maxDiffPixelRatio – Acceptable ratio of different pixels compared to the total number of pixels (range: `0` to `1`).
+- maxDiffPixels – Maximum number of differing pixels allowed.
+- threshold – Defines the intensity change required for a pixel to be considered different (`0` to `1`, default: `0.2`).
+These settings can be applied per test or globally in **playwright.config.ts** file.
+
+
+### Best Practices for Visual Testing 
+- **Mask dynamic content** – Use the `mask` function or a custom stylesheet to hide dynamic elements (e.g., timestamps, user-generated content).
+- **Ensure environmental consistency** – Match OS versions, time zones, and rendering environments between your local machine and the test runner.
+- **Adjust sensitivity thresholds** – Modify `maxDiffPixels` and `threshold` based on your project’s requirements.
+- **Handle lazy-loaded elements** – Extend `toHaveScreenshot()` with an additional timeout if necessary.
+- **Wait for page stability** – Ensure the page is fully loaded and in the correct state before capturing screenshots (e.g., scroll to the target element if needed).

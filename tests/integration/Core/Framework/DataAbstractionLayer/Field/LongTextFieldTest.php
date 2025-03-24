@@ -31,7 +31,7 @@ class LongTextFieldTest extends TestCase
     #[DataProvider('exceptionCases')]
     public function testLongTextFieldSerializerThrowsWriteConstraintException(bool|string|null $input, ?string $expected, array $flags = []): void
     {
-        $serializer = $this->getContainer()->get(LongTextFieldSerializer::class);
+        $serializer = static::getContainer()->get(LongTextFieldSerializer::class);
 
         $name = 'string_' . Uuid::randomHex();
         $data = new KeyValuePair($name, $input, false);
@@ -60,7 +60,7 @@ class LongTextFieldTest extends TestCase
     #[DataProvider('longTextFieldDataProvider')]
     public function testLongTextFieldSerializerEncodesValue(bool|string|null $input, ?string $expected, array $flags = []): void
     {
-        $serializer = $this->getContainer()->get(LongTextFieldSerializer::class);
+        $serializer = static::getContainer()->get(LongTextFieldSerializer::class);
 
         $name = 'string_' . Uuid::randomHex();
         $data = new KeyValuePair($name, $input, false);

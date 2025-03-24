@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Elasticsearch\Admin;
 
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
@@ -28,7 +27,6 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 class AdminSearchRegistryTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -46,14 +44,14 @@ class AdminSearchRegistryTest extends TestCase
     {
         $this->clearElasticsearch();
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
-        $this->client = $this->getContainer()->get(Client::class);
+        $this->client = static::getContainer()->get(Client::class);
 
         $indexer = new PromotionAdminSearchIndexer(
             $this->connection,
-            $this->getContainer()->get(IteratorFactory::class),
-            $this->getContainer()->get('promotion.repository'),
+            static::getContainer()->get(IteratorFactory::class),
+            static::getContainer()->get('promotion.repository'),
             100
         );
 
@@ -61,7 +59,7 @@ class AdminSearchRegistryTest extends TestCase
         $this->registry = new AdminSearchRegistry(
             ['promotion' => $indexer],
             $this->connection,
-            $this->createMock(MessageBusInterface::class),
+            $this->getDiContainer()->get(MessageBusInterface::class),
             $this->createMock(EventDispatcherInterface::class),
             $this->client,
             $searchHelper,
@@ -73,7 +71,7 @@ class AdminSearchRegistryTest extends TestCase
 
     public function testIterate(): void
     {
-        $c = $this->getContainer()->get(Connection::class);
+        $c = static::getContainer()->get(Connection::class);
         static::assertEmpty($c->fetchAllAssociative('SELECT `index` FROM `admin_elasticsearch_index_task`'));
 
         $this->registry->iterate(new AdminIndexingBehavior(true));
@@ -100,7 +98,7 @@ class AdminSearchRegistryTest extends TestCase
 
     public function testRefresh(): void
     {
-        $c = $this->getContainer()->get(Connection::class);
+        $c = static::getContainer()->get(Connection::class);
         static::assertEmpty($c->fetchAllAssociative('SELECT `index` FROM `admin_elasticsearch_index_task`'));
 
         $this->registry->refresh(new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([
@@ -113,6 +111,8 @@ class AdminSearchRegistryTest extends TestCase
                 ),
             ], Context::createDefaultContext()),
         ]), []));
+
+        $this->runWorker();
 
         $index = $c->fetchOne('SELECT `index` FROM `admin_elasticsearch_index_task`');
 
@@ -136,6 +136,6 @@ class AdminSearchRegistryTest extends TestCase
 
     protected function getDiContainer(): ContainerInterface
     {
-        return $this->getContainer();
+        return static::getContainer();
     }
 }

@@ -96,7 +96,7 @@ class ApiRequestContextResolverAppTest extends TestCase
     public function testCanWriteWithPermissionsSet(): void
     {
         /** @var EntityRepository $productRepository */
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $productId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
@@ -124,7 +124,7 @@ class ApiRequestContextResolverAppTest extends TestCase
     public function testItCanUpdateAnExistingProduct(): void
     {
         /** @var EntityRepository $productRepository */
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $productId = Uuid::randomHex();
         $newName = 'i got a new name';
         $context = Context::createDefaultContext();
@@ -221,7 +221,7 @@ class ApiRequestContextResolverAppTest extends TestCase
     private function fetchApp(string $appName): ?AppEntity
     {
         /** @var EntityRepository<AppCollection> $appRepository */
-        $appRepository = $this->getContainer()->get('app.repository');
+        $appRepository = static::getContainer()->get('app.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $appName));
@@ -232,7 +232,7 @@ class ApiRequestContextResolverAppTest extends TestCase
     private function setAccessTokenForIntegration(string $integrationId, string $accessKey, string $secret): void
     {
         /** @var EntityRepository $integrationRepository */
-        $integrationRepository = $this->getContainer()->get('integration.repository');
+        $integrationRepository = static::getContainer()->get('integration.repository');
 
         $integrationRepository->update([
             [

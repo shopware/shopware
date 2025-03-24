@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_number_filter %}
 <sw-range-filter
     class="sw-number-filter"
@@ -11,11 +10,10 @@
     @filter-update="updateFilter"
     @filter-reset="resetFilter"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_number_filter_from_field %}
     <template #from-field>
-        <sw-number-field
-            v-model:value="numberValue.from"
+        <mt-number-field
+            v-model="numberValue.from"
             v-bind="$attrs"
             class="sw-number-filter__from"
             :label="fromToFieldLabel('from')"
@@ -24,11 +22,10 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_number_filter_to_field %}
     <template #to-field>
-        <sw-number-field
-            v-model:value="numberValue.to"
+        <mt-number-field
+            v-model="numberValue.to"
             v-bind="$attrs"
             class="sw-number-filter__to"
             :label="fromToFieldLabel('to')"

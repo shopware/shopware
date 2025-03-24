@@ -1,5 +1,3 @@
-import Iterator from 'src/helper/iterator.helper';
-
 /**
  * This utility serializes a form via the FormData class
  *
@@ -39,12 +37,19 @@ export default class FormSerializeUtil {
      */
     static serializeJson(form, strict = true) {
         const formData = FormSerializeUtil.serialize(form, strict);
-        if (Object.keys(formData).length === 0) {
+        if (!(formData instanceof FormData) && Object.keys(formData).length === 0) {
             return {};
         }
+
+        if (formData instanceof FormData && Array.from(formData.entries()).length === 0) {
+            return {};
+        }
+
         const json = {};
 
-        Iterator.iterate(formData, (value, key) => json[key] = value);
+        for (const [key, value] of formData.entries()) {
+            json[key] = value;
+        }
 
         return json;
     }

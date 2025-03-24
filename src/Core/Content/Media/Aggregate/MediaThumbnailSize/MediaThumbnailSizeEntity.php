@@ -8,32 +8,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class MediaThumbnailSizeEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
     /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     *
      * @var int<1, max>
      */
-    protected $width;
+    protected int $width;
 
     /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     *
      * @var int<1, max>
      */
-    protected $height;
+    protected int $height;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     *
-     * @var MediaFolderConfigurationCollection|null
-     */
-    protected $mediaFolderConfigurations;
+    protected ?MediaFolderConfigurationCollection $mediaFolderConfigurations = null;
 
     /**
      * @return int<1, max>

@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@shopware-ag/gh-project-automation": "^1.1.1"
+  }
+}

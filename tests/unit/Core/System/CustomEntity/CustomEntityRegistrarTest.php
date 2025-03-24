@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\System\CustomEntity;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -15,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\System\CustomEntity\CustomEntityRegistrar;
 use Shopware\Core\System\CustomEntity\Schema\DynamicEntityDefinition;
+use Shopware\Core\Test\Stub\Doctrine\TestExceptionFactory;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -24,33 +24,15 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(CustomEntityRegistrar::class)]
 class CustomEntityRegistrarTest extends TestCase
 {
-    public function testSkipsRegistrationIfDbalIsNotConnected(): void
-    {
-        $connection = $this->createMock(Connection::class);
-        $connection->method('isConnected')
-            ->willReturn(false);
-        $connection->expects(static::never())
-            ->method('fetchAllAssociative');
-
-        $container = new Container();
-        $container->set(Connection::class, $connection);
-
-        $registrar = new CustomEntityRegistrar($container);
-
-        $registrar->register();
-    }
-
     public function testSkipsRegistrationIfFetchingCustomEntitiesFailWithException(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->method('isConnected')
-            ->willReturn(true);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchAllAssociative')
-            ->willThrowException(new Exception());
+            ->willThrowException(TestExceptionFactory::createException('test'));
 
         $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
-        $definitionInstanceRegistry->expects(static::never())
+        $definitionInstanceRegistry->expects($this->never())
             ->method('register');
 
         $container = new Container();
@@ -75,9 +57,7 @@ class CustomEntityRegistrarTest extends TestCase
         ];
 
         $connection = $this->createMock(Connection::class);
-        $connection->method('isConnected')
-            ->willReturn(true);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([
                 [
@@ -125,9 +105,7 @@ class CustomEntityRegistrarTest extends TestCase
         ];
 
         $connection = $this->createMock(Connection::class);
-        $connection->method('isConnected')
-            ->willReturn(true);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([
                 [

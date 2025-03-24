@@ -21,10 +21,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('administration')]
+#[Package('framework')]
 #[CoversClass(NotificationService::class)]
 class NotificationServiceTest extends TestCase
 {
+    /** @var MockObject&EntityRepository<NotificationCollection> */
     private MockObject&EntityRepository $entityRepository;
 
     private NotificationService $notificationService;
@@ -57,7 +58,7 @@ class NotificationServiceTest extends TestCase
             'createdByUserId' => 'user1234',
         ];
 
-        $this->entityRepository->expects(static::once())
+        $this->entityRepository->expects($this->once())
             ->method('create')
             ->with([$notification], $context);
 
@@ -100,7 +101,7 @@ class NotificationServiceTest extends TestCase
 
         $notificationCollection->add($notification);
 
-        $this->entityRepository->expects(static::once())
+        $this->entityRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 'notification',
@@ -140,7 +141,7 @@ class NotificationServiceTest extends TestCase
 
         $notificationCollection->add($notification);
 
-        $this->entityRepository->expects(static::once())
+        $this->entityRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 'notification',
@@ -182,7 +183,7 @@ class NotificationServiceTest extends TestCase
 
         $notificationCollection->add($notification);
 
-        $this->entityRepository->expects(static::once())
+        $this->entityRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 'notification',

@@ -49,9 +49,9 @@ class GroupByTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->searcher = $this->getContainer()->get(EntitySearcherInterface::class);
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->writer = $this->getContainer()->get(EntityWriter::class);
+        $this->searcher = static::getContainer()->get(EntitySearcherInterface::class);
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->writer = static::getContainer()->get(EntityWriter::class);
 
         $this->connection->rollBack();
 
@@ -72,10 +72,10 @@ class GroupByTest extends TestCase
         $this->connection->beginTransaction();
 
         $this->definition = new GroupByTestDefinition();
-        $this->definition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
-        $this->getContainer()->set(TestDefinition::class, $this->definition);
+        $this->definition->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
+        static::getContainer()->set(TestDefinition::class, $this->definition);
 
-        $this->getContainer()->get(DefinitionInstanceRegistry::class)->register($this->definition);
+        static::getContainer()->get(DefinitionInstanceRegistry::class)->register($this->definition);
 
         $this->testData = new TestData();
 

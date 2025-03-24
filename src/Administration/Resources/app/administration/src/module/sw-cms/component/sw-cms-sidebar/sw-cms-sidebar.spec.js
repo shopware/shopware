@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
@@ -145,9 +145,6 @@ async function createWrapper(
                     },
                 },
                 stubs: {
-                    'sw-button': {
-                        template: '<div class="sw-button" @click="$emit(`click`)"></div>',
-                    },
                     'sw-sidebar': true,
                     'sw-sidebar-item': {
                         template: '<div class="sw-sidebar-item"><slot /></div>',
@@ -172,7 +169,6 @@ async function createWrapper(
                     'sw-entity-single-select': true,
                     'sw-modal': true,
                     'sw-checkbox-field': true,
-                    'sw-icon': true,
                     'sw-cms-visibility-config': {
                         template: '<div class="sw-cms-visibility-config"></div>',
                         props: ['visibility'],
@@ -486,7 +482,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         expect(sidebarItems).toHaveLength(5);
 
         sidebarItems.forEach((sidebarItem) => {
-            expect(sidebarItem.props('disabled')).toBe(false);
+            expect(sidebarItem.props('disabled')).toBeFalsy();
         });
     });
 
@@ -643,12 +639,12 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         await flushPromises();
 
         const layoutTypeSelect = wrapper.findComponent(
-            'sw-select-field-stub[label="sw-cms.detail.label.pageTypeSelection"]',
+            '.mt-select[tooltip-message="sw-cms.detail.tooltip.cannotSelectProductPageLayout"]',
         );
 
         expect(layoutTypeSelect.attributes()['tooltip-message']).toBe('sw-cms.detail.tooltip.cannotSelectProductPageLayout');
 
-        expect(layoutTypeSelect.attributes().disabled).toBeTruthy();
+        expect(layoutTypeSelect.props().disabled).toBe(true);
     });
 
     it('should hide tooltip and enable layout type select when page type is not product detail', async () => {
@@ -663,11 +659,14 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         await flushPromises();
 
-        const layoutTypeSelect = wrapper.find('sw-select-field-stub[label="sw-cms.detail.label.pageTypeSelection"]');
-        const productPageOption = wrapper.find('option[value="product_detail"]');
+        const layoutTypeSelect = wrapper.findComponent(
+            '.mt-select[tooltip-message="sw-cms.detail.tooltip.cannotSelectProductPageLayout"]',
+        );
+        await layoutTypeSelect.find('input').trigger('click');
+        const productPageOption = wrapper.findComponent('[data-testid="mt-select-option--product_detail"]');
 
-        expect(layoutTypeSelect.attributes().disabled).toBeUndefined();
-        expect(productPageOption.attributes().disabled).toBeDefined();
+        expect(layoutTypeSelect.props().disabled).toBe(false);
+        expect(productPageOption.props().disabled).toBe(true);
     });
 
     it('should emit open-layout-set-as-default when clicking on set as default', async () => {
@@ -746,9 +745,9 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         await flushPromises();
 
-        const newBlockCategory = wrapper.find(
-            '.sw-cms-sidebar__block-category option[value="completely_different_category"]',
-        );
+        const layoutTypeSelect = wrapper.findComponent('.sw-cms-sidebar__block-overview .mt-select');
+        await layoutTypeSelect.find('input').trigger('click');
+        const newBlockCategory = wrapper.findComponent('[data-testid="mt-select-option--completely_different_category"]');
 
         expect(newBlockCategory.exists()).toBeTruthy();
         expect(newBlockCategory.text()).toBe('apps.sw-cms.detail.label.blockCategory.completely_different_category');

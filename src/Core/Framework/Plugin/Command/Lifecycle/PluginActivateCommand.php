@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'plugin:activate',
     description: 'Activate a plugin',
 )]
-#[Package('core')]
+#[Package('framework')]
 class PluginActivateCommand extends AbstractPluginLifecycleCommand
 {
     private const LIFECYCLE_METHOD = 'activate';

@@ -8,12 +8,12 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Serialize
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+/**
+ * @internal
+ */
+#[Package('fundamentals@after-sales')]
 class PipeFactory extends AbstractPipeFactory
 {
-    /**
-     * @internal
-     */
     public function __construct(
         private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
         private readonly SerializerRegistry $serializerRegistry,

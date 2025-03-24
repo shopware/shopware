@@ -2,14 +2,12 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Api;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Notification\NotificationDefinition;
 use Shopware\Administration\Snippet\AppAdministrationSnippetDefinition;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -19,7 +17,6 @@ use Shopware\Storefront\Theme\ThemeDefinition;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 class ApiAwareTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour;
@@ -64,7 +61,7 @@ class ApiAwareTest extends TestCase
         }
         $expected = \json_decode($expected, true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
 
-        if ($this->getContainer()->has(ThemeDefinition::class)) {
+        if (static::getContainer()->has(ThemeDefinition::class)) {
             $expected = array_merge(
                 $expected,
                 [
@@ -97,7 +94,7 @@ class ApiAwareTest extends TestCase
             );
         }
 
-        if ($this->getContainer()->has(NotificationDefinition::class)) {
+        if (static::getContainer()->has(NotificationDefinition::class)) {
             $expected = array_merge(
                 $expected,
                 [
@@ -107,7 +104,7 @@ class ApiAwareTest extends TestCase
             );
         }
 
-        if ($this->getContainer()->has(AppAdministrationSnippetDefinition::class)) {
+        if (static::getContainer()->has(AppAdministrationSnippetDefinition::class)) {
             $expected = array_merge(
                 $expected,
                 [
@@ -116,16 +113,6 @@ class ApiAwareTest extends TestCase
                     'app_administration_snippet.localeId',
                     'app_administration_snippet.createdAt',
                     'app_administration_snippet.updatedAt',
-                ]
-            );
-        }
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $expected = array_merge(
-                $expected,
-                [
-                    'customer.defaultPaymentMethodId',
-                    'customer.defaultPaymentMethod',
                 ]
             );
         }

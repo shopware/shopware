@@ -8,7 +8,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ApiRouteInfoResolver
 {
     /**

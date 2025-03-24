@@ -26,7 +26,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(MakeCoverageTestCommand::class)]
 class MakeCoverageTestCommandTest extends TestCase
 {
@@ -49,7 +49,7 @@ class MakeCoverageTestCommandTest extends TestCase
     public function testExecuteInvalidClasses(): void
     {
         $kernel = $this->createMock(Kernel::class);
-        $kernel->expects(static::never())->method('getBundle');
+        $kernel->expects($this->never())->method('getBundle');
 
         $fileSystem = new Filesystem();
         $fileSystem->copy(__DIR__ . '/../../../../../../phpunit.xml.dist', $this->projectDir . '/phpunit.xml.dist');
@@ -73,7 +73,7 @@ class MakeCoverageTestCommandTest extends TestCase
     public function testExecute(): void
     {
         $kernel = $this->createMock(Kernel::class);
-        $kernel->expects(static::never())->method('getBundle');
+        $kernel->expects($this->never())->method('getBundle');
 
         $fileSystem = new Filesystem();
 
@@ -171,7 +171,7 @@ use Shopware\Core\DevOps\DevOps;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(DevOps::class)]
 class DevOpsTest extends TestCase
 {
@@ -200,7 +200,7 @@ use Shopware\Core\Migration\V6_5\Migration1670854818RemoveEventActionTable;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(Migration1670854818RemoveEventActionTable::class)]
 class Migration1670854818RemoveEventActionTableTest extends TestCase
 {

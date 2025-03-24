@@ -8,7 +8,9 @@
       "messageSaveSuccess": "Konfiguration gespeichert.",
       "messageSaveError": "Die Konfiguration konnte nicht gelöscht werden. \"{message}\"",
       "labelDefaultSorting": "Standard-Sortierung",
+      "labelDefaultSearchResultSorting": "Standard-Sortierung der Suchergebnisse",
       "placeholderDefaultSorting": "Wähle eine Standard-Sortierung ...",
+      "placeholderDefaultSearchResultSorting": "Wähle eine Standard-Sortierung der Suchergebnisse ...",
       "productSortingCriteriaGrid": {
         "header": {
           "name": "Name",

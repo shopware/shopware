@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class MissingMetricConfigurationException extends TelemetryException
 {
     final public const METRIC_MISSING_CONFIGURATION = 'TELEMETRY__MISSING_METRIC_CONFIGURATION';

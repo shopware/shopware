@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  */
-#[Package('administration')]
+#[Package('framework')]
 readonly class AdministrationNotFoundSubscriber implements EventSubscriberInterface
 {
     /**

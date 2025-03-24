@@ -1,3 +1,5 @@
+{# @sw-package framework #}
+
 {% sw_extends '@Storefront/storefront/utilities/offcanvas.html.twig' %}
 
 {% block utilities_offcanvas_meta %}
@@ -14,8 +16,11 @@
     <div class="offcanvas-cookie">
         <div class="offcanvas-cookie-description">
             <p>
-                {{ 'cookie.messageText'|trans({
-                    '%url%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') })
+                {% set privacySnippetKey = 'cookie.messageTextPage' %}
+                {% set cmsPath = 'frontend.cms.page.full' %}
+
+                {{ privacySnippetKey|trans({
+                    '%url%': path(cmsPath, { id: config('core.basicInformation.privacyPage') })
                 })|raw }}
             </p>
 

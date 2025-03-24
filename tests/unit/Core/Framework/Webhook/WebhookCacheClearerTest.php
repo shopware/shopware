@@ -16,7 +16,6 @@ class WebhookCacheClearerTest extends TestCase
     public function testGetSubscribedEvents(): void
     {
         static::assertEquals([
-            'webhook.written' => 'clearWebhookCache',
             'acl_role.written' => 'clearPrivilegesCache',
         ], WebhookCacheClearer::getSubscribedEvents());
     }
@@ -24,10 +23,10 @@ class WebhookCacheClearerTest extends TestCase
     public function testReset(): void
     {
         $manager = $this->createMock(WebhookManager::class);
-        $manager->expects(static::once())
+        $manager->expects($this->once())
             ->method('clearInternalWebhookCache');
 
-        $manager->expects(static::once())
+        $manager->expects($this->once())
             ->method('clearInternalPrivilegesCache');
 
         $cacheClearer = new WebhookCacheClearer($manager);
@@ -37,7 +36,7 @@ class WebhookCacheClearerTest extends TestCase
     public function testClearWebhookCache(): void
     {
         $manager = $this->createMock(WebhookManager::class);
-        $manager->expects(static::once())
+        $manager->expects($this->once())
             ->method('clearInternalWebhookCache');
 
         $cacheClearer = new WebhookCacheClearer($manager);
@@ -47,7 +46,7 @@ class WebhookCacheClearerTest extends TestCase
     public function testClearPrivilegesCache(): void
     {
         $manager = $this->createMock(WebhookManager::class);
-        $manager->expects(static::once())
+        $manager->expects($this->once())
             ->method('clearInternalPrivilegesCache');
 
         $cacheClearer = new WebhookCacheClearer($manager);

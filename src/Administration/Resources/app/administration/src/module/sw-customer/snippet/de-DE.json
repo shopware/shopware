@@ -80,7 +80,6 @@
       "contextMenuEdit": "Bearbeiten",
       "messageEmpty": "Noch keine Kunden",
       "textDeleteConfirm": "Möchtest Du den Kunden \"{name}\" wirklich löschen?",
-      "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
       "titleSidebarItemRefresh": "Aktualisieren",
       "titleSidebarItemFilter": "Filter",
@@ -157,10 +156,7 @@
     },
     "detailAddresses": {
       "buttonAddAddress": "Adresse anlegen",
-      "buttonAdd": "Anlegen",
-      "buttonCancel": "Abbrechen",
       "buttonClose": "Schließen",
-      "buttonApply": "Übernehmen",
       "buttonDelete": "Löschen",
       "buttonSelect": "Auswahl",
       "buttonSaveAndSelect": "Speichern und auswählen",
@@ -237,7 +233,6 @@
     },
     "detail": {
       "buttonSave": "Speichern",
-      "buttonCancel": "Abbrechen",
       "buttonEdit": "Bearbeiten",
       "tabGeneral": "Allgemein",
       "tabAddresses": "Adressen",
@@ -260,10 +255,6 @@
         "label": "Status",
         "placeholder": "Status auswählen ..."
       },
-      "defaultPaymentMethod": {
-        "label": "Standardzahlungsart",
-        "placeholder": "Standardzahlungsart auswählen ..."
-      },
       "customerGroup": {
         "label": "Kundengruppe",
         "placeholder": "Kundengruppe auswählen ..."
@@ -282,11 +273,11 @@
       },
       "affiliateCode": {
         "label": "Affiliate-Code",
-        "placeholder": "Affiliate-Code auswählen ..."
+        "placeholder": "Affiliate-Code eingeben ..."
       },
       "campaignCode": {
         "label": "Kampagnen-Code",
-        "placeholder": "Kampagnen-Code auswählen ..."
+        "placeholder": "Kampagnen-Code eingeben ..."
       },
       "customerGroupRequest": {
         "label": "Kundengruppen-Anfragen",

@@ -4,12 +4,10 @@ import './sw-context-menu.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */
 Component.register('sw-context-menu', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 });

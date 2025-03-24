@@ -11,19 +11,19 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
-use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
+use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
  */
-#[Package('storefront')]
+#[Package('framework')]
 class TemplateDataSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly HreflangLoaderInterface $hreflangLoader,
         private readonly ShopIdProvider $shopIdProvider,
-        private readonly StorefrontPluginRegistryInterface $themeRegistry,
+        private readonly StorefrontPluginRegistry $themeRegistry,
         private readonly ActiveAppsLoader $activeAppsLoader,
     ) {
     }
@@ -75,7 +75,6 @@ class TemplateDataSubscriber implements EventSubscriberInterface
 
         // get name if theme is not inherited
         $theme = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_NAME);
-
         if (!$theme) {
             // get theme name from base theme because for inherited themes the name is always null
             $theme = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME);
@@ -85,8 +84,7 @@ class TemplateDataSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $themeConfig = $this->themeRegistry->getConfigurations()->getByTechnicalName($theme);
-
+        $themeConfig = $this->themeRegistry->getByTechnicalName($theme);
         if (!$themeConfig) {
             return;
         }

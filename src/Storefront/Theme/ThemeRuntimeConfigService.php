@@ -49,6 +49,7 @@ class ThemeRuntimeConfigService
                 `theme_id`,
                 `technical_name`,
                 `resolved_config`,
+                `view_inheritance`,
                 `script_files`,
                 `icon_sets`,
                 `updated_at`
@@ -74,6 +75,7 @@ class ThemeRuntimeConfigService
                 `theme_id`,
                 `technical_name`,
                 `resolved_config`,
+                `view_inheritance`,
                 `script_files`,
                 `icon_sets`,
                 `updated_at`
@@ -93,12 +95,13 @@ class ThemeRuntimeConfigService
     public function saveRuntimeConfig(ThemeRuntimeConfig $config): void
     {
         $this->connection->executeStatement(<<<'SQL'
-            REPLACE INTO `theme_runtime_config` (theme_id, technical_name, resolved_config, script_files, icon_sets, updated_at)
-            VALUES (:themeId, :technicalName, :resolvedConfig, :scriptFiles, :iconSets, :updatedAt)
+            REPLACE INTO `theme_runtime_config` (theme_id, technical_name, resolved_config, view_inheritance, script_files, icon_sets, updated_at)
+            VALUES (:themeId, :technicalName, :resolvedConfig, :viewInheritance, :scriptFiles, :iconSets, :updatedAt)
             SQL, [
             'themeId' => Uuid::fromHexToBytes($config->themeId),
             'technicalName' => $config->technicalName,
             'resolvedConfig' => json_encode($config->resolvedConfig, \JSON_THROW_ON_ERROR),
+            'viewInheritance' => json_encode($config->viewInheritance, \JSON_THROW_ON_ERROR),
             'scriptFiles' => json_encode($config->scriptFiles, \JSON_THROW_ON_ERROR),
             'iconSets' => json_encode($config->iconSets, \JSON_THROW_ON_ERROR),
             'updatedAt' => $config->updatedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -118,6 +121,7 @@ class ThemeRuntimeConfigService
             'themeId' => $themeId,
             'technicalName' => $themeTechnicalName,
             'resolvedConfig' => $this->themeService->getThemeConfiguration($themeId, false, $context),
+            'viewInheritance' => $themeConfig->getViewInheritance(),
             'scriptFiles' => $resolveFiles ? $this->resolveThemeJs($themeConfig, $configCollection) : null,
             'iconSets' => $this->prepareThemeIconSets($themeConfig),
             'updatedAt' => new \DateTime(),
@@ -129,6 +133,21 @@ class ThemeRuntimeConfigService
     }
 
     /**
+     * @todo: cache in class variable
+     *
+     * @return array<string>
+     */
+    public function getActiveThemeNames(): array
+    {
+        return $this->connection->fetchFirstColumn(
+            <<<'SQL'
+                SELECT `technical_name`
+                FROM `theme_runtime_config`
+            SQL,
+        );
+    }
+
+    /**
      * @param array<string, mixed> $record
      */
     private function hydrateRecord(array $record): ThemeRuntimeConfig
@@ -137,6 +156,7 @@ class ThemeRuntimeConfigService
             'themeId' => Uuid::fromBytesToHex($record['theme_id']),
             'technicalName' => (string) $record['technical_name'],
             'resolvedConfig' => json_decode($record['resolved_config'], true, 512, \JSON_THROW_ON_ERROR),
+            'viewInheritance' => json_decode($record['view_inheritance'], true, 512, \JSON_THROW_ON_ERROR),
             'scriptFiles' => json_decode($record['script_files'], true, 512, \JSON_THROW_ON_ERROR),
             'iconSets' => json_decode($record['icon_sets'], true, 512, \JSON_THROW_ON_ERROR),
             'updatedAt' => \DateTime::createFromFormat(Defaults::STORAGE_DATE_TIME_FORMAT, $record['updated_at']),

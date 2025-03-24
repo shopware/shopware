@@ -21,6 +21,8 @@ class ThemeRuntimeConfig
         public readonly string $technicalName,
         /** @var array<mixed> */
         public readonly array $resolvedConfig,
+        /** @var array<string> */
+        public readonly array $viewInheritance,
         /** @var array<string>|null */
         public readonly ?array $scriptFiles,
         /** @var array<string, array{path: string, namespace: string}> */
@@ -34,6 +36,7 @@ class ThemeRuntimeConfig
      *     themeId: string,
      *     technicalName: string,
      *     resolvedConfig: array<mixed>,
+     *     viewInheritance?: array<string>,
      *     scriptFiles?: array<string>|null,
      *     iconSets: array<string, array{path: string, namespace: string}>,
      *     updatedAt: \DateTimeInterface
@@ -44,10 +47,11 @@ class ThemeRuntimeConfig
         return new self(
             $data['themeId'],
             $data['technicalName'],
-            $data['resolvedConfig'],
+            $data['resolvedConfig'] ?? [],
+            $data['viewInheritance'] ?? [],
             $data['scriptFiles'] ?? null,
-            $data['iconSets'],
-            $data['updatedAt'],
+            $data['iconSets'] ?? [],
+            $data['updatedAt'] ?? new \DateTimeImmutable(),
         );
     }
 }

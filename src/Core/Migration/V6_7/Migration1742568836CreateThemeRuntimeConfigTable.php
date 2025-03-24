@@ -24,6 +24,7 @@ class Migration1742568836CreateThemeRuntimeConfigTable extends MigrationStep
                 `theme_id` BINARY(16) NOT NULL,
                 `technical_name` VARCHAR(255) NOT NULL,
                 `resolved_config` JSON NOT NULL,
+                `view_inheritance` JSON NOT NULL,
                 `script_files` JSON NULL,
                 `icon_sets` JSON NOT NULL,
                 `updated_at` DATETIME(3) NOT NULL,

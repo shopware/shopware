@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Theme\Twig;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 
 #[Package('framework')]
 class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
@@ -11,8 +12,9 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
     /**
      * @internal
      */
-    public function __construct(private readonly StorefrontPluginRegistry $themeRegistry)
-    {
+    public function __construct(
+        private readonly ThemeRuntimeConfigService $themeRuntimeConfigService,
+    ) {
     }
 
     /**
@@ -93,15 +95,13 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
 
         $default = $this->injectPluginWildcard($default);
 
-        $themeConfig = $this->themeRegistry
-            ->getConfigurations()
-            ->getByTechnicalName($theme);
+        $runtimeConfig = $this->themeRuntimeConfigService->getRuntimeConfigByName($theme);
 
-        if (!$themeConfig) {
+        if (!$runtimeConfig) {
             return $default;
         }
 
-        $inheritance = $themeConfig->getViewInheritance();
+        $inheritance = $runtimeConfig->viewInheritance;
 
         if (empty($inheritance)) {
             return $default;
@@ -141,13 +141,7 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
 
     private function isTheme(string $bundle): bool
     {
-        $themeConfig = $this->themeRegistry->getConfigurations()->getByTechnicalName($bundle);
-
-        if ($themeConfig === null) {
-            return false;
-        }
-
-        if ($themeConfig->getIsTheme()) {
+        if (\in_array($bundle, $this->themeRuntimeConfigService->getActiveThemeNames(), true)) {
             return true;
         }
 

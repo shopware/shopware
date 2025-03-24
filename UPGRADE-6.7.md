@@ -93,7 +93,6 @@ If you are still using Vuex, please update your code accordingly:
 For more information refer to the [docs](https://developer.shopware.com/docs/resources/references/adr/2024-06-17-replace-vuex-with-pinia.html#replace-vuex-with-pinia).
 
 # Cache Rework
-**Note:** Those changes can be activated separately with the `cache_rework` feature flag.
 
 ## Delayed Cache Invalidation
 The cache invalidation will be delayed by default. This means that the cache will be invalidated in regular intervals and not immediately.
@@ -145,7 +144,6 @@ We upgraded the following libraries to their latest versions:
 
 # Accessibility Compliance
 In alignment with the European Accessibility Act (EAA) we made significant accessibility improvements.
-**Note:** Those changes can be activated separately with the `ACCESSIBILITY_TWEAKS` feature flag.
 
 <details>
   <summary>Detailed Changes</summary>

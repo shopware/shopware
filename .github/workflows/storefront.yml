@@ -53,6 +53,8 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
 
       - name: Install ludtwig
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           gh release download --repo MalteJanz/ludtwig  --pattern '*unknown-linux-gnu.tar.gz' && tar xf *.tar.gz
           mv ./ludtwig /usr/local/bin

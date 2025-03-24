@@ -60,10 +60,14 @@ jobs:
           mv ./ludtwig /usr/local/bin
 
       - name: Run ludtwig linter
+        if: ludtwigStep
         run: |
           cd ./src/Storefront/Resources/views
           ludtwig .
-          status=$?  # Capture the exit code of ludtwig
+
+      - name: Instructions if ludtwig fails
+        if: ${{ failure() && steps.ludtwigStep.outcome == 'failure'}}
+        run: |
           ludtwig --version
           echo "If you want to run this locally install https://github.com/MalteJanz/ludtwig in the version above"
           echo "And then composer run ludtwig:storefront or ludtwig:storefront:fix"

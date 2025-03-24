@@ -114,7 +114,7 @@ class CmsSlotsDataResolver
      *
      * @param array<CriteriaCollection> $criteriaList
      * @param array<EntitySearchResult<TEntityCollection>> $identifierResult
-     * @param array<EntitySearchResult<TEntityCollection>> $criteriaResult
+     * @param array<array<EntitySearchResult<TEntityCollection>>> $criteriaResult
      */
     private function enrichCmsSlots(
         CmsSlotCollection $slots,
@@ -172,7 +172,7 @@ class CmsSlotsDataResolver
     /**
      * @param array<string, array<string, Criteria>> $searches
      *
-     * @return array<string, EntitySearchResult<EntityCollection>>
+     * @return array<string, array<string, EntitySearchResult<EntityCollection>>>
      */
     private function fetchByCriteria(array $searches, SalesChannelContext $context): array
     {
@@ -310,7 +310,7 @@ class CmsSlotsDataResolver
      * @template TEntityCollection of EntityCollection
      *
      * @param array<string, CriteriaCollection> $criteriaObjects
-     * @param array<string, EntitySearchResult<TEntityCollection>> $searchResults
+     * @param array<string, array<EntitySearchResult<TEntityCollection>>> $searchResults
      */
     private function mapSearchResults(ElementDataCollection $result, CmsSlotEntity $slot, array $criteriaObjects, array $searchResults): void
     {

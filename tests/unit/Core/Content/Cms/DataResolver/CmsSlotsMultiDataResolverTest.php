@@ -81,13 +81,17 @@ class CmsSlotsMultiDataResolverTest extends TestCase
 
         $resolver->resolve($slots, $resolverContext);
 
-        /** @var EntitySearchResult $firstData */
-        $firstData = $slots->getSlot('first')->getData();
+        /** @var CmsSlotEntity $firstSlot */
+        $firstSlot = $slots->getSlot('first');
+        /** @var EntitySearchResult<ProductCollection> $firstData */
+        $firstData = $firstSlot->getData();
         static::assertInstanceOf(EntitySearchResult::class, $firstData);
         static::assertInstanceOf(ProductCollection::class, $firstData->getEntities());
 
-        /** @var EntitySearchResult $secondData */
-        $secondData = $slots->getSlot('second')->getData();
+        /** @var CmsSlotEntity $secondSlot */
+        $secondSlot = $slots->getSlot('second');
+        /** @var EntitySearchResult<ProductCollection> $secondData */
+        $secondData = $secondSlot->getData();
         static::assertInstanceOf(EntitySearchResult::class, $secondData);
         static::assertInstanceOf(CategoryCollection::class, $secondData->getEntities());
     }

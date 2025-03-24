@@ -7,7 +7,10 @@ use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\Element\CmsElementResolverInterface;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 
 /**
  * @internal
@@ -37,6 +40,8 @@ class MultiCmsElementResolver implements CmsElementResolverInterface
 
     public function enrich(CmsSlotEntity $slot, ResolverContext $resolverContext, ElementDataCollection $result): void
     {
-        $slot->setData($result->get('fetch'));
+        /** @var EntitySearchResult<EntityCollection<Entity>> $fetchResult */
+        $fetchResult = $result->get('fetch');
+        $slot->setData($fetchResult);
     }
 }

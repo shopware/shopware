@@ -1,6 +1,7 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
 import LoadingIndicator from 'src/utility/loading-indicator/loading-indicator.util';
+/** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
 
 /**
@@ -24,6 +25,8 @@ export default class OffcanvasMenuPlugin extends Plugin {
 
     init() {
         this._cache = {};
+
+        /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._client = new HttpClient();
         this._content = LoadingIndicator.getTemplate();
 
@@ -204,12 +207,16 @@ export default class OffcanvasMenuPlugin extends Plugin {
 
         this.$emitter.publish('beforeFetchMenu');
 
-        this._client.get(link, (res) => {
-            this._cache[link] = res;
-            if (typeof cb === 'function') {
-                cb(res);
-            }
-        });
+        fetch(link, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
+            .then(res => res.text())
+            .then(content => {
+                this._cache[link] = content;
+                if (typeof cb === 'function') {
+                    cb(content);
+                }
+            });
     }
 
     /**

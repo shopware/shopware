@@ -134,7 +134,7 @@ describe('AjaxModalPlugin tests', () => {
         expect(ajaxModalPlugin._loadModalContent).toBeCalled();
     });
 
-    test('_loadModalContent will create a loading indicator and load the actual request', () => {
+    test('_loadModalContent will create a loading indicator and load the actual request', async () => {
         const pseudoModalUtil = new PseudoModalUtil();
 
         const element = document.createElement('div');
@@ -142,14 +142,18 @@ describe('AjaxModalPlugin tests', () => {
 
         ajaxModalPlugin.el = element;
         ajaxModalPlugin._processResponse = jest.fn();
-        ajaxModalPlugin.httpClient.get = jest.fn((url, callback) => {
-            callback();
-        });
 
-        ajaxModalPlugin._loadModalContent(pseudoModalUtil, element);
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                ok: true,
+                text: () => Promise.resolve('Some text'),
+            })
+        );
 
-        expect(ajaxModalPlugin.httpClient.get).toBeCalled();
-        expect(ajaxModalPlugin._processResponse).toBeCalled();
+        await ajaxModalPlugin._loadModalContent(pseudoModalUtil, element);
+        await new Promise(process.nextTick);
+
+        expect(ajaxModalPlugin._processResponse).toHaveBeenCalled();
         expect(element.classList).toContain('text-center');
     });
 

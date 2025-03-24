@@ -1,4 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
+/** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
 import ElementReplaceHelper from 'src/helper/element-replace.helper';
 import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-loading-indicator.util';
@@ -25,6 +26,8 @@ export default class BasicCaptchaPlugin extends Plugin {
         window.formValidation.addErrorMessage('basicCaptcha', this.options.invalidFeedbackMessage);
 
         this.formPluginInstances = window.PluginManager.getPluginInstancesFromElement(this._form);
+
+        /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._httpClient = new HttpClient();
         this._onLoadBasicCaptcha();
         this._registerEvents();
@@ -53,12 +56,17 @@ export default class BasicCaptchaPlugin extends Plugin {
         ElementLoadingIndicatorUtil.create(captchaImageId);
 
         const url = `${this.options.router}?formId=${this.options.formId}`;
-        this._httpClient.get(url, (response) => {
-            this.formValidating = false;
-            const srcEl = new DOMParser().parseFromString(response, 'text/html');
-            ElementReplaceHelper.replaceElement(srcEl.querySelector(this.options.captchaImageId), captchaImageId);
-            ElementLoadingIndicatorUtil.remove(captchaImageId);
-        });
+
+        fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
+            .then(response => response.text())
+            .then(content => {
+                this.formValidating = false;
+                const srcEl = new DOMParser().parseFromString(content, 'text/html');
+                ElementReplaceHelper.replaceElement(srcEl.querySelector(this.options.captchaImageId), captchaImageId);
+                ElementLoadingIndicatorUtil.remove(captchaImageId);
+            });
     }
 
     /**

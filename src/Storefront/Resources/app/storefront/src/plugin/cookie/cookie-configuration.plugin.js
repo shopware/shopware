@@ -24,6 +24,7 @@ import Plugin from 'src/plugin-system/plugin.class';
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
 import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
+/** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
 import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-loading-indicator.util';
 
@@ -57,6 +58,7 @@ export default class CookieConfiguration extends Plugin {
             inactive: [],
         };
 
+        /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._httpClient = new HttpClient();
 
         this._registerEvents();
@@ -452,14 +454,18 @@ export default class CookieConfiguration extends Plugin {
 
         const url = window.router['frontend.cookie.offcanvas'];
 
-        this._httpClient.get(url, (response) => {
-            const dom = new DOMParser().parseFromString(response, 'text/html');
+        fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
+            .then(response => response.text())
+            .then(response => {
+                const dom = new DOMParser().parseFromString(response, 'text/html');
 
-            this._handleAcceptAll(dom);
+                this._handleAcceptAll(dom);
 
-            ElementLoadingIndicatorUtil.remove(this.el);
-            this._hideCookieBar();
-        });
+                ElementLoadingIndicatorUtil.remove(this.el);
+                this._hideCookieBar();
+            });
     }
 
     /**

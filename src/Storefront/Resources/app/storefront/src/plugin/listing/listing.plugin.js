@@ -3,6 +3,7 @@
  */
 
 import Plugin from 'src/plugin-system/plugin.class';
+/** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
 import ElementReplaceHelper from 'src/helper/element-replace.helper';
 import Debouncer from 'src/helper/debouncer.helper';
@@ -42,6 +43,7 @@ export default class ListingPlugin extends Plugin {
     init() {
         this._registry = [];
 
+        /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this.httpClient = new HttpClient();
 
         this._urlFilterParams = Object.fromEntries(new URLSearchParams(window.location.search).entries());
@@ -413,18 +415,22 @@ export default class ListingPlugin extends Plugin {
             this.sendDisabledFiltersRequest();
         }
 
-        this.httpClient.get(`${this.options.dataUrl}?${filterParams}`, (response) => {
-            this.renderResponse(response);
+        fetch(`${this.options.dataUrl}?${filterParams}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
+            .then((response) => response.text())
+            .then((response) => {
+                this.renderResponse(response);
 
-            if (this._filterPanelActive) {
-                this.removeLoadingIndicatorClass();
-                this._updateAriaLive();
-            }
+                if (this._filterPanelActive) {
+                    this.removeLoadingIndicatorClass();
+                    this._updateAriaLive();
+                }
 
-            if (this._cmsProductListingWrapperActive) {
-                this.removeLoadingElementLoaderClass();
-            }
-        });
+                if (this._cmsProductListingWrapperActive) {
+                    this.removeLoadingElementLoaderClass();
+                }
+            });
     }
 
     /**
@@ -445,15 +451,17 @@ export default class ListingPlugin extends Plugin {
         const filterParams = this._getDisabledFiltersParamsFromParams(mapped);
         const paramsString = new URLSearchParams(filterParams).toString();
 
-        this.httpClient.get(`${this.options.filterUrl}?${paramsString}`, (response) => {
-            const filter =  JSON.parse(response);
-
-            this._registry.forEach((item) => {
-                if (typeof item.refreshDisabledState === 'function') {
-                    item.refreshDisabledState(filter, filterParams);
-                }
+        fetch(`${this.options.filterUrl}?${paramsString}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
+            .then(response => response.json())
+            .then(filter => {
+                this._registry.forEach((item) => {
+                    if (typeof item.refreshDisabledState === 'function') {
+                        item.refreshDisabledState(filter, filterParams);
+                    }
+                });
             });
-        });
     }
 
     /**

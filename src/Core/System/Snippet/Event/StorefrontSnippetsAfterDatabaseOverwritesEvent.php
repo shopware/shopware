@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\System\Snippet\Event;
 
-use Symfony\Component\Translation\MessageCatalogueInterface;
-use Symfony\Contracts\EventDispatcher\Event;
-
-class StorefrontSnippetsAfterDatabaseOverwritesEvent extends AbstractStorefrontSnippetsEvent{
+class StorefrontSnippetsAfterDatabaseOverwritesEvent extends AbstractStorefrontSnippetsEvent
+{
 }

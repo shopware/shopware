@@ -2,6 +2,6 @@
 
 namespace Shopware\Core\System\Snippet\Event;
 
-class StorefrontSnippetsAfterCurrentLocaleEvent extends AbstractStorefrontSnippetsEvent{
-
+class StorefrontSnippetsAfterCurrentLocaleEvent extends AbstractStorefrontSnippetsEvent
+{
 }

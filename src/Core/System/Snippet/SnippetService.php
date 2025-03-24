@@ -127,16 +127,16 @@ class SnippetService
         );
 
         $event = $this->eventDispatcher->dispatch(new StorefrontSnippetsAfterCurrentLocaleEvent(
-                $snippets,
-                $locale,
-                $catalog,
-                $snippetSetId,
-                $fallbackLocale,
-                $salesChannelId
-            ));
+            $snippets,
+            $locale,
+            $catalog,
+            $snippetSetId,
+            $fallbackLocale,
+            $salesChannelId
+        ));
 
         // at least overwrite the snippets with the database customer overwrites
-        $snippets=array_replace_recursive(
+        $snippets = array_replace_recursive(
             $event->snippets,
             $this->fetchSnippetsFromDatabase($snippetSetId, $unusedThemes)
         );

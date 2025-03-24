@@ -8,13 +8,11 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Snippet\Event\StorefrontSnippetsAfterCurrentLocaleEvent;
-use Shopware\Core\System\Snippet\Event\StorefrontSnippetsAfterDatabaseOverwritesEvent;
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
@@ -48,13 +46,15 @@ class SnippetServiceTest extends TestCase
 
         $service = $this->getSnippetService(
             new MockSnippetFile(
-                $locale, $locale, (string) json_encode([
-                'foo' => [
-                    'baz' => 'foo_baz_default0',
-                    'bas' => 'foo_bas_default1',
-                ],
-                'bar' => 'bar_default2'
-            ])
+                $locale,
+                $locale,
+                (string) json_encode([
+                    'foo' => [
+                        'baz' => 'foo_baz_default0',
+                        'bas' => 'foo_bas_default1',
+                    ],
+                    'bar' => 'bar_default2',
+                ])
             )
         );
 
@@ -68,10 +68,10 @@ class SnippetServiceTest extends TestCase
                 'value' => 'foo_bas_override_db',
                 'author' => 'test',
                 'setId' => $snippetSetId,
-            ]
+            ],
         ], Context::createDefaultContext());
 
-        $listener = function (StorefrontSnippetsAfterCurrentLocaleEvent $event) {
+        $listener = function (StorefrontSnippetsAfterCurrentLocaleEvent $event): void {
             $event->snippets['foo.baz'] = 'foo_baz_override0';
             $event->snippets['foo.bas'] = 'foo_bas_override1';
         };
@@ -85,34 +85,35 @@ class SnippetServiceTest extends TestCase
         static::assertEquals([
             'foo.baz' => 'foo_baz_override0',
             'foo.bas' => 'foo_bas_override_db',
-            'bar' => 'bar_default2'
+            'bar' => 'bar_default2',
         ], $snippets);
 
         $eventDispatcher->removeListener(StorefrontSnippetsAfterCurrentLocaleEvent::class, $listener);
 
         $snippetRepository->delete([
-            ['setId' => $snippetSetId]
+            ['setId' => $snippetSetId],
         ], Context::createDefaultContext());
     }
 
-    public function testStorefrontSnippetsAfterDatabaseOverwritesEvent():void {
-
+    public function testStorefrontSnippetsAfterDatabaseOverwritesEvent(): void
+    {
         $locale = 'en-GB';
         $service = $this->getSnippetService(
             new MockSnippetFile(
-                $locale, $locale, (string) json_encode([
-                'foo' => [
-                    'bar' => 'foo_baz_default0',
-                    'bas' => 'foo_bas_default1',
-                ],
-                'baz' => ['bar'=>'baz_bar_default2']
-            ])
+                $locale,
+                $locale,
+                (string) json_encode([
+                    'foo' => [
+                        'bar' => 'foo_baz_default0',
+                        'bas' => 'foo_bas_default1',
+                    ],
+                    'baz' => ['bar' => 'baz_bar_default2'],
+                ])
             )
         );
         $snippetSetId = $this->getSnippetSetIdForLocale($locale);
         static::assertNotNull($snippetSetId);
-        $listener = function (StorefrontSnippetsAfterCurrentLocaleEvent $event) {
-
+        $listener = function (StorefrontSnippetsAfterCurrentLocaleEvent $event): void {
             $event->snippets['foo.bar'] = 'foo_bar_override';
         };
 
@@ -125,7 +126,7 @@ class SnippetServiceTest extends TestCase
         static::assertEquals([
             'foo.bar' => 'foo_bar_override',
             'foo.bas' => 'foo_bas_default1',
-            'baz.bar' => 'baz_bar_default2'
+            'baz.bar' => 'baz_bar_default2',
         ], $snippets);
 
         $eventDispatcher->removeListener(StorefrontSnippetsAfterCurrentLocaleEvent::class, $listener);

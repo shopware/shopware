@@ -99,7 +99,10 @@
                         {% endset %}
 
                         {% block component_address_form_zipcode_city_fields %}
-                            {% if config('core.loginRegistration.showZipcodeInFrontOfCity') || arrangement === 'zipCityState' %}
+                            {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                            {% set showZipcodeInFrontOfCity = not feature('v6.8.0.0') and config('core.loginRegistration.showZipcodeInFrontOfCity') %}
+
+                            {% if showZipcodeInFrontOfCity || arrangement === 'zipCityState' %}
                                 {{ zipcodeField }}
                                 {{ cityField }}
                             {% else %}

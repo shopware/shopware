@@ -55,6 +55,8 @@ class EntityCollection extends Collection
 
     /**
      * @param mixed $value
+     *
+     * @return static<TElement>
      */
     public function filterByProperty(string $property, $value): static
     {
@@ -67,6 +69,8 @@ class EntityCollection extends Collection
 
     /**
      * @param mixed $value
+     *
+     * @return static<TElement>
      */
     public function filterAndReduceByProperty(string $property, $value): static
     {
@@ -114,6 +118,8 @@ class EntityCollection extends Collection
 
     /**
      * @param array<string> $ids
+     *
+     * @return static<TElement>
      */
     public function getList(array $ids): static
     {

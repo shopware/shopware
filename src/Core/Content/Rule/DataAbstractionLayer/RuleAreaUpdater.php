@@ -290,7 +290,6 @@ class RuleAreaUpdater implements EventSubscriberInterface
      */
     private function getForeignKeyFields(EntityDefinition $definition): array
     {
-        /** @phpstan-ignore-next-line PHPStan cannot detect correctly, that the array only contains FkFields */
         return $definition->getFields()->filterInstance(FkField::class)->filter(fn (FkField $fk): bool => $fk->getReferenceDefinition()->getEntityName() === $this->definition->getEntityName())->getElements();
     }
 

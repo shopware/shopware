@@ -128,7 +128,11 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @param class-string $class
+     * @template TFilterClassName of TElement
+     *
+     * @param class-string<TFilterClassName> $class
+     *
+     * @return static<TFilterClassName>
      */
     public function filterInstance(string $class): static
     {
@@ -137,11 +141,17 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
         });
     }
 
+    /**
+     * @return static<TElement>
+     */
     public function filter(\Closure $closure): static
     {
         return $this->createNew(array_filter($this->elements, $closure));
     }
 
+    /**
+     * @return static<TElement>
+     */
     public function slice(int $offset, ?int $length = null): static
     {
         return $this->createNew(\array_slice($this->elements, $offset, $length, true));
@@ -224,6 +234,8 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
 
     /**
      * @param iterable<TElement> $elements
+     *
+     * @return static<TElement>
      */
     protected function createNew(iterable $elements = []): static
     {

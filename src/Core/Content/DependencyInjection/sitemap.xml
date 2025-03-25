@@ -11,6 +11,7 @@
             <argument type="service" id="shopware.filesystem.sitemap"/>
             <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapHandleFactoryInterface"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
         </service>
 
         <service id="Shopware\Core\Content\Sitemap\Service\SitemapLister">

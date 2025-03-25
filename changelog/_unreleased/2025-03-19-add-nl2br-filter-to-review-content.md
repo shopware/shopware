@@ -1,6 +1,6 @@
 ---
 title: add nl2br filter to customer review content variable
-issue: 
+issue: #7719
 author: Marvin Rewer
 author_email: marvin.rewer@t-online.de
 author_github: marvn-r3

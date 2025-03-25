@@ -326,7 +326,6 @@ class OrderConverter
             SalesChannelContextService::VERSION_ID => $context->getVersionId(),
         ];
 
-        /** @deprecated tag:v6.8.0 use primaryOrderDelivery */
         if (!Feature::isActive('v6.8.0.0')) {
             $delivery = $order->getDeliveries()?->first();
         } else {
@@ -345,7 +344,6 @@ class OrderConverter
             $options[SalesChannelContextService::SHIPPING_ADDRESS_ID] = $shippingAddressId;
         }
 
-        /** @deprecated tag:v6.8.0 use primaryOrderDelivery */
         if (!Feature::isActive('v6.8.0.0')) {
             $shippingMethodId = $order->getDeliveries()?->first()?->getShippingMethodId();
         } else {

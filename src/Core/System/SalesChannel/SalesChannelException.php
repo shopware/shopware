@@ -263,9 +263,9 @@ class SalesChannelException extends HttpException
         );
     }
 
-    /*
-     * @deprecated tag:v6.8.0 - OrderException::missingAssociation will be replaced with SalesChannelException::missingAssociation
-    */
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
     public static function missingAssociation(string $association): self|OrderException
     {
         if (!Feature::isActive('v6.8.0.0')) {

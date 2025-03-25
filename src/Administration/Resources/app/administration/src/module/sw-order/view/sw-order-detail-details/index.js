@@ -88,27 +88,25 @@ export default {
         ...mapPropertyErrors('order', ['orderCustomer.email']),
 
         delivery() {
-            /** @deprecated tag:v6.8.0 use primaryOrderDelivery */
-            if (Shopware.Feature.isActive('v6.8.0.0')) {
-                return this.order.primaryOrderDelivery;
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return this.order.deliveries.length > 0 && this.order.deliveries[0];
             }
 
-            return this.order.deliveries[0];
+            return this.order.primaryOrderDelivery;
         },
 
         transaction() {
-            /** @deprecated tag:v6.8.0 use primaryOrderTransaction */
-            if (Shopware.Feature.isActive('v6.8.0.0')) {
-                return this.order.primaryOrderTransaction;
-            }
-
             for (let i = 0; i < this.order.transactions.length; i += 1) {
                 if (!['cancelled', 'failed'].includes(this.order.transactions[i].stateMachineState.technicalName)) {
                     return this.order.transactions[i];
                 }
             }
 
-            return this.order.transactions.last();
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return this.order.transactions.last();
+            }
+
+            return this.order.primaryOrderTransaction;
         },
 
         customFieldSetRepository() {

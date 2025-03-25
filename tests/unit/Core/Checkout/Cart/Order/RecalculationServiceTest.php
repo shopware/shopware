@@ -38,8 +38,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -183,14 +183,18 @@ class RecalculationServiceTest extends TestCase
 
     public function testAddProductToOrder(): void
     {
+        $deliveryId = Uuid::randomHex();
+
         $deliveryEntity = new OrderDeliveryEntity();
-        $deliveryEntity->setId(Uuid::randomHex());
+        $deliveryEntity->setId($deliveryId);
         $deliveryEntity->setStateId(Uuid::randomHex());
 
         $deliveries = new OrderDeliveryCollection([$deliveryEntity]);
 
         $order = $this->orderEntity();
         $order->setDeliveries($deliveries);
+        $order->setPrimaryOrderDeliveryId($deliveryId);
+        $order->setPrimaryOrderDelivery($deliveryEntity);
 
         $entityRepository = $this->createMock(EntityRepository::class);
         $entityRepository->method('search')->willReturnOnConsecutiveCalls(
@@ -278,14 +282,18 @@ class RecalculationServiceTest extends TestCase
 
     public function testAssertProcessorsCalledWithLiveVersion(): void
     {
+        $deliveryId = Uuid::randomHex();
+
         $deliveryEntity = new OrderDeliveryEntity();
-        $deliveryEntity->setId(Uuid::randomHex());
+        $deliveryEntity->setId($deliveryId);
         $deliveryEntity->setStateId(Uuid::randomHex());
 
         $deliveries = new OrderDeliveryCollection([$deliveryEntity]);
 
         $order = $this->orderEntity();
         $order->setDeliveries($deliveries);
+        $order->setPrimaryOrderDeliveryId($deliveryId);
+        $order->setPrimaryOrderDelivery($deliveryEntity);
 
         $entityRepository = $this->createMock(EntityRepository::class);
         $entityRepository->method('search')->willReturnOnConsecutiveCalls(
@@ -528,13 +536,11 @@ class RecalculationServiceTest extends TestCase
 
     private function orderEntity(): OrderEntity
     {
-        $stateId = Uuid::randomHex();
-
         $order = new OrderEntity();
         $order->setId(Uuid::randomHex());
         $order->setSalesChannelId(Uuid::randomHex());
         $order->setTaxStatus(CartPrice::TAX_STATE_FREE);
-        $order->setStateId($stateId);
+        $order->setStateId(Uuid::randomHex());
 
         if (Feature::isActive('v6.8.0.0')) {
             $deliveryId = Uuid::randomHex();

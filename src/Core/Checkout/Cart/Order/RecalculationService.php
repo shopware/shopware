@@ -87,7 +87,6 @@ class RecalculationService
         $orderData['id'] = $order->getId();
         $orderData['stateId'] = $order->getStateId();
 
-        /** @deprecated tag:v6.8.0 use primaryOrderDelivery */
         if (!Feature::isActive('v6.8.0.0')) {
             if ($order->getDeliveries()?->first()?->getStateId() && $shouldIncludeDeliveries) {
                 $orderData['deliveries'][0]['stateId'] = $order->getDeliveries()->first()->getStateId();
@@ -147,14 +146,13 @@ class RecalculationService
         $orderData['id'] = $order->getId();
         $orderData['stateId'] = $order->getStateId();
 
-        /** @deprecated tag:v6.8.0 use primaryOrderDelivery */
         if (!Feature::isActive('v6.8.0.0')) {
             if ($order->getDeliveries()?->first()?->getStateId()) {
                 $orderData['deliveries'][0]['stateId'] = $order->getDeliveries()->first()->getStateId();
             }
         } else {
             if ($order->getPrimaryOrderDelivery()?->getStateId()) {
-                $orderData['deliveries'][0]['stateId'] = $order->getDeliveries()?->first()?->getStateId();
+                $orderData['deliveries'][0]['stateId'] = $order->getPrimaryOrderDelivery()->getStateId();
             }
         }
 

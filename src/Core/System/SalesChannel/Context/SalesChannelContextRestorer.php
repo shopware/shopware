@@ -79,7 +79,6 @@ class SalesChannelContextRestorer
             $options[SalesChannelContextService::PAYMENT_METHOD_ID] = $paymentMethodId;
         }
 
-        /** @deprecated tag:v6.8.0 use primaryOrderDelivery */
         if (!Feature::isActive('v6.8.0.0')) {
             $delivery = $order->getDeliveries() !== null ? $order->getDeliveries()->first() : null;
         } else {

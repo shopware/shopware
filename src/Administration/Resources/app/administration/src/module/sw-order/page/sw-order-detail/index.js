@@ -116,14 +116,11 @@ export default {
         },
 
         deliveryDiscounts() {
-            /** @deprecated tag:v6.8.0 use primaryOrderDelivery */
-            if (Shopware.Feature.isActive('v6.8.0.0')) {
-                const primaryOrderDeliveryId = this.order.primaryOrderDelivery?.id;
-
-                return this.order.deliveries.filter(delivery => delivery.id !== primaryOrderDeliveryId);
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return array.slice(this.order.deliveries, 1) || [];
             }
 
-            return array.slice(this.order.deliveries, 1) || [];
+            return this.order.deliveries.filter((delivery) => delivery.id !== this.order.primaryOrderDeliveryId);
         },
 
         orderCriteria() {
@@ -143,11 +140,24 @@ export default {
             criteria
                 .addAssociation('addresses.country')
                 .addAssociation('addresses.countryState')
-                .addAssociation('deliveries.shippingMethod')
-                .addAssociation('deliveries.shippingOrderAddress')
-                .addAssociation('transactions.paymentMethod')
                 .addAssociation('documents.documentType')
                 .addAssociation('tags');
+
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                criteria
+                    .addAssociation('deliveries.shippingMethod')
+                    .addAssociation('deliveries.shippingOrderAddress')
+                    .addAssociation('transactions.paymentMethod');
+            } else {
+                criteria
+                    .addAssociation('primaryOrderTransaction')
+                    .addAssociation('primaryOrderTransaction.paymentMethod')
+                    .addAssociation('primaryOrderTransaction.stateMachineState')
+                    .addAssociation('primaryOrderDelivery')
+                    .addAssociation('primaryOrderDelivery.shippingMethod')
+                    .addAssociation('primaryOrderDelivery.stateMachineState')
+                    .addAssociation('primaryOrderDelivery.shippingOrderAddress.country');
+            }
 
             criteria.addAssociation('stateMachineState');
 
@@ -316,11 +326,10 @@ export default {
                 };
 
                 if (addressMapping.type === 'shipping') {
-                    /** @deprecated tag:v6.8.0 use primaryOrderDelivery */
-                    if (Shopware.Feature.isActive('v6.8.0.0')) {
-                        mapping.deliveryId = this.order.primaryOrderDelivery?.id;
-                    } else {
+                    if (!Shopware.Feature.isActive('v6.8.0.0')) {
                         mapping.deliveryId = this.order.deliveries[0].id;
+                    } else {
+                        mapping.deliveryId = this.order.primaryOrderDeliveryId;
                     }
                 }
 

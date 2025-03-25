@@ -78,12 +78,11 @@ export default {
         },
 
         delivery() {
-            /** @deprecated tag:v6.8.0 use primaryOrderDelivery */
-            if (Shopware.Feature.isActive('v6.8.0.0')) {
-                return this.currentOrder.primaryOrderDelivery;
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return this.currentOrder.deliveries[0];
             }
 
-            return this.currentOrder.deliveries[0];
+            return this.currentOrder.primaryOrderDelivery;
         },
 
         orderDate() {

@@ -52,8 +52,6 @@ class OrderDeliveryStatusRule extends FlowRule
         }
 
         if (!Feature::isActive('v6.8.0.0')) {
-            Feature::triggerDeprecationOrThrow('v6.8.0.0', '$deliveryStateIds will be the primary order delivery');
-
             if (!$deliveries = $scope->getOrder()->getDeliveries()) {
                 return false;
             }

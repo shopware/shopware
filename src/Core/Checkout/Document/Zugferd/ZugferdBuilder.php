@@ -40,7 +40,6 @@ class ZugferdBuilder
             throw DocumentException::generationError('Customer not found');
         }
 
-        /** @deprecated tag:v6.8.0 use primaryOrderDelivery */
         if (!Feature::isActive('v6.8.0.0')) {
             $deliveryDate = $order->getDeliveries()?->first()?->getShippingDateLatest();
         } else {

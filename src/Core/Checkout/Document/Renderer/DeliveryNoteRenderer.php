@@ -123,7 +123,6 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
 
                     $deliveries = null;
 
-                    /** @deprecated tag:v6.8.0 use primaryOrderDelivery */
                     if (!Feature::isActive('v6.8.0.0')) {
                         if ($order->getDeliveries()) {
                             $deliveries = $order->getDeliveries()->first();

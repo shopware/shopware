@@ -107,7 +107,13 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
         $data = new ParameterBag();
 
         if (!Feature::isActive('v6.8.0.0')) {
-            $machineId = $machine === self::ORDER ? $orderId : $this->getMachineId($machine, $orderId);
+            if ($machine === self::ORDER) {
+                $machineId = $orderId;
+            } elseif ($machine === self::ORDER_DELIVERY) {
+                $machineId = $this->getMachineIdFromOrderDelivery($orderId);
+            } else {
+                $machineId = $this->getMachineId($machine, $orderId);
+            }
         } else {
             $machineId = match ($machine) {
                 self::ORDER => $orderId,

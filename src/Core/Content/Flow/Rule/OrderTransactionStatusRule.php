@@ -54,8 +54,6 @@ class OrderTransactionStatusRule extends FlowRule
         }
 
         if (!Feature::isActive('v6.8.0.0')) {
-            Feature::triggerDeprecationOrThrow('v6.8.0.0', '$paymentMethodId will be the primary order transaction');
-
             if (!$transactions = $scope->getOrder()->getTransactions()) {
                 return false;
             }

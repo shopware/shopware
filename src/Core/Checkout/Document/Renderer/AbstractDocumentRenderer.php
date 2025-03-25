@@ -58,7 +58,6 @@ abstract class AbstractDocumentRenderer
             return false;
         }
 
-        /** @deprecated tag:v6.8.0 use primaryOrderDelivery */
         if (!Feature::isActive('v6.8.0.0')) {
             $orderDelivery = $order->getDeliveries()?->first();
         } else {

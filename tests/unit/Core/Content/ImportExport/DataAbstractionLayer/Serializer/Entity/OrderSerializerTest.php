@@ -545,6 +545,7 @@ class OrderSerializerTest extends TestCase
                     ]),
                 ]),
                 'source' => null,
+                'internalComment' => null,
             ],
             $overrided,
             [

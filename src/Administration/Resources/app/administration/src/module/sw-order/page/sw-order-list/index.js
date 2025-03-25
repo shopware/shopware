@@ -107,12 +107,23 @@ export default {
                 .addAssociation('stateMachineState')
                 .addSorting(Criteria.sort('createdAt'));
 
-            criteria
-                .getAssociation('deliveries')
-                .addAssociation('stateMachineState')
-                .addAssociation('shippingOrderAddress')
-                .addAssociation('shippingMethod')
-                .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'));
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                criteria
+                    .getAssociation('deliveries')
+                    .addAssociation('stateMachineState')
+                    .addAssociation('shippingOrderAddress')
+                    .addAssociation('shippingMethod')
+                    .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'));
+            } else {
+                criteria
+                    .addAssociation('primaryOrderTransaction')
+                    .addAssociation('primaryOrderTransaction.paymentMethod')
+                    .addAssociation('primaryOrderTransaction.stateMachineState')
+                    .addAssociation('primaryOrderDelivery.shippingMethod')
+                    .addAssociation('primaryOrderDelivery.stateMachineState')
+                    .addAssociation('primaryOrderDelivery.shippingOrderAddress.country')
+                    .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'));
+            }
 
             return criteria;
         },
@@ -470,11 +481,10 @@ export default {
         getVariantFromPaymentState(order) {
             let technicalName;
 
-            /** @deprecated tag:v6.8.0 use primaryOrderTransaction */
-            if (Shopware.Feature.isActive('v6.8.0.0')) {
-                technicalName = order.transactions.primaryOrderTransaction.stateMachineState.technicalName;
-            } else {
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
                 technicalName = order.transactions.last().stateMachineState.technicalName;
+            } else {
+                technicalName = order.primaryOrderTransaction.stateMachineState.technicalName;
             }
 
             // set the payment status to the first transaction that is not cancelled
@@ -539,12 +549,11 @@ export default {
             await this.$nextTick();
 
             const ordersExcludeDelivery = Object.values(this.$refs.orderGrid.selection).filter((order) => {
-                /** @deprecated tag:v6.8.0 use primaryOrderDelivery */
-                if (Shopware.Feature.isActive('v6.8.0.0')) {
-                    return !order.primaryOrderDelivery;
+                if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                    return !order.deliveries[0];
                 }
 
-                return !order.deliveries[0];
+                return !order.primaryOrderDelivery;
             });
             const excludeDelivery = ordersExcludeDelivery.length > 0 ? '1' : '0';
 
@@ -563,21 +572,19 @@ export default {
                 }
             }
 
-            /** @deprecated tag:v6.8.0 use primaryOrderTransaction */
-            if (Shopware.Feature.isActive('v6.8.0.0')) {
-                return item.primaryOrderTransaction;
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return item.transactions.last();
             }
 
-            return item.transactions.last();
+            return item.primaryOrderTransaction;
         },
 
         getDelivery(order) {
-            /** @deprecated tag:v6.8.0 use primaryOrderDelivery */
-            if (Shopware.Feature.isActive('v6.8.0.0')) {
-                return order.primaryOrderDelivery;
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return order.deliveries[0];
             }
 
-            return order.deliveries ? order.deliveries[0] : null;
+            return order.primaryOrderDelivery;
         },
     },
 };

@@ -118,7 +118,7 @@ class ThemeLifecycleService
         $this->themeChildRepository->upsert($parentThemes, $context);
 
         // we don't resolve files as theme can be refreshed before it's built
-        $this->runtimeConfigService->updateRuntimeConfig($themeData['id'], $themeData['technicalName'], $context);
+        $this->runtimeConfigService->updateRuntimeConfig($themeData['id'], $themeData['technicalName'], $context, false);
     }
 
     public function removeTheme(string $technicalName, Context $context): void

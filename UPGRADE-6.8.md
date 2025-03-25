@@ -74,7 +74,7 @@ The old classes are removed:
 * 
 ## Removed notification controller
 
-`\Shopware\Administration\Controller\NotificationController` has been moved to core: `\Shopware\Core\Framework\Notification\Api\NotificationController` - if you type hint on this class, please update it. The HTTP route is still the same. The old class has been removed.
+`\Shopware\Administration\Controller\NotificationController` has been moved to core: `\Shopware\Core\Framework\Notification\Api\NotificationController` - if you type hint on this class, please refactor, it is now internal. The HTTP route is still the same. The old class has been removed.
 
 # Storefront
 

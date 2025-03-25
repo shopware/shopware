@@ -770,7 +770,8 @@ The following classes have been moved from the admin bundle to the core:
 * `Shopware\Core\Framework\Notification\NotificationCollection`
 * `Shopware\Core\Framework\Notification\NotificationDefinition` 
 * `Shopware\Core\Framework\Notification\NotificationEntity`
-* `Shopware\Core\Framework\Notification\Api\NotificationController`
+
+The controller `Shopware\Core\Framework\Notification\Api\NotificationController` has been moved from the admin bundle to the core and made internal.
 
 </details>
 

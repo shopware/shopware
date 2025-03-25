@@ -1,0 +1,35 @@
+/* File: src/module/sw-cms/blocks/popup/preview/sw-cms-preview-popup.scss */
+.sw-cms-preview-popup {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    
+    .sw-cms-preview-popup-button {
+        padding: 5px 10px;
+        background-color: #189eff;
+        color: white;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        cursor: pointer;
+    }
+    
+    .sw-cms-preview-popup-container {
+        background-color: white;
+        border: 1px solid #d1d9e0;
+        padding: 10px;
+        width: 80%;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+        
+        h2 {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        
+        p {
+            font-size: 12px;
+        }
+    }
+}

@@ -90,5 +90,40 @@ class ContextTest extends TestCase
         static::assertInstanceOf(Context::class, $deserialized);
 
         static::assertEmpty($deserialized->getVars()['extensions']);
+        static::assertEqualsCanonicalizing($context->getSource(), $deserialized->getSource());
+        static::assertEqualsCanonicalizing($context->getRounding(), $deserialized->getRounding());
+        static::assertSame($context->getRuleIds(), $deserialized->getRuleIds());
+        static::assertSame($context->getVersionId(), $deserialized->getVersionId());
+        static::assertSame($context->getScope(), $deserialized->getScope());
+        static::assertSame($context->getTaxState(), $deserialized->getTaxState());
+        static::assertSame($context->getStates(), $deserialized->getStates());
+        static::assertSame($context->getCurrencyId(), $deserialized->getCurrencyId());
+        static::assertSame($context->getCurrencyFactor(), $deserialized->getCurrencyFactor());
+        static::assertSame($context->getLanguageIdChain(), $deserialized->getLanguageIdChain());
+        static::assertSame($context->considerInheritance(), $deserialized->considerInheritance());
+    }
+
+    public function testExtensionsAreStrippedOnNativeSerialize(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $context->addExtension('foo', new ArrayEntity());
+
+        $deserialized = unserialize(serialize($context));
+
+        static::assertInstanceOf(Context::class, $deserialized);
+
+        static::assertEmpty($deserialized->getVars()['extensions']);
+        static::assertEqualsCanonicalizing($context->getSource(), $deserialized->getSource());
+        static::assertEqualsCanonicalizing($context->getRounding(), $deserialized->getRounding());
+        static::assertSame($context->getRuleIds(), $deserialized->getRuleIds());
+        static::assertSame($context->getVersionId(), $deserialized->getVersionId());
+        static::assertSame($context->getScope(), $deserialized->getScope());
+        static::assertSame($context->getTaxState(), $deserialized->getTaxState());
+        static::assertSame($context->getStates(), $deserialized->getStates());
+        static::assertSame($context->getCurrencyId(), $deserialized->getCurrencyId());
+        static::assertSame($context->getCurrencyFactor(), $deserialized->getCurrencyFactor());
+        static::assertSame($context->getLanguageIdChain(), $deserialized->getLanguageIdChain());
+        static::assertSame($context->considerInheritance(), $deserialized->considerInheritance());
     }
 }

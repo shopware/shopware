@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Content\Sitemap\Provider;
 
 use Doctrine\DBAL\Cache\ArrayResult;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -17,6 +16,7 @@ use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -101,20 +101,31 @@ class CategoryUrlProviderTest extends TestCase
         $this->router->method('generate')->willReturn('category/2/detail');
 
         $queryBuilder = $this->createMock(QueryBuilder::class);
-        $queryBuilder->method('executeQuery')->willReturn(new Result(new ArrayResult([
-            [
-                'increment' => 1,
-                'id' => $this->ids->get('category-1'),
-                'created_at' => '2021-01-01 00:00:00',
-                'updated_at' => null,
-            ],
-            [
-                'increment' => 2,
-                'id' => $this->ids->get('category-2'),
-                'created_at' => '2021-01-01 00:00:00',
-                'updated_at' => null,
-            ],
-        ]), $this->connection));
+        $queryBuilder->method('executeQuery')->willReturn(new Result(
+            new ArrayResult(
+                [
+                    'increment',
+                    'id',
+                    'created_at',
+                    'updated_at',
+                ],
+                [
+                    [
+                        1,
+                        $this->ids->get('category-1'),
+                        '2021-01-01 00:00:00',
+                        null,
+                    ],
+                    [
+                        2,
+                        $this->ids->get('category-2'),
+                        '2021-01-01 00:00:00',
+                        null,
+                    ],
+                ]
+            ),
+            $this->connection
+        ));
 
         $query = $this->createMock(IterableQuery::class);
         $query->method('getQuery')->willReturn($queryBuilder);

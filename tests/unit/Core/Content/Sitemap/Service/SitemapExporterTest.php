@@ -115,7 +115,7 @@ class SitemapExporterTest extends TestCase
         $exporter = $this->createSitemapExporter(cache: $cache, cartRuleLoader: $cartRuleLoader);
         $exporter->generate($salesChannelContext);
 
-        $cartRuleLoader->expects(static::never())->method('loadByToken');
+        $cartRuleLoader->expects($this->never())->method('loadByToken');
     }
 
     public function testGenerateThrowsExceptionINoSitemapHandlesCreated(): void

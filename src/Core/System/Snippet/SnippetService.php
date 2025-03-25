@@ -18,8 +18,8 @@ use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
@@ -50,6 +50,7 @@ class SnippetService
          */
         private readonly ContainerInterface $container,
         private readonly ExtensionDispatcher $extensionDispatcher,
+        private readonly ThemeRuntimeConfigService $themeRuntimeConfigService,
         private readonly ?DatabaseSalesChannelThemeLoader $salesChannelThemeLoader = null
     ) {
     }
@@ -259,9 +260,8 @@ class SnippetService
             return [];
         }
 
-        $unusedThemes = $this->container->get(StorefrontPluginRegistry::class)->getConfigurations()->getThemes()
-            ->filter(fn (StorefrontPluginConfiguration $theme) => !\in_array($theme->getTechnicalName(), $usingThemes, true))
-            ->map(fn (StorefrontPluginConfiguration $theme) => $theme->getTechnicalName());
+        $availableThemes = $this->themeRuntimeConfigService->getActiveThemeNames();
+        $unusedThemes = array_diff($availableThemes, $usingThemes);
 
         return array_values($unusedThemes);
     }

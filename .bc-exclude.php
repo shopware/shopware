@@ -25,5 +25,8 @@ return [
 
         // Expected to be appended when new event is added
         'Value of constant Shopware\\\\Core\\\\Framework\\\\Webhook\\\\Hookable',
+
+        // Exclude the backwards-incompatible change for the new parameter
+        'ADDED: Parameter prefixMatch was added to Method __construct\(\) of class Shopware\\\\Elasticsearch\\\\Product\\\\SearchFieldConfig',
     ],
 ];

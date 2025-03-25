@@ -16,9 +16,17 @@
 
 .order-table-header {
     display: none;
+    padding-top: $spacer-sm;
+    padding-bottom: $spacer-sm;
+    padding-left: $order-grid-gutter-width;
+    padding-right: $order-grid-gutter-width;
 
     :first-child {
         position: relative;
+    }
+
+    &:last-of-type {
+        border-bottom: 0;
     }
 }
 
@@ -42,21 +50,15 @@
     }
 }
 
-.order-table-header,
 .order-wrapper {
     &:last-of-type {
         border-bottom: 0;
     }
 }
 
-.order-table-header,
 .order-item-header {
     padding-top: $spacer-sm;
     padding-bottom: $spacer-sm;
-}
-
-.order-table-header,
-.order-item-header {
     padding-left: $order-grid-gutter-width;
     padding-right: $order-grid-gutter-width;
 }
@@ -238,17 +240,13 @@
     }
 
     .order-table-header-label {
-        display: inline;
+        display: block;
+        float: left;
+        width: 50%;
     }
 
     .order-table-header-order-number {
         margin-bottom: 0;
-    }
-
-    .order-table-header-label {
-        display: block;
-        float: left;
-        width: 50%;
     }
 
     .order-table-body-value {

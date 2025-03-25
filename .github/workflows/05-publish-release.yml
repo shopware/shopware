@@ -17,7 +17,7 @@ jobs:
         - name: Checkout repository
           uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
 
-        - uses: denoland/setup-deno@ # 1
+        - uses: denoland/setup-deno@909cc5acb0fdd60627fb858598759246509fa755 # 1
           with:
             deno-version: 1.29.1
 

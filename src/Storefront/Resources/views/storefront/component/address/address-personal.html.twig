@@ -89,10 +89,10 @@
     {% endblock %}
 
     {% block component_address_personal_fields_salutation_title %}
-        {% if not config('core.loginRegistration.hideSalutation') or config('core.loginRegistration.showTitleField') %}
+        {% if config('core.loginRegistration.showSalutation') or config('core.loginRegistration.showTitleField') %}
             <div class="row g-2">
                 {% block component_address_personal_fields_salutation %}
-                    {% if not config('core.loginRegistration.hideSalutation') %}
+                    {% if config('core.loginRegistration.showSalutation') %}
                         {% set salutationOptions %}
                             {% for salutation in page.salutations %}
                                 <option {% if salutation.id == data.get('salutationId') %}

@@ -26,9 +26,9 @@
         </input-field>
 
         <input-field type="bool">
-            <name>hideSalutation</name>
-            <label>Hide salutation</label>
-            <label lang="de-DE">Anrede ausblenden</label>
+            <name>showSalutation</name>
+            <label>Show salutation</label>
+            <label lang="de-DE">Anrede anzeigen</label>
         </input-field>
 
         <input-field type="bool">

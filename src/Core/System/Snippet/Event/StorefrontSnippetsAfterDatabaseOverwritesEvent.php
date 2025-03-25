@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\System\Snippet\Event;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('discovery')]
 class StorefrontSnippetsAfterDatabaseOverwritesEvent extends AbstractStorefrontSnippetsEvent
 {
 }

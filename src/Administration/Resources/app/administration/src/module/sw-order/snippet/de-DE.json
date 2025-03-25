@@ -191,6 +191,7 @@
       "cardTitleDetails": "Details",
       "cardTitleLineItems": "Positionen",
       "cardTitleGeneralInfo": "Info",
+      "cardTitlePromotions": "Rabattaktionen",
       "columnProductName": "Name",
       "columnQuantity": "Menge",
       "columnPriceGross": "Bruttopreis",
@@ -307,7 +308,6 @@
     "saveChangesBeforehandModal": {
       "headline": "Warnung",
       "statusDescription": "Bevor der Status geändert werden kann, müssen die Änderungen der Bestellung gespeichert werden. Möchtest Du jetzt deine Änderungen speichern?",
-      "promotionDescription": "Bevor Rabattaktionen geändert werden können, müssen die Änderungen der Bestellung gespeichert werden. Möchtest du jetzt deine Änderungen speichern?",
       "confirmButton": "Änderungen speichern"
     },
     "stateCard": {
@@ -387,11 +387,16 @@
       "labelDeliveryCard": "Versand",
       "labelOrderCard": "Bestellung",
       "promotionsField": {
-        "labelPromotions": "Rabattaktionen",
+        "labelPromotions": "Rabattaktionen mit Code",
         "placeholderPromotions": "Rabattcode eingeben ...",
         "automaticPromotion":  "automatisch hinzugefügt",
         "labelToggleAutomaticPromotions": "Automatische hinzugefügte Werbeaktionen deaktivieren",
         "labelButtonAutomaticPromotions": "Automatische Rabattaktionen neu evaluieren"
+        "automaticPromotions": {
+          "title": "Automatische Aktionen erneut anwenden",
+          "text": "Durch die automatische Wiederanwendung von Aktionen werden alle Aktionen entfernt, die nicht mehr für die Bestellung gelten. Dazu gehören deaktivierte Angebote oder Angebote, bei denen sich die regelbasierten Bedingungen geändert haben. Aktionen, die über einen Code hinzugefügt wurden, sind davon nicht betroffen.",
+          "labelButton": "Automatische Aktionen erneut anwenden"
+        }
       }
     },
     "documentTab": {

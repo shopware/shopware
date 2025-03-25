@@ -167,6 +167,17 @@ class PromotionCollector implements CartDataCollectorInterface
                 $this->addPromotionNotFoundError($this->htmlSanitizer->sanitize((string) $code, null, true), $original);
             }
 
+            // when being in a recalculation, having notifications about the removal of automatic promotion is desired
+            // addition notifications are handled as usual in the PromotionCalculator
+            if ($behavior->isRecalculation()) {
+                $oldPromotions = $original->getLineItems()->filter(static fn (LineItem $item) => !$item->getReferencedId())->getElements();
+                $newPromotions = $discountLineItems->filter(static fn (LineItem $item) => !$item->getReferencedId())->getElements();
+
+                foreach (\array_diff_key($oldPromotions, $newPromotions) as $removedPromotion) {
+                    $this->addPromotionDeletedNotice($original, $original, $removedPromotion);
+                }
+            }
+
             // if we do have promotions, set them to be processed
             // otherwise make sure to remove the entry to avoid any processing
             // within our promotions scope
@@ -183,7 +194,11 @@ class PromotionCollector implements CartDataCollectorInterface
      */
     private function getPinnedPromotions(Cart $original, CartBehavior $behavior): LineItemCollection
     {
-        $promotionLineItems = $original->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE);
+        $promotionLineItems = $original
+            ->getLineItems()
+            ->filterType(PromotionProcessor::LINE_ITEM_TYPE)
+            /** Filter out placeholder line.items. {@see PromotionItemBuilder::buildPlaceholderItem} */
+            ->filter(static fn (LineItem $item) => $item->getLabel() !== PromotionItemBuilder::PLACEHOLDER_PREFIX . ((string) $item->getReferencedId()));
 
         $discountLineItems = new LineItemCollection();
 
@@ -387,7 +402,7 @@ class PromotionCollector implements CartDataCollectorInterface
             );
 
             $originalCodeItem = $original->getLineItems()->firstWhere(static function (LineItem $item) use ($code, $discount) {
-                return $item->getReferencedId() === $code && $item->getPayloadValue('discountId') === $discount->getId();
+                return ($item->getReferencedId() ?? '') === $code && $item->getPayloadValue('discountId') === $discount->getId();
             });
 
             if ($originalCodeItem && \count($originalCodeItem->getExtensions()) > 0) {

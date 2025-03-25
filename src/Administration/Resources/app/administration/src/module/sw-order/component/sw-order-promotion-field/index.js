@@ -77,6 +77,8 @@ export default {
             return Store.get('swOrderDetail').order;
         },
 
+        isOrderLoading: () => Store.get('swOrderDetail').isLoading,
+
         versionContext() {
             return Store.get('swOrderDetail').versionContext;
         },

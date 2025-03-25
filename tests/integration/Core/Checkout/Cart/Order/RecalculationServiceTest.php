@@ -598,6 +598,35 @@ class RecalculationServiceTest extends TestCase
         $this->addPromotionItemToVersionedOrder($orderId, $versionId, $code, $orderDateTime, $stateId);
     }
 
+    public function testAddNonExistingPromotionItemToOrder(): void
+    {
+        // create order
+        $cart = $this->generateDemoCart();
+        ['orderId' => $orderId] = $this->persistCart($cart);
+
+        // create version of order
+        $versionId = $this->createVersionedOrder($orderId);
+
+        $this->getBrowser()->request(
+            'POST',
+            \sprintf(
+                '/api/_action/order/%s/promotion-item',
+                $orderId
+            ),
+            server: ['HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId],
+            content: (string) json_encode(['code' => 'some-random-code'], \JSON_THROW_ON_ERROR)
+        );
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertCount(1, $content['errors']);
+
+        $errors = array_values($content['errors']);
+        static::assertEquals($errors[0]['message'], 'Promotion with code some-random-code not found!');
+    }
+
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
@@ -680,7 +709,7 @@ class RecalculationServiceTest extends TestCase
 
         static::assertEmpty($content['errors']);
         static::assertNotNull($newPromotionItem);
-        static::assertNotEquals($promotionItem->getId(), $newPromotionItem->getId());
+        static::assertEquals($promotionItem->getId(), $newPromotionItem->getId(), 'line-item id of promotion should not differ between recalculations');
         static::assertEquals($promotionItem->getPayload(), $newPromotionItem->getPayload());
     }
 

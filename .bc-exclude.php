@@ -25,5 +25,8 @@ return [
 
         // Expected to be appended when new event is added
         'Value of constant Shopware\\\\Core\\\\Framework\\\\Webhook\\\\Hookable',
+
+        // Fix to make promotions work with order recalculation
+        'Value of constant Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS changed from array \((\n.*)*skipPromotion.*(\n.*)*to array \((\n.*)*pinAutomaticPromotions'
     ],
 ];

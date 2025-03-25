@@ -2,7 +2,19 @@
 
 .sw-order-promotion-field {
     &__apply_auto_promotions {
-        width: min-content;
-        margin-bottom: var(--scale-size-24);
+        &__title {
+            color: var(--color-text-primary-default);
+        }
+
+        &__text {
+            font-size: var(--font-size-xs);
+            line-height: var(--font-line-height-xs);
+            color: var(--color-text-primary-default);
+        }
+
+        &__button {
+            width: min-content;
+            margin-top: var(--scale-size-24);
+        }
     }
 }

@@ -13,14 +13,23 @@
     {% endblock %}
 
     {% block sw_order_promotion_field_switch %}
+    <h3 class="sw-order-promotion-field__apply_auto_promotions__title">
+        {{ $tc('sw-order.detailsTab.promotionsField.automaticPromotions.title') }}
+    </h3>
+
+    <p class="sw-order-promotion-field__apply_auto_promotions__text">
+        {{ $tc('sw-order.detailsTab.promotionsField.automaticPromotions.text') }}
+    </p>
+
     <mt-button
-        :disabled="isLoading || !acl.can('order.editor') || undefined"
-        class="sw-order-promotion-field__apply_auto_promotions"
+        :disabled="isLoading || isOrderLoading || !acl.can('order.editor') || undefined"
+        class="sw-order-promotion-field__apply_auto_promotions__button"
         variant="secondary"
         size="default"
+        :is-loading="isOrderLoading || isLoading"
         @click="applyAutomaticPromotions"
     >
-        {{ $tc('sw-order.detailsTab.promotionsField.labelButtonAutomaticPromotions') }}
+        {{ $tc('sw-order.detailsTab.promotionsField.automaticPromotions.labelButton') }}
     </mt-button>
     {% endblock %}
 </div>

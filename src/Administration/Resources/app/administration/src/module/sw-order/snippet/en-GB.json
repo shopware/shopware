@@ -191,6 +191,7 @@
       "cardTitleDetails": "Details",
       "cardTitleLineItems": "Items",
       "cardTitleGeneralInfo": "Info",
+      "cardTitlePromotions": "Promotions",
       "columnProductName": "Name",
       "columnQuantity": "Quantity",
       "columnPriceNet": "Price (net)",
@@ -307,7 +308,6 @@
     "saveChangesBeforehandModal": {
       "headline": "Warning",
       "statusDescription": "Before changing the status, your changes need to be saved. Do you want to save the changes now?",
-      "promotionDescription": "Before changing promotions, your changes need to be saved. Do you want to save the changes now?",
       "confirmButton": "Save changes"
     },
     "stateCard": {
@@ -387,11 +387,16 @@
       "labelDeliveryCard": "Shipping",
       "labelOrderCard": "Order",
       "promotionsField": {
-        "labelPromotions": "Promotions",
+        "labelPromotions": "Promotions with code",
         "placeholderPromotions": "Enter promotion code ...",
         "automaticPromotion":  "automatically applied",
         "labelToggleAutomaticPromotions": "Disable automatically applied promotions",
         "labelButtonAutomaticPromotions": "Reevaluate automatically applied promotions"
+        "automaticPromotions": {
+          "title": "Reapply automatic promotions",
+          "text": "Automatic promotion reapplication removes any promotions that no longer apply to the order. This includes disabled promotions or promotions where rule-based conditions have changed. Promotions added through a code will not be affected.",
+          "labelButton": "Reapply automatic promotions"
+        }
       }
     },
     "documentTab": {

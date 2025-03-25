@@ -51,7 +51,6 @@ class SqlQueryParser
     ): ParseResult {
         $result = new ParseResult();
 
-        /** @var ScoreQuery $query */
         foreach ($queries as $query) {
             $parsed = $this->parse($query->getQuery(), $definition, $context, $root);
 
@@ -219,13 +218,26 @@ class SqlQueryParser
             return $result;
         }
 
-        $result->addWhere($select . ' IN (:' . $key . ')');
-
-        $value = array_values($query->getValue());
+        $hasNulls = false;
+        $value = [];
+        foreach ($query->getValue() as $v) {
+            if ($v === null) {
+                $hasNulls = true;
+                continue;
+            }
+            $value[] = $v;
+        }
         if ($field instanceof IdField || $field instanceof FkField) {
             $value = array_filter(array_map(fn (bool|float|int|string $id): string => Uuid::fromHexToBytes((string) $id), $value));
         }
+
         $result->addParameter($key, $value, ArrayParameterType::STRING);
+        $where[] = $select . ' IN (:' . $key . ')';
+
+        if ($hasNulls) {
+            $where[] = $select . ' IS NULL';
+        }
+        $result->addWhere('(' . implode(' OR ', $where) . ')');
 
         return $result;
     }

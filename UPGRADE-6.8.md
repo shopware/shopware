@@ -1,5 +1,7 @@
 # 6.8.0.0
 
+**NOTE:** All the breaking changes described here can be already opted in by activating the `v6.8.0.0` [feature flag](https://developer.shopware.com/docs/resources/references/adr/2022-01-20-feature-flags-for-major-versions.html#activating-the-flag) on previous versions.
+
 # Changed Functionality
 
 # API

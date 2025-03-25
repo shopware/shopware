@@ -115,6 +115,32 @@ class TokenQueryBuilderTest extends TestCase
         static::assertSame($expected, $query->toArray());
     }
 
+    public function testBuildWithSynonyms(): void
+    {
+        $config = [
+            self::config(field: 'name', ranking: 1000, tokenize: true, and: false, prefixMatch: false),
+            self::config(field: 'tags.name', ranking: 500, tokenize: true, and: false),
+        ];
+
+        $term = 'foo';
+
+        $context = Context::createDefaultContext();
+        $context->assign([
+            'languageIdChain' => [Defaults::LANGUAGE_SYSTEM],
+        ]);
+
+        $query = $this->tokenQueryBuilder->build('product', $term, $config, $context);
+
+        static::assertNotNull($query);
+
+        $expected = self::bool([
+            self::textMatch(field: 'name', query: 'foo', boost: 1000, languageId: Defaults::LANGUAGE_SYSTEM, andSearch: false, prefixMatch: false),
+            self::nested('tags', self::textMatch(field: 'tags.name', query: 'foo', boost: 500, andSearch: false)),
+        ]);
+
+        static::assertSame($expected, $query->toArray());
+    }
+
     /**
      * @param SearchFieldConfig[] $config
      * @param array{string: mixed} $expected
@@ -328,9 +354,9 @@ class TokenQueryBuilderTest extends TestCase
         );
     }
 
-    private static function config(string $field, float $ranking, bool $tokenize = false, bool $and = true): SearchFieldConfig
+    private static function config(string $field, float $ranking, bool $tokenize = false, bool $and = true, bool $prefixMatch = true): SearchFieldConfig
     {
-        return new SearchFieldConfig($field, $ranking, $tokenize, $and);
+        return new SearchFieldConfig($field, $ranking, $tokenize, $and, $prefixMatch);
     }
 
     /**
@@ -373,7 +399,7 @@ class TokenQueryBuilderTest extends TestCase
     /**
      * @return array<mixed>
      */
-    private static function textMatch(string $field, string|int|float $query, int|float $boost, ?string $languageId = null, ?bool $tokenized = true, ?bool $andSearch = true, bool $explain = false): array
+    private static function textMatch(string $field, string|int|float $query, int|float $boost, ?string $languageId = null, ?bool $tokenized = true, ?bool $andSearch = true, bool $explain = false, ?bool $prefixMatch = true): array
     {
         $languageField = $field;
 
@@ -385,8 +411,11 @@ class TokenQueryBuilderTest extends TestCase
 
         $queries = [
             self::match($languageField . '.search', $query, $boost, $tokenized ? 'auto' : 1, $andSearch),
-            self::matchPhrasePrefix($languageField . '.search', $query, $boost * 0.6),
         ];
+
+        if ($prefixMatch) {
+            $queries[] = self::matchPhrasePrefix($languageField . '.search', $query, $boost * 0.6);
+        }
 
         if ($tokenized && $tokenCount === 1) {
             $queries[] = self::match($languageField . '.ngram', $query, $boost * 0.4, null, $andSearch);

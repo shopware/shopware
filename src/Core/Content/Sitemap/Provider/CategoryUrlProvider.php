@@ -45,11 +45,6 @@ class CategoryUrlProvider extends AbstractUrlProvider
         return 'category';
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @throws \Exception
-     */
     public function getUrls(SalesChannelContext $context, int $limit, ?int $offset = null): UrlResult
     {
         $categories = $this->getCategories($context, $limit, $offset);
@@ -57,6 +52,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
         if (empty($categories)) {
             return new UrlResult([], null);
         }
+
         $keys = FetchModeHelper::keyPair($categories);
 
         $seoUrls = $this->getSeoUrls(array_values($keys), 'frontend.navigation.page', $context, $this->connection);
@@ -89,8 +85,9 @@ class CategoryUrlProvider extends AbstractUrlProvider
         }
 
         $keys = array_keys($keys);
-        /** @var int|null $nextOffset */
+
         $nextOffset = array_pop($keys);
+        \assert(\is_int($nextOffset) || $nextOffset === null);
 
         return new UrlResult($urls, $nextOffset);
     }

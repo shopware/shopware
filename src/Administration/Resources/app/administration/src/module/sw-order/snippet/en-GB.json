@@ -391,7 +391,6 @@
         "placeholderPromotions": "Enter promotion code ...",
         "automaticPromotion":  "automatically applied",
         "labelToggleAutomaticPromotions": "Disable automatically applied promotions",
-        "labelButtonAutomaticPromotions": "Reevaluate automatically applied promotions"
         "automaticPromotions": {
           "title": "Reapply automatic promotions",
           "text": "Automatic promotion reapplication removes any promotions that no longer apply to the order. This includes disabled promotions or promotions where rule-based conditions have changed. Promotions added through a code will not be affected.",

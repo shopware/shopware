@@ -391,7 +391,6 @@
         "placeholderPromotions": "Rabattcode eingeben ...",
         "automaticPromotion":  "automatisch hinzugefügt",
         "labelToggleAutomaticPromotions": "Automatische hinzugefügte Werbeaktionen deaktivieren",
-        "labelButtonAutomaticPromotions": "Automatische Rabattaktionen neu evaluieren"
         "automaticPromotions": {
           "title": "Automatische Aktionen erneut anwenden",
           "text": "Durch die automatische Wiederanwendung von Aktionen werden alle Aktionen entfernt, die nicht mehr für die Bestellung gelten. Dazu gehören deaktivierte Angebote oder Angebote, bei denen sich die regelbasierten Bedingungen geändert haben. Aktionen, die über einen Code hinzugefügt wurden, sind davon nicht betroffen.",

@@ -44,7 +44,7 @@ class MailActionControllerTest extends TestCase
             'documentIds' => ['1'],
         ]);
 
-        $this->mailService->expects(static::once())
+        $this->mailService->expects($this->once())
             ->method('send')
             ->with(
                 static::callback(function (array $data) {
@@ -84,11 +84,11 @@ class MailActionControllerTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $this->stringTemplateRenderer->expects(static::once())
+        $this->stringTemplateRenderer->expects($this->once())
             ->method('enableTestMode');
-        $this->stringTemplateRenderer->expects(static::once())
+        $this->stringTemplateRenderer->expects($this->once())
             ->method('disableTestMode');
-        $this->stringTemplateRenderer->expects(static::once())
+        $this->stringTemplateRenderer->expects($this->once())
             ->method('render')
             ->with('html', $templateData, $context)
             ->willReturn('rendered');
@@ -112,11 +112,11 @@ class MailActionControllerTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $this->stringTemplateRenderer->expects(static::once())
+        $this->stringTemplateRenderer->expects($this->once())
             ->method('enableTestMode');
-        $this->stringTemplateRenderer->expects(static::once())
+        $this->stringTemplateRenderer->expects($this->once())
             ->method('disableTestMode');
-        $this->stringTemplateRenderer->expects(static::once())
+        $this->stringTemplateRenderer->expects($this->once())
             ->method('render')
             ->with('html', [], $context)
             ->willReturn('rendered');
@@ -136,11 +136,11 @@ class MailActionControllerTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $this->stringTemplateRenderer->expects(static::never())
+        $this->stringTemplateRenderer->expects($this->never())
             ->method('enableTestMode');
-        $this->stringTemplateRenderer->expects(static::never())
+        $this->stringTemplateRenderer->expects($this->never())
             ->method('disableTestMode');
-        $this->stringTemplateRenderer->expects(static::never())
+        $this->stringTemplateRenderer->expects($this->never())
             ->method('render');
 
         $mailActionController = new MailActionController(

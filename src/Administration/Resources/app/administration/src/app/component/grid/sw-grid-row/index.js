@@ -37,6 +37,10 @@ Component.register('sw-grid-row', {
             from: 'swGridSetColumns',
             default: null,
         },
+        swGridColumns: {
+            from: 'swGridColumns',
+            default: null,
+        },
     },
 
     emits: ['inline-edit-finish'],
@@ -65,7 +69,6 @@ Component.register('sw-grid-row', {
 
     data() {
         return {
-            columns: [],
             isEditingActive: false,
             inlineEditingCls: 'is--inline-editing',
             id: utils.createId(),
@@ -93,8 +96,6 @@ Component.register('sw-grid-row', {
 
     methods: {
         createdComponent() {
-            this.swGridSetColumns(this.columns);
-
             this.swRegisterGridDisableInlineEditListener(this.onInlineEditCancel);
         },
 
@@ -107,7 +108,7 @@ Component.register('sw-grid-row', {
 
             // If inline editing is already enabled, or no column has
             // the property "editable" we don't have to enable it.
-            this.columns.forEach((column) => {
+            this.swGridColumns.forEach((column) => {
                 if (column.editable || isInlineEditingConfigured) {
                     isInlineEditingConfigured = true;
                 }

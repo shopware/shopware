@@ -33,7 +33,7 @@ describe('src/app/component/base/sw-popover', () => {
     });
 
     it('should render the mt-floating-ui when major feature flag is enabled', async () => {
-        global.activeFeatureFlags = ['ENABLE_METEOR_COMPONENTS'];
+        global.activeFeatureFlags = ['V6_8_0_0'];
 
         const wrapper = await createWrapper();
 

@@ -224,10 +224,10 @@ class ConnectionProfilerTest extends TestCase
         $connection = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $connection->expects(static::any())
+        $connection->expects($this->any())
             ->method('getDatabasePlatform')
             ->willReturn(new MySQLPlatform());
-        $connection->expects(static::any())
+        $connection->expects($this->any())
             ->method('getConfiguration')
             ->willReturn($config);
 

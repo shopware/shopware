@@ -36,11 +36,12 @@
 {% endblock %}
 
 {% block sw_context_menu_item_entry %}
-<div
+<button
     v-else
     class="sw-context-menu-item"
     :class="contextMenuItemStyles"
     v-bind="$attrs"
+    @click.capture="handleClick"
 >
     {% block sw_context_menu_item_entry_icon %}
     <slot name="icon">
@@ -64,6 +65,6 @@
         </slot>
     </span>
     {% endblock %}
-</div>
+</button>
 {% endblock %}
 {% endblock %}

@@ -41,7 +41,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDo
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
-use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -59,6 +58,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -83,6 +83,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @internal
  */
 #[CoversClass(OrderConverter::class)]
+#[Package('checkout')]
 class OrderConverterTest extends TestCase
 {
     private EventDispatcher $eventDispatcher;
@@ -511,7 +512,7 @@ class OrderConverterTest extends TestCase
     {
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->willReturn(static::isInstanceOf(CartConvertedEvent::class));
 
@@ -575,7 +576,7 @@ class OrderConverterTest extends TestCase
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->with(static::callback(static function (SalesChannelContextAssembledEvent $event) use ($order): bool {
                 static::assertSame($order, $event->getOrder());
@@ -592,7 +593,7 @@ class OrderConverterTest extends TestCase
 
         $addressRepository = $this->createMock(EntityRepository::class);
         $addressRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 'order_address',
@@ -614,7 +615,6 @@ class OrderConverterTest extends TestCase
             $this->createMock(SalesChannelContextFactory::class),
             $dispatcher,
             $this->createMock(NumberRangeValueGeneratorInterface::class),
-            $this->createMock(OrderDefinition::class),
             $addressRepository,
             $this->createMock(InitialStateIdLoader::class),
             $this->createMock(LineItemDownloadLoader::class),
@@ -841,7 +841,6 @@ class OrderConverterTest extends TestCase
     {
         // Setup classes for OrderConverter
         // Static
-        $orderDefinition = new OrderDefinition();
         $initialStateIdLoader = $this->createMock(InitialStateIdLoader::class);
         $numberRangeValueGenerator = $this->createMock(NumberRangeValueGeneratorInterface::class);
         $numberRangeValueGenerator->method('getValue')->willReturn('10000');
@@ -915,7 +914,6 @@ class OrderConverterTest extends TestCase
             $salesChannelContextFactory,
             $eventDispatcher ?? $this->eventDispatcher,
             $numberRangeValueGenerator,
-            $orderDefinition,
             $orderAddressRepository,
             $initialStateIdLoader,
             $lineItemDownloadLoader,

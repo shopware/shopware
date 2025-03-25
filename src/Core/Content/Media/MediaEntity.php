@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionCollection;
+use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
@@ -123,7 +124,7 @@ class MediaEntity extends Entity
 
     protected ?CmsSectionCollection $cmsSections = null;
 
-    protected ?CmsBlockCollection $cmsPages = null;
+    protected ?CmsPageCollection $cmsPages = null;
 
     protected ?DocumentCollection $documents = null;
 
@@ -539,12 +540,12 @@ class MediaEntity extends Entity
         $this->cmsSections = $cmsSections;
     }
 
-    public function getCmsPages(): ?CmsBlockCollection
+    public function getCmsPages(): ?CmsPageCollection
     {
         return $this->cmsPages;
     }
 
-    public function setCmsPages(CmsBlockCollection $cmsPages): void
+    public function setCmsPages(CmsPageCollection $cmsPages): void
     {
         $this->cmsPages = $cmsPages;
     }

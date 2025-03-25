@@ -34,7 +34,7 @@ class CollectionHasSpecifyingExtension implements MethodTypeSpecifyingExtension,
 
         return (
             $declaringClass->getName() === Collection::class
-            || $declaringClass->isSubclassOf(Collection::class)
+            || $declaringClass->is(Collection::class)
         )
             && $methodReflection->getName() === 'has' && !$context->null();
     }

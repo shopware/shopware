@@ -169,8 +169,12 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
         const wrapper = await createWrapper();
         const spyCancelCart = jest.spyOn(wrapper.vm, 'cancelCart');
 
+        expect(Shopware.Store.get('swOrder').customer).not.toBeNull();
+
         const buttonCancel = wrapper.find('.sw-order-create-initial-modal__button-cancel');
         await buttonCancel.trigger('click');
+
+        expect(Shopware.Store.get('swOrder').customer).toBeNull();
 
         expect(spyCancelCart).toHaveBeenCalled();
     });
@@ -249,6 +253,9 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
     });
 
     it('should able to preview order', async () => {
+        Shopware.Store.get('swOrder').setCustomer({
+            id: '1234',
+        });
         Shopware.Store.get('swOrder').setCart({
             token: cartToken,
             lineItems: [],

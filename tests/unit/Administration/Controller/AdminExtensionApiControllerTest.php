@@ -121,8 +121,8 @@ class AdminExtensionApiControllerTest extends TestCase
         $entity = $this->buildAppEntity('test-app', 'test-secrets', ['foo.bar']);
         $this->assertEntityRepositoryWithEntity($entity);
 
-        $this->appPayloadServiceHelper->expects(static::once())->method('buildSource')->with('1.0.0', $entity->getName());
-        $this->executor->expects(static::once())->method('execute');
+        $this->appPayloadServiceHelper->expects($this->once())->method('buildSource')->with('1.0.0', $entity->getName());
+        $this->executor->expects($this->once())->method('execute');
 
         $this->controller->runAction(
             new RequestDataBag([
@@ -150,7 +150,7 @@ class AdminExtensionApiControllerTest extends TestCase
 
         $requestBag = new RequestDataBag(['appName' => $entity->getName(), 'uri' => 'test-uri']);
 
-        $this->querySigner->expects(static::once())->method('signUri')
+        $this->querySigner->expects($this->once())->method('signUri')
             ->with($requestBag->get('uri'), $entity, $this->context)
             ->willReturn($this->createMock(UriInterface::class));
 
@@ -166,7 +166,7 @@ class AdminExtensionApiControllerTest extends TestCase
         $collection->add($entity);
         $collection->add($this->buildAppEntity('secondAppDiscarded', null, []));
 
-        $this->entityRepository->expects(static::once())->method('search')
+        $this->entityRepository->expects($this->once())->method('search')
             ->willReturn(
                 new EntitySearchResult(
                     'app',

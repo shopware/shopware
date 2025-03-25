@@ -63,12 +63,15 @@
                         {% block sw_flow_rule_modal_detail_priority %}
                         <mt-number-field
                             v-model="rule.priority"
-                            name="sw-field--rule-priority"
                             class="sw-flow-rule-modal__priority"
+                            name="sw-field--rule-priority"
                             required
+                            number-type="int"
                             :label="$tc('sw-flow.modals.rule.labelPriority')"
                             :placeholder="$tc('sw-flow.modals.rule.placeholderPriority')"
                             :error="rulePriorityError"
+                            :step="1"
+                            :min="0"
                         />
                     {% endblock %}
                     </sw-container>

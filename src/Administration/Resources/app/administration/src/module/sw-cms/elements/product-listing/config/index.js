@@ -196,6 +196,41 @@ export default {
                 },
             ];
         },
+
+        boxHeadlineLevel() {
+            return [
+                {
+                    id: 1,
+                    value: null,
+                    label: this.$tc('sw-cms.elements.productBox.config.label.headlineLevelEmptyOption'),
+                },
+                {
+                    id: 2,
+                    value: 2,
+                    label: this.$tc('sw-cms.elements.productBox.config.label.headlineLevelDefaultOption'),
+                },
+                {
+                    id: 3,
+                    value: 3,
+                    label: this.$tc('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 3 }),
+                },
+                {
+                    id: 4,
+                    value: 4,
+                    label: this.$tc('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 4 }),
+                },
+                {
+                    id: 5,
+                    value: 5,
+                    label: this.$tc('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 5 }),
+                },
+                {
+                    id: 6,
+                    value: 6,
+                    label: this.$tc('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 6 }),
+                },
+            ];
+        },
     },
 
     watch: {

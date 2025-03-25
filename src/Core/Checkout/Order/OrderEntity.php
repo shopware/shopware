@@ -111,6 +111,8 @@ class OrderEntity extends Entity
 
     protected ?string $customerComment = null;
 
+    protected ?string $internalComment = null;
+
     /**
      * @var array<string>|null
      */
@@ -504,6 +506,16 @@ class OrderEntity extends Entity
     public function setCustomerComment(?string $customerComment): void
     {
         $this->customerComment = $customerComment;
+    }
+
+    public function getInternalComment(): ?string
+    {
+        return $this->internalComment;
+    }
+
+    public function setInternalComment(?string $internalComment): void
+    {
+        $this->internalComment = $internalComment;
     }
 
     public function getSource(): ?string

@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -39,6 +40,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 #[CoversClass(CartOrderRoute::class)]
 #[Group('store-api')]
+#[Package('checkout')]
 class CartOrderRouteTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;

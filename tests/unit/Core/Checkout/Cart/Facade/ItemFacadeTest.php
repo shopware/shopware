@@ -12,12 +12,14 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
 #[CoversClass(ItemFacade::class)]
+#[Package('checkout')]
 class ItemFacadeTest extends TestCase
 {
     public function testPublicApiAvailable(): void
@@ -38,23 +40,22 @@ class ItemFacadeTest extends TestCase
 
         $facade = new ItemFacade($item, $stubs, $helper, $context);
 
-        static::assertEquals('foo', $facade->getId());
-        static::assertEquals('type', $facade->getType());
-        static::assertEquals('reference', $facade->getReferencedId());
-        static::assertEquals('label', $facade->getLabel());
-        static::assertEquals(2, $facade->getQuantity());
+        static::assertSame('foo', $facade->getId());
+        static::assertSame('type', $facade->getType());
+        static::assertSame('reference', $facade->getReferencedId());
+        static::assertSame('label', $facade->getLabel());
+        static::assertSame(2, $facade->getQuantity());
 
         static::assertInstanceOf(PriceFacade::class, $facade->getPrice());
-        static::assertEquals(10, $facade->getPrice()->getUnit());
-        static::assertEquals(10, $facade->getPrice()->getTotal());
+        static::assertSame(10.0, $facade->getPrice()->getUnit());
+        static::assertSame(10.0, $facade->getPrice()->getTotal());
 
-        static::assertEquals('bar', $facade->getPayload()->offsetGet('foo'));
-        // @phpstan-ignore-next-line
-        static::assertEquals('bar', $facade->getPayload()['foo']);
-        static::assertEquals('nested', $facade->getPayload()->offsetGet('nested')['foo']);
-
-        // @phpstan-ignore-next-line
-        static::assertEquals('nested', $facade->getPayload()['nested']['foo']);
+        static::assertSame('bar', $facade->getPayload()->offsetGet('foo'));
+        /** @phpstan-ignore typePerfect.noArrayAccessOnObject,staticMethod.alreadyNarrowedType (array access should be tested here explicitly, despite value already known) */
+        static::assertSame('bar', $facade->getPayload()['foo']);
+        static::assertSame('nested', $facade->getPayload()->offsetGet('nested')['foo']);
+        /** @phpstan-ignore typePerfect.noArrayAccessOnObject (array access should be tested here explicitly) */
+        static::assertSame('nested', $facade->getPayload()['nested']['foo']);
 
         static::assertCount(0, $facade->getChildren());
     }
@@ -75,12 +76,12 @@ class ItemFacadeTest extends TestCase
 
         static::assertInstanceOf(ItemFacade::class, $new);
 
-        static::assertEquals(2, $new->getQuantity());
-        static::assertEquals(3, $facade->getQuantity());
+        static::assertSame(2, $new->getQuantity());
+        static::assertSame(3, $facade->getQuantity());
         static::assertNotEquals($facade->getId(), $new->getId());
-        static::assertEquals($facade->getType(), $new->getType());
-        static::assertEquals($facade->getReferencedId(), $new->getReferencedId());
-        static::assertEquals($facade->getLabel(), $new->getLabel());
+        static::assertSame($facade->getType(), $new->getType());
+        static::assertSame($facade->getReferencedId(), $new->getReferencedId());
+        static::assertSame($facade->getLabel(), $new->getLabel());
 
         static::assertNull($facade->take(100));
     }

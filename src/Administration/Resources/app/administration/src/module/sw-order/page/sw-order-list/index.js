@@ -30,6 +30,9 @@ export default {
             sortBy: 'orderDateTime',
             sortDirection: 'DESC',
             isLoading: false,
+            /**
+             * @deprecated tag:v6.8.0 - will be removed without replacement
+             */
             filterLoading: false,
             showDeleteModal: false,
             filterCriteria: [],
@@ -114,6 +117,9 @@ export default {
             return criteria;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         filterSelectCriteria() {
             const criteria = new Criteria(1, 1);
 

@@ -62,7 +62,7 @@ class ShippingMethodValidatorTest extends TestCase
             new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection())
         );
         $cart->setDeliveries(new DeliveryCollection([$delivery]));
-        $context->expects(static::once())->method('getRuleIds')->willReturn(['1']);
+        $context->expects($this->once())->method('getRuleIds')->willReturn(['1']);
 
         $validator = new DeliveryValidator();
         $errors = new ErrorCollection();
@@ -91,7 +91,7 @@ class ShippingMethodValidatorTest extends TestCase
             new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection())
         );
         $cart->setDeliveries(new DeliveryCollection([$delivery]));
-        $context->expects(static::once())->method('getRuleIds')->willReturn(['1']);
+        $context->expects($this->once())->method('getRuleIds')->willReturn(['1']);
 
         $validator = new DeliveryValidator();
         $errors = new ErrorCollection();
@@ -122,7 +122,7 @@ class ShippingMethodValidatorTest extends TestCase
             new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection())
         );
         $cart->setDeliveries(new DeliveryCollection([$delivery]));
-        $context->expects(static::once())->method('getRuleIds')->willReturn(['1']);
+        $context->expects($this->once())->method('getRuleIds')->willReturn(['1']);
 
         $validator = new DeliveryValidator();
         $errors = new ErrorCollection();
@@ -154,7 +154,7 @@ class ShippingMethodValidatorTest extends TestCase
             new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection())
         );
         $cart->setDeliveries(new DeliveryCollection([$delivery]));
-        $context->expects(static::once())->method('getRuleIds')->willReturn(['2']);
+        $context->expects($this->once())->method('getRuleIds')->willReturn(['2']);
 
         $validator = new DeliveryValidator();
         $errors = new ErrorCollection();

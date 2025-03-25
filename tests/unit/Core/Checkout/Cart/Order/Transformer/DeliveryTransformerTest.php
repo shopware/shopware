@@ -24,6 +24,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -34,6 +35,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
  * @internal
  */
 #[CoversClass(DeliveryTransformer::class)]
+#[Package('checkout')]
 class DeliveryTransformerTest extends TestCase
 {
     public function testTransformCollection(): void

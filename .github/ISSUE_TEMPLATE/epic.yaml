@@ -1,6 +1,6 @@
 name: Epic 
 description: A request of substantial size or complexity.
-labels: [Epic]
+type: Epic
 body:
     - type: markdown
       attributes:

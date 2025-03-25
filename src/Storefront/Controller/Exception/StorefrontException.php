@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller\Exception;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,6 +16,9 @@ class StorefrontException extends HttpException
     final public const UN_SUPPORT_STOREFRONT_RESPONSE = 'STOREFRONT__UN_SUPPORT_STOREFRONT_RESPONSE';
     final public const CLASS_DONT_HAVE_TWIG_INJECTED = 'STOREFRONT__CLASS_DONT_HAVE_TWIG_INJECTED';
     final public const NO_REQUEST_PROVIDED = 'STOREFRONT__NO_REQUEST_PROVIDED';
+    /**
+     * @deprecated tag:v6.8.0 - Will be replaced by `ProductException::PRODUCT_REVIEW_NOT_ACTIVE`
+     */
     final public const PRODUCT_REVIEW_NOT_ACTIVE = 'STOREFRONT__REVIEW_NOT_ACTIVE';
 
     private const CUSTOM_APP_PATH = 'custom/apps/';
@@ -85,8 +89,16 @@ class StorefrontException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be replaced by `ProductException::reviewNotActive`
+     */
     public static function reviewNotActive(): self
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', 'ProductException::reviewNotActive')
+        );
+
         return new self(
             Response::HTTP_FORBIDDEN,
             self::PRODUCT_REVIEW_NOT_ACTIVE,

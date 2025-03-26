@@ -133,10 +133,18 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
         </service>
 
-        <service id="Shopware\Administration\Snippet\SnippetFinder">
-            <argument type="service" id="kernel" />
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        <service id="Shopware\Administration\Snippet\SnippetFilesFinder">
+            <argument type="expression">service('kernel').getPluginLoader().getPluginInstances().all()</argument>
+            <argument type="expression">service('kernel').getPluginLoader().getPluginInstances().getActives()</argument>
+            <argument type="expression">service('kernel').getBundles()</argument>
         </service>
+
+        <service id="Shopware\Administration\Snippet\SnippetFinder">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Administration\Snippet\SnippetFilesFinder"/>
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
+        </service>
+
 
         <service id="Shopware\Administration\Snippet\CachedSnippetFinder" decorates="Shopware\Administration\Snippet\SnippetFinder">
             <argument type="service" id="Shopware\Administration\Snippet\CachedSnippetFinder.inner" />

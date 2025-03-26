@@ -38,29 +38,28 @@ readonly class ThemeScripts
             return [];
         }
 
-        $themeName = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_NAME, SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME)
+        $themeName = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_NAME)
             ?? $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME);
 
         $themeId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_ID);
+        $salesChannelId = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID) ?? null;
 
-        if ($themeName === null || $themeId === null) {
+        if ($themeName === null || $themeId === null || $salesChannelId === null) {
             return [];
         }
 
-        $salesChannelId = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
-        $path = $this->themePathBuilder->assemblePath($salesChannelId, $themeId);
-
         $salesChannelContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
-
         if (!$salesChannelContext instanceof SalesChannelContext) {
             return [];
         }
 
+        $path = $this->themePathBuilder->assemblePath($salesChannelId, $themeId);
+
         return $this->cache->get('theme_scripts_' . $path, function (ItemInterface $item) use ($themeId) {
             $runtimeConfig = $this->themeRuntimeConfigService->getResolvedRuntimeConfig($themeId);
-            // todo: validate what has to be done if config is missing
-            if (!$runtimeConfig) {
-                throw new \RuntimeException('No runtime config found for theme with id ' . $themeId);
+
+            if ($runtimeConfig === null) {
+                return [];
             }
 
             return $runtimeConfig->scriptFiles;

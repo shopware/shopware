@@ -28,7 +28,7 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
             }
         }
 
-        .gallery-slider-thumbnails-col.is-underneath{
+        .gallery-slider-thumbnails-col.is-underneath {
             display: none;
         }
     }
@@ -330,7 +330,7 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
 
-    &.spatial-canvas-display  {
+    &.spatial-canvas-display {
         background-color: $sw-background-color;
         opacity: 1;
     }

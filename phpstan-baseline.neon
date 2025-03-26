@@ -2839,3 +2839,13 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeInheritanceBuilderInterface\\:\\:build\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilderInterface.php
+
+		-
+			message: "#^Expected domain exception class Shopware\\\\Core\\\\Framework\\\\Notification\\\\NotificationException, got Shopware\\\\Core\\\\Framework\\\\Routing\\\\RoutingException$#"
+			count: 3
+			path: src/Core/Framework/Notification/Api/NotificationController.php
+
+		-
+			message: "#^Expected domain exception class Shopware\\\\Core\\\\Framework\\\\Notification\\\\NotificationException, got Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiException$#"
+			count: 2
+			path: src/Core/Framework/Notification/Api/NotificationController.php

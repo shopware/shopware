@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Administration\Notification;
+namespace Shopware\Core\Framework\Notification;
 
 use Shopware\Core\Framework\DataAbstractionLayer\BulkEntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;

@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Util\HtmlSanitizer;
 
 /**
  * @internal
- *
- * @phpstan-type SnippetsArray array<string, string|SnippetsArray>
  */
 #[Package('discovery')]
 class SnippetFinder implements SnippetFinderInterface
@@ -28,7 +26,7 @@ class SnippetFinder implements SnippetFinderInterface
     }
 
     /**
-     * @return SnippetsArray
+     * @return array<string, string|mixed>
      */
     public function findSnippets(string $locale): array
     {

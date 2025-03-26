@@ -12,12 +12,15 @@ use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
 /**
  * @internal
- *
- * @phpstan-type SnippetsArray array<string, string|SnippetsArray>
  */
 #[Package('discovery')]
 class SnippetFilesFinder implements SnippetFilesFinderInterface
 {
+    /**
+     * @param BundleInterface[] $plugins
+     * @param BundleInterface[] $activePlugins
+     * @param BundleInterface[] $bundles
+     */
     public function __construct(
         public readonly array $plugins,
         public readonly array $activePlugins,
@@ -25,6 +28,9 @@ class SnippetFilesFinder implements SnippetFilesFinderInterface
     ) {
     }
 
+    /**
+     * @return string[]
+     */
     public function findSnippetFiles(string $locale): array
     {
         $finder = (new Finder())
@@ -46,6 +52,9 @@ class SnippetFilesFinder implements SnippetFilesFinderInterface
         return \array_unique($files);
     }
 
+    /**
+     * @return string[]
+     */
     private function getBundlePaths(): array
     {
         return array_reduce(

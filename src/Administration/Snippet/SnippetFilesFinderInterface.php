@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 interface SnippetFilesFinderInterface
 {
     /**
-     * @return array<int, string>
+     * @return string[]
      */
     public function findSnippetFiles(string $locale): array;
 }

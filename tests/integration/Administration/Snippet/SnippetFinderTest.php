@@ -10,7 +10,6 @@ use Shopware\Administration\Snippet\SnippetFilesFinderInterface;
 use Shopware\Administration\Snippet\SnippetFinder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
@@ -213,9 +212,8 @@ class SnippetFinderTest extends TestCase
         static::assertEquals($expectedEn, $actualEn);
     }
 
-    private function getLocalId($locale): ?string
+    private function getLocalId(string $locale): ?string
     {
-        /** @var EntityRepository $localeRepository */
         $repository = static::getContainer()->get('locale.repository');
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('code', $locale))

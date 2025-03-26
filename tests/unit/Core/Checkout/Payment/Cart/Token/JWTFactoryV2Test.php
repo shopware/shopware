@@ -66,10 +66,6 @@ class JWTFactoryV2Test extends TestCase
         $this->tokenFactory->parseToken($token);
     }
 
-    /**
-     * NEXT-21735 - Sometimes produces invalid base64 and returns early (but same exception)
-     */
-    #[Group('not-deterministic')]
     public function testGetTokenWithInvalidSignature(): void
     {
         $transaction = self::createTransaction();

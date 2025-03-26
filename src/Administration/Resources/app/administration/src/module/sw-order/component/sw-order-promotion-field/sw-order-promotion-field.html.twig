@@ -44,17 +44,31 @@
             {{ $tc('sw-order.detailsTab.promotionsField.updatesModal.description') }}
         </p>
 
-        <p v-show="promotionsAdded.length > 0" class="sw-order-promotion-field__updates_modal__list_title">
+        <p
+            v-show="promotionsAdded.length > 0"
+            class="sw-order-promotion-field__updates_modal__list_title"
+        >
             {{ $tc('sw-order.detailsTab.promotionsField.updatesModal.promotionAddedTitle') }}
         </p>
-        <span v-for="error in promotionsAdded" class="sw-order-promotion-field__updates_modal__list_item">
+        <span
+            v-for="(error, idx) in promotionsAdded"
+            :key="idx"
+            class="sw-order-promotion-field__updates_modal__list_item"
+        >
             {{ error.parameters.name }}
         </span>
 
-        <p v-show="promotionsRemoved.length > 0" class="sw-order-promotion-field__updates_modal__list_title">
+        <p
+            v-show="promotionsRemoved.length > 0"
+            class="sw-order-promotion-field__updates_modal__list_title"
+        >
             {{ $tc('sw-order.detailsTab.promotionsField.updatesModal.promotionRemovedTitle') }}
         </p>
-        <span v-for="error in promotionsRemoved" class="sw-order-promotion-field__updates_modal__list_item">
+        <span
+            v-for="(error, idx) in promotionsRemoved"
+            :key="idx"
+            class="sw-order-promotion-field__updates_modal__list_item"
+        >
             {{ error.parameters.name }}
         </span>
     </sw-modal>

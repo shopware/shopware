@@ -66,8 +66,8 @@
 
         <div class="row g-2">
             {% block component_address_form_street %}
+                {# @deprecated tag:v6.8.0 - `additionalClass` will always be 'col-md-12' #}
                 {% sw_include '@Storefront/storefront/component/address/field/address-street-field.html.twig' with {
-                    # @deprecated tag:v6.8.0 - `additionalClass` will always be 'col-md-12'
                     additionalClass: feature('v6.8.0.0') or arrangement === 'cityStateZip' ? 'col-md-12' : 'col-md-6'
                 } %}
             {% endblock %}

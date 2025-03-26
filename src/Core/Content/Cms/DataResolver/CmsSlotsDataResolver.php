@@ -114,7 +114,7 @@ class CmsSlotsDataResolver
      *
      * @param array<CriteriaCollection> $criteriaList
      * @param array<EntitySearchResult<TEntityCollection>> $identifierResult
-     * @param array<EntitySearchResult<TEntityCollection>> $criteriaResult
+     * @param array<array<EntitySearchResult<TEntityCollection>>> $criteriaResult
      */
     private function enrichCmsSlots(
         CmsSlotCollection $slots,
@@ -172,7 +172,7 @@ class CmsSlotsDataResolver
     /**
      * @param array<string, array<string, Criteria>> $searches
      *
-     * @return array<string, EntitySearchResult<EntityCollection>>
+     * @return array<string, array<string, EntitySearchResult<EntityCollection>>>
      */
     private function fetchByCriteria(array $searches, SalesChannelContext $context): array
     {
@@ -190,7 +190,7 @@ class CmsSlotsDataResolver
                     $result = $repository->search($criteria, $context->getContext());
                 }
 
-                $searchResults[$criteriaHash] = $result;
+                $searchResults[$definitionClass][$criteriaHash] = $result;
             }
         }
 
@@ -310,7 +310,7 @@ class CmsSlotsDataResolver
      * @template TEntityCollection of EntityCollection
      *
      * @param array<string, CriteriaCollection> $criteriaObjects
-     * @param array<string, EntitySearchResult<TEntityCollection>> $searchResults
+     * @param array<string, array<EntitySearchResult<TEntityCollection>>> $searchResults
      */
     private function mapSearchResults(ElementDataCollection $result, CmsSlotEntity $slot, array $criteriaObjects, array $searchResults): void
     {
@@ -318,7 +318,7 @@ class CmsSlotsDataResolver
             return;
         }
 
-        foreach ($criteriaObjects[$slot->getUniqueIdentifier()] as $criterias) {
+        foreach ($criteriaObjects[$slot->getUniqueIdentifier()] as $definition => $criterias) {
             foreach ($criterias as $key => $criteria) {
                 if (!$criteria->hasExtension('criteriaHash')) {
                     continue;
@@ -327,11 +327,11 @@ class CmsSlotsDataResolver
                 /** @var ArrayEntity $hashArrayEntity */
                 $hashArrayEntity = $criteria->getExtension('criteriaHash');
                 $hash = $hashArrayEntity->get('hash');
-                if (!isset($searchResults[$hash])) {
+                if (!isset($searchResults[$definition][$hash])) {
                     continue;
                 }
 
-                $result->add($key, $searchResults[$hash]);
+                $result->add($key, $searchResults[$definition][$hash]);
             }
         }
     }

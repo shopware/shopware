@@ -3,13 +3,15 @@
 namespace Shopware\Administration\Snippet;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Administration\Extension\SnippetExtension;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
-use Shopware\Core\Kernel;
-use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
+ *
+ * @phpstan-type SnippetsArray array<string, string|SnippetsArray>
  */
 #[Package('discovery')]
 class SnippetFinder implements SnippetFinderInterface
@@ -19,105 +21,32 @@ class SnippetFinder implements SnippetFinderInterface
     ];
 
     public function __construct(
-        private readonly Kernel $kernel,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly SnippetFilesFinderInterface $filesFinder,
+        private readonly ExtensionDispatcher $extensionDispatcher
     ) {
     }
 
     /**
-     * @return array<string, mixed>
+     * @return SnippetsArray
      */
     public function findSnippets(string $locale): array
     {
-        $snippetFiles = $this->findSnippetFiles($locale);
+        $snippetFiles = $this->filesFinder->findSnippetFiles($locale);
         $snippets = $this->parseFiles($snippetFiles);
 
-        $snippets = [...$snippets, ...$this->getAppAdministrationSnippets($locale, $snippets)];
+        $snippets = $this->extensionDispatcher
+            ->publish(
+                SnippetExtension::NAME,
+                new SnippetExtension($snippets, $locale),
+                fn ($snippets, $locale) => [...$snippets, ...$this->getAppAdministrationSnippets($locale, $snippets)]
+            );
 
         if (!\count($snippets)) {
             return [];
         }
 
         return $snippets;
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    private function getBundlePaths(): array
-    {
-        $plugins = $this->kernel->getPluginLoader()->getPluginInstances()->all();
-        $activePlugins = $this->kernel->getPluginLoader()->getPluginInstances()->getActives();
-        $bundles = $this->kernel->getBundles();
-        $paths = [];
-
-        foreach ($activePlugins as $plugin) {
-            $pluginPath = $plugin->getPath() . '/Resources/app/administration/src';
-            if (!file_exists($pluginPath)) {
-                continue;
-            }
-
-            $paths[] = $pluginPath;
-        }
-
-        foreach ($bundles as $bundle) {
-            if (\in_array($bundle, $plugins, true)) {
-                continue;
-            }
-
-            if ($bundle->getName() === 'Administration') {
-                $paths = array_merge($paths, [
-                    $bundle->getPath() . '/Resources/app/administration/src/app/snippet',
-                    $bundle->getPath() . '/Resources/app/administration/src/module/*/snippet',
-                    $bundle->getPath() . '/Resources/app/administration/src/app/component/*/*/snippet',
-                ]);
-
-                continue;
-            }
-
-            if ($bundle->getName() === 'Storefront') {
-                $paths = array_merge($paths, [
-                    $bundle->getPath() . '/Resources/app/administration/src/app/snippet',
-                    $bundle->getPath() . '/Resources/app/administration/src/modules/*/snippet',
-                ]);
-
-                continue;
-            }
-
-            $bundlePath = $bundle->getPath() . '/Resources/app/administration/src';
-
-            if (!file_exists($bundlePath)) {
-                continue;
-            }
-
-            $paths[] = $bundlePath;
-        }
-
-        return $paths;
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    private function findSnippetFiles(string $locale): array
-    {
-        $finder = (new Finder())
-            ->files()
-            ->exclude('node_modules')
-            ->ignoreDotFiles(true)
-            ->ignoreVCS(true)
-            ->ignoreUnreadableDirs()
-            ->name(\sprintf('%s.json', $locale))
-            ->in($this->getBundlePaths());
-
-        $iterator = $finder->getIterator();
-        $files = [];
-
-        foreach ($iterator as $file) {
-            $files[] = $file->getRealPath();
-        }
-
-        return \array_unique($files);
     }
 
     /**

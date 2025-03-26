@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Administration\Snippet;
 
@@ -7,15 +8,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Administration;
 use Shopware\Administration\Snippet\SnippetException;
+use Shopware\Administration\Snippet\SnippetFilesFinder;
 use Shopware\Administration\Snippet\SnippetFinder;
-use Shopware\Core\Framework\Plugin;
-use Shopware\Core\Framework\Plugin\KernelPluginCollection;
-use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
-use Shopware\Core\Kernel;
-use Shopware\Storefront\Storefront;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -26,8 +23,9 @@ class SnippetFinderTest extends TestCase
     public function testFindSnippetsFromAppNoSnippetsAdded(): void
     {
         $snippetFinder = new SnippetFinder(
-            $this->getKernelMock(),
-            $this->getConnectionMock('en-GB', [])
+            $this->getConnectionMock('en-GB', []),
+            $this->getSnippetFilesFinder(),
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $snippets = $snippetFinder->findSnippets('en-GB');
@@ -37,8 +35,9 @@ class SnippetFinderTest extends TestCase
     public function testFindSnippetsFromApp(): void
     {
         $snippetFinder = new SnippetFinder(
-            $this->getKernelMock(),
-            $this->getConnectionMock('en-GB', $this->getSnippetFixtures())
+            $this->getConnectionMock('en-GB', $this->getSnippetFixtures()),
+            $this->getSnippetFilesFinder(),
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $snippets = $snippetFinder->findSnippets('en-GB');
@@ -51,8 +50,9 @@ class SnippetFinderTest extends TestCase
     public function testNoSnippetsFound(): void
     {
         $snippetFinder = new SnippetFinder(
-            $this->getKernelMock(),
-            $this->getConnectionMock('fr-FR', [])
+            $this->getConnectionMock('fr-FR', []),
+            $this->getSnippetFilesFinder(),
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         static::assertEmpty($snippetFinder->findSnippets('fr-FR'));
@@ -60,25 +60,15 @@ class SnippetFinderTest extends TestCase
 
     public function testDefaultSnippetFileLoading(): void
     {
-        $activePluginPaths = [
-            'activePlugin',
-            'invalidPlugin',
-            'nonExistingPlugin',
-        ];
-        $pluginPaths = [
-            'activePlugin',
-            'irrelevantPlugin',
-        ];
-        $bundlePaths = [
-            'Administration',
-            'Storefront',
-            'existingBundle',
-            'nonExistingBundle',
+        $files = [
+            'activePlugin/Resources/app/administration/src/jp-JP.json',
+            'existingBundle/Resources/app/administration/src/jp-JP.json',
         ];
 
         $snippetFinder = new SnippetFinder(
-            $this->getKernelMock($pluginPaths, $activePluginPaths, $bundlePaths),
-            $this->getConnectionMock('jp-JP', [])
+            $this->getConnectionMock('jp-JP', []),
+            $this->getSnippetFilesFinder($files),
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $actualSnippets = $snippetFinder->findSnippets('jp-JP');
@@ -96,8 +86,9 @@ class SnippetFinderTest extends TestCase
     public function testValidateValidSnippets(array $appSnippets): void
     {
         $snippetFinder = new SnippetFinder(
-            $this->getKernelMock(),
-            $this->getConnectionMock('en-GB', $appSnippets)
+            $this->getConnectionMock('en-GB', $appSnippets),
+            $this->getSnippetFilesFinder(),
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $actualSnippetKeys = $snippetFinder->findSnippets('en-GB');
@@ -116,8 +107,9 @@ class SnippetFinderTest extends TestCase
         $expectedExceptionMessage = 'The following keys on the first level are duplicated and can not be overwritten: ' . implode(', ', $duplicateSnippetKeys);
 
         $snippetFinder = new SnippetFinder(
-            $this->getKernelMock(),
-            $this->getConnectionMock('en-GB', $appSnippets)
+            $this->getConnectionMock('en-GB', $appSnippets),
+            $this->getSnippetFilesFinder(['administration/en-GB.json']),
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $this->expectException(SnippetException::class);
@@ -133,8 +125,9 @@ class SnippetFinderTest extends TestCase
     public function testSanitizeAppSnippets(array $before, array $after): void
     {
         $snippetFinder = new SnippetFinder(
-            $this->getKernelMock(),
-            $this->getConnectionMock('en-GB', $before)
+            $this->getConnectionMock('en-GB', $before),
+            $this->getSnippetFilesFinder(),
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $result = $snippetFinder->findSnippets('en-GB');
@@ -229,73 +222,16 @@ class SnippetFinderTest extends TestCase
     }
 
     /**
-     * @param list<string> $pluginPaths
-     * @param list<string> $activePluginPaths
-     * @param list<string> $bundlePaths
+     * @param string[] $files
      */
-    public function getKernelMock(
-        array $pluginPaths = [],
-        array $activePluginPaths = [],
-        array $bundlePaths = []
-    ): Kernel&MockObject {
-        $getBundleMockByPath = function (string $path): Plugin&MockObject {
-            $plugin = $this->createMock(Plugin::class);
-            $plugin
-                ->method('getPath')
-                ->willReturn(__DIR__ . '/fixtures/' . $path);
+    public function getSnippetFilesFinder(array $files = []): SnippetFilesFinder&MockObject
+    {
+        $files = array_map(fn ($path) => __DIR__ . '/fixtures/' . $path, $files);
+        $mock = $this->createMock(SnippetFilesFinder::class);
+        $mock->method('findSnippetFiles')
+            ->willReturn($files);
 
-            return $plugin;
-        };
-
-        $plugins = array_map($getBundleMockByPath, $pluginPaths);
-        $activePlugins = array_map($getBundleMockByPath, $activePluginPaths);
-
-        $adminBundle = $this->createMock(Administration::class);
-
-        $adminBundle
-            ->method('getPath')
-            ->willReturn(\dirname((string) ReflectionHelper::getFileName(Administration::class)));
-
-        $property = ReflectionHelper::getProperty(Administration::class, 'name');
-        $property->setValue($adminBundle, 'Administration');
-
-        $storefrontBundle = $this->createMock(Storefront::class);
-        $storefrontBundle
-            ->method('getPath')
-            ->willReturn(\dirname((string) ReflectionHelper::getFileName(Storefront::class)));
-
-        $property = ReflectionHelper::getProperty(Storefront::class, 'name');
-        $property->setValue($storefrontBundle, 'Storefront');
-
-        $bundles = [
-            ...array_map($getBundleMockByPath, $bundlePaths),
-            ...$plugins,
-            $adminBundle,
-            $storefrontBundle,
-        ];
-
-        $pluginCollectionMock = $this->createMock(KernelPluginCollection::class);
-        $pluginCollectionMock
-            ->method('all')
-            ->willReturn($plugins);
-        $pluginCollectionMock
-            ->method('getActives')
-            ->willReturn($activePlugins);
-
-        $pluginLoaderMock = $this->createMock(KernelPluginLoader::class);
-        $pluginLoaderMock
-            ->method('getPluginInstances')
-            ->willReturn($pluginCollectionMock);
-
-        $kernelMock = $this->createMock(Kernel::class);
-        $kernelMock
-            ->method('getPluginLoader')
-            ->willReturn($pluginLoaderMock);
-        $kernelMock
-            ->method('getBundles')
-            ->willReturn($bundles);
-
-        return $kernelMock;
+        return $mock;
     }
 
     /**

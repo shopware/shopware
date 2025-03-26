@@ -106,7 +106,6 @@ async function createWrapper() {
                 'sw-datepicker': true,
                 'sw-multi-tag-select': true,
                 'sw-textarea-field': true,
-                'sw-order-promotion-field': true,
                 'sw-extension-component-section': true,
                 'sw-custom-field-set-renderer': true,
                 'sw-order-state-history-modal': true,

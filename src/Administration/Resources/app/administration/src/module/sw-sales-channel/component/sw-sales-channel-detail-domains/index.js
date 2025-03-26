@@ -65,7 +65,7 @@ export default {
                 return this.$t('sw-sales-channel.detail.titleCreateDomain');
             }
 
-            return this.$t('sw-sales-channel.detail.titleEditDomain', 0, {
+            return this.$t('sw-sales-channel.detail.titleEditDomain', {
                 name: this.unicodeUriFilter(this.currentDomainBackup.url),
             });
         },

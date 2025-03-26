@@ -1,0 +1,8 @@
+{
+  "test": {
+    "foo": {
+      "bar": "foo.bar-default",
+      "baz": "foo.baz-default"
+    }
+  }
+}

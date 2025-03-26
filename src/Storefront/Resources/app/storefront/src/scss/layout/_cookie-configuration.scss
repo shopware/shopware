@@ -18,7 +18,6 @@ Offcanvas containing a list of cookies which need to be manually selected by the
     }
 }
 
-
 .offcanvas-cookie-group {
     margin: 12px 0;
 
@@ -30,15 +29,13 @@ Offcanvas containing a list of cookies which need to be manually selected by the
         cursor: pointer;
     }
 
-    @supports (-webkit-hyphens:none) {
+    @supports (-webkit-hyphens: none) {
         .form-check .form-check-input {
             float: none;
             display: inline-block;
         }
     }
-
 }
-
 
 .offcanvas-cookie-entries {
     position: relative;
@@ -62,7 +59,9 @@ Offcanvas containing a list of cookies which need to be manually selected by the
         padding: 0 8px 0 24px;
         height: 0;
         opacity: 0;
-        transition: opacity 0.3s ease, padding-top 0.3s ease;
+        transition:
+            opacity 0.3s ease,
+            padding-top 0.3s ease;
         margin: 0;
         visibility: hidden;
         overflow: hidden;

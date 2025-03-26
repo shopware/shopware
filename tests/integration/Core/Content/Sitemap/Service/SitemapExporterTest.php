@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\Sitemap\Service;
 
 use League\Flysystem\FilesystemOperator;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;

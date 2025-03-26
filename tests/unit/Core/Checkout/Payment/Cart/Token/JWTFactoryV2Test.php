@@ -10,7 +10,6 @@ use Lcobucci\JWT\Validation\Constraint;
 use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2;

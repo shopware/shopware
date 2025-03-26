@@ -72,6 +72,10 @@ async function createWrapper(privileges = []) {
         global: {
             stubs: {
                 'sw-order-promotion-tag-field': true,
+                'sw-modal': {
+                    emits: ['modal-close'],
+                    template: `<div class="sw-modal__content"><slot /></div>`,
+                },
             },
             provide: {
                 repositoryFactory: {
@@ -275,5 +279,38 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
 
         expect(wrapper.find('sw-order-promotion-tag-field-stub').attributes('disabled')).toBeUndefined();
         expect(wrapper.findComponent('.mt-button').props('disabled')).toBeUndefined();
+    });
+
+    it('should open modal on errors', async () => {
+        createStateMapper();
+
+        const wrapper = await createWrapper(['order.editor']);
+
+        expect(wrapper.find('.sw-modal__content').exists()).toBe(false);
+
+        wrapper.vm.promotionUpdates = [{
+            messageKey: 'promotion-discount-deleted',
+            parameters: { name: 'Disabled Auto promo' },
+        }, {
+            messageKey: 'promotion-discount-added',
+            parameters: { name: 'New Auto promo' },
+        }];
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.promotionsRemoved).toEqual([wrapper.vm.promotionUpdates[0]]);
+        expect(wrapper.vm.promotionsAdded).toEqual([wrapper.vm.promotionUpdates[1]]);
+
+        const modal = wrapper.get('.sw-modal__content');
+        expect(modal.text()).toContain('updatesModal.description');
+        expect(modal.text()).toContain('updatesModal.promotionAddedTitle');
+        expect(modal.text()).toContain('updatesModal.promotionRemovedTitle');
+        expect(modal.text()).toContain('Disabled Auto promo');
+        expect(modal.text()).toContain('New Auto promo');
+
+        wrapper.vm.dismissPromotionUpdates();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-modal__content').exists()).toBe(false);
     });
 });

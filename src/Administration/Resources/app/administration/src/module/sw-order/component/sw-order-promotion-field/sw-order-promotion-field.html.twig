@@ -32,5 +32,32 @@
         {{ $tc('sw-order.detailsTab.promotionsField.automaticPromotions.labelButton') }}
     </mt-button>
     {% endblock %}
+
+    {% block sw_order_promotion_field_updates_modal %}
+    <sw-modal
+        v-if="promotionUpdates.length > 0"
+        class="sw-order-promotion-field__updates_modal"
+        :title="$tc('sw-order.detailsTab.promotionsField.updatesModal.title')"
+        @modal-close="dismissPromotionUpdates"
+    >
+        <p class="sw-order-promotion-field__updates_modal__description">
+            {{ $tc('sw-order.detailsTab.promotionsField.updatesModal.description') }}
+        </p>
+
+        <p v-show="promotionsAdded.length > 0" class="sw-order-promotion-field__updates_modal__list_title">
+            {{ $tc('sw-order.detailsTab.promotionsField.updatesModal.promotionAddedTitle') }}
+        </p>
+        <span v-for="error in promotionsAdded" class="sw-order-promotion-field__updates_modal__list_item">
+            {{ error.parameters.name }}
+        </span>
+
+        <p v-show="promotionsRemoved.length > 0" class="sw-order-promotion-field__updates_modal__list_title">
+            {{ $tc('sw-order.detailsTab.promotionsField.updatesModal.promotionRemovedTitle') }}
+        </p>
+        <span v-for="error in promotionsRemoved" class="sw-order-promotion-field__updates_modal__list_item">
+            {{ error.parameters.name }}
+        </span>
+    </sw-modal>
+    {% endblock %}
 </div>
 {% endblock %}

@@ -69,6 +69,7 @@ export default {
         return {
             promotionError: null,
             disabledAutoPromotions: false,
+            promotionUpdates: [],
         };
     },
 
@@ -159,6 +160,14 @@ export default {
          */
         hasOrderUnsavedChanges() {
             return this.changesetGenerator.generate(this.order).changes !== null;
+        },
+
+        promotionsRemoved() {
+            return this.promotionUpdates.filter((e) => e.messageKey === 'promotion-discount-deleted');
+        },
+
+        promotionsAdded() {
+            return this.promotionUpdates.filter((e) => e.messageKey === 'promotion-discount-added');
         },
     },
 
@@ -314,12 +323,21 @@ export default {
         handlePromotionResponse(response) {
             this.emitEntityData();
 
-            if (this.swOrderDetailHandleCartErrors) {
-                this.swOrderDetailHandleCartErrors(response);
+            if (!response?.data?.errors) {
                 return;
             }
 
-            if (!response?.data?.errors) {
+            const [errors, promotionErrors] = response.data.errors.reduce(([general, promotion], e) => {
+                return ['promotion-discount-deleted', 'promotion-discount-added'].includes(e.messageKey)
+                    ? [general, [...promotion, e]]
+                    : [[...general, e], promotion];
+            }, [[], []]);
+
+            this.promotionUpdates = promotionErrors;
+            response.data.errors = errors;
+
+            if (this.swOrderDetailHandleCartErrors) {
+                this.swOrderDetailHandleCartErrors(response);
                 return;
             }
 
@@ -361,6 +379,10 @@ export default {
             return this.orderLineItemRepository.delete(lineItem.id, this.versionContext)
                 .then(this.emitEntityData.bind(this))
                 .catch(this.handleError.bind(this));
+        },
+
+        dismissPromotionUpdates() {
+            this.promotionUpdates = [];
         },
 
         /**

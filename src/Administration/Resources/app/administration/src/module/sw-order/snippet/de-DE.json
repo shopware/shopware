@@ -392,9 +392,15 @@
         "automaticPromotion":  "automatisch hinzugefügt",
         "labelToggleAutomaticPromotions": "Automatische hinzugefügte Werbeaktionen deaktivieren",
         "automaticPromotions": {
-          "title": "Automatische Aktionen erneut anwenden",
-          "text": "Durch die automatische Wiederanwendung von Aktionen werden alle Aktionen entfernt, die nicht mehr für die Bestellung gelten. Dazu gehören deaktivierte Angebote oder Angebote, bei denen sich die regelbasierten Bedingungen geändert haben. Aktionen, die über einen Code hinzugefügt wurden, sind davon nicht betroffen.",
-          "labelButton": "Automatische Aktionen erneut anwenden"
+          "title": "Rabattaktionen aktualisieren",
+          "text": "Die Bestellung wird aktualisiert, indem ungültige Aktionen entfernt und neue, die gelten, hinzugefügt werden. Die Änderungen können auf aktualisierte Bedingungen oder deaktivierte Aktionen zurückgeführt werden. Aktionen, die mit einem Code hinzugefügt wurden, werden nicht geändert.",
+          "labelButton": "Rabattaktionen aktualisieren"
+        },
+        "updatesModal": {
+          "title": "Aktualisierte Rabattaktionen",
+          "description": "Die folgenden Rabattaktionen wurden aktualisiert:",
+          "promotionAddedTitle": "Hinzugefügt:",
+          "promotionRemovedTitle": "Entfernt:"
         }
       }
     },

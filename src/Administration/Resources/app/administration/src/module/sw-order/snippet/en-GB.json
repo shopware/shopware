@@ -392,9 +392,15 @@
         "automaticPromotion":  "automatically applied",
         "labelToggleAutomaticPromotions": "Disable automatically applied promotions",
         "automaticPromotions": {
-          "title": "Reapply automatic promotions",
-          "text": "Automatic promotion reapplication removes any promotions that no longer apply to the order. This includes disabled promotions or promotions where rule-based conditions have changed. Promotions added through a code will not be affected.",
-          "labelButton": "Reapply automatic promotions"
+          "title": "Update promotions",
+          "text": "This will update the order by removing promotions that no longer apply and adding new ones that do. Changes may be due to updated conditions or disabled promotions. Promotions added with a code won't be changed.",
+          "labelButton": "Update promotions"
+        },
+        "updatesModal": {
+          "title": "Updated promotions",
+          "description": "The following promotions have been updated:",
+          "promotionAddedTitle": "Added:",
+          "promotionRemovedTitle": "Removed:"
         }
       }
     },

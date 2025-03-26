@@ -16,21 +16,6 @@ insert_final_newline = true
 [*.md]
 trim_trailing_whitespace = false
 
-[*.json]
-indent_size = 2
-
-[src/Core/Framework/Api/ApiDefinition/Generator/Schema/**/*.json]
-indent_size = 4
-
-[*.yml]
-indent_size = 2
-
-[composer.json]
-indent_size = 4
-
-[config-schema.json]
-indent_size = 4
-
 [*.nix]
 indent_size = 2
 

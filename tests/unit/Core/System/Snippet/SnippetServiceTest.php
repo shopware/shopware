@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
@@ -20,6 +21,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\MockSnippetFile;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Translation\MessageCatalogue;
 
 /**
@@ -109,6 +111,7 @@ class SnippetServiceTest extends TestCase
             $this->createMock(EntityRepository::class),
             $this->createMock(SnippetFilterFactory::class),
             $container,
+            new ExtensionDispatcher(new EventDispatcher()),
             $cachedThemeLoader,
         );
 
@@ -134,7 +137,8 @@ class SnippetServiceTest extends TestCase
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
             $this->createMock(SnippetFilterFactory::class),
-            $container
+            $container,
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $snippets = $snippetService->getStorefrontSnippets($catalog, $snippetSetId, $locale);
@@ -157,6 +161,7 @@ class SnippetServiceTest extends TestCase
             $this->createMock(EntityRepository::class),
             $this->createMock(SnippetFilterFactory::class),
             $this->createMock(ContainerInterface::class),
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $snippetSetId = $snippetService->findSnippetSetId(Uuid::randomHex(), Uuid::randomHex(), 'en-GB');
@@ -180,6 +185,7 @@ class SnippetServiceTest extends TestCase
             $this->createMock(EntityRepository::class),
             $this->createMock(SnippetFilterFactory::class),
             $this->createMock(ContainerInterface::class),
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $snippetSetId = $snippetService->findSnippetSetId(Uuid::randomHex(), Uuid::randomHex(), 'vi-VN');

@@ -89,49 +89,53 @@
     {% endblock %}
 
     {% block component_address_personal_fields_salutation_title %}
-        <div class="row g-2">
-            {% block component_address_personal_fields_salutation %}
-                {% set salutationOptions %}
-                    {% for salutation in page.salutations %}
-                        <option {% if salutation.id == data.get('salutationId') %}
-                            selected="selected"
-                        {% endif %}
-                            value="{{ salutation.id }}">
-                            {{ salutation.translated.displayName }}
-                        </option>
-                    {% endfor %}
-                {% endset %}
+        {% if config('core.loginRegistration.showSalutation') or config('core.loginRegistration.showTitleField') %}
+            <div class="row g-2">
+                {% block component_address_personal_fields_salutation %}
+                    {% if config('core.loginRegistration.showSalutation') %}
+                        {% set salutationOptions %}
+                            {% for salutation in page.salutations %}
+                                <option {% if salutation.id == data.get('salutationId') %}
+                                    selected="selected"
+                                {% endif %}
+                                    value="{{ salutation.id }}">
+                                    {{ salutation.translated.displayName }}
+                                </option>
+                            {% endfor %}
+                        {% endset %}
 
-                {% sw_include '@Storefront/storefront/component/form/form-select.html.twig' with {
-                    label: 'account.personalSalutationLabel'|trans|sw_sanitize,
-                    id: idPrefix ~ prefix ~ 'personalSalutation',
-                    name: prefix ? prefix ~ '[salutationId]' : 'salutationId',
-                    options: salutationOptions,
-                    violationPath: '/salutationId',
-                    additionalClass: 'col-md-3 col-sm-6',
-                } %}
-            {% endblock %}
-
-            {% block component_address_personal_fields_title %}
-                {% if config('core.loginRegistration.showTitleField') %}
-                    {% if formViolations.getViolations("/#{prefix}/title") is not empty %}
-                        {% set violationPath = "/#{prefix}/title" %}
-                    {% elseif formViolations.getViolations("/title") is not empty %}
-                        {% set violationPath = "/title" %}
+                        {% sw_include '@Storefront/storefront/component/form/form-select.html.twig' with {
+                            label: 'account.personalSalutationLabel'|trans|sw_sanitize,
+                            id: idPrefix ~ prefix ~ 'personalSalutation',
+                            name: prefix ? prefix ~ '[salutationId]' : 'salutationId',
+                            options: salutationOptions,
+                            violationPath: '/salutationId',
+                            additionalClass: 'col-md-3 col-sm-6',
+                        } %}
                     {% endif %}
+                {% endblock %}
 
-                    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
-                        label: 'account.personalTitleLabel'|trans|sw_sanitize,
-                        id: idPrefix ~ prefix ~ 'personalTitle',
-                        name: prefix ? prefix ~ '[title]' : 'title',
-                        value: data.get('title'),
-                        autocomplete: 'section-personal honorific-prefix',
-                        violationPath: violationPath,
-                        additionalClass: 'col-md-3 col-sm-6',
-                    } %}
-                {% endif %}
-            {% endblock %}
-        </div>
+                {% block component_address_personal_fields_title %}
+                    {% if config('core.loginRegistration.showTitleField') %}
+                        {% if formViolations.getViolations("/#{prefix}/title") is not empty %}
+                            {% set violationPath = "/#{prefix}/title" %}
+                        {% elseif formViolations.getViolations("/title") is not empty %}
+                            {% set violationPath = "/title" %}
+                        {% endif %}
+
+                        {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                            label: 'account.personalTitleLabel'|trans|sw_sanitize,
+                            id: idPrefix ~ prefix ~ 'personalTitle',
+                            name: prefix ? prefix ~ '[title]' : 'title',
+                            value: data.get('title'),
+                            autocomplete: 'section-personal honorific-prefix',
+                            violationPath: violationPath,
+                            additionalClass: 'col-md-3 col-sm-6',
+                        } %}
+                    {% endif %}
+                {% endblock %}
+            </div>
+        {% endif %}
     {% endblock %}
 
     {% block component_address_personal_fields_name %}

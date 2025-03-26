@@ -60,7 +60,7 @@ final class CmsSlotsDataEnrichExtension extends Extension
          *
          * @description The fetched slot data which was searched by the criteria list
          *
-         * @var array<EntitySearchResult<TEntityCollection>>
+         * @var array<array<string, EntitySearchResult<TEntityCollection>>>
          */
         public readonly array $criteriaResult,
         /**

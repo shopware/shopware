@@ -1,9 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Administration\Notification;
+namespace Shopware\Core\Framework\Notification;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -45,7 +44,7 @@ class NotificationService
     {
         $source = $context->getSource();
         if (!$source instanceof AdminApiSource) {
-            throw ApiException::invalidAdminSource($context->getSource()::class);
+            throw NotificationException::invalidAdminSource($context->getSource()::class);
         }
 
         $criteria = new Criteria();

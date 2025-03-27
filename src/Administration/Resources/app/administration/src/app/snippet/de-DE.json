@@ -1474,6 +1474,11 @@
         "textDetails": "Technische Details: Die Konfiguration der APP_URL ist fehlerhaft.",
         "labelLearnMoreButton": "Lerne mehr",
         "linkToDocsArticle": "https://docs.shopware.com/de/shopware-6-de/tutorials-und-faq/hinweise-zur-app-url"
+      },
+      "sw-app-permission-request-banner": {
+        "title": "Neue Berechtigungen angefordert",
+        "explanation": "Eine Erweiterungen benötigen neue Berechtigungen, um aktualisiert zu werden. Bitte überprüfe die neuen Berechtigungen, um fortzufahren. | {n} Erweiterungen benötigen neue Berechtigungen, um aktualisiert zu werden. Bitte überprüfe die neuen Berechtigungen, um fortzufahren.",
+        "reviewButton": "Berechtigungen prüfen"
       }
     }
   },

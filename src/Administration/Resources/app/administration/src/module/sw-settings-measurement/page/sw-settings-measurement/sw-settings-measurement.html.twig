@@ -1,0 +1,49 @@
+<sw-page class="sw-settings-measurement">
+    <template #search-bar>
+        <sw-search-bar />
+    </template>
+
+    <template #smart-bar-header>
+        <h2>
+            {{ $tc('sw-settings.index.title') }}
+            <mt-icon
+                name="regular-chevron-right-xs"
+                size="12px"
+            />
+            {{ $tc('sw-settings-measurement.general.textHeadline') }}
+        </h2>
+    </template>
+
+    <template #language-switch>
+        <sw-language-switch
+            @on-change="() => {}"
+        />
+    </template>
+
+    <template #smart-bar-actions>
+        <mt-button
+            v-tooltip="{
+                message: $t('sw-privileges.tooltip.warning'),
+                disabled: acl.can('measurement.creator'),
+                showOnDisabledElements: true
+            }"
+            class="sw-settings-measurement__save-action"
+            variant="primary"
+            :disabled="!acl.can('measurement.creator') || isLoading"
+            size="default"
+            @click="onSave"
+        >
+            {{ $tc('global.default.save') }}
+        </mt-button>
+    </template>
+
+    <template #content>
+        <sw-card-view>
+            <sw-settings-measurement-default-units
+                :measurement-system-config="measurementSystemConfig"
+                :measurement-system-options="measurementSystemOptions"
+                @measurement-system-config-type-change="onMeasurementSystemConfigTypeChange"
+            />
+        </sw-card-view>
+    </template>
+</sw-page>

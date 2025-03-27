@@ -1,6 +1,6 @@
 import type { RouteLocationNamedRaw, RouteLocation } from 'vue-router';
 import type { AppModulesService, AppModuleDefinition } from 'src/core/service/api/app-modules.service';
-import type { AppPermissionsService } from 'src/core/service/api/app-permissions.service';
+import type AppPermissionsService from 'src/core/service/api/app-permissions.service';
 import type StoreApiService from 'src/core/service/api/store.api.service';
 import type { ShopwareDiscountCampaignService } from 'src/app/service/discount-campaign.service';
 import type {

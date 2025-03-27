@@ -371,7 +371,7 @@ export default {
             this.showPermissionsModal = true;
         },
 
-        async openPermissionsReviewModal() {
+        openPermissionsReviewModal() {
             this.permissionModalActionLabel = this.$tc(
                 'sw-extension-store.component.sw-extension-card-base.labelAcceptRequestedPermissions',
             );

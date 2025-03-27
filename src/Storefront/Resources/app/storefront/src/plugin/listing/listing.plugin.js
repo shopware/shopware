@@ -334,6 +334,7 @@ export default class ListingPlugin extends Plugin {
         <button
             class="${this.options.activeFilterLabelClasses}"
             data-id="${label.id}"
+            title="${this.options.snippets.removeFilterAriaLabel}: ${label.label}"
             aria-label="${this.options.snippets.removeFilterAriaLabel}: ${label.label}">
             ${this.getLabelPreviewTemplate(label)}
             ${label.label}

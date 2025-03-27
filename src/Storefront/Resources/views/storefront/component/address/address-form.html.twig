@@ -48,6 +48,8 @@
         } %}
 
         {% set arrangement = config('core.loginRegistration.addressInputFieldArrangement') %}
+        {# @deprecated tag:v6.8.0 - Variable will be removed #}
+        {% set isOldArrangement = not feature('v6.8.0.0') and (arrangement === 'city-zip-state' or arrangement === 'zip-city-state') %}
 
         {# @deprecated tag:v6.8.0 - Only condition will be removed #}
         {% if feature('v6.8.0.0') %}
@@ -68,7 +70,7 @@
             {% block component_address_form_street %}
                 {# @deprecated tag:v6.8.0 - `additionalClass` will always be 'col-md-12' #}
                 {% sw_include '@Storefront/storefront/component/address/field/address-street-field.html.twig' with {
-                    additionalClass: feature('v6.8.0.0') or arrangement === 'city-state-zip' ? 'col-md-12' : 'col-md-6'
+                    additionalClass: isOldArrangement ? 'col-md-6' : 'col-md-12'
                 } %}
             {% endblock %}
 
@@ -102,8 +104,8 @@
 
                     {# @deprecated tag:v6.8.0 - Will be removed. Use `component_address_form_city_state_zipcode`, `component_address_field_city` of `address-city-field.html.twig` or `component_address_field_zipcode` of `address-zipcode-field.html.twig` as replacement #}
                     {% block component_address_form_zipcode_city_fields %}
-                        {% if arrangement !== 'city-state-zip' %}
-                            {% if config('core.loginRegistration.showZipcodeInFrontOfCity') or arrangement === 'zip-city-state' %}
+                        {% if isOldArrangement %}
+                            {% if arrangement === 'zip-city-state' %}
                                 {{ zipcodeField }}
                                 {{ cityField }}
                             {% else %}
@@ -133,7 +135,7 @@
         </div>
 
         {# @deprecated tag:v6.8.0 - Only condition will be removed #}
-        {% if arrangement === 'city-state-zip' or feature('v6.8.0.0') %}
+        {% if not isOldArrangement %}
         <div class="row g-2">
             {% block component_address_form_city_state_zipcode %}
                 {% for field in arrangement|split('-') %}
@@ -164,7 +166,7 @@
 
                 {# @deprecated tag:v6.8.0 - Will be removed. Use `component_address_form_city_state_zipcode` or `component_address_field_country_state` of `address-country-state-field.html.twig` as replacement #}
                 {% block component_address_form_state_select %}
-                    {% if arrangement !== 'city-state-zip' %}
+                    {% if isOldArrangement %}
                         {% sw_include '@Storefront/storefront/component/address/field/address-country-state-field.html.twig' with {
                             additionalClass: 'col-md-6 d-none',
                         } %}

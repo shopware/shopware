@@ -74,7 +74,7 @@
 
             {# @deprecated tag:v6.8.0 - Will be removed #}
             {% if not feature('v6.8.0.0') %}
-                {# @deprecated tag:v6.8.0 - Block will be replaced by `component_address_form_city_state_zipcode` #}
+                {# @deprecated tag:v6.8.0 - Will be removed. Use `component_address_form_city_state_zipcode`, `component_address_field_city` of `address-city-field.html.twig` or `component_address_field_zipcode` of `address-zipcode-field.html.twig` as replacement #}
                 {% block component_address_form_zipcode_city %}
                     {% set zipcodeField %}
                         {% sw_include '@Storefront/storefront/component/address/field/address-zipcode-field.html.twig' %}
@@ -100,7 +100,7 @@
                         {% endblock %}
                     {% endset %}
 
-                    {# @deprecated tag:v6.8.0 - Block will be replaced by `component_address_form_city_state_zipcode` #}
+                    {# @deprecated tag:v6.8.0 - Will be removed. Use `component_address_form_city_state_zipcode`, `component_address_field_city` of `address-city-field.html.twig` or `component_address_field_zipcode` of `address-zipcode-field.html.twig` as replacement #}
                     {% block component_address_form_zipcode_city_fields %}
                         {% if arrangement !== 'cityStateZip' %}
                             {% if config('core.loginRegistration.showZipcodeInFrontOfCity') or arrangement === 'zipCityState' %}
@@ -160,13 +160,13 @@
             data-country-state-select="true"
             data-country-state-select-options="{{ options|json_encode }}"
         >
-            {# @deprecated tag:v6.8.0 - Block will be replaced by `component_address_form_country_field` #}
+            {# @deprecated tag:v6.8.0 - Will be replaced by `component_address_form_country_field` #}
             {% block component_address_form_country %}
                 {% block component_address_form_country_select %}
                     {% sw_include '@Storefront/storefront/component/address/field/address-country-field.html.twig' %}
                 {% endblock %}
 
-                {# @deprecated tag:v6.8.0 - Block will be replaced by `component_address_form_city_state_zipcode` #}
+                {# @deprecated tag:v6.8.0 - Will be removed. Use `component_address_form_city_state_zipcode` or `component_address_field_country_state` of `address-country-state-field.html.twig` as replacement #}
                 {% block component_address_form_state_select %}
                     {% if arrangement !== 'cityStateZip' %}
                         {% sw_include '@Storefront/storefront/component/address/field/address-country-state-field.html.twig' with {

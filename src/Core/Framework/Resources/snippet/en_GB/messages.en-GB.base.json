@@ -41,6 +41,7 @@
                 "total": "Total"
             },
             "tax": "plus %taxRate%% VAT:",
+            "taxLabeled": "plus %taxRate%% %label%:",
             "total": "Total:",
             "roundedTotal": "Rounded total:",
             "totalNet": "Net total:",

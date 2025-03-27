@@ -87,9 +87,15 @@ Remove all references to `@Storefront/storefront/component/checkout/cart-alerts.
 
 # Changed Functionality
 
+<details></details>
+
 # API
 
+<details></details>
+
 # Core
+
+<details>
 
 ## Removal of `StoreApiRouteCacheKeyEvent` and `StoreApiRouteCacheTagsEvent` and all it's child classes
 
@@ -141,7 +147,11 @@ The `filterByActiveRules` methods in `Shopware\Core\Checkout\Payment\PaymentMeth
 Use the new `Shopware\Core\Framework\Rule\RuleIdMatcher` instead.
 It allows filtering of `RuleIdAware` objects in either arrays or collections.
 
+</details>
+
 # Administration
+
+<details>
 
 ## Removed admin notification entity + related classes
 
@@ -156,12 +166,47 @@ The old classes are removed:
 * `Shopware\Administration\Notification\NotificationCollection`
 * `Shopware\Administration\Notification\NotificationDefinition`
 * `Shopware\Administration\Notification\NotificationEntity`
-* 
+
 ## Removed notification controller
 
 `\Shopware\Administration\Controller\NotificationController` has been moved to core: `\Shopware\Core\Framework\Notification\Api\NotificationController` - if you type hint on this class, please refactor, it is now internal. The HTTP route is still the same. The old class has been removed.
 
+</details>
+
 # Storefront
+
+<details>
+
+## Removed theme.json translations
+
+We removed `label` and `helpText` properties of `theme.json` to use the snippet system of the administration instead.
+
+The snippet keys to be used constructed as follows. The mentioned `themeName` implies the `technicalName` property of the theme in camel case:
+* Tab:
+  * `sw-theme.<technicalName>.<tabName>.label`
+    * e.g.: `sw-theme.swag-shape-theme.colorTab.label`
+  * `sw-theme.<technicalName>.<tabName>.helpText`
+    * e.g.: `sw-theme.swag-shape-theme.colorTab.helpText`
+* Block:
+  * `sw-theme.<technicalName>.<tabName>.<blockName>.label`
+    * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.label`
+  * `sw-theme.<technicalName>.<tabName>.<blockName>.helpText`
+    * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.helpText`
+* Section:
+  * `sw-theme.<technicalName>.<tabName>.<blockName>.<sectionName>.label`
+    * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.homeSection.label`
+  * `sw-theme.<technicalName>.<tabName>.<blockName>.<sectionName>.helpText`
+    * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.homeSection.helpText`
+* Field:
+  * `sw-theme.<technicalName>.<tabName>.<blockName>.<sectionName>.<fieldName>.label`
+    * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.homeSection.sw-color-primary-dark.label`
+  * `sw-theme.<technicalName>.<tabName>.<blockName>.<sectionName>.<fieldName>.helpText`
+    * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.homeSection.sw-color-primary-dark.helpText`
+* Options:
+  * `sw-theme.<technicalName>.<tabName>.<blockName>.<sectionName>.<fieldName>.<index>.label`
+    * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.homeSection.sw-color-primary-dark.0.label`
+  * `sw-theme.<technicalName>.<tabName>.<blockName>.<sectionName>.<fieldName>.<index>.helpText`
+    * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.homeSection.sw-color-primary-dark.0.helpText`
 
 ## Removed `category_url` and `category_linknewtab` twig functions
 
@@ -176,11 +221,19 @@ The `category_url` and `category_linknewtab` twig functions have been removed. T
 </a>
 ```
 
+## ThemeEntity::label & ThemeEntity::helpText removal
+
+Both deprecated fields `label` & `helpText` of `Shopware\Storefront\Theme\ThemeEntity` are removed. Please use the snippet keys to be found in `\Shopware\Storefront\Theme\ThemeService::getThemeConfigurationStructuredFields` instead.
+
 ## Removal of DeleteThemeFilesMessage and its handler
 The `\Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage` and its handler `\Shopware\Storefront\Theme\Message\DeleteThemeFilesHandler` are removed.
 Unused theme files are deleted by using the `\Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTask` scheduled task.
 
+</details>
+
 # App System
+
+<details>
 
 ## Use `sw_macro_function` instead of usual `macro` in app scripts if you return values
 
@@ -209,7 +262,11 @@ Use the `sw_macro_function` instead, which is available since v6.6.10.0.
 
 The `CountryStateController` route `/country/country-state-data` now supports only GET methods. This change improves compatibility with HTTP caching and aligns with the best practices for data retrieval routes.
 
+</details>
+
 # Hosting & Configuration
+
+<details>
 
 ## Removed Store-API Route caching configuration
 
@@ -233,3 +290,4 @@ Concretely this means the following configuration options are removed:
 - `shopware.cache.invalidation.salutation_route`
 - `shopware.cache.invalidation.sitemap_route`
 
+</details>

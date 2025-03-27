@@ -252,6 +252,7 @@ class ThemeService implements ResetInterface
             $configFields = $this->translateHelpTexts($configFields, $helpTexts);
         }
 
+        $themeConfig['themeTechnicalName'] = $theme->getTechnicalName();
         $themeConfig['fields'] = $configFields;
         $themeConfig['currentFields'] = [];
         $themeConfig['baseThemeFields'] = [];
@@ -284,38 +285,76 @@ class ThemeService implements ResetInterface
      */
     public function getThemeConfigurationStructuredFields(string $themeId, bool $translate, Context $context): array
     {
-        $mergedConfig = $this->getThemeConfiguration($themeId, $translate, $context)['fields'];
+        $themeConfig = $this->getThemeConfiguration($themeId, $translate, $context);
+        $themeTechnicalName = $themeConfig['themeTechnicalName'];
+        $mergedFieldConfig = $themeConfig['fields'];
 
         $translations = [];
         if ($translate) {
             $translations = $this->getTranslations($themeId, $context);
-            $mergedConfig = $this->translateLabels($mergedConfig, $translations);
+            $mergedFieldConfig = $this->translateLabels($mergedFieldConfig, $translations);
         }
 
         $outputStructure = [];
 
-        foreach ($mergedConfig as $fieldName => $fieldConfig) {
+        foreach ($mergedFieldConfig as $fieldName => $fieldConfig) {
             $tab = $this->getTab($fieldConfig);
             $tabLabel = $this->getTabLabel($tab, $translations);
+            $tabSnippetKey = $this->buildSnippetKey($themeTechnicalName, $tab);
+
             $block = $this->getBlock($fieldConfig);
             $blockLabel = $this->getBlockLabel($block, $translations);
+            $blockSnippetKey = $this->buildSnippetKey($themeTechnicalName, $tab, $block);
+
             $section = $this->getSection($fieldConfig);
             $sectionLabel = $this->getSectionLabel($section, $translations);
+            $sectionSnippetKey = $this->buildSnippetKey($themeTechnicalName, $tab, $block, $section);
 
             // set default tab
             $outputStructure['tabs']['default']['label'] = '';
 
             // set labels
             $outputStructure['tabs'][$tab]['label'] = $tabLabel;
+            $outputStructure['tabs'][$tab]['labelSnippetKey'] = $tabSnippetKey;
             $outputStructure['tabs'][$tab]['blocks'][$block]['label'] = $blockLabel;
+            $outputStructure['tabs'][$tab]['blocks'][$block]['labelSnippetKey'] = $blockSnippetKey;
             $outputStructure['tabs'][$tab]['blocks'][$block]['sections'][$section]['label'] = $sectionLabel;
+            $outputStructure['tabs'][$tab]['blocks'][$block]['sections'][$section]['labelSnippetKey'] = $sectionSnippetKey;
+
+            $custom = $fieldConfig['custom'] ?? null;
+
+            if ($custom && \is_array($custom['options'])) {
+                $options = [];
+                foreach ($custom['options'] as $optionIndex => $option) {
+                    $options[] = [
+                        ...$option,
+                        'labelSnippetKey' => $this->buildSnippetKey(
+                            $themeTechnicalName,
+                            $tab,
+                            $block,
+                            $section,
+                            $fieldName,
+                            (string) $optionIndex
+                        ),
+                    ];
+                }
+
+                $custom['options'] = $options;
+            }
 
             // add fields to sections
             $outputStructure['tabs'][$tab]['blocks'][$block]['sections'][$section]['fields'][$fieldName] = [
                 'label' => $fieldConfig['label'],
+                'labelSnippetKey' => $this->buildSnippetKey(
+                    $themeTechnicalName,
+                    $tab,
+                    $block,
+                    $section,
+                    $fieldName
+                ),
                 'helpText' => $fieldConfig['helpText'] ?? null,
                 'type' => $fieldConfig['type'] ?? null,
-                'custom' => $fieldConfig['custom'],
+                'custom' => $custom,
                 'fullWidth' => $fieldConfig['fullWidth'],
             ];
         }
@@ -353,6 +392,18 @@ class ThemeService implements ResetInterface
     public function reset(): void
     {
         $this->notified = false;
+    }
+
+    private function toKebabCase(string $themeName): string
+    {
+        // Camel case to kebab case
+        $themeName = (string) preg_replace('/([a-z])([A-Z])/', '$1-$2', $themeName);
+
+        // Strip special characters
+        $themeName = (string) preg_replace('/[^a-zA-Z0-9\s-]/', '', $themeName);
+        $themeName = (string) preg_replace('/\s+/', '-', $themeName);
+
+        return strtolower(trim($themeName, '-'));
     }
 
     private function handleAsync(
@@ -514,6 +565,8 @@ class ThemeService implements ResetInterface
 
     /**
      * @param array<string, mixed> $translations
+     *
+     * @deprecated tag:v6.8.0 - Using translations from `theme.json` will be removed, use `buildSnippetKey` instead
      */
     private function getTabLabel(string $tabName, array $translations): string
     {
@@ -526,6 +579,8 @@ class ThemeService implements ResetInterface
 
     /**
      * @param array<string, mixed> $translations
+     *
+     * @deprecated tag:v6.8.0 - Using translations from `theme.json` will be removed, use `buildSnippetKey` instead
      */
     private function getBlockLabel(string $blockName, array $translations): string
     {
@@ -538,6 +593,8 @@ class ThemeService implements ResetInterface
 
     /**
      * @param array<string, mixed> $translations
+     *
+     * @deprecated tag:v6.8.0 - Using translations from `theme.json` will be removed, use `buildSnippetKey` instead
      */
     private function getSectionLabel(string $sectionName, array $translations): string
     {
@@ -631,5 +688,18 @@ class ThemeService implements ResetInterface
         }
 
         return $this->configService->get(self::CONFIG_THEME_COMPILE_ASYNC) && !$context->hasState(self::STATE_NO_QUEUE);
+    }
+
+    private function buildSnippetKey(string $themeTechnicalName, string ...$parts): string
+    {
+        return implode(
+            '.',
+            [
+                'sw-theme',
+                $this->toKebabCase($themeTechnicalName),
+                ...$parts,
+                'label',
+            ],
+        );
     }
 }

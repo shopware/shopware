@@ -1,4 +1,95 @@
 {
+  "sw-theme": {
+    "storefront": {
+      "default": {
+        "themeColors": {
+          "label": "Theme-Farben",
+          "default": {
+            "sw-color-brand-primary": {
+              "label": "Primärfarbe"
+            },
+            "sw-color-brand-secondary": {
+              "label": "Sekundärfarbe"
+            },
+            "sw-border-color": {
+              "label": "Rahmen"
+            },
+            "sw-background-color": {
+              "label": "Hintergrund"
+            }
+          }
+        },
+        "statusColors": {
+          "label": "Status-Benachrichtigungen",
+          "default": {
+            "sw-color-success": {
+              "label": "Erfolg"
+            },
+            "sw-color-danger": {
+              "label": "Fehler"
+            },
+            "sw-color-warning": {
+              "label": "Hinweis"
+            },
+            "sw-color-info": {
+              "label": "Information"
+            }
+          }
+        },
+        "typography": {
+          "label": "Typografie",
+          "default": {
+            "sw-font-family-base": {
+              "label": "Fließtext-Schriftart"
+            },
+            "sw-text-color": {
+              "label": "Fließtextfarbe"
+            },
+            "sw-font-family-headline": {
+              "label": "Überschrift-Schriftart"
+            },
+            "sw-headline-color": {
+              "label": "Überschriftfarbe"
+            }
+          }
+        },
+        "eCommerce": {
+          "label": "E-Commerce",
+          "default": {
+            "sw-color-price": {
+              "label": "Preis"
+            },
+            "sw-color-buy-button": {
+              "label": "Kauf-Button"
+            },
+            "sw-color-buy-button-text": {
+              "label": "Kauf-Button-Farbe"
+            }
+          }
+        },
+        "media": {
+          "label": "Medien",
+          "default": {
+            "sw-logo-desktop": {
+              "label": "Desktop"
+            },
+            "sw-logo-tablet": {
+              "label": "Tablet"
+            },
+            "sw-logo-mobile": {
+              "label": "Mobile"
+            },
+            "sw-logo-share": {
+              "label": "App- & Share-Icon"
+            },
+            "sw-logo-favicon": {
+              "label": "Favicon"
+            }
+          }
+        }
+      }
+    }
+  },
   "sw-theme-manager": {
     "general": {
       "mainMenuItemGeneral": "Themes",

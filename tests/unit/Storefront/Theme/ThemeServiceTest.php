@@ -15,6 +15,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -549,6 +551,10 @@ class ThemeServiceTest extends TestCase
             )
         );
 
+        if (Feature::isActive('v6.8.0.0')) {
+            $this->expectException(FeatureException::class);
+        }
+
         $config = $this->themeService->getThemeConfiguration($ids['themeId'], true, $this->context);
 
         static::assertArrayHasKey('fields', $config);
@@ -599,6 +605,10 @@ class ThemeServiceTest extends TestCase
             )
         );
 
+        if (Feature::isActive('v6.8.0.0')) {
+            $this->expectException(FeatureException::class);
+        }
+
         $config = $this->themeService->getThemeConfiguration($ids['themeId'], false, $this->context);
 
         static::assertArrayHasKey('fields', $config);
@@ -645,57 +655,11 @@ class ThemeServiceTest extends TestCase
             )
         );
 
-        $config = $this->themeService->getThemeConfigurationStructuredFields($ids['themeId'], true, $this->context);
-
-        static::assertArrayHasKey('tabs', $config);
-        static::assertArrayHasKey('default', $config['tabs']);
-        static::assertArrayHasKey('blocks', $config['tabs']['default']);
-        static::assertEquals($expectedStructured, $config);
-    }
-
-    /**
-     * @param array<string, mixed> $ids
-     * @param array<string, mixed>|null $expected
-     * @param array<string, mixed>|null $expectedNotTranslated
-     * @param array<string, mixed>|null $expectedStructured
-     * @param array<string, mixed>|null $expectedStructuredNotTranslated
-     */
-    #[DataProvider('getThemeCollectionForThemeConfiguration')]
-    public function testGetThemeConfigurationStructuredNoTranslation(
-        array $ids,
-        ThemeCollection $themeCollection,
-        ?array $expected = null,
-        ?array $expectedNotTranslated = null,
-        ?array $expectedStructured = null,
-        ?array $expectedStructuredNotTranslated = null
-    ): void {
-        if ($expectedStructuredNotTranslated !== null) {
-            $expectedStructured = $expectedStructuredNotTranslated;
+        if (Feature::isActive('v6.8.0.0')) {
+            $this->expectException(FeatureException::class);
         }
 
-        $this->themeRepositoryMock->method('search')->willReturn(
-            new EntitySearchResult(
-                'theme',
-                1,
-                $themeCollection,
-                null,
-                new Criteria(),
-                $this->context
-            )
-        );
-
-        $storefrontPlugin = new StorefrontPluginConfiguration('Test');
-        $storefrontPlugin->setThemeConfig(ThemeFixtures::getThemeJsonConfig());
-
-        $this->storefrontPluginRegistryMock->method('getConfigurations')->willReturn(
-            new StorefrontPluginConfigurationCollection(
-                [
-                    $storefrontPlugin,
-                ]
-            )
-        );
-
-        $config = $this->themeService->getThemeConfigurationStructuredFields($ids['themeId'], false, $this->context);
+        $config = $this->themeService->getThemeConfigurationStructuredFields($ids['themeId'], true, $this->context);
 
         static::assertArrayHasKey('tabs', $config);
         static::assertArrayHasKey('default', $config['tabs']);
@@ -784,6 +748,7 @@ class ThemeServiceTest extends TestCase
                                                 'de-DE' => 'DE',
                                                 'en-GB' => 'EN',
                                             ],
+                                            'labelSnippetKey' => 'sw-theme.test.default.default.default.extend-parent-custom-config.label',
                                             'value' => '20',
                                             'editable' => true,
                                             'helpText' => [
@@ -828,6 +793,7 @@ class ThemeServiceTest extends TestCase
                                                 'de-DE' => 'DE',
                                                 'en-GB' => 'EN',
                                             ],
+                                            'labelSnippetKey' => 'sw-theme.test.default.default.default.parent-custom-config.label',
                                             'value' => '20',
                                             'editable' => true,
                                             'helpText' => [
@@ -848,6 +814,8 @@ class ThemeServiceTest extends TestCase
                     'config' => ThemeFixtures::getExtractedConfig1(),
                     'currentFields' => ThemeFixtures::getExtractedCurrentFields5(),
                     'baseThemeFields' => ThemeFixtures::getExtractedBaseThemeFields5(),
+                    'name' => 'test',
+                    'themeTechnicalName' => 'Test',
                 ],
                 'expectedNotTranslated' => [
                     'blocks' => ThemeFixtures::getExtractedBlock1(),
@@ -856,6 +824,8 @@ class ThemeServiceTest extends TestCase
                     'config' => ThemeFixtures::getExtractedConfig2(),
                     'currentFields' => ThemeFixtures::getExtractedCurrentFields5(),
                     'baseThemeFields' => ThemeFixtures::getExtractedBaseThemeFields5(),
+                    'name' => 'test',
+                    'themeTechnicalName' => 'Test',
                 ],
                 'expectedStructured' => [
                     'tabs' => ThemeFixtures::getExtractedTabs10(),
@@ -920,6 +890,8 @@ class ThemeServiceTest extends TestCase
                     'config' => ThemeFixtures::getExtractedConfig1(),
                     'currentFields' => ThemeFixtures::getExtractedCurrentFields1(),
                     'baseThemeFields' => ThemeFixtures::getExtractedBaseThemeFields1(),
+                    'name' => 'test',
+                    'themeTechnicalName' => 'Test',
                 ],
                 'expectedNotTranslated' => [
                     'blocks' => ThemeFixtures::getExtractedBlock1(),
@@ -928,6 +900,8 @@ class ThemeServiceTest extends TestCase
                     'config' => ThemeFixtures::getExtractedConfig2(),
                     'currentFields' => ThemeFixtures::getExtractedCurrentFields1(),
                     'baseThemeFields' => ThemeFixtures::getExtractedBaseThemeFields1(),
+                    'name' => 'test',
+                    'themeTechnicalName' => 'Test',
                 ],
                 'expectedStructured' => [
                     'tabs' => ThemeFixtures::getExtractedTabs1(),
@@ -959,7 +933,9 @@ class ThemeServiceTest extends TestCase
                                 'baseConfig' => [
                                     'fields' => [
                                         'first' => [],
-                                        'test' => [],
+                                        'test' => [
+                                            'labelSnippetKey' => 'sw-theme.test.default.default.default.test.label',
+                                        ],
                                     ],
                                     'configInheritance' => [
                                         '@ParentTheme',
@@ -993,6 +969,8 @@ class ThemeServiceTest extends TestCase
                     'configInheritance' => ThemeFixtures::getExtractedConfigInheritance(),
                     'currentFields' => ThemeFixtures::getExtractedCurrentFields2(),
                     'baseThemeFields' => ThemeFixtures::getExtractedBaseThemeFields2(),
+                    'name' => 'test',
+                    'themeTechnicalName' => 'Test',
                 ],
                 'expectedNotTranslated' => [
                     'blocks' => ThemeFixtures::getExtractedBlock1(),
@@ -1000,6 +978,8 @@ class ThemeServiceTest extends TestCase
                     'configInheritance' => ThemeFixtures::getExtractedConfigInheritance(),
                     'currentFields' => ThemeFixtures::getExtractedCurrentFields2(),
                     'baseThemeFields' => ThemeFixtures::getExtractedBaseThemeFields2(),
+                    'name' => 'test',
+                    'themeTechnicalName' => 'Test',
                 ],
                 'expectedStructured' => [
                     'tabs' => ThemeFixtures::getExtractedTabs3(),
@@ -1021,6 +1001,7 @@ class ThemeServiceTest extends TestCase
                                 'id' => $themeId,
                                 '_uniqueIdentifier' => $themeId,
                                 'salesChannels' => new SalesChannelCollection(),
+                                'technicalName' => 'Test',
                                 'parentThemeId' => $parentThemeId,
                                 'configValues' => [
                                     'test' => ['value' => ['no_test']],
@@ -1044,9 +1025,12 @@ class ThemeServiceTest extends TestCase
                     ]
                 ),
                 'expected' => [
-                    'fields' => ThemeFixtures::getExtractedFields5(),
+                    'blocks' => ThemeFixtures::getExtractedBlock1(),
+                    'fields' => ThemeFixtures::getExtractedFields2(),
                     'currentFields' => ThemeFixtures::getExtractedCurrentFields3(),
                     'baseThemeFields' => ThemeFixtures::getExtractedBaseThemeFields3(),
+                    'name' => 'test',
+                    'themeTechnicalName' => 'Test',
                 ],
                 'expectedNotTranslated' => null,
                 'expectedStructured' => [
@@ -1069,6 +1053,7 @@ class ThemeServiceTest extends TestCase
                                 'id' => $themeId,
                                 '_uniqueIdentifier' => $themeId,
                                 'salesChannels' => new SalesChannelCollection(),
+                                'technicalName' => 'Test',
                                 'parentThemeId' => $parentThemeId,
                                 'configValues' => [
                                     'test' => ['value' => ['no_test']],
@@ -1095,9 +1080,12 @@ class ThemeServiceTest extends TestCase
                     ]
                 ),
                 'expected' => [
+                    'blocks' => ThemeFixtures::getExtractedBlock1(),
                     'fields' => ThemeFixtures::getExtractedFields5(),
                     'currentFields' => ThemeFixtures::getExtractedCurrentFields3(),
                     'baseThemeFields' => ThemeFixtures::getExtractedBaseThemeFields3(),
+                    'name' => 'test',
+                    'themeTechnicalName' => 'Test',
                 ],
                 'expectedNotTranslated' => null,
                 'expectedStructured' => [
@@ -1107,6 +1095,7 @@ class ThemeServiceTest extends TestCase
                     'tabs' => ThemeFixtures::getExtractedTabs6(),
                 ],
             ],
+
             [
                 'ids' => [
                     'themeId' => $themeId,
@@ -1120,6 +1109,7 @@ class ThemeServiceTest extends TestCase
                                 'id' => $themeId,
                                 '_uniqueIdentifier' => $themeId,
                                 'salesChannels' => new SalesChannelCollection(),
+                                'technicalName' => 'Test',
                                 'parentThemeId' => $parentThemeId,
                                 'configValues' => [
                                     'test' => ['value' => ['no_test']],
@@ -1146,9 +1136,12 @@ class ThemeServiceTest extends TestCase
                     ]
                 ),
                 'expected' => [
-                    'fields' => ThemeFixtures::getExtractedFields5(),
+                    'blocks' => ThemeFixtures::getExtractedBlock1(),
+                    'fields' => ThemeFixtures::getExtractedFields2(),
                     'currentFields' => ThemeFixtures::getExtractedCurrentFields3(),
                     'baseThemeFields' => ThemeFixtures::getExtractedBaseThemeFields3(),
+                    'name' => 'test',
+                    'themeTechnicalName' => 'Test',
                 ],
                 'expectedNotTranslated' => null,
                 'expectedStructured' => [
@@ -1171,6 +1164,7 @@ class ThemeServiceTest extends TestCase
                                 'id' => $themeId,
                                 '_uniqueIdentifier' => $themeId,
                                 'salesChannels' => new SalesChannelCollection(),
+                                'technicalName' => 'Test',
                                 'configValues' => [
                                     'test' => ['value' => ['no_test']],
                                 ],
@@ -1186,9 +1180,12 @@ class ThemeServiceTest extends TestCase
                     ]
                 ),
                 'expected' => [
-                    'fields' => ThemeFixtures::getExtractedFields5(),
+                    'blocks' => ThemeFixtures::getExtractedBlock1(),
+                    'fields' => ThemeFixtures::getExtractedFields2(),
                     'currentFields' => ThemeFixtures::getExtractedCurrentFields3(),
                     'baseThemeFields' => ThemeFixtures::getExtractedBaseThemeFields3(),
+                    'name' => 'test',
+                    'themeTechnicalName' => 'Test',
                 ],
                 'expectedNotTranslated' => null,
                 'expectedStructured' => [
@@ -1211,6 +1208,7 @@ class ThemeServiceTest extends TestCase
                                 'id' => $themeId,
                                 '_uniqueIdentifier' => $themeId,
                                 'salesChannels' => new SalesChannelCollection(),
+                                'technicalName' => 'Test',
                                 'configValues' => [],
                             ]
                         ),
@@ -1227,9 +1225,12 @@ class ThemeServiceTest extends TestCase
                     ]
                 ),
                 'expected' => [
+                    'blocks' => ThemeFixtures::getExtractedBlock1(),
                     'fields' => ThemeFixtures::getExtractedFields5(),
-                    'currentFields' => ThemeFixtures::getExtractedBaseThemeFields3(),
-                    'baseThemeFields' => ThemeFixtures::getExtractedCurrentFields3(),
+                    'currentFields' => ThemeFixtures::getExtractedBaseThemeFields8(),
+                    'baseThemeFields' => ThemeFixtures::getExtractedCurrentFields8(),
+                    'name' => 'test',
+                    'themeTechnicalName' => 'Test',
                 ],
                 'expectedNotTranslated' => null,
                 'expectedStructured' => [
@@ -1237,58 +1238,6 @@ class ThemeServiceTest extends TestCase
                 ],
                 'expectedStructuredNotTranslated' => [
                     'tabs' => ThemeFixtures::getExtractedTabs6(),
-                ],
-            ],
-            [
-                'ids' => [
-                    'themeId' => $themeId,
-                    'parentThemeId' => $parentThemeId,
-                    'baseThemeId' => $baseThemeId,
-                ],
-                'themeCollection' => new ThemeCollection(
-                    [
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $themeId,
-                                '_uniqueIdentifier' => $themeId,
-                                'salesChannels' => new SalesChannelCollection(),
-                                'baseConfig' => [
-                                    'blocks' => ThemeFixtures::getExtractedBlocks2(),
-                                    'tabs' => ThemeFixtures::getExtractedTabs7(),
-                                    'section' => ThemeFixtures::getExtractedSections1(),
-                                    'fields' => [
-                                        'multi' => ThemeFixtures::getMultiSelectField(),
-                                        'bool' => ThemeFixtures::getBoolField(),
-                                    ],
-                                ],
-                            ]
-                        ),
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $baseThemeId,
-                                'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
-                                '_uniqueIdentifier' => $baseThemeId,
-                                'configValues' => [
-                                    'test' => ['value' => ['no_test']],
-                                ],
-                            ]
-                        ),
-                    ]
-                ),
-                'expected' => [
-                    'fields' => ThemeFixtures::getExtractedFields6(),
-                    'blocks' => ThemeFixtures::getExtractedBlocks2(),
-                    'tabs' => ThemeFixtures::getExtractedTabs7(),
-                    'section' => ThemeFixtures::getExtractedSections1(),
-                    'currentFields' => ThemeFixtures::getExtractedCurrentFields4(),
-                    'baseThemeFields' => ThemeFixtures::getExtractedBaseThemeFields4(),
-                ],
-                'expectedNotTranslated' => null,
-                'expectedStructured' => [
-                    'tabs' => ThemeFixtures::getExtractedTabs8(),
-                ],
-                'expectedStructuredNotTranslated' => [
-                    'tabs' => ThemeFixtures::getExtractedTabs9(),
                 ],
             ],
             [
@@ -1361,114 +1310,19 @@ class ThemeServiceTest extends TestCase
                     'fields' => ThemeFixtures::getExtractedFields10(),
                     'currentFields' => ThemeFixtures::getExtractedCurrentFields6(),
                     'baseThemeFields' => ThemeFixtures::getExtractedBaseThemeFields6(),
+                    'name' => 'test',
+                    'themeTechnicalName' => 'Theme',
                 ],
                 'expectedNotTranslated' => [
                     'blocks' => ThemeFixtures::getExtractedBlock1(),
                     'fields' => ThemeFixtures::getExtractedFields9(),
                     'currentFields' => ThemeFixtures::getExtractedCurrentFields6(),
                     'baseThemeFields' => ThemeFixtures::getExtractedBaseThemeFields6(),
+                    'name' => 'test',
+                    'themeTechnicalName' => 'Theme',
                 ],
                 'expectedStructured' => [
-                    'tabs' => ThemeFixtures::getExtractedTabs12(),
-                ],
-                'expectedStructuredNotTranslated' => [
-                    'tabs' => ThemeFixtures::getExtractedTabs13(),
-                ],
-            ],
-            [
-                'ids' => [
-                    'themeId' => $themeId,
-                    'parentThemeId' => $parentThemeId,
-                    'baseThemeId' => $baseThemeId,
-                ],
-                'themeCollection' => new ThemeCollection(
-                    [
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $themeId,
-                                '_uniqueIdentifier' => $themeId,
-                                'salesChannels' => new SalesChannelCollection(),
-                                'parentThemeId' => $parentThemeId,
-                                'baseConfig' => [
-                                    'fields' => [
-                                        'sw-color-brand-secondary' => [
-                                            'value' => '#46801a',
-                                        ],
-                                    ],
-                                ],
-                            ]
-                        ),
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $parentThemeId,
-                                'technicalName' => 'Theme',
-                                '_uniqueIdentifier' => $parentThemeId,
-                                'baseConfig' => [
-                                    'fields' => [
-                                        'sw-color-brand-primary' => [
-                                            'value' => '#adbd00',
-                                        ],
-                                    ],
-                                ],
-                            ]
-                        ),
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $baseThemeId,
-                                'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
-                                '_uniqueIdentifier' => $baseThemeId,
-                                'baseConfig' => ThemeFixtures::getThemeJsonConfig(),
-                                'labels' => [
-                                    'blocks.media' => 'Media',
-                                    'blocks.eCommerce' => 'E-Commerce',
-                                    'blocks.unordered' => 'Misc',
-                                    'blocks.typography' => 'Typography',
-                                    'blocks.themeColors' => 'Theme colours',
-                                    'blocks.statusColors' => 'Status messages',
-                                    'fields.sw-color-info' => 'Information',
-                                    'fields.sw-logo-share' => 'App & share icon',
-                                    'fields.sw-text-color' => 'Text colour',
-                                    'fields.sw-color-price' => 'Price',
-                                    'fields.sw-logo-mobile' => 'Mobile',
-                                    'fields.sw-logo-tablet' => 'Tablet',
-                                    'fields.sw-border-color' => 'Border',
-                                    'fields.sw-color-danger' => 'Error',
-                                    'fields.sw-logo-desktop' => 'Desktop',
-                                    'fields.sw-logo-favicon' => 'Favicon',
-                                    'fields.sw-color-success' => 'Success',
-                                    'fields.sw-color-warning' => 'Notice',
-                                    'fields.sw-headline-color' => 'Headline colour',
-                                    'fields.sw-background-color' => 'Background',
-                                    'fields.sw-color-buy-button' => 'Buy button',
-                                    'fields.sw-font-family-base' => 'Fonttype text',
-                                    'fields.sw-color-brand-primary' => 'Primary colour',
-                                    'fields.sw-font-family-headline' => 'Fonttype headline',
-                                    'fields.sw-color-brand-secondary' => 'Secondary colour',
-                                    'fields.sw-color-buy-button-text' => 'Buy button text',
-                                ],
-                                'helpTexts' => [
-                                    'fields.sw-logo-mobile' => 'Displayed up to a viewport of 767px',
-                                    'fields.sw-logo-tablet' => 'Displayed between a viewport of 767px to 991px',
-                                    'fields.sw-logo-desktop' => 'Displayed on viewport sizes above 991px and as a fallback on smaller viewports, if no other logo is set.',
-                                ],
-                            ]
-                        ),
-                    ]
-                ),
-                'expected' => [
-                    'blocks' => ThemeFixtures::getExtractedBlock1(),
-                    'fields' => ThemeFixtures::getExtractedFields12(),
-                    'currentFields' => ThemeFixtures::getExtractedCurrentFields7(),
-                    'baseThemeFields' => ThemeFixtures::getExtractedBaseThemeFields7(),
-                ],
-                'expectedNotTranslated' => [
-                    'blocks' => ThemeFixtures::getExtractedBlock1(),
-                    'fields' => ThemeFixtures::getExtractedFields11(),
-                    'currentFields' => ThemeFixtures::getExtractedCurrentFields7(),
-                    'baseThemeFields' => ThemeFixtures::getExtractedBaseThemeFields7(),
-                ],
-                'expectedStructured' => [
-                    'tabs' => ThemeFixtures::getExtractedTabs12(),
+                    'tabs' => ThemeFixtures::getExtractedTabsNameTheme(),
                 ],
                 'expectedStructuredNotTranslated' => [
                     'tabs' => ThemeFixtures::getExtractedTabs13(),

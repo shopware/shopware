@@ -1,4 +1,95 @@
 {
+  "sw-theme": {
+    "storefront": {
+      "default": {
+        "themeColors": {
+          "label": "Theme colours",
+          "default": {
+            "sw-color-brand-primary": {
+              "label": "Primary colour"
+            },
+            "sw-color-brand-secondary": {
+              "label": "Secondary colour"
+            },
+            "sw-border-color": {
+              "label": "Border"
+            },
+            "sw-background-color": {
+              "label": "Background"
+            }
+          }
+        },
+        "statusColors": {
+          "label": "Status messages",
+          "default": {
+            "sw-color-success": {
+              "label": "Success"
+            },
+            "sw-color-danger": {
+              "label": "Error"
+            },
+            "sw-color-warning": {
+              "label": "Notice"
+            },
+            "sw-color-info": {
+              "label": "Information"
+            }
+          }
+        },
+        "typography": {
+          "label": "Typography",
+          "default": {
+            "sw-font-family-base": {
+              "label": "Body text font"
+            },
+            "sw-text-color": {
+              "label": "Text colour"
+            },
+            "sw-font-family-headline": {
+              "label": "Headline font"
+            },
+            "sw-headline-color": {
+              "label": "Headline color"
+            }
+          }
+        },
+        "eCommerce": {
+          "label": "E-Commerce",
+          "default": {
+            "sw-color-price": {
+              "label": "Price"
+            },
+            "sw-color-buy-button": {
+              "label": "Buy button"
+            },
+            "sw-color-buy-button-text": {
+              "label": "Buy button text"
+            }
+          }
+        },
+        "media": {
+          "label": "Media",
+          "default": {
+            "sw-logo-desktop": {
+              "label": "Desktop"
+            },
+            "sw-logo-tablet": {
+              "label": "Tablet"
+            },
+            "sw-logo-mobile": {
+              "label": "Mobile"
+            },
+            "sw-logo-share": {
+              "label": "App & share icon"
+            },
+            "sw-logo-favicon": {
+              "label": "Favicon"
+            }
+          }
+        }
+      }
+    }
+  },
   "sw-theme-manager": {
     "general": {
       "mainMenuItemGeneral": "Themes",

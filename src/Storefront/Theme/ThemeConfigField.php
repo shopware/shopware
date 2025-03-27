@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -12,8 +13,12 @@ class ThemeConfigField extends Struct
 
     /**
      * @var array<string, array<string, string>>|null
+     *
+     * @deprecated tag:v6.8.0 - Property will be removed. Use translations via labelSnippetKey instead
      */
     protected ?array $label = null;
+
+    protected string $labelSnippetKey;
 
     /**
      * @var array<string, array<string, string>>|null
@@ -68,18 +73,36 @@ class ThemeConfigField extends Struct
 
     /**
      * @return array<string, array<string, string>>|null
+     *
+     * @deprecated tag:v6.8.0 - Property will be removed. Use translations via labelSnippetKey instead
      */
     public function getLabel(): ?array
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'));
+
         return $this->label;
     }
 
     /**
      * @param array<string, array<string, string>>|null $label
+     *
+     * @deprecated tag:v6.8.0 - Property will be removed. Use translations via labelSnippetKey instead
      */
     public function setLabel(?array $label): void
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'));
+
         $this->label = $label;
+    }
+
+    public function getLabelSnippetKey(): string
+    {
+        return $this->labelSnippetKey;
+    }
+
+    public function setLabelSnippetKey(string $labelSnippetKey): void
+    {
+        $this->labelSnippetKey = $labelSnippetKey;
     }
 
     public function getType(): ?string

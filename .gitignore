@@ -156,6 +156,7 @@ http-client.private.env.json
 # Devenv
 .devenv*
 devenv.local.nix
+devenv.lock
 
 # danger.php
 danger.phar

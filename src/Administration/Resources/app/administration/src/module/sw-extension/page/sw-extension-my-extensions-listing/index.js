@@ -70,7 +70,6 @@ export default {
 
         extensionListWithRequestedPermissions() {
             return this.extensionList.filter((extension) => {
-                console.log(extension);
                 return Object.keys(extension.requestedPermissions).length;
             })
         },

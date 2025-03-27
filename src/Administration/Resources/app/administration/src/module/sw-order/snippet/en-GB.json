@@ -191,6 +191,7 @@
       "cardTitleDetails": "Details",
       "cardTitleLineItems": "Items",
       "cardTitleGeneralInfo": "Info",
+      "cardTitlePromotions": "Promotions",
       "columnProductName": "Name",
       "columnQuantity": "Quantity",
       "columnPriceNet": "Price (net)",
@@ -386,10 +387,21 @@
       "labelDeliveryCard": "Shipping",
       "labelOrderCard": "Order",
       "promotionsField": {
-        "labelPromotions": "Promotions",
+        "labelPromotions": "Promotions with code",
         "placeholderPromotions": "Enter promotion code ...",
         "automaticPromotion":  "automatically applied",
-        "labelToggleAutomaticPromotions": "Disable automatically applied promotions"
+        "labelToggleAutomaticPromotions": "Disable automatically applied promotions",
+        "automaticPromotions": {
+          "title": "Update promotions",
+          "text": "This will update the order by removing promotions that no longer apply and adding new ones that do. Changes may be due to updated conditions or disabled promotions. Promotions added with a code won't be changed.",
+          "labelButton": "Update promotions"
+        },
+        "updatesModal": {
+          "title": "Updated promotions",
+          "description": "The following promotions have been updated:",
+          "promotionAddedTitle": "Added:",
+          "promotionRemovedTitle": "Removed:"
+        }
       }
     },
     "documentTab": {

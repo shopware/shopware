@@ -49,11 +49,14 @@ class LandingPageLoader
 
         $page->setLandingPage($landingPage);
 
+        $metaTitle = $landingPage->getTranslation('metaTitle') ?? $landingPage->getTranslation('name');
+        $metaDescription = $landingPage->getTranslation('metaDescription');
+        $metaKeywords = $landingPage->getTranslation('keywords');
+
         $metaInformation = new MetaInformation();
-        $metaTitle = $landingPage->getMetaTitle() ?? $landingPage->getName();
-        $metaInformation->setMetaTitle($metaTitle ?? '');
-        $metaInformation->setMetaDescription($landingPage->getMetaDescription() ?? '');
-        $metaInformation->setMetaKeywords($landingPage->getKeywords() ?? '');
+        $metaInformation->setMetaTitle((string) $metaTitle);
+        $metaInformation->setMetaDescription((string) $metaDescription);
+        $metaInformation->setMetaKeywords((string) $metaKeywords);
         $page->setMetaInformation($metaInformation);
 
         $this->eventDispatcher->dispatch(

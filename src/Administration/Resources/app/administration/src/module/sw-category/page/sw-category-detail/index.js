@@ -404,10 +404,11 @@ export default {
                     cmsPage.sections.forEach((section) => {
                         section.blocks.forEach((block) => {
                             block.slots.forEach((slot) => {
-                                if (this.category.slotConfig[slot.id]) {
-                                    if (slot.config === null) {
-                                        slot.config = {};
-                                    }
+                                if (slot.config === null) {
+                                    slot.config = {};
+                                }
+                                slot.originalConfig = cloneDeep(slot.config);
+                                if (this.category.slotConfig !== null && this.category.slotConfig[slot.id]) {
                                     merge(slot.config, cloneDeep(this.category.slotConfig[slot.id]));
                                 }
                             });
@@ -845,6 +846,9 @@ export default {
                             }
                             if (configField.type) {
                                 delete configField.type;
+                            }
+                            if (configField.hasOwnProperty('isOverwritten')) {
+                                delete configField.isOverwritten;
                             }
                         });
                     });

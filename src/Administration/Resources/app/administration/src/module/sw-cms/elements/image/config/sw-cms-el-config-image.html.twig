@@ -7,6 +7,10 @@
         value-types="entity"
         entity="media"
     >
+        <template #additional>
+            <slot name="additional">
+            </slot>
+        </template>
         <sw-media-upload-v2
             variant="regular"
             :upload-tag="uploadTag"

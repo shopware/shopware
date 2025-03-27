@@ -137,7 +137,24 @@
                             :element="element"
                             :element-data="cmsElements[element.type]"
                             @element-update="elementUpdate"
-                        />
+                        >
+                            <template #additional>
+                                <mt-button
+                                    v-if="getIsOverridden(element)"
+                                    size="small"
+                                    class="sw-cms-page-form__overwrite-reset"
+                                    square
+                                    @click="clearOverride(element)"
+                                >
+                                    <mt-icon
+                                        v-tooltip="{ message: 'Reset default layout content' }"
+                                        name="regular-trash"
+                                        small
+                                    />
+                                </mt-button>
+                            </template>
+                        </component>
+
                         {% endblock %}
                     </div>
                     {% endblock %}

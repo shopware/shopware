@@ -2,7 +2,9 @@ import { type PropType } from 'vue';
 import template from './sw-cms-page-form.html.twig';
 import './sw-cms-page-form.scss';
 import CMS from '../../constant/sw-cms.constant';
+import { isEqual } from 'lodash';
 
+const { cloneDeep } = Shopware.Utils.object;
 /**
  * @private
  * @sw-package discovery
@@ -148,6 +150,24 @@ export default Shopware.Component.wrapComponentConfig({
             const isBlockDisplay = !(Object.values(blockVisibility).indexOf(true) > -1);
 
             return isSectionDisplay || isBlockDisplay;
+        },
+
+        getIsOverridden(slot) {
+            if (!slot || !slot.config || !slot.originalConfig) {
+                return false;
+            }
+
+            return !isEqual(slot.originalConfig, slot.config);
+        },
+
+        clearOverride(slot) {
+            if (!slot || !slot.originalConfig) {
+                return;
+            }
+
+            slot.config = cloneDeep(slot.originalConfig);
+
+            this.elementUpdate(slot);
         },
     },
 });

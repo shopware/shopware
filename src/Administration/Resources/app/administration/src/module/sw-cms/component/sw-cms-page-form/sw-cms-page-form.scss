@@ -169,4 +169,8 @@
         align-items: center;
         justify-content: flex-end;
     }
+    &__overwrite-reset {
+        float: right;
+        margin-left: 10px;
+    }
 }

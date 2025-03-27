@@ -4,7 +4,10 @@
     class="sw-cms-el-config-text__tabs"
     default-item="content"
 >
-
+    <template #additional>
+        <slot name="additional">
+        </slot>
+    </template>
     <template #default="{ active }">
         {% block sw_cms_el_config_text_tab_content %}
         <sw-tabs-item

@@ -102,6 +102,14 @@ export default Component.wrapComponentConfig({
         },
     },
 
+    watch: {
+        'customer.id': {
+            handler(): void {
+                void this.getCustomerAddresses();
+            },
+        },
+    },
+
     created() {
         this.createdComponent();
     },

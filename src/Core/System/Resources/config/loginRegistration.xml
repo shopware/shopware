@@ -133,17 +133,17 @@
             <label lang="de-DE">Anordnung der Adressfelder Stadt, PLZ und Bundesland</label>
             <options>
                 <option>
-                    <id>cityZipState</id>
+                    <id>city-zip-state</id>
                     <name>City - ZIP - State</name>
                     <name lang="de-DE">Stadt - PLZ - Bundesland</name>
                 </option>
                 <option>
-                    <id>zipCityState</id>
+                    <id>zip-city-state</id>
                     <name>ZIP - City - State</name>
                     <name lang="de-DE">PLZ - Stadt - Bundesland</name>
                 </option>
                 <option>
-                    <id>cityStateZip</id>
+                    <id>city-state-zip</id>
                     <name>City - State - ZIP</name>
                     <name lang="de-DE">Stadt - Bundesland - PLZ</name>
                 </option>

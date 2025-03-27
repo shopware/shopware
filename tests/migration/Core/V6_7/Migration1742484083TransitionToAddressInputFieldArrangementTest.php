@@ -76,9 +76,9 @@ class Migration1742484083TransitionToAddressInputFieldArrangementTest extends Te
         $this->assertNewConfiguration();
 
         $this->connection->update('system_config', [
-            'configuration_value' => '{"_value": "cityStateZip"}',
+            'configuration_value' => '{"_value": "city-state-zip"}',
         ], [
-            'configuration_key' => Migration1742484083TransitionToAddressInputFieldArrangement::CONFIG_KEY,
+            'configuration_key' => Migration1742484083TransitionToAddressInputFieldArrangement::NEW_CONFIG_KEY,
             'sales_channel_id' => null,
         ]);
 
@@ -86,18 +86,18 @@ class Migration1742484083TransitionToAddressInputFieldArrangementTest extends Te
 
         $newConfiguration = $this->connection->fetchAllAssociativeIndexed(
             'SELECT sales_channel_id, configuration_value FROM system_config WHERE configuration_key = ?',
-            [Migration1742484083TransitionToAddressInputFieldArrangement::CONFIG_KEY]
+            [Migration1742484083TransitionToAddressInputFieldArrangement::NEW_CONFIG_KEY]
         );
 
         static::assertEquals([
-            '' => ['configuration_value' => '{"_value": "cityStateZip"}'],
-            Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL) => ['configuration_value' => '{"_value": "cityZipState"}'],
+            '' => ['configuration_value' => '{"_value": "city-state-zip"}'],
+            Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL) => ['configuration_value' => '{"_value": "city-zip-state"}'],
         ], $newConfiguration);
     }
 
     private function revertMigration(): void
     {
-        $this->connection->delete('system_config', ['configuration_key' => Migration1742484083TransitionToAddressInputFieldArrangement::CONFIG_KEY]);
+        $this->connection->delete('system_config', ['configuration_key' => Migration1742484083TransitionToAddressInputFieldArrangement::NEW_CONFIG_KEY]);
     }
 
     private function prepareSystemConfig(): void
@@ -123,12 +123,12 @@ class Migration1742484083TransitionToAddressInputFieldArrangementTest extends Te
     {
         $newConfiguration = $this->connection->fetchAllAssociativeIndexed(
             'SELECT sales_channel_id, configuration_value FROM system_config WHERE configuration_key = ?',
-            [Migration1742484083TransitionToAddressInputFieldArrangement::CONFIG_KEY]
+            [Migration1742484083TransitionToAddressInputFieldArrangement::NEW_CONFIG_KEY]
         );
 
         static::assertEquals([
-            '' => ['configuration_value' => '{"_value": "zipCityState"}'],
-            Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL) => ['configuration_value' => '{"_value": "cityZipState"}'],
+            '' => ['configuration_value' => '{"_value": "zip-city-state"}'],
+            Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL) => ['configuration_value' => '{"_value": "city-zip-state"}'],
         ], $newConfiguration);
     }
 }

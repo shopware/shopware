@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('framework')]
 class Migration1742484083TransitionToAddressInputFieldArrangement extends MigrationStep
 {
-    public const CONFIG_KEY = 'core.loginRegistration.addressInputFieldArrangement';
+    public const NEW_CONFIG_KEY = 'core.loginRegistration.addressInputFieldArrangement';
     public const OLD_CONFIG_KEY = 'core.loginRegistration.showZipcodeInFrontOfCity';
 
     public function getCreationTimestamp(): int
@@ -31,7 +31,7 @@ class Migration1742484083TransitionToAddressInputFieldArrangement extends Migrat
 
         $newConfiguration = $connection->fetchAllAssociativeIndexed(
             'SELECT sales_channel_id, configuration_value FROM system_config WHERE configuration_key = ?',
-            [self::CONFIG_KEY]
+            [self::NEW_CONFIG_KEY]
         );
 
         foreach ($oldConfiguration as $salesChannelId => $oldValue) {
@@ -46,13 +46,13 @@ class Migration1742484083TransitionToAddressInputFieldArrangement extends Migrat
             )['_value'];
 
             $newValue = match ($showZipcodeInFrontOfCity) {
-                true => 'zipCityState',
-                false => 'cityZipState',
+                true => 'zip-city-state',
+                false => 'city-zip-state',
             };
 
             $connection->insert('system_config', [
                 'id' => Uuid::randomBytes(),
-                'configuration_key' => self::CONFIG_KEY,
+                'configuration_key' => self::NEW_CONFIG_KEY,
                 'configuration_value' => json_encode(['_value' => $newValue]),
                 'sales_channel_id' => $salesChannelId ?: null,
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),

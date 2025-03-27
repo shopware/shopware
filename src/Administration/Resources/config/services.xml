@@ -100,20 +100,11 @@
 
         <service id="Shopware\Administration\Controller\NotificationController" public="true">
             <argument type="service" id="shopware.rate_limiter"/>
-            <argument type="service" id="Shopware\Administration\Notification\NotificationService"/>
+            <argument type="service" id="Shopware\Core\Framework\Notification\NotificationService"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
-        </service>
-
-        <service id="Shopware\Administration\Notification\NotificationService" public="true">
-            <argument type="service" id="notification.repository"/>
-        </service>
-
-        <service id="Shopware\Administration\Notification\Subscriber\UpdateSubscriber">
-            <argument type="service" id="Shopware\Administration\Notification\NotificationService" />
-            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Administration\Service\AdminSearcher">
@@ -154,12 +145,9 @@
 
         <service id="Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollector"/>
 
+        <!-- @deprecated tag:v6.8.0 Will be removed -->
         <service id="Shopware\Administration\Notification\NotificationDefinition">
-            <tag name="shopware.entity.definition"/>
-        </service>
-
-        <service id="Shopware\Administration\Notification\NotificationBulkEntityExtension">
-            <tag name="shopware.bulk.entity.extension"/>
+            <deprecated package="shopware/administration" version="6.8.0" />
         </service>
 
         <service id="Shopware\Administration\System\SalesChannel\Subscriber\SalesChannelUserConfigSubscriber">

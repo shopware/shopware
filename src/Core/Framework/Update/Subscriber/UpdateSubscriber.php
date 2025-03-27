@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Administration\Notification\Subscriber;
+namespace Shopware\Core\Framework\Update\Subscriber;
 
-use Shopware\Administration\Notification\NotificationService;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

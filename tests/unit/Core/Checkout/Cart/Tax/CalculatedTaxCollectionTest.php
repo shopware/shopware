@@ -15,8 +15,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class CalculatedTaxCollectionTest extends TestCase
 {
-    final public const DUMMY_TAX_NAME = 'dummy-tax';
-
     public function testCollectionIsCountable(): void
     {
         $collection = new CalculatedTaxCollection();

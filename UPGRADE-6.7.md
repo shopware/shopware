@@ -756,7 +756,19 @@ We have made attribute classes final.
 * `\Shopware\Core\Framework\Event\IsFlowEventAware`
 </details>
 
+## Move notifications from admin to core
+
+The following classes have been moved from the admin bundle to the core:
+
+* `Shopware\Core\Framework\Notification\NotificationCollection`
+* `Shopware\Core\Framework\Notification\NotificationDefinition` 
+* `Shopware\Core\Framework\Notification\NotificationEntity`
+
+The controller `Shopware\Core\Framework\Notification\Api\NotificationController` has been moved from the admin bundle to the core and made internal.
+
 </details>
+
+
 
 # Administration
 We made some changes in the administration, which might affect your plugins.
@@ -2458,6 +2470,19 @@ After:
 <mt-checkbox @update:checked="updateValue" />
 ```
 </details>
+
+### Deprecated admin notification entity + related classes
+
+We have moved the notification entity, collection and definition to core. You should update your code to reference the new classes. The old classes are deprecated.
+
+* `Shopware\Administration\Notification\NotificationCollection` -> `Shopware\Core\Framework\Notification\NotificationCollection`
+* `Shopware\Administration\Notification\NotificationDefinition` -> `Shopware\Core\Framework\Notification\NotificationDefinition`
+* `Shopware\Administration\Notification\NotificationEntity` -> `Shopware\Core\Framework\Notification\NotificationEntity`
+
+### Deprecated notification controller
+
+`\Shopware\Administration\Controller\NotificationController` is now moved to core `\Shopware\Core\Framework\Notification\Api\NotificationController` - if you type hint on this class, please update it. The HTTP route is still the same. The old class is deprecated.
+
 </details>
 
 # Storefront

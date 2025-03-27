@@ -1,13 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Administration\Notification;
+namespace Shopware\Tests\Unit\Core\Framework\Notification;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Notification\NotificationCollection;
-use Shopware\Administration\Notification\NotificationEntity;
-use Shopware\Administration\Notification\NotificationService;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Context\ShopApiSource;
@@ -16,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Notification\NotificationCollection;
+use Shopware\Core\Framework\Notification\NotificationEntity;
+use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**

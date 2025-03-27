@@ -122,6 +122,7 @@ export default class CmsGdprVideoElement extends Plugin {
     _replaceElementWithVideo() {
         const videoElement = document.createElement('iframe');
         videoElement.setAttribute('src', this.options.videoUrl);
+        videoElement.setAttribute('title', this.options.iframeTitle);
 
         this.options.iframeClasses.forEach((cls) => {
             videoElement.classList.add(cls);

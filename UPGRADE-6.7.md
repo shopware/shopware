@@ -87,6 +87,18 @@ If you are still using Vuex, please update your code accordingly:
 
 For more information refer to the [docs](https://developer.shopware.com/docs/resources/references/adr/2024-06-17-replace-vuex-with-pinia.html#replace-vuex-with-pinia).
 
+## vue-i18n v10 Update
+We have updated `vue-i18n` to version 10, which introduces a significant change by removing the `tc` function. In Shopware, `$tc` remains available on Vue components, but it now internally references the `t` function from `vue-i18n`. 
+
+### Key Considerations
+- While this change works for most use cases, some specific function overloads are no longer supported.
+- For a comprehensive list of deprecated features and migration strategies, refer to the official [vue-i18n migration guide](https://vue-i18n.intlify.dev/guide/migration/breaking10#deprecate-tc-and-tc-for-legacy-api-mode).
+
+### Recommended Actions
+- Review your existing translation calls
+- Test components that heavily rely on translation methods
+- Consider updating to the recommended `t` function where possible
+
 # Cache Rework
 
 ## Delayed Cache Invalidation

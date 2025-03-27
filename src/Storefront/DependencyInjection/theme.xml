@@ -78,7 +78,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="messenger.default_bus"/>
-            <argument type="service" id="Shopware\Administration\Notification\NotificationService"/>
+            <argument type="service" id="Shopware\Core\Framework\Notification\NotificationService"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ResolvedConfigLoader" lazy="true">
@@ -142,7 +142,7 @@
             <argument type="service" id="Shopware\Storefront\Theme\ThemeCompiler"/>
             <argument type="service" id="Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader"/>
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
-            <argument type="service" id="Shopware\Administration\Notification\NotificationService"/>
+            <argument type="service" id="Shopware\Core\Framework\Notification\NotificationService"/>
             <argument type="service" id="sales_channel.repository" />
 
             <tag name="messenger.message_handler" />

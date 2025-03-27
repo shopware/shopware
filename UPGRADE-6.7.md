@@ -1,5 +1,4 @@
 # 6.7.0.0 Upgrade Guide
-**NOTE:** All the breaking changes described here can be already opted in by activating the `v6.7.0.0` [feature flag](https://developer.shopware.com/docs/resources/references/adr/2022-01-20-feature-flags-for-major-versions.html#activating-the-flag) on previous versions.
 
 # Notable Changes
 
@@ -11,16 +10,12 @@ This means that when your plugins depends on a custom `webpack.config.js` file, 
 Additionally, this means that you will need to distribute a separate plugin version starting for 6.7, when you extend the administration to distribute the correct build files.
 For more information please take a look at the [docs](https://developer.shopware.com/docs/guides/plugins/plugins/administration/system-updates/vite.html).
 
-**Note:** This change can be activated separately with the `ADMIN_VITE` feature flag.
-
 # Vue.js Enhancements (full native vue 3 support)
 ## Removal of Vue 2 compatibility layer
 The Vue 2 compatibility layer has been removed from the administration. This means that all components that still rely on Vue 2 features need to be updated.
 This ensures that our administration stays future-proof and we can make use of the most recent Vue 3 features.
 
 For detailed explanation of what was covered by the compatibility layer and what needs to be updated, please refer to the [Vue docs](https://v3-migration.vuejs.org/migration-build.html).
-
-**Note:** This change can be activated separately with the `DISABLE_VUE_COMPAT` feature flag.
 
 ## Migration from Vuex to Pinia
 For Vue 3 the default state management library has become Pinia, therefore we are migrating from Vuex to Pinia. to stay as close to the default as possible.
@@ -92,8 +87,19 @@ If you are still using Vuex, please update your code accordingly:
 
 For more information refer to the [docs](https://developer.shopware.com/docs/resources/references/adr/2024-06-17-replace-vuex-with-pinia.html#replace-vuex-with-pinia).
 
+## vue-i18n v10 Update
+We have updated `vue-i18n` to version 10, which introduces a significant change by removing the `tc` function. In Shopware, `$tc` remains available on Vue components, but it now internally references the `t` function from `vue-i18n`. 
+
+### Key Considerations
+- While this change works for most use cases, some specific function overloads are no longer supported.
+- For a comprehensive list of deprecated features and migration strategies, refer to the official [vue-i18n migration guide](https://vue-i18n.intlify.dev/guide/migration/breaking10#deprecate-tc-and-tc-for-legacy-api-mode).
+
+### Recommended Actions
+- Review your existing translation calls
+- Test components that heavily rely on translation methods
+- Consider updating to the recommended `t` function where possible
+
 # Cache Rework
-**Note:** Those changes can be activated separately with the `cache_rework` feature flag.
 
 ## Delayed Cache Invalidation
 The cache invalidation will be delayed by default. This means that the cache will be invalidated in regular intervals and not immediately.
@@ -145,7 +151,6 @@ We upgraded the following libraries to their latest versions:
 
 # Accessibility Compliance
 In alignment with the European Accessibility Act (EAA) we made significant accessibility improvements.
-**Note:** Those changes can be activated separately with the `ACCESSIBILITY_TWEAKS` feature flag.
 
 <details>
   <summary>Detailed Changes</summary>
@@ -763,7 +768,19 @@ We have made attribute classes final.
 * `\Shopware\Core\Framework\Event\IsFlowEventAware`
 </details>
 
+## Move notifications from admin to core
+
+The following classes have been moved from the admin bundle to the core:
+
+* `Shopware\Core\Framework\Notification\NotificationCollection`
+* `Shopware\Core\Framework\Notification\NotificationDefinition` 
+* `Shopware\Core\Framework\Notification\NotificationEntity`
+
+The controller `Shopware\Core\Framework\Notification\Api\NotificationController` has been moved from the admin bundle to the core and made internal.
+
 </details>
+
+
 
 # Administration
 We made some changes in the administration, which might affect your plugins.
@@ -1824,7 +1841,7 @@ Before:
 ```
 After:
 ```html
-<mt-button ghost>Save</mt-button>
+<mt-button variant="primary" ghost>Save</mt-button>
 ```
 
 ### "mt-button" has no value "danger" in property "variant" anymore
@@ -2465,6 +2482,19 @@ After:
 <mt-checkbox @update:checked="updateValue" />
 ```
 </details>
+
+### Deprecated admin notification entity + related classes
+
+We have moved the notification entity, collection and definition to core. You should update your code to reference the new classes. The old classes are deprecated.
+
+* `Shopware\Administration\Notification\NotificationCollection` -> `Shopware\Core\Framework\Notification\NotificationCollection`
+* `Shopware\Administration\Notification\NotificationDefinition` -> `Shopware\Core\Framework\Notification\NotificationDefinition`
+* `Shopware\Administration\Notification\NotificationEntity` -> `Shopware\Core\Framework\Notification\NotificationEntity`
+
+### Deprecated notification controller
+
+`\Shopware\Administration\Controller\NotificationController` is now moved to core `\Shopware\Core\Framework\Notification\Api\NotificationController` - if you type hint on this class, please update it. The HTTP route is still the same. The old class is deprecated.
+
 </details>
 
 # Storefront

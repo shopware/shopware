@@ -69,7 +69,7 @@ class OrderTransactionStateHandler
             new Transition(
                 OrderTransactionDefinition::ENTITY_NAME,
                 $transactionId,
-                Feature::isActive('v6.8.0.0') ? StateMachineTransitionActions::ACTION_PROCESS : StateMachineTransitionActions::ACTION_DO_PAY,
+                StateMachineTransitionActions::ACTION_PROCESS,
                 'stateId'
             ),
             $context

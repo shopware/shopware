@@ -49,7 +49,7 @@ class OrderTransactionStateHandlerTest extends TestCase
 
     public function testProcess(): void
     {
-        $this->stateMachineRegistry(StateMachineTransitionActions::ACTION_DO_PAY);
+        $this->stateMachineRegistry(StateMachineTransitionActions::ACTION_PROCESS);
         $this->stateHandler->process($this->transactionId, Context::createDefaultContext());
     }
 

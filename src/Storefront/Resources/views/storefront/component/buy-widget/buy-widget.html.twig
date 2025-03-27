@@ -138,6 +138,8 @@
                                 {% set reviewTabHref = '#review-tab-' ~ product.id ~ '-pane' %}
                             {% endif %}
 
+                            {% set reviewTabContent = 'review-tab-' ~ product.id ~ '-pane' %}
+
                             <div class="product-detail-reviews">
 
                                 {% sw_include '@Storefront/storefront/component/review/rating.html.twig' with {
@@ -150,7 +152,7 @@
                                     data-remote-click="true"
                                     data-remote-click-options="{{ remoteClickOptions|json_encode }}"
                                     href="{{ reviewTabHref }}"
-                                    aria-controls="review-tab-pane"
+                                    aria-controls="{{ reviewTabContent }}"
                                 >
                                     {{ totalReviews }}
                                     {{ 'detail.reviewLinkText'|trans({'%count%': totalReviews})|sw_sanitize }}

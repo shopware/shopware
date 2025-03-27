@@ -23,7 +23,9 @@ Element loader can be applied to any element.
 
 .element-loader-backdrop {
     opacity: 0;
-    transition: opacity 0.45s cubic-bezier(0.3, 0, 0.15, 1), visibility 0.45s linear;
+    transition:
+        opacity 0.45s cubic-bezier(0.3, 0, 0.15, 1),
+        visibility 0.45s linear;
     width: 100%;
     height: 100%;
     top: 0;

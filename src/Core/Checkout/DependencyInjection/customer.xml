@@ -53,7 +53,6 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory">
-            <argument type="service" id="Shopware\Core\System\Salutation\SalutationDefinition"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument>%customer.account_types%</argument>
         </service>

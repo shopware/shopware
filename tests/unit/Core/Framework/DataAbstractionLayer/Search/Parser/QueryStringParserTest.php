@@ -118,7 +118,7 @@ class QueryStringParserTest extends TestCase
     public static function equalsFilterDataProvider(): \Generator
     {
         yield [['type' => 'equals', 'field' => 'foo', 'value' => 'bar'], false];
-        yield [['type' => 'equals', 'field' => 'foo', 'value' => ''], true];
+        yield [['type' => 'equals', 'field' => 'foo', 'value' => ''], false];
         yield [['type' => 'equals', 'field' => '', 'value' => 'bar'], true];
         yield [['type' => 'equals', 'field' => 'foo'], true];
         yield [['type' => 'equals', 'value' => 'bar'], true];

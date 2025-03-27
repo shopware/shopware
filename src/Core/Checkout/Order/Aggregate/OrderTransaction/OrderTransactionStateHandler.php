@@ -123,7 +123,7 @@ class OrderTransactionStateHandler
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', 'OrderTransactionStateHandler::payPartially')
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', 'OrderTransactionStateHandler::paidPartially')
         );
 
         $this->paidPartially($transactionId, $context);

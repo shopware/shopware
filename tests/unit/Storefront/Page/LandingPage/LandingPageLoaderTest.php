@@ -91,11 +91,95 @@ class LandingPageLoaderTest extends TestCase
         static::assertEquals($cmsPage, $cmsPageLoaded);
     }
 
+    public function testItLoadsProperPageMetaInformation(): void
+    {
+        $productId = Uuid::randomHex();
+        $landingPageId = Uuid::randomHex();
+        $request = new Request([], [], ['landingPageId' => $landingPageId]);
+        $salesChannelContext = $this->getSalesChannelContext();
+
+        $product = $this->getProduct($productId);
+        $cmsPage = $this->getCmsPage($product);
+
+        $translated = [
+            'name' => 'TEST_NAME',
+            'metaTitle' => 'TEST_META_TITLE',
+            'metaDescription' => 'TEST_META_DESCRIPTION',
+            'keywords' => 'TEST_KEYWORDS',
+        ];
+
+        $expected = [
+            'metaTitle' => $translated['metaTitle'],
+            'metaDescription' => $translated['metaDescription'],
+            'metaKeywords' => $translated['keywords'],
+        ];
+
+        $landingPageLoader = $this->getLandingPageLoaderWithTranslations($landingPageId, $cmsPage, $translated, $request, $salesChannelContext);
+
+        $page = $landingPageLoader->load($request, $salesChannelContext);
+        $metaInformation = $page->getMetaInformation();
+
+        static::assertEquals($metaInformation->getMetaTitle(), $expected['metaTitle']);
+        static::assertEquals($metaInformation->getMetaDescription(), $expected['metaDescription']);
+        static::assertEquals($metaInformation->getMetaKeywords(), $expected['metaKeywords']);
+    }
+
+    public function testItLoadsProperPageMetaInformationWithNameOnly(): void
+    {
+        $productId = Uuid::randomHex();
+        $landingPageId = Uuid::randomHex();
+        $request = new Request([], [], ['landingPageId' => $landingPageId]);
+        $salesChannelContext = $this->getSalesChannelContext();
+
+        $product = $this->getProduct($productId);
+        $cmsPage = $this->getCmsPage($product);
+
+        $translated = [
+            'name' => 'TEST_NAME',
+        ];
+
+        $expected = [
+            'metaTitle' => $translated['name'],
+            'metaDescription' => '',
+            'metaKeywords' => '',
+        ];
+
+        $landingPageLoader = $this->getLandingPageLoaderWithTranslations($landingPageId, $cmsPage, $translated, $request, $salesChannelContext);
+
+        $page = $landingPageLoader->load($request, $salesChannelContext);
+        $metaInformation = $page->getMetaInformation();
+
+        static::assertEquals($metaInformation->getMetaTitle(), $expected['metaTitle']);
+        static::assertEquals($metaInformation->getMetaDescription(), $expected['metaDescription']);
+        static::assertEquals($metaInformation->getMetaKeywords(), $expected['metaKeywords']);
+    }
+
     private function getLandingPageLoaderWithProduct(string $landingPageId, CmsPageEntity $cmsPage, Request $request, SalesChannelContext $salesChannelContext): LandingPageLoader
     {
         $landingPage = new LandingPageEntity();
         $landingPage->setId($landingPageId);
         $landingPage->setCmsPage($cmsPage);
+
+        $landingPageRouteMock = $this->createMock(LandingPageRoute::class);
+        $landingPageRouteMock
+            ->method('load')
+            ->with($landingPageId, $request, $salesChannelContext)
+            ->willReturn(new LandingPageRouteResponse($landingPage));
+
+        return new LandingPageLoader(
+            $this->createMock(GenericPageLoader::class),
+            $landingPageRouteMock,
+            $this->createMock(EventDispatcherInterface::class)
+        );
+    }
+
+    private function getLandingPageLoaderWithTranslations(string $landingPageId, CmsPageEntity $cmsPage, array $translated, Request $request, SalesChannelContext $salesChannelContext): LandingPageLoader
+    {
+        $landingPage = new LandingPageEntity();
+        $landingPage->setId($landingPageId);
+        $landingPage->setCmsPage($cmsPage);
+        $landingPage->setTranslated($translated);
+        $landingPage->setName('INCORRECT_NAME');
 
         $landingPageRouteMock = $this->createMock(LandingPageRoute::class);
         $landingPageRouteMock

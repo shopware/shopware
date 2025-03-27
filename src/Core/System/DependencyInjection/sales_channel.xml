@@ -220,5 +220,36 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.reset" method="reset"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Gateway\Context\SalesChannel\ContextGatewayRoute">
+            <argument type="service" id="Shopware\Core\Framework\App\Context\Gateway\AppContextGateway"/>
+            <argument type="service" id="Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayCommandExecutor"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayCommandExecutor">
+            <argument type="service" id="Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute"/>
+            <argument type="service" id="Shopware\Core\Framework\Log\ExceptionLogger"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry">
+            <argument type="tagged_iterator" tag="shopware.context.gateway.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Gateway\Context\Command\Handler\RegisterCustomerCommandHandler">
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute"/>
+            <tag name="shopware.context.gateway.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Gateway\Context\Command\Handler\ChangeCurrencyCommandHandler">
+            <argument type="service" id="currency.repository"/>
+            <tag name="shopware.context.gateway.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Gateway\Context\Command\Handler\ChangeLanguageCommandHandler">
+            <argument type="service" id="language.repository"/>
+            <tag name="shopware.context.gateway.command"/>
+        </service>
     </services>
 </container>

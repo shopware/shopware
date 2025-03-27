@@ -403,7 +403,7 @@ class PluginLifecycleServiceTest extends TestCase
         $plugin->setComposerName('swag/mock-plugin');
         $plugin->setPath('vendor/shopware/mock-plugin');
 
-        $this->commandExecutor->expects($this->never())->method('remove');
+        $this->commandExecutor->expects(static::never())->method('remove');
 
         $this->pluginLifecycleService->updatePlugin($plugin, Context::createDefaultContext());
     }

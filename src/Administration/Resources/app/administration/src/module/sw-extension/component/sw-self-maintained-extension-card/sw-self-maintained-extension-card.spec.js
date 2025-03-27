@@ -46,6 +46,7 @@ async function createWrapper() {
                     icon: null,
                     installedAt: null,
                     permissions: [],
+                    requestedPermissions: [],
                 },
             },
         },
@@ -95,6 +96,7 @@ describe('src/module/sw-extension/component/sw-self-maintained-extension-card', 
                 icon: null,
                 installedAt: 'a',
                 permissions: [],
+                requestedPermissions: [],
             },
         });
 
@@ -111,6 +113,7 @@ describe('src/module/sw-extension/component/sw-self-maintained-extension-card', 
                 installedAt: 'a',
                 active: false,
                 permissions: [],
+                requestedPermissions: [],
             },
         });
 
@@ -148,6 +151,7 @@ describe('src/module/sw-extension/component/sw-self-maintained-extension-card', 
                 installedAt: 'a',
                 active: true,
                 permissions: [],
+                requestedPermissions: [],
             },
         });
 
@@ -167,6 +171,7 @@ describe('src/module/sw-extension/component/sw-self-maintained-extension-card', 
                 installedAt: 'a',
                 active: false,
                 permissions: [],
+                requestedPermissions: [],
             },
         });
 

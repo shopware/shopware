@@ -76,6 +76,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
                 installedAt: '845618651',
                 icon: 'my-icon',
                 permissions: [],
+                requestedPermissions: [],
             },
         });
 
@@ -90,6 +91,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
                 installedAt: '845618651',
                 iconRaw: base64Example,
                 permissions: [],
+                requestedPermissions: [],
             },
         });
 
@@ -101,6 +103,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             extension: {
                 installedAt: '845618651',
                 permissions: [],
+                requestedPermissions: [],
             },
         });
 
@@ -112,6 +115,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             extension: {
                 installedAt: '845618651',
                 permissions: [],
+                requestedPermissions: [],
             },
         });
 
@@ -122,6 +126,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         const wrapper = await createWrapper({
             extension: {
                 installedAt: null,
+                requestedPermissions: [],
             },
         });
 
@@ -134,6 +139,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
                 extension: {
                     installedAt: null,
                     active: false,
+                    requestedPermissions: [],
                 },
             },
             {
@@ -156,6 +162,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
                 extension: {
                     installedAt: null,
                     active: true,
+                    requestedPermissions: [],
                 },
             },
             {
@@ -183,6 +190,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
                 extension: {
                     installedAt: null,
                     active: false,
+                    requestedPermissions: [],
                 },
             },
             {
@@ -204,6 +212,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
                 extension: {
                     installedAt: '845618651',
                     permissions: [],
+                    requestedPermissions: [],
                 },
             },
             {

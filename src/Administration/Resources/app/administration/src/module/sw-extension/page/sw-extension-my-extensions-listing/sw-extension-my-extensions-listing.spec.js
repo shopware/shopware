@@ -71,6 +71,9 @@ async function createWrapper() {
                     'sw-help-text': true,
                     'sw-loader': true,
                     'sw-extension-component-section': true,
+                    'sw-extension-permissions-modal': {
+                        template: '<div class="sw-extension-permissions-modal"><slot></slot></div>',
+                    },
                 },
                 provide: {
                     repositoryFactory: {
@@ -91,7 +94,7 @@ async function createWrapper() {
  */
 describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () => {
     beforeAll(() => {
-        Shopware.Store.get('shopwareExtensions').setMyExtensions([{ name: 'Test', installedAt: null }]);
+        Shopware.Store.get('shopwareExtensions').setMyExtensions([{ name: 'Test', installedAt: null, requestedPermissions: [] }]);
 
         if (Shopware.Store.get('context')) {
             Shopware.Store.unregister('context');
@@ -119,6 +122,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             {
                 name: 'Test',
                 installedAt: null,
+                requestedPermissions: []
             },
         ]);
     });
@@ -193,6 +197,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
                 name: 'Test',
                 installedAt: 'some date',
                 isTheme: true,
+                requestedPermissions: []
             },
         ]);
 
@@ -229,6 +234,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
                     name: `extension card number ${i}`,
                     installedAt: `foo-${i}`,
                     updatedAt: null,
+                    requestedPermissions: []
                 };
             });
 
@@ -268,6 +274,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
                     name: `extension card number ${i}`,
                     installedAt: `foo-${i}`,
                     updatedAt: null,
+                    requestedPermissions: []
                 };
             });
 
@@ -307,6 +314,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
                     installedAt: `foo-${i}`,
                     active: true,
                     updatedAt: null,
+                    requestedPermissions: []
                 };
             });
 
@@ -320,6 +328,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
                     installedAt: `foo-${index}`,
                     active: false,
                     updatedAt: null,
+                    requestedPermissions: []
                 };
             });
 
@@ -355,6 +364,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
                 installedAt: `foo-${i}`,
                 active: true,
                 updatedAt: null,
+                requestedPermissions: []
             };
         });
 
@@ -396,6 +406,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
                 installedAt: `foo-${i}`,
                 active: true,
                 updatedAt: null,
+                requestedPermissions: []
             };
         });
 
@@ -437,6 +448,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
                 installedAt: `foo-${i}`,
                 updatedAt: { date: updatedAtValue },
                 active: true,
+                requestedPermissions: []
             };
         });
 

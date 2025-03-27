@@ -116,7 +116,7 @@ export default {
         },
 
         requestedPermissions() {
-            return Object.keys(this.extension.requestedPermissions).length ? this.extension.requestedPermissions : null;
+            return Object.keys(this.extension.requestedPermissions || {}).length ? this.extension.requestedPermissions : [];
         },
 
         newPermissionRequests() {

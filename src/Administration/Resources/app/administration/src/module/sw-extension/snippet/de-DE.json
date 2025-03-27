@@ -23,7 +23,8 @@
           }
         },
         "version": "Version",
-        "update": "Aktualisierung"
+        "update": "Aktualisierung",
+        "permission-review": "Neue berechtigungen"
       },
       "account": {
         "headline": "Shopware Account",
@@ -254,7 +255,9 @@
         "installedLabel": "Installiert:",
         "openExtensionLabel": "Öffnen",
         "installExtensionLabel": "Installieren",
+        "reviewNewPermissionsLabel": "Überprüfen",
         "labelAcceptAndInstall": "Akzeptieren und installieren",
+        "labelAcceptRequestedPermissions": "Akzeptieren",
         "allowDisableTooltip": "Diese App verwendet eigene Datenstrukturen, die sich auf Ihr System auswirken. Die App kann daher nicht deaktiviert werden.",
         "contextMenu": {
           "getHelpLabel": "Hilfe anfragen",

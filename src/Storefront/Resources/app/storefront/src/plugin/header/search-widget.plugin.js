@@ -137,6 +137,9 @@ export default class SearchWidgetPlugin extends Plugin {
                 // attach search results to the DOM
                 this.el.insertAdjacentHTML('beforeend', content);
 
+                // Update ARIA attributes for input field
+                this._inputField.setAttribute('aria-expanded', 'true');
+
                 this.$emitter.publish('afterSuggest');
             });
     }
@@ -152,6 +155,9 @@ export default class SearchWidgetPlugin extends Plugin {
         // remove all result popovers
         const results = document.querySelectorAll(this.options.searchWidgetResultSelector);
         results.forEach(result => result.remove());
+
+        // Update ARIA attributes for input field
+        this._inputField.setAttribute('aria-expanded', 'false');
 
         this.$emitter.publish('clearSuggestResults');
     }

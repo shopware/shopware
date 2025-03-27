@@ -52,20 +52,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
 
+      - name: Install ludtwig
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download --repo MalteJanz/ludtwig  --pattern '*unknown-linux-gnu.tar.gz' && tar xf *.tar.gz
+          mv ./ludtwig /usr/local/bin
+
       - name: Run ludtwig linter
-        uses: addnab/docker-run-action@4f65fabd2431ebc8d299f8e5a018d79a769ae185 # 3
-        with:
-          image: maltejanz/ludtwig:0.10.0
-          options: -v ${{ github.workspace }}:/ludtwig
-          run: |
-            cd ./src/Storefront/Resources/views
-            ludtwig .
-            status=$?  # Capture the exit code of ludtwig
-            ludtwig --version
-            echo "If you want to run this locally install https://github.com/MalteJanz/ludtwig in the version above"
-            echo "And then composer run ludtwig:storefront or ludtwig:storefront:fix"
-            echo "Alternatively you also can run these in the DevEnv shell"
-            exit $status  # Fail the job if ludtwig . failed
+        id: ludtwigStep
+        run: |
+          cd ./src/Storefront/Resources/views
+          ludtwig .
+
+      - name: Instructions if ludtwig fails
+        if: ${{ failure() && steps.ludtwigStep.outcome == 'failure'}}
+        run: |
+          ludtwig --version
+          echo "If you want to run this locally install https://github.com/MalteJanz/ludtwig in the version above"
+          echo "And then composer run ludtwig:storefront or ludtwig:storefront:fix"
+          echo "Alternatively you also can run these in the DevEnv shell"
+          exit $status  # Fail the job if ludtwig . failed
 
 
   jest:

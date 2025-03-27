@@ -90,6 +90,7 @@ class Framework extends Bundle
         $loader->load('flag.xml');
         $loader->load('health.xml');
         $loader->load('telemetry.xml');
+        $loader->load('notification.xml');
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $loader->load('services_test.xml');

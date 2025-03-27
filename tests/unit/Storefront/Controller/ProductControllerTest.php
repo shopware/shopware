@@ -27,9 +27,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Shopware\Storefront\Controller\Exception\StorefrontException;
 use Shopware\Storefront\Controller\ProductController;
 use Shopware\Storefront\Page\Product\ProductPage;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
@@ -57,8 +55,6 @@ class ProductControllerTest extends TestCase
 
     private MockObject&AbstractProductReviewSaveRoute $productReviewSaveRouteMock;
 
-    private MockObject&SystemConfigService $systemConfigServiceMock;
-
     private MockObject&ProductReviewLoader $productReviewLoaderMock;
 
     private ProductControllerStub $controller;
@@ -70,7 +66,6 @@ class ProductControllerTest extends TestCase
         $this->seoUrlPlaceholderHandlerMock = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
         $this->minimalQuickViewPageLoaderMock = $this->createMock(MinimalQuickViewPageLoader::class);
         $this->productReviewSaveRouteMock = $this->createMock(AbstractProductReviewSaveRoute::class);
-        $this->systemConfigServiceMock = $this->createMock(SystemConfigService::class);
         $this->productReviewLoaderMock = $this->createMock(ProductReviewLoader::class);
 
         $this->controller = new ProductControllerStub(
@@ -80,7 +75,6 @@ class ProductControllerTest extends TestCase
             $this->productReviewSaveRouteMock,
             $this->seoUrlPlaceholderHandlerMock,
             $this->productReviewLoaderMock,
-            $this->systemConfigServiceMock,
         );
     }
 
@@ -185,28 +179,9 @@ class ProductControllerTest extends TestCase
         static::assertInstanceOf(ProductQuickViewWidgetLoadedHook::class, $this->controller->calledHook);
     }
 
-    public function testSaveReviewDeactivated(): void
-    {
-        $ids = new IdsCollection();
-
-        $this->systemConfigServiceMock->method('get')->with('core.listing.showReview')->willReturn(false);
-
-        $requestBag = new RequestDataBag(['test' => 'test']);
-
-        $this->expectExceptionObject(StorefrontException::reviewNotActive());
-
-        $this->controller->saveReview(
-            $ids->get('productId'),
-            $requestBag,
-            $this->createMock(SalesChannelContext::class)
-        );
-    }
-
     public function testSaveReview(): void
     {
         $ids = new IdsCollection();
-
-        $this->systemConfigServiceMock->method('get')->with('core.listing.showReview')->willReturn(true);
 
         $requestBag = new RequestDataBag(['test' => 'test']);
 
@@ -260,8 +235,6 @@ class ProductControllerTest extends TestCase
     {
         $ids = new IdsCollection();
 
-        $this->systemConfigServiceMock->method('get')->with('core.listing.showReview')->willReturn(true);
-
         $requestBag = new RequestDataBag(['test' => 'test']);
 
         $violations = new ConstraintViolationException(new ConstraintViolationList(), []);
@@ -291,8 +264,6 @@ class ProductControllerTest extends TestCase
     public function testLoadReviewResults(): void
     {
         $ids = new IdsCollection();
-
-        $this->systemConfigServiceMock->method('get')->with('core.listing.showReview')->willReturn(true);
 
         $productId = Uuid::randomHex();
         $parentId = Uuid::randomHex();

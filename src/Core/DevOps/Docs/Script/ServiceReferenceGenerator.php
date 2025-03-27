@@ -40,7 +40,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
         self::GROUP_MISCELLANEOUS => 'miscellaneous-script-services-reference.md',
     ];
 
-    final public const GITHUB_BASE_LINK = 'https://github.com/shopware/platform/blob/trunk';
+    final public const GITHUB_BASE_LINK = 'https://github.com/shopware/shopware/blob/trunk';
 
     private const TEMPLATE_FILE = __DIR__ . '/../../Resources/templates/service-reference.md.twig';
     private const GENERATED_DOC_FILE = __DIR__ . '/../../Resources/generated/';

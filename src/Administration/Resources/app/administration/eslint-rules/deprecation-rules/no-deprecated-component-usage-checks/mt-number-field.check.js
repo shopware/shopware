@@ -18,6 +18,12 @@ const handleMtNumberField = (context, node) => {
             attr?.key?.argument?.name === 'value';
     });
 
+    // Check if the mt-number-field uses v-model:value
+    const vModelValue = node.startTag.attributes.find((attr) => {
+        return attr.key?.name?.name === 'model' &&
+            attr.key?.argument?.name === 'value';
+    });
+
     // Check if the mt-number-field has the slot "label" with shorthand syntax
     const labelSlotShorthand = node.children.find((child) => {
         return child.type === 'VElement' &&
@@ -42,6 +48,18 @@ const handleMtNumberField = (context, node) => {
                 if (context.options.includes('disableFix')) return;
 
                 yield fixer.replaceText(valueAttribute.key, 'modelValue');
+            }
+        });
+    }
+
+    if (vModelValue) {
+        context.report({
+            node: vModelValue,
+            message: `[${mtComponentName}] The "value" prop is deprecated. Use "modelValue" instead.`,
+            *fix(fixer)  {
+                if (context.options.includes('disableFix')) return;
+
+                yield fixer.replaceText(vModelValue.key, 'v-model');
             }
         });
     }
@@ -161,6 +179,33 @@ const mtNumberFieldInvalidTests = [
         code: `
             <template>
                 <mt-number-field :value="myValue" />
+            </template>`,
+        errors: [{
+            message: '[mt-number-field] The "value" prop is deprecated. Use "modelValue" instead.',
+        }]
+    },
+    {
+        name: '"mt-number-field" wrong "v-model:value" usage should be replaced with default v-model',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-number-field v-model:value="myValue" />
+            </template>`,
+        output: `
+            <template>
+                <mt-number-field v-model="myValue" />
+            </template>`,
+        errors: [{
+            message: '[mt-number-field] The "value" prop is deprecated. Use "modelValue" instead.',
+        }]
+    },
+    {
+        name: '"mt-number-field" wrong "v-model:value" usage should be replaced with default v-model [disableFix]',
+        filename: 'test.html.twig',
+        options: ['disableFix'],
+        code: `
+            <template>
+                <mt-number-field v-model:value="myValue" />
             </template>`,
         errors: [{
             message: '[mt-number-field] The "value" prop is deprecated. Use "modelValue" instead.',

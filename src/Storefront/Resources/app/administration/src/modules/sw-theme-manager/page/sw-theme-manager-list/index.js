@@ -51,10 +51,10 @@ Component.register('sw-theme-manager-list', {
 
         sortOptions() {
             return [
-                { value: 'createdAt:DESC', label: this.$tc('sw-theme-manager.sorting.labelSortByCreatedDsc') },
-                { value: 'createdAt:ASC', label: this.$tc('sw-theme-manager.sorting.labelSortByCreatedAsc') },
-                { value: 'updatedAt:DESC', label: this.$tc('sw-theme-manager.sorting.labelSortByUpdatedDsc') },
-                { value: 'updatedAt:ASC', label: this.$tc('sw-theme-manager.sorting.labelSortByUpdatedAsc') }
+                { value: 'createdAt:DESC', label: this.$t('sw-theme-manager.sorting.labelSortByCreatedDsc') },
+                { value: 'createdAt:ASC', label: this.$t('sw-theme-manager.sorting.labelSortByCreatedAsc') },
+                { value: 'updatedAt:DESC', label: this.$t('sw-theme-manager.sorting.labelSortByUpdatedDsc') },
+                { value: 'updatedAt:ASC', label: this.$t('sw-theme-manager.sorting.labelSortByUpdatedAsc') }
             ];
         },
 
@@ -65,7 +65,7 @@ Component.register('sw-theme-manager-list', {
         lockToolTip() {
             return {
                 showDelay: 100,
-                message: this.$tc('sw-theme-manager.general.lockedToolTip')
+                message: this.$t('sw-theme-manager.general.lockedToolTip')
             };
         },
 
@@ -197,24 +197,24 @@ Component.register('sw-theme-manager-list', {
         getColumnConfig() {
             return [{
                 property: 'name',
-                label: this.$tc('sw-theme-manager.list.gridHeaderName'),
+                label: this.$t('sw-theme-manager.list.gridHeaderName'),
                 primary: true
             },
             {
                 property: 'salesChannels.length',
-                label: this.$tc('sw-theme-manager.list.gridHeaderAssignment'),
+                label: this.$t('sw-theme-manager.list.gridHeaderAssignment'),
                 sortable: false,
             },
             {
                 property: 'createdAt',
-                label: this.$tc('sw-theme-manager.list.gridHeaderCreated')
+                label: this.$t('sw-theme-manager.list.gridHeaderCreated')
             }];
         },
 
         deleteDisabledToolTip(theme) {
             return {
                 showDelay: 300,
-                message: this.$tc('sw-theme-manager.actions.deleteDisabledToolTip'),
+                message: this.$t('sw-theme-manager.actions.deleteDisabledToolTip'),
                 disabled: theme.salesChannels.length === 0
             };
         }

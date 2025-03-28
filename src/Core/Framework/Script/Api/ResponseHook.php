@@ -50,7 +50,7 @@ class ResponseHook extends Hook
     }
 
     /**
-     * @return array<string>
+     * @return array<string, list<string|null>>
      */
     public function getHeaders(): array
     {

@@ -30,18 +30,14 @@ class ResponseHookTest extends TestCase
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');
 
         $this->browser->request('GET', '/account/login');
-        static::assertNotFalse($this->browser->getResponse()->getContent());
-
         $response = $this->browser->getResponse();
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         static::assertSame('deny', $response->headers->get('X-Frame-Options'));
 
         $this->browser->request('GET', '/');
-        static::assertNotFalse($this->browser->getResponse()->getContent());
-
         $response = $this->browser->getResponse();
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         static::assertSame('SAMEORIGIN', $response->headers->get('X-Frame-Options'));
     }

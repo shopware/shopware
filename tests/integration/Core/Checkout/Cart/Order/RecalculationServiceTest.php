@@ -36,6 +36,7 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
@@ -61,6 +62,7 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 use Shopware\Core\Test\Stub\Rule\TrueRule;
 use Shopware\Core\Test\TestDefaults;
@@ -416,7 +418,7 @@ class RecalculationServiceTest extends TestCase
         $productTaxRate = 19.0;
         $this->addProductToVersionedOrder($productName, $productPrice, $productTaxRate, $orderId, $versionId, $oldTotal);
 
-        static::getContainer()->get(RecalculationService::class)->recalculateOrder($orderId, $versionContext);
+        static::getContainer()->get(RecalculationService::class)->recalculate($orderId, $versionContext);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('order_delivery.orderId', $orderId));
@@ -596,6 +598,39 @@ class RecalculationServiceTest extends TestCase
         $this->addPromotionItemToVersionedOrder($orderId, $versionId, $code, $orderDateTime, $stateId);
     }
 
+    public function testAddNonExistingPromotionItemToOrder(): void
+    {
+        // create order
+        $cart = $this->generateDemoCart();
+        ['orderId' => $orderId] = $this->persistCart($cart);
+
+        // create version of order
+        $versionId = $this->createVersionedOrder($orderId);
+
+        $this->getBrowser()->request(
+            'POST',
+            \sprintf(
+                '/api/_action/order/%s/promotion-item',
+                $orderId
+            ),
+            server: ['HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId],
+            content: (string) json_encode(['code' => 'some-random-code'], \JSON_THROW_ON_ERROR)
+        );
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertCount(1, $content['errors']);
+
+        $errors = array_values($content['errors']);
+        static::assertEquals($errors[0]['message'], 'Promotion with code some-random-code not found!');
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testToggleAutomaticPromotions(): void
     {
         // create order
@@ -612,6 +647,10 @@ class RecalculationServiceTest extends TestCase
         $this->toggleAutomaticPromotions($orderId, $versionId, $promotionId, $orderDateTime, $stateId);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testToggleAutomaticPromotionsForDelivery(): void
     {
         // create order
@@ -641,6 +680,179 @@ class RecalculationServiceTest extends TestCase
         $promotionId = $this->createShippingDiscount(100);
 
         $this->toggleAutomaticPromotionsForDelivery($orderId, $versionId, $promotionId, $orderDateTime, $stateId);
+    }
+
+    public function testApplyAutomaticPromotions(): void
+    {
+        // create order
+        $cart = $this->generateDemoCart();
+        ['orderId' => $orderId, 'orderDateTime' => $orderDateTime, 'stateId' => $stateId] = $this->persistCart($cart);
+
+        // create version of order
+        $versionId = $this->createVersionedOrder($orderId);
+
+        // create an automatic promotion with discount
+        $discountValue = 5.0;
+        $promotionId = $this->createPromotion($discountValue);
+
+        [$order, $content] = $this->applyAutomaticPromotions($orderId, $versionId, $promotionId);
+        $promotionItem = $order->getLineItems()?->filterByType(PromotionProcessor::LINE_ITEM_TYPE)->first();
+
+        static::assertCount(1, $content['errors']);
+        static::assertNotNull($promotionItem);
+        static::assertEquals('Discount auto promotion has been added', array_values($content['errors'])[0]['message']);
+        static::assertSame($order->getStateId(), $stateId);
+
+        // On recalculation, promotion is applied once more, creating a new line item.
+        [$order, $content] = $this->applyAutomaticPromotions($orderId, $versionId, $promotionId);
+        $newPromotionItem = $order->getLineItems()?->filterByType(PromotionProcessor::LINE_ITEM_TYPE)->first();
+
+        static::assertEmpty($content['errors']);
+        static::assertNotNull($newPromotionItem);
+        static::assertEquals($promotionItem->getId(), $newPromotionItem->getId(), 'line-item id of promotion should not differ between recalculations');
+        static::assertEquals($promotionItem->getPayload(), $newPromotionItem->getPayload());
+    }
+
+    public function testApplyAutomaticShippingPromotions(): void
+    {
+        // create order
+        $cart = $this->generateDemoCart();
+        ['orderId' => $orderId, 'orderDateTime' => $orderDateTime, 'stateId' => $stateId] = $this->persistCart($cart);
+
+        // create version of order
+        $versionId = $this->createVersionedOrder($orderId);
+
+        // create an automatic promotion with discount
+        $promotionId = $this->createShippingDiscount(5.0);
+
+        [$order, $content] = $this->applyAutomaticPromotions($orderId, $versionId, $promotionId);
+
+        static::assertCount(1, $content['errors']);
+
+        $errors = array_values($content['errors']);
+        static::assertEquals('Discount delivery promotion has been added', $errors[0]['message']);
+        static::assertSame($order->getStateId(), $stateId);
+
+        static::assertNotNull($order->getDeliveries());
+        $deliveryIds = $order->getDeliveries()->getKeys();
+        static::assertCount(2, $deliveryIds);
+        $promotionDelivery = $order->getDeliveries()->get($deliveryIds[1]);
+        static::assertSame(-0.5, $promotionDelivery?->getShippingCosts()->getTotalPrice());
+
+        // On recalculation, promotion is applied once more, creating a new delivery.
+        // The old one is expected to be deleted.
+        [$order, $content] = $this->applyAutomaticPromotions($orderId, $versionId, $promotionId);
+        static::assertEmpty($content['errors']);
+        static::assertNotNull($order->getDeliveries());
+        $deliveryIds = $order->getDeliveries()->getKeys();
+        static::assertCount(2, $deliveryIds);
+        $newPromotionDelivery = $order->getDeliveries()->get($deliveryIds[1]);
+        static::assertSame(-0.5, $newPromotionDelivery?->getShippingCosts()->getTotalPrice());
+
+        static::assertNotEquals($newPromotionDelivery->getId(), $promotionDelivery->getId());
+    }
+
+    public function testRecalculationOfPinnedDisabledPromotion(): void
+    {
+        $cart = $this->generateDemoCart();
+        ['orderId' => $orderId, 'orderDateTime' => $orderDateTime, 'stateId' => $stateId] = $this->persistCart($cart);
+
+        $promotionId = $this->createPromotion(10.0, 'GET5', PromotionDiscountEntity::TYPE_PERCENTAGE);
+
+        $versionId = $this->createVersionedOrder($orderId);
+        $order = $this->addPromotionItemToVersionedOrder($orderId, $versionId, 'GET5', $orderDateTime, $stateId);
+
+        static::assertEquals(225.98, $order->getAmountTotal());
+
+        static::getContainer()->get('promotion.repository')->upsert(
+            [['id' => $promotionId, 'active' => false]],
+            $this->context,
+        );
+
+        $this->getBrowser()->request(
+            'POST',
+            \sprintf('/api/_action/order/%s/recalculate', $orderId),
+            server: [
+                'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
+            ]
+        );
+
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('lineItems');
+        /** @var OrderEntity $order */
+        $order = static::getContainer()->get('order.repository')->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
+
+        static::assertNotNull($order->getLineItems());
+        static::assertCount(3, $order->getLineItems());
+        static::assertNotNull($order->getLineItems()->filterByType(PromotionProcessor::LINE_ITEM_TYPE)->first());
+        static::assertEquals(225.98, $order->getAmountTotal());
+    }
+
+    public function testRecalculationOfPinnedPromotionWithProductAdded(): void
+    {
+        $cart = $this->generateDemoCart();
+        ['orderId' => $orderId, 'orderDateTime' => $orderDateTime, 'stateId' => $stateId] = $this->persistCart($cart);
+
+        $promotionId = $this->createPromotion(10.0, 'GET5', PromotionDiscountEntity::TYPE_PERCENTAGE);
+
+        $versionId = $this->createVersionedOrder($orderId);
+        $order = $this->addPromotionItemToVersionedOrder($orderId, $versionId, 'GET5', $orderDateTime, $stateId);
+
+        static::assertEquals(225.98, $order->getAmountTotal());
+
+        static::getContainer()->get('promotion.repository')->upsert(
+            [['id' => $promotionId, 'active' => false]],
+            $this->context,
+        );
+
+        $this->addProductToVersionedOrder('Test', 10.0, 19.0, $orderId, $versionId, 224.79);
+
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('lineItems');
+        /** @var OrderEntity $order */
+        $order = static::getContainer()->get('order.repository')->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
+
+        static::assertNotNull($order->getLineItems());
+        static::assertCount(4, $order->getLineItems());
+        static::assertNotNull($order->getLineItems()->filterByType(PromotionProcessor::LINE_ITEM_TYPE)->first());
+        static::assertNotEquals(237.17, $order->getAmountTotal(), 'Promotion of order isn\'t recalculated');
+        static::assertEquals(236.69, $order->getAmountTotal());
+    }
+
+    public function testRecalculationOfPinnedAutomaticDisabledPromotion(): void
+    {
+        $cart = $this->generateDemoCart();
+        ['orderId' => $orderId] = $this->persistCart($cart);
+        $versionId = $this->createVersionedOrder($orderId);
+
+        $promotionId = $this->createPromotion(10.0, null, PromotionDiscountEntity::TYPE_PERCENTAGE);
+
+        [$order] = $this->applyAutomaticPromotions($orderId, $versionId, $promotionId);
+
+        static::assertEquals(225.98, $order->getAmountTotal());
+
+        static::getContainer()->get('promotion.repository')->upsert(
+            [['id' => $promotionId, 'active' => false]],
+            $this->context,
+        );
+
+        $this->addProductToVersionedOrder('Test', 10.0, 19.0, $orderId, $versionId, 224.79);
+
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('lineItems');
+        /** @var OrderEntity $order */
+        $order = static::getContainer()->get('order.repository')->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
+
+        static::assertNotNull($order->getLineItems());
+        static::assertCount(4, $order->getLineItems());
+        static::assertNotNull($order->getLineItems()->filterByType(PromotionProcessor::LINE_ITEM_TYPE)->first());
+        static::assertEquals(236.69, $order->getAmountTotal());
+
+        // as promotion is disabled, it should be removed again
+        [$order] = $this->applyAutomaticPromotions($orderId, $versionId, null);
+        static::assertNotNull($order->getLineItems());
+        static::assertCount(3, $order->getLineItems());
+        static::assertEquals(261.88, $order->getAmountTotal());
     }
 
     public function testCreatedVersionedOrderAndMerge(): void
@@ -742,7 +954,7 @@ class RecalculationServiceTest extends TestCase
 
         $orderDeliveryRepository->upsert([$payload], $versionContext);
 
-        static::getContainer()->get(RecalculationService::class)->recalculateOrder($orderId, $versionContext);
+        static::getContainer()->get(RecalculationService::class)->recalculate($orderId, $versionContext);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('order_delivery.orderId', $orderId));
@@ -780,7 +992,7 @@ class RecalculationServiceTest extends TestCase
         $versionId = $this->createVersionedOrder($orderId);
         $versionContext = $this->context->createWithVersionId($versionId);
 
-        static::getContainer()->get(RecalculationService::class)->recalculateOrder($orderId, $versionContext);
+        static::getContainer()->get(RecalculationService::class)->recalculate($orderId, $versionContext);
 
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')
@@ -812,7 +1024,7 @@ class RecalculationServiceTest extends TestCase
         ];
 
         // Act
-        static::getContainer()->get(RecalculationService::class)->recalculateOrder($orderId, $versionContext, $options);
+        static::getContainer()->get(RecalculationService::class)->recalculate($orderId, $versionContext, $options);
 
         // Assert
         $order = static::getContainer()->get('order.repository')
@@ -839,7 +1051,7 @@ class RecalculationServiceTest extends TestCase
         $versionId = $this->createVersionedOrder($orderId);
         $versionContext = $this->context->createWithVersionId($versionId);
 
-        static::getContainer()->get(RecalculationService::class)->recalculateOrder($orderId, $versionContext);
+        static::getContainer()->get(RecalculationService::class)->recalculate($orderId, $versionContext);
 
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')
@@ -860,7 +1072,7 @@ class RecalculationServiceTest extends TestCase
 
         static::getContainer()->get('product.repository')->update([['id' => $inactiveProductId, 'active' => false]], $this->context);
 
-        static::getContainer()->get(RecalculationService::class)->recalculateOrder($orderId, $versionContext);
+        static::getContainer()->get(RecalculationService::class)->recalculate($orderId, $versionContext);
 
         /** @var OrderEntity $order */
         $order = static::getContainer()->get('order.repository')
@@ -1324,7 +1536,7 @@ class RecalculationServiceTest extends TestCase
         return $productId;
     }
 
-    private function createPromotion(float $discountValue, ?string $code = null): string
+    private function createPromotion(float $discountValue, ?string $code = null, string $type = PromotionDiscountEntity::TYPE_ABSOLUTE): string
     {
         $promotionId = Uuid::randomHex();
 
@@ -1340,7 +1552,7 @@ class RecalculationServiceTest extends TestCase
             'discounts' => [
                 [
                     'scope' => PromotionDiscountEntity::SCOPE_CART,
-                    'type' => PromotionDiscountEntity::TYPE_ABSOLUTE,
+                    'type' => $type,
                     'value' => $discountValue,
                     'considerAdvancedRules' => false,
                 ],
@@ -1592,12 +1804,9 @@ class RecalculationServiceTest extends TestCase
         static::assertNotNull($order);
         static::assertNotNull($order->getLineItems());
 
-        $product = null;
-        foreach ($order->getLineItems() as $lineItem) {
-            if ($lineItem->getIdentifier() === $productId) {
-                $product = $lineItem;
-            }
-        }
+        $product = $order->getLineItems()->firstWhere(
+            static fn (OrderLineItemEntity $item) => $item->getIdentifier() === $productId,
+        );
 
         static::assertNotNull($product);
         static::assertNotNull($product->getPrice());
@@ -1757,7 +1966,7 @@ class RecalculationServiceTest extends TestCase
         static::assertSame($stateId, $order->getStateId());
     }
 
-    private function addPromotionItemToVersionedOrder(string $orderId, string $versionId, string $code, \DateTimeInterface $orderDateTime, string $stateId): void
+    private function addPromotionItemToVersionedOrder(string $orderId, string $versionId, string $code, \DateTimeInterface $orderDateTime, string $stateId): OrderEntity
     {
         $orderRepository = static::getContainer()->get('order.repository');
 
@@ -1803,8 +2012,66 @@ class RecalculationServiceTest extends TestCase
         $errors = array_values($content['errors']);
         static::assertEquals($errors[0]['message'], 'Discount GET5 has been added');
         static::assertSame($stateId, $order->getStateId());
+
+        return $order;
     }
 
+    /**
+     * @return array{0: OrderEntity, 1: array<mixed>}
+     */
+    private function applyAutomaticPromotions(string $orderId, string $versionId, ?string $promotionId): array
+    {
+        $orderRepository = static::getContainer()->get('order.repository');
+
+        $data = [
+            'skipAutomaticPromotions' => false,
+        ];
+
+        // add promotion item to order
+        $this->getBrowser()->request(
+            'POST',
+            \sprintf(
+                '/api/_action/order/%s/applyAutomaticPromotions',
+                $orderId
+            ),
+            [],
+            [],
+            [
+                'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
+            ],
+            (string) json_encode($data)
+        );
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        // read versioned order
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('lineItems');
+        $criteria->addAssociation('deliveries');
+        /** @var OrderEntity $order */
+        $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
+        static::assertNotEmpty($order);
+        static::assertNotNull($order->getLineItems());
+        static::assertCount(3, $order->getLineItems());
+
+        $promotionItem = $order->getLineItems()->filterByType('promotion')->first();
+        if ($promotionId) {
+            static::assertNotNull($promotionItem);
+            static::assertNotNull($promotionItem->getPayload());
+            static::assertEquals($promotionItem->getPayload()['promotionId'], $promotionId);
+        } else {
+            static::assertNull($promotionItem);
+        }
+
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        return [$order, $content];
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
     private function toggleAutomaticPromotions(string $orderId, string $versionId, string $promotionId, \DateTimeInterface $orderDateTime, string $stateId): void
     {
         $orderRepository = static::getContainer()->get('order.repository');
@@ -1856,6 +2123,9 @@ class RecalculationServiceTest extends TestCase
         static::assertSame($stateId, $order->getStateId());
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
     private function toggleAutomaticPromotionsForDelivery(string $orderId, string $versionId, string $promotionId, \DateTimeInterface $orderDateTime, string $stateId): void
     {
         $orderRepository = static::getContainer()->get('order.repository');

@@ -2137,6 +2137,18 @@ After:
 <mt-switch>Hello World</mt-switch>
 ```
 
+### "mt-switch" v-model:value is deprecated
+Replace all occurrences of the "v-model:value" directive with "v-model"
+
+Before:
+```html
+<mt-switch v-model:value="myValue" />
+```
+After:
+```html
+<mt-switch v-model="myValue" />
+```
+
 ### "mt-switch" has no "noMarginTop" prop anymore
 Replace all occurrences of the "noMarginTop" prop with "removeTopMargin".
 

@@ -1,0 +1,30 @@
+{% block sw_cms_element_popup %}
+    <div class="sw-cms-el-popup">
+        <!-- Button display in admin -->
+        <div class="sw-cms-el-popup-admin">
+            <p class="sw-cms-el-popup-admin-title">{{ element.config.title.value || 'Popup Title' }}</p>
+            <div class="sw-cms-el-popup-admin-button">{{ element.config.buttonText.value || 'Open Popup' }}</div>
+            <p class="sw-cms-el-popup-admin-info">Popup content: {{ element.config.content.value || 'Popup content will display here' }}</p>
+        </div>
+        
+        <!-- This will be used on the actual storefront -->
+        <div v-show="false">
+            <button class="sw-cms-el-popup-button" @click="togglePopup">
+                {{ element.config.buttonText.value }}
+            </button>
+
+            <div class="sw-cms-el-popup-overlay" v-if="showPopup" @click="closePopup">
+                <div class="sw-cms-el-popup-container" @click.stop
+                     :style="popupStyles">
+                    <div class="sw-cms-el-popup-header">
+                        <h2>{{ element.config.title.value }}</h2>
+                        <button class="sw-cms-el-popup-close" @click="closePopup">×</button>
+                    </div>
+                    <div class="sw-cms-el-popup-content">
+                        {{ element.config.content.value }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

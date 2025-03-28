@@ -1,0 +1,39 @@
+{% block sw_cms_element_popup_config %}
+    <div class="sw-cms-el-config-popup">
+        <sw-text-field
+            :label="$tc('sw-cms.elements.popup.config.labelTitle')"
+            :placeholder="$tc('sw-cms.elements.popup.config.placeholderTitle')"
+            v-model="element.config.title.value">
+        </sw-text-field>
+        
+        <sw-textarea-field
+            :label="$tc('sw-cms.elements.popup.config.labelContent')"
+            :placeholder="$tc('sw-cms.elements.popup.config.placeholderContent')"
+            v-model="element.config.content.value">
+        </sw-textarea-field>
+        
+        <sw-text-field
+            :label="$tc('sw-cms.elements.popup.config.labelButtonText')"
+            :placeholder="$tc('sw-cms.elements.popup.config.placeholderButtonText')"
+            v-model="element.config.buttonText.value">
+        </sw-text-field>
+        
+        <sw-text-field
+            :label="$tc('sw-cms.elements.popup.config.labelWidth')"
+            :placeholder="$tc('sw-cms.elements.popup.config.placeholderWidth')"
+            v-model="element.config.width.value">
+        </sw-text-field>
+        
+        <sw-text-field
+            :label="$tc('sw-cms.elements.popup.config.labelHeight')"
+            :placeholder="$tc('sw-cms.elements.popup.config.placeholderHeight')"
+            v-model="element.config.height.value">
+        </sw-text-field>
+        
+        <sw-single-select
+            :label="$tc('sw-cms.elements.popup.config.labelTrigger')"
+            :options="triggerOptions"
+            v-model="element.config.trigger.value">
+        </sw-single-select>
+    </div>
+{% endblock %}

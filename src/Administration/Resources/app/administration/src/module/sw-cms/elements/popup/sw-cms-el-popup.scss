@@ -1,0 +1,100 @@
+.sw-cms-el-popup {
+    &-admin {
+        border: 1px dashed #d8dde6;
+        border-radius: 4px;
+        padding: 10px;
+        text-align: center;
+        min-height: 100px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        
+        &-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        &-button {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: #189eff;
+            color: white;
+            border-radius: 4px;
+            margin: 8px 0;
+            font-size: 12px;
+        }
+        
+        &-info {
+            font-size: 11px;
+            color: #71758a;
+            margin-top: 8px;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
+    &-button {
+        padding: 8px 16px;
+        background-color: #189eff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        
+        &:hover {
+            background-color: #0080dc;
+        }
+    }
+    
+    &-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+    
+    &-container {
+        background-color: white;
+        border-radius: 4px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        max-width: 90%;
+        max-height: 90%;
+        overflow: auto;
+    }
+    
+    &-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        border-bottom: 1px solid #d1d9e0;
+        
+        h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+    }
+    
+    &-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+    }
+    
+    &-content {
+        padding: 16px;
+    }
+}

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Migration\Core\V6_7;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -19,17 +20,8 @@ class Migration1743064966CartConfigSubtotalTaxColumnTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    public function testSubtotalMigration(): void
-    {
-        $this->migrationTest('core.cart.showSubtotal');
-    }
-
-    public function testTaxInsteadUnitPriceMigration(): void
-    {
-        $this->migrationTest('core.cart.columnTaxInsteadUnitPrice');
-    }
-
-    private function migrationTest(string $key): void
+    #[DataProvider('migrationData')]
+    public function testMigration(string $key): void
     {
         $connection = self::getContainer()->get(Connection::class);
 
@@ -39,32 +31,48 @@ class Migration1743064966CartConfigSubtotalTaxColumnTest extends TestCase
         $migration->update($connection);
         $migration->update($connection);
 
-        $newConfiguration = $connection->fetchAllKeyValue(
-            'SELECT LOWER(HEX(`id`)), `configuration_value` FROM `system_config` WHERE `configuration_key` = ?',
-            [$key]
-        );
+        $newConfiguration = $this->getConditionValues($key);
         $id = array_key_first($newConfiguration);
 
         static::assertCount(1, $newConfiguration);
-        static::assertEquals('{"_value": true}', $newConfiguration[$id]);
+        static::assertSame(['_value' => true], $newConfiguration[$id]);
 
         $connection->update(
             'system_config',
-            [
-                'configuration_value' => '{"_value": false}',
-            ],
+            ['configuration_value' => '{"_value": false}'],
             ['id' => Uuid::fromHexToBytes((string) $id)]
         );
 
         $migration->update($connection);
 
-        $newConfiguration = $connection->fetchAllKeyValue(
-            'SELECT LOWER(HEX(`id`)), `configuration_value` FROM `system_config` WHERE `configuration_key` = ?',
-            [$key]
-        );
+        $newConfiguration = $this->getConditionValues($key);
         $id = array_key_first($newConfiguration);
 
         static::assertCount(1, $newConfiguration);
-        static::assertEquals('{"_value": false}', $newConfiguration[$id]);
+        static::assertSame(['_value' => false], $newConfiguration[$id]);
+    }
+
+    public static function migrationData(): \Generator
+    {
+        yield 'test with showSubtotal' => [
+            'key' => 'core.cart.showSubtotal',
+        ];
+        yield 'test with column TaxInsteadUnitPrice' => [
+            'key' => 'core.cart.columnTaxInsteadUnitPrice',
+        ];
+    }
+
+    /**
+     * @return array<string, array{'_value': bool}>
+     */
+    private function getConditionValues(string $key): array
+    {
+        return array_map(
+            static fn (string $json) => json_decode($json, true),
+            static::getContainer()->get(Connection::class)->fetchAllKeyValue(
+                'SELECT LOWER(HEX(`id`)), `configuration_value` FROM `system_config` WHERE `configuration_key` = :key',
+                ['key' => $key],
+            )
+        );
     }
 }

@@ -31,13 +31,19 @@
         {% endblock %}
 
         {% block page_checkout_cart_product_table %}
+            {# @deprecated tag:v6.8.0 - Will listing to new core.cart.columnTaxInsteadUnitPrice config #}
+            {% set showTaxPrice = false %}
+            {% if feature('v6.8.0.0') %}
+                {% set showTaxPrice = config('core.cart.columnTaxInsteadUnitPrice') %}
+            {% endif %}
             {% set showSubtotal = config('core.cart.showSubtotal') %}
 
             <div class="card checkout-product-table">
                 <ul class="card-body list-unstyled">
                     {% block page_checkout_cart_table_header %}
                         {% sw_include '@Storefront/storefront/component/checkout/cart-header.html.twig' with {
-                            showSubtotal: showSubtotal
+                            showSubtotal: showSubtotal,
+                            showTaxPrice: showTaxPrice
                         } %}
                     {% endblock %}
 
@@ -46,7 +52,8 @@
                             {% block page_checkout_cart_table_item %}
                                 {% block page_checkout_item %}
                                     {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
-                                        showSubtotal: showSubtotal
+                                        showSubtotal: showSubtotal,
+                                        showTaxPrice: showTaxPrice
                                     } %}
                                 {% endblock %}
                             {% endblock %}

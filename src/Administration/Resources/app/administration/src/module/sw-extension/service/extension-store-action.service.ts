@@ -76,6 +76,7 @@ interface Extension {
     iconRaw: string | null;
     categories: StoreCategory[] | null;
     permissions: Array<{ entity: string; operation: string }> | null;
+    requestedPermissions: Array<{ entity: string; operation: string }> | null;
     active: boolean;
     type: ExtensionType;
     isTheme: boolean;

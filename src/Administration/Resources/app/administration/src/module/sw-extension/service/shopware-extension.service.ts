@@ -132,7 +132,7 @@ export default class ShopwareExtensionService {
             const myExtensions = await this.extensionStoreActionService.getMyExtensions();
 
             Shopware.Store.get('shopwareExtensions').setMyExtensions(myExtensions);
-
+            
             await this.updateModules();
         } finally {
             Shopware.Store.get('shopwareExtensions').setLoading(false);

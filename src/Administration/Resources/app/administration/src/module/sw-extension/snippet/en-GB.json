@@ -89,6 +89,13 @@
         "actionLabel": "Login"
       }
     },
+    "notifications": {
+        "reviewPermissionRequests": {
+            "title": "New permissions requested",
+            "message": "One or more extensions requires new permissions to be updated. Please review the new permissions to continue.",
+            "action": "Review permissions"
+        }
+    },
     "mainMenu": {
       "mainMenuItemExtensionStore": "Extensions",
       "store": "Store",

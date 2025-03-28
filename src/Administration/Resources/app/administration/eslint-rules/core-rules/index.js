@@ -20,5 +20,7 @@ module.exports = {
         'move-slots-to-wrap-blocks': require(path.resolve(__dirname, 'move-slots-to-wrap-blocks.js')),
         // eslint-disable-next-line global-require,import/no-dynamic-require
         'replace-top-level-blocks-to-extends': require(path.resolve(__dirname, 'replace-top-level-blocks-to-extends.js')),
+        // eslint-disable-next-line global-require,import/no-dynamic-require
+        'require-global-default-use': require(path.resolve(__dirname, 'require-global-default-use.js')),
     },
 };

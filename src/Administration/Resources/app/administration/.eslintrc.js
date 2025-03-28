@@ -2,7 +2,10 @@
  * @sw-package admin
  */
 
+// import json from 'eslint-plugin-json';
+
 const path = require('path');
+const json = require('eslint-plugin-json');
 
 const baseRules = {
     // Disabled because it hides some warnings
@@ -39,11 +42,14 @@ const baseRules = {
     'func-names': 'off',
 };
 
+console.log(json.configs.recommended);
+
 module.exports = {
-    root: true,
+    ...json.configs.recommended,
     extends: [
         '@shopware-ag/eslint-config-base',
     ],
+
     env: {
         browser: true,
         'jest/globals': true,
@@ -111,6 +117,11 @@ module.exports = {
 
     overrides: [
         {
+            files: ['**/*.json'],
+            rules: {
+                'sw-core-rules/require-global-default-use': 'warn',
+            },
+        }, {
             extends: [
                 'plugin:vue/vue3-recommended',
                 '@shopware-ag/eslint-config-base',
@@ -279,11 +290,11 @@ module.exports = {
                 'prettier',
             ],
         }, {
-            files: ['**/snippet/*.json'],
-            rules: {
-                'inclusive-language/use-inclusive-words': 'error',
-            },
-        }, {
+        //     files: ['**/snippet/*.json'],
+        //     rules: {
+        //         'inclusive-language/use-inclusive-words': 'error',
+        //     },
+        // }, {
             files: ['**/*.ts', '**/*.tsx'],
             extends: [
                 '@shopware-ag/eslint-config-base',

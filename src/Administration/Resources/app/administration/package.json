@@ -23,11 +23,11 @@
     "generate-position-identifier-list": "ts-node --transpileOnly ./scripts/generate-position-identifier-list/index.ts",
     "preinstall": "node ./scripts/validate-package-json/index.mjs",
     "postinstall": "patch-package",
-    "lint": "eslint --ext .js,.ts,.vue,.html.twig src test build.ts --cache",
+    "lint": "eslint --ext .js,.ts,.vue,.html.twig,.json src test build.ts --cache",
     "lint:all": "npm run lint:types && npm run lint",
     "lint:debugging": "eslint --ext .js,.ts,.vue,.html.twig",
     "lint:deprecations": "eslint --rule '\"sw-new-core-rules/private-feature-declarations\": \"error\"' $(git status -s | awk '/(js|ts|vue|html\\.twig)$/ {print $2}')",
-    "lint:fix": "npm run lint -- --fix",
+    "lint:fix": "npm run lint -- --fix --rule '{\"sw-core-rules/require-global-default-use\": \"error\"}'",
     "lint:junit": "eslint --ext .js,.ts,.vue,.html.twig --format junit src test > eslint.junit.xml",
     "lint:scss": "stylelint **/*.scss --cache",
     "lint:scss-fix": "npm run lint:scss -- --fix",
@@ -48,6 +48,7 @@
     "safari >= 7"
   ],
   "dependencies": {
+    "eslint-plugin-json": "^4.0.1",
     "@shopware-ag/meteor-admin-sdk": "5.7.7",
     "@shopware-ag/meteor-component-library": "4.8.0",
     "@shopware-ag/meteor-icon-kit": "5.4.0",

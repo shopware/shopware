@@ -2638,6 +2638,9 @@ foreach($storefrontPluginConfig->getAssetPaths() as $relativePath) {
 }
 ```
 
+## Removal of `showStagingBanner` Twig variable
+The global `showStagingBanner` Twig variable was removed. Use `shopware.showStagingBanner` instead.
+
 ## Removal of `setTwig` method in `StorefrontController`
 The method `Shopware\Storefront\Controller\StorefrontController::setTwig` has been removed.
 Remove the `setTwig` call from the services config files.

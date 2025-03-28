@@ -8,6 +8,12 @@ use Shopware\Core\Framework\Extensions\Extension;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @title Aggregate administration snippets
+ *
+ * @description This event allows manipulation of the administration snippets.
+ *
+ * @codeCoverageIgnore
+ *
  * @extends Extension<array<string, string|mixed>>
  */
 #[Package('discovery')]

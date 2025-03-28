@@ -71,6 +71,7 @@
                                     }"
                                     type="number"
                                     :editable="acl.can('order.editor')"
+                                    :step="1"
                                     :value="delivery.shippingCosts.totalPrice"
                                     @value-change="onShippingChargeEdited"
                                     @update:value="onShippingChargeUpdated"

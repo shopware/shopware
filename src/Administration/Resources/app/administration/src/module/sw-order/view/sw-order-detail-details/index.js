@@ -5,7 +5,7 @@ import './sw-order-detail-details.scss';
  * @sw-package checkout
  */
 
-const { Component, Store } = Shopware;
+const { Component, Store, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
@@ -134,6 +134,7 @@ export default {
             return this.order.price.taxStatus;
         },
 
+        // @deprecated tag:v6.8.0 - Will be removed, will not be used anymore.
         currency() {
             return this.order.currency;
         },
@@ -158,6 +159,7 @@ export default {
             return currentAddress?.customerAddressId || this.shippingAddress.id;
         },
 
+        // @deprecated tag:v6.8.0 - Will be removed, change shipping cost on order general view instead.
         shippingCosts: {
             get() {
                 return this.delivery?.shippingCosts.totalPrice || 0.0;
@@ -182,12 +184,13 @@ export default {
             });
         },
 
-        onShippingChargeEdited(amount) {
+        // @deprecated tag:v6.8.0 - Will be removed, change shipping cost on order general view instead.
+        onShippingChargeEdited: Utils.debounce(function onShippingChargeEdited(amount) {
             this.delivery.shippingCosts.unitPrice = amount;
             this.delivery.shippingCosts.totalPrice = amount;
 
             this.saveAndRecalculate();
-        },
+        }, 800),
 
         loadingChange(loading) {
             if (this.swOrderDetailOnLoadingChange) {

@@ -12,7 +12,6 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
-use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
 use Shopware\Core\Checkout\Promotion\Gateway\PromotionGatewayInterface;
 use Shopware\Core\Checkout\Promotion\Gateway\Template\PermittedAutomaticPromotions;
@@ -33,8 +32,37 @@ class PromotionCollector implements CartDataCollectorInterface
 {
     use PromotionCartInformationTrait;
 
+    /**
+     * Existing set of promotions will not be changed.
+     * Promotions may **not** be recalculated based on their price definition.
+     *
+     * Takes precedence over {@see PIN_MANUAL_PROMOTIONS} and {@see PIN_MANUAL_PROMOTIONS}.
+     */
     final public const SKIP_PROMOTION = 'skipPromotion';
+
+    /**
+     * Skips the addition of automatic promotion.
+     * If {@see PIN_AUTOMATIC_PROMOTIONS} is not set, all existing automatic promotions will be deleted.
+     */
     final public const SKIP_AUTOMATIC_PROMOTIONS = 'skipAutomaticPromotions';
+
+    /**
+     * Existing set of manual/fixed promotions will not be changed,
+     * but new manual/fixed promotions can be added.
+     * Promotions may be recalculated based on their price definition.
+     */
+    final public const PIN_MANUAL_PROMOTIONS = 'pinManualPromotions';
+
+    /**
+     * Existing set of automatic promotions will not be changed.
+     * Promotions may be recalculated based on their price definition.
+     *
+     * Takes precedence over {@see SKIP_AUTOMATIC_PROMOTIONS}.
+     */
+    final public const PIN_AUTOMATIC_PROMOTIONS = 'pinAutomaticPromotions';
+
+    private const CACHE_KEY_CODE = 'promotions-code';
+    private const CACHE_KEY_AUTO = 'promotions-auto';
 
     private const REQUIRED_DAL_ASSOCIATIONS = [
         'personaRules',
@@ -76,17 +104,17 @@ class PromotionCollector implements CartDataCollectorInterface
             // However, this cannot be applied directly, because it does not yet have any items in the cart.
             // Therefore the code is stored in the extension and as soon
             // as the user has enough items in the cart, it is added again.
-            $cartExtension = $original->getExtension(CartExtension::KEY);
-            if (!$cartExtension instanceof CartExtension) {
-                $cartExtension = new CartExtension();
-                $original->addExtension(CartExtension::KEY, $cartExtension);
-            }
+            $cartExtension = $original->getExtensionOfType(CartExtension::KEY, CartExtension::class) ?? new CartExtension();
+            $original->addExtension(CartExtension::KEY, $cartExtension);
 
             // if we are in recalculation,
             // we must not re-add any promotions. just leave it as it is.
             if ($behavior->hasPermission(self::SKIP_PROMOTION)) {
                 return;
             }
+
+            // preload our collected lineItems with pinned ones
+            $discountLineItems = $this->getPinnedPromotions($original, $behavior);
 
             // now get the codes from our configuration
             // and also from our line items (that already exist)
@@ -95,64 +123,97 @@ class PromotionCollector implements CartDataCollectorInterface
             $cartCodes = $original->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->getReferenceIds();
             $allCodes = array_unique(array_merge(array_values($cartCodes), $extensionCodes));
 
+            // Pinned: We want to allow the addition of any promotion by code even if promotions are pinned
             $allPromotions = $this->searchPromotionsByCodes($data, $allCodes, $context);
 
-            if (!$behavior->hasPermission(self::SKIP_AUTOMATIC_PROMOTIONS)) {
-                // add auto promotions
+            if (!$behavior->hasPermission(self::SKIP_AUTOMATIC_PROMOTIONS) && !$behavior->hasPermission(self::PIN_AUTOMATIC_PROMOTIONS)) {
                 $allPromotions->addAutomaticPromotions($this->searchPromotionsAuto($data, $context));
             }
 
-            $currentOrderId = $original->getExtension(OrderConverter::ORIGINAL_ID) instanceof IdStruct ? $original->getExtension(OrderConverter::ORIGINAL_ID)->getId() : null;
+            $currentOrderId = $original->getExtensionOfType(OrderConverter::ORIGINAL_ID, IdStruct::class)?->getId();
 
-            // check if max allowed redemption of promotion have been reached or not
-            // if max redemption has been reached promotion will not be added
-            $allPromotions = $this->getEligiblePromotionsWithDiscounts($allPromotions, $context->getCustomerId(), $currentOrderId);
+            $foundCodes = $discountLineItems->fmap(static fn (LineItem $item) => $item->getReferencedId());
 
-            $discountLineItems = [];
-            $foundCodes = [];
-
-            /** @var PromotionCodeTuple $tuple */
             foreach ($allPromotions->getPromotionCodeTuples() as $tuple) {
-                // verify if the user might have removed and "blocked"
-                // the promotion from being added again
+                if (!$this->isEligible($tuple->getPromotion(), $context->getCustomerId(), $currentOrderId)) {
+                    continue;
+                }
+
                 if ($cartExtension->isPromotionBlocked($tuple->getPromotion()->getId())) {
                     continue;
                 }
 
-                // lets build separate line items for each
-                // of the available discounts within the current promotion
-                $lineItems = $this->buildDiscountLineItems($tuple->getCode(), $tuple->getPromotion(), $original, $context);
+                $foundCodes[] = $tuple->getCode();
 
-                // add to our list of all line items
-                /** @var LineItem $nested */
-                foreach ($lineItems as $nested) {
-                    $discountLineItems[] = $nested;
+                // skip adding a discount if we don't have a line item to apply a discount on
+                if (!$this->hasLineItemToDiscount($original)) {
+                    continue;
                 }
 
-                // we need the list of found codes
-                // for our NotFound errors below
-                $foundCodes[] = $tuple->getCode();
+                // let's build separate line items for each of the available discounts within the current promotion
+                $lineItems = $this->buildDiscountLineItems($tuple->getCode(), $tuple->getPromotion(), $original, $context);
+                foreach ($lineItems as $nested) {
+                    // do not override pinned promotions
+                    if (!$discountLineItems->has($nested->getId())) {
+                        $discountLineItems->add($nested);
+                    }
+                }
             }
 
-            // now iterate through all codes that have been added
-            // and add errors, if a promotion for that code couldn't be found
-            foreach ($allCodes as $code) {
-                if (!\in_array($code, $foundCodes, true)) {
-                    $cartExtension->removeCode((string) $code);
+            // now iterate through all codes that have been added and add errors for all removed promotions
+            foreach (\array_diff($allCodes, \array_unique($foundCodes)) as $code) {
+                $cartExtension->removeCode((string) $code);
 
-                    $this->addPromotionNotFoundError($this->htmlSanitizer->sanitize((string) $code, null, true), $original);
+                $this->addPromotionNotFoundError($this->htmlSanitizer->sanitize((string) $code, null, true), $original);
+            }
+
+            // when being in a recalculation, having notifications about the removal of automatic promotion is desired
+            // addition notifications are handled as usual in the PromotionCalculator
+            if ($behavior->isRecalculation()) {
+                $oldPromotions = $original->getLineItems()->filter(static fn (LineItem $item) => !$item->getReferencedId())->getElements();
+                $newPromotions = $discountLineItems->filter(static fn (LineItem $item) => !$item->getReferencedId())->getElements();
+
+                foreach (\array_diff_key($oldPromotions, $newPromotions) as $removedPromotion) {
+                    $this->addPromotionDeletedNotice($original, $original, $removedPromotion);
                 }
             }
 
             // if we do have promotions, set them to be processed
             // otherwise make sure to remove the entry to avoid any processing
             // within our promotions scope
-            if (\count($discountLineItems) > 0) {
-                $data->set(PromotionProcessor::DATA_KEY, new LineItemCollection($discountLineItems));
+            if ($discountLineItems->count() > 0) {
+                $data->set(PromotionProcessor::DATA_KEY, $discountLineItems);
             } else {
                 $data->remove(PromotionProcessor::DATA_KEY);
             }
         }, 'cart');
+    }
+
+    /**
+     * Get a collection of all promotions that should be taken over from the original cart
+     */
+    private function getPinnedPromotions(Cart $original, CartBehavior $behavior): LineItemCollection
+    {
+        $promotionLineItems = $original
+            ->getLineItems()
+            ->filterType(PromotionProcessor::LINE_ITEM_TYPE)
+            /** Filter out placeholder line.items. {@see PromotionItemBuilder::buildPlaceholderItem} */
+            ->filter(static fn (LineItem $item) => $item->getLabel() !== PromotionItemBuilder::PLACEHOLDER_PREFIX . ((string) $item->getReferencedId()));
+
+        $discountLineItems = new LineItemCollection();
+
+        if ($behavior->hasPermission(self::PIN_MANUAL_PROMOTIONS)) {
+            foreach ($promotionLineItems->filter(static fn (LineItem $item) => (bool) $item->getReferencedId()) as $lineItem) {
+                $discountLineItems->add($lineItem);
+            }
+        }
+        if ($behavior->hasPermission(self::PIN_AUTOMATIC_PROMOTIONS)) {
+            foreach ($promotionLineItems->filter(static fn (LineItem $item) => !$item->getReferencedId()) as $lineItem) {
+                $discountLineItems->add($lineItem);
+            }
+        }
+
+        return $discountLineItems;
     }
 
     /**
@@ -165,8 +226,8 @@ class PromotionCollector implements CartDataCollectorInterface
      */
     private function searchPromotionsAuto(CartDataCollection $data, SalesChannelContext $context): array
     {
-        if ($data->has('promotions-auto')) {
-            return $data->get('promotions-auto');
+        if ($data->has(self::CACHE_KEY_AUTO)) {
+            return $data->get(self::CACHE_KEY_AUTO);
         }
 
         $criteria = new Criteria();
@@ -176,7 +237,7 @@ class PromotionCollector implements CartDataCollectorInterface
 
         $automaticPromotions = $this->gateway->get($criteria, $context);
 
-        $data->set('promotions-auto', $automaticPromotions->getElements());
+        $data->set(self::CACHE_KEY_AUTO, $automaticPromotions->getElements());
 
         return $automaticPromotions->getElements();
     }
@@ -193,25 +254,20 @@ class PromotionCollector implements CartDataCollectorInterface
      */
     private function searchPromotionsByCodes(CartDataCollection $data, array $allCodes, SalesChannelContext $context): CartPromotionsDataDefinition
     {
-        $keyCacheList = 'promotions-code';
-
         // create a new cached list that is empty at first
-        if (!$data->has($keyCacheList)) {
-            $data->set($keyCacheList, new CartPromotionsDataDefinition());
+        if (!$data->has(self::CACHE_KEY_CODE)) {
+            $data->set(self::CACHE_KEY_CODE, new CartPromotionsDataDefinition());
         }
 
         // load it
         /** @var CartPromotionsDataDefinition $promotionsList */
-        $promotionsList = $data->get($keyCacheList);
+        $promotionsList = $data->get(self::CACHE_KEY_CODE);
 
         // our data is a runtime cached structure.
         // but when line items get removed, the collect function gets called multiple times.
         // in the first iterations we still have a promotion code item
         // and then it is suddenly gone. so we also have to remove
         // entities from our cache if the code is suddenly not provided anymore.
-        /*
-         * @var string
-         */
         foreach ($promotionsList->getAllCodes() as $code) {
             // if code is not existing anymore,
             // make sure to remove it in our list
@@ -243,74 +299,41 @@ class PromotionCollector implements CartDataCollectorInterface
         // if we have new codes to fetch
         // make sure to load it and assign it to
         // the code in our cache list.
-        if (\count($codesToFetch) > 0) {
-            $salesChannelId = $context->getSalesChannelId();
+        $salesChannelId = $context->getSalesChannelId();
 
-            foreach ($codesToFetch as $currentCode) {
-                // try to find a global code first because
-                // that search has less data involved
-                $globalCriteria = new Criteria();
-                $globalCriteria
-                    ->addFilter(new PermittedGlobalCodePromotions([$currentCode], $salesChannelId))
+        foreach ($codesToFetch as $currentCode) {
+            // try to find a global code first because
+            // that search has fewer data involved
+            $globalCriteria = new Criteria();
+            $globalCriteria
+                ->addFilter(new PermittedGlobalCodePromotions([$currentCode], $salesChannelId))
+                ->addAssociations(self::REQUIRED_DAL_ASSOCIATIONS);
+
+            $foundPromotions = $this->gateway->get($globalCriteria, $context);
+            if ($foundPromotions->count() === 0) {
+                // no global code, so try with an individual code instead
+                $individualCriteria = new Criteria();
+                $individualCriteria
+                    ->addFilter(new PermittedIndividualCodePromotions([$currentCode], $salesChannelId))
                     ->addAssociations(self::REQUIRED_DAL_ASSOCIATIONS);
 
-                $foundPromotions = $this->gateway->get($globalCriteria, $context);
-                if ($foundPromotions->count() === 0) {
-                    // no global code, so try with an individual code instead
-                    $individualCriteria = new Criteria();
-                    $individualCriteria
-                        ->addFilter(new PermittedIndividualCodePromotions([$currentCode], $salesChannelId))
-                        ->addAssociations(self::REQUIRED_DAL_ASSOCIATIONS);
-
-                    $foundPromotions = $this->gateway->get($individualCriteria, $context);
-                }
-
-                // if we finally have found promotions add them to our list for the current code
-                if ($foundPromotions->count() > 0) {
-                    $promotionsList->addCodePromotions($currentCode, $foundPromotions->getElements());
-                }
+                $foundPromotions = $this->gateway->get($individualCriteria, $context);
             }
+
+            // if we finally have found promotions, add them to our list for the current code
+            $promotionsList->addCodePromotions($currentCode, $foundPromotions->getElements());
         }
 
         // update our cached list with the latest cleaned array
-        $data->set($keyCacheList, $promotionsList);
+        $data->set(self::CACHE_KEY_CODE, $promotionsList);
 
         return $promotionsList;
     }
 
     /**
-     * function returns all promotions that have discounts and that are eligible
-     * (function validates that max usage or customer max usage hasn't exceeded)
+     * Check if max allowed redemption of promotion have been reached or not.
+     * If max redemption has been reached, promotion will not be added
      */
-    private function getEligiblePromotionsWithDiscounts(CartPromotionsDataDefinition $dataDefinition, ?string $customerId, ?string $currentOrderId): CartPromotionsDataDefinition
-    {
-        $result = new CartPromotionsDataDefinition();
-
-        // we now have a list of promotions that could be added to our cart.
-        // verify if they have any discounts. if so, add them to our
-        // data struct, which ensures that they will be added later in the enrichment process.
-        /** @var PromotionCodeTuple $tuple */
-        foreach ($dataDefinition->getPromotionCodeTuples() as $tuple) {
-            $promotion = $tuple->getPromotion();
-
-            if (!$this->isEligible($promotion, $customerId, $currentOrderId)) {
-                continue;
-            }
-
-            // now add it to our result definition object.
-            // we also have to remember the code that has been
-            // used for a particular promotion (if promotion is type of code).
-            // that's why we differ between automatic and code
-            if (empty($tuple->getCode())) {
-                $result->addAutomaticPromotions([$promotion]);
-            } else {
-                $result->addCodePromotions($tuple->getCode(), [$promotion]);
-            }
-        }
-
-        return $result;
-    }
-
     private function isEligible(PromotionEntity $promotion, ?string $customerId, ?string $currentOrderId): bool
     {
         // code is already applied to this order, so it's should be valid
@@ -359,30 +382,17 @@ class PromotionCollector implements CartDataCollectorInterface
      *
      * @return array<LineItem>
      */
-    private function buildDiscountLineItems(string $code, PromotionEntity $promotion, Cart $cart, SalesChannelContext $context): array
+    private function buildDiscountLineItems(string $code, PromotionEntity $promotion, Cart $original, SalesChannelContext $context): array
     {
-        $collection = $promotion->getDiscounts();
-
-        if (!$collection instanceof PromotionDiscountCollection) {
+        if (!$promotion->getDiscounts()) {
             return [];
         }
 
+        $factor = $context->getCurrency()->getIsSystemDefault() ? 1.0 : $context->getCurrency()->getFactor();
+
         $lineItems = [];
 
-        foreach ($collection->getElements() as $discount) {
-            $itemIds = $this->getAllLineItemIds($cart);
-
-            // add a new discount line item for this discount
-            // if we have at least one valid item that will be discounted.
-            if (\count($itemIds) <= 0) {
-                continue;
-            }
-
-            $factor = 1.0;
-            if (!$context->getCurrency()->getIsSystemDefault()) {
-                $factor = $context->getCurrency()->getFactor();
-            }
-
+        foreach ($promotion->getDiscounts()->getElements() as $discount) {
             $discountItem = $this->itemBuilder->buildDiscountLineItem(
                 $code,
                 $promotion,
@@ -391,15 +401,11 @@ class PromotionCollector implements CartDataCollectorInterface
                 $factor
             );
 
-            $originalCodeItem = $cart->getLineItems()->filter(function (LineItem $item) use ($code, $discount) {
-                if ($item->getReferencedId() === $code && $item->getPayloadValue('discountId') === $discount->getId()) {
-                    return $item;
-                }
+            $originalCodeItem = $original->getLineItems()->firstWhere(static function (LineItem $item) use ($code, $discount) {
+                return ($item->getReferencedId() ?? '') === $code && $item->getPayloadValue('discountId') === $discount->getId();
+            });
 
-                return null;
-            })->first();
-
-            if ($originalCodeItem && (is_countable($originalCodeItem->getExtensions()) ? \count($originalCodeItem->getExtensions()) : 0) > 0) {
+            if ($originalCodeItem && \count($originalCodeItem->getExtensions()) > 0) {
                 $discountItem->setExtensions($originalCodeItem->getExtensions());
             }
 
@@ -409,19 +415,10 @@ class PromotionCollector implements CartDataCollectorInterface
         return $lineItems;
     }
 
-    /**
-     * @return array<string>
-     */
-    private function getAllLineItemIds(Cart $cart): array
+    private function hasLineItemToDiscount(Cart $cart): bool
     {
-        return $cart->getLineItems()->fmap(
-            static function (LineItem $lineItem) {
-                if ($lineItem->getType() === PromotionProcessor::LINE_ITEM_TYPE) {
-                    return null;
-                }
-
-                return $lineItem->getId();
-            }
-        );
+        return $cart->getLineItems()->firstWhere(
+            static fn (LineItem $lineItem) => $lineItem->getType() !== PromotionProcessor::LINE_ITEM_TYPE,
+        ) !== null;
     }
 }

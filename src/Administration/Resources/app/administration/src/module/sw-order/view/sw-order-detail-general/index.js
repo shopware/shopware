@@ -29,6 +29,14 @@ export default {
             from: 'swOrderDetailOnSaveAndRecalculate',
             default: null,
         },
+        swOrderDetailOnReloadEntityData: {
+            from: 'swOrderDetailOnReloadEntityData',
+            default: null,
+        },
+        swOrderDetailOnError: {
+            from: 'swOrderDetailOnError',
+            default: null,
+        },
         acl: {
             from: 'acl',
             default: null,
@@ -39,6 +47,9 @@ export default {
         'save-and-recalculate',
         'save-edits',
         'recalculate-and-reload',
+        'save-and-reload',
+        'reload-entity-data',
+        'error',
     ],
 
     mixins: [
@@ -148,26 +159,54 @@ export default {
         },
 
         saveAndRecalculate() {
-            this.$emit('save-and-recalculate');
-
             if (this.swOrderDetailOnSaveAndRecalculate) {
                 this.swOrderDetailOnSaveAndRecalculate();
+            } else {
+                this.$emit('save-and-recalculate');
             }
         },
 
         onSaveEdits() {
-            this.$emit('save-edits');
-
             if (this.swOrderDetailOnSaveEdits) {
                 this.swOrderDetailOnSaveEdits();
+            } else {
+                this.$emit('save-edits');
             }
         },
 
         recalculateAndReload() {
-            this.$emit('recalculate-and-reload');
-
             if (this.swOrderDetailOnRecalculateAndReload) {
                 this.swOrderDetailOnRecalculateAndReload();
+            } else {
+                this.$emit('recalculate-and-reload');
+            }
+        },
+
+        updateLoading(loadingValue) {
+            Store.get('swOrderDetail').setLoading(['order', loadingValue]);
+        },
+
+        reloadEntityData() {
+            if (this.swOrderDetailOnReloadEntityData) {
+                this.swOrderDetailOnReloadEntityData();
+            } else {
+                this.$emit('reload-entity-data');
+            }
+        },
+
+        saveAndReload() {
+            if (this.swOrderDetailOnSaveAndReload) {
+                this.swOrderDetailOnSaveAndReload();
+            } else {
+                this.$emit('save-and-reload');
+            }
+        },
+
+        showError(error) {
+            if (this.swOrderDetailOnError) {
+                this.swOrderDetailOnError(error);
+            } else {
+                this.$emit('error', error);
             }
         },
     },

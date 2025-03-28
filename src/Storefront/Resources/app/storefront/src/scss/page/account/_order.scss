@@ -57,10 +57,7 @@
 }
 
 .order-item-header {
-    padding-top: $spacer-sm;
-    padding-bottom: $spacer-sm;
-    padding-left: $order-grid-gutter-width;
-    padding-right: $order-grid-gutter-width;
+    padding: $spacer-sm $order-grid-gutter-width;
 }
 
 .order-table-header-heading,

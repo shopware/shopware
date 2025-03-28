@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Shopware\Core\Content\Media\Metadata;
 
@@ -11,28 +13,31 @@ use Shopware\Core\Framework\Log\Package;
 class MetadataLoader
 {
     /**
+     * @param MetadataLoaderInterface[] $metadataLoader
      * @internal
      *
-     * @param MetadataLoaderInterface[] $metadataLoader
      */
     public function __construct(private readonly iterable $metadataLoader)
     {
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function loadFromFile(MediaFile $mediaFile, MediaType $mediaType): ?array
     {
+        $metaData = [];
         foreach ($this->metadataLoader as $loader) {
             if ($loader->supports($mediaType)) {
                 $metaData = $loader->extractMetadata($mediaFile->getFileName());
-
-                if ($mediaFile->getHash()) {
-                    $metaData['hash'] = $mediaFile->getHash();
-                }
-
-                return $metaData;
+                break;
             }
         }
 
-        return null;
+        if ($mediaFile->getHash()) {
+            $metaData['hash'] = $mediaFile->getHash();
+        }
+
+        return $metaData ?: null;
     }
 }

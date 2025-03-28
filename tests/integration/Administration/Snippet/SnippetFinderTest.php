@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Shopware\Tests\Integration\Administration\Snippet;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Extension\SnippetExtension;
 use Shopware\Administration\Snippet\SnippetFilesFinderInterface;
@@ -25,7 +26,7 @@ class SnippetFinderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private SnippetFilesFinderInterface $snippetFilesFinder;
+    private SnippetFilesFinderInterface&MockObject $snippetFilesFinder;
 
     private SnippetFinder $snippetFinder;
 

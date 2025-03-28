@@ -4,13 +4,12 @@ This guide walks you through how to properly document changes in Shopware releas
 
 ## Why This Process Exists
 
-We’re moving away from inconsistent and manual-heavy documentation. With this new workflow, we:
+We’re moving away from inconsistent and manual-heavy documentation. With this new workflow:
 
-1. Ensure every notable change is documented at the PR stage.
-2. Make upgrade-critical changes clear for external developers.
-3. Use a mix of automation and manual curation for accuracy and clarity.
-4. Maintain one single source of truth (SSOT) in GitHub.
-5. Reduce redundancy and align with ProductOS workflows.
+1. Developers must document every notable change directly in the PR.
+2. Compliance is automatically enforced, while DevRel and TDMs curate key entries for clarity.
+3. We maintain one single source of truth (SSOT) in GitHub and
+4. Reduce redundancy and align with internal delivery workflows.
 
 ## Why This Process Exists
 To have a structured and automated workflow:
@@ -26,6 +25,8 @@ Every PR that introduces a significant change must update one or both of these f
 - RELEASE_INFO.md: Tracks new features, API updates, and general improvements.
 - UPGRADE.md: Covers breaking changes, migration steps, and any required developer action.
 
+Developers should manually edit the RELEASE_INFO.md and UPGRADE.md files directly. The changelog:generate command is deprecated and will be removed.
+
 ## How Do I Know Where to Add My Change?
 A simple rule of thumb:
 
@@ -36,6 +37,8 @@ A simple rule of thumb:
 - Use `UPGRADE.md` for:
   - Breaking changes, migration steps, and required developer actions.
   - Example: "Deprecated sw-popover, use mt-floating-ui instead."
+ 
+When a deprecation is introduced (e.g., in a minor release), document the alternative and the timeline in RELEASE_INFO.md. When the breaking change takes effect (e.g., in a major release), document it in UPGRADE.md with full migration steps.
 
 ## Content Structure
 
@@ -53,11 +56,11 @@ For PHP/Backend related changes.
 # Administration
 For admin changes.
 # Storefront
-For storefront / theming changes
+For storefront / theming changes.
 # App System
 For changes in the app system.
 # Hosting & Configuration
-For config and infrastructure related changes
+For config and infrastructure related changes.
 ```
 
 2. `UPGRADE.md` (Breaking Changes & Migration Guides)
@@ -65,10 +68,14 @@ For config and infrastructure related changes
 Each entry should include:
 
 ```
-What changed: A clear description of the change.
-Why it changed: The reason behind it.
-Impact: Who needs to care (developers, merchants, integrators, etc.).
-Required Actions: Steps needed to migrate, update, or avoid issues.
+Changes [A] due to [B], so that [C].
+Required Actions: [D].
+```
+
+- Example:
+```
+Changes sw-popover due to UI consistency, so that extensions follow a unified component model.
+Required Actions: Replace sw-popover with mt-floating-ui.
 ```
 
 ## Markdown Formatting Guidelines
@@ -147,9 +154,16 @@ Example:
 ## How This is Made Consistent
 
 1. Every PR must include documentation: If your PR makes a significant change, update RELEASE_INFO.md and/or UPGRADE.md.
-2. GitHub actions will remind contributors to add missing release notes.
+2. GitHub Actions will remind contributors to add missing release notes.
 3. Engineering Leads, TDMs, and TPMs ensure documentation is included before merging.
 4. DevRel & TDMs refine key updates for clarity before publication.
+
+## What Is Automated?
+
+- GitHub Actions: Check for missing entries in `RELEASE_INFO.md` and `UPGRADE.md`.
+- Dev Docs Sync: Pull key info from these files into developer documentation and GitHub Releases.
+
+Everything else (writing entries, categorizing updates, migration steps) is done manually by developers and reviewers.
 
 ## Publishing & Communication
 
@@ -170,5 +184,5 @@ Once documented, changes get published in multiple places:
 ## Additional Notes
 
 1. To avoid Merge Conflicts we’ll follow structured guidelines to prevent issues (WIP!).
-2. GitHub milestones should align with roadmap and release planning.
+2. GitHub Milestones should align with roadmap and release planning.
 3. This will be the go-to reference for all release documentation decisions.

@@ -243,9 +243,6 @@ export default Component.wrapComponentConfig({
                 .cancelCart({
                     salesChannelId: this.salesChannelId,
                     contextToken: this.cart.token,
-                })
-                .then(() => {
-                    Store.get('swOrder').setCustomer(null);
                 });
         },
     },

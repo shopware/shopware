@@ -529,6 +529,18 @@ All available hooks within the Store-API and API
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[writer](./custom-endpoint-script-services-reference.md#RepositoryWriterFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[response](./custom-endpoint-script-services-reference.md#ScriptResponseFactoryFacade)<br> |
 | **Stoppable**          | `true`                  |
 
+#### response
+
+| <!-- -->               | <!-- -->                                |
+|:-----------------------|:----------------------------------------|
+| **Name**               | response                         |
+| **Since**              | 6.6.10.0                        |
+| **Class**              | `Shopware\Core\Framework\Script\Api\ResponseHook`                      |
+| **Description**        | Triggered on every response<br>                  |
+| **Available Data**     | response: `Symfony\Component\HttpFoundation\Response`<br>routeName: `string`<br>routeScopes: `array`<br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/shopware/blob/trunk/src/Core/Framework/Context.php)<br>        |
+| **Available Services** |  |
+| **Stoppable**          | `false`                  |
+
 #### store-api-{hook}
 
 **Interface Hook**

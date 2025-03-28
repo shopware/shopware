@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Content\Media\Metadata;
 
@@ -13,9 +11,9 @@ use Shopware\Core\Framework\Log\Package;
 class MetadataLoader
 {
     /**
-     * @param MetadataLoaderInterface[] $metadataLoader
      * @internal
      *
+     * @param MetadataLoaderInterface[] $metadataLoader
      */
     public function __construct(private readonly iterable $metadataLoader)
     {

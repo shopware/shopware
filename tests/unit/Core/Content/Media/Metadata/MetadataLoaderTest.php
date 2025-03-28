@@ -25,7 +25,7 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(MetadataLoader::class)]
 class MetadataLoaderTest extends TestCase
 {
-    public static function fileTypeDataProvider(): iterable
+    public static function fileTypeDataProvider(): \Generator
     {
         yield 'ImageType' => [
             new MediaFile(
@@ -145,6 +145,10 @@ class MetadataLoaderTest extends TestCase
         ];
     }
 
+    /**
+     * @param array<string, string>|null $expected
+     * @param array<string, string>|null $extractMetadata
+     */
     #[DataProvider('fileTypeDataProvider')]
     public function testLoadFromFile(
         MediaFile $file,

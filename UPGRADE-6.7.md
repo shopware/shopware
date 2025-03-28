@@ -2638,8 +2638,10 @@ foreach($storefrontPluginConfig->getAssetPaths() as $relativePath) {
 }
 ```
 
-## Removal of `showStagingBanner` Twig variable
-The global `showStagingBanner` Twig variable was removed. Use `shopware.showStagingBanner` instead.
+## Removal of `setTwig` method in `StorefrontController`
+The method `Shopware\Storefront\Controller\StorefrontController::setTwig` has been removed.
+Remove the `setTwig` call from the services config files.
+There is no further change required.
 
 ## Removal of deprecated product review loading logic in Storefront
 * The service `\Shopware\Storefront\Page\Product\Review\ProductReviewLoader` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader` instead.

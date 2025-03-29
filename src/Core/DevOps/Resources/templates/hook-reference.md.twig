@@ -14,7 +14,7 @@ nav:
 {{ useCase.description|raw }}
 
 {% for hook in useCase.hooks %}
-#### {{ hook.name }}
+### {{ hook.name }}
 
 {% if hook.deprecation %}
 {{ hook.deprecation|raw }}
@@ -35,7 +35,7 @@ nav:
 {{ hook.interfaceDescription|raw }}
 
 {% for functionName, functionHook in hook.functions %}
-##### Function: `{{ functionName }}`
+#### Function: `{{ functionName }}`
 
 {% if functionHook.deprecation %}
 {{ functionHook.deprecation|raw }}

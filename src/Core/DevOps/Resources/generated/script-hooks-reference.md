@@ -656,9 +656,9 @@ All available hooks that can be used to execute scripts during your app's lifecy
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[writer](./custom-endpoint-script-services-reference.md#RepositoryWriterFacade)<br> |
 | **Stoppable**          | `false`                  |
 
-## 
+## Product
 
-
+All available hooks that can be used to manipulate products.
 
 ### product-pricing
 

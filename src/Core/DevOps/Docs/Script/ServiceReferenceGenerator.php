@@ -132,7 +132,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
         $reflection = new \ReflectionClass($className);
 
         if (\in_array($className, $scriptServices, true)) {
-            return \sprintf('./%s#%s', self::GROUPS[$this->getGroupForService($reflection)], strtolower($reflection->getShortName()));
+            return \sprintf('./%s#%s', \str_replace('.md', '', self::GROUPS[$this->getGroupForService($reflection)]), strtolower($reflection->getShortName()));
         }
 
         /** @var string $filename */

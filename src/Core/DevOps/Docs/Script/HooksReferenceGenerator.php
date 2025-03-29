@@ -253,7 +253,7 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
 
         $group = $this->serviceReferenceGenerator->getGroupForService($reflection);
 
-        return \sprintf('./%s#%s', ServiceReferenceGenerator::GROUPS[$group], $reflection->getShortName());
+        return \sprintf('./%s#%s', \str_replace('.md', '', ServiceReferenceGenerator::GROUPS[$group]), $reflection->getShortName());
     }
 
     /**

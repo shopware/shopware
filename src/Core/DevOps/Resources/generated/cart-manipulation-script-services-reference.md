@@ -95,7 +95,7 @@ You can use the cart service to add line-items, change prices, add discounts, et
 		    'default': { 'gross': -19.99, 'net': -19.99}
 		}) %}
 		
-		{% do services.cart.discount('my-discount', 'absolute', price, 'Fanzy discount') %}
+		{% do services.cart.discount('my-discount', 'absolute', price, 'Fancy discount') %}
         ```
     * Add a relative discount to the cart.
 
@@ -108,7 +108,7 @@ You can use the cart service to add line-items, change prices, add discounts, et
 		    {% return %}
 		{% endif %}
 		
-		{% do services.cart.discount('my-discount', 'percentage', -10, 'Fanzy discount') %}
+		{% do services.cart.discount('my-discount', 'percentage', -10, 'Fancy discount') %}
         ```
 ### count()
 
@@ -177,7 +177,7 @@ You can use the cart service to add line-items, change prices, add discounts, et
 		    'default': { 'gross': 19.99, 'net': 19.99}
 		}) %}
 		
-		{% do services.cart.surcharge('my-surcharge', 'absolute', price, 'Fanzy surcharge') %}
+		{% do services.cart.surcharge('my-surcharge', 'absolute', price, 'Fancy surcharge') %}
         ```
     * Add a relative surcharge to the cart.
 
@@ -190,7 +190,7 @@ You can use the cart service to add line-items, change prices, add discounts, et
 		    {% return %}
 		{% endif %}
 		
-		{% do services.cart.surcharge('my-surcharge', 'percentage', -10, 'Fanzy discount') %}
+		{% do services.cart.surcharge('my-surcharge', 'percentage', -10, 'Fancy discount') %}
         ```
 _________
 ## [`Shopware\Core\Checkout\Cart\Facade\CartPriceFacade`](https://github.com/shopware/shopware/blob/trunk/src/Core/Checkout/Cart/Facade/CartPriceFacade.php) {#cartpricefacade}
@@ -411,7 +411,7 @@ The ContainerFacade allows you to wrap multiple line-items inside a container li
 		    'default': { 'gross': -19.99, 'net': -19.99}
 		}) %}
 		
-		{% do services.cart.discount('my-discount', 'absolute', price, 'Fanzy discount') %}
+		{% do services.cart.discount('my-discount', 'absolute', price, 'Fancy discount') %}
         ```
     * Add a relative discount to the cart.
 
@@ -424,7 +424,7 @@ The ContainerFacade allows you to wrap multiple line-items inside a container li
 		    {% return %}
 		{% endif %}
 		
-		{% do services.cart.discount('my-discount', 'percentage', -10, 'Fanzy discount') %}
+		{% do services.cart.discount('my-discount', 'percentage', -10, 'Fancy discount') %}
         ```
 ### count()
 
@@ -493,7 +493,7 @@ The ContainerFacade allows you to wrap multiple line-items inside a container li
 		    'default': { 'gross': 19.99, 'net': 19.99}
 		}) %}
 		
-		{% do services.cart.surcharge('my-surcharge', 'absolute', price, 'Fanzy surcharge') %}
+		{% do services.cart.surcharge('my-surcharge', 'absolute', price, 'Fancy surcharge') %}
         ```
     * Add a relative surcharge to the cart.
 
@@ -506,7 +506,7 @@ The ContainerFacade allows you to wrap multiple line-items inside a container li
 		    {% return %}
 		{% endif %}
 		
-		{% do services.cart.surcharge('my-surcharge', 'percentage', -10, 'Fanzy discount') %}
+		{% do services.cart.surcharge('my-surcharge', 'percentage', -10, 'Fancy discount') %}
         ```
 _________
 ## [`Shopware\Core\Checkout\Cart\Facade\DiscountFacade`](https://github.com/shopware/shopware/blob/trunk/src/Core/Checkout/Cart/Facade/DiscountFacade.php) {#discountfacade}
@@ -779,7 +779,7 @@ The ItemsFacade is a wrapper around a collection of line-items.
 		    'default': { 'gross': -19.99, 'net': -19.99}
 		}) %}
 		
-		{% do services.cart.discount('my-discount', 'absolute', price, 'Fanzy discount') %}
+		{% do services.cart.discount('my-discount', 'absolute', price, 'Fancy discount') %}
         ```
 ### get()
 

@@ -234,7 +234,7 @@ but also wraps some data into helper facade classes like `PriceFacade` or `Price
 
 ### __get()
 
-* The `__get()` function allows access to all properties of the [SalesChannelProductEntity](https://github.com/shopware/platform/blob/trunk/src/Core/Content/Product/SalesChannel/SalesChannelProductEntity.php)
+* The `__get()` function allows access to all properties of the [SalesChannelProductEntity](https://github.com/shopware/shopware/blob/trunk/src/Core/Content/Product/SalesChannel/SalesChannelProductEntity.php)
 
     
 * **Returns** `mixed` | `null`

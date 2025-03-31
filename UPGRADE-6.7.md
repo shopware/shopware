@@ -141,6 +141,8 @@ The rendered header and footer are included into the page with the Twig function
 Two new templates `src/Storefront/Resources/views/storefront/layout/header.html.twig` and `src/Storefront/Resources/views/storefront/layout/footer.html.twig` were introduced as new entry points for the header and footer.
 Make sure to adjust your template extensions to be compatible with the new structure.
 The block names are still the same, so it just should be necessary to extend from the new templates.
+New blocks (`base_esi_header` and `base_esi_footer`) were added to the `base.html.twig` template to overwrite header and footer completely.
+This is e.g. used to show minimal header and footer during the checkout process.
 
 # Major Library Updates
 We upgraded the following libraries to their latest versions:

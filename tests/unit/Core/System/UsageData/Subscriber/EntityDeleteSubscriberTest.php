@@ -128,6 +128,7 @@ class EntityDeleteSubscriberTest extends TestCase
                 new CollectingEventDispatcher(),
                 new MockClock(),
             ),
+            true,
         );
 
         $deleteCommand = new DeleteCommand(
@@ -212,6 +213,7 @@ class EntityDeleteSubscriberTest extends TestCase
                 new CollectingEventDispatcher(),
                 new MockClock(),
             ),
+            true,
         );
 
         $deleteCommand = new DeleteCommand(
@@ -284,6 +286,7 @@ class EntityDeleteSubscriberTest extends TestCase
                 new CollectingEventDispatcher(),
                 new MockClock(),
             ),
+            true,
         );
 
         $deleteCommand = new DeleteCommand(
@@ -342,6 +345,7 @@ class EntityDeleteSubscriberTest extends TestCase
                 new CollectingEventDispatcher(),
                 new MockClock(),
             ),
+            true,
         );
 
         $event = DeletedEvent::create(
@@ -382,6 +386,7 @@ class EntityDeleteSubscriberTest extends TestCase
                 new CollectingEventDispatcher(),
                 new MockClock(),
             ),
+            true,
         );
 
         $event = DeletedEvent::create(
@@ -424,6 +429,7 @@ class EntityDeleteSubscriberTest extends TestCase
             $connection,
             new MockClock('2023-09-01 12:00:00'),
             $consentService,
+            true,
         );
 
         $event = DeletedEvent::create(
@@ -438,6 +444,47 @@ class EntityDeleteSubscriberTest extends TestCase
         $event->success();
 
         static::assertFalse($consentService->isConsentAccepted());
+    }
+
+    public function testIfDeletionsAreNotStoredWhenCollectionIsDisabled(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects(static::never())
+            ->method('beginTransaction');
+
+        $registry = new StaticDefinitionInstanceRegistry(
+            [new EntityWithSinglePrimaryKey()],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class)
+        );
+        $definition = new EntityWithSinglePrimaryKey();
+        $definition->compile($registry);
+
+        $subscriber = new EntityDeleteSubscriber(
+            new EntityDefinitionService([$definition], $this->usageDataAllowListServiceMock),
+            $connection,
+            new MockClock('2023-09-01 12:00:00'),
+            new ConsentService(
+                new StaticSystemConfigService([
+                    ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::ACCEPTED->value,
+                ]),
+                $this->createMock(EntityRepository::class),
+                new CollectingEventDispatcher(),
+                new MockClock(),
+            ),
+            false,
+        );
+
+        $event = DeletedEvent::create(
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            [],
+            [
+                EntityWithSinglePrimaryKey::ENTITY_NAME => ['id' => '123'],
+            ]
+        );
+
+        $subscriber->handleEntityDeleteEvent($event);
+        $event->success();
     }
 }
 

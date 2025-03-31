@@ -122,7 +122,6 @@
                     {% block sw_cms_element_image_slider_config_settings_navigation %}
                     <div class="sw-cms-el-config-image-slider__setting-navigations sw-cms-el-config-image-slider__setting-option">
                         <div class="sw-cms-el-config-image-slider__settings-navigation">
-
                             {% block sw_cms_element_image_slider_config_settings_navigation_arrow_position %}
                             <mt-select
                                 v-model="element.config.navigationArrows.value"
@@ -134,7 +133,6 @@
                         </div>
 
                         <div class="sw-cms-el-config-image-slider__settings-navigation">
-
                             {% block sw_cms_element_image_slider_config_settings_navigation_dots_position %}
                             <mt-select
                                 v-model="element.config.navigationDots.value"
@@ -162,38 +160,44 @@
                         {% endblock %}
                     </div>
 
-                    <div class="sw-cms-el-config-image-slider__setting-option">
-                        <div class="sw-cms-el-config-image-slider__setting-slide">
-                            {# @todo NEXT-40267 - Re-implement after tiny-slider has been replaced, due to accessibility issues #}
+                    <mt-banner
+                        class="sw-cms-el-config-image-slider__setting-auto-slide"
+                        variant="attention"
+                        :title="$tc('sw-cms.elements.general.config.infoText.autoSlideTitle')"
+                    >
+                        <p class="sw-cms-el-config-image-slider__setting-auto-slide-attention">
+                            {{ $tc('sw-cms.elements.general.config.infoText.autoSlide') }}
+                        </p>
 
-                            {% block sw_cms_element_image_slider_config_settings_auto_slide %}
-                            <mt-switch
-                                :checked="false"
-                                class="sw-cms-el-config-image-slider__setting-auto-slide"
-                                :label="$tc('sw-cms.elements.general.config.label.autoSlide')"
-                                :help-text="$tc('sw-cms.elements.general.config.helpText.autoSlide')"
-                                bordered
-                                disabled
-                            />
-                            {% endblock %}
-                        </div>
+                        <div class="sw-cms-el-config-image-slider__setting-auto-slide-container sw-cms-el-config-image-slider__setting-option">
+                            <div class="sw-cms-el-config-image-slider__setting-auto-slide-switch">
+                                {% block sw_cms_element_image_slider_config_settings_auto_slide %}
+                                <mt-switch
+                                    v-model="element.config.autoSlide.value"
+                                    class="sw-cms-el-config-image-slider__setting-auto-slide"
+                                    :label="$tc('sw-cms.elements.general.config.label.autoSlide')"
+                                    bordered
+                                    @change:checked="onChangeAutoSlide"
+                                />
+                                {% endblock %}
+                            </div>
 
-                        <div class="sw-cms-el-config-image-slider__setting-delay">
-                            {% block sw_cms_element_image_slider_config_settings_autoplay_timeout %}
-                            <mt-number-field
-                                v-model="element.config.autoplayTimeout.value"
-                                class="sw-cms-el-config-image-slider__setting-delay-slide"
-                                number-type="int"
-                                :min="0"
-                                :max="3600000"
-                                :disabled="true"
-                                :label="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
-                                :placeholder="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
-                                :help-text="$tc('sw-cms.elements.general.config.helpText.autoplayTimeout')"
-                            />
-                            {% endblock %}
+                            <div class="sw-cms-el-config-image-slider__setting-auto-slide-delay">
+                                {% block sw_cms_element_image_slider_config_settings_autoplay_timeout %}
+                                <mt-number-field
+                                    v-model="element.config.autoplayTimeout.value"
+                                    class="sw-cms-el-config-image-slider__setting-delay-slide"
+                                    number-type="int"
+                                    :min="0"
+                                    :max="3600000"
+                                    :label="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
+                                    :placeholder="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
+                                    :help-text="$tc('sw-cms.elements.general.config.helpText.autoplayTimeout')"
+                                />
+                                {% endblock %}
+                            </div>
                         </div>
-                    </div>
+                    </mt-banner>
 
                     {% block sw_cms_element_image_slider_config_settings_links %}
                     <div class="sw-cms-el-config-image-slider__settings-links sw-cms-el-config-image-slider__setting-option">

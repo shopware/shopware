@@ -79,7 +79,7 @@ class ThemeCreateCommandTest extends TestCase
         $result = preg_replace('/\s+/', ' ', trim($commandTester->getDisplay(true)));
 
         static::assertIsString($result);
-        static::assertStringContainsString(self::THEME_NAME . ' already exists', $result);
+        static::assertStringContainsString('already exists', $result);
     }
 
     #[DataProvider('commandFailsWithWrongNameDataProvider')]

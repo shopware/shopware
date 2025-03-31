@@ -1,6 +1,6 @@
 {% sw_extends '@Storefront/storefront/page/checkout/_page.html.twig' %}
 
-{% block base_header %}
+{% block base_esi_header %}
     {% sw_include '@Storefront/storefront/layout/header/header-minimal.html.twig' %}
 {% endblock %}
 
@@ -61,6 +61,6 @@
     {% endif %}
 {% endblock %}
 
-{% block base_footer %}
+{% block base_esi_footer %}
     {% sw_include '@Storefront/storefront/layout/footer/footer-minimal.html.twig' %}
 {% endblock %}

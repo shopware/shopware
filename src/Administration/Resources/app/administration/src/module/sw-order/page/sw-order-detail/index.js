@@ -34,6 +34,7 @@ export default {
             swOrderDetailOnSaveEdits: this.onSaveEdits,
             swOrderDetailAskAndSaveEdits: this.askAndSaveEdits,
             swOrderDetailOnError: this.onError,
+            swOrderDetailHandleCartErrors: this.handleCartErrors,
         };
     },
 
@@ -259,10 +260,7 @@ export default {
                 });
 
                 this.createNewVersionId().then(() => {
-                    Store.get('swOrderDetail').setLoading([
-                        'order',
-                        false,
-                    ]);
+                    Store.get('swOrderDetail').setLoading(['order', false]);
                 });
 
                 return;
@@ -334,10 +332,7 @@ export default {
 
         onCancelEditing() {
             this.isLoading = true;
-            Store.get('swOrderDetail').setLoading([
-                'order',
-                true,
-            ]);
+            Store.get('swOrderDetail').setLoading(['order', true]);
 
             const oldVersionContext = this.versionContext;
             Store.get('swOrderDetail').versionContext = Shopware.Context.api;
@@ -365,65 +360,38 @@ export default {
         },
 
         async onSaveAndRecalculate() {
-            Store.get('swOrderDetail').setLoading([
-                'order',
-                true,
-            ]);
+            Store.get('swOrderDetail').setLoading(['order', true]);
             this.isLoading = true;
-
-            this.order.lineItems = this.order.lineItems.filter((lineItem) => !this.automaticPromotions.includes(lineItem));
-            this.order.deliveries = this.order.deliveries.filter((delivery) => !this.deliveryDiscounts.includes(delivery));
 
             try {
                 await this.orderRepository.save(this.order, this.versionContext);
-                await this.orderService.recalculateOrder(this.orderId, this.versionContext.versionId, {}, {});
-                await this.orderService.toggleAutomaticPromotions(this.orderId, this.versionContext.versionId, false);
+                await this.orderService.recalculateOrder(this.orderId, this.versionContext.versionId, {}, {})
+                    .then(this.handleCartErrors.bind(this));
                 await this.reloadEntityData();
             } catch (error) {
                 this.onError('error', error);
             } finally {
                 this.isLoading = false;
-                Store.get('swOrderDetail').setLoading([
-                    'order',
-                    false,
-                ]);
+                Store.get('swOrderDetail').setLoading(['order', false]);
             }
         },
 
         async onRecalculateAndReload() {
-            Store.get('swOrderDetail').setLoading([
-                'order',
-                true,
-            ]);
+            Store.get('swOrderDetail').setLoading(['order', true]);
+
             try {
-                this.promotionsToDelete = this.automaticPromotions.map((promotion) => promotion.id);
-                this.deliveryDiscountsToDelete = this.deliveryDiscounts.map((discount) => discount.id);
-                await this.orderService.recalculateOrder(this.orderId, this.versionContext.versionId, {}, {});
-                await this.orderService.toggleAutomaticPromotions(this.orderId, this.versionContext.versionId, false);
+                await this.orderService.recalculateOrder(this.orderId, this.versionContext.versionId, {}, {})
+                    .then(this.handleCartErrors.bind(this));
                 await this.reloadEntityData();
-                this.order.lineItems = this.order.lineItems.filter(
-                    (lineItem) => !this.promotionsToDelete.includes(lineItem.id),
-                );
-                this.order.deliveries = this.order.deliveries.filter(
-                    (delivery) => !this.deliveryDiscountsToDelete.includes(delivery.id),
-                );
             } catch (error) {
                 this.onError('error', error);
-                this.promotionsToDelete = [];
-                this.deliveryDiscountsToDelete = [];
             } finally {
-                Store.get('swOrderDetail').setLoading([
-                    'order',
-                    false,
-                ]);
+                Store.get('swOrderDetail').setLoading(['order', false]);
             }
         },
 
         onSaveAndReload() {
-            Store.get('swOrderDetail').setLoading([
-                'order',
-                true,
-            ]);
+            Store.get('swOrderDetail').setLoading(['order', true]);
 
             return this.orderRepository
                 .save(this.order, this.versionContext)
@@ -432,10 +400,7 @@ export default {
                     this.onError('error', error);
                 })
                 .finally(() => {
-                    Store.get('swOrderDetail').setLoading([
-                        'order',
-                        false,
-                    ]);
+                    Store.get('swOrderDetail').setLoading(['order', false]);
                 });
         },
 
@@ -476,10 +441,7 @@ export default {
         },
 
         reloadEntityData(isSaved = true) {
-            Store.get('swOrderDetail').setLoading([
-                'order',
-                true,
-            ]);
+            Store.get('swOrderDetail').setLoading(['order', true]);
 
             return this.orderRepository
                 .get(this.orderId, this.versionContext, this.orderCriteria)
@@ -491,10 +453,7 @@ export default {
                     Store.get('swOrderDetail').order = response;
                 })
                 .finally(() => {
-                    Store.get('swOrderDetail').setLoading([
-                        'order',
-                        false,
-                    ]);
+                    Store.get('swOrderDetail').setLoading(['order', false]);
                     this.isLoading = false;
                 });
         },
@@ -549,8 +508,35 @@ export default {
             return this.orderRepository.save(this.order, this.versionContext);
         },
 
+        handleCartErrors(response) {
+            if (!response?.data?.errors) {
+                return;
+            }
+
+            Object.values(response.data.errors).forEach(({ level, message }) => {
+                switch (level) {
+                    case 0: {
+                        this.createNotificationInfo({ message });
+                        break;
+                    }
+
+                    case 10: {
+                        this.createNotificationWarning({ message });
+                        break;
+                    }
+
+                    default: {
+                        this.createNotificationError({ message });
+                        break;
+                    }
+                }
+            });
+        },
+
         /**
          * Asks the user to save pending edits before e.g. doing a status change.
+         * This will trigger `onSaveEdits` and therefore merge the versioned order.
+         *
          * @returns Promise<bool> - `true` if it's safe to proceed (e.g. edits were saved)
          *  or `false` if the user wants to cancel the action.
          */

@@ -152,6 +152,32 @@ describe('Plugin manager', () => {
         PluginManager.deregister('FooPluginClassDataAttr', selector);
     });
 
+    it('should initialize plugin with node selector', async () => {
+
+        PluginManager.register('FooPluginClassOnDocument', FooPluginClass, document);
+
+        await PluginManager.initializePlugins();
+
+        expect(PluginManager.getPluginInstances('FooPluginClassOnDocument').length).toBe(1);
+
+        expect(PluginManager.getPluginInstances('FooPluginClassOnDocument')[0]._initialized).toBe(true);
+
+        PluginManager.deregister('FooPluginClassOnDocument');
+    });
+
+    it('should initialize plugin with no selector (fallback to document)', async () => {
+
+        PluginManager.register('FooPluginClassWithoutSelector', FooPluginClass);
+
+        await PluginManager.initializePlugins();
+
+        expect(PluginManager.getPluginInstances('FooPluginClassWithoutSelector').length).toBe(1);
+
+        expect(PluginManager.getPluginInstances('FooPluginClassWithoutSelector')[0]._initialized).toBe(true);
+
+        PluginManager.deregister('FooPluginClassWithoutSelector');
+    });
+
     it('should initialize plugin with async import', async () => {
         const asyncImport = new Promise((resolve) => {
             resolve({ default: AsyncPluginClass });

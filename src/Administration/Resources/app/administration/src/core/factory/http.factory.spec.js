@@ -134,8 +134,8 @@ describe('core/factory/http.factory.js', () => {
     it('should add current vue route, as http header to trace', async () => {
         Shopware.Application.view = {
             router: {
-                history: {
-                    current: {
+                currentRoute: {
+                    value: {
                         name: 'sw-dashboard-index',
                     },
                 },

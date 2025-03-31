@@ -386,8 +386,24 @@ class PluginLifecycleServiceTest extends TestCase
         $plugin->setUpgradeVersion('1.0.1');
         $plugin->setManagedByComposer(true);
         $plugin->setComposerName('swag/mock-plugin');
+        $plugin->setPath('custom/plugins/mock-plugin');
 
         $this->commandExecutor->expects($this->once())->method('remove');
+
+        $this->pluginLifecycleService->updatePlugin($plugin, Context::createDefaultContext());
+    }
+
+    public function testUpdatePluginWithComposerCommandExecutionDisabledAfterUpdateButInstalledViaComposerDirectly(): void
+    {
+        $plugin = $this->getPluginEntityMock();
+        $plugin->setInstalledAt(new \DateTime());
+        $plugin->setActive(true);
+        $plugin->setUpgradeVersion('1.0.1');
+        $plugin->setManagedByComposer(true);
+        $plugin->setComposerName('swag/mock-plugin');
+        $plugin->setPath('vendor/shopware/mock-plugin');
+
+        $this->commandExecutor->expects($this->never())->method('remove');
 
         $this->pluginLifecycleService->updatePlugin($plugin, Context::createDefaultContext());
     }

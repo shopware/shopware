@@ -1,5 +1,7 @@
 # 6.8.0.0
 
+**NOTE:** All the breaking changes described here can be already opted in by activating the `v6.8.0.0` [feature flag](https://developer.shopware.com/docs/resources/references/adr/2022-01-20-feature-flags-for-major-versions.html#activating-the-flag) on previous versions.
+
 # Changed Functionality
 
 # API
@@ -57,6 +59,24 @@ Use the new `Shopware\Core\Framework\Rule\RuleIdMatcher` instead.
 It allows filtering of `RuleIdAware` objects in either arrays or collections.
 
 # Administration
+
+## Removed admin notification entity + related classes
+
+You should update your code to reference the new classes:
+
+* `Shopware\Core\Framework\Notification\NotificationCollection`
+* `Shopware\Core\Framework\Notification\NotificationDefinition`
+* `Shopware\Core\Framework\Notification\NotificationEntity`
+
+The old classes are removed:
+
+* `Shopware\Administration\Notification\NotificationCollection`
+* `Shopware\Administration\Notification\NotificationDefinition`
+* `Shopware\Administration\Notification\NotificationEntity`
+* 
+## Removed notification controller
+
+`\Shopware\Administration\Controller\NotificationController` has been moved to core: `\Shopware\Core\Framework\Notification\Api\NotificationController` - if you type hint on this class, please refactor, it is now internal. The HTTP route is still the same. The old class has been removed.
 
 # Storefront
 

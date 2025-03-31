@@ -93,13 +93,9 @@ class LandingPageLoaderTest extends TestCase
 
     public function testItLoadsProperPageMetaInformation(): void
     {
-        $productId = Uuid::randomHex();
         $landingPageId = Uuid::randomHex();
         $request = new Request([], [], ['landingPageId' => $landingPageId]);
         $salesChannelContext = $this->getSalesChannelContext();
-
-        $product = $this->getProduct($productId);
-        $cmsPage = $this->getCmsPage($product);
 
         $translated = [
             'name' => 'TEST_NAME',
@@ -114,7 +110,7 @@ class LandingPageLoaderTest extends TestCase
             'metaKeywords' => $translated['keywords'],
         ];
 
-        $landingPageLoader = $this->getLandingPageLoaderWithTranslations($landingPageId, $cmsPage, $translated, $request, $salesChannelContext);
+        $landingPageLoader = $this->getLandingPageLoaderWithTranslated($landingPageId, $translated, $request, $salesChannelContext);
 
         $page = $landingPageLoader->load($request, $salesChannelContext);
         $metaInformation = $page->getMetaInformation();
@@ -126,13 +122,9 @@ class LandingPageLoaderTest extends TestCase
 
     public function testItLoadsProperPageMetaInformationWithNameOnly(): void
     {
-        $productId = Uuid::randomHex();
         $landingPageId = Uuid::randomHex();
         $request = new Request([], [], ['landingPageId' => $landingPageId]);
         $salesChannelContext = $this->getSalesChannelContext();
-
-        $product = $this->getProduct($productId);
-        $cmsPage = $this->getCmsPage($product);
 
         $translated = [
             'name' => 'TEST_NAME',
@@ -144,7 +136,7 @@ class LandingPageLoaderTest extends TestCase
             'metaKeywords' => '',
         ];
 
-        $landingPageLoader = $this->getLandingPageLoaderWithTranslations($landingPageId, $cmsPage, $translated, $request, $salesChannelContext);
+        $landingPageLoader = $this->getLandingPageLoaderWithTranslated($landingPageId, $translated, $request, $salesChannelContext);
 
         $page = $landingPageLoader->load($request, $salesChannelContext);
         $metaInformation = $page->getMetaInformation();
@@ -173,8 +165,12 @@ class LandingPageLoaderTest extends TestCase
         );
     }
 
-    private function getLandingPageLoaderWithTranslations(string $landingPageId, CmsPageEntity $cmsPage, array $translated, Request $request, SalesChannelContext $salesChannelContext): LandingPageLoader
+    private function getLandingPageLoaderWithTranslated(string $landingPageId, array $translated, Request $request, SalesChannelContext $salesChannelContext): LandingPageLoader
     {
+        $productId = Uuid::randomHex();
+        $product = $this->getProduct($productId);
+        $cmsPage = $this->getCmsPage($product);
+
         $landingPage = new LandingPageEntity();
         $landingPage->setId($landingPageId);
         $landingPage->setCmsPage($cmsPage);

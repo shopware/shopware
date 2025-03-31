@@ -21,7 +21,7 @@ use Symfony\Component\Stopwatch\Stopwatch;
     name: 'es:index',
     description: 'Index all entities into elasticsearch',
 )]
-#[Package('core')]
+#[Package('framework')]
 class ElasticsearchIndexingCommand extends Command
 {
     use ConsoleProgressTrait;

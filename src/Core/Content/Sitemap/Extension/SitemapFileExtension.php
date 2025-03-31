@@ -9,13 +9,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @experimental stableVersion:v6.7.0 feature:EXTENSION_SYSTEM
- *
  * @codeCoverageIgnore
  *
  * @extends Extension<Response>
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 final class SitemapFileExtension extends Extension
 {
     public const NAME = 'sitemap.get-file';

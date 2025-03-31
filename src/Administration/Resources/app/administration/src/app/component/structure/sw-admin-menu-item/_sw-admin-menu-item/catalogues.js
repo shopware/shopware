@@ -1,10 +1,14 @@
+/**
+ * @sw-package discovery
+ */
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     id: 'sw-catalogue',
     moduleType: 'core',
     label: 'global.sw-admin-menu.navigation.mainMenuItemCatalogue',
     color: '#57D9A3',
-    icon: 'default-symbol-products',
+    icon: 'regular-products',
     position: 20,
     level: 1,
     children: [
@@ -14,7 +18,7 @@ export default {
             label: 'sw-product.general.mainMenuItemGeneral',
             color: '#57D9A3',
             path: 'sw.product.index',
-            icon: 'default-symbol-products',
+            icon: 'regular-products',
             parent: 'sw-catalogue',
             position: 10,
             children: [],
@@ -26,7 +30,7 @@ export default {
             label: 'sw-review.general.mainMenuItemList',
             color: '#57D9A3',
             path: 'sw.review.index',
-            icon: 'default-symbol-products',
+            icon: 'regular-products',
             parent: 'sw-catalogue',
             position: 20,
             children: [],

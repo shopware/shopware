@@ -7,7 +7,7 @@ const utils = Shopware.Utils;
 const { cloneDeep } = utils.object;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description
@@ -18,8 +18,6 @@ const { cloneDeep } = utils.object;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-search-bar', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'searchService',
@@ -195,7 +193,7 @@ Component.register('sw-search-bar', {
         },
 
         currentUser() {
-            return Shopware.State.get('session').currentUser;
+            return Shopware.Store.get('session').currentUser;
         },
 
         showSearchTipForEsSearch() {
@@ -284,11 +282,6 @@ Component.register('sw-search-bar', {
 
         registerListener() {
             document.addEventListener('click', this.closeOnClickOutside);
-
-            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                // eslint-disable-next-line vue/no-deprecated-events-api
-                this.$on('mouse-over', this.setActiveResultPosition);
-            }
         },
 
         onMouseOver(index, column) {
@@ -381,11 +374,7 @@ Component.register('sw-search-bar', {
             this.isActive = true;
             this.isOffCanvasShown = false;
 
-            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                this.$root.$emit('toggle-offcanvas', this.isOffCanvasShown);
-            } else {
-                Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', this.isOffCanvasShown);
-            }
+            Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', this.isOffCanvasShown);
         },
 
         hideSearchBar() {
@@ -474,11 +463,7 @@ Component.register('sw-search-bar', {
         toggleOffCanvas() {
             this.isOffCanvasShown = !this.isOffCanvasShown;
 
-            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                this.$root.$emit('toggle-offcanvas', this.isOffCanvasShown);
-            } else {
-                Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', this.isOffCanvasShown);
-            }
+            Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', this.isOffCanvasShown);
         },
 
         resetSearchType() {
@@ -721,6 +706,12 @@ Component.register('sw-search-bar', {
                 index: this.activeResultIndex,
                 column: this.activeResultColumn,
             });
+            this.activeItemIndexSelectHandler.forEach((callback) =>
+                callback({
+                    index: this.activeResultIndex,
+                    column: this.activeResultColumn,
+                }),
+            );
         },
 
         navigateUpResults() {
@@ -804,6 +795,8 @@ Component.register('sw-search-bar', {
 
         onKeyUpEnter() {
             this.$emit('keyup-enter', this.activeResultIndex, this.activeResultColumn);
+
+            this.keyupEnterHandler.forEach((callback) => callback(this.activeResultIndex, this.activeResultColumn));
 
             if (this.showTypeSelectContainer) {
                 if (this.typeSelectResults.length > 0) {

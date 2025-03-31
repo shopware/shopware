@@ -1,14 +1,11 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_payment_overview %}
 <sw-page class="sw-settings-payment-overview">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_payment_overview_smart_bar_actions %}
     <template #smart-bar-actions>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_payment_overview_smart_bar_actions_add %}
-        <sw-button
+        <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('payment.creator'),
@@ -16,21 +13,20 @@
             }"
             class="sw-settings-payment-overview__button-create"
             :disabled="!acl.can('payment.creator') || undefined"
-            :router-link="{ name: 'sw.settings.payment.create' }"
             variant="primary"
+            size="default"
+            @click="$router.push({ name: 'sw.settings.payment.create' })"
         >
             {{ $tc('sw-settings-payment.list.buttonAddPaymentMethod') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_payment_overview_smart_bar_header %}
     <template #smart-bar-header>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_payment_overview_smart_bar_header_title %}
         <h2 class="sw-settings-payment-overview__title">
             {{ $tc('sw-settings-payment.general.mainMenuItemGeneral') }}
@@ -40,24 +36,20 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_payment_overview_language_switch %}
     <template #language-switch>
         <sw-language-switch @on-change="onChangeLanguage" />
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_payment_overview_content %}
     <template #content>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_payment_overview_content_inner %}
         <sw-card-view class="sw-settings-payment-overview__content">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_payment_overview_sorting_modal_card %}
-            <sw-card
+            <mt-card
                 class="sw-settings-payment-overview__sorting_modal_card"
                 position-identifier="sw-settings-payment-overview-sorting-modal-card"
             >
@@ -65,15 +57,15 @@
                     :disabled="isLoading || undefined"
                     :is-loading="isLoading"
                     :process-success="false"
-                    variant="ghost"
+                    variant="primary"
+                    ghost
                     @click="showSortingModal = true"
                 >
                     {{ $tc('sw-settings-payment.overview.openSortingModalButton') }}
                 </sw-button-process>
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_payment_overview_list %}
             <template
                 v-for="card in paymentMethodCards"
@@ -81,7 +73,6 @@
             >
 
                 <template v-if="card.hasCustomCard">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_payment_overview_list_card_custom_location %}
                     <sw-extension-component-section
                         :key="`extension-${card.id}`"
@@ -91,7 +82,6 @@
                 </template>
 
                 <template v-if="card.hasCustomCard && card.component">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_payment_overview_list_card_custom_card %}
                     <component
                         :is="card.component"
@@ -103,7 +93,6 @@
                 </template>
 
                 <template v-if="!card.hasCustomCard">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_payment_overview_list_card_default %}
                     <sw-payment-card
                         :key="`default-${card.id}`"
@@ -116,7 +105,6 @@
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_payment_overview_empty_state %}
             <sw-empty-state
                 v-if="isEmpty"
@@ -138,7 +126,6 @@
         </sw-card-view>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_payment_overview_sorting_modal %}
         <sw-settings-payment-sorting-modal
             v-if="showSortingModal"

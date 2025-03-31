@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package fundamentals@after-sales
  */
 import { mount } from '@vue/test-utils';
 
@@ -23,10 +23,7 @@ async function createWrapper(routerViewComponent = 'sw-first-run-wizard-welcome'
                 'sw-first-run-wizard-mailer-local': await wrapTestComponent('sw-first-run-wizard-mailer-local'),
                 'sw-modal': await wrapTestComponent('sw-modal'),
                 'sw-container': await wrapTestComponent('sw-container'),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-loader': true,
-                'sw-icon': true,
                 'router-view': {
                     template: '<div class="router-view"><slot v-bind="slotBindings"></slot></div>',
                     data() {
@@ -37,7 +34,6 @@ async function createWrapper(routerViewComponent = 'sw-first-run-wizard-welcome'
                         };
                     },
                 },
-                'sw-password-field': true,
                 'sw-step-display': true,
                 'sw-step-item': true,
                 'sw-plugin-card': true,
@@ -68,7 +64,7 @@ async function createWrapper(routerViewComponent = 'sw-first-run-wizard-welcome'
     });
 }
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () => {
     beforeAll(() => {
@@ -92,13 +88,13 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
             },
         });
 
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
         }
 
-        Shopware.State.registerModule('context', {
-            namespaced: true,
-            state: {
+        Shopware.Store.register({
+            id: 'context',
+            state: () => ({
                 app: {
                     config: {
                         settings: {
@@ -114,7 +110,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
                         token: 'testToken',
                     },
                 },
-            },
+            }),
         });
     });
 
@@ -132,13 +128,13 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
 
         expect(Object.keys(wrapper.vm.stepper)).toHaveLength(13);
 
-        Shopware.State.get('context').app.config.settings.disableExtensionManagement = true;
+        Shopware.Store.get('context').app.config.settings.disableExtensionManagement = true;
 
         await wrapper.vm.$nextTick();
 
         expect(Object.keys(wrapper.vm.stepper)).toHaveLength(8);
 
-        Shopware.State.get('context').app.config.settings.disableExtensionManagement = false;
+        Shopware.Store.get('context').app.config.settings.disableExtensionManagement = false;
     });
 
     it('the default button config should be the config of the sw-first-run-wizard-welcome component', async () => {
@@ -520,7 +516,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         expect(localOption.find('p').text()).toBe('sw-first-run-wizard.mailerSelection.smtpOption');
 
         await localOption.trigger('click');
-        await wrapper.find('.sw-button--primary').trigger('click');
+        await wrapper.findByText('button', 'sw-first-run-wizard.general.buttonNext').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
@@ -542,7 +538,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         );
 
         await localOption.trigger('click');
-        await wrapper.find('.sw-button--primary').trigger('click');
+        await wrapper.findByText('button', 'sw-first-run-wizard.general.buttonNext').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.$router.push).toHaveBeenCalledWith({

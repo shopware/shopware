@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-progress-bar.html.twig';
 import './sw-progress-bar.scss';
 
@@ -14,8 +18,6 @@ const { Component } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-progress-bar', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['userActivityService'],
 

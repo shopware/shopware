@@ -13,9 +13,9 @@ use Symfony\Component\Scheduler\ScheduleProviderInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
 /**
- * @experimental stableVersion:v6.7.0 feature:SYMFONY_SCHEDULER
+ * @experimental stableVersion:v6.8.0 feature:SYMFONY_SCHEDULER
  */
-#[Package('core')]
+#[Package('framework')]
 class ScheduleProvider implements ScheduleProviderInterface
 {
     /**

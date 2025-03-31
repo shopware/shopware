@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package after-sales
  */
 import { mount } from '@vue/test-utils';
 
@@ -63,7 +63,7 @@ const createWrapper = async (privileges = []) => {
                 },
             },
             stubs: {
-                'sw-card': {
+                'mt-card': {
                     template: '<div><slot name="grid"></slot></div>',
                 },
                 'sw-entity-listing': {
@@ -102,7 +102,6 @@ const createWrapper = async (privileges = []) => {
                 },
                 'sw-context-menu-item': true,
                 'sw-empty-state': true,
-                'sw-button': true,
             },
         },
     });

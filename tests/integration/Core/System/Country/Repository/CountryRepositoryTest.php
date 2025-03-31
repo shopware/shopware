@@ -17,7 +17,7 @@ use Shopware\Core\System\Country\CountryCollection;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@discovery')]
 class CountryRepositoryTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

@@ -313,7 +313,7 @@ class CacheResponseSubscriberTest extends TestCase
 
         $count = $shouldBeCached ? 1 : 0;
 
-        $cartService->expects(static::exactly($count))
+        $cartService->expects($this->exactly($count))
             ->method('getCart')
             ->willReturn($cart);
 
@@ -487,7 +487,7 @@ class CacheResponseSubscriberTest extends TestCase
      */
     public static function notCacheableRequestProvider(): iterable
     {
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $salesChannelContext->assign(['customer' => null]);
 
         $postRequest = new Request([], [], [PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $salesChannelContext]);
@@ -532,7 +532,7 @@ class CacheResponseSubscriberTest extends TestCase
      */
     public static function cookiesUntouchedProvider(): iterable
     {
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $salesChannelContext->assign(['customer' => null]);
 
         $salesChannelRequest = new Request([], [], [PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $salesChannelContext]);
@@ -682,7 +682,7 @@ class CacheResponseSubscriberTest extends TestCase
     ): void {
         $subscriber = new CacheResponseSubscriber(
             [],
-            $this->createStub(CartService::class),
+            static::createStub(CartService::class),
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
@@ -692,7 +692,7 @@ class CacheResponseSubscriberTest extends TestCase
             new EventDispatcher()
         );
 
-        $salesChannelContext = $this->createStub(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext
             ->method('getCustomer')
             ->willReturn(new CustomerEntity());
@@ -729,7 +729,7 @@ class CacheResponseSubscriberTest extends TestCase
     public function testRequestContextGetsUpdatedWhileLogout(): void
     {
         $customer = new CustomerEntity();
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => $customer]);
         $event = new CustomerLogoutEvent($context, $customer);
 
@@ -740,7 +740,7 @@ class CacheResponseSubscriberTest extends TestCase
 
         $subscriber = new CacheResponseSubscriber(
             [],
-            $this->createStub(CartService::class),
+            static::createStub(CartService::class),
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),

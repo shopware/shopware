@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\Exception\LanguageForeignKeyDeleteException;
 
-#[Package('buyers-experience')]
+#[Package('fundamentals@discovery')]
 class LanguageExceptionHandler implements ExceptionHandlerInterface
 {
     public function getPriority(): int
@@ -14,7 +14,7 @@ class LanguageExceptionHandler implements ExceptionHandlerInterface
         return ExceptionHandlerInterface::PRIORITY_LATE;
     }
 
-    public function matchException(\Exception $e): ?\Exception
+    public function matchException(\Throwable $e): ?\Throwable
     {
         if (preg_match('/SQLSTATE\[23000\]:.*(1217|1216).*a foreign key constraint/', $e->getMessage())) {
             return new LanguageForeignKeyDeleteException($e);

@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Script\ScriptCollection;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class ScriptPersister
 {
     /**

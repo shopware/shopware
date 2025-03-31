@@ -10,25 +10,17 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('core')]
+#[Package('framework')]
 class DoctrineSQLHandler extends AbstractProcessingHandler
 {
-    /**
-     * @var Connection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $connection;
-
     /**
      * @internal
      */
     public function __construct(
-        Connection $connection,
+        protected Connection $connection,
         Level $level = Level::Debug,
         bool $bubble = true
     ) {
-        $this->connection = $connection;
         parent::__construct($level, $bubble);
     }
 

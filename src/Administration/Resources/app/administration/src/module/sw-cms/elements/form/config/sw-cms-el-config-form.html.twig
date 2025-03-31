@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_el_config_form %}
 <sw-tabs
     position-identifier="sw-cms-element-config-form"
@@ -7,7 +6,6 @@
 >
 
     <template #default="{ active }">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_config_form_tab_content %}
         <sw-tabs-item
             :title="$tc('sw-cms.elements.general.config.tab.content')"
@@ -18,7 +16,6 @@
         </sw-tabs-item>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_form_config_tab_options %}
         <sw-tabs-item
             v-if="element.config.type.value === 'contact'"
@@ -34,57 +31,38 @@
     <template
         #content="{ active }"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_form_config_content %}
         <sw-container
             v-if="active === 'content'"
             class="sw-cms-el-config-form__tab-content"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_el_form_config_content_form_type %}
-            <sw-select-field
-                v-model:value="element.config.type.value"
+            <mt-select
+                v-model="element.config.type.value"
                 :label="$tc('sw-cms.elements.form.config.label.type')"
-            >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_el_form_config_content_form_type_options %}
-                <option
-                    value=""
-                    disabled
-                >
-                    {{ $tc('sw-cms.elements.form.config.label.type') }}
-                </option>
-                <option value="contact">
-                    {{ $tc('sw-cms.elements.form.config.label.typeContact') }}
-                </option>
-                <option value="newsletter">
-                    {{ $tc('sw-cms.elements.form.config.label.typeNewsletter') }}
-                </option>
-                {% endblock %}
-            </sw-select-field>
+                :options="formTypeOptions"
+            />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_el_form_config_content_form_title %}
-            <sw-text-field
-                v-model:value="element.config.title.value"
+
+            <mt-text-field
+                v-model="element.config.title.value"
                 :label="$tc('sw-cms.elements.form.config.label.title')"
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_el_form_config_content_form_confirmation_text %}
-            <sw-textarea-field
+            <mt-textarea
                 v-if="element.config.type.value === 'contact'"
-                v-model:value="element.config.confirmationText.value"
+                v-model="element.config.confirmationText.value"
                 :label="$tc('sw-cms.elements.form.config.label.confirmationText')"
             />
             {% endblock %}
         </sw-container>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_form_config_options %}
         <sw-container
             v-else-if="active === 'options' && element.config.type.value === 'contact'"

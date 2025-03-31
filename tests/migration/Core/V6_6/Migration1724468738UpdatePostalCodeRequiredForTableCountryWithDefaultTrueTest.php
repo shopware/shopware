@@ -13,7 +13,7 @@ use Shopware\Core\Migration\V6_6\Migration1724468738UpdatePostalCodeRequiredForT
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(Migration1724468738UpdatePostalCodeRequiredForTableCountryWithDefaultTrue::class)]
 class Migration1724468738UpdatePostalCodeRequiredForTableCountryWithDefaultTrueTest extends TestCase
 {

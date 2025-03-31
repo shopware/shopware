@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import 'src/app/component/structure/sw-admin';
 import { mount } from '@vue/test-utils';

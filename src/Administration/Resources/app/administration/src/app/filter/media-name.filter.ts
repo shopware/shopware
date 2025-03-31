@@ -1,5 +1,5 @@
 /**
- * @package content
+ * @sw-package discovery
  */
 Shopware.Filter.register(
     'mediaName',

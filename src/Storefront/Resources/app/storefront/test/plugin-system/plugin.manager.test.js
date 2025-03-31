@@ -152,6 +152,32 @@ describe('Plugin manager', () => {
         PluginManager.deregister('FooPluginClassDataAttr', selector);
     });
 
+    it('should initialize plugin with node selector', async () => {
+
+        PluginManager.register('FooPluginClassOnDocument', FooPluginClass, document);
+
+        await PluginManager.initializePlugins();
+
+        expect(PluginManager.getPluginInstances('FooPluginClassOnDocument').length).toBe(1);
+
+        expect(PluginManager.getPluginInstances('FooPluginClassOnDocument')[0]._initialized).toBe(true);
+
+        PluginManager.deregister('FooPluginClassOnDocument');
+    });
+
+    it('should initialize plugin with no selector (fallback to document)', async () => {
+
+        PluginManager.register('FooPluginClassWithoutSelector', FooPluginClass);
+
+        await PluginManager.initializePlugins();
+
+        expect(PluginManager.getPluginInstances('FooPluginClassWithoutSelector').length).toBe(1);
+
+        expect(PluginManager.getPluginInstances('FooPluginClassWithoutSelector')[0]._initialized).toBe(true);
+
+        PluginManager.deregister('FooPluginClassWithoutSelector');
+    });
+
     it('should initialize plugin with async import', async () => {
         const asyncImport = new Promise((resolve) => {
             resolve({ default: AsyncPluginClass });
@@ -285,47 +311,6 @@ describe('Plugin manager', () => {
         expect(cartPluginInstance.getQuantity()).toBe('79,89 EUR');
 
         PluginManager.deregister('CoreCart', '[data-cart]');
-    });
-
-    it('should be able to override async plugin', async () => {
-        jest.useFakeTimers();
-
-        document.body.innerHTML = `
-            <div data-async-cart="true"></div>
-        `;
-
-        const asyncCoreCartImport = new Promise((resolve) => {
-            // Simulate slower async import
-            setTimeout(() => {
-                resolve({ default: CoreCartPluginClass });
-            }, 100);
-        });
-
-        const asyncOverrideCartImport = new Promise((resolve) => {
-            // Simulate slower async import
-            setTimeout(() => {
-                resolve({ default: OverrideCartPluginClass });
-            }, 150);
-        });
-
-        // Shopware core registers async plugin
-        PluginManager.register('AsyncCoreCart', () => asyncCoreCartImport, '[data-async-cart]');
-
-        // App/plugin attempts to override async core plugin
-        PluginManager.override('AsyncCoreCart', () => asyncOverrideCartImport, '[data-async-cart]');
-
-        PluginManager.initializePlugins();
-        jest.advanceTimersByTime(250);
-        await new Promise(process.nextTick);
-
-        const element = document.querySelector('[data-async-cart]');
-        const cartPluginInstance = PluginManager.getPluginInstanceFromElement(element, 'AsyncCoreCart');
-
-        expect(PluginManager.getPluginInstances('AsyncCoreCart').length).toBe(1);
-        expect(cartPluginInstance.getQuantity()).toBe('79,89 EUR');
-
-        PluginManager.deregister('AsyncCoreCart', '[data-async-cart]');
-        jest.useRealTimers();
     });
 
     it('should initialize single sync plugin on string selector', async () => {
@@ -502,5 +487,46 @@ describe('Plugin manager', () => {
         expect(PluginManager.getPluginInstances('AsyncErrorPlugin').length).toBe(0);
 
         PluginManager.deregister('AsyncErrorPlugin', '[data-async-single-with-error]');
+    });
+
+    it('should be able to override async plugin', async () => {
+        jest.useFakeTimers();
+
+        document.body.innerHTML = `
+            <div data-async-cart="true"></div>
+        `;
+
+        const asyncCoreCartImport = new Promise((resolve) => {
+            // Simulate slower async import
+            setTimeout(() => {
+                resolve({ default: CoreCartPluginClass });
+            }, 100);
+        });
+
+        const asyncOverrideCartImport = new Promise((resolve) => {
+            // Simulate slower async import
+            setTimeout(() => {
+                resolve({ default: OverrideCartPluginClass });
+            }, 150);
+        });
+
+        // Shopware core registers async plugin
+        PluginManager.register('AsyncCoreCart', () => asyncCoreCartImport, '[data-async-cart]');
+
+        // App/plugin attempts to override async core plugin
+        PluginManager.override('AsyncCoreCart', () => asyncOverrideCartImport, '[data-async-cart]');
+
+        PluginManager.initializePlugins();
+        jest.advanceTimersByTime(250);
+
+        process.nextTick(function() {
+            const element = document.querySelector('[data-async-cart]');
+            const cartPluginInstance = PluginManager.getPluginInstanceFromElement(element, 'AsyncCoreCart');
+
+            expect(PluginManager.getPluginInstances('AsyncCoreCart').length).toBe(1);
+            expect(cartPluginInstance.getQuantity()).toBe('79,89 EUR');
+
+            PluginManager.deregister('AsyncCoreCart', '[data-async-cart]');
+        });
     });
 });

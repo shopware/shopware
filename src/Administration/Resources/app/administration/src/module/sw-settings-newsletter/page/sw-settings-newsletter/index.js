@@ -1,7 +1,7 @@
 import template from './sw-settings-newsletter.html.twig';
 
 /**
- * @package buyers-experience
+ * @sw-package after-sales
  */
 
 const { Mixin } = Shopware;
@@ -9,8 +9,6 @@ const { Mixin } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     mixins: [
         Mixin.getByName('notification'),

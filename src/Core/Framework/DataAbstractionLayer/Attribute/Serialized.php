@@ -5,9 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Attribute;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StringFieldSerializer;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-class Serialized extends Field
+final class Serialized extends Field
 {
     public const TYPE = 'serialized';
 

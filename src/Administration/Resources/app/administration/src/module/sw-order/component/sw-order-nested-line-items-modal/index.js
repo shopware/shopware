@@ -2,7 +2,7 @@ import template from './sw-order-nested-line-items-modal.html.twig';
 import './sw-order-nested-line-items-modal.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Filter } = Shopware;
@@ -11,8 +11,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -46,10 +44,14 @@ export default {
         modalTitle() {
             const price = Filter.getByName('currency')(this.lineItem.totalPrice, this.order.currency.isoCode);
 
-            return this.$tc('sw-order.nestedLineItemsModal.titlePrefix', 0, {
-                lineItemLabel: this.lineItem.label,
-                price,
-            });
+            return this.$tc(
+                'sw-order.nestedLineItemsModal.titlePrefix',
+                {
+                    lineItemLabel: this.lineItem.label,
+                    price,
+                },
+                0,
+            );
         },
     },
 

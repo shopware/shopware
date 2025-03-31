@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -431,7 +432,7 @@ class CheapestPriceTest extends TestCase
             $prices = str_replace(\sprintf('__id_placeholder_%s__', $key), $id, $prices);
         }
         foreach (\json_decode($prices, true, 512, \JSON_THROW_ON_ERROR) as $productName => $serializedPrice) {
-            $cheapestPriceQuery->executeStatement([
+            StatementHelper::executeStatement($cheapestPriceQuery, [
                 'price' => $serializedPrice,
                 'id' => $ids->getBytes($productName),
                 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),

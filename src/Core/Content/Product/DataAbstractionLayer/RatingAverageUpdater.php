@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('core')]
+#[Package('framework')]
 class RatingAverageUpdater
 {
     /**
@@ -19,6 +19,9 @@ class RatingAverageUpdater
     {
     }
 
+    /**
+     * @param array<string> $ids
+     */
     public function update(array $ids, Context $context): void
     {
         if (empty($ids)) {

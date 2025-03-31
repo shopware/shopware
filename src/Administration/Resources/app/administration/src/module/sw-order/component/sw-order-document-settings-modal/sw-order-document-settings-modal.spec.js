@@ -3,7 +3,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import FileValidationService from 'src/app/service/file-validation.service';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const orderFixture = {
@@ -33,8 +33,7 @@ async function createWrapper() {
                     'sw-text-field': true,
                     'sw-datepicker': true,
                     'sw-checkbox-field': true,
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                     'sw-base-field': await wrapTestComponent('sw-base-field', {
                         sync: true,
                     }),
@@ -45,10 +44,6 @@ async function createWrapper() {
                     'sw-context-button': {
                         template: '<div class="sw-context-button"><slot></slot></div>',
                     },
-                    'sw-button': await wrapTestComponent('sw-button', {
-                        sync: true,
-                    }),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-button-group': await wrapTestComponent('sw-button-group', { sync: true }),
                     'sw-context-menu-item': {
                         template: `
@@ -59,7 +54,6 @@ async function createWrapper() {
                     'sw-upload-listener': true,
                     'sw-textarea-field': true,
                     'sw-field-error': true,
-                    'sw-icon': true,
                     'sw-media-modal-v2': true,
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,
@@ -128,6 +122,7 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
         await previewButton.trigger('click');
 
         expect(wrapper.emitted()['preview-show']).toBeTruthy();
+        expect(wrapper.emitted()['preview-show'][0][1]).toBe('pdf');
     });
 
     it('should show file or hide custom document file when toggling Upload custom document', async () => {
@@ -212,5 +207,16 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
 
         const modal = wrapper.find('.sw-modal');
         expect(modal.attributes().title).toBe('sw-order.documentModal.modalTitle - Invoice');
+    });
+
+    it('should emit `preview-show` event when click on Preview of the HTML button', async () => {
+        const wrapper = await createWrapper();
+
+        const previewButton = wrapper.findAll('.sw-button-group').at(0);
+        await previewButton.find('.sw-order-document-settings-modal__preview-button-html').trigger('click');
+
+        expect(wrapper.emitted()['preview-show']).toBeTruthy();
+        expect(wrapper.emitted()['preview-show'][0][1]).toBe('html');
+        expect(wrapper.emitted()['preview-show'][0][0].fileTypes).toEqual(['html']);
     });
 });

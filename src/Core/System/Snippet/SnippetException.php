@@ -2,17 +2,14 @@
 
 namespace Shopware\Core\System\Snippet;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Snippet\Exception\FilterNotFoundException;
-use Shopware\Core\System\Snippet\Exception\InvalidSnippetFileException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @codeCoverageIgnore
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 class SnippetException extends HttpException
 {
     final public const SNIPPET_INVALID_FILTER_NAME = 'SYSTEM__SNIPPET_INVALID_FILTER_NAME';
@@ -33,10 +30,6 @@ class SnippetException extends HttpException
 
     public static function filterNotFound(string $filterName, string $class): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new FilterNotFoundException($filterName, $class);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::SNIPPET_FILTER_NOT_FOUND,
@@ -68,10 +61,6 @@ class SnippetException extends HttpException
 
     public static function snippetFileNotRegistered(string $locale): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new InvalidSnippetFileException($locale);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::SNIPPET_FILE_NOT_REGISTERED,

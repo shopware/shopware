@@ -19,18 +19,9 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class DownloadResponseGenerator
 {
-    /**
-     * @deprecated tag:v6.7.0 - Constant will be removed, use DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY instead
-     */
-    final public const X_SENDFILE_DOWNLOAD_STRATEGRY = self::X_SENDFILE_DOWNLOAD_STRATEGY;
-    /**
-     * @deprecated tag:v6.7.0 - Constant will be removed, use DownloadResponseGenerator::X_ACCEL_DOWNLOAD_STRATEGY instead
-     */
-    final public const X_ACCEL_DOWNLOAD_STRATEGRY = self::X_ACCEL_DOWNLOAD_STRATEGY;
-
     final public const X_SENDFILE_DOWNLOAD_STRATEGY = 'x-sendfile';
     final public const X_ACCEL_DOWNLOAD_STRATEGY = 'x-accel';
     final public const X_ACCEL_REDIRECT = 'X-Accel-Redirect';
@@ -44,7 +35,8 @@ class DownloadResponseGenerator
         private readonly FilesystemOperator $filesystemPrivate,
         private readonly MediaService $mediaService,
         private readonly string $localPrivateDownloadStrategy,
-        private readonly AbstractMediaUrlGenerator $mediaUrlGenerator
+        private readonly AbstractMediaUrlGenerator $mediaUrlGenerator,
+        private readonly string $privateLocalPathPrefix = ''
     ) {
     }
 
@@ -90,6 +82,11 @@ class DownloadResponseGenerator
                 return $response;
             case self::X_ACCEL_DOWNLOAD_STRATEGY:
                 $location = $media->getPath();
+
+                // Apply the path prefix if configured
+                if (!empty($this->privateLocalPathPrefix)) {
+                    $location = $this->privateLocalPathPrefix . '/' . ltrim($location, '/');
+                }
 
                 $response = new Response(null, 200, $this->getStreamHeaders($media));
                 $response->headers->set(self::X_ACCEL_REDIRECT, $location);

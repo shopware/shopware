@@ -3,10 +3,8 @@ import './sw-cms-preview-product-description-reviews.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 };

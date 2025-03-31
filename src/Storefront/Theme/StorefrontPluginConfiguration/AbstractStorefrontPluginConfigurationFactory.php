@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('storefront')]
+#[Package('framework')]
 abstract class AbstractStorefrontPluginConfigurationFactory
 {
     abstract public function getDecorated(): AbstractStorefrontPluginConfigurationFactory;

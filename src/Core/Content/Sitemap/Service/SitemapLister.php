@@ -8,7 +8,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Asset\Package;
 
-#[\Shopware\Core\Framework\Log\Package('services-settings')]
+#[\Shopware\Core\Framework\Log\Package('discovery')]
 class SitemapLister implements SitemapListerInterface
 {
     /**
@@ -25,7 +25,7 @@ class SitemapLister implements SitemapListerInterface
      */
     public function getSitemaps(SalesChannelContext $salesChannelContext): array
     {
-        $files = $this->filesystem->listContents('sitemap/salesChannel-' . $salesChannelContext->getSalesChannel()->getId() . '-' . $salesChannelContext->getLanguageId());
+        $files = $this->filesystem->listContents('sitemap/salesChannel-' . $salesChannelContext->getSalesChannelId() . '-' . $salesChannelContext->getLanguageId());
 
         $sitemaps = [];
 

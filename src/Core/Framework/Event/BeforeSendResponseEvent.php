@@ -10,29 +10,13 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * This event is also called on cached responses.
  */
-#[Package('core')]
+#[Package('framework')]
 class BeforeSendResponseEvent extends Event
 {
-    /**
-     * @var Request
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $request;
-
-    /**
-     * @var Response
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $response;
-
     public function __construct(
-        Request $request,
-        Response $response
+        protected Request $request,
+        protected Response $response
     ) {
-        $this->request = $request;
-        $this->response = $response;
     }
 
     public function getRequest(): Request

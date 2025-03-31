@@ -53,7 +53,7 @@ class ProductListingRoute extends AbstractProductListingRoute
         $this->dispatcher->dispatch(new AddCacheTagEvent(self::buildName($categoryId)));
 
         $criteria->addFilter(
-            new ProductAvailableFilter($context->getSalesChannel()->getId(), ProductVisibilityDefinition::VISIBILITY_ALL)
+            new ProductAvailableFilter($context->getSalesChannelId(), ProductVisibilityDefinition::VISIBILITY_ALL)
         );
         $criteria->setTitle('product-listing-route::loading');
 

@@ -4,7 +4,7 @@ import './sw-data-grid-column-position.scss';
 const { Component, Mixin } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -23,8 +23,6 @@ const { Component, Mixin } = Shopware;
  */
 Component.register('sw-data-grid-column-position', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'lower-position-value',

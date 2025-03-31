@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class CartPriceFieldSerializer extends JsonFieldSerializer
 {
     public function encode(
@@ -57,7 +57,8 @@ class CartPriceFieldSerializer extends JsonFieldSerializer
             fn (array $tax) => new CalculatedTax(
                 (float) $tax['tax'],
                 (float) $tax['taxRate'],
-                (float) $tax['price']
+                (float) $tax['price'],
+                $tax['label'] ?? null,
             ),
             $decoded['calculatedTaxes']
         );

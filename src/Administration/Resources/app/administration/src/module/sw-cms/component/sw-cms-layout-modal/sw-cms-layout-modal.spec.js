@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 
@@ -36,6 +36,8 @@ const productMocks = [
     },
 ];
 
+const searchMock = jest.fn(() => Promise.resolve(productMocks));
+
 async function createWrapper() {
     return mount(
         await wrapTestComponent('sw-cms-layout-modal', {
@@ -47,7 +49,7 @@ async function createWrapper() {
                 provide: {
                     repositoryFactory: {
                         create: () => ({
-                            search: jest.fn(() => Promise.resolve(productMocks)),
+                            search: searchMock,
                         }),
                     },
                     searchRankingService: {},
@@ -84,7 +86,6 @@ async function createWrapper() {
                 },
 
                 stubs: {
-                    'sw-icon': true,
                     'sw-modal': await wrapTestComponent('sw-modal', {
                         sync: true,
                     }),
@@ -92,8 +93,6 @@ async function createWrapper() {
                     'sw-simple-search-field': true,
                     'sw-loader': true,
                     'sw-container': true,
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-sorting-select': true,
                     'sw-pagination': true,
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
@@ -116,6 +115,7 @@ async function createWrapper() {
                     'sw-data-grid-skeleton': true,
                     'sw-help-text': true,
                     'sw-ai-copilot-badge': true,
+                    'sw-provide': { template: `<slot/>`, inheritAttrs: false },
                 },
             },
         },
@@ -151,7 +151,7 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
             }),
         );
 
-        expect(wrapper.vm.pageRepository.search).toHaveBeenCalledWith(wrapper.vm.cmsPageCriteria);
+        expect(searchMock).toHaveBeenCalledWith(wrapper.vm.cmsPageCriteria);
     });
 
     it('should search cms pages without criteria filters', async () => {
@@ -168,7 +168,7 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
             }),
         );
 
-        expect(wrapper.vm.pageRepository.search).toHaveBeenCalledWith(wrapper.vm.cmsPageCriteria);
+        expect(searchMock).toHaveBeenCalledWith(wrapper.vm.cmsPageCriteria);
     });
 
     it('should display default status', async () => {
@@ -292,7 +292,7 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
             const expected = productMocks[productIndex];
 
             const checkbox = wrapper
-                .findAll('.sw-cms-layout-modal__content-item .sw-field__checkbox input')
+                .findAll('.sw-cms-layout-modal__content-item .mt-field--checkbox__container input')
                 .at(productIndex);
 
             await checkbox.setChecked(true);

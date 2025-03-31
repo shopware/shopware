@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import template from './sw-category-tree-field.html.twig';
@@ -14,8 +14,6 @@ const { Criteria } = Shopware.Data;
  */
 Component.register('sw-category-tree-field', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 
@@ -124,14 +122,6 @@ Component.register('sw-category-tree-field', {
                     ...pathIds,
                 ];
             }, []);
-        },
-
-        listeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
 
         pageCategoryCriteria() {
@@ -513,7 +503,7 @@ Component.register('sw-category-tree-field', {
                             // update the selected item
                             this.selectedTreeItem = newSelection;
                         } else {
-                            // when sibling does not exists, go to next parent sibling
+                            // when sibling does not exist, go to next parent sibling
                             const parent = this.findTreeItemVNodeById(actualSelection.item.parentId);
                             const nextParent = this.getSibling(true, parent.item);
                             if (nextParent) {

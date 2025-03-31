@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package fundamentals@after-sales
  */
 import { mount } from '@vue/test-utils';
 
@@ -13,9 +13,6 @@ async function createWrapper() {
                 stubs: {
                     'sw-help-text': {
                         template: '<div class="sw-help-text"></div>',
-                    },
-                    'sw-icon': {
-                        template: '<div class="sw-icon"></div>',
                     },
                     'sw-loader': {
                         template: '<div class="sw-loader"></div>',
@@ -38,28 +35,13 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-modal', () => {
     const frwRedirectLocal = 'sw.first.run.wizard.index.mailer.local';
 
     beforeAll(() => {
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
-        }
-
-        Shopware.State.registerModule('context', {
-            namespaced: true,
-            state: {
-                app: {
-                    config: {
-                        settings: {
-                            disableExtensionManagement: false,
-                        },
-                    },
-                },
-                api: {
-                    assetPath: 'http://localhost:8000/bundles/administration/',
-                    authToken: {
-                        token: 'testToken',
-                    },
-                },
-            },
-        });
+        Shopware.Store.get('context').app.config = {
+            settings: { disableExtensionManagement: false },
+        };
+        Shopware.Store.get('context').api = {
+            assetPath: 'http://localhost:8000/bundles/administration/',
+            authToken: { token: 'testToken' },
+        };
     });
 
     it('should emit the button config and the title on creation', async () => {

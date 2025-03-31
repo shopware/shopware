@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Util\Hasher;
  * ThemePathBuilder that does not support seeding,
  * this should only be used in projects where recompiling the theme at runtime is not supported (e.g. PaaS) or for testing.
  */
-#[Package('storefront')]
+#[Package('framework')]
 class MD5ThemePathBuilder extends AbstractThemePathBuilder
 {
     public function assemblePath(string $salesChannelId, string $themeId): string

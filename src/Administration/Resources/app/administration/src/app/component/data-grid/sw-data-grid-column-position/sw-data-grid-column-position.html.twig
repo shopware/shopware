@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_data_grid_column_position %}
 <div class="sw-data-grid-column-position">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_data_grid_column_position_value %}
     <template v-if="showValue">
         <span class="sw-data-grid-column-position__value">
@@ -10,45 +8,42 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_data_grid_column_position_button_group %}
     <sw-button-group class="sw-data-grid-column-position__group">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_data_grid_column_position_button_up %}
-        <sw-button
+        <mt-button
             class="sw-data-grid-column-position__arrow arrow_up"
             size="x-small"
             :disabled="disabled || itemMin"
             square
+            variant="secondary"
             @click="onLowerPositionValue(item)"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_data_grid_column_position_button_up_content %}
-            <sw-icon
+            <mt-icon
                 name="regular-chevron-up-xs"
                 size="12"
             />
             {% endblock %}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_data_grid_column_position_button_down %}
-        <sw-button
+        <mt-button
             class="sw-data-grid-column-position__arrow arrow_down"
             size="x-small"
             :disabled="disabled || itemMax"
             square
+            variant="secondary"
             @click="onRaisePositionValue(item)"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_data_grid_column_position_button_down_content %}
-            <sw-icon
+            <mt-icon
                 name="regular-chevron-down-xs"
                 size="12"
             />
             {% endblock %}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </sw-button-group>
     {% endblock %}

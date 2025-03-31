@@ -65,13 +65,13 @@ async function setupCmsEnvironment() {
     await import('src/module/sw-cms/mixin/sw-cms-element.mixin');
     await import('src/module/sw-cms/mixin/sw-cms-state.mixin');
 
-    Shopware.State.get('session').currentUser = {
+    Shopware.Store.get('session').setCurrentUser({
         id: 'admin',
-    };
+    });
 }
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export { runGenericCmsTest, runCmsBlockRegistryTest, runCmsElementRegistryTest, setupCmsEnvironment };

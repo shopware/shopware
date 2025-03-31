@@ -18,7 +18,7 @@ use Twig\Loader\ArrayLoader;
 /**
  * @final
  */
-#[Package('core')]
+#[Package('framework')]
 class StringTemplateRenderer
 {
     private Environment $twig;

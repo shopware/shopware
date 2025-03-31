@@ -1,14 +1,12 @@
 import template from './sw-settings-usage-data-general.html.twig';
 
 /**
- * @package data-services
+ * @sw-package data-services
  *
  * @private
  */
 export default Shopware.Component.wrapComponentConfig({
     name: 'sw-settings-usage-data-general',
-
-    compatConfig: Shopware.compatConfig,
 
     template,
 
@@ -20,7 +18,7 @@ export default Shopware.Component.wrapComponentConfig({
         async createdComponent() {
             const consent = await this.usageDataService.getConsent();
 
-            Shopware.State.commit('usageData/updateConsent', consent);
+            Shopware.Store.get('usageData').updateConsent(consent);
         },
     },
 

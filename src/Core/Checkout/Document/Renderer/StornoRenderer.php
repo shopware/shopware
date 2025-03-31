@@ -5,11 +5,12 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentException;
+use Shopware\Core\Checkout\Document\Event\DocumentOrderCriteriaEvent;
 use Shopware\Core\Checkout\Document\Event\StornoOrdersEvent;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
+use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
-use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
@@ -17,28 +18,27 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\System\Language\LanguageEntity;
-use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('checkout')]
+#[Package('after-sales')]
 final class StornoRenderer extends AbstractDocumentRenderer
 {
     public const TYPE = 'storno';
 
     /**
      * @internal
+     *
+     * @param EntityRepository<OrderCollection> $orderRepository
      */
     public function __construct(
         private readonly EntityRepository $orderRepository,
         private readonly DocumentConfigLoader $documentConfigLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly DocumentTemplateRenderer $documentTemplateRenderer,
         private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         private readonly ReferenceInvoiceLoader $referenceInvoiceLoader,
-        private readonly string $rootDir,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly DocumentFileRendererRegistry $fileRendererRegistry,
     ) {
     }
 
@@ -63,7 +63,6 @@ final class StornoRenderer extends AbstractDocumentRenderer
 
         $orders = new OrderCollection();
 
-        /** @var DocumentGenerateOperation $operation */
         foreach ($operations as $operation) {
             try {
                 $orderId = $operation->getOrderId();
@@ -76,7 +75,7 @@ final class StornoRenderer extends AbstractDocumentRenderer
                 $documentRefer = json_decode($invoice['config'], true, 512, \JSON_THROW_ON_ERROR);
                 $referenceInvoiceNumbers[$orderId] = $invoice['documentNumber'] ?? $documentRefer['documentNumber'];
 
-                $order = $this->getOrder($orderId, $invoice['orderVersionId'], $context, $rendererConfig->deepLinkCode);
+                $order = $this->getOrder($operation, $invoice['orderVersionId'], $context, $rendererConfig);
 
                 $orders->add($order);
                 $operation->setReferencedDocumentId($invoice['id']);
@@ -133,42 +132,29 @@ final class StornoRenderer extends AbstractDocumentRenderer
                 ]);
 
                 if ($operation->isStatic()) {
-                    $doc = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
+                    $doc = new RenderedDocument($number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
                     $result->addSuccess($orderId, $doc);
 
                     continue;
                 }
 
-                /** @var LanguageEntity|null $language */
                 $language = $order->getLanguage();
                 if ($language === null) {
                     throw DocumentException::generationError('Can not generate credit note document because no language exists. OrderId: ' . $operation->getOrderId());
                 }
 
-                /** @var LocaleEntity $locale */
-                $locale = $language->getLocale();
-
-                $html = $this->documentTemplateRenderer->render(
-                    $template,
-                    [
-                        'order' => $order,
-                        'config' => $config,
-                        'rootDir' => $this->rootDir,
-                        'context' => $context,
-                    ],
-                    $context,
-                    $order->getSalesChannelId(),
-                    $order->getLanguageId(),
-                    $locale->getCode()
-                );
-
                 $doc = new RenderedDocument(
-                    $html,
                     $number,
                     $config->buildName(),
                     $operation->getFileType(),
                     $config->jsonSerialize(),
                 );
+
+                $doc->setTemplate($template);
+                $doc->setOrder($order);
+                $doc->setContext($context);
+
+                $doc->setContent($this->fileRendererRegistry->render($doc));
 
                 $result->addSuccess($orderId, $doc);
             } catch (\Throwable $exception) {
@@ -184,20 +170,28 @@ final class StornoRenderer extends AbstractDocumentRenderer
         throw new DecorationPatternException(self::class);
     }
 
-    private function getOrder(string $orderId, string $versionId, Context $context, string $deepLinkCode = ''): OrderEntity
+    private function getOrder(DocumentGenerateOperation $operation, string $versionId, Context $context, DocumentRendererConfig $rendererConfig): OrderEntity
     {
+        $orderId = $operation->getOrderId();
+
         ['language_id' => $languageId] = $this->getOrdersLanguageId([$orderId], $versionId, $this->connection)[0];
 
-        // Get the correct order with versioning from reference invoice
+        // Get the order with the version from the reference invoice
         $versionContext = $context->createWithVersionId($versionId)->assign([
             'languageIdChain' => array_values(array_unique(array_filter([$languageId, ...$context->getLanguageIdChain()]))),
         ]);
 
-        $criteria = OrderDocumentCriteriaFactory::create([$orderId], $deepLinkCode, self::TYPE);
+        $criteria = OrderDocumentCriteriaFactory::create([$orderId], $rendererConfig->deepLinkCode, self::TYPE);
 
-        /** @var ?OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $versionContext)->get($orderId);
+        $this->eventDispatcher->dispatch(new DocumentOrderCriteriaEvent(
+            $criteria,
+            $context,
+            [$operation->getOrderId() => $operation],
+            $rendererConfig,
+            self::TYPE
+        ));
 
+        $order = $this->orderRepository->search($criteria, $versionContext)->getEntities()->first();
         if ($order === null) {
             throw DocumentException::orderNotFound($orderId);
         }

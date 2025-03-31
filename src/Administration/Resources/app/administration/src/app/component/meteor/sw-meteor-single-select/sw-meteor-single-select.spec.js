@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -55,7 +55,6 @@ describe('src/app/component/meteor/sw-meteor-single-select', () => {
             global: {
                 renderStubDefaultSlot: true,
                 stubs: {
-                    'sw-icon': true,
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                     'sw-popover': await wrapTestComponent('sw-popover'),
                     'sw-popover-deprecated': true,
@@ -69,7 +68,6 @@ describe('src/app/component/meteor/sw-meteor-single-select', () => {
                     'sw-select-result': await wrapTestComponent('sw-select-result'),
                     'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                     'mt-floating-ui': true,
-                    'mt-text-field': true,
                     'sw-field-copyable': true,
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,

@@ -8,7 +8,7 @@ use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 readonly class ElasticsearchStagingHandler
 {
     public function __construct(

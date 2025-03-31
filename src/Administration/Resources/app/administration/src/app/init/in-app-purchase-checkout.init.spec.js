@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 import { purchase } from '@shopware-ag/meteor-admin-sdk/es/iap';
 import initializeInAppPurchaseCheckout from './in-app-purchase-checkout.init';
@@ -11,8 +11,8 @@ describe('src/app/init/in-app-purchase.init.ts', () => {
     });
 
     beforeEach(() => {
-        Shopware.State._store.state.extensions = {};
-        Shopware.State.commit('extensions/addExtension', {
+        Shopware.Store.get('extensions').extensionsState = {};
+        Shopware.Store.get('extensions').addExtension({
             name: 'jestapp',
             baseUrl: '',
             permissions: [],
@@ -23,6 +23,12 @@ describe('src/app/init/in-app-purchase.init.ts', () => {
         });
 
         Shopware.Store.get('inAppPurchaseCheckout').$reset();
+
+        Shopware.Context.app.config.bundles = {
+            jestapp: {
+                identifier: 'jestapp',
+            },
+        };
     });
 
     it('should handle incoming inAppPurchases requests', async () => {

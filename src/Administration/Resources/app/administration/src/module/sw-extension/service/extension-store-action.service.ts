@@ -1,6 +1,6 @@
 import type { AxiosInstance, AxiosResponse } from 'axios';
 import type { LoginService } from 'src/core/service/login.service';
-import type { ContextState } from 'src/app/state/context.store';
+import type { ContextStore } from 'src/app/store/context.store';
 import type { BasicHeaders } from 'src/core/service/api.service';
 
 import ApiService from 'src/core/service/api.service';
@@ -90,7 +90,7 @@ interface Extension {
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default class ExtensionStoreActionService extends ApiService {
@@ -173,11 +173,15 @@ export default class ExtensionStoreActionService extends ApiService {
         );
     }
 
-    public removeExtension(technicalName: string, type: ExtensionType): Promise<AxiosResponse<void>> {
-        return this.httpClient.delete(`_action/${this.getApiBasePath()}/remove/${type}/${technicalName}`, {
-            headers: this.storeHeaders(),
-            version: 3,
-        });
+    public removeExtension(technicalName: string, type: ExtensionType, removeData: boolean): Promise<AxiosResponse<void>> {
+        return this.httpClient.post(
+            `_action/${this.getApiBasePath()}/remove/${type}/${technicalName}`,
+            { keepUserData: !removeData },
+            {
+                headers: this.storeHeaders(),
+                version: 3,
+            },
+        );
     }
 
     public cancelLicense(licenseId: number): Promise<void> {
@@ -248,7 +252,7 @@ export default class ExtensionStoreActionService extends ApiService {
         return ApiService.handleResponse(response);
     }
 
-    private storeHeaders(context: ContextState['api'] | null = null): ExtensionStoreActionHeaders {
+    private storeHeaders(context: ContextStore['api'] | null = null): ExtensionStoreActionHeaders {
         const headers = super.getBasicHeaders();
 
         if (context?.languageId) {
@@ -260,7 +264,7 @@ export default class ExtensionStoreActionService extends ApiService {
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type {

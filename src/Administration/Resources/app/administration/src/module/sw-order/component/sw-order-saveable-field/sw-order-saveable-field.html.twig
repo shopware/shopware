@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_saveable_field %}
 <sw-container
     v-if="isEditing"
@@ -6,47 +5,44 @@
     gap="0px 10px"
     class="sw-order-saveable-field"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_saveable_field_input %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block  sw_order_saveable_field_input_field%}
     <component
         :is="component"
         ref="edit-field"
-        :value="value"
         :placeholder="placeholder"
-        v-bind="$attrs"
-        v-on="listeners"
+        v-bind="computedAttrs"
     />
     {% endblock %}
     {% endblock %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_saveable_field_actions %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_saveable_field_cancel_button %}
-    <sw-button
+    <mt-button
         size="x-small"
         square
+        aria-label="global.default.cancel"
+        variant="secondary"
         @click="onCancelButtonClicked"
     >
-        <sw-icon
+        <mt-icon
             name="regular-times-xs"
-            small
+            size="16px"
         />
-    </sw-button>
+    </mt-button>
     {%  endblock %}
     {%  block sw_order_saveable_field_save_button %}
-    <sw-button
+    <mt-button
         size="x-small"
         variant="primary"
+        aria-label="global.default.save"
         square
         @click="onSaveButtonClicked"
     >
-        <sw-icon
+        <mt-icon
             name="regular-checkmark-xxs"
-            small
+            size="16px"
         />
-    </sw-button>
+    </mt-button>
     {%  endblock %}
     {% endblock %}
 </sw-container>
@@ -57,7 +53,6 @@
     @click="onClick"
     @keydown.enter="onClick"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_saveable_field_content %}
     <slot></slot>
     {% endblock %}

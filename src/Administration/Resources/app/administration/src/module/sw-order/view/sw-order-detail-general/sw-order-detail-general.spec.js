@@ -1,9 +1,9 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 import { mount } from '@vue/test-utils';
-import orderDetailStore from 'src/module/sw-order/state/order-detail.store';
+import { createPinia, setActivePinia } from 'pinia';
 
 const orderMock = {
     orderCustomer: {
@@ -79,9 +79,9 @@ async function createWrapper() {
                 }),
                 'sw-card-section': await wrapTestComponent('sw-card-section', { sync: true }),
                 'sw-description-list': await wrapTestComponent('sw-description-list', { sync: true }),
-                'sw-card': {
+                'mt-card': {
                     template: `
-                        <div class="sw-card">
+                        <div class="mt-card">
                             <slot></slot>
                             <slot name="grid"></slot>
                         </div>
@@ -89,9 +89,9 @@ async function createWrapper() {
                 },
                 'sw-order-general-info': true,
                 'sw-order-line-items-grid': true,
+                'sw-order-promotion-field': true,
+                'sw-number-field': await wrapTestComponent('sw-number-field', { sync: true }),
                 'sw-order-saveable-field': await wrapTestComponent('sw-order-saveable-field', { sync: true }),
-                'sw-number-field': await wrapTestComponent('sw-number-field'),
-                'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated'),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
@@ -101,14 +101,11 @@ async function createWrapper() {
                 'sw-help-text': true,
                 'sw-field-error': true,
                 'sw-extension-component-section': true,
-                'sw-icon': true,
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'router-link': true,
                 'sw-loader': true,
             },
             mocks: {
-                $tc: (key, number, value) => {
+                $tc: (key, value) => {
                     if (!value) {
                         return key;
                     }
@@ -140,14 +137,8 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
     let wrapper;
 
     beforeAll(() => {
-        Shopware.State.registerModule('swOrderDetail', {
-            ...orderDetailStore,
-            state: {
-                ...orderDetailStore.state,
-                order: orderMock,
-                orderAddressIds: [],
-            },
-        });
+        setActivePinia(createPinia());
+        Shopware.Store.get('swOrderDetail').order = orderMock;
     });
 
     it('should be a Vue.js component', async () => {
@@ -191,7 +182,7 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         await saveableField.setValue(20);
         await saveableField.trigger('input');
 
-        button = wrapper.find('.sw-order-saveable-field .sw-button--primary');
+        button = wrapper.findByAriaLabel('button', 'global.default.save');
         await button.trigger('click');
 
         expect(wrapper.vm.delivery.shippingCosts.unitPrice).toBe(20);

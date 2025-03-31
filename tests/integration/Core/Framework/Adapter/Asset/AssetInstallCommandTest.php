@@ -42,7 +42,7 @@ class AssetInstallCommandTest extends TestCase
         );
 
         $activeAppsLoaderMock = $this->createMock(ActiveAppsLoader::class);
-        $activeAppsLoaderMock->expects(static::once())
+        $activeAppsLoaderMock->expects($this->once())
             ->method('getActiveApps')
             ->willReturn([
                 [

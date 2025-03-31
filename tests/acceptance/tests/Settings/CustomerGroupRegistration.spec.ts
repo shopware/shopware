@@ -6,17 +6,14 @@ test('As an admin, I can create and verify customer groups in the admin.', { tag
     AdminCustomerGroupListing,
     AdminCustomerGroupDetail,
     DefaultSalesChannel,
-    InstanceMeta,
 }) => {
-
-    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0, ticket: https://shopware.atlassian.net/browse/NEXT-40162');
-
     const customerGroup = await TestDataService.createCustomerGroup();
 
     await test.step('Verify the created customer group in the admin', async () => {
         await ShopAdmin.goesTo(AdminCustomerGroupListing.url());
         const customerGroupLineItem = await AdminCustomerGroupListing.getCustomerGroupByName(customerGroup.name);
         await ShopAdmin.expects(customerGroupLineItem.customerGroupName).toBeVisible({ timeout: 10000 });
+
         await ShopAdmin.goesTo(AdminCustomerGroupDetail.url(customerGroup.id));
         await ShopAdmin.expects(AdminCustomerGroupDetail.headline).toContainText(customerGroup.name);
         await ShopAdmin.expects(AdminCustomerGroupDetail.customerGroupNameField).toHaveValue(customerGroup.name);
@@ -32,7 +29,7 @@ test('As an admin, I can create and verify customer groups in the admin.', { tag
     });
 
 });
-test('As a customer, I must be able to register under a customer group in the Storefront.', { tag: '@Registration @CustomerGroups' }, async ({
+test('As a customer, I can register under a customer group in the Storefront.', { tag: '@Registration @CustomerGroups' }, async ({
     TestDataService,
     ShopAdmin,
     ShopCustomer,
@@ -42,7 +39,6 @@ test('As a customer, I must be able to register under a customer group in the St
     Register,
     CustomerGroupActivation,
 }) => {
-
     const customer = { email: IdProvider.getIdPair().uuid + '@test.com' };
     const customerGroup = await TestDataService.createCustomerGroup();
 
@@ -63,7 +59,7 @@ test('As a customer, I must be able to register under a customer group in the St
 
 });
 
-test('As a commercial customer, I must be able to register under a customer group in the Storefront.', { tag: '@Registration @CustomerGroups' }, async ({
+test('As a commercial customer, I can register under a customer group in the Storefront.', { tag: '@Registration @CustomerGroups' }, async ({
     TestDataService,
     ShopAdmin,
     ShopCustomer,
@@ -73,14 +69,13 @@ test('As a commercial customer, I must be able to register under a customer grou
     Register,
     CustomerGroupActivation,
 }) => {
-
     const uuid = IdProvider.getIdPair().uuid;
-    const customer = { email: uuid + '@test.com', vatRegNo: uuid + '-VatId'};
+    const customer = { isCommercial: true, email: uuid + '@test.com', vatRegNo: uuid + '-VatId'};
     const commercialCustomerGroup = await TestDataService.createCustomerGroup({ registrationOnlyCompanyRegistration: true });
 
     await test.step('Register the commercial customer and activate it for the customer group', async () => {
         await ShopCustomer.goesTo(StorefrontCustomRegister.url(commercialCustomerGroup.name));
-        await ShopCustomer.attemptsTo(Register(customer, true));
+        await ShopCustomer.attemptsTo(Register(customer));
         await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
         const customerGroupAlert = await StorefrontAccount.getCustomerGroupAlert(commercialCustomerGroup.name);
         await ShopCustomer.expects(customerGroupAlert).toContainText(commercialCustomerGroup.name);

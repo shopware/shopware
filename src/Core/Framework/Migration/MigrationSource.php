@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Migration;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class MigrationSource
 {
     private const PHP_CLASS_NAME_REGEX = '[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$';
@@ -46,7 +46,7 @@ class MigrationSource
         $sources = [];
 
         foreach ($this->sources as $directory => $namespace) {
-            if ($namespace instanceof MigrationSource) {
+            if ($namespace instanceof self) {
                 $sources = array_merge($sources, $namespace->getSourceDirectories());
             } else {
                 $sources[$directory] = $namespace;

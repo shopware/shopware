@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class CmsRoute extends AbstractCmsRoute
 {
     /**
@@ -46,10 +46,11 @@ class CmsRoute extends AbstractCmsRoute
 
         $pages = $this->cmsPageLoader->load($request, $criteria, $context);
 
-        if (!$pages->has($id)) {
+        $cmsPage = $pages->first();
+        if ($cmsPage === null) {
             throw new PageNotFoundException($id);
         }
 
-        return new CmsRouteResponse($pages->get($id));
+        return new CmsRouteResponse($cmsPage);
     }
 }

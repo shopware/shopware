@@ -1,5 +1,5 @@
 /**
- * @package innovation
+ * @sw-package innovation
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -29,7 +29,7 @@ Module.register('sw-settings-media', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'content',
         to: 'sw.settings.media.index',
         icon: 'regular-image',
         privilege: 'system.system_config',

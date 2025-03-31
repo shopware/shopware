@@ -2,13 +2,11 @@ import template from './sw-category-entry-point-modal.html.twig';
 import './sw-category-entry-point-modal.scss';
 
 /**
- * @package inventory
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'acl',
@@ -147,11 +145,7 @@ export default {
                 realSalesChannel.homeMetaDescription = tempSalesChannel.homeMetaDescription;
                 realSalesChannel.homeKeywords = tempSalesChannel.homeKeywords;
                 realSalesChannel.homeCmsPageId = tempSalesChannel.homeCmsPageId;
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(realSalesChannel, 'homeCmsPage', tempSalesChannel.homeCmsPage);
-                } else {
-                    realSalesChannel.homeCmsPage = tempSalesChannel.homeCmsPage;
-                }
+                realSalesChannel.homeCmsPage = tempSalesChannel.homeCmsPage;
             }
 
             this.closeModal();

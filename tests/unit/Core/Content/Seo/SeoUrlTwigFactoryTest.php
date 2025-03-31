@@ -19,7 +19,7 @@ use Twig\Loader\ArrayLoader;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('inventory')]
 #[CoversClass(SeoUrlTwigFactory::class)]
 class SeoUrlTwigFactoryTest extends TestCase
 {

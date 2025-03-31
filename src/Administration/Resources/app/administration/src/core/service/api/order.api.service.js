@@ -3,7 +3,7 @@ import utils from 'src/core/service/util.service';
 import ApiService from '../api.service';
 
 /**
- * @package checkout
+ * @sw-package checkout
  * Gateway for the API end point "order"
  * @class
  * @extends ApiService
@@ -85,11 +85,24 @@ class OrderApiService extends ApiService {
         });
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use `applyAutomaticPromotions` instead
+     */
     toggleAutomaticPromotions(orderId, versionId, skipAutomaticPromotions, additionalParams = {}, additionalHeaders = {}) {
         const route = `_action/order/${orderId}/toggleAutomaticPromotions`;
         const headers = Object.assign(ApiService.getVersionHeader(versionId), this.getBasicHeaders(additionalHeaders));
 
         return this.httpClient.post(route, JSON.stringify({ skipAutomaticPromotions }), {
+            additionalParams,
+            headers,
+        });
+    }
+
+    applyAutomaticPromotions(orderId, versionId, additionalParams = {}, additionalHeaders = {}) {
+        const route = `_action/order/${orderId}/applyAutomaticPromotions`;
+        const headers = Object.assign(ApiService.getVersionHeader(versionId), this.getBasicHeaders(additionalHeaders));
+
+        return this.httpClient.post(route, {}, {
             additionalParams,
             headers,
         });

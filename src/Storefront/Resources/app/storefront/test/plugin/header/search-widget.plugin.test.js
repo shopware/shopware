@@ -1,15 +1,23 @@
 /* eslint-disable */
 import SearchPlugin from 'src/plugin/header/search-widget.plugin';
 
-describe('ListingPlugin tests', () => {
+describe('SearchPlugin Tests', () => {
     let searchPlugin = undefined;
-    let spyInit = jest.fn();
+    let formElement = null;
     let spyInitializePlugins = jest.fn();
 
     beforeEach(() => {
-        // mock search plugin
-        const mockElement = document.createElement('div');
-        searchPlugin = new SearchPlugin(mockElement);
+        document.body.innerHTML = `
+            <form id="search-widget" data-search-widget="true">
+                <input type="search" name="search" autocapitalize="off" autocomplete="off">
+                <button type="submit" class="btn header-search-btn">Search</button>
+                <button type="button" class="btn header-close-btn js-search-close-btn d-none"></button>
+            </form>
+        `;
+
+        formElement = document.getElementById('search-widget');
+
+        searchPlugin = new SearchPlugin(formElement);
     });
 
     afterEach(() => {
@@ -153,6 +161,27 @@ describe('ListingPlugin tests', () => {
         expect(searchPlugin._clearSuggestResults).not.toHaveBeenCalled();
         expect(searchPlugin._suggest).toHaveBeenCalled();
         expect(searchPlugin.$emitter.publish).toHaveBeenCalledWith('handleInputEvent', { "value": "abcd" });
+    });
+
+    test('should add d-none class to search results on close button focus', () => {
+        document.body.innerHTML = `
+            <form id="search-widget" data-search-widget="true">
+                <input type="search" name="search" autocapitalize="off" autocomplete="off">
+                <button type="submit" class="btn header-search-btn">Search</button>
+                <button type="button" class="btn header-close-btn js-search-close-btn d-none"></button>
+                <div class="search-suggest js-search-result"></div>
+            </form>
+        `;
+
+        formElement = document.getElementById('search-widget');
+        searchPlugin = new SearchPlugin(formElement);
+
+        const searchResult = document.querySelector('.js-search-result');
+        expect(searchResult.classList.contains('d-none')).toBe(false);
+
+        searchPlugin._closeButton.focus();
+
+        expect(searchResult.classList.contains('d-none')).toBe(true);
     });
 });
 

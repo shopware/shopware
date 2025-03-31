@@ -3,11 +3,13 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class TestError extends Error
 {
     final public const LEVEL_UNKNOWN = \PHP_INT_MAX;

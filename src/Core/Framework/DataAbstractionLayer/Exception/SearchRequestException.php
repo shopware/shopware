@@ -7,7 +7,7 @@ use Shopware\Core\Framework\ShopwareException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('core')]
+#[Package('framework')]
 class SearchRequestException extends ShopwareHttpException
 {
     public function __construct(private array $exceptions = [])

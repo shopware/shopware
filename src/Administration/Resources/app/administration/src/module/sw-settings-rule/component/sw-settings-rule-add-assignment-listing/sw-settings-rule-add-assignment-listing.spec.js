@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 
 const { Criteria } = Shopware.Data;
@@ -75,8 +75,6 @@ async function createWrapper(props = defaultProps) {
             props,
             global: {
                 stubs: {
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-card-filter': await wrapTestComponent('sw-card-filter'),
                     'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
@@ -87,11 +85,8 @@ async function createWrapper(props = defaultProps) {
                     'sw-pagination': await wrapTestComponent('sw-pagination'),
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-product-variant-info': true,
-                    'sw-icon': true,
                     'sw-extension-component-section': true,
                     'sw-ai-copilot-badge': true,
                     'sw-context-button': true,
@@ -107,6 +102,7 @@ async function createWrapper(props = defaultProps) {
                     'sw-field-copyable': true,
                     'sw-inheritance-switch': true,
                     'sw-help-text': true,
+                    'sw-provide': { template: '<slot/>', inheritAttrs: false },
                 },
             },
         },

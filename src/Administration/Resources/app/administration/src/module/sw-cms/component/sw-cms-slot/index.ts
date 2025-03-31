@@ -7,12 +7,10 @@ const { deepCopyObject } = Shopware.Utils.object;
 
 /**
  * @private since v6.5.0
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'cmsService',
@@ -21,7 +19,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     props: {
         element: {
-            type: Object as PropType<EntitySchema.Entity<'cms_slot'>>,
+            type: Object as PropType<Entity<'cms_slot'>>,
             required: true,
         },
 

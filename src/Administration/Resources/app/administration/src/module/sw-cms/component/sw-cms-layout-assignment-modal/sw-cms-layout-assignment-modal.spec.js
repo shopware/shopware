@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -119,10 +119,6 @@ async function createWrapper(layoutType = 'product_list', systemConfigApiService
                 stubs: {
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
-                    'sw-button': {
-                        inheritAttrs: false,
-                        template: '<div class="sw-button" :class="$attrs.class" @click="$emit(\'click\')"></div>',
-                    },
                     'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
                     'sw-category-tree-field': {
                         template: `
@@ -144,7 +140,6 @@ async function createWrapper(layoutType = 'product_list', systemConfigApiService
                     'sw-multi-select': true,
                     'sw-entity-multi-select': true,
                     'sw-loader': true,
-                    'sw-icon': true,
                     'sw-cms-product-assignment': {
                         template: `
                         <div class="sw-cms-product-assignment">
@@ -152,7 +147,7 @@ async function createWrapper(layoutType = 'product_list', systemConfigApiService
                             <slot
                                 name="empty-state">
                                 <img
-                                    :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
+                                    :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
                                     alt=""
                                 >
                                 <p>{{ $tc('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentEmptyStateDescription') }}</p>
@@ -472,6 +467,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                 ],
             },
         });
+        await flushPromises();
 
         await wrapper.find('.sw-cms-layout-assignment-modal__action-confirm').trigger('click');
 
@@ -509,6 +505,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                 'storefront_test-id': null,
             },
         });
+        await flushPromises();
 
         await wrapper.find('.sw-cms-layout-assignment-modal__action-confirm').trigger('click');
 

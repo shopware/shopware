@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -17,6 +18,8 @@ class CustomerRoute extends AbstractCustomerRoute
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerCollection> $customerRepository
      */
     public function __construct(private readonly EntityRepository $customerRepository)
     {
@@ -33,6 +36,7 @@ class CustomerRoute extends AbstractCustomerRoute
         $criteria->setIds([$customer->getId()]);
 
         $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->first();
+        \assert($customerEntity !== null);
 
         return new CustomerResponse($customerEntity);
     }

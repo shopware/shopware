@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 import template from './sw-promotion-v2-settings-trigger.html.twig';
 
@@ -8,8 +8,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'acl',
@@ -32,6 +30,16 @@ export default {
     computed: {
         ruleCriteria() {
             return new Criteria(1, 25).addSorting(Criteria.sort('name', 'ASC', false));
+        },
+
+        triggerOptions() {
+            return this.getTriggerSelection().map((trigger) => {
+                return {
+                    id: trigger.value,
+                    value: trigger.value,
+                    label: trigger.display,
+                };
+            });
         },
     },
 

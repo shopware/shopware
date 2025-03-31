@@ -15,7 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
@@ -64,22 +66,22 @@ class VersionManagerTest extends TestCase
             (new Entity())->assign(['_uniqueIdentifier' => Uuid::randomHex()]),
         ]);
 
-        $entityReaderMock->expects(static::once())->method('read')->willReturn($entityCollectionMock);
-        $serializer->expects(static::once())->method('serialize')
+        $entityReaderMock->expects($this->once())->method('read')->willReturn($entityCollectionMock);
+        $serializer->expects($this->once())->method('serialize')
             ->willReturn('{"extensions":{"foreignKeys":{"extensions":[],"apiAlias":null,"manyToOneId":"' . Uuid::randomHex() . '"}}}');
 
         $writeContextMock = $this->createMock(WriteContext::class);
 
         $writeContextMockWithVersionId = $this->createMock(WriteContext::class);
-        $writeContextMock->expects(static::once())->method('createWithVersionId')->willReturn($writeContextMockWithVersionId);
+        $writeContextMock->expects($this->once())->method('createWithVersionId')->willReturn($writeContextMockWithVersionId);
 
-        $entityWriterMock->expects(static::once())->method('insert')->willReturn([
+        $entityWriterMock->expects($this->once())->method('insert')->willReturn([
             'product' => [
                 new EntityWriteResult('1', ['languageId' => '1'], 'product', EntityWriteResult::OPERATION_INSERT),
             ],
         ]);
 
-        $writeContextMockWithVersionId->expects(static::once())->method('scope')
+        $writeContextMockWithVersionId->expects($this->once())->method('scope')
             ->with(static::equalTo(Context::SYSTEM_SCOPE), static::callback(function (callable $closure) use ($writeContextMockWithVersionId) {
                 /** @var callable(MockObject&WriteContext): void $closure */
                 $closure($writeContextMockWithVersionId);
@@ -87,7 +89,7 @@ class VersionManagerTest extends TestCase
                 return true;
             }));
 
-        $writeContextMockWithVersionId->expects(static::exactly(2))->method('getContext')->willReturn(Context::createDefaultContext());
+        $writeContextMockWithVersionId->expects($this->exactly(2))->method('getContext')->willReturn(Context::createDefaultContext());
 
         $registry = new StaticDefinitionInstanceRegistry(
             [
@@ -114,7 +116,7 @@ class VersionManagerTest extends TestCase
     public function testCloneEntityNotExist(): void
     {
         $entityReaderMock = $this->createMock(EntityReaderInterface::class);
-        $entityReaderMock->expects(static::once())->method('read')->willReturn(new EntityCollection([]));
+        $entityReaderMock->expects($this->once())->method('read')->willReturn(new EntityCollection([]));
 
         $this->versionManager = new VersionManager(
             $this->createMock(EntityWriterInterface::class),
@@ -164,7 +166,7 @@ class VersionManagerTest extends TestCase
 
         $lock = $this->createMock(SharedLockInterface::class);
         $lock->method('acquire')->willReturn(false);
-        $lockFactory->expects(static::once())->method('createLock')->willReturn($lock);
+        $lockFactory->expects($this->once())->method('createLock')->willReturn($lock);
 
         $this->versionManager = new VersionManager(
             $this->createMock(EntityWriterInterface::class),
@@ -188,6 +190,41 @@ class VersionManagerTest extends TestCase
             $versionId,
             $this->createMock(WriteContext::class)
         );
+    }
+
+    public function testMergeFailsForNonExistentVersion(): void
+    {
+        $lockFactory = $this->createMock(LockFactory::class);
+        $lock = $this->createMock(SharedLockInterface::class);
+        $lock->method('acquire')->willReturn(true);
+        $lockFactory->method('createLock')->willReturn($lock);
+
+        $entitySearcherMock = $this->createMock(EntitySearcherInterface::class);
+
+        $entitySearcherMock->method('search')->willReturn(
+            new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext())
+        );
+
+        $versionManager = new VersionManager(
+            $this->createMock(EntityWriterInterface::class),
+            $this->createMock(EntityReaderInterface::class),
+            $entitySearcherMock,
+            $this->createMock(EntityWriteGatewayInterface::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(SerializerInterface::class),
+            $this->createMock(DefinitionInstanceRegistry::class),
+            $this->createMock(VersionCommitDefinition::class),
+            $this->createMock(VersionCommitDataDefinition::class),
+            $this->createMock(VersionDefinition::class),
+            $lockFactory
+        );
+
+        $versionId = 'non-existent-version-id';
+
+        static::expectException(DataAbstractionLayerException::class);
+        static::expectExceptionMessage(DataAbstractionLayerException::versionNotExists($versionId)->getMessage());
+
+        $versionManager->merge($versionId, $this->createMock(WriteContext::class));
     }
 }
 

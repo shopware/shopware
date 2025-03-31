@@ -1,5 +1,5 @@
 /**
- * @package storefront
+ * @sw-package framework
  */
 
 const fs = require('fs-extra');

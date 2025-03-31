@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
-use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
+use Shopware\Core\Framework\App\Privileges\Utils;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
+use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Framework\Store\Struct\BinaryCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
@@ -51,7 +52,8 @@ class ExtensionLoader
         private readonly SourceResolver $sourceResolver,
         private readonly ConfigurationService $configurationService,
         private readonly LocaleProvider $localeProvider,
-        private readonly LanguageLocaleCodeProvider $languageLocaleProvider
+        private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
+        private readonly InAppPurchase $inAppPurchase
     ) {
     }
 
@@ -189,7 +191,9 @@ class ExtensionLoader
             'configurable' => $this->configurationService->checkConfiguration(\sprintf('%s.config', $plugin->getName()), $context),
             'updatedAt' => $plugin->getUpgradedAt(),
             'allowDisable' => true,
+            'allowUpdate' => !$plugin->getManagedByComposer() || $plugin->isLocatedInCustomDirectory(),
             'managedByComposer' => $plugin->getManagedByComposer(),
+            'inAppPurchases' => $this->inAppPurchase->getByExtension($plugin->getName()),
         ];
 
         return ExtensionStruct::fromArray($this->replaceCollections($data));
@@ -243,9 +247,12 @@ class ExtensionLoader
                 'installedAt' => null,
                 'active' => false,
                 'type' => ExtensionStruct::EXTENSION_TYPE_APP,
+                'allowUpdate' => !$app->isManagedByComposer(),
+                'managedByComposer' => $app->isManagedByComposer(),
                 'isTheme' => is_file($app->getPath() . '/Resources/theme.json'),
                 'privacyPolicyExtension' => isset($appArray['privacyPolicyExtensions']) ? $this->getTranslationFromArray($appArray['privacyPolicyExtensions'], $language, 'en-GB') : '',
                 'privacyPolicyLink' => $app->getMetadata()->getPrivacy(),
+                'inAppPurchases' => $this->inAppPurchase->getByExtension($app->getMetadata()->getName()),
             ];
 
             $collection->set($name, $this->loadFromArray($context, $row, $language));
@@ -282,7 +289,7 @@ class ExtensionLoader
             'privacyPolicyLink' => $app->getPrivacy(),
             'iconRaw' => $app->getIcon(),
             'installedAt' => $app->getCreatedAt(),
-            'permissions' => $app->getAclRole() !== null ? $this->makePermissionArray($app->getAclRole()->getPrivileges()) : [],
+            'permissions' => $app->getAclRole() !== null ? Utils::makePermissions($app->getAclRole()->getPrivileges()) : [],
             'active' => $app->isActive(),
             'languages' => [],
             'type' => ExtensionStruct::EXTENSION_TYPE_APP,
@@ -324,33 +331,6 @@ class ExtensionLoader
         }
 
         return $data;
-    }
-
-    /**
-     * @param array<string> $appPrivileges
-     *
-     * @return array<array<string, string>>
-     */
-    private function makePermissionArray(array $appPrivileges): array
-    {
-        $permissions = [];
-
-        foreach ($appPrivileges as $privilege) {
-            if (substr_count($privilege, ':') === 1) {
-                $entityAndOperation = explode(':', $privilege);
-                if (\array_key_exists($entityAndOperation[1], AclRoleDefinition::PRIVILEGE_DEPENDENCE)) {
-                    /** @var array<string, string> $permission */
-                    $permission = array_combine(['entity', 'operation'], $entityAndOperation);
-                    $permissions[] = $permission;
-
-                    continue;
-                }
-            }
-
-            $permissions[] = ['operation' => $privilege, 'entity' => 'additional_privileges'];
-        }
-
-        return $permissions;
     }
 
     /**

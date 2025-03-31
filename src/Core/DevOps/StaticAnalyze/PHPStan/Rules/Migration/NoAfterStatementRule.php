@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @implements Rule<MethodCall>
  */
-#[Package('core')]
+#[Package('framework')]
 class NoAfterStatementRule implements Rule
 {
     use InMigrationClassTrait;

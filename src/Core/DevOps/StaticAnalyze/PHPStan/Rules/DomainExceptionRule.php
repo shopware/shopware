@@ -5,8 +5,8 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 use PhpParser\Node;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Expr\Throw_;
 use PhpParser\Node\Name;
-use PhpParser\Node\Stmt\Throw_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\IdentifierRuleError;
@@ -14,31 +14,41 @@ use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\FastlyReverseProxyGateway;
-use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\RedisReverseProxyGateway;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyException;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\VarnishReverseProxyGateway;
 use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Migration\MigrationException;
 use Shopware\Core\Kernel;
+use Shopware\Core\Migration\Traits\StateMachineMigrationImporter;
+use Shopware\Core\Migration\V6_4\Migration1632721037OrderDocumentMailTemplate;
+use Shopware\Core\Migration\V6_5\Migration1672931011ReviewFormMailTemplate;
+use Symfony\Component\Console\Command\Command;
 
 /**
  * @internal
  *
  * @implements Rule<Throw_>
  */
-#[Package('core')]
+#[Package('framework')]
 class DomainExceptionRule implements Rule
 {
     use InTestClassTrait;
 
+    /**
+     * @var list<string>
+     */
     private const VALID_SUB_DOMAINS = [
         'Cart',
         'Payment',
         'Order',
     ];
 
+    /**
+     * @var list<string>
+     */
     private const EXCLUDED_NAMESPACES = [
         'Shopware\Core\DevOps\StaticAnalyze\\',
     ];
@@ -51,11 +61,9 @@ class DomainExceptionRule implements Rule
         Framework::class => FrameworkException::class,
         VarnishReverseProxyGateway::class => ReverseProxyException::class,
         FastlyReverseProxyGateway::class => ReverseProxyException::class,
-        RedisReverseProxyGateway::class => ReverseProxyException::class,
-    ];
-
-    private const GLOBAL_EXCEPTIONS = [
-        'Shopware\Core\Framework\FrameworkException::extensionResultNotSet',
+        Migration1672931011ReviewFormMailTemplate::class => MigrationException::class,
+        Migration1632721037OrderDocumentMailTemplate::class => MigrationException::class,
+        StateMachineMigrationImporter::class => MigrationException::class,
     ];
 
     /**
@@ -110,6 +118,11 @@ class DomainExceptionRule implements Rule
             return [];
         }
 
+        // Allow InvalidArgumentException in commands to validate user input
+        if ($scope->getClassReflection()->is(Command::class) && $exceptionClass === 'InvalidArgumentException') {
+            return [];
+        }
+
         return [
             RuleErrorBuilder::message('Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md')
                 ->identifier('shopware.domainException')
@@ -130,7 +143,7 @@ class DomainExceptionRule implements Rule
         }
 
         $exception = $this->reflectionProvider->getClass($exceptionClass);
-        if (!$exception->isSubclassOf(HttpException::class)) {
+        if (!$exception->is(HttpException::class)) {
             return [
                 RuleErrorBuilder::message(\sprintf('Domain exception class %s has to extend the \Shopware\Core\Framework\HttpException class', $exceptionClass))
                     ->identifier('shopware.domainException')
@@ -159,7 +172,7 @@ class DomainExceptionRule implements Rule
         ];
 
         foreach ($acceptedClasses as $expected) {
-            if ($exceptionClass === $expected || $exception->isSubclassOf($expected)) {
+            if ($exceptionClass === $expected || $exception->is($expected)) {
                 return [];
             }
         }
@@ -168,13 +181,6 @@ class DomainExceptionRule implements Rule
         if (isset($parts[5]) && \in_array($parts[4], self::VALID_SUB_DOMAINS, true)) {
             $expectedSub = \sprintf('\\%s\\%sException', $parts[4], $parts[4]);
             if (\str_starts_with(strrev($exceptionClass), strrev($expectedSub))) {
-                return [];
-            }
-        }
-
-        if (method_exists($node->name, 'toString')) {
-            $full = $exceptionClass . '::' . $node->name->toString();
-            if (\in_array($full, self::GLOBAL_EXCEPTIONS, true)) {
                 return [];
             }
         }

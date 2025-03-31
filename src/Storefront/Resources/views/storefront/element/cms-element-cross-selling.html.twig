@@ -27,7 +27,7 @@
                                                aria-selected="true">
                                                 {{ crossSelling.translated.name }}
                                                 <span class="product-detail-tab-navigation-icon">
-                                                    {% sw_icon 'arrow-medium-right' style {'pack':'solid'} %}
+                                                    {% sw_icon 'arrow-medium-right' style {pack:'solid'} %}
                                                 </span>
                                             </a>
                                         </li>
@@ -50,47 +50,46 @@
                                              role="tabpanel"
                                              aria-labelledby="cross-selling-tab-{{ id }}">
                                             {% set config = {
-                                                'title': {
-                                                    'value': crossSelling.name ?: crossSelling.translated.name
+                                                title: {
+                                                    value: crossSelling.name ?: crossSelling.translated.name
                                                 },
-                                                'border': {
-                                                    'value': false
+                                                border: {
+                                                    value: false
                                                 },
-                                                'rotate': {
-                                                    'value': false
+                                                rotate: {
+                                                    value: false
                                                 },
-                                                'products': {
-                                                    'value': products
+                                                products: {
+                                                    value: products
                                                 },
-                                                'boxLayout': {
-                                                    'value': sliderConfig.boxLayout.value
+                                                boxLayout: {
+                                                    value: sliderConfig.boxLayout.value
                                                 },
-                                                'elMinWidth': {
-                                                    'value': sliderConfig.elMinWidth.value
+                                                elMinWidth: {
+                                                    value: sliderConfig.elMinWidth.value
                                                 },
-                                                'navigation': {
-                                                    'value': true
+                                                navigation: {
+                                                    value: true
                                                 },
-                                                'displayMode': {
-                                                    'value': sliderConfig.displayMode.value
+                                                displayMode: {
+                                                    value: sliderConfig.displayMode.value
                                                 },
-                                                'verticalAlign': {
-                                                    'value': center
+                                                verticalAlign: {
+                                                    value: center
                                                 }
                                             } %}
 
                                             {% block cms_element_cross_selling_tabs_content_container_slider %}
-                                                {% sw_include "@Storefront/storefront/element/cms-element-product-slider.html.twig" with {
+                                                {% sw_include '@Storefront/storefront/element/cms-element-product-slider.html.twig' with {
                                                     sliderConfig: config,
                                                     element: {
-                                                        'data': {
-                                                            'products': products
+                                                        data: {
+                                                            products: products
                                                         },
                                                         type: 'product-slider'
                                                     }
                                                 } %}
                                             {% endblock %}
-
                                         </div>
                                 {% endfor %}
                             </div>

@@ -119,12 +119,17 @@ class ExtensionStoreActionsController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/extension/remove/{type}/{technicalName}', name: 'api.extension.remove', methods: ['DELETE'])]
-    public function removeExtension(string $type, string $technicalName, Context $context): Response
+    #[Route(path: '/api/_action/extension/remove/{type}/{technicalName}', name: 'api.extension.remove', methods: ['POST'])]
+    public function removeExtension(string $type, string $technicalName, Request $request, Context $context): Response
     {
         $this->checkExtensionManagementAllowed();
 
-        $this->extensionLifecycleService->remove($type, $technicalName, $context);
+        $this->extensionLifecycleService->remove(
+            $type,
+            $technicalName,
+            $request->request->getBoolean('keepUserData'),
+            $context
+        );
 
         return new Response('', Response::HTTP_NO_CONTENT);
     }

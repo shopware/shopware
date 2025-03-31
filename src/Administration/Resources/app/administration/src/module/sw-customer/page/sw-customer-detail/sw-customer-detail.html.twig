@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_customer_detail %}
 <sw-page class="sw-customer-detail">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_detail_header %}
     <template
         v-if="!isLoading"
@@ -21,13 +19,11 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_detail_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_detail_actions_edit %}
         <span v-if="!editMode">
-            <sw-button
+            <mt-button
                 v-tooltip="{
                     message: $tc('sw-privileges.tooltip.warning'),
                     disabled: acl.can('customer.editor'),
@@ -36,25 +32,26 @@
                 class="sw-customer-detail__open-edit-mode-action"
                 variant="primary"
                 :disabled="isLoading || !acl.can('customer.editor')"
+                size="default"
                 @click.prevent="onActivateCustomerEditMode"
             >
                 {{ $tc('sw-customer.detail.buttonEdit') }}
-            </sw-button>
+            </mt-button>
         </span>
         {% endblock %}
 
         <span v-else>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_detail_actions_cancel %}
-            <sw-button
+            <mt-button
                 :disabled="isLoading"
+                variant="secondary"
+                size="default"
                 @click="onAbortButtonClick"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_detail_actions_save %}
             <sw-button-process
                 class="sw-customer-detail__save-action"
@@ -80,57 +77,50 @@
         />
     </template>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_detail_content %}
     <template #content>
         <sw-card-view>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_detail_content_customer_group_registration %}
             <div class="sw-customer-detail__customer-registration-alert">
-                <sw-alert
+                <mt-banner
                     v-if="customer && customer.requestedGroup"
                     variant="info"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_customer_detail_content_customer_group_registration_content %}
                     <div class="sw-customer-detail__customer-registration-alert-text">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_customer_detail_content_customer_group_registration_message %}
-                        {{ $tc('sw-customer.customerGroupRegistration.alert', 0, { name: customer.requestedGroup.translated.name }) }}
+                        {{ $tc('sw-customer.customerGroupRegistration.alert', { name: customer.requestedGroup.translated.name }, 0) }}
                         {% endblock %}
                     </div>
                     <div class="sw-customer-detail__customer-registration-alert-actions">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_customer_detail_content_customer_group_registration_actions %}
-                        <sw-button
-                            variant="danger"
+                        <mt-button
+                            variant="critical"
                             size="small"
                             @click="declineCustomerGroupRegistration"
                         >
                             {{ $tc('sw-customer.customerGroupRegistration.decline') }}
-                        </sw-button>
+                        </mt-button>
 
-                        <sw-button
+                        <mt-button
                             variant="primary"
                             size="small"
                             @click="acceptCustomerGroupRegistration"
                         >
                             {{ $tc('sw-customer.customerGroupRegistration.accept') }}
-                        </sw-button>
+                        </mt-button>
                         {% endblock %}
                     </div>
                     {% endblock %}
-                </sw-alert>
+                </mt-banner>
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_detail_content_tabs %}
             <sw-tabs
                 class="sw-customer-detail-page__tabs"
                 position-identifier="sw-customer-detail-tabs"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_customer_detail_content_tab_general %}
                 <sw-tabs-item
                     class="sw-customer-detail__tab-general"
@@ -142,7 +132,6 @@
                 </sw-tabs-item>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_customer_detail_content_tab_addresses %}
                 <sw-tabs-item
                     class="sw-customer-detail__tab-addresses"
@@ -153,7 +142,6 @@
                 </sw-tabs-item>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_customer_detail_content_tab_order %}
                 <sw-tabs-item
                     class="sw-customer-detail__tab-order"
@@ -164,7 +152,6 @@
                 </sw-tabs-item>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_customer_detail_content_tab_after %}{% endblock %}
             </sw-tabs>
             {% endblock %}
@@ -173,7 +160,6 @@
                 position-identifier="sw-customer-detail__before-content"
             />
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_detail_content_view %}
             <template v-if="isLoading">
                 <sw-skeleton variant="detail-bold" />

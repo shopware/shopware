@@ -2,8 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 
-use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException;
-use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
@@ -11,6 +10,9 @@ class LineItemGroupServiceRegistry
 {
     /**
      * @internal
+     *
+     * @param iterable<LineItemGroupPackagerInterface> $packagers
+     * @param iterable<LineItemGroupSorterInterface> $sorters
      */
     public function __construct(
         private readonly iterable $packagers,
@@ -31,7 +33,7 @@ class LineItemGroupServiceRegistry
     /**
      * Gets the packager for the provided key, if registered.
      *
-     * @throws LineItemGroupPackagerNotFoundException
+     * @throws CartException
      */
     public function getPackager(string $key): LineItemGroupPackagerInterface
     {
@@ -42,7 +44,7 @@ class LineItemGroupServiceRegistry
             }
         }
 
-        throw new LineItemGroupPackagerNotFoundException($key);
+        throw CartException::lineItemGroupPackagerNotFoundException($key);
     }
 
     /**
@@ -58,7 +60,7 @@ class LineItemGroupServiceRegistry
     /**
      * Gets the sorter for the provided key, if registered.
      *
-     * @throws LineItemGroupSorterNotFoundException
+     * @throws CartException
      */
     public function getSorter(string $key): LineItemGroupSorterInterface
     {
@@ -69,6 +71,6 @@ class LineItemGroupServiceRegistry
             }
         }
 
-        throw new LineItemGroupSorterNotFoundException($key);
+        throw CartException::lineItemGroupSorterNotFoundException($key);
     }
 }

@@ -21,7 +21,7 @@ class CookieControllerTest extends TestCase
 {
     public function testResponseDoesNotIncludeGoogleAnalyticsCookieByDefault(): void
     {
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
         $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
@@ -41,7 +41,7 @@ class CookieControllerTest extends TestCase
     public function testResponseIncludesGoogleAnalyticsCookieIfActive(): void
     {
         $analyticsId = Uuid::randomHex();
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $salesChannelContext->getSalesChannel()->setAnalyticsId($analyticsId);
         $analytics = new SalesChannelAnalyticsEntity();
         $analytics->setId($analyticsId);
@@ -65,7 +65,7 @@ class CookieControllerTest extends TestCase
     public function testResponseDoesNotIncludesGoogleAnalyticsCookieIfNotActive(): void
     {
         $analyticsId = Uuid::randomHex();
-        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
         $salesChannelContext->getSalesChannel()->setAnalyticsId($analyticsId);
         $analytics = new SalesChannelAnalyticsEntity();
         $analytics->setId($analyticsId);

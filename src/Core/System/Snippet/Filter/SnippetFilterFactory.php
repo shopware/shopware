@@ -5,7 +5,7 @@ namespace Shopware\Core\System\Snippet\Filter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\SnippetException;
 
-#[Package('services-settings')]
+#[Package('discovery')]
 class SnippetFilterFactory
 {
     /**

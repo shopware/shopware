@@ -6,15 +6,10 @@ use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Pagelet\Pagelet;
 
-#[Package('storefront')]
+#[Package('discovery')]
 class GuestWishlistPagelet extends Pagelet
 {
-    /**
-     * @var ProductListResponse
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $searchResult;
+    protected ProductListResponse $searchResult;
 
     public function getSearchResult(): ProductListResponse
     {

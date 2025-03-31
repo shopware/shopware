@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class CustomEntityEntity extends Entity
 {
     use EntityIdTrait;
@@ -33,7 +33,7 @@ class CustomEntityEntity extends Entity
     /**
      * @var array<string, array<mixed>>|null
      */
-    protected ?array $flags;
+    protected ?array $flags = null;
 
     protected ?\DateTimeInterface $deletedAt = null;
 

@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Theme\Event;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('storefront')]
+#[Package('framework')]
 class ThemeConfigChangedEvent extends Event
 {
     public function __construct(

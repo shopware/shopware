@@ -31,7 +31,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class StoreApiSeoResolver implements EventSubscriberInterface
 {
     /**
@@ -146,7 +146,7 @@ class StoreApiSeoResolver implements EventSubscriberInterface
             $criteria->addFilter(new EqualsFilter('isCanonical', true));
             $criteria->addFilter(new EqualsAnyFilter('routeName', $routes));
             $criteria->addFilter(new EqualsAnyFilter('foreignKey', $ids));
-            $criteria->addFilter(new EqualsFilter('languageId', $context->getContext()->getLanguageId()));
+            $criteria->addFilter(new EqualsFilter('languageId', $context->getLanguageId()));
             $criteria->addSorting(new FieldSorting('salesChannelId'));
 
             /** @var SeoUrlEntity $url */

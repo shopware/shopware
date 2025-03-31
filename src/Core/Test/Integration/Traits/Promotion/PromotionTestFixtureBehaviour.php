@@ -17,7 +17,7 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 #[Package('checkout')]
 trait PromotionTestFixtureBehaviour
@@ -75,7 +75,7 @@ trait PromotionTestFixtureBehaviour
                     'manufacturer' => ['name' => 'test'],
                     'tax' => $tax,
                     'visibilities' => [
-                        ['salesChannelId' => $context->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                        ['salesChannelId' => $context->getSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                     ],
                     'categories' => [
                         ['id' => Uuid::randomHex(), 'name' => 'Clothing'],
@@ -275,7 +275,7 @@ trait PromotionTestFixtureBehaviour
             'useCodes' => false,
             'useSetGroups' => false,
             'salesChannels' => [
-                ['salesChannelId' => $context->getSalesChannel()->getId(), 'priority' => 1],
+                ['salesChannelId' => $context->getSalesChannelId(), 'priority' => 1],
             ],
         ], $data);
 
@@ -305,7 +305,7 @@ trait PromotionTestFixtureBehaviour
             'useCodes' => false,
             'useSetGroups' => true,
             'salesChannels' => [
-                ['salesChannelId' => $context->getSalesChannel()->getId(), 'priority' => 1],
+                ['salesChannelId' => $context->getSalesChannelId(), 'priority' => 1],
             ],
         ];
 

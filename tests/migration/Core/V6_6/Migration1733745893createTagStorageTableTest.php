@@ -12,7 +12,7 @@ use Shopware\Core\Migration\V6_6\Migration1733745893createTagStorageTable;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(Migration1733745893createTagStorageTable::class)]
 class Migration1733745893createTagStorageTableTest extends TestCase
 {
@@ -35,14 +35,14 @@ class Migration1733745893createTagStorageTableTest extends TestCase
     {
         $sm = $this->connection->createSchemaManager();
 
-        static::assertFalse($sm->tablesExist('invalidation_tags'));
+        static::assertFalse($sm->tablesExist(['invalidation_tags']));
 
         $migration = new Migration1733745893createTagStorageTable();
 
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        static::assertTrue($sm->tablesExist('invalidation_tags'));
+        static::assertTrue($sm->tablesExist(['invalidation_tags']));
 
         $cols = $sm->listTableColumns('invalidation_tags');
         static::assertCount(2, $cols);

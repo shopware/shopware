@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import template from './sw-field-error.html.twig';
@@ -12,8 +12,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-field-error', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         error: {

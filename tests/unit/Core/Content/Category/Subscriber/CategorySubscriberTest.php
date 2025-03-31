@@ -138,8 +138,6 @@ class CategorySubscriberTest extends TestCase
         $salesChannelEntity = new SalesChannelEntity();
         $salesChannelEntity->setId($salesChanelId);
 
-        return Generator::createSalesChannelContext(
-            salesChannel: $salesChannelEntity
-        );
+        return Generator::generateSalesChannelContext(salesChannel: $salesChannelEntity);
     }
 }

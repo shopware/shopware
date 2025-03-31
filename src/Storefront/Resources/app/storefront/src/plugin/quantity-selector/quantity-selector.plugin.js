@@ -1,9 +1,8 @@
 /*
- * @package storefront
+ * @sw-package framework
  */
 
 import Plugin from 'src/plugin-system/plugin.class';
-import DomAccess from 'src/helper/dom-access.helper';
 
 export default class QuantitySelectorPlugin extends Plugin {
 
@@ -22,9 +21,9 @@ export default class QuantitySelectorPlugin extends Plugin {
     };
 
     init() {
-        this._input = DomAccess.querySelector(this.el, 'input.js-quantity-selector');
-        this._btnPlus = DomAccess.querySelector(this.el, '.js-btn-plus');
-        this._btnMinus = DomAccess.querySelector(this.el, '.js-btn-minus');
+        this._input = this.el.querySelector('input.js-quantity-selector');
+        this._btnPlus = this.el.querySelector('.js-btn-plus');
+        this._btnMinus = this.el.querySelector('.js-btn-minus');
 
         if (this.options.ariaLiveUpdates) {
             this._initAriaLiveUpdates();
@@ -47,9 +46,15 @@ export default class QuantitySelectorPlugin extends Plugin {
         this.ariaLiveProductName = this.ariaLiveContainer.dataset.ariaLiveProductName;
 
         if (this.options.ariaLiveUpdateMode === 'onload') {
-            // Delay the aria live update so the screen reader has time to read out other updates first.
-            // Sometimes the update isn't read out because of other information.
-            window.setTimeout(this._updateAriaLive.bind(this), 1000);
+            const lastQuantityChange = window.localStorage.getItem('lastQuantityChange');
+
+            if (lastQuantityChange && lastQuantityChange === this.ariaLiveProductName) {
+                window.localStorage.removeItem('lastQuantityChange');
+
+                // Delay the aria live update so the screen reader has time to read out other updates first.
+                // Sometimes the update isn't read out because of other information.
+                window.setTimeout(this._updateAriaLive.bind(this), 1000);
+            }
         }
     }
 
@@ -83,6 +88,8 @@ export default class QuantitySelectorPlugin extends Plugin {
 
         if (this.options.ariaLiveUpdateMode === 'live') {
             this._updateAriaLive();
+        } else if (this.options.ariaLiveUpdateMode === 'onload') {
+            window.localStorage.setItem('lastQuantityChange', this.ariaLiveProductName);
         }
 
         if (btn === 'up') {

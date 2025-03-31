@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 import template from './sw-promotion-v2-list.html.twig';
 import './sw-promotion-v2-list.scss';
@@ -10,8 +10,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -145,6 +143,8 @@ export default {
                         individualCodePattern: '',
                         individualCodes: null,
                         active: false,
+                        orderCount: 0,
+                        ordersPerCustomerCount: null,
                     },
                 };
                 const clone = await this.promotionRepository.clone(referencePromotion.id, behavior, Shopware.Context.api);
@@ -164,6 +164,14 @@ export default {
             } finally {
                 this.isLoading = false;
             }
+        },
+
+        deleteDisabledTooltip(promotion) {
+            return {
+                showDelay: 300,
+                message: this.$tc('sw-promotion-v2.list.deleteDisabledToolTip'),
+                disabled: promotion.orderCount === 0,
+            };
         },
     },
 };

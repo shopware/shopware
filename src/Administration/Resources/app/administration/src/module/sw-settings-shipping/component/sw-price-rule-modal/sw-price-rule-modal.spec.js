@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 function createRuleMock(isNew) {
@@ -74,14 +74,11 @@ async function createWrapper() {
                     </div>
                 `,
                     },
-                    'sw-button': {
-                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                    },
                     'sw-condition-tree': true,
                     'sw-container': true,
                     'sw-multi-select': true,
                     'sw-textarea-field': true,
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-text-field': true,
                     'sw-field': true,
                 },

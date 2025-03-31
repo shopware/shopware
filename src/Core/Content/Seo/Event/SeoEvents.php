@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Seo\Event;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class SeoEvents
 {
     final public const SEO_URL_WRITTEN_EVENT = 'seo_url.written';

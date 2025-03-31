@@ -8,13 +8,13 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Commerce extends FakerCommerce
 {
     /**
      * @var array<string, array<string>>
      *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @phpstan-ignore shopware.propertyNativeType (Cannot be typed because parent is not typed)
      */
     protected static $productName = [
         'adjective' => ['Small', 'Ergonomic', 'Rustic', 'Intelligent', 'Gorgeous', 'Incredible', 'Fantastic', 'Practical', 'Sleek', 'Awesome', 'Enormous', 'Mediocre', 'Synergistic', 'Heavy Duty', 'Lightweight', 'Aerodynamic', 'Durable'],
@@ -47,6 +47,6 @@ class Commerce extends FakerCommerce
 
     public function customFieldSet(): string
     {
-        return static::randomElement(static::$productName['adjective']) . ' ' . static::randomElement(static::$department) . ' ' . static::randomNumber(5);
+        return str_replace(' ', '_', static::randomElement(static::$productName['adjective']) . ' ' . static::randomElement(static::$department) . ' ' . static::randomNumber(5));
     }
 }

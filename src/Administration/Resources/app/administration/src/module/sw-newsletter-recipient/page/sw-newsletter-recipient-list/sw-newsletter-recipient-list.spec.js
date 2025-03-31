@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package after-sales
  */
 import { mount } from '@vue/test-utils';
 
@@ -142,10 +142,8 @@ async function createWrapper() {
                     </div>`,
                 },
                 'sw-container': true,
-                'sw-button': true,
                 'sw-loader': true,
                 'sw-search-bar': true,
-                'sw-icon': true,
                 'sw-text-field': true,
                 'sw-label': true,
                 'router-link': true,

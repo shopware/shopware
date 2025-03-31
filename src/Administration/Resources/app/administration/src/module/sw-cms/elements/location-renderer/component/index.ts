@@ -7,12 +7,10 @@ const { Component, Mixin } = Shopware;
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 Component.register('sw-cms-el-location-renderer', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     mixins: [
         Mixin.getByName('cms-element'),

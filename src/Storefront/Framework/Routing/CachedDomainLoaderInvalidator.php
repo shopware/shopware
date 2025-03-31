@@ -11,7 +11,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('storefront')]
+#[Package('framework')]
 class CachedDomainLoaderInvalidator implements EventSubscriberInterface
 {
     /**
@@ -36,7 +36,7 @@ class CachedDomainLoaderInvalidator implements EventSubscriberInterface
     public function invalidate(EntityWrittenContainerEvent $event): void
     {
         if ($event->getEventByEntityName(SalesChannelDefinition::ENTITY_NAME)) {
-            $this->logger->invalidate([CachedDomainLoader::CACHE_KEY]);
+            $this->logger->invalidate([CachedDomainLoader::CACHE_KEY], true);
         }
     }
 }

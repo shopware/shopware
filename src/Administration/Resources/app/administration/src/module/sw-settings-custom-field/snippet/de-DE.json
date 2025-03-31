@@ -75,7 +75,9 @@
         "tooltipAllowCustomerWrite": "Wenn diese Option aktiviert ist, kann die Store-API dieses Feld ändern. Dies kann verwendet werden, um benutzerdefinierte Daten zu speichern, wenn neue Felder zur Storefront hinzugefügt werden. Zum Beispiel für neue Felder im Registrierungsformular.",
         "labelAllowCartExpose": "Verfügbar in Warenkörben",
         "tooltipAllowCartExpose": "Aktivieren, um dieses Zusatzfeld in den Daten von Warenkorb-Positionen verfügbar zu machen. Dies ist Voraussetzung für die initiale Verwendung dieses benutzerdefinierten Feldes im Rule Builder oder in eigenen Templates.",
-        "tooltipCartExposeDisabled": "Diese Einstellung kann zur Zeit nicht geändert werden, da das Zusatzfeld noch von einer oder mehreren Bedingungen im Rule Builder verwendet wird."
+        "tooltipCartExposeDisabled": "Diese Einstellung kann zur Zeit nicht geändert werden, da das Zusatzfeld noch von einer oder mehreren Bedingungen im Rule Builder verwendet wird.",
+        "labelStoreApiAware": "Sichtbar in Store API",
+        "tooltipStoreApiAware": "Wenn diese Option aktiviert ist, wird dieses Feld in der Store-API sichtbar sein. Diese Option kann deaktiviert werden, um benutzerdefinierte Daten nur intern zu speichern und nicht über die Store API verfügbar zu machen."
       },
       "list": {
         "labelCustomFieldLabel": "Label",

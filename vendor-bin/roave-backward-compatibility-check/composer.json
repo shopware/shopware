@@ -13,6 +13,9 @@
             "cweagans/composer-patches": true,
             "bamarni/composer-bin-plugin": true,
             "phpstan/extension-installer": true
+        },
+        "platform": {
+            "php": "8.3.9"
         }
     },
     "require": {

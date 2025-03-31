@@ -36,7 +36,6 @@
             <argument type="service" id="Shopware\Storefront\Theme\ScssPhpCompiler"/>
             <argument type="service" id="messenger.default_bus"/>
             <argument>%storefront.theme.file_delete_delay%</argument>
-            <argument>%storefront.theme.auto_prefix_css%</argument>
             <argument>%storefront.theme.allowed_scss_values%</argument>
             <argument>%storefront.theme.validate_on_compile%</argument>
         </service>
@@ -79,7 +78,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="messenger.default_bus"/>
-            <argument type="service" id="Shopware\Administration\Notification\NotificationService"/>
+            <argument type="service" id="Shopware\Core\Framework\Notification\NotificationService"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ResolvedConfigLoader" lazy="true">
@@ -94,7 +93,6 @@
 
         <service id="Shopware\Storefront\Theme\CachedResolvedConfigLoaderInvalidator">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
-            <argument>%shopware.cache.tagging.each_theme_config%</argument>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -144,7 +142,7 @@
             <argument type="service" id="Shopware\Storefront\Theme\ThemeCompiler"/>
             <argument type="service" id="Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader"/>
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
-            <argument type="service" id="Shopware\Administration\Notification\NotificationService"/>
+            <argument type="service" id="Shopware\Core\Framework\Notification\NotificationService"/>
             <argument type="service" id="sales_channel.repository" />
 
             <tag name="messenger.message_handler" />
@@ -249,7 +247,6 @@
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileResolver"/>
             <argument type="service" id="theme.repository"/>
-            <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigDumper"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFilesystemResolver"/>
 

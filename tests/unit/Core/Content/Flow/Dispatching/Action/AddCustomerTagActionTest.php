@@ -18,7 +18,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(AddCustomerTagAction::class)]
 class AddCustomerTagActionTest extends TestCase
 {
@@ -58,7 +58,7 @@ class AddCustomerTagActionTest extends TestCase
         ]);
         $flow->setConfig($config);
 
-        $this->repository->expects(static::once())
+        $this->repository->expects($this->once())
             ->method('update')
             ->with([['id' => $customerId, 'tags' => $expected]]);
 
@@ -69,7 +69,7 @@ class AddCustomerTagActionTest extends TestCase
     {
         $flow = new StorableFlow('foo', Context::createDefaultContext());
 
-        $this->repository->expects(static::never())->method('update');
+        $this->repository->expects($this->never())->method('update');
 
         $this->action->handleFlow($flow);
     }
@@ -80,7 +80,7 @@ class AddCustomerTagActionTest extends TestCase
             CustomerAware::CUSTOMER_ID => Uuid::randomHex(),
         ]);
 
-        $this->repository->expects(static::never())->method('update');
+        $this->repository->expects($this->never())->method('update');
 
         $this->action->handleFlow($flow);
     }

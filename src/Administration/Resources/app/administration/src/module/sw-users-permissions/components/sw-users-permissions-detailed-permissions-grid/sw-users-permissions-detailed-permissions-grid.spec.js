@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 // eslint-disable-next-line
 import fs from 'fs';
@@ -22,9 +22,6 @@ async function createWrapper({ privilegesMappings = [], rolePrivileges = [], det
         {
             global: {
                 renderStubDefaultSlot: true,
-                stubs: {
-                    'sw-card': true,
-                },
                 provide: {
                     privileges: privilegesService,
                 },

@@ -1,5 +1,4 @@
 import ListingPlugin from 'src/plugin/listing/listing.plugin';
-import Feature from 'src/helper/feature.helper.js';
 
 describe('ListingPlugin tests', () => {
     let listingPlugin = undefined;
@@ -30,10 +29,6 @@ describe('ListingPlugin tests', () => {
                 </div>
             </div>
         `;
-
-        /** @deprecated tag:v6.7.0 - Remove the Feature init. ACCESSIBILITY_TWEAKS will become the default. */
-        window.Feature = Feature;
-        window.Feature.init({ 'ACCESSIBILITY_TWEAKS': true });
 
         // mock listing plugins
         listingPlugin = new ListingPlugin(document.querySelector('[data-listing="true"]'));
@@ -69,7 +64,7 @@ describe('ListingPlugin tests', () => {
         expect(spyInit).toHaveBeenCalled();
     });
 
-    test('refreshRegistry calls the initializePlugins function', () => {
+    test('the initialize should not be called', () => {
         expect(spyInitializePlugins).not.toHaveBeenCalled();
     });
 
@@ -159,14 +154,12 @@ describe('ListingPlugin tests', () => {
         expect(listingPlugin._registry).not.toContain(elementsOutsideDocument[2]);
     });
 
-    test('should not autoscroll to top because we are at the top', () => {
-        const mockElement = document.createElement('div');
-        const cmsElementProductListingWrapper = document.createElement('div');
-        cmsElementProductListingWrapper.classList.add('cms-element-product-listing-wrapper');
-
-        document.body.append(cmsElementProductListingWrapper);
-
-        listingPlugin = new ListingPlugin(mockElement);
+    test('should not autoscroll to top because we are at the top', async () => {
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                text: () => Promise.resolve('Listing result HTML'),
+            })
+        );
 
         jest.spyOn(listingPlugin, '_scrollTopOfListing');
         window.scrollTo = jest.fn();
@@ -175,20 +168,19 @@ describe('ListingPlugin tests', () => {
         expect(listingPlugin._scrollTopOfListing).not.toHaveBeenCalled();
 
         listingPlugin._buildRequest();
+        await new Promise(process.nextTick);
 
         expect(listingPlugin._scrollTopOfListing).toHaveBeenCalled();
 
         expect(window.scrollTo).not.toHaveBeenCalled();
     });
 
-    test('should autoscroll to top with scrollOffset because we are not at the top', () => {
-        const mockElement = document.createElement('div');
-        const cmsElementProductListingWrapper = document.createElement('div');
-        cmsElementProductListingWrapper.classList.add('cms-element-product-listing-wrapper');
-
-        document.body.append(cmsElementProductListingWrapper);
-
-        listingPlugin = new ListingPlugin(mockElement);
+    test('should autoscroll to top with scrollOffset because we are not at the top', async () => {
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                text: () => Promise.resolve('Listing result HTML'),
+            })
+        );
 
         jest.spyOn(listingPlugin, '_scrollTopOfListing');
         window.scrollTo = jest.fn();
@@ -201,6 +193,7 @@ describe('ListingPlugin tests', () => {
         expect(listingPlugin._scrollTopOfListing).not.toHaveBeenCalled();
 
         listingPlugin._buildRequest();
+        await new Promise(process.nextTick);
 
         expect(listingPlugin._scrollTopOfListing).toHaveBeenCalled();
 
@@ -211,15 +204,13 @@ describe('ListingPlugin tests', () => {
     });
 
     test('should autoscroll to top of cmsElementProductListingWrapper because we are not at the top', () => {
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                text: () => Promise.resolve('Listing result HTML'),
+            })
+        );
+
         const distanceToTop = 250;
-
-        const mockElement = document.createElement('div');
-        const cmsElementProductListingWrapper = document.createElement('div');
-        cmsElementProductListingWrapper.classList.add('cms-element-product-listing-wrapper');
-
-        document.body.append(cmsElementProductListingWrapper);
-
-        listingPlugin = new ListingPlugin(mockElement);
 
         jest.spyOn(listingPlugin, '_scrollTopOfListing');
         window.scrollTo = jest.fn();
@@ -241,14 +232,12 @@ describe('ListingPlugin tests', () => {
         });
     });
 
-    test('do not push history state if pass false pushHitory parameter into changeListing', () => {
-        const mockElement = document.createElement('div');
-        const cmsElementProductListingWrapper = document.createElement('div');
-        cmsElementProductListingWrapper.classList.add('cms-element-product-listing-wrapper');
-
-        document.body.append(cmsElementProductListingWrapper);
-
-        listingPlugin = new ListingPlugin(mockElement);
+    test('do not push history state if pass false pushHistory parameter into changeListing', () => {
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                text: () => Promise.resolve('Listing result HTML'),
+            })
+        );
 
         jest.spyOn(listingPlugin, '_updateHistory');
         listingPlugin.changeListing(false);
@@ -285,11 +274,11 @@ describe('ListingPlugin tests', () => {
         ListingPlugin.prototype._onWindowPopstate.mockRestore();
     });
 
-    test('updates the aria-live section after product results have changed', () => {
+    test('updates the aria-live section after product results have changed',async () => {
         // Mock listing ajax call returning updated results
-        listingPlugin.httpClient = {
-            get: jest.fn((url, callback) => {
-                callback(`
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                text: () => Promise.resolve(`
                 <div class="cms-element-product-listing-wrapper" data-listing="true">
                     <div class="cms-element-product-listing">
                         <div class="row cms-listing-row js-listing-wrapper" data-aria-live-text="Showing 2 products.">
@@ -298,11 +287,12 @@ describe('ListingPlugin tests', () => {
                         </div>
                     </div>
                 </div>
-                `);
-            }),
-        };
+                `),
+            })
+        );
 
         listingPlugin.changeListing(true);
+        await new Promise(process.nextTick);
 
         // Verify that the new product results contain the data attribute with the updated aria-live text
         expect(document.querySelector('.js-listing-wrapper').dataset.ariaLiveText).toBe('Showing 2 products.');
@@ -311,10 +301,10 @@ describe('ListingPlugin tests', () => {
         expect(document.querySelector('.filter-panel-aria-live').textContent).toBe('Showing 2 products.');
     });
 
-    test('builds the labels for the active filters and renders them inside the filter panel', () => {
-        listingPlugin.httpClient = {
-            get: jest.fn((url, callback) => {
-                callback(`
+    test('builds the labels for the active filters and renders them inside the filter panel', async () => {
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                text: () => Promise.resolve(`
                 <div class="cms-element-product-listing-wrapper" data-listing="true">
                     <div class="cms-element-product-listing">
                         <div class="row cms-listing-row js-listing-wrapper" data-aria-live-text="Showing 2 products.">
@@ -323,9 +313,9 @@ describe('ListingPlugin tests', () => {
                         </div>
                     </div>
                 </div>
-                `);
-            }),
-        };
+                `),
+            })
+        );
 
         const MockBooleanFilter = {
             getLabels: () => [{ label: 'Free shipping', id: 'shipping-free' }],
@@ -342,6 +332,7 @@ describe('ListingPlugin tests', () => {
         listingPlugin.registerFilter(MockMultiSelectFilter);
 
         listingPlugin.changeListing(true);
+        await new Promise(process.nextTick);
 
         const activeFilterElements = document.querySelectorAll('.filter-panel-active-container .filter-active');
 
@@ -354,53 +345,5 @@ describe('ListingPlugin tests', () => {
 
         expect(activeFilterElements[2].textContent).toMatch('Pommes Spezial');
         expect(activeFilterElements[2].getAttribute('aria-label')).toBe('Remove filter: Pommes Spezial');
-    });
-
-    /** @deprecated tag:v6.7.0 - Remove this test case. */
-    test('builds the labels for the active filters and renders them inside the filter panel (old implementation without ACCESSIBILITY_TWEAKS)', () => {
-        window.Feature.init({ 'ACCESSIBILITY_TWEAKS': false });
-
-        listingPlugin.httpClient = {
-            get: jest.fn((url, callback) => {
-                callback(`
-                <div class="cms-element-product-listing-wrapper" data-listing="true">
-                    <div class="cms-element-product-listing">
-                        <div class="row cms-listing-row js-listing-wrapper" data-aria-live-text="Showing 2 products.">
-                            <div class="card product-box box-standard"></div>
-                            <div class="card product-box box-standard"></div>
-                        </div>
-                    </div>
-                </div>
-                `);
-            }),
-        };
-
-        const MockBooleanFilter = {
-            getLabels: () => [{ label: 'Free shipping', id: 'shipping-free' }],
-            getValues: () => { return { 'shipping-free': '1' }; },
-        };
-
-        const MockMultiSelectFilter = {
-            getLabels: () => [{ label: 'Balistreri-Johns', id: '0190da2684cb710aac3d3291a340b3e3' }, { label: 'Pommes Spezial', id: '0190da2684cb710aac3d32919db761bb' }],
-            getValues: () => { return { 'manufacturer': ['0190da2684cb710aac3d3291a340b3e3', '0190da2684cb710aac3d32919db761bb'] }; },
-        };
-
-        // Register filters so that the labels can be built later
-        listingPlugin.registerFilter(MockBooleanFilter);
-        listingPlugin.registerFilter(MockMultiSelectFilter);
-
-        listingPlugin.changeListing(true);
-
-        const activeFilterElements = document.querySelectorAll('.filter-panel-active-container .filter-active');
-
-        // Verify active filters are generated inside the DOM with correct aria-labels
-        expect(activeFilterElements[0].querySelector('[aria-hidden="true"]').textContent).toBe('Free shipping');
-        expect(activeFilterElements[0].querySelector('.filter-active-remove').getAttribute('aria-label')).toBe('Remove filter: Free shipping');
-
-        expect(activeFilterElements[1].querySelector('[aria-hidden="true"]').textContent).toBe('Balistreri-Johns');
-        expect(activeFilterElements[1].querySelector('.filter-active-remove').getAttribute('aria-label')).toBe('Remove filter: Balistreri-Johns');
-
-        expect(activeFilterElements[2].querySelector('[aria-hidden="true"]').textContent).toBe('Pommes Spezial');
-        expect(activeFilterElements[2].querySelector('.filter-active-remove').getAttribute('aria-label')).toBe('Remove filter: Pommes Spezial');
     });
 });

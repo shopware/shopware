@@ -26,7 +26,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * calling into the validator machinery has a considerable overhead. Doing that thousands of time is notable.
  * this validator implements a subset of the functionality and calls into the real validator if needed.
  */
-#[Package('core')]
+#[Package('framework')]
 class HappyPathValidator implements ValidatorInterface
 {
     /**
@@ -154,10 +154,12 @@ class HappyPathValidator implements ValidatorInterface
                     $ctypeFunction = 'ctype_' . $type;
 
                     if (\function_exists($isFunction)) {
+                        /** @phpstan-ignore-next-line - we need the dynamic call here, checked with function_exists before */
                         if (!$isFunction($value)) {
                             return false;
                         }
                     } elseif (\function_exists($ctypeFunction)) {
+                        /** @phpstan-ignore-next-line - we need the dynamic call here, checked with function_exists before */
                         if (!$ctypeFunction($value)) {
                             return false;
                         }

@@ -7,21 +7,18 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\UriInterface;
 use Shopware\Administration\Controller\AdminExtensionApiController;
-use Shopware\Administration\Controller\Exception\AppByNameNotFoundException;
-use Shopware\Administration\Controller\Exception\MissingAppSecretException;
 use Shopware\Core\Framework\App\ActionButton\Executor;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Hmac\QuerySigner;
-use Shopware\Core\Framework\App\Manifest\Exception\UnallowedHostException;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -29,7 +26,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 /**
  * @internal
  */
-#[Package('administration')]
+#[Package('framework')]
 #[CoversClass(AdminExtensionApiController::class)]
 class AdminExtensionApiControllerTest extends TestCase
 {
@@ -37,6 +34,7 @@ class AdminExtensionApiControllerTest extends TestCase
 
     private Context $context;
 
+    /** @var MockObject&EntityRepository<AppCollection> */
     private MockObject&EntityRepository $entityRepository;
 
     private MockObject&Executor $executor;
@@ -63,24 +61,15 @@ class AdminExtensionApiControllerTest extends TestCase
 
     public function testRunActionThrowsAppByNameNotFoundExceptionWhenAppIsNotFound(): void
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            $this->expectExceptionObject(new AppByNameNotFoundException('test-app'));
-        } else {
-            $this->expectException(AppNotFoundException::class);
-        }
+        $this->expectException(AppNotFoundException::class);
 
         $this->controller->runAction(new RequestDataBag(['appName' => 'test-app']), $this->context);
     }
 
     public function testRunActionThrowsAppByNameNotFoundExceptionWhenAppSecretIsNull(): void
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            $this->expectException(MissingAppSecretException::class);
-            $this->expectExceptionMessage('Failed to retrieve app secret.');
-        } else {
-            $this->expectException(AppException::class);
-            $this->expectExceptionMessage(AppException::appSecretMissing('test-app')->getMessage());
-        }
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage(AppException::appSecretMissing('test-app')->getMessage());
 
         $entity = $this->buildAppEntity('test-app', null, []);
         $this->assertEntityRepositoryWithEntity($entity);
@@ -90,12 +79,8 @@ class AdminExtensionApiControllerTest extends TestCase
 
     public function testRunActionThrowsUnallowedHostExceptionWhenTargetHostIsEmpty(): void
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            $this->expectExceptionObject(new UnallowedHostException('', [], 'test-app'));
-        } else {
-            $this->expectException(AppException::class);
-            $this->expectExceptionMessage(AppException::hostNotAllowed('', 'test-app')->getMessage());
-        }
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage(AppException::hostNotAllowed('', 'test-app')->getMessage());
 
         $entity = $this->buildAppEntity('test-app', 'test-secrets', []);
         $this->assertEntityRepositoryWithEntity($entity);
@@ -105,12 +90,8 @@ class AdminExtensionApiControllerTest extends TestCase
 
     public function testRunActionThrowsUnallowedHostExceptionWhenTargetHostIsNotAllowed(): void
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            $this->expectExceptionObject(new UnallowedHostException('test-host', ['shopware'], 'test-app'));
-        } else {
-            $this->expectException(AppException::class);
-            $this->expectExceptionMessage(AppException::hostNotAllowed('test-host', 'test-app')->getMessage());
-        }
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage(AppException::hostNotAllowed('test-host', 'test-app')->getMessage());
 
         $entity = $this->buildAppEntity('test-app', 'test-secrets', ['shopware']);
         $this->assertEntityRepositoryWithEntity($entity);
@@ -123,12 +104,8 @@ class AdminExtensionApiControllerTest extends TestCase
 
     public function testRunActionThrowsInvalidArgumentExceptionWhenNoIdInRequestBag(): void
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            $this->expectExceptionObject(new \InvalidArgumentException('Ids must be an array'));
-        } else {
-            $this->expectException(AppException::class);
-            $this->expectExceptionMessage(AppException::invalidArgument('Ids must be an array')->getMessage());
-        }
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage(AppException::invalidArgument('Ids must be an array')->getMessage());
 
         $entity = $this->buildAppEntity('test-app', 'test-secrets', ['foo.bar']);
         $this->assertEntityRepositoryWithEntity($entity);
@@ -144,8 +121,8 @@ class AdminExtensionApiControllerTest extends TestCase
         $entity = $this->buildAppEntity('test-app', 'test-secrets', ['foo.bar']);
         $this->assertEntityRepositoryWithEntity($entity);
 
-        $this->appPayloadServiceHelper->expects(static::once())->method('buildSource')->with('1.0.0', $entity->getName());
-        $this->executor->expects(static::once())->method('execute');
+        $this->appPayloadServiceHelper->expects($this->once())->method('buildSource')->with('1.0.0', $entity->getName());
+        $this->executor->expects($this->once())->method('execute');
 
         $this->controller->runAction(
             new RequestDataBag([
@@ -161,11 +138,7 @@ class AdminExtensionApiControllerTest extends TestCase
 
     public function testSignUriThrowsAppByNameNotFoundExceptionWhenAppIsNotFound(): void
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            $this->expectExceptionObject(new AppByNameNotFoundException('test-app'));
-        } else {
-            $this->expectException(AppNotFoundException::class);
-        }
+        $this->expectException(AppNotFoundException::class);
 
         $this->controller->signUri(new RequestDataBag(['appName' => 'test-app']), $this->context);
     }
@@ -177,7 +150,7 @@ class AdminExtensionApiControllerTest extends TestCase
 
         $requestBag = new RequestDataBag(['appName' => $entity->getName(), 'uri' => 'test-uri']);
 
-        $this->querySigner->expects(static::once())->method('signUri')
+        $this->querySigner->expects($this->once())->method('signUri')
             ->with($requestBag->get('uri'), $entity, $this->context)
             ->willReturn($this->createMock(UriInterface::class));
 
@@ -193,7 +166,7 @@ class AdminExtensionApiControllerTest extends TestCase
         $collection->add($entity);
         $collection->add($this->buildAppEntity('secondAppDiscarded', null, []));
 
-        $this->entityRepository->expects(static::once())->method('search')
+        $this->entityRepository->expects($this->once())->method('search')
             ->willReturn(
                 new EntitySearchResult(
                     'app',

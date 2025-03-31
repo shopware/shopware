@@ -1,5 +1,4 @@
 import type { PropType } from 'vue';
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import template from './sw-sortable-list.html.twig';
 import './sw-sortable-list.scss';
 
@@ -45,7 +44,7 @@ const defaultScrollOnDragConf = {
 } as ScrollOnDragConf;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -63,8 +62,6 @@ const defaultScrollOnDragConf = {
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sortable-list', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         items: {

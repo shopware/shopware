@@ -1,21 +1,9 @@
 /**
- * @package services-settings
+ * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
-import { createStore } from 'vuex';
 
 async function createWrapper() {
-    const store = createStore({
-        modules: {
-            swProductDetail: {
-                namespaced: true,
-                getters: {
-                    isLoading: () => false,
-                },
-            },
-        },
-    });
-
     return mount(
         await wrapTestComponent('sw-bulk-edit-product-media-form', {
             sync: true,
@@ -23,14 +11,10 @@ async function createWrapper() {
         {
             attachTo: document.body,
             global: {
-                plugins: [store],
                 directives: {
                     draggable: {},
                     droppable: {},
                     popover: {},
-                },
-                mocks: {
-                    $store: store,
                 },
                 stubs: {
                     'sw-upload-listener': true,
@@ -38,7 +22,6 @@ async function createWrapper() {
                     'sw-media-upload-v2': true,
                     'sw-media-preview-v2': true,
                     'sw-product-media-form': true,
-                    'sw-icon': true,
                     'sw-popover': await wrapTestComponent('sw-popover'),
                     'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                     'sw-context-menu': await wrapTestComponent('sw-context-menu'),
@@ -94,12 +77,7 @@ describe('src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-f
         };
         product.getEntityName = () => 'T-Shirt';
 
-        Shopware.State.registerModule('swProductDetail', {
-            namespaced: true,
-            state: {
-                product,
-            },
-        });
+        Shopware.Store.get('swProductDetail').product = product;
     });
 
     it('should be a Vue.JS component', async () => {

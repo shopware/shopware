@@ -191,6 +191,7 @@
       "cardTitleDetails": "Details",
       "cardTitleLineItems": "Items",
       "cardTitleGeneralInfo": "Info",
+      "cardTitlePromotions": "Promotions",
       "columnProductName": "Name",
       "columnQuantity": "Quantity",
       "columnPriceNet": "Price (net)",
@@ -243,6 +244,7 @@
       "labelAffiliateCode": "Affiliate code",
       "labelCampaignCode": "Campaign code",
       "labelCustomerComment": "Additional information",
+      "labelInternalComment": "Internal comment",
       "buttonAddDeliveryAddress": "Add new address",
       "labelSameDeliveryAndBillingAddress": "Billing / shipping addresses are identical",
       "buttonContinueOnVersionedOrder": "Load",
@@ -260,7 +262,9 @@
       "textMissingProductLineItemsDescription": "Prices of these products cannot be recalculated. Therefore, these items will be converted to custom items when saving this order.",
       "textConvertedProductLineItems": "The following items were associated to products that have been deleted:",
       "textConvertedProductLineItemsDescription": "Prices of these products cannot be recalculated. Please take extra care when editing the order.",
-      "textDeleteLineItemConfirm": "Are you sure you want to delete the position ({label})?"
+      "textDeleteLineItemConfirm": "Are you sure you want to delete the position ({label})?",
+      "helpTextCustomerComment": "Customers can submit this comment, and any changes will be visible to them.",
+      "helpTextInternalComment": "This comment is for internal use only and will not be presented to customers."
     },
     "nestedLineItemsModal": {
       "titlePrefix": "Item: {lineItemLabel} - {price}",
@@ -276,8 +280,7 @@
       "labelDeliveryDate": "Delivery date",
       "labelShippingCosts": "Shipping costs",
       "labelDeliveryState": "Delivery state",
-      "buttonMerge": "Merge order",
-      "buttonDelete": "Delete"
+      "buttonMerge": "Merge order"
     },
     "detailCustomerComment": {
       "title": "Additional information"
@@ -301,6 +304,11 @@
       "description": "There are unsaved changes. Are you sure you want to leave this page without saving?",
       "confirmButton": "Leave page",
       "cancelButton": "Stay on page"
+    },
+    "saveChangesBeforehandModal": {
+      "headline": "Warning",
+      "statusDescription": "Before changing the status, your changes need to be saved. Do you want to save the changes now?",
+      "confirmButton": "Save changes"
     },
     "stateCard": {
       "cardTitle": "Status",
@@ -349,6 +357,7 @@
       "labelMarkAsSent": "Mark as sent",
       "labelMarkAsUnsent": "Mark as unsent",
       "labelCreateNew": "Create new document",
+      "labelAvailableFormats": "Available formats",
       "messageEmptyTitle": "No documents created yet",
       "messageNoDocumentFound": "No documents found",
       "messageEmptySubline": "Manage documents here.",
@@ -378,10 +387,21 @@
       "labelDeliveryCard": "Shipping",
       "labelOrderCard": "Order",
       "promotionsField": {
-        "labelPromotions": "Promotions",
+        "labelPromotions": "Promotions with code",
         "placeholderPromotions": "Enter promotion code ...",
         "automaticPromotion":  "automatically applied",
-        "labelToggleAutomaticPromotions": "Disable automatically applied promotions"
+        "labelToggleAutomaticPromotions": "Disable automatically applied promotions",
+        "automaticPromotions": {
+          "title": "Update promotions",
+          "text": "This will update the order by removing promotions that no longer apply and adding new ones that do. Changes may be due to updated conditions or disabled promotions. Promotions added with a code won't be changed.",
+          "labelButton": "Update promotions"
+        },
+        "updatesModal": {
+          "title": "Updated promotions",
+          "description": "The following promotions have been updated:",
+          "promotionAddedTitle": "Added:",
+          "promotionRemovedTitle": "Removed:"
+        }
       }
     },
     "documentTab": {
@@ -405,7 +425,8 @@
       "labelHighlightedItemsHeader": "Name",
       "labelHighlightedItemsEntry": "Total",
       "labelNoItems": "No credit shown",
-      "fileInputLabel": "Upload custom document"
+      "fileInputLabel": "Upload custom document",
+      "labelPreviewOnlyHtml": "HTML preview"
     },
     "documentSendModal": {
       "labelNumber": "Number",

@@ -30,8 +30,9 @@
 {% endblock %}
 
 {% block page_checkout_confirm_tos_control %}
-    {{ 'checkout.confirmTermsReminderText'|trans({
-        '%url%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') })
+    {{ 'checkout.confirmTermsReminderTextModal'|trans({
+        '%tosModalTagOpen%': '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path('frontend.cms.page', { id: config('core.basicInformation.tosPage') }) ~ '">',
+        '%tosModalTagClose%': '</button>'
     })|raw }}
 {% endblock %}
 

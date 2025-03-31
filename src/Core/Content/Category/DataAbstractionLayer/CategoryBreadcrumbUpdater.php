@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 
-#[Package('inventory')]
+#[Package('discovery')]
 class CategoryBreadcrumbUpdater
 {
     /**
@@ -69,7 +69,7 @@ class CategoryBreadcrumbUpdater
                 new SystemSource(),
                 [],
                 Defaults::CURRENCY,
-                array_filter([$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM]),
+                array_values(array_filter([$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM])),
                 Defaults::LIVE_VERSION
             );
 

@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package inventory
+ * @sw-package inventory
  */
 describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
     const notificationMixinMock = {
@@ -449,7 +449,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         'sw-card-view': {
                             template: '<div class=""><slot></slot></div>',
                         },
-                        'sw-card': {
+                        'mt-card': {
                             template: '<div><slot></slot></div>',
                         },
                         'sw-context-button': true,
@@ -461,7 +461,6 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         },
                         'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                         'sw-empty-state': true,
-                        'sw-icon': true,
                         'sw-pagination': await wrapTestComponent('sw-pagination'),
                         'sw-single-select': await wrapTestComponent('sw-single-select'),
                         'sw-select-base': await wrapTestComponent('sw-select-base'),
@@ -528,7 +527,6 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         'sw-field-error': true,
                         'sw-language-switch': true,
                         'sw-simple-search-field': true,
-                        'sw-button': true,
                         'sw-container': true,
                         'sw-help-text': true,
                         'sw-highlight-text': true,
@@ -540,6 +538,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         'sw-loader': true,
                         'sw-select-field': true,
                         'sw-ai-copilot-badge': true,
+                        'sw-provide': { template: `<slot/>`, inheritAttrs: false },
                     },
                     mocks: {
                         $tc: (param) => {

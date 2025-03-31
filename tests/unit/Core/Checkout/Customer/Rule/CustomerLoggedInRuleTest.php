@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(CustomerLoggedInRule::class)]
 #[Group('rules')]
 class CustomerLoggedInRuleTest extends TestCase
@@ -72,7 +72,7 @@ class CustomerLoggedInRuleTest extends TestCase
     {
         $rule = new CustomerLoggedInRule($isLoggedIn);
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->expects(static::once())
+        $salesChannelContext->expects($this->once())
             ->method('getCustomer')
             ->willReturn($hasCustomer ? new CustomerEntity() : null);
 

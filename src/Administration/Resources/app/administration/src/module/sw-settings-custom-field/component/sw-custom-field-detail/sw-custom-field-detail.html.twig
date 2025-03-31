@@ -1,41 +1,31 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_detail %}
 <sw-modal
     class="sw-custom-field-detail"
     :title="modalTitle"
     @modal-close="onCancel"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_detail_modal %}
     <sw-container
         columns="1fr 1fr"
         gap="20px"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_detail_modal_type %}
-        <sw-select-field
-            v-model:value="currentCustomField.config.customFieldType"
+        <mt-select
+            v-model="currentCustomField.config.customFieldType"
             :label="$tc('sw-settings-custom-field.customField.detail.labelCustomFieldType')"
             :placeholder="$tc('sw-settings-custom-field.customField.detail.placeholderCustomFieldType')"
             class="sw-custom-field-detail__modal-type"
             type="select"
             :help-text="$tc('sw-settings-custom-field.general.tooltipType')"
             :disabled="!currentCustomField._isNew || !acl.can('custom_field.editor') || undefined"
-        >
-            <option
-                v-for="(option, key) in fieldTypes"
-                :key="key"
-                :value="key"
-            >
-                {{ $tc(`sw-settings-custom-field.types.${key}`) }}
-            </option>
-        </sw-select-field>
+            :options="customFieldTypeOptions"
+        />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_detail_modal_technical_name %}
-        <sw-text-field
-            v-model:value="currentCustomField.name"
+
+        <mt-text-field
+            v-model="currentCustomField.name"
             class="sw-custom-field-detail__technical-name"
             :label="$tc('sw-settings-custom-field.customField.detail.labelTechnicalName')"
             :help-text="$tc('sw-settings-custom-field.general.tooltipTechnicalName')"
@@ -43,10 +33,9 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_detail_modal_position %}
-        <sw-number-field
-            v-model:value="currentCustomField.config.customFieldPosition"
+        <mt-number-field
+            v-model="currentCustomField.config.customFieldPosition"
             class="sw-custom-field-detail__modal-position"
             :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipCustomFieldPosition')"
             number-type="int"
@@ -55,14 +44,25 @@
         />
         {% endblock %}
 
-        {# @deprecated tag:v6.7.0 - Block will be removed without replacement #}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_custom_field_detail_modal_required %}{% endblock %}
+        {% block sw_custom_field_detail_modal_allow_cart_expose %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        <mt-switch
+            v-if="isProductCustomField"
+            v-model="currentCustomField.allowCartExpose"
+            v-tooltip="getCartExposeTooltipConfig()"
+            bordered
+            :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipAllowCartExpose')"
+            class="sw-custom-field-detail__allow-cart-expose"
+            :label="$tc('sw-settings-custom-field.customField.detail.labelAllowCartExpose')"
+            :disabled="!acl.can('custom_field.editor') || disableCartExpose || undefined"
+        />
+        <div v-else></div>
+        {% endblock %}
+
         {% block sw_custom_field_detail_modal_allow_customer_write %}
-        <sw-switch-field
-            v-model:value="currentCustomField.allowCustomerWrite"
+
+        <mt-switch
+            v-model="currentCustomField.allowCustomerWrite"
             bordered
             :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipAllowCustomerWrite')"
             class="sw-custom-field-detail__allow-customer-write"
@@ -71,26 +71,25 @@
         />
         {% endblock %}
 
-        <sw-switch-field
-            v-if="isProductCustomField"
-            v-model:value="currentCustomField.allowCartExpose"
-            v-tooltip="getCartExposeTooltipConfig()"
-            bordered
-            :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipAllowCartExpose')"
-            class="sw-custom-field-detail__allow-cart-expose"
-            :label="$tc('sw-settings-custom-field.customField.detail.labelAllowCartExpose')"
-            :disabled="!acl.can('custom_field.editor') || disableCartExpose || undefined"
-        />
+        {% block sw_custom_field_detail_modal_store_api_aware %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        <mt-switch
+            v-model="currentCustomField.storeApiAware"
+            bordered
+            :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipStoreApiAware')"
+            class="sw-custom-field-detail__store-api-aware"
+            :label="$tc('sw-settings-custom-field.customField.detail.labelStoreApiAware')"
+            :disabled="!acl.can('custom_field.editor') || undefined"
+        />
+        {% endblock %}
+
         {% block sw_custom_field_detail_modal_snippet_info  %}
-        <sw-alert class="sw-custom-field-detail__info">
-            {{ $tc('sw-settings-custom-field.customField.detail.infoText', 0, { name: currentCustomField.name }) }}
-        </sw-alert>
+        <mt-banner class="sw-custom-field-detail__info">
+            {{ $tc('sw-settings-custom-field.customField.detail.infoText', { name: currentCustomField.name }, 0) }}
+        </mt-banner>
         {% endblock %}
     </sw-container>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_detail_modal_render_component %}
     <div v-if="currentCustomField.config.customFieldType?.length > 0">
         <component
@@ -101,22 +100,20 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_detail_modal_footer %}
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_detail_modal_footer_cancel %}
-        <sw-button
+        <mt-button
             size="small"
+            variant="secondary"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_detail_modal_footer_save %}
-        <sw-button
+        <mt-button
             class="sw-custom-field-detail__footer-save"
             variant="primary"
             size="small"
@@ -124,7 +121,7 @@
             @click="onSave"
         >
             {{ labelSaveButton }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

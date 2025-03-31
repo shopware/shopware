@@ -19,12 +19,14 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 
 /**
  * @internal
  */
 #[CoversClass(AbsolutePriceCalculator::class)]
+#[Package('checkout')]
 class AbsolutePriceCalculatorTest extends TestCase
 {
     #[DataProvider('provider')]
@@ -45,7 +47,7 @@ class AbsolutePriceCalculatorTest extends TestCase
         $calculatedPrice = $calculator->calculate(
             $calculation->getDiscount(),
             $calculation->getPrices(),
-            Generator::createSalesChannelContext()
+            Generator::generateSalesChannelContext()
         );
 
         static::assertEquals($calculation->getExpected()->getCalculatedTaxes(), $calculatedPrice->getCalculatedTaxes());
@@ -71,10 +73,10 @@ class AbsolutePriceCalculatorTest extends TestCase
         $calculator = self::createQuantityPriceCalculator();
 
         $definition = new QuantityPriceDefinition(30, new TaxRuleCollection([new TaxRule(19)]));
-        $price1 = $calculator->calculate($definition, Generator::createSalesChannelContext());
+        $price1 = $calculator->calculate($definition, Generator::generateSalesChannelContext());
 
         $definition = new QuantityPriceDefinition(30, new TaxRuleCollection([new TaxRule(7)]));
-        $price2 = $calculator->calculate($definition, Generator::createSalesChannelContext());
+        $price2 = $calculator->calculate($definition, Generator::generateSalesChannelContext());
 
         return new AbsoluteCalculation(
             -6,
@@ -101,7 +103,7 @@ class AbsolutePriceCalculatorTest extends TestCase
 
         $priceDefinition = new QuantityPriceDefinition(29.00, new TaxRuleCollection([new TaxRule(17, 100)]), 10);
 
-        $price = $calculator->calculate($priceDefinition, Generator::createSalesChannelContext());
+        $price = $calculator->calculate($priceDefinition, Generator::generateSalesChannelContext());
 
         return new AbsoluteCalculation(
             -290,
@@ -132,6 +134,7 @@ class AbsolutePriceCalculatorTest extends TestCase
 /**
  * @internal
  */
+#[Package('checkout')]
 class AbsoluteCalculation
 {
     public function __construct(

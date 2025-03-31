@@ -1,18 +1,18 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_snippet_field %}
 <div class="sw-snippet-field">
-    <sw-text-field
+
+    <mt-text-field
         v-if="textField"
         v-bind="$attrs"
-        :value="textValue"
+        :model-value="textValue"
         :type="fieldType"
         disabled
     />
 
-    <sw-textarea-field
+    <mt-textarea
         v-else-if="textareaField"
         v-bind="$attrs"
-        :value="textValue"
+        :model-value="textValue"
         :type="fieldType"
         disabled
     />
@@ -21,14 +21,14 @@
         v-if="isLoading"
         size="16px"
     />
-    <sw-icon
+    <mt-icon
         v-else
         v-tooltip="{
             message: $tc('global.sw-snippet-field.tooltip'),
         }"
         class="sw-snippet-field__icon"
         name="regular-globe-stand"
-        small
+        size="16px"
         @click="openEditModal()"
     />
 

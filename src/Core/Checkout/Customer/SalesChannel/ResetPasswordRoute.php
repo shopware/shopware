@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -35,6 +37,9 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerCollection> $customerRepository
+     * @param EntityRepository<CustomerRecoveryCollection> $customerRecoveryRepository
      */
     public function __construct(
         private readonly EntityRepository $customerRepository,
@@ -67,9 +72,8 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
         $customerHashCriteria->addFilter(new EqualsFilter('hash', $hash));
         $customerHashCriteria->addAssociation('customer');
 
-        $customerRecovery = $this->customerRecoveryRepository->search($customerHashCriteria, $context->getContext())->first();
-
-        if (!$customerRecovery instanceof CustomerRecoveryEntity) {
+        $customerRecovery = $this->customerRecoveryRepository->search($customerHashCriteria, $context->getContext())->getEntities()->first();
+        if (!$customerRecovery) {
             throw CustomerException::customerNotFoundByHash($hash);
         }
 
@@ -107,7 +111,7 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
     {
         $definition = new DataValidationDefinition('customer.password.update');
 
-        $minPasswordLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannel()->getId());
+        $minPasswordLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannelId());
 
         $definition->add('newPassword', new NotBlank(), new Length(['min' => $minPasswordLength]), new EqualTo(['propertyPath' => 'newPasswordConfirm']));
 
@@ -178,12 +182,10 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
 
     private function checkHash(string $hash, Context $context): bool
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new EqualsFilter('hash', $hash)
-        );
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('hash', $hash));
 
-        $recovery = $this->customerRecoveryRepository->search($criteria, $context)->first();
+        $recovery = $this->customerRecoveryRepository->search($criteria, $context)->getEntities()->first();
 
         $validDateTime = (new \DateTime())->sub(new \DateInterval('PT2H'));
 

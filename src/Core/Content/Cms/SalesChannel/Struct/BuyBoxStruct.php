@@ -7,36 +7,16 @@ use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class BuyBoxStruct extends Struct
 {
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productId;
+    protected ?string $productId = null;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $totalReviews;
+    protected int $totalReviews;
 
-    /**
-     * @var SalesChannelProductEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $product;
+    protected ?SalesChannelProductEntity $product = null;
 
-    /**
-     * @var PropertyGroupCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $configuratorSettings;
+    protected ?PropertyGroupCollection $configuratorSettings = null;
 
     public function getProduct(): ?SalesChannelProductEntity
     {

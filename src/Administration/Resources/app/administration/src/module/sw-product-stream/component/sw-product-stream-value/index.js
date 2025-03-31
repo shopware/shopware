@@ -1,5 +1,5 @@
 /*
- * @package services-settings
+ * @sw-package inventory
  */
 
 import template from './sw-product-stream-value.html.twig';
@@ -11,8 +11,6 @@ const { Criteria } = Shopware.Data;
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -55,7 +53,7 @@ export default {
     data() {
         return {
             value: null,
-            childComponents: null,
+            childComponentsCount: null,
             searchTerm: '',
         };
     },
@@ -77,11 +75,7 @@ export default {
         },
 
         growthClass() {
-            if (this.childComponents === null) {
-                return 'sw-product-stream-value--grow-0';
-            }
-
-            return `sw-product-stream-value--grow-${this.childComponents.length}`;
+            return `sw-product-stream-value--grow-${this.childComponentsCount}`;
         },
 
         disabledClass() {
@@ -415,12 +409,10 @@ export default {
     },
 
     mounted() {
-        if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-            this.childComponents = this.$children;
-            return;
-        }
-
-        this.childComponents = this.$refs;
+        // Wait for all child components to be mounted. $nextTick is not enough here.
+        setTimeout(() => {
+            this.childComponentsCount = Object.keys(this.$refs ?? {}).length;
+        });
     },
 
     methods: {

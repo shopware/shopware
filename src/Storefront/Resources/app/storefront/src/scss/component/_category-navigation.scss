@@ -9,7 +9,6 @@ Styling for category navigation component.
     margin: 0;
     padding-left: 20px;
 
-
     &.level-0 > {
         .category-navigation-entry {
             border-bottom: 1px solid $border-color;
@@ -40,6 +39,7 @@ Styling for category navigation component.
     padding: 8px 20px;
     font-weight: $font-weight-normal;
     color: $sw-text-color;
+    text-decoration: none;
 
     &:hover {
         text-decoration: none;

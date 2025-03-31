@@ -191,6 +191,7 @@
       "cardTitleDetails": "Details",
       "cardTitleLineItems": "Positionen",
       "cardTitleGeneralInfo": "Info",
+      "cardTitlePromotions": "Rabattaktionen",
       "columnProductName": "Name",
       "columnQuantity": "Menge",
       "columnPriceGross": "Bruttopreis",
@@ -243,6 +244,7 @@
       "labelAffiliateCode": "Affiliate-Code",
       "labelCampaignCode": "Kampagnen-Code",
       "labelCustomerComment": "Zusätzliche Informationen",
+      "labelInternalComment": "Interner Kommentar",
       "buttonContinueOnVersionedOrder": "Laden",
       "buttonAddDeliveryAddress": "Neue Addresse hinzufügen",
       "labelSameDeliveryAndBillingAddress": "Rechnungs- und Lieferadresse sind identisch",
@@ -260,7 +262,9 @@
       "textMissingProductLineItemsDescription": "Preise dieser Produkte können nicht neu berechnet werden. Daher werden diese Positionen beim Speichern der Bestellung in benutzerdefinierte Positionen umgewandelt.",
       "textConvertedProductLineItems": "Die folgenden Positionen waren mit Produkten assoziiert, die gelöscht wurden:",
       "textConvertedProductLineItemsDescription": "Preise dieser Produkte können nicht neu berechnet werden. Bitte sei besonders vorsichtig beim Bearbeiten der Bestellung.",
-      "textDeleteLineItemConfirm": "Möchten Sie die Position ({label}) wirklich löschen?"
+      "textDeleteLineItemConfirm": "Möchten Sie die Position ({label}) wirklich löschen?",
+      "helpTextCustomerComment": "Dieser Kommentar wird von Kunden hinterlassen und Änderungen sind für sie sichtbar.",
+      "helpTextInternalComment": "Dieser Kommentar ist nur für interne Zwecke und wird Kunden nicht angezeigt."
     },
     "nestedLineItemsModal": {
       "titlePrefix": "Position: {lineItemLabel} - {price}",
@@ -269,6 +273,17 @@
       "headerQuantity": "Menge",
       "headerTotalPrice": "Gesamt",
       "headerTax": "Steuersatz"
+    },
+    "detailDeliveries": {
+      "cardTitleItems": "Lieferung {count}",
+      "labelShippingMethod": "Versandart",
+      "labelDeliveryDate": "Lieferdatum",
+      "labelShippingCosts": "Versandkosten",
+      "labelDeliveryState": "Lieferstatus",
+      "buttonMerge": "Lieferung zusammenfügen"
+    },
+    "detailCustomerComment": {
+      "title": "Zusätzliche Informationen"
     },
     "addressSelection": {
       "modalTitleEditAddress": "Adressen",
@@ -290,17 +305,10 @@
       "confirmButton": "Seite verlassen",
       "cancelButton": "Auf Seite bleiben"
     },
-    "detailDeliveries": {
-      "cardTitleItems": "Lieferung {count}",
-      "labelShippingMethod": "Versandart",
-      "labelDeliveryDate": "Lieferdatum",
-      "labelShippingCosts": "Versandkosten",
-      "labelDeliveryState": "Lieferstatus",
-      "buttonMerge": "Lieferung zusammenfügen",
-      "buttonDelete": "Löschen"
-    },
-    "detailCustomerComment": {
-      "title": "Zusätzliche Informationen"
+    "saveChangesBeforehandModal": {
+      "headline": "Warnung",
+      "statusDescription": "Bevor der Status geändert werden kann, müssen die Änderungen der Bestellung gespeichert werden. Möchtest Du jetzt deine Änderungen speichern?",
+      "confirmButton": "Änderungen speichern"
     },
     "stateCard": {
       "cardTitle": "Statusverlauf",
@@ -349,6 +357,7 @@
       "labelMarkAsSent": "Als gesendet markieren",
       "labelMarkAsUnsent": "Als ungesendet markieren",
       "labelCreateNew": "Neues Dokument erstellen",
+      "labelAvailableFormats": "Verfügbare Formate",
       "messageEmptyTitle": "Noch keine Dokumente",
       "messageNoDocumentFound": "Keine Dokumente vorhanden",
       "messageEmptySubline": "Verwaltung von Dokumenten.",
@@ -378,10 +387,21 @@
       "labelDeliveryCard": "Versand",
       "labelOrderCard": "Bestellung",
       "promotionsField": {
-        "labelPromotions": "Rabattaktionen",
+        "labelPromotions": "Rabattaktionen mit Code",
         "placeholderPromotions": "Rabattcode eingeben ...",
         "automaticPromotion":  "automatisch hinzugefügt",
-        "labelToggleAutomaticPromotions": "Automatische hinzugefügte Werbeaktionen deaktivieren"
+        "labelToggleAutomaticPromotions": "Automatische hinzugefügte Werbeaktionen deaktivieren",
+        "automaticPromotions": {
+          "title": "Rabattaktionen aktualisieren",
+          "text": "Die Bestellung wird aktualisiert, indem ungültige Aktionen entfernt und neue, die gelten, hinzugefügt werden. Die Änderungen können auf aktualisierte Bedingungen oder deaktivierte Aktionen zurückgeführt werden. Aktionen, die mit einem Code hinzugefügt wurden, werden nicht geändert.",
+          "labelButton": "Rabattaktionen aktualisieren"
+        },
+        "updatesModal": {
+          "title": "Aktualisierte Rabattaktionen",
+          "description": "Die folgenden Rabattaktionen wurden aktualisiert:",
+          "promotionAddedTitle": "Hinzugefügt:",
+          "promotionRemovedTitle": "Entfernt:"
+        }
       }
     },
     "documentTab": {
@@ -405,7 +425,8 @@
       "labelHighlightedItemsHeader": "Name",
       "labelHighlightedItemsEntry": "Gesamt",
       "labelNoItems": "Keine Gutschriften hinzugefügt",
-      "fileInputLabel": "Eigenes Dokument hochladen"
+      "fileInputLabel": "Eigenes Dokument hochladen",
+      "labelPreviewOnlyHtml": "HTML-Vorschau"
     },
     "documentSendModal": {
       "labelNumber": "Nummer",
@@ -416,7 +437,7 @@
       "labelContent": "Inhalt",
       "labelSubject": "Betreff",
       "labelClose": "Schließen",
-      "errorMessage": "Beim Versenden der E-Mail ist etwas schief gelaufen."
+      "errorMessage": "Beim Versenden der E-Mail ist etwas schiefgelaufen."
     },
     "stateModal": {
       "modalTitle": "Dokumente anhängen"

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import { createRouter, createWebHistory } from 'vue-router';
 import initTabs from 'src/app/init/tabs.init';
@@ -131,8 +131,8 @@ describe('src/app/init/tabs.init', () => {
         });
 
         // Check if value was registered correctly
-        expect(Shopware.State.get('tabs').tabItems).toHaveProperty('foo-position-id');
-        expect(Shopware.State.get('tabs').tabItems['foo-position-id']).toEqual([
+        expect(Shopware.Store.get('tabs').tabItems).toHaveProperty('foo-position-id');
+        expect(Shopware.Store.get('tabs').tabItems['foo-position-id']).toEqual([
             {
                 label: 'My tab item',
                 componentSectionId: 'foo-component-section-id',

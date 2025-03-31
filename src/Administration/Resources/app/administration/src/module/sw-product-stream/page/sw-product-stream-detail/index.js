@@ -1,6 +1,8 @@
 /*
- * @package services-settings
+ * @sw-package inventory
  */
+
+import { computed } from 'vue';
 
 import template from './sw-product-stream-detail.html.twig';
 import './sw-product-stream-detail.scss';
@@ -15,8 +17,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'productStreamConditionService',
@@ -26,7 +26,7 @@ export default {
 
     provide() {
         return {
-            productCustomFields: this.productCustomFields,
+            productCustomFields: computed(() => this.productCustomFields),
         };
     },
 

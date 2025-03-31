@@ -22,7 +22,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(ShippingStateRule::class)]
 #[Group('rules')]
 class ShippingStateRuleTest extends TestCase

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package after-sales
  */
 
 import { mount } from '@vue/test-utils';
@@ -68,7 +68,7 @@ const createWrapper = async (privileges = []) => {
                 'sw-card-view': {
                     template: '<div><slot></slot></div>',
                 },
-                'sw-card': {
+                'mt-card': {
                     template: '<div><slot></slot></div>',
                 },
                 'sw-button-process': true,
@@ -77,7 +77,6 @@ const createWrapper = async (privileges = []) => {
                 'sw-textarea-field': true,
                 'sw-text-field': true,
                 'sw-code-editor': true,
-                'sw-button': true,
                 'sw-skeleton': true,
                 'sw-language-switch': true,
             },

@@ -1,13 +1,11 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import template from './sw-custom-field-set-detail-base.html.twig';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'customFieldDataProviderService',
@@ -42,10 +40,10 @@ export default {
     computed: {
         locales() {
             if (this.set.config.translated && this.set.config.translated === true) {
-                return Object.keys(this.$root.$i18n.messages);
+                return Object.keys(this.$root.$i18n.messages.value);
             }
 
-            return [this.$root.$i18n.fallbackLocale];
+            return [this.$root.$i18n.fallbackLocale.value];
         },
 
         customFieldSetRelationRepository() {
@@ -75,22 +73,14 @@ export default {
                 const relation = this.customFieldSetRelationRepository.create();
                 relation.entityName = entityName;
 
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(relation, 'searchField', {});
-                } else {
-                    relation.searchField = {};
-                }
+                relation.searchField = {};
 
                 Object.keys(this.$root.$i18n.messages).forEach((locale) => {
                     if (!this.$te(`global.entities.${entityName}`)) {
                         return;
                     }
 
-                    if (this.isCompatEnabled('INSTANCE_SET')) {
-                        this.$set(relation.searchField, locale, this.$tc(`global.entities.${entityName}`, 2, locale));
-                    } else {
-                        relation.searchField[locale] = this.$tc(`global.entities.${entityName}`, 2, locale);
-                    }
+                    relation.searchField[locale] = this.$tc(`global.entities.${entityName}`, 2, locale);
                 });
 
                 return relation;

@@ -25,7 +25,7 @@ use Symfony\Component\Messenger\TraceableMessageBus;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -287,7 +287,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
             ->get('newsletter_recipient.repository')
             ->delete([$newsletterRecipient], $context);
 
-        $messageBus = static::getContainer()->get('messenger.bus.shopware');
+        $messageBus = static::getContainer()->get('messenger.default_bus');
         static::assertInstanceOf(TraceableMessageBus::class, $messageBus);
 
         foreach ($messageBus->getDispatchedMessages() as $message) {

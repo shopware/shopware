@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount, config } from '@vue/test-utils';
@@ -48,7 +48,6 @@ async function mountSwTabs(routes) {
             stubs: {
                 'sw-tabs': await wrapTestComponent('sw-tabs-deprecated'),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
-                'sw-icon': true,
                 'sw-extension-component-section': true,
             },
             plugins: [router],

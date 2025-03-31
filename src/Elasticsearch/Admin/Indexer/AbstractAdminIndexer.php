@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('inventory')]
 abstract class AbstractAdminIndexer
 {
     abstract public function getDecorated(): self;
@@ -40,7 +40,9 @@ abstract class AbstractAdminIndexer
     /**
      * @param array<string, mixed> $result
      *
-     * @return array{total:int, data:EntityCollection<Entity>} returns EntityCollection<Entity> and their total by ids in the result parameter
+     * @return array{total:int, data: EntityCollection<covariant Entity>}
+     *
+     * Returns EntityCollection<Entity> and their total by ids in the result parameter
      */
     abstract public function globalData(array $result, Context $context): array;
 

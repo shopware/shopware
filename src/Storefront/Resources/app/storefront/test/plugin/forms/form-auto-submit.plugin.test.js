@@ -26,12 +26,14 @@ describe('Form auto submit plugin', () => {
     beforeEach(() => {
         window.HTMLFormElement.prototype.submit = spyNativeFormSubmit;
 
+        window.PluginManager.initializePlugins = jest.fn();
+
         window.focusHandler = {
             saveFocusState: jest.fn(),
             resumeFocusState: jest.fn(),
             saveFocusStatePersistent: jest.fn(),
             resumeFocusStatePersistent: jest.fn(),
-        }
+        };
 
         document.body.innerHTML = template;
 
@@ -68,13 +70,20 @@ describe('Form auto submit plugin', () => {
         expect(spyOnSubmit).toHaveBeenCalledTimes(0);
     });
 
-    it('should auto submit form with ajax on form change', () => {
+    it('should auto submit form with ajax on form change', async () => {
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                text: () => Promise.resolve('<div>Response</div>'),
+            })
+        );
+
         createPlugin({ useAjax: true, ajaxContainerSelector: '#newsletterForm' });
 
         const emailField = document.querySelector('.form-email');
 
         // Fire change event on input field which bubbles up to the form
         emailField.dispatchEvent(new Event('change', { bubbles: true }));
+        await new Promise(process.nextTick);
 
         expect(spyOnSubmit).toHaveBeenCalledTimes(1);
         expect(spyNativeFormSubmit).toHaveBeenCalledTimes(0);

@@ -11,7 +11,7 @@ use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('framework')]
 class CustomEntityEnrichmentService
 {
     public function __construct(private readonly AdminUiXmlSchemaValidator $adminUiXmlSchemaValidator)

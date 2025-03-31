@@ -82,7 +82,8 @@ $sw-field-color-inherited: $color-module-purple-900;
                     background: $sw-field-color-focus;
                     border-color: $sw-field-color-focus;
 
-                    .sw-icon {
+                    /* stylelint-disable-next-line max-nesting-depth */
+                    .mt-icon {
                         display: inline-block;
                     }
                 }
@@ -93,7 +94,7 @@ $sw-field-color-inherited: $color-module-purple-900;
                 border-color: $color-gray-300;
                 color: lighten($sw-field-color-text, 40%);
 
-                .sw-icon {
+                .mt-icon {
                     display: inline-block;
                     color: lighten($sw-field-color-text, 40%);
                 }
@@ -116,7 +117,7 @@ $sw-field-color-inherited: $color-module-purple-900;
             border: 1px solid $sw-field-color-border;
             border-radius: 4px;
 
-            .sw-icon {
+            .mt-icon {
                 width: 16px;
                 height: 16px;
                 padding-top: 5px;
@@ -184,7 +185,7 @@ $sw-field-color-inherited: $color-module-purple-900;
         background-color: transparent;
         border: 1px solid $color-shopware-brand-500;
 
-        .sw-icon {
+        .mt-icon {
             display: inline-block;
             color: $color-shopware-brand-500;
         }
@@ -194,7 +195,7 @@ $sw-field-color-inherited: $color-module-purple-900;
         .sw-field__checkbox input[type="checkbox"]:not(:checked) ~ .sw-field__checkbox-state {
             border: 1px solid $color-gray-300;
 
-            .sw-icon {
+            .mt-icon {
                 color: $color-gray-300;
             }
         }

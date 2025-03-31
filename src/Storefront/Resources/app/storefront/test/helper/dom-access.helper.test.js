@@ -2,6 +2,7 @@ import DomAccess from 'src/helper/dom-access.helper';
 import template from './dom-access.helper.template.html';
 
 /**
+ * @deprecated tag:v6.8.0 - DomAccess Helper will be removed.
  * @package storefront
  */
 describe('dom-access.helper', () => {
@@ -46,7 +47,7 @@ describe('dom-access.helper', () => {
             expect(DomAccess.hasAttribute(node, 'style')).toBe(true);
         });
 
-        test('has attribute returns false if attribute does not exists', () => {
+        test('has attribute returns false if attribute does not exist', () => {
             const node = document.querySelector('div.headline');
 
             expect(DomAccess.hasAttribute(node, 'noExistent')).toBe(false);

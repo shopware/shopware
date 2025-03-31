@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import { mount } from '@vue/test-utils';
 import ImportExportService from 'src/module/sw-import-export/service/importExport.service';
@@ -43,10 +43,6 @@ async function createWrapper(profiles = null) {
         {
             global: {
                 stubs: {
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-simple-search-field': true,
                     'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
                     'sw-import-export-edit-profile-modal': {
@@ -70,12 +66,12 @@ async function createWrapper(profiles = null) {
                     'router-link': true,
                     'sw-bulk-edit-modal': true,
                     'sw-checkbox-field': true,
-                    'sw-icon': true,
                     'sw-data-grid-settings': true,
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-inline-edit': true,
                     'sw-data-grid-skeleton': true,
                     'sw-pagination': true,
+                    'sw-provide': true,
                 },
                 provide: {
                     importExport: new ImportExportService(),
@@ -164,7 +160,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         await createProfileButton.trigger('click');
         await flushPromises();
 
-        document.body.querySelector('.sw-button--danger').click();
+        document.body.querySelector('.mt-button--critical').click();
         await flushPromises();
 
         expect(wrapper.vm.profiles).toHaveLength(1);

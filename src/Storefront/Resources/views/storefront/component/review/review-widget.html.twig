@@ -5,19 +5,19 @@
                 <div class="product-detail-review-info js-review-info">
                     {% block component_review_title %}
                         <p class="product-detail-review-title h5">
-                            {{ 'detail.reviewTitle'|trans({'%count%': reviews.total, '%total%':reviews.totalReviews })|sw_sanitize }}
+                            {{ 'detail.reviewTitle'|trans({'%count%': productReviewCount, '%total%': totalReviewCount })|sw_sanitize }}
                         </p>
                     {% endblock %}
 
                     {% block component_review_overview %}
                         <div class="product-detail-review-rating"
-                            {% if productReviewCount > 0 %}
+                            {% if totalReviewCount > 0 %}
                                 itemprop="aggregateRating" itemscope itemtype="https://schema.org/AggregateRating"
                             {% endif %}>
 
-                            {% if productReviewCount > 0 %}
+                            {% if totalReviewCount > 0 %}
                                 <meta itemprop="bestRating" content="5">
-                                <meta itemprop="ratingCount" content="{{ productReviewCount }}">
+                                <meta itemprop="ratingCount" content="{{ totalReviewCount }}">
                                 <meta itemprop="ratingValue" content="{{ productAvgRating }}">
                             {% endif %}
 
@@ -26,7 +26,7 @@
                                 style: 'text-primary'
                             } %}
 
-                            {% if productReviewCount > 0 %}
+                            {% if totalReviewCount > 0 %}
                                 {# The visible headline is aria-hidden because it is redundant for the screen reader. #}
                                 {# The average rating alternative text is already part of `rating.html.twig`. #}
                                 <p class="h6" aria-hidden="true">
@@ -38,7 +38,7 @@
                 </div>
             {% endblock %}
 
-            {% if productReviewCount > 0 %}
+            {% if totalReviewCount > 0 %}
                 <hr>
             {% endif %}
 
@@ -48,7 +48,7 @@
             } %}
 
             {% block component_review_filter %}
-                {% if productReviewCount > 0 %}
+                {% if totalReviewCount > 0 %}
                     <div class="js-review-filter">
                         <form class="review-filter-form"
                               action="{{ path('frontend.product.reviews', { productId: reviews.productId, parentId: reviews.parentId }) }}"

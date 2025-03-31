@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
-#[Package('core')]
+#[Package('framework')]
 class SwSanitizeTwigFilter extends AbstractExtension
 {
     /**
@@ -24,6 +24,9 @@ class SwSanitizeTwigFilter extends AbstractExtension
         ];
     }
 
+    /**
+     * @param array<string, mixed> $options
+     */
     public function sanitize(string $text, ?array $options = [], bool $override = false): string
     {
         return $this->sanitizer->sanitize($text, $options, $override);

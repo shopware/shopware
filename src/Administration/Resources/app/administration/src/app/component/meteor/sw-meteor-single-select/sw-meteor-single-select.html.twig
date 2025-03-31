@@ -1,4 +1,6 @@
+{% block sw_meteor_single_select %}
 <div class="sw-meteor-single-select">
+    {% block sw_meteor_single_select_preview %}
     <div
         class="sw-meteor-single-select__preview"
         role="button"
@@ -14,9 +16,11 @@
             {{ selectedValueLabel }}
         </span>
 
-        <sw-icon name="regular-chevron-down-xxs" />
+        <mt-icon name="regular-chevron-down-xxs" />
     </div>
+    {% endblock %}
 
+    {% block sw_meteor_single_select_result_list %}
     <div class="sw-meteor-single-select__result-list">
         <sw-select-result-list
             v-if="isExpanded"
@@ -24,7 +28,7 @@
             :popover-resize-width="false"
             :options="results"
             :is-loading="isLoading"
-            :empty-message="$tc('global.sw-meteor-single-select.messageNoResults', 0, { term: searchTerm })"
+            :empty-message="$tc('global.sw-meteor-single-select.messageNoResults', { term: searchTerm }, 0)"
             @paginate="$emit('paginate')"
             @item-select="setValue"
             @outside-click="closeResultList"
@@ -80,4 +84,6 @@
             </template>
         </sw-select-result-list>
     </div>
+    {% endblock %}
 </div>
+{% endblock %}

@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Context } = Shopware;
@@ -42,9 +42,6 @@ async function createWrapper(propsData) {
                 'sw-popover': await wrapTestComponent('sw-popover'),
                 'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
-                'sw-icon': await wrapTestComponent('sw-icon', {
-                    sync: true,
-                }),
                 'sw-customer-address-form': await wrapTestComponent('sw-customer-address-form'),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field', {
@@ -55,13 +52,11 @@ async function createWrapper(propsData) {
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                 'sw-customer-address-form-options': await wrapTestComponent('sw-customer-address-form-options'),
-                'sw-button': true,
                 'sw-loader': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
                 'sw-field-error': true,
-                'sw-icon-deprecated': true,
                 'router-link': true,
                 'sw-product-variant-info': true,
                 'sw-field-copyable': true,
@@ -136,9 +131,10 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
     let wrapper;
 
     beforeAll(() => {
-        Shopware.State.registerModule('swOrderDetail', {
-            namespaced: true,
-            state: {
+        Shopware.Store.unregister('swOrderDetail');
+        Shopware.Store.register({
+            id: 'swOrderDetail',
+            state: () => ({
                 isLoading: false,
                 isSavedSuccessful: false,
                 versionContext: {},
@@ -161,7 +157,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
                         customerId: '63e27affb5804538b5b06cb4e344b130',
                     },
                 },
-            },
+            }),
         });
     });
 

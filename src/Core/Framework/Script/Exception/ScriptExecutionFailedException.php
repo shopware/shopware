@@ -8,7 +8,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
-#[Package('core')]
+#[Package('framework')]
 class ScriptExecutionFailedException extends ScriptException
 {
     public const ERROR_CODE = 'FRAMEWORK_SCRIPT_EXECUTION_FAILED';

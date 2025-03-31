@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /**
- * @package services-settings
+ * @sw-package framework
  * @module app/entity-validation-service
  */
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import type ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import type EntityDefinition from 'src/core/data/entity-definition.data';
 import type ErrorResolver from 'src/core/data/error-resolver.data';

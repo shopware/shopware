@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-extension-sdk-module.html.twig';
 import './sw-extension-sdk-module.scss';
 
@@ -6,8 +10,6 @@ import './sw-extension-sdk-module.scss';
  */
 Shopware.Component.register('sw-extension-sdk-module', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         id: {
@@ -30,7 +32,7 @@ Shopware.Component.register('sw-extension-sdk-module', {
 
     computed: {
         module() {
-            return Shopware.State.get('extensionSdkModules').modules.find((module) => module.id === this.id);
+            return Shopware.Store.get('extensionSdkModules').modules.find((module) => module.id === this.id);
         },
 
         isLoading() {
@@ -50,7 +52,7 @@ Shopware.Component.register('sw-extension-sdk-module', {
         },
 
         smartBarButtons() {
-            return Shopware.State.get('extensionSdkModules').smartBarButtons.filter(
+            return Shopware.Store.get('extensionSdkModules').smartBarButtons.filter(
                 (button) => button.locationId === this.module?.locationId,
             );
         },
@@ -93,7 +95,7 @@ Shopware.Component.register('sw-extension-sdk-module', {
 
     methods: {
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').setApiLanguageId(languageId);
         },
     },
 });

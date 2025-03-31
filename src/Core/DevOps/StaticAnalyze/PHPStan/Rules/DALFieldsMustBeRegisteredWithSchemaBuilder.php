@@ -5,12 +5,14 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
+use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SchemaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\EnumField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\Log\Package;
@@ -20,7 +22,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @implements Rule<InClassNode>
  */
-#[Package('core')]
+#[Package('framework')]
 class DALFieldsMustBeRegisteredWithSchemaBuilder implements Rule
 {
     use InTestClassTrait;
@@ -30,8 +32,9 @@ class DALFieldsMustBeRegisteredWithSchemaBuilder implements Rule
      */
     private ?array $mappings = null;
 
-    public function __construct(private readonly ReflectionProvider $reflectionProvider)
-    {
+    public function __construct(
+        private readonly ReflectionProvider $reflectionProvider,
+    ) {
     }
 
     public function getNodeType(): string
@@ -56,7 +59,7 @@ class DALFieldsMustBeRegisteredWithSchemaBuilder implements Rule
             return [];
         }
 
-        if (!$ref->isSubclassOf(Field::class)) {
+        if (!$ref->isSubclassOfClass($this->reflectionProvider->getClass(Field::class))) {
             return [];
         }
 
@@ -65,7 +68,7 @@ class DALFieldsMustBeRegisteredWithSchemaBuilder implements Rule
             return [];
         }
 
-        if ($ref->is(AssociationField::class) || $ref->is(TranslatedField::class)) {
+        if ($this->isFieldIgnored($ref)) {
             return [];
         }
 
@@ -102,5 +105,15 @@ class DALFieldsMustBeRegisteredWithSchemaBuilder implements Rule
         $reflectionProperty->setAccessible(true);
 
         return $reflectionProperty->getValue();
+    }
+
+    private function isFieldIgnored(ClassReflection $field): bool
+    {
+        return match (true) {
+            $field->is(AssociationField::class),
+            $field->is(EnumField::class),
+            $field->is(TranslatedField::class) => true,
+            default => false,
+        };
     }
 }

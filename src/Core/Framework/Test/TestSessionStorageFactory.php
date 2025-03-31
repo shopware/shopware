@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class TestSessionStorageFactory implements SessionStorageFactoryInterface
 {
     public function createStorage(?Request $request): SessionStorageInterface

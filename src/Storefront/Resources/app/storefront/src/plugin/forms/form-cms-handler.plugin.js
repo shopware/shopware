@@ -1,8 +1,9 @@
 import Plugin from 'src/plugin-system/plugin.class';
+/** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
 
 /**
- * @package content
+ * @package discovery
  */
 export default class FormCmsHandler extends Plugin {
 
@@ -11,12 +12,16 @@ export default class FormCmsHandler extends Plugin {
         hiddenSubmitSelector: '.submit--hidden',
         formContentSelector: '.form-content',
         cmsBlock: '.cms-block',
+        /**
+         * @deprecated tag:v6.8.0 - Option contentType will be removed.
+         * The option was never effecting the actual request because the HttpClient automatically resets the Content-Type for FormData requests.
+         */
         contentType: 'application/x-www-form-urlencoded',
     };
 
     init() {
+        /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._client = new HttpClient();
-        this._getButton();
         this._getHiddenSubmit();
         this._registerEvents();
         this._getCmsBlock();
@@ -24,19 +29,21 @@ export default class FormCmsHandler extends Plugin {
     }
 
     sendAjaxFormSubmit() {
-        const { _client, el, options } = this;
-        const _data = new FormData(el);
+        const _data = new FormData(this.el);
 
-        _client.post(el.action, _data, this._handleResponse.bind(this), options.contentType);
+        fetch(this.el.action, {
+            method: 'POST',
+            body: _data,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        })
+            .then(response => response.text())
+            .then(content => this._handleResponse(content));
     }
 
     _registerEvents() {
         this.el.addEventListener('submit', this._handleSubmit.bind(this));
-
-        if (this._button) {
-            this._button.addEventListener('submit', this._handleSubmit.bind(this));
-            this._button.addEventListener('click', this._handleSubmit.bind(this));
-        }
     }
 
     _getConfirmationText() {
@@ -44,10 +51,6 @@ export default class FormCmsHandler extends Plugin {
         if (input) {
             this._confirmationText = input.value;
         }
-    }
-
-    _getButton() {
-        this._button = this.el.querySelector('button');
     }
 
     _getCmsBlock() {

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -17,7 +17,6 @@ async function createWrapper(additionalProps = {}) {
                 'sw-help-text': true,
                 'sw-ai-copilot-badge': true,
                 'sw-inheritance-switch': true,
-                'sw-icon': true,
                 'mt-floating-ui': true,
             },
         },

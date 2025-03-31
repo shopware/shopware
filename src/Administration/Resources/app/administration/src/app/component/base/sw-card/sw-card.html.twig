@@ -1,9 +1,7 @@
-{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
-{# New mt-card component #}
+{# @deprecated tag:v6.8.0 - Will be removed, use mt-card instead. #}
+{% block sw_card %}
 <mt-card
-    v-if="useMeteorComponent"
     v-bind="$attrs"
-    v-on="listeners"
 >
     <template
         v-for="(index, name) in getSlots()"
@@ -17,23 +15,4 @@
     </template>
     <slot></slot>
 </mt-card>
-
-{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
-{# Deprecated component #}
-<sw-card-deprecated
-    v-else
-    v-bind="$attrs"
-    v-on="listeners"
->
-    <template
-        v-for="(index, name) in getSlots()"
-        #[name]="data"
-    >
-        <slot
-            :name="name"
-            v-bind="data"
-        >
-        </slot>
-    </template>
-    <slot></slot>
-</sw-card-deprecated>
+{% endblock %}

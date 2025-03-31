@@ -12,14 +12,14 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @psalm-import-type Params from DriverManager
- * @psalm-import-type OverrideParams from DriverManager
+ * @phpstan-import-type Params from DriverManager
+ * @phpstan-import-type OverrideParams from DriverManager
  */
 #[AsCommand(
     name: 'system:dump',
     description: 'Dumps the database to a file',
 )]
-#[Package('core')]
+#[Package('framework')]
 class SystemDumpDatabaseCommand extends Command
 {
     public function __construct(

@@ -1,13 +1,10 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sidebar %}
 <aside
     class="sw-sidebar"
     :class="sidebarClasses"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sidebar_navigation %}
     <nav class="sw-sidebar__navigation">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sidebar_navigation_list %}
         <ul
             v-for="(section, index) in sections"
@@ -20,7 +17,6 @@
                 v-for="item in section"
                 :key="item.id"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_sidebar_navigation_item %}
                 <sw-sidebar-navigation-item
                     :sidebar-item="item"
@@ -33,11 +29,9 @@
     </nav>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sidebar_content %}
     <div class="sw-sidebar__content">
-        <slot><!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_sidebar_default_slot %}{% endblock %}</slot>
+        <slot> </slot>
     </div>
     {% endblock %}
 </aside>

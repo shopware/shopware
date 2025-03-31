@@ -3,7 +3,7 @@ import template from './sw-form-field-renderer.html.twig';
 const { Component, Mixin } = Shopware;
 const { types } = Shopware.Utils;
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -72,8 +72,6 @@ Component.register('sw-form-field-renderer', {
 
     inheritAttrs: false,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'feature',
@@ -120,18 +118,12 @@ Component.register('sw-form-field-renderer', {
         bind() {
             let bind = {};
 
-            if (!this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                // Filter all listeners from the $attrs object
-                Object.keys(this.$attrs).forEach((key) => {
-                    if (!['onUpdate:value'].includes(key)) {
-                        bind[key] = this.$attrs[key];
-                    }
-                });
-            } else {
-                bind = {
-                    ...this.$attrs,
-                };
-            }
+            // Filter all listeners from the $attrs object
+            Object.keys(this.$attrs).forEach((key) => {
+                if (!['onUpdate:value'].includes(key)) {
+                    bind[key] = this.$attrs[key];
+                }
+            });
 
             bind = {
                 ...bind,
@@ -247,6 +239,17 @@ Component.register('sw-form-field-renderer', {
 
             return {};
         },
+
+        componentPropName() {
+            switch (this.componentName) {
+                case 'mt-textarea':
+                case 'mt-switch':
+                case 'mt-number-field':
+                    return 'modelValue';
+                default:
+                    return 'value';
+            }
+        },
     },
 
     watch: {
@@ -320,33 +323,33 @@ Component.register('sw-form-field-renderer', {
             const type = customType ?? this.type;
 
             const components = {
-                bool: 'sw-switch-field',
-                checkbox: 'sw-checkbox-field',
-                colorpicker: 'sw-colorpicker',
+                bool: 'sw-switch-field-deprecated',
+                switch: 'sw-switch-field-deprecated',
+                textarea: 'sw-textarea-field-deprecated',
+                checkbox: 'sw-checkbox-field-deprecated',
+                colorpicker: 'sw-colorpicker-deprecated',
                 compactColorpicker: 'sw-compact-colorpicker',
-                date: 'sw-datepicker',
-                datetime: 'sw-datepicker',
-                email: 'sw-email-field',
-                float: 'sw-number-field',
-                int: 'sw-number-field',
+                date: 'sw-datepicker-deprecated',
+                datetime: 'sw-datepicker-deprecated',
+                time: 'sw-datepicker-deprecated',
+                email: 'sw-email-field-deprecated',
+                float: 'sw-number-field-deprecated',
+                int: 'sw-number-field-deprecated',
+                number: 'sw-number-field-deprecated',
                 'multi-entity-id-select': 'sw-entity-multi-id-select',
                 'multi-select': 'sw-multi-select',
-                number: 'sw-number-field',
-                password: 'sw-password-field',
+                password: 'sw-password-field-deprecated',
                 price: 'sw-price-field',
                 radio: 'sw-radio-field',
                 'single-entity-id-select': 'sw-entity-single-select',
                 'single-select': 'sw-single-select',
-                string: 'sw-text-field',
-                switch: 'sw-switch-field',
+                string: 'sw-text-field-deprecated',
+                text: 'sw-text-field-deprecated',
                 tagged: 'sw-tagged-field',
-                text: 'sw-text-field',
-                textarea: 'sw-textarea-field',
-                time: 'sw-datepicker',
-                url: 'sw-url-field',
+                url: 'sw-url-field-deprecated',
             };
 
-            return components[type] ?? 'sw-text-field';
+            return components[type] ?? 'sw-text-field-deprecated';
         },
 
         createRepository(entity) {
@@ -368,12 +371,6 @@ Component.register('sw-form-field-renderer', {
         },
 
         getScopedSlots() {
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return {
-                    ...this.$scopedSlots,
-                };
-            }
-
             return this.$slots;
         },
     },

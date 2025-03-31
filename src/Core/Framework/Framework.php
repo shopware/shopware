@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionsCompilerPass;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityCompiler;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetBundleRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AttributeEntityCompilerPass;
@@ -35,7 +33,6 @@ use Shopware\Core\Framework\MessageQueue\MessageHandlerCompilerPass;
 use Shopware\Core\Framework\Telemetry\Metrics\MeterProvider;
 use Shopware\Core\Framework\Test\DependencyInjection\CompilerPass\ContainerVisibilityCompilerPass;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -46,7 +43,7 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Framework extends Bundle
 {
     public function getTemplatePriority(): int
@@ -93,6 +90,7 @@ class Framework extends Bundle
         $loader->load('flag.xml');
         $loader->load('health.xml');
         $loader->load('telemetry.xml');
+        $loader->load('notification.xml');
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $loader->load('services_test.xml');
@@ -146,17 +144,14 @@ class Framework extends Bundle
         /** @var FeatureFlagRegistry $featureFlagRegistry */
         $featureFlagRegistry = $this->container->get(FeatureFlagRegistry::class);
         $featureFlagRegistry->register();
-        // Inject the meter early in the application lifecycle. This is needed to use the meter in special case (static contexts).
-        MeterProvider::bindMeter($this->container);
 
-        $this->container
-            ->get(ExtensionRegistry::class)
-            ->configureExtensions(
-                $this->container->get(DefinitionInstanceRegistry::class),
-                $this->container->get(SalesChannelDefinitionInstanceRegistry::class)
-            );
+        if ($this->container->getParameter('kernel.environment') !== 'test') {
+            // Inject the meter early in the application lifecycle. This is needed to use the meter in special case (static contexts).
+            MeterProvider::bindMeter($this->container);
+        }
 
         CacheValueCompressor::$compress = $this->container->getParameter('shopware.cache.cache_compression');
         CacheValueCompressor::$compressMethod = $this->container->getParameter('shopware.cache.cache_compression_method');
+        Feature::$emitDeprecations = $this->container->getParameter('kernel.debug');
     }
 }

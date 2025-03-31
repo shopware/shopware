@@ -255,10 +255,6 @@
         "label": "Status",
         "placeholder": "Select status..."
       },
-      "defaultPaymentMethod": {
-        "label": "Default payment method",
-        "placeholder": "Select default payment method..."
-      },
       "customerGroup": {
         "label": "Customer group",
         "placeholder": "Select customer group..."
@@ -277,11 +273,11 @@
       },
       "affiliateCode": {
         "label": "Affiliate code",
-        "placeholder": "Select affiliate code..."
+        "placeholder": "Enter affiliate code..."
       },
       "campaignCode": {
         "label": "Campaign code",
-        "placeholder": "Select campaign code..."
+        "placeholder": "Enter campaign code..."
       },
       "customerGroupRequest": {
         "label": "Customer group requests",

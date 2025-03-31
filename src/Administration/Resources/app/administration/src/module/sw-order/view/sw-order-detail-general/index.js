@@ -1,19 +1,16 @@
 import template from './sw-order-detail-general.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
-const { Utils, Mixin } = Shopware;
+const { Utils, Mixin, Store } = Shopware;
 const { format, array } = Utils;
-const { mapGetters, mapState } = Shopware.Component.getComponentHelper();
 const { cloneDeep } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: {
         swOrderDetailOnSaveAndReload: {
@@ -32,6 +29,14 @@ export default {
             from: 'swOrderDetailOnSaveAndRecalculate',
             default: null,
         },
+        swOrderDetailOnReloadEntityData: {
+            from: 'swOrderDetailOnReloadEntityData',
+            default: null,
+        },
+        swOrderDetailOnError: {
+            from: 'swOrderDetailOnError',
+            default: null,
+        },
         acl: {
             from: 'acl',
             default: null,
@@ -42,6 +47,9 @@ export default {
         'save-and-recalculate',
         'save-edits',
         'recalculate-and-reload',
+        'save-and-reload',
+        'reload-entity-data',
+        'error',
     ],
 
     mixins: [
@@ -67,14 +75,11 @@ export default {
     },
 
     computed: {
-        ...mapGetters('swOrderDetail', [
-            'isLoading',
-        ]),
+        isLoading: () => Store.get('swOrderDetail').isLoading,
 
-        ...mapState('swOrderDetail', [
-            'order',
-            'versionContext',
-        ]),
+        order: () => Store.get('swOrderDetail').order,
+
+        versionContext: () => Store.get('swOrderDetail').versionContext,
 
         delivery() {
             return this.order.deliveries[0];
@@ -89,10 +94,14 @@ export default {
             const formattedTaxes = `${calcTaxes
                 .map(
                     (calcTax) =>
-                        `${this.$tc('sw-order.detailBase.shippingCostsTax', 0, {
-                            taxRate: calcTax.taxRate,
-                            tax: format.currency(calcTax.tax, this.order.currency.isoCode),
-                        })}`,
+                        `${this.$tc(
+                            'sw-order.detailBase.shippingCostsTax',
+                            {
+                                taxRate: calcTax.taxRate,
+                                tax: format.currency(calcTax.tax, this.order.currency.isoCode),
+                            },
+                            0,
+                        )}`,
                 )
                 .join('<br>')}`;
 
@@ -150,26 +159,54 @@ export default {
         },
 
         saveAndRecalculate() {
-            this.$emit('save-and-recalculate');
-
             if (this.swOrderDetailOnSaveAndRecalculate) {
                 this.swOrderDetailOnSaveAndRecalculate();
+            } else {
+                this.$emit('save-and-recalculate');
             }
         },
 
         onSaveEdits() {
-            this.$emit('save-edits');
-
             if (this.swOrderDetailOnSaveEdits) {
                 this.swOrderDetailOnSaveEdits();
+            } else {
+                this.$emit('save-edits');
             }
         },
 
         recalculateAndReload() {
-            this.$emit('recalculate-and-reload');
-
             if (this.swOrderDetailOnRecalculateAndReload) {
                 this.swOrderDetailOnRecalculateAndReload();
+            } else {
+                this.$emit('recalculate-and-reload');
+            }
+        },
+
+        updateLoading(loadingValue) {
+            Store.get('swOrderDetail').setLoading(['order', loadingValue]);
+        },
+
+        reloadEntityData() {
+            if (this.swOrderDetailOnReloadEntityData) {
+                this.swOrderDetailOnReloadEntityData();
+            } else {
+                this.$emit('reload-entity-data');
+            }
+        },
+
+        saveAndReload() {
+            if (this.swOrderDetailOnSaveAndReload) {
+                this.swOrderDetailOnSaveAndReload();
+            } else {
+                this.$emit('save-and-reload');
+            }
+        },
+
+        showError(error) {
+            if (this.swOrderDetailOnError) {
+                this.swOrderDetailOnError(error);
+            } else {
+                this.$emit('error', error);
             }
         },
     },

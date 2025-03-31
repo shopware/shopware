@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 import template from './sw-users-permissions-role-listing.html.twig';
 import './sw-users-permissions-role-listing.scss';
@@ -10,8 +10,6 @@ const { Criteria } = Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -142,18 +140,26 @@ export default {
                 .delete(role.id, context)
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-users-permissions.roles.role-grid.notification.deleteSuccess.message', 0, {
-                            name: role.name,
-                        }),
+                        message: this.$tc(
+                            'sw-users-permissions.roles.role-grid.notification.deleteSuccess.message',
+                            {
+                                name: role.name,
+                            },
+                            0,
+                        ),
                     });
 
                     this.$emit('get-list');
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-users-permissions.roles.role-grid.notification.deleteError.message', 0, {
-                            name: role.name,
-                        }),
+                        message: this.$tc(
+                            'sw-users-permissions.roles.role-grid.notification.deleteError.message',
+                            {
+                                name: role.name,
+                            },
+                            0,
+                        ),
                     });
                 });
         },

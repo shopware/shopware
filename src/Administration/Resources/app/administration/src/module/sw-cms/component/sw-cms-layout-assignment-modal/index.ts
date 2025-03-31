@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/prefer-promise-reject-errors */
 import EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import { difference } from 'lodash';
 import { type PropType } from 'vue';
@@ -9,12 +10,10 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -30,7 +29,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     props: {
         page: {
-            type: Object as PropType<EntitySchema.Entity<'cms_page'>>,
+            type: Object as PropType<Entity<'cms_page'>>,
             required: true,
         },
     },
@@ -38,9 +37,9 @@ export default Shopware.Component.wrapComponentConfig({
     data() {
         return {
             shopPageSalesChannelId: null as string | null,
-            previousCategories: [] as EntitySchema.Entity<'category'>[],
+            previousCategories: [] as Entity<'category'>[],
             previousCategoryIds: [] as string[],
-            previousLandingPages: [] as EntitySchema.Entity<'landing_page'>[],
+            previousLandingPages: [] as Entity<'landing_page'>[],
             previousLandingPageIds: [] as string[],
             showConfirmChangesModal: false,
             isLoading: false,
@@ -57,7 +56,7 @@ export default Shopware.Component.wrapComponentConfig({
             hasCategoriesWithAssignedLayouts: false,
             hasProductsWithAssignedLayouts: false,
             hasLandingPagesWithAssignedLayouts: false,
-            previousProducts: [] as EntitySchema.Entity<'product'>[],
+            previousProducts: [] as Entity<'product'>[],
             previousProductIds: [] as string[],
             categoryIndex: 1,
             isCategoriesLoading: false,
@@ -247,16 +246,8 @@ export default Shopware.Component.wrapComponentConfig({
                     });
 
                     if (pages.length > 0) {
-                        if (this.isCompatEnabled('INSTANCE_SET')) {
-                            this.$set(this.selectedShopPages, this.shopPageSalesChannelId!, pages);
-                        } else {
-                            this.selectedShopPages[this.shopPageSalesChannelId!] = pages;
-                        }
-                    } else if (this.isCompatEnabled('INSTANCE_SET')) {
-                        this.$set(this.selectedShopPages, this.shopPageSalesChannelId!, null);
-                    } else {
-                        this.selectedShopPages[this.shopPageSalesChannelId!] = null;
-                    }
+                        this.selectedShopPages[this.shopPageSalesChannelId!] = pages;
+                    } else this.selectedShopPages[this.shopPageSalesChannelId!] = null;
 
                     this.previousShopPages = cloneDeep(this.selectedShopPages);
                 })

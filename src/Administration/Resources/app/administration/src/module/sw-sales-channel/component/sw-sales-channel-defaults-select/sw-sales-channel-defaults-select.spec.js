@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { shallowMount } from '@vue/test-utils';
 
@@ -25,7 +25,6 @@ async function createWrapper(customProps = {}) {
                         template: '<div class="sw-entity-single-select"></div>',
                         props: ['disabled'],
                     },
-                    'sw-icon': true,
                 },
             },
             props: {

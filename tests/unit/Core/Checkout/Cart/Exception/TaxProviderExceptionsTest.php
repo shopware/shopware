@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Exception;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Exception\TaxProviderExceptions;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(TaxProviderExceptions::class)]
+#[Package('checkout')]
 class TaxProviderExceptionsTest extends TestCase
 {
     public function testException(): void

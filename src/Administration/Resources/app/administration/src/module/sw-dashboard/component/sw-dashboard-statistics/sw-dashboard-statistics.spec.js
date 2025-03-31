@@ -12,10 +12,11 @@ async function createWrapper(privileges = [], repository = {}) {
         ...repository,
     };
 
+    Shopware.Store.get('session').setCurrentUser({});
+
     return mount(await wrapTestComponent('sw-dashboard-statistics', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': await wrapTestComponent('sw-card'),
                 'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-chart-card': await wrapTestComponent('sw-chart-card'),
                 'sw-entity-listing': true,
@@ -67,28 +68,13 @@ async function createWrapper(privileges = [], repository = {}) {
 }
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
     let wrapper;
 
     beforeAll(() => {
         Shopware.Context.app.systemCurrencyISOCode = 'EUR';
-
-        if (Shopware.State.get('session')) {
-            Shopware.State.unregisterModule('session');
-        }
-
-        Shopware.State.registerModule('session', {
-            state: {
-                currentUser: null,
-            },
-            mutations: {
-                setCurrentUser(state, user) {
-                    state.currentUser = user;
-                },
-            },
-        });
 
         Shopware.Application.addInitializer('httpClient', () => {
             return {

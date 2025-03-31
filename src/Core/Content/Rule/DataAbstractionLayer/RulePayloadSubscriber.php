@@ -16,7 +16,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class RulePayloadSubscriber implements EventSubscriberInterface
 {
     /**
@@ -37,14 +37,14 @@ class RulePayloadSubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @param EntityLoadedEvent<RuleEntity> $event
+     */
     public function unserialize(EntityLoadedEvent $event): void
     {
         $this->indexIfNeeded($event);
 
         foreach ($event->getEntities() as $entity) {
-            if (!$entity instanceof RuleEntity) {
-                continue;
-            }
             $payload = $entity->getPayload();
             if ($payload === null || !\is_string($payload)) {
                 continue;
@@ -58,12 +58,14 @@ class RulePayloadSubscriber implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @param EntityLoadedEvent<RuleEntity> $event
+     */
     private function indexIfNeeded(EntityLoadedEvent $event): void
     {
         $rules = [];
 
         foreach ($event->getEntities() as $rule) {
-            \assert($rule instanceof RuleEntity);
             if ($rule->getPayload() === null && !$rule->isInvalid()) {
                 $rules[$rule->getId()] = $rule;
             }

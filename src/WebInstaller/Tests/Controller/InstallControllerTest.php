@@ -56,7 +56,7 @@ class InstallControllerTest extends TestCase
 
         $responseGenerator = $this->createMock(StreamedCommandResponseGenerator::class);
         $responseGenerator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('run')
             ->with([
                 'php',

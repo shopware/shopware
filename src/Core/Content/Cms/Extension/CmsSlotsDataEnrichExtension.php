@@ -20,13 +20,11 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @template TEntityCollection of EntityCollection
  *
- * @experimental stableVersion:v6.7.0 feature:EXTENSION_SYSTEM
- *
  * @codeCoverageIgnore
  *
  * @extends Extension<CmsSlotCollection>
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 final class CmsSlotsDataEnrichExtension extends Extension
 {
     public const NAME = 'cms-slots-data.enrich';
@@ -62,7 +60,7 @@ final class CmsSlotsDataEnrichExtension extends Extension
          *
          * @description The fetched slot data which was searched by the criteria list
          *
-         * @var array<EntitySearchResult<TEntityCollection>>
+         * @var array<array<string, EntitySearchResult<TEntityCollection>>>
          */
         public readonly array $criteriaResult,
         /**

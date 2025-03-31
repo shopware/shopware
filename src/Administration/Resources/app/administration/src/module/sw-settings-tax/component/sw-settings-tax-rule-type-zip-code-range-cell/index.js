@@ -1,14 +1,12 @@
 import template from './sw-settings-tax-rule-type-zip-code-range-cell.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         taxRule: {

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 
 import { mount } from '@vue/test-utils';
@@ -76,7 +76,7 @@ describe('src/module/sw-cms/elements/image/component', () => {
 
         const img = wrapper.find('img');
         expect(img.attributes('src')).toBe(
-            wrapper.vm.assetFilter('administration/static/img/cms/preview_mountain_large.jpg'),
+            wrapper.vm.assetFilter('administration/administration/static/img/cms/preview_mountain_large.jpg'),
         );
     });
 
@@ -120,7 +120,7 @@ describe('src/module/sw-cms/elements/image/component', () => {
 
         const img = wrapper.find('img');
         expect(img.attributes('src')).toBe(
-            wrapper.vm.assetFilter('administration/static/img/cms/preview_mountain_large.jpg'),
+            wrapper.vm.assetFilter('administration/administration/static/img/cms/preview_mountain_large.jpg'),
         );
     });
 });

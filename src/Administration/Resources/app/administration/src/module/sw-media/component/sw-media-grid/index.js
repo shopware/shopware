@@ -3,12 +3,10 @@ import './sw-media-grid.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['media-grid-selection-clear'],
 
@@ -84,9 +82,7 @@ export default {
         },
 
         isEmittedFromChildren(target) {
-            return this.$children.some((child) => {
-                return child.$el === target || child.$el.contains(target);
-            });
+            return this.$refs.componentRef?.contains(target) ?? false;
         },
 
         emitSelectionCleared(originalDomEvent) {

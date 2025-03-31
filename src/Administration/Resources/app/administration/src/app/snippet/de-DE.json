@@ -204,7 +204,7 @@
     "sw-gtc-checkbox": {
       "label": "Ich akzeptiere die",
       "link": "AGB.",
-      "url": "https://www.shopware.com/de/gtc"
+      "url": "https://www.shopware.com/de/agb"
     },
     "sw-price-field": {
       "labelPriceGross": "Preis (Brutto)",
@@ -821,108 +821,17 @@
         "customerBirthdayRule": "Kundengeburtstag",
         "customerCreatedByAdminRule": "Kunde vom Administrator erstellt",
         "customerSalutationRule": "Kundenanrede",
-        "customerDefaultPaymentMethodRule": "Kunde mit Standardzahlungsart",
         "lineItemPropertyValueRule": "Position mit Eigenschaftsausprägung",
         "lineItemVariantValueRule": "Position mit Variantenausprägung"
       }
     },
     "sw-condition-generic": {
-      "customerDaysSinceLastLogin": {
-        "daysPassed": {
-          "placeholder": "@:sw-product.settingsForm.placeholderTime"
-        }
-      },
-      "customerDaysSinceFirstLogin": {
-        "daysPassed": {
-          "placeholder": "@:sw-product.settingsForm.placeholderTime"
-        }
-      },
-      "customerDaysSinceLastOrder": {
-        "daysPassed": {
-          "placeholder": "@:sw-product.settingsForm.placeholderTime"
-        }
-      },
-      "customerEmail": {
-        "email": {
-          "placeholder": "@:global.sw-condition.condition.emailRule.placeholder"
-        }
-      },
-      "cartLineItemDimensionWidth": {
-        "amount": {
-          "placeholder": "@:sw-product.settingsForm.placeholderWidth"
-        }
-      },
-      "cartLineItemDimensionHeight": {
-        "amount": {
-          "placeholder": "@:sw-product.settingsForm.placeholderHeight"
-        }
-      },
-      "cartLineItemDimensionLength": {
-        "amount": {
-          "placeholder": "@:sw-product.settingsForm.placeholderLength"
-        }
-      },
-      "cartTaxDisplay": {
-        "taxDisplay": {
-          "options": {
-            "gross": "@:global.sw-condition.condition.cartTaxDisplay.gross",
-            "net": "@:global.sw-condition.condition.cartTaxDisplay.net"
-          }
-        }
-      },
-      "dayOfWeek": {
-        "dayOfWeek": {
-          "options": {
-            "1": "@:global.day-of-week.monday",
-            "2": "@:global.day-of-week.tuesday",
-            "3": "@:global.day-of-week.wednesday",
-            "4": "@:global.day-of-week.thursday",
-            "5": "@:global.day-of-week.friday",
-            "6": "@:global.day-of-week.saturday",
-            "7": "@:global.day-of-week.sunday"
-          }
-        }
-      },
-      "cartLineItemOfType": {
-        "lineItemType": {
-          "options": {
-            "product": "@:global.sw-condition.condition.lineItemOfTypeRule.product",
-            "promotion": "@:global.sw-condition.condition.lineItemOfTypeRule.discount_surcharge"
-          }
-        }
-      },
-      "promotionCodeOfType": {
-        "promotionCodeType": {
-          "options": {
-            "global": "@:global.sw-condition.condition.promotionCodeOfTypeRule.global",
-            "fixed": "@:global.sw-condition.condition.promotionCodeOfTypeRule.fixed",
-            "individual": "@:global.sw-condition.condition.promotionCodeOfTypeRule.individual"
-          }
-        }
-      },
-      "cartLineItemProductStates": {
-        "productState": {
-          "options": {
-            "is-physical": "Physisch",
-            "is-download": "Digital"
-          }
-        }
-      },
-      "cartTotalPurchasePrice": {
-        "type": {
-          "options": {
-            "gross": "Brutto",
-            "net": "Netto"
-          },
-          "placeholder": "Operator auswählen ..."
-        }
-      },
       "units": {
         "dimension": "mm",
         "weight": "kg",
         "volume": "mm³",
         "age": "Jahre",
-        "kg": "Killogramm",
+        "kg": "Kilogramm",
         "g": "Gramm",
         "mg": "Milligramm",
         "oz": "Unze",
@@ -969,32 +878,6 @@
           "mm3": "mm³",
           "in3": "in³",
           "ft3": "ft³"
-        }
-      },
-      "orderCreatedByAdmin": {
-        "shouldOrderBeCreatedByAdmin": {
-          "placeholder": "Condition auswählen ..."
-        }
-      },
-      "adminSalesChannelSource": {
-        "hasAdminSalesChannelSource": {
-          "placeholder": "Bedingung auswählen ..."
-        }
-      },
-      "orderTransactionStatus": {
-        "stateIds": {
-          "placeholder": "State auswählen ..."
-        },
-        "operator": {
-          "placeholder": "Operator auswählen ..."
-        }
-      },
-      "orderStatus": {
-        "stateIds": {
-          "placeholder": "State auswählen ..."
-        },
-        "operator": {
-          "placeholder": "Operator auswählen ..."
         }
       }
     },
@@ -1200,6 +1083,41 @@
     "sw-page": {
       "backButton": "Zurückgehen"
     }
+  },
+  "mt-text-editor-toolbar-button-link": {
+    "label": "Link"
+  },
+  "sw-text-editor-toolbar-button-link": {
+    "modalTitle": "Link einfügen oder bearbeiten",
+    "linkTo": "Link zu",
+    "linkUrl": "URL",
+    "linkPhone": "Telefonnummer",
+    "linkPhonePrefix": "tel:",
+    "linkDetail": "Produkt",
+    "linkEmail": "E-Mail-Adresse",
+    "linkEmailPlaceholder": "E-Mail-Adresse eingeben ...",
+    "detailPlaceholder": "Produkt auswählen ...",
+    "categoryPlaceholder": "Kategorie auswählen ...",
+    "displayAsButton": "Link als Button darstellen",
+    "openInNewTab": "In neuem Tab öffnen",
+    "applyLink": "Link einfügen",
+    "linkType": "Link-Typ",
+    "removeLink": "Link entfernen",
+    "linkOptions": {
+      "link": "URL",
+      "product": "Produkt",
+      "category": "Kategorie",
+      "media": "Datei",
+      "email": "E-Mail-Adresse",
+      "phoneNumber": "Telefonnummer"
+    },
+    "buttonVariantPrimary": "Primär",
+    "buttonVariantSecondary": "Sekundär",
+    "buttonVariantPrimarySmall": "Primär (klein)",
+    "buttonVariantSecondarySmall": "Sekundär (klein)"
+  },
+  "sw-text-editor-toolbar-button-cms-data-mapping": {
+    "label": "Variable einfügen"
   },
   "sw-text-editor-toolbar": {
     "link": {

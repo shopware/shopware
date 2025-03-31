@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Media\Core\Application;
 
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
 use Shopware\Core\Content\Media\Core\Params\ThumbnailLocationStruct;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 
@@ -13,7 +14,7 @@ use Shopware\Core\Framework\Util\Hasher;
  * A media path strategy is responsible to generate the path for a media or thumbnail.
  * It has to define a unique name, which can be used to configure this strategy in the configuration.
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 abstract class AbstractMediaPathStrategy
 {
     /**
@@ -37,7 +38,7 @@ abstract class AbstractMediaPathStrategy
             $type = match (true) {
                 $location instanceof MediaLocationStruct => 'media',
                 $location instanceof ThumbnailLocationStruct => 'thumbnail',
-                default => throw new \RuntimeException('Unknown location type'),
+                default => throw MediaException::unknownLocationType(),
             };
 
             $paths[$location->id] = implode('/', \array_filter([

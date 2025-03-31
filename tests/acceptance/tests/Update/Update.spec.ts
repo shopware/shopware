@@ -39,7 +39,7 @@ test(`Update an existing Shopware ${process.env.SHOPWARE_UPDATE_FROM} instance.`
 
     await page.getByRole('button', { name: 'Open Administration' }).click();
 
-    await expect(page.getByText(/6\.6\.9999999\.9999999/)).toBeVisible({
+    await expect(page.getByText(/6\.7\.9999999\.9999999/)).toBeVisible({
         timeout: 60000,
     });
 

@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Cms;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class CmsPageEvents
 {
     final public const PAGE_WRITTEN_EVENT = 'cms_page.written';

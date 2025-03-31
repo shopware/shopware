@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 const { Service } = Shopware;
@@ -45,7 +45,7 @@ export default class AdminNotificationWorker {
                 }
             })
             .catch((error) => {
-                this.createNotification('error', error.message);
+                console.error('Error while fetching notifications', error);
             });
 
         this._notiticationTimeoutId = setTimeout(() => {
@@ -61,7 +61,7 @@ export default class AdminNotificationWorker {
     }
 
     createNotification(variant, message) {
-        Shopware.State.dispatch('notification/createNotification', {
+        Shopware.Store.get('notification').createNotification({
             variant,
             message,
         });

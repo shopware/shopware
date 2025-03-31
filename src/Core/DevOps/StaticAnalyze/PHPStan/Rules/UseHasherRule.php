@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Util\Hasher;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class UseHasherRule implements Rule
 {
     use InTestClassTrait;

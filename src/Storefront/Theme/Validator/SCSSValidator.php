@@ -9,7 +9,7 @@ use Shopware\Storefront\Theme\AbstractScssCompiler;
 use Shopware\Storefront\Theme\CompilerConfiguration;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 
-#[Package('storefront')]
+#[Package('framework')]
 class SCSSValidator
 {
     /**
@@ -18,41 +18,25 @@ class SCSSValidator
      */
     public static function validate(AbstractScssCompiler $compiler, array $data, array $customAllowedRegex = [], bool $sanitize = false): mixed
     {
-        try {
-            if ($sanitize === true) {
-                $onError = function () use ($data): void {
-                    throw ThemeException::InvalidScssValue('', $data['type'] ?? 'undefined', $data['name'] ?? 'undefined');
-                };
-
-                set_error_handler($onError);
-            }
-
-            if (!isset($data['value']) && !$sanitize) {
-                throw ThemeException::InvalidScssValue('', $data['type'] ?? 'undefined', $data['name'] ?? 'undefined');
-            }
-
-            if (!\array_key_exists('value', $data) || (empty($data['value']) && $data['value'] !== 0)) {
-                $data['value'] = 'inherit';
-            }
-
-            if (\is_string($data['value']) && self::validateCustom($data['value'], $customAllowedRegex)) {
-                return $data['value'];
-            }
-
-            switch ($data['type'] ?? 'text') {
-                case 'checkbox':
-                case 'switch':
-                    return self::validateTypeCheckbox($compiler, $data['value']);
-                case 'color':
-                    return self::validateTypeColor($compiler, $sanitize, $data['value'], $data['name'] ?? 'undefined', $data['type'] ?? 'undefined');
-                case 'fontFamily':
-                    return self::validateFontFamily($compiler, $sanitize, $data['value'], $data['name'] ?? 'undefined', $data['type'] ?? 'undefined');
-            }
-        } finally {
-            restore_error_handler();
+        // Empty values are allowed and will be set as a "null" value in SCSS.
+        // In addition, 0 or "0" can be valid values, for example for setting margins.
+        if (!\array_key_exists('value', $data)
+            || !isset($data['value'])
+            || $data['value'] === ''
+            || $data['value'] === false) {
+            return null;
         }
 
-        return $data['value'];
+        if (\is_string($data['value']) && self::validateCustom($data['value'], $customAllowedRegex)) {
+            return $data['value'];
+        }
+
+        return match ($data['type'] ?? 'text') {
+            'checkbox', 'switch' => self::validateTypeCheckbox($data['value']),
+            'color' => self::validateTypeColor($compiler, $sanitize, $data['value'], $data['name'] ?? 'undefined', $data['type'] ?? 'undefined'),
+            'fontFamily' => self::validateFontFamily($compiler, $sanitize, $data['value'], $data['name'] ?? 'undefined', $data['type'] ?? 'undefined'),
+            default => $data['value'],
+        };
     }
 
     private static function isHex(string $hexCode): bool
@@ -77,7 +61,7 @@ class SCSSValidator
         return false;
     }
 
-    private static function validateTypeCheckbox(AbstractScssCompiler $compiler, mixed $value): mixed
+    private static function validateTypeCheckbox(mixed $value): mixed
     {
         if (!\is_bool($value) && $value !== 1 && $value !== 0) {
             return 'true';

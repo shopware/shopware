@@ -1,7 +1,7 @@
 import template from './sw-settings-delivery-time-detail.html.twig';
 
 /**
- * @package checkout
+ * @sw-package discovery
  */
 
 const { Component, Mixin } = Shopware;
@@ -11,8 +11,6 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',

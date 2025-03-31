@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import extensionStore from 'src/module/sw-extension/store/extensions.store';
 
 const userInfo = {
     avatarUrl: 'https://avatar.url',
@@ -21,17 +20,8 @@ async function createWrapper() {
                     <input type="text" :value="value" @input="$emit('update:value', $event.target.value)" />
                 `,
                     },
-                    'sw-password-field': {
-                        props: ['value'],
-                        template: `
-<input type="password" :value="value" @input="$emit('update:value', $event.target.value)" />
-`,
-                    },
                     'sw-skeleton': true,
                     'sw-avatar': true,
-                    'sw-button': {
-                        template: '<button @click="$emit(\'click\')"><slot></slot></button>',
-                    },
                     'sw-meteor-card': {
                         template: '<div><slot></slot></div>',
                     },
@@ -62,12 +52,12 @@ async function createWrapper() {
                                 return Promise.reject();
                             }
 
-                            Shopware.State.get('shopwareExtensions').userInfo = userInfo;
+                            Shopware.Store.get('shopwareExtensions').userInfo = userInfo;
 
                             return Promise.resolve();
                         },
                         logout: () => {
-                            Shopware.State.get('shopwareExtensions').userInfo = null;
+                            Shopware.Store.get('shopwareExtensions').userInfo = null;
 
                             return Promise.resolve();
                         },
@@ -79,15 +69,11 @@ async function createWrapper() {
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () => {
-    beforeAll(async () => {
-        Shopware.State.registerModule('shopwareExtensions', extensionStore);
-    });
-
     beforeEach(async () => {
-        Shopware.State.get('shopwareExtensions').userInfo = null;
+        Shopware.Store.get('shopwareExtensions').userInfo = null;
     });
 
     it('should show the login fields when not logged in', async () => {
@@ -111,8 +97,8 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
         expect(loginStatus.exists()).toBe(false);
 
         // get fields
-        const shopwareIdField = wrapper.get('.sw-extension-my-extensions-account__shopware-id-field');
-        const passwordField = wrapper.get('.sw-extension-my-extensions-account__password-field');
+        const shopwareIdField = wrapper.get('.sw-extension-my-extensions-account__shopware-id-field input');
+        const passwordField = wrapper.findByLabel('sw-extension.my-extensions.account.passwordLabel');
         const loginButton = wrapper.find('.sw-extension-my-extensions-account__login-button');
 
         // enter credentials
@@ -133,7 +119,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
     });
 
     it('should show the logged in view when logged in', async () => {
-        Shopware.State.get('shopwareExtensions').userInfo = userInfo;
+        Shopware.Store.get('shopwareExtensions').userInfo = userInfo;
 
         // create component with logged in view
         const wrapper = await createWrapper();
@@ -147,7 +133,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
     });
 
     it('should logout when user clicks logout button', async () => {
-        Shopware.State.get('shopwareExtensions').userInfo = userInfo;
+        Shopware.Store.get('shopwareExtensions').userInfo = userInfo;
 
         // create component with logged in view
         const wrapper = await createWrapper();

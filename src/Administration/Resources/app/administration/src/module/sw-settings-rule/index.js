@@ -34,7 +34,7 @@ Shopware.Component.register(
 
 /**
  * @private
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 Module.register('sw-settings-rule', {
     type: 'core',
@@ -115,7 +115,7 @@ Module.register('sw-settings-rule', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'automation',
         to: 'sw.settings.rule.index',
         icon: 'regular-rule',
         privilege: 'rule.viewer',

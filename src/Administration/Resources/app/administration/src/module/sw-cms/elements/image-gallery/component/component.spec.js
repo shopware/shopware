@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
@@ -44,7 +44,6 @@ async function createWrapper(propsOverride) {
                 stubs: {
                     'sw-cms-el-image-slider': true,
                     'sw-media-list-selection-item-v2': true,
-                    'sw-icon': true,
                 },
             },
             props: {
@@ -87,6 +86,7 @@ async function createWrapper(propsOverride) {
                     },
                     navigationDots: {
                         source: 'static',
+                        value: 'none',
                     },
                 },
                 ...propsOverride,

@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-existence-filter.html.twig';
 
 const { Component } = Shopware;
@@ -8,8 +12,6 @@ const { Criteria } = Shopware.Data;
  */
 Component.register('sw-existence-filter', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'filter-update',
@@ -30,6 +32,19 @@ Component.register('sw-existence-filter', {
     computed: {
         value() {
             return this.filter.value;
+        },
+
+        filterOptions() {
+            return [
+                {
+                    value: 'true',
+                    label: String(this.filter.optionHasCriteria),
+                },
+                {
+                    value: 'false',
+                    label: String(this.filter.optionNoCriteria),
+                },
+            ];
         },
     },
 

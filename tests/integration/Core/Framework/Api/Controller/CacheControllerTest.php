@@ -16,8 +16,7 @@ use Symfony\Component\Messenger\TraceableMessageBus;
 /**
  * @internal
  */
-#[Package('services-settings')]
-#[Group('skip-paratest')]
+#[Package('framework')]
 class CacheControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -71,12 +70,13 @@ class CacheControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($response->getContent(), true));
         $decodedContent = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
+        static::assertIsArray($decodedContent);
         static::assertArrayHasKey('environment', $decodedContent);
         static::assertSame('test', $decodedContent['environment']);
         static::assertArrayHasKey('httpCache', $decodedContent);
         static::assertIsBool($decodedContent['httpCache']);
         static::assertArrayHasKey('cacheAdapter', $decodedContent);
-        static::assertSame('CacheDecorator', $decodedContent['cacheAdapter']);
+        static::assertSame('Array', $decodedContent['cacheAdapter']);
     }
 
     public function testCacheIndexEndpoint(): void
@@ -91,7 +91,7 @@ class CacheControllerTest extends TestCase
     public function testCacheIndexEndpointWithSkipParameter(): void
     {
         /** @var TraceableMessageBus $bus */
-        $bus = static::getContainer()->get('messenger.bus.shopware');
+        $bus = static::getContainer()->get('messenger.default_bus');
         $bus->reset();
 
         $this->getBrowser()->request(
@@ -122,7 +122,7 @@ class CacheControllerTest extends TestCase
     public function testCacheIndexEndpointWithOnlyParameter(): void
     {
         /** @var TraceableMessageBus $bus */
-        $bus = static::getContainer()->get('messenger.bus.shopware');
+        $bus = static::getContainer()->get('messenger.default_bus');
         $bus->reset();
 
         $this->getBrowser()->request(

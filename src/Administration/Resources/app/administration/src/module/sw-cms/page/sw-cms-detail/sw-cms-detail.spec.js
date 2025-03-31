@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 
@@ -15,6 +15,86 @@ const mediaID = 'TEST-MEDIA-ID';
 
 async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
     const cmsPageTypeService = new CmsPageTypeService();
+    const repositoryFactoryCmsBlockMock = {
+        clone: jest.fn(() =>
+            Promise.resolve({
+                id: 'cloned-block-id',
+            }),
+        ),
+        get: jest.fn(() =>
+            Promise.resolve({
+                id: 'cloned-block-id',
+                position: 1,
+                slots: [],
+                visibility: [
+                    {
+                        mobile: true,
+                        tablet: true,
+                        desktop: true,
+                    },
+                ],
+            }),
+        ),
+        save: jest.fn(() => Promise.resolve()),
+    };
+    const repositoryFactoryCmsSectionMock = {
+        clone: jest.fn(() =>
+            Promise.resolve({
+                id: 'cloned-section-id',
+            }),
+        ),
+        get: jest.fn(() =>
+            Promise.resolve({
+                id: 'cloned-section-id',
+                position: 1,
+                blocks: [],
+                visibility: [
+                    {
+                        mobile: true,
+                        tablet: true,
+                        desktop: true,
+                    },
+                ],
+            }),
+        ),
+        save: jest.fn(() => Promise.resolve()),
+    };
+    const repositoryFactoryDefaultMock = {
+        search: () =>
+            Promise.resolve(
+                new EntityCollection(
+                    '',
+                    '',
+                    Shopware.Context.api,
+                    null,
+                    [
+                        {
+                            name: 'defaultRepository',
+                        },
+                    ],
+                    1,
+                ),
+            ),
+        get: () =>
+            Promise.resolve({
+                sections: [
+                    {
+                        blocks: [],
+                        visibility: [
+                            {
+                                mobile: true,
+                                tablet: true,
+                                desktop: true,
+                            },
+                        ],
+                    },
+                ],
+                type: CMS.PAGE_TYPES.LANDING,
+                versionId: versionId,
+            }),
+        save: jest.fn(() => Promise.resolve()),
+        clone: jest.fn(() => Promise.resolve()),
+    };
 
     return mount(
         await wrapTestComponent('sw-cms-detail', {
@@ -34,10 +114,9 @@ async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
                     `,
                     },
                     'sw-cms-toolbar': await wrapTestComponent('sw-cms-toolbar'),
-                    'sw-alert': true,
+
                     'sw-language-switch': true,
                     'sw-router-link': true,
-                    'sw-icon': true,
                     'router-link': true,
                     'sw-button-process': true,
                     'sw-cms-stage-add-section': true,
@@ -64,8 +143,27 @@ async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
                     'sw-loader': true,
                     'sw-cms-section': await wrapTestComponent('sw-cms-section'),
                     'sw-cms-layout-assignment-modal': true,
-                    'sw-button': true,
                     'sw-app-actions': true,
+                    'sw-overlay': true,
+                    'sw-cms-page-form': true,
+                    'sw-cms-missing-element-modal': true,
+                    'sw-product-variant-info': true,
+                    'sw-select-result': true,
+                    'sw-entity-single-select': true,
+                    'sw-empty-state': true,
+                    'sw-cms-block-layout-config': true,
+                    'sw-cms-visibility-config': true,
+                    'sw-context-menu-item': true,
+                    'sw-context-button': true,
+                    'sw-cms-sidebar-nav-element': true,
+                    'sw-sidebar': true,
+                    'sw-checkbox-field': true,
+                    'sw-cms-visibility-toggle': true,
+                    'sw-cms-stage-add-block': true,
+                    'sw-cms-slot': true,
+                    'sw-colorpicker': true,
+                    'sw-media-compact-upload-v2': true,
+                    'sw-upload-listener': true,
                     'sw-modal': {
                         template: `
                     <div class="sw-modal-stub">
@@ -126,51 +224,9 @@ async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
                         create: (name) => {
                             switch (name) {
                                 case 'cms_block':
-                                    return {
-                                        clone: jest.fn(() =>
-                                            Promise.resolve({
-                                                id: 'cloned-block-id',
-                                            }),
-                                        ),
-                                        get: jest.fn(() =>
-                                            Promise.resolve({
-                                                id: 'cloned-block-id',
-                                                position: 1,
-                                                slots: [],
-                                                visibility: [
-                                                    {
-                                                        mobile: true,
-                                                        tablet: true,
-                                                        desktop: true,
-                                                    },
-                                                ],
-                                            }),
-                                        ),
-                                        save: jest.fn(() => Promise.resolve()),
-                                    };
+                                    return repositoryFactoryCmsBlockMock;
                                 case 'cms_section':
-                                    return {
-                                        clone: jest.fn(() =>
-                                            Promise.resolve({
-                                                id: 'cloned-section-id',
-                                            }),
-                                        ),
-                                        get: jest.fn(() =>
-                                            Promise.resolve({
-                                                id: 'cloned-section-id',
-                                                position: 1,
-                                                blocks: [],
-                                                visibility: [
-                                                    {
-                                                        mobile: true,
-                                                        tablet: true,
-                                                        desktop: true,
-                                                    },
-                                                ],
-                                            }),
-                                        ),
-                                        save: jest.fn(() => Promise.resolve()),
-                                    };
+                                    return repositoryFactoryCmsSectionMock;
                                 case 'category':
                                     return {
                                         search: () =>
@@ -196,42 +252,7 @@ async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
                                             ]),
                                     };
                                 default:
-                                    return {
-                                        search: () =>
-                                            Promise.resolve(
-                                                new EntityCollection(
-                                                    '',
-                                                    '',
-                                                    Shopware.Context.api,
-                                                    null,
-                                                    [
-                                                        {
-                                                            name: 'defaultRepository',
-                                                        },
-                                                    ],
-                                                    1,
-                                                ),
-                                            ),
-                                        get: () =>
-                                            Promise.resolve({
-                                                sections: [
-                                                    {
-                                                        blocks: [],
-                                                        visibility: [
-                                                            {
-                                                                mobile: true,
-                                                                tablet: true,
-                                                                desktop: true,
-                                                            },
-                                                        ],
-                                                    },
-                                                ],
-                                                type: CMS.PAGE_TYPES.LANDING,
-                                                versionId: versionId,
-                                            }),
-                                        save: jest.fn(() => Promise.resolve()),
-                                        clone: jest.fn(() => Promise.resolve()),
-                                    };
+                                    return repositoryFactoryDefaultMock;
                             }
                         },
                     },
@@ -266,7 +287,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
             isLoading: false,
         });
 
-        const formIcon = wrapper.find('sw-icon-stub[name="regular-bars-square"]');
+        const formIcon = wrapper.find('.mt-icon.icon--regular-bars-square');
         expect(formIcon.classes()).toContain('is--disabled');
 
         const saveAction = wrapper.find('.sw-cms-detail__save-action');
@@ -296,7 +317,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
             isLoading: false,
         });
 
-        const formIcon = wrapper.find('sw-icon-stub[name="regular-bars-square"]');
+        const formIcon = wrapper.find('.mt-icon.icon--regular-bars-square');
         expect(formIcon.classes()).not.toContain('is--disabled');
 
         const saveAction = wrapper.find('.sw-cms-detail__save-action');

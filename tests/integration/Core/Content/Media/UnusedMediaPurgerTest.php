@@ -18,7 +18,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(UnusedMediaPurger::class)]
 class UnusedMediaPurgerTest extends TestCase
 {

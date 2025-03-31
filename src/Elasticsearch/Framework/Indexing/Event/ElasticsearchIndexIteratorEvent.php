@@ -9,7 +9,7 @@ use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 /**
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class ElasticsearchIndexIteratorEvent
 {
     public function __construct(

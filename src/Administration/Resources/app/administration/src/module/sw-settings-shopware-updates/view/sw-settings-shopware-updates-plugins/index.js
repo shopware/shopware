@@ -3,13 +3,11 @@ import template from './sw-shopware-updates-plugins.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package services-settings
+ * @sw-package framework
  * @private
  */
 Component.register('sw-settings-shopware-updates-plugins', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 

@@ -1,3 +1,4 @@
+{% block sw_license_violation %}
 <sw-modal
     v-if="visible"
     :title="$tc('sw-license-violation.title')"
@@ -52,21 +53,23 @@
                     :key="action.externalLink"
                     class="sw-license-violation__table-actions-wrap"
                 >
-                    <sw-button
+                    <mt-button
                         class="sw-license-violation__table-action-remove"
-                        variant="ghost-danger"
+                        variant="critical"
+                        ghost
                         size="small"
                         @click.prevent="deletePlugin(violation)"
                     >
                         {{ $tc('sw-license-violation.deletePlugin') }}
-                    </sw-button>
+                    </mt-button>
 
-                    <sw-button
+                    <mt-button
                         :link="action.externalLink"
-                        variant="ghost"
+                        ghost
                         size="small"
+                        variant="secondary"
                     >{{ action.label }}
-                    </sw-button>
+                    </mt-button>
                 </div>
             </td>
 
@@ -74,19 +77,19 @@
     </table>
 
     <template #modal-footer>
-        <sw-checkbox-field
-            v-model:value="readNotice"
+        <mt-checkbox
+            v-model:checked="readNotice"
             :label="$tc('sw-license-violation.checkboxMessage')"
         />
 
-        <sw-button
+        <mt-button
             variant="primary"
             :disabled="!readNotice"
             size="small"
             @click="deactivateTemporary"
         >
             {{ $tc('sw-license-violation.closeModal') }}
-        </sw-button>
+        </mt-button>
     </template>
 
     <sw-modal
@@ -102,20 +105,22 @@
         </p>
 
         <template #modal-footer>
-            <sw-button
+            <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCloseDeleteModal"
             >
                 {{ $tc('global.default.cancel') }}
-            </sw-button>
+            </mt-button>
 
-            <sw-button
+            <mt-button
                 size="small"
-                variant="danger"
+                variant="critical"
                 @click="onConfirmDelete"
             >
                 {{ $tc('global.default.delete') }}
-            </sw-button>
+            </mt-button>
         </template>
     </sw-modal>
 </sw-modal>
+{% endblock %}

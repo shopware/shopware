@@ -1,12 +1,10 @@
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
-import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import type { PropType } from 'vue';
 import type RepositoryType from 'src/core/data/repository.data';
 import type CriteriaType from 'src/core/data/criteria.data';
 import template from './sw-order-state-history-modal.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Component, Mixin } = Shopware;
@@ -33,8 +31,6 @@ interface CombinedStates {
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -236,12 +232,26 @@ export default Component.wrapComponentConfig({
                 entries.push(this.createEntry(states, entry));
             });
 
+            const lastTransaction = this.order.transactions?.last();
+            if (!!lastTransaction && !knownTransactionIds.includes(lastTransaction.id)) {
+                entries.push(
+                    this.createEntry(
+                        {
+                            ...states,
+                            // @ts-expect-error - states exists
+                            order_transaction: lastTransaction?.stateMachineState,
+                        },
+                        lastTransaction,
+                    ),
+                );
+            }
+
             return entries;
         },
 
         createEntry(
             states: CombinedStates,
-            entry: Entity<'state_machine_history'> | Entity<'order'>,
+            entry: Entity<'state_machine_history'> | Entity<'order'> | Entity<'order_transaction'>,
         ): StateMachineHistoryData {
             return {
                 order: states.order,
@@ -249,8 +259,8 @@ export default Component.wrapComponentConfig({
                 delivery: states.order_delivery,
                 createdAt: 'orderDateTime' in entry ? entry.orderDateTime : entry.createdAt,
                 user: 'user' in entry ? entry.user : undefined,
-                entity: 'entityName' in entry ? entry.entityName : 'order',
-                referencedId: 'referencedId' in entry ? entry.referencedId : undefined,
+                entity: 'entityName' in entry ? entry.entityName : entry.getEntityName(),
+                referencedId: 'referencedId' in entry ? entry.referencedId : entry.id,
             };
         },
 

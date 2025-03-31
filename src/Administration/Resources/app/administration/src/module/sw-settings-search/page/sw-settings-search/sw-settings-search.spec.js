@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
@@ -84,11 +84,7 @@ async function createWrapper() {
                     </div>
                 `,
                     },
-                    'sw-icon': true,
                     'sw-language-switch': true,
-                    'sw-button': {
-                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                    },
                     'sw-card-view': {
                         template: `
                     <div class="sw-card-view">

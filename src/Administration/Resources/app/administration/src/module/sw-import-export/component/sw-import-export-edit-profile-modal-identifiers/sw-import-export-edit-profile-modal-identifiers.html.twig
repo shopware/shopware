@@ -1,7 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_import_export_edit_profile_modal_identifiers %}
 <div class="sw-import-export-edit-profile-modal-identifiers">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_edit_profile_modal_identifiers_grid %}
     <sw-data-grid
         v-if="identifiers && identifiers.length"
@@ -14,14 +12,12 @@
         class="sw-import-export-edit-profile-modal-identifiers__grid"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_identifiers_grid_entity_name_column %}
         <template #column-identifierName="{ item }">
             {{ item.propertyNames.join(', ') }}
         </template>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_identifiers_grid_mapped_column %}
         <template #column-mapped="{ item }">
             <sw-single-select
@@ -52,7 +48,6 @@
     </sw-data-grid>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_edit_profile_modal_identifiers_empty_state %}
     <sw-empty-state
         v-else

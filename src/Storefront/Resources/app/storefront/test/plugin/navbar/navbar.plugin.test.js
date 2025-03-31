@@ -10,14 +10,21 @@ describe('NavbarPlugin', () => {
         mockElement = document.createElement('div');
         mockLink = document.createElement('a');
         mockLink.classList.add('main-navigation-link');
+        mockLink.href = '#';
         mockElement.appendChild(mockLink);
 
-        // Spy on addEventListener method
+        // Spy on addEventListener method and window open method
         jest.spyOn(mockLink, 'addEventListener');
+        jest.spyOn(window, 'open').mockImplementation(() => {});
 
         // Instantiate the NavbarPlugin with only one top-level link
         navbarPlugin = new NavbarPlugin(mockElement, {}, false); // Pass false to prevent init from being called
         navbarPlugin._topLevelLinks = [mockLink];
+    });
+
+    afterEach(() => {
+        // Clear the mock for window.open
+        window.open.mockRestore();
     });
 
     test('init should initialize _topLevelLinks', () => {
@@ -34,6 +41,34 @@ describe('NavbarPlugin', () => {
         expect(mockLink.addEventListener).toHaveBeenCalledTimes(3);
     });
 
+    test('init should omit click event for elements without a reference', () => {
+        // Create a new instance of NavbarPlugin inside the test
+        navbarPlugin = new NavbarPlugin(mockElement, {}, false);
+        mockLink.removeAttribute('href');
+        navbarPlugin._topLevelLinks = [mockLink];
+
+        // Clear the mock history of addEventListener
+        mockLink.addEventListener.mockClear();
+
+        navbarPlugin.init();
+
+        const addedEvents = {};
+        mockLink.addEventListener.mock.calls.forEach(call => {
+            addedEvents[call[0]] = call[1];
+        });
+
+        expect(navbarPlugin._topLevelLinks).not.toBeNull();
+        expect(mockLink.addEventListener).toHaveBeenCalledTimes(2);
+
+        expect(addedEvents['mouseenter']).toBeDefined();
+        expect(typeof addedEvents['mouseenter']).toBe('function');
+
+        expect(addedEvents['mouseleave']).toBeDefined();
+        expect(typeof addedEvents['mouseleave']).toBe('function');
+
+        expect(addedEvents).not.toContain('click');
+    });
+
     test('_toggleNavbar should handle mouseenter and mouseleave events', () => {
         const mockEventEnter = {type: 'mouseenter'};
         const mockEventLeave = {type: 'mouseleave'};
@@ -47,19 +82,25 @@ describe('NavbarPlugin', () => {
         expect(navbarPlugin._toggleNavbar).toHaveBeenCalledWith(mockLink, mockEventLeave);
     });
 
-    test('_navigateToLinkOnClick should prevent default action on click', () => {
-        const mockEvent = {type: 'click', pageX: 1, preventDefault: jest.fn(), stopPropagation: jest.fn()};
+    test('_navigateToLinkOnClick should open in new window when target blank is set', () => {
+        const mockEventClick = { type: 'click', pageX: 99 };
+        const mockLink = { href: 'https://example.com', target: '_blank' };
 
-        navbarPlugin._navigateToLinkOnClick(mockLink, mockEvent);
-        expect(mockEvent.preventDefault).toHaveBeenCalled();
-        expect(mockEvent.stopPropagation).toHaveBeenCalled();
+        navbarPlugin._navigateToLinkOnClick(mockLink, mockEventClick);
+
+        expect(window.open).toHaveBeenCalledWith(mockLink.href, '_blank', 'noopener, noreferrer');
     });
 
-    test('_navigateToLinkOnClick should handle click event with pageX not equal to 0', () => {
-        const mockEvent = {type: 'click', pageX: 1, preventDefault: jest.fn(), stopPropagation: jest.fn()};
-        navbarPlugin._navigateToLinkOnClick(mockLink, mockEvent);
-        expect(mockEvent.preventDefault).toHaveBeenCalled();
-        expect(mockEvent.stopPropagation).toHaveBeenCalled();
+    test('_navigateToLinkOnClick should set window.location.href if not target _blank', () => {
+        delete window.location;
+        window.location = new URL('https://www.example.com');
+
+        const mockEventClick = { type: 'click', pageX: 99 };
+        const mockLink = { href: 'https://example.com/abc', target: '_self' };
+
+        navbarPlugin._navigateToLinkOnClick(mockLink, mockEventClick);
+
+        expect(window.location.href).toBe(mockLink.href);
     });
 
     test('_closeAllDropdowns should close all dropdowns', () => {
@@ -145,5 +186,30 @@ describe('NavbarPlugin', () => {
         navbarPlugin._topLevelLinks = [mockLink];
         navbarPlugin._closeAllDropdowns();
         expect(mockDropdown.hide).toHaveBeenCalled();
+    });
+
+    test('_setAriaCurrentPage should be called on load event', () => {
+        const mockEvent = new Event('load');
+        jest.spyOn(navbarPlugin, '_setAriaCurrentPage'); // Spy on the method
+
+        window.addEventListener('load', () => {
+            navbarPlugin._setAriaCurrentPage();
+        });
+        window.dispatchEvent(mockEvent);
+
+        expect(navbarPlugin._setAriaCurrentPage).toHaveBeenCalled();
+    });
+
+    test('if aria-current is set for one nav-item', () => {
+        const mockLink = document.createElement('a');
+        mockLink.classList.add('nav-item-1-link');
+        mockLink.setAttribute('href', 'https://example.com');
+        mockElement.appendChild(mockLink);
+
+        window.activeNavigationId = 1; // Set the activeNavigationId
+
+        navbarPlugin._setAriaCurrentPage();
+
+        expect(mockLink.getAttribute('aria-current')).toBe('page');
     });
 });

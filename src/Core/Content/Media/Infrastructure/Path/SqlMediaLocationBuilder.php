@@ -16,9 +16,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  *
- * @codeCoverageIgnore (see \Shopware\Tests\Integration\Core\Content\Media\Infrastructure\Path\MediaLocationBuilderTest)
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Content\Media\Infrastructure\Path\MediaLocationBuilderTest
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class SqlMediaLocationBuilder implements MediaLocationBuilder
 {
     /**

@@ -6,22 +6,12 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 
-#[Package('services-settings')]
+#[Package('inventory')]
 class SearchPage extends Page
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $searchTerm;
+    protected string $searchTerm;
 
-    /**
-     * @var ProductListingResult
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $listing;
+    protected ProductListingResult $listing;
 
     public function getSearchTerm(): string
     {

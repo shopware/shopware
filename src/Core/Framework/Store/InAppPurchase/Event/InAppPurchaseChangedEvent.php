@@ -12,7 +12,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @final
  */
-#[Package('core')]
+#[Package('framework')]
 class InAppPurchaseChangedEvent extends Event implements Hookable
 {
     final public const NAME = 'in_app_purchase.changed';

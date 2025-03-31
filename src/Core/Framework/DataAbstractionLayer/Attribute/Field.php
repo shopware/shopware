@@ -4,7 +4,12 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Attribute;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+/**
+ * This attribute class is intentionally not final, as it's extended by other field attributes
+ *
+ * @phpstan-ignore shopware.attributeNotFinal
+ */
+#[Package('framework')]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
 class Field
 {

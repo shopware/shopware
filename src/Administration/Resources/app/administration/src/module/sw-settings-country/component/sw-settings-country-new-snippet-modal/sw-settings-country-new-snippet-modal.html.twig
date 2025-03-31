@@ -1,3 +1,4 @@
+{% block sw_settings_country_new_snippet_modal %}
 <sw-modal
     class="sw-settings-country-new-snippet-modal"
     :title="$tc('sw-settings-country.detail.newSnippetModalTitle')"
@@ -27,10 +28,10 @@
                 size="16px"
             />
 
-            <sw-icon
+            <mt-icon
                 class="sw-settings-country-new-snippet-modal__search-icon"
                 name="regular-search-s"
-                small
+                size="16px"
             />
         </template>
     </sw-contextual-field>
@@ -81,12 +82,13 @@
 
                 <template #actions="{ item }">
 
-                    <sw-button
+                    <mt-button
                         v-if="item.childCount === 0"
+                        variant="secondary"
                         @click="addElement(item.data)"
                     >
                         {{ $tc('sw-settings-country.detail.buttonInsertSnippet') }}
-                    </sw-button>
+                    </mt-button>
                 </template>
             </sw-tree-item>
         </template>
@@ -97,7 +99,6 @@
         :is-loading="isLoading"
         :error="null"
         v-bind="$attrs"
-        v-on="listeners"
     >
         <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse }">
             <ul
@@ -147,3 +148,4 @@
         </template>
     </sw-select-base>
 </sw-modal>
+{% endblock %}

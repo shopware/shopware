@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 import template from './sw-settings-units.html.twig';
 import './sw-settings-units.scss';
@@ -12,8 +12,6 @@ const { Criteria } = Shopware.Data;
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',

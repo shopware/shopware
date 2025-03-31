@@ -32,6 +32,3 @@ labels:
     body: "Extension:Showroom-Theme"
   - label: "Extension:Social-Shopping"
     body: "Extension:Social-Shopping"
-  - label: "Bug" # add bug Label to every issue but to no PR
-    negate: True
-    type: "pull_request"

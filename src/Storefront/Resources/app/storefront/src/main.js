@@ -1,5 +1,5 @@
 /**
- * @package storefront
+ * @sw-package framework
  */
 
 /*
@@ -20,6 +20,7 @@ import PluginManager from 'src/plugin-system/plugin.manager';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 import NativeEventEmitter from 'src/helper/emitter.helper';
 import FocusHandler from 'src/helper/focus-handler.helper';
+import FormValidation from 'src/helper/form-validation.helper';
 
 /*
 import utils
@@ -33,8 +34,10 @@ import (synchronously) plugins
 import SetBrowserClassPlugin from 'src/plugin/set-browser-class/set-browser-class.plugin';
 import SpeculationRulesPlugin from 'src/plugin/speculation-rules/speculation-rules.plugin';
 
+window.Feature = Feature;
 window.eventEmitter = new NativeEventEmitter();
 window.focusHandler = new FocusHandler();
+window.formValidation = new FormValidation();
 window.bootstrap = bootstrap;
 
 /*
@@ -53,27 +56,20 @@ PluginManager.register('AccountGuestAbortButton', () => import('src/plugin/heade
 PluginManager.register('OffCanvasCart', () => import('src/plugin/offcanvas-cart/offcanvas-cart.plugin'), '[data-off-canvas-cart]');
 PluginManager.register('AddToCart', () => import('src/plugin/add-to-cart/add-to-cart.plugin'), '[data-add-to-cart]');
 PluginManager.register('CollapseFooterColumns', () => import('src/plugin/collapse/collapse-footer-columns.plugin'), '[data-collapse-footer-columns]');
-if (!Feature.isActive('v6.7.0.0')) {
-    PluginManager.register('CollapseCheckoutConfirmMethods', () => import('src/plugin/collapse/collapse-checkout-confirm-methods.plugin'), '[data-collapse-checkout-confirm-methods]');
-}
-if (Feature.isActive('v6.7.0.0')) {
-    PluginManager.register('Navbar', () => import('src/plugin/navbar/navbar.plugin'), '[data-navbar]');
-} else {
-    /** @deprecated tag:v6.7.0 - FlyoutMenu will be removed, see Navbar for the new implementation. */
-    PluginManager.register('FlyoutMenu', () => import('src/plugin/main-menu/flyout-menu.plugin'), '[data-flyout-menu]');
-}
+PluginManager.register('Navbar', () => import('src/plugin/navbar/navbar.plugin'), '[data-navbar]');
 PluginManager.register('OffCanvasMenu', () => import('src/plugin/main-menu/offcanvas-menu.plugin'), '[data-off-canvas-menu]');
+PluginManager.register('FormHandler', () => import('src/plugin/forms/form-handler.plugin'), '[data-form-handler]');
+/** @deprecated tag:v6.8.0 - The handling and validation of forms will be done with the `form-handler.plugin.js`.  */
 PluginManager.register('FormValidation', () => import('src/plugin/forms/form-validation.plugin'), '[data-form-validation]');
-PluginManager.register('FormScrollToInvalidField', () => import('src/plugin/forms/form-scroll-to-invalid-field.plugin'), 'form');
+/** @deprecated tag:v6.8.0 - The handling and validation of forms will be done with the `form-handler.plugin.js`.  */
 PluginManager.register('FormSubmitLoader', () => import('src/plugin/forms/form-submit-loader.plugin'), '[data-form-submit-loader]');
 PluginManager.register('FormFieldToggle', () => import('src/plugin/forms/form-field-toggle.plugin'), '[data-form-field-toggle]');
 PluginManager.register('FormAutoSubmit', () => import('src/plugin/forms/form-auto-submit.plugin'), '[data-form-auto-submit]');
 PluginManager.register('FormAjaxSubmit', () => import('src/plugin/forms/form-ajax-submit.plugin'), '[data-form-ajax-submit]');
 PluginManager.register('FormAddHistory', () => import('src/plugin/forms/form-add-history.plugin'), '[data-form-add-history]');
 PluginManager.register('FormPreserver', () => import('src/plugin/forms/form-preserver.plugin'), '[data-form-preserver]');
-if (Feature.isActive('ACCESSIBILITY_TWEAKS')) {
-    PluginManager.register('FormAjaxPagination', () => import('src/plugin/forms/form-ajax-pagination.plugin'), '[data-form-ajax-pagination]');
-}
+PluginManager.register('FormAjaxPagination', () => import('src/plugin/forms/form-ajax-pagination.plugin'), '[data-form-ajax-pagination]');
+PluginManager.register('FormAddDynamicRedirect', () => import('src/plugin/forms/form-add-dynamic-redirect-plugin'), '[data-form-add-dynamic-redirect]');
 PluginManager.register('AccountMenu', () => import('src/plugin/header/account-menu.plugin'), '[data-account-menu]');
 PluginManager.register('OffCanvasTabs', () => import('src/plugin/offcanvas-tabs/offcanvas-tabs.plugin'), '[data-off-canvas-tabs]');
 PluginManager.register('BaseSlider', () => import('src/plugin/slider/base-slider.plugin'), '[data-base-slider]');
@@ -84,7 +80,8 @@ PluginManager.register('Magnifier', () => import('src/plugin/magnifier/magnifier
 PluginManager.register('SpeculationRules', SpeculationRulesPlugin, '[data-speculation-rules]');
 PluginManager.register('VariantSwitch', () => import('src/plugin/variant-switch/variant-switch.plugin'), '[data-variant-switch]');
 PluginManager.register('RemoteClick', () => import('src/plugin/remote-click/remote-click.plugin'), '[data-remote-click]');
-PluginManager.register('AddressEditor', () => import('src/plugin/address-editor/address-editor.plugin'), '[data-address-editor]');
+PluginManager.register('AddressManager', () => import('src/plugin/address-manager/address-manager.plugin'), '[data-address-manager]');
+PluginManager.register('AddressSearch', () => import('src/plugin/address-search/address-search.plugin'), '[data-address-search]');
 PluginManager.register('SetBrowserClass', SetBrowserClassPlugin, 'html');
 PluginManager.register('RatingSystem', () => import('src/plugin/rating-system/rating-system.plugin'), '[data-rating-system]');
 PluginManager.register('Listing', () => import('src/plugin/listing/listing.plugin'), '[data-listing]');
@@ -108,19 +105,19 @@ PluginManager.register('QuantitySelector', () => import('src/plugin/quantity-sel
 PluginManager.register('AjaxModal', () => import('src/plugin/ajax-modal/ajax-modal.plugin'), '[data-ajax-modal][data-url]');
 
 /**
- * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+ * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
  */
 PluginManager.register('SpatialGallerySliderViewer', () => import('src/plugin/spatial/spatial-gallery-slider-viewer.plugin'), '[data-spatial-gallery-slider-viewer]');
 /**
- * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+ * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
  */
 PluginManager.register('SpatialZoomGallerySliderViewer', () => import('src/plugin/spatial/spatial-zoom-gallery-slider-viewer.plugin'), '[data-spatial-zoom-gallery-slider-viewer]');
 /**
- * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+ * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
  */
 PluginManager.register('SpatialArViewer', () => import('src/plugin/spatial/spatial-ar-viewer-plugin'), '[data-spatial-ar-viewer]');
 /**
- * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+ * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
  */
 PluginManager.register('PageQrcodeGenerator', () => import('src/plugin/qrcode/page-qrcode-generator'), '[data-page-qrcode-generator]');
 
@@ -152,8 +149,6 @@ if (window.googleReCaptchaV2Active) {
 if (window.googleReCaptchaV3Active) {
     PluginManager.register('GoogleReCaptchaV3', () => import('src/plugin/captcha/google-re-captcha/google-re-captcha-v3.plugin'), '[data-google-re-captcha-v3]');
 }
-
-window.Feature = Feature;
 
 /*
 run plugins

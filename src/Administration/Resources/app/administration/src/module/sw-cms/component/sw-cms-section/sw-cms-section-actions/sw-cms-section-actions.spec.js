@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 
@@ -11,11 +11,6 @@ async function createWrapper() {
         {
             props: {
                 section: {},
-            },
-            global: {
-                stubs: {
-                    'sw-icon': true,
-                },
             },
         },
     );

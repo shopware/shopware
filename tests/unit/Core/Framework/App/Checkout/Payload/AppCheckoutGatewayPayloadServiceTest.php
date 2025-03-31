@@ -31,7 +31,7 @@ class AppCheckoutGatewayPayloadServiceTest extends TestCase
 {
     public function testRequest(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $cart = Generator::createCart();
         $paymentMethods = ['paymentMethod-1', 'paymentMethod-2'];
         $shippingMethods = ['shippingMethod-1', 'shippingMethod-2'];
@@ -45,7 +45,7 @@ class AppCheckoutGatewayPayloadServiceTest extends TestCase
 
         $helper = $this->createMock(AppPayloadServiceHelper::class);
         $helper
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('createRequestOptions')
             ->with($payload, $app, $context->getContext())
             ->willReturn($this->buildTestPayload($context->getContext(), $encodedPayload));
@@ -76,7 +76,7 @@ class AppCheckoutGatewayPayloadServiceTest extends TestCase
 
     public function testRequestAppThrowsException(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $cart = Generator::createCart();
         $paymentMethods = ['paymentMethod-1', 'paymentMethod-2'];
         $shippingMethods = ['shippingMethod-1', 'shippingMethod-2'];
@@ -96,7 +96,7 @@ class AppCheckoutGatewayPayloadServiceTest extends TestCase
 
         $logger = $this->createMock(ExceptionLogger::class);
         $logger
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('logOrThrowException')
             ->with($e);
 

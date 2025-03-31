@@ -100,7 +100,7 @@ abstract class AbstractDocumentRenderer
             return true;
         }
 
-        $vatId = $shippingAddress?->getVatId();
+        $vatId = $shippingAddress->getVatId();
         if ($vatId === null) {
             return false;
         }

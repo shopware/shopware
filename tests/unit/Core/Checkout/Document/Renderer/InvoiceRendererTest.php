@@ -41,6 +41,7 @@ use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -98,6 +99,7 @@ class InvoiceRendererTest extends TestCase
             $this->createMock(NumberRangeValueGeneratorInterface::class),
             $connectionMock,
             $this->createMock(DocumentFileRendererRegistry::class),
+            $this->createMock(ValidatorInterface::class),
         );
 
         $operations = [

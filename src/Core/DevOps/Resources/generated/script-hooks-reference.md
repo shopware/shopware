@@ -551,7 +551,7 @@ All available hooks within the Store-API and API
 | **Since**              | 6.6.10.0                        |
 | **Class**              | `Shopware\Core\Framework\Script\Api\ResponseHook`                      |
 | **Description**        | Triggered on every response<br>                  |
-| **Available Data**     | response: `Symfony\Component\HttpFoundation\Response`<br>routeName: `string`<br>routeScopes: `array`<br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/shopware/blob/trunk/src/Core/Framework/Context.php)<br>        |
+| **Available Data**     | response: `Symfony\Component\HttpFoundation\Response`<br>routeName: `string`<br>routeScopes: `array`<br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php)<br>        |
 | **Available Services** |  |
 | **Stoppable**          | `false`                  |
 

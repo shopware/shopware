@@ -202,7 +202,7 @@ declare global {
         _inAppPurchases_: Record<string, string>;
         processingInactivityLogout?: boolean;
         _sw_extension_component_collection: DevtoolComponent[];
-        // Only available with Vite
+        _swLoginOverrides?: Array<() => void>;
         startApplication: () => void;
     }
 

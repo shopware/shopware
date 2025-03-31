@@ -34,14 +34,14 @@ class AllServiceInstallerTest extends TestCase
             $this->buildAppRepository(),
         );
 
-        $serviceRegistryClient->expects(static::once())
+        $serviceRegistryClient->expects($this->once())
             ->method('getAll')
             ->willReturn([
                 new ServiceRegistryEntry('Service1', 'https://service-1.com', 'Service 1', ''),
                 new ServiceRegistryEntry('Service2', 'https://service-2.com', 'Service 2', ''),
             ]);
 
-        $matcher = static::exactly(2);
+        $matcher = $this->exactly(2);
         $serviceLifeCycle->expects($matcher)
             ->method('install')
             ->willReturnCallback(function (ServiceRegistryEntry $serviceRegistryEntry) use ($matcher): bool {
@@ -72,13 +72,13 @@ class AllServiceInstallerTest extends TestCase
         );
 
         if ($shouldBeActive) {
-            $serviceRegistryClient->expects(static::once())
+            $serviceRegistryClient->expects($this->once())
             ->method('getAll')
             ->willReturn([
                 new ServiceRegistryEntry('Service1', 'https://service-1.com', 'Service 1', ''),
             ]);
 
-            $serviceLifeCycle->expects(static::once())
+            $serviceLifeCycle->expects($this->once())
                 ->method('install')
                 ->willReturnCallback(function (ServiceRegistryEntry $serviceRegistryEntry): bool {
                     $this->assertEquals('Service1', $serviceRegistryEntry->name);
@@ -86,10 +86,10 @@ class AllServiceInstallerTest extends TestCase
                     return true;
                 });
         } else {
-            $serviceRegistryClient->expects(static::never())
+            $serviceRegistryClient->expects($this->never())
                 ->method('getAll');
 
-            $serviceLifeCycle->expects(static::never())
+            $serviceLifeCycle->expects($this->never())
                 ->method('install');
         }
 
@@ -132,14 +132,14 @@ class AllServiceInstallerTest extends TestCase
             $this->buildAppRepository([$app1]),
         );
 
-        $serviceRegistryClient->expects(static::once())
+        $serviceRegistryClient->expects($this->once())
             ->method('getAll')
             ->willReturn([
                 new ServiceRegistryEntry('Service1', 'Service 1', 'https://service-1.com', '/app-endpoint'),
                 new ServiceRegistryEntry('Service2', 'Service 2', 'https://service-2.com', '/app-endpoint'),
             ]);
 
-        $serviceLifeCycle->expects(static::exactly(1))
+        $serviceLifeCycle->expects($this->exactly(1))
             ->method('install')
             ->willReturnCallback(function (ServiceRegistryEntry $serviceRegistryEntry): bool {
                 $this->assertEquals('Service2', $serviceRegistryEntry->name);
@@ -170,14 +170,14 @@ class AllServiceInstallerTest extends TestCase
             $this->buildAppRepository([$app1, $app2]),
         );
 
-        $serviceRegistryClient->expects(static::once())
+        $serviceRegistryClient->expects($this->once())
             ->method('getAll')
             ->willReturn([
                 new ServiceRegistryEntry('Service1', 'Service 1', 'https://service-1.com', '/app-endpoint'),
                 new ServiceRegistryEntry('Service2', 'Service 2', 'https://service-2.com', '/app-endpoint'),
             ]);
 
-        $serviceLifeCycle->expects(static::never())
+        $serviceLifeCycle->expects($this->never())
             ->method('install');
 
         $serviceInstaller->install(Context::createDefaultContext());

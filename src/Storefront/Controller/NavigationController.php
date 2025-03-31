@@ -6,7 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoadedHook;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoaderInterface;
+use Shopware\Storefront\Pagelet\Footer\FooterPageletLoadedHook;
 use Shopware\Storefront\Pagelet\Footer\FooterPageletLoaderInterface;
+use Shopware\Storefront\Pagelet\Header\HeaderPageletLoadedHook;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoadedHook;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoaderInterface;
@@ -75,6 +77,8 @@ class NavigationController extends StorefrontController
     {
         $header = $this->headerLoader->load($request, $context);
 
+        $this->hook(new HeaderPageletLoadedHook($header, $context));
+
         return $this->renderStorefront('@Storefront/storefront/layout/header.html.twig', ['header' => $header]);
     }
 
@@ -82,6 +86,8 @@ class NavigationController extends StorefrontController
     public function footer(Request $request, SalesChannelContext $context): Response
     {
         $footer = $this->footerLoader->load($request, $context);
+
+        $this->hook(new FooterPageletLoadedHook($footer, $context));
 
         return $this->renderStorefront('@Storefront/storefront/layout/footer.html.twig', ['footer' => $footer]);
     }

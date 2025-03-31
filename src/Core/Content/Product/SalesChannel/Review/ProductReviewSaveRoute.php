@@ -2,9 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
-use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Framework\Context;
@@ -42,7 +40,7 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
         private readonly EntityRepository $repository,
         private readonly DataValidator $validator,
         private readonly SystemConfigService $config,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -54,18 +52,17 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
     #[Route(path: '/store-api/product/{productId}/review', name: 'store-api.product-review.save', methods: ['POST'], defaults: ['_loginRequired' => true])]
     public function save(string $productId, RequestDataBag $data, SalesChannelContext $context): NoContentResponse
     {
-        EmailIdnConverter::encodeDataBag($data);
-
-        $this->checkReviewsActive($context);
+        $salesChannelId = $context->getSalesChannelId();
+        if (!$this->config->getBool('core.listing.showReview', $salesChannelId)) {
+            throw ProductException::reviewNotActive();
+        }
 
         $customer = $context->getCustomer();
-        \assert($customer instanceof CustomerEntity);
-
-        $languageId = $context->getLanguageId();
-        $salesChannelId = $context->getSalesChannelId();
+        \assert($customer !== null);
 
         $customerId = $customer->getId();
 
+        EmailIdnConverter::encodeDataBag($data);
         if (!$data->has('name')) {
             $data->set('name', $customer->getFirstName());
         }
@@ -86,7 +83,7 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
             'productId' => $productId,
             'customerId' => $customerId,
             'salesChannelId' => $salesChannelId,
-            'languageId' => $languageId,
+            'languageId' => $context->getLanguageId(),
             'externalUser' => $data->get('name'),
             'externalEmail' => $data->get('email'),
             'title' => $data->get('title'),
@@ -105,7 +102,7 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
         $mail = \is_string($mail) ? $mail : '';
         $event = new ReviewFormEvent(
             $context->getContext(),
-            $context->getSalesChannelId(),
+            $salesChannelId,
             new MailRecipientStruct([$mail => $review['externalUser'] . ' ' . $data->get('lastName')]),
             $data,
             $productId,
@@ -161,17 +158,5 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
         }
 
         throw new ConstraintViolationException($violations, $data->all());
-    }
-
-    /**
-     * @throws ReviewNotActiveExeption
-     */
-    private function checkReviewsActive(SalesChannelContext $context): void
-    {
-        $showReview = $this->config->get('core.listing.showReview', $context->getSalesChannelId());
-
-        if (!$showReview) {
-            throw ProductException::reviewNotActive();
-        }
     }
 }

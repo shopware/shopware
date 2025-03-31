@@ -7,6 +7,20 @@
     max-width: $content-width;
     transition: max-width 0.3s ease-in-out;
 
+    &__general-priority {
+        margin: 0;
+    }
+
+    &__general-active {
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+
+    &__general-card {
+        width: 100%;
+    }
+
     &__log-label {
         display: block;
         margin-bottom: 16px;

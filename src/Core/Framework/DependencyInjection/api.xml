@@ -172,7 +172,8 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver"/>
             <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase"/>
-            <argument type="service" id="shopware.filesystem.asset"/>
+            <argument type="service" id="Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator"/>
+            <argument type="service" id="filesystem"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

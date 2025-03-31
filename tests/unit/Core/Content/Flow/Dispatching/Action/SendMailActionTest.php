@@ -177,34 +177,34 @@ class SendMailActionTest extends TestCase
 
         $flow->setConfig($config);
 
-        $this->entitySearchResult->expects(static::once())
+        $this->entitySearchResult->expects($this->once())
             ->method('first')
             ->willReturn($this->mailTemplate);
 
-        $this->mailTemplateRepository->expects(static::once())
+        $this->mailTemplateRepository->expects($this->once())
             ->method('search')
             ->willReturn($this->entitySearchResult);
 
         if (!$provider->updateMailTemplateTypeParam) {
-            $connection->expects(static::never())->method('fetchOne');
-            $this->logger->expects(static::never())->method('warning');
+            $connection->expects($this->never())->method('fetchOne');
+            $this->logger->expects($this->never())->method('warning');
             $action->handleFlow($flow);
 
             return;
         }
 
         if (!$provider->mailTemplateTypeId) {
-            $connection->expects(static::never())->method('fetchOne');
-            $this->logger->expects(static::never())->method('warning');
+            $connection->expects($this->never())->method('fetchOne');
+            $this->logger->expects($this->never())->method('warning');
             $action->handleFlow($flow);
 
             return;
         }
 
         if (!$provider->mailTemplateTypeTranslationExists) {
-            $connection->expects(static::once())->method('fetchOne')->willReturn(false);
+            $connection->expects($this->once())->method('fetchOne')->willReturn(false);
 
-            $this->logger->expects(static::once())->method('warning')->with(
+            $this->logger->expects($this->once())->method('warning')->with(
                 "Could not update mail template type, because translation for this language does not exits:\n"
                 . 'Flow id: ' . $flow->getFlowState()->flowId . "\n"
                 . 'Sequence id: ' . $flow->getFlowState()->getSequenceId()
@@ -215,11 +215,11 @@ class SendMailActionTest extends TestCase
         }
 
         if ($provider->expectUpdateMailTemplateType) {
-            $connection->expects(static::once())
+            $connection->expects($this->once())
                 ->method('fetchOne')
                 ->willReturn(true);
 
-            $this->mailTemplateTypeRepository->expects(static::once())->method('update')->with([
+            $this->mailTemplateTypeRepository->expects($this->once())->method('update')->with([
                 [
                     'id' => $provider->mailTemplateTypeId,
                     'templateData' => [
@@ -228,9 +228,9 @@ class SendMailActionTest extends TestCase
                     ],
                 ],
             ], $context);
-            $this->logger->expects(static::never())->method('warning');
+            $this->logger->expects($this->never())->method('warning');
         } else {
-            $this->mailTemplateTypeRepository->expects(static::never())->method('update');
+            $this->mailTemplateTypeRepository->expects($this->never())->method('update');
         }
 
         $action->handleFlow($flow);
@@ -306,23 +306,23 @@ class SendMailActionTest extends TestCase
 
         $flow->setConfig($config);
 
-        $this->entitySearchResult->expects(static::once())
+        $this->entitySearchResult->expects($this->once())
             ->method('first')
             ->willReturn($this->mailTemplate);
 
-        $this->mailTemplateRepository->expects(static::once())
+        $this->mailTemplateRepository->expects($this->once())
             ->method('search')
             ->willReturn($this->entitySearchResult);
 
-        $this->translator->expects(static::once())
+        $this->translator->expects($this->once())
             ->method('getSnippetSetId')
             ->willReturn(null);
 
-        $this->languageLocaleProvider->expects(static::once())
+        $this->languageLocaleProvider->expects($this->once())
             ->method('getLocaleForLanguageId')
             ->willReturn('en-GB');
 
-        $this->mailService->expects(static::once())
+        $this->mailService->expects($this->once())
             ->method('send')
             ->with(
                 $expected['data'],
@@ -398,7 +398,7 @@ class SendMailActionTest extends TestCase
         ]));
 
         static::expectException(MailEventConfigurationException::class);
-        $this->mailService->expects(static::never())->method('send');
+        $this->mailService->expects($this->never())->method('send');
 
         $this->action->handleFlow($flow);
     }
@@ -408,10 +408,10 @@ class SendMailActionTest extends TestCase
         $flow = new StorableFlow('', Context::createDefaultContext(), []);
 
         static::expectException(MailEventConfigurationException::class);
-        $this->mailService->expects(static::never())->method('send');
+        $this->mailService->expects($this->never())->method('send');
 
         static::expectException(MailEventConfigurationException::class);
-        $this->mailService->expects(static::never())->method('send');
+        $this->mailService->expects($this->never())->method('send');
 
         $this->action->handleFlow($flow);
     }
@@ -480,23 +480,23 @@ class SendMailActionTest extends TestCase
 
         $flow->setConfig($config);
 
-        $this->entitySearchResult->expects(static::once())
+        $this->entitySearchResult->expects($this->once())
             ->method('first')
             ->willReturn($this->mailTemplate);
 
-        $this->mailTemplateRepository->expects(static::once())
+        $this->mailTemplateRepository->expects($this->once())
             ->method('search')
             ->willReturn($this->entitySearchResult);
 
-        $this->translator->expects(static::once())
+        $this->translator->expects($this->once())
             ->method('getSnippetSetId')
             ->willReturn(null);
 
-        $this->languageLocaleProvider->expects(static::once())
+        $this->languageLocaleProvider->expects($this->once())
             ->method('getLocaleForLanguageId')
             ->willReturn('en-GB');
 
-        $this->mailService->expects(static::once())
+        $this->mailService->expects($this->once())
             ->method('send')
             ->with(
                 $expected['data'],

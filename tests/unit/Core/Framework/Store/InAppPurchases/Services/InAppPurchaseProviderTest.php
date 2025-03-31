@@ -155,7 +155,7 @@ class InAppPurchaseProviderTest extends TestCase
         static::assertIsString($validJwks);
 
         $client = $this->createMock(ClientInterface::class);
-        $client->expects(static::once())
+        $client->expects($this->once())
             ->method('request')
             ->willReturn(new Response(200, [], $validJwks));
 
@@ -199,7 +199,7 @@ class InAppPurchaseProviderTest extends TestCase
         ]);
 
         $client = $this->createMock(ClientInterface::class);
-        $client->expects(static::once())
+        $client->expects($this->once())
             ->method('request')
             ->willReturn(new Response(200, [], $invalidJwks));
 

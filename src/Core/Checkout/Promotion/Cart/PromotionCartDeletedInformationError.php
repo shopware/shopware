@@ -20,7 +20,7 @@ class PromotionCartDeletedInformationError extends Error
         $this->name = $discountLineItem->getLabel() ?? '';
         $this->discountLineItemId = $discountLineItem->getId();
         $this->message = \sprintf(
-            'Discount %s has been added',
+            'Promotion %s has been deleted',
             $this->name
         );
         parent::__construct($this->message);

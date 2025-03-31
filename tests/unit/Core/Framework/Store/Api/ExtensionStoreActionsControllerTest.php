@@ -37,7 +37,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
             true
         );
 
-        $pluginService->expects(static::once())->method('refreshPlugins');
+        $pluginService->expects($this->once())->method('refreshPlugins');
 
         $controller->refreshExtensions(Context::createDefaultContext());
     }
@@ -70,7 +70,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
             static::fail('Filesystem mock is not a mock object');
         }
 
-        $fileSystemMock->expects(static::once())
+        $fileSystemMock->expects($this->once())
             ->method('remove')
             ->willThrowException(new \RuntimeException('Error'));
 
@@ -169,7 +169,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
             true
         );
 
-        $downloader->expects(static::once())->method('download');
+        $downloader->expects($this->once())->method('download');
 
         static::assertEquals(
             Response::HTTP_NO_CONTENT,
@@ -188,7 +188,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
             true
         );
 
-        $lifecycle->expects(static::once())->method('install');
+        $lifecycle->expects($this->once())->method('install');
 
         static::assertEquals(
             Response::HTTP_NO_CONTENT,
@@ -207,7 +207,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
             true
         );
 
-        $lifecycle->expects(static::once())->method('uninstall');
+        $lifecycle->expects($this->once())->method('uninstall');
 
         static::assertEquals(
             Response::HTTP_NO_CONTENT,
@@ -226,7 +226,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
             true
         );
 
-        $lifecycle->expects(static::once())->method('remove');
+        $lifecycle->expects($this->once())->method('remove');
 
         static::assertEquals(
             Response::HTTP_NO_CONTENT,
@@ -245,7 +245,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
             true
         );
 
-        $lifecycle->expects(static::once())->method('activate');
+        $lifecycle->expects($this->once())->method('activate');
 
         static::assertEquals(
             Response::HTTP_NO_CONTENT,
@@ -264,7 +264,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
             true
         );
 
-        $lifecycle->expects(static::once())->method('deactivate');
+        $lifecycle->expects($this->once())->method('deactivate');
 
         static::assertEquals(
             Response::HTTP_NO_CONTENT,
@@ -283,7 +283,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
             true
         );
 
-        $lifecycle->expects(static::once())->method('update');
+        $lifecycle->expects($this->once())->method('update');
 
         $request = new Request([], ['allowNewPermissions' => true]);
 
@@ -304,7 +304,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
             true
         );
 
-        $lifecycle->expects(static::once())->method('update');
+        $lifecycle->expects($this->once())->method('update');
 
         $request = new Request([], ['allowNewPermissions' => false]);
 
@@ -357,7 +357,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
         $fileSystem = $this->createMock(Filesystem::class);
 
         if ($expectCallRemove) {
-            $fileSystem->expects(static::once())->method('remove');
+            $fileSystem->expects($this->once())->method('remove');
         }
 
         return $fileSystem;

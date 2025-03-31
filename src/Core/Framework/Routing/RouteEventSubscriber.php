@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Routing;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
@@ -15,12 +16,12 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @internal
  */
 #[Package('framework')]
-class RouteEventSubscriber implements EventSubscriberInterface
+readonly class RouteEventSubscriber implements EventSubscriberInterface
 {
     /**
      * @internal
      */
-    public function __construct(private readonly EventDispatcherInterface $dispatcher)
+    public function __construct(private EventDispatcherInterface $dispatcher)
     {
     }
 
@@ -42,44 +43,44 @@ class RouteEventSubscriber implements EventSubscriberInterface
     public function request(RequestEvent $event): void
     {
         $request = $event->getRequest();
-        if (!$request->attributes->has('_route')) {
-            return;
+        if ($request->attributes->has('_route')) {
+            $this->dispatcher->dispatch($event, $request->attributes->get('_route') . '.request');
         }
 
-        $name = $request->attributes->get('_route') . '.request';
-        $this->dispatcher->dispatch($event, $name);
+        foreach ($request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []) as $scope) {
+            $this->dispatcher->dispatch($event, $scope . '.scope.request');
+        }
     }
 
     public function render(StorefrontRenderEvent $event): void
     {
         $request = $event->getRequest();
-        if (!$request->attributes->has('_route')) {
-            return;
+        if ($request->attributes->has('_route')) {
+            $this->dispatcher->dispatch($event, $request->attributes->get('_route') . '.render');
         }
 
-        $name = $request->attributes->get('_route') . '.render';
-        $this->dispatcher->dispatch($event, $name);
+        foreach ($request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []) as $scope) {
+            $this->dispatcher->dispatch($event, $scope . '.scope.render');
+        }
     }
 
     public function response(ResponseEvent $event): void
     {
         $request = $event->getRequest();
-        if (!$request->attributes->has('_route')) {
-            return;
+        if ($request->attributes->has('_route')) {
+            $this->dispatcher->dispatch($event, $request->attributes->get('_route') . '.response');
         }
-
-        $name = $request->attributes->get('_route') . '.response';
-        $this->dispatcher->dispatch($event, $name);
     }
 
     public function controller(ControllerEvent $event): void
     {
         $request = $event->getRequest();
-        if (!$request->attributes->has('_route')) {
-            return;
+        if ($request->attributes->has('_route')) {
+            $this->dispatcher->dispatch($event, $request->attributes->get('_route') . '.controller');
         }
 
-        $name = $request->attributes->get('_route') . '.controller';
-        $this->dispatcher->dispatch($event, $name);
+        foreach ($request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []) as $scope) {
+            $this->dispatcher->dispatch($event, $scope . '.scope.controller');
+        }
     }
 }

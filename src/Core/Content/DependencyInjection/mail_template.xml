@@ -69,7 +69,6 @@
             <argument type="service" id="Shopware\Core\Content\Mail\Service\MailFactory" />
             <argument type="service" id="Shopware\Core\Content\Mail\Service\MailSender" />
             <argument type="service" id="media.repository" />
-            <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannelDefinition" />
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="event_dispatcher"/>

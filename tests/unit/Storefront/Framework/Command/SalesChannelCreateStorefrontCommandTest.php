@@ -47,7 +47,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
 
         $mockSalesChannelCreator = $this->createMock(SalesChannelCreator::class);
 
-        $mockSalesChannelCreator->expects(static::once())
+        $mockSalesChannelCreator->expects($this->once())
             ->method('createSalesChannel')
             ->with(
                 'id',
@@ -111,7 +111,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
         $input->method('getOption')
             ->willReturn(...$inputs);
 
-        $output = $this->createStub(OutputInterface::class);
+        $output = static::createStub(OutputInterface::class);
 
         $status = $cmd->run($input, $output);
 
@@ -131,7 +131,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
         /** @var StaticEntityRepository<SnippetSetCollection> $snippetSetRepository */
         $snippetSetRepository = new StaticEntityRepository($idsSearchResult);
 
-        $mockSalesChannelCreator = $this->createStub(SalesChannelCreator::class);
+        $mockSalesChannelCreator = static::createStub(SalesChannelCreator::class);
 
         $cmd = new SalesChannelCreateStorefrontCommand(
             $snippetSetRepository,
@@ -161,7 +161,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
         $input->method('getOption')
             ->willReturn(...$inputs);
 
-        $output = $this->createStub(OutputInterface::class);
+        $output = static::createStub(OutputInterface::class);
 
         $this->expectExceptionMessage($exception);
 

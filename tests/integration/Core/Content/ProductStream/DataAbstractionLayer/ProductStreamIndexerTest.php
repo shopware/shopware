@@ -433,7 +433,7 @@ class ProductStreamIndexerTest extends TestCase
             'product_stream_filter',
             [
                 'id' => Uuid::randomBytes(),
-                'type' => 'equals',
+                'type' => 'equalsAny',
                 'field' => 'id',
                 'value' => '',
                 'position' => 1,

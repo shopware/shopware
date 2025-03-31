@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -26,6 +27,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
  * @internal
  */
 #[CoversClass(AmountCalculator::class)]
+#[Package('checkout')]
 class AmountCalculatorTest extends TestCase
 {
     #[DataProvider('calculateAmountWithGrossPricesProvider')]

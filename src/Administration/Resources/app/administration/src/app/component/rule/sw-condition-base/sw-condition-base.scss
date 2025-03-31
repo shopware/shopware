@@ -49,7 +49,7 @@ $sw-condition-color-border-default: $color-gray-500;
         overflow: hidden;
         background-color: $color-white;
 
-        &.sw-field--medium {
+        &.sw-field {
             margin: 0;
         }
 
@@ -122,6 +122,10 @@ $sw-condition-color-border-default: $color-gray-500;
     .sw-condition__value-content {
         display: flex;
         gap: 4px;
+
+        .mt-field {
+            margin: 0;
+        }
 
         & > div:last-of-type {
             width: 100%;

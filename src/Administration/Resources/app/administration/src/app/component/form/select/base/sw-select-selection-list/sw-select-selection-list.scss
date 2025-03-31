@@ -37,7 +37,7 @@
         padding: 12px 16px 12px 8px;
 
         &::placeholder {
-            color: lighten($color-darkgray-200, 25%);
+            color: var(--color-text-secondary-default);
             white-space: break-spaces;
         }
     }

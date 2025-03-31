@@ -27,15 +27,15 @@ class DocumentTemplateRendererTest extends TestCase
     public function testDocumentTemplateRendererParameterEventIsDispatched(): void
     {
         $templateFinder = $this->createMock(TemplateFinder::class);
-        $templateFinder->expects(static::once())->method('reset');
-        $templateFinder->expects(static::once())->method('find')->willReturnCallback(function (string $template): string {
+        $templateFinder->expects($this->once())->method('reset');
+        $templateFinder->expects($this->once())->method('find')->willReturnCallback(function (string $template): string {
             static::assertTrue(self::$rendererParameterEventCalled, 'Expected DocumentTemplateRendererParameterEvent being thrown before TemplateFinder is called to ensure that the TemplateFinder is configured correctly');
 
             return $template;
         });
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher->expects(static::once())
+        $eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(DocumentTemplateRendererParameterEvent::class))
             ->willReturnCallback(function (DocumentTemplateRendererParameterEvent $event) {

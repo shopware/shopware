@@ -142,11 +142,11 @@ class CheapestPriceFacadeTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         // currency key will be provided, we want to test different currencies are taking into account
-        $context->expects(static::any())->method('getCurrencyId')->willReturn($ids->get($currencyKey));
+        $context->expects($this->any())->method('getCurrencyId')->willReturn($ids->get($currencyKey));
 
         // we also want to test different tax states (gross/net)
-        $context->expects(static::any())->method('getTaxState')->willReturn($taxState);
-        $context->expects(static::any())->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
+        $context->expects($this->any())->method('getTaxState')->willReturn($taxState);
+        $context->expects($this->any())->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
 
         return new CheapestPriceFacade($entity, $original, $stubs, $context);
     }

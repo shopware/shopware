@@ -40,14 +40,14 @@ class OrderPersisterTest extends TestCase
 
         $orderConverter = $this->createMock(OrderConverter::class);
         $orderConverter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('convertToOrder')
             ->with($cart, $context, static::equalTo(new OrderConversionContext()))
             ->willReturn(['id' => $order->getId()]);
 
         $repo = $this->createMock(EntityRepository::class);
         $repo
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('create')
             ->with([['id' => $order->getId()]], $context->getContext());
 
@@ -150,7 +150,7 @@ class OrderPersisterTest extends TestCase
 
         $orderConverter = $this->createMock(OrderConverter::class);
         $orderConverter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('convertToOrder')
             ->willReturn(['id' => $order->getId()]);
 

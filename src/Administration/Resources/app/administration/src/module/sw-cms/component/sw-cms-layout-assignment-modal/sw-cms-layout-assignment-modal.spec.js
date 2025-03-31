@@ -147,7 +147,7 @@ async function createWrapper(layoutType = 'product_list', systemConfigApiService
                             <slot
                                 name="empty-state">
                                 <img
-                                    :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
+                                    :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
                                     alt=""
                                 >
                                 <p>{{ $tc('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentEmptyStateDescription') }}</p>

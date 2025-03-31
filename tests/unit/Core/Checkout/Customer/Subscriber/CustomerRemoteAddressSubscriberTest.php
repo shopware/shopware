@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerRemoteAddressSubscriber;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * @internal
  */
 #[CoversClass(CustomerRemoteAddressSubscriber::class)]
+#[Package('checkout')]
 class CustomerRemoteAddressSubscriberTest extends TestCase
 {
     public function testEvents(): void
@@ -32,7 +34,7 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
     public function testNoRequestThereHappensNothing(): void
     {
         $configService = $this->createMock(SystemConfigService::class);
-        $configService->expects(static::never())->method('getBool');
+        $configService->expects($this->never())->method('getBool');
 
         $subscriber = new CustomerRemoteAddressSubscriber(
             $this->createMock(Connection::class),
@@ -46,7 +48,7 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
     public function testNullIpDoesNothing(): void
     {
         $configService = $this->createMock(SystemConfigService::class);
-        $configService->expects(static::never())->method('getBool');
+        $configService->expects($this->never())->method('getBool');
 
         $requestStack = new RequestStack();
         $requestStack->push(new Request());
@@ -79,7 +81,7 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
     public function testRequest(bool $anonymize, string $clientIp, string $expectedIp): void
     {
         $configService = $this->createMock(SystemConfigService::class);
-        $configService->expects(static::once())->method('getBool')->willReturn($anonymize);
+        $configService->expects($this->once())->method('getBool')->willReturn($anonymize);
 
         $requestStack = new RequestStack();
 
@@ -90,7 +92,7 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
 
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('update')
             ->with(
                 'customer',

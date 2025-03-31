@@ -26,9 +26,4 @@ trait ItemsRemoveTrait
 
         $this->getItems()->remove($id);
     }
-
-    private function getItems(): LineItemCollection
-    {
-        return $this->items;
-    }
 }

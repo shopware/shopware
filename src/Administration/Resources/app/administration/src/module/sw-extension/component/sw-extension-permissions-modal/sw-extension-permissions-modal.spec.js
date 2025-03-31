@@ -65,7 +65,7 @@ describe('src/module/sw-extension/component/sw-extension-permissions-modal', () 
         );
 
         expect(wrapper.find('.sw-extension-permissions-modal__image').attributes().src).toBe(
-            'administration/static/img/extension-store/permissions.svg',
+            'administration/administration/static/img/extension-store/permissions.svg',
         );
     });
 

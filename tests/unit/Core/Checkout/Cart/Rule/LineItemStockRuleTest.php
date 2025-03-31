@@ -49,7 +49,7 @@ class LineItemStockRuleTest extends TestCase
         $rule = new LineItemStockRule();
 
         $ruleScope = $this->createMock(LineItemScope::class);
-        $ruleScope->expects(static::once())
+        $ruleScope->expects($this->once())
             ->method('getLineItem')
             ->willReturn(static::createMock(LineItem::class));
 

@@ -266,6 +266,7 @@ frame-ancestors 'none';
             <argument type="service" id="snippet_set.repository"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Filter\SnippetFilterFactory"/>
             <argument type="service" id="service_container" />
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
             <argument type="service" id="Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader" on-invalid="null"/>
         </service>
 
@@ -538,6 +539,7 @@ frame-ancestors 'none';
             <argument type="service" id="filesystem"/>
             <argument>%kernel.project_dir%</argument>
             <argument>%shopware.feature.flags%</argument>
+            <argument>%kernel.environment%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseCreator">
@@ -546,6 +548,7 @@ frame-ancestors 'none';
             <argument type="service" id="filesystem"/>
             <argument>%kernel.project_dir%</argument>
             <argument>%shopware.feature.flags%</argument>
+            <argument>%kernel.environment%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseExporter">
@@ -554,6 +557,7 @@ frame-ancestors 'none';
             <argument type="service" id="filesystem"/>
             <argument>%kernel.project_dir%</argument>
             <argument>%shopware.feature.flags%</argument>
+            <argument>%kernel.environment%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogValidator">
@@ -562,6 +566,7 @@ frame-ancestors 'none';
             <argument type="service" id="filesystem"/>
             <argument>%kernel.project_dir%</argument>
             <argument>%shopware.feature.flags%</argument>
+            <argument>%kernel.environment%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Changelog\ChangelogParser" public="false" />

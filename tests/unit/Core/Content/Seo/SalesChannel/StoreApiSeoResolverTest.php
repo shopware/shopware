@@ -100,7 +100,7 @@ class StoreApiSeoResolverTest extends TestCase
         // @phpstan-ignore-next-line > Ignore PHPStan error, to be able to assert that this method has not been called
         $attributes = $this->createMock(ParameterBag::class);
         $attributes
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('get');
 
         $request = new Request();
@@ -170,7 +170,7 @@ class StoreApiSeoResolverTest extends TestCase
             ->method('isSeoAware')
             ->willReturn(true);
         $productDefinition
-            ->expects(static::atLeastOnce())
+            ->expects($this->atLeastOnce())
             ->method('getEntityName')
             ->willReturn('product');
 

@@ -90,6 +90,10 @@ class DeliveryTransformer
         $deliveryData = array_filter($deliveryData, fn ($item) => $item !== null);
 
         foreach ($delivery->getPositions() as $position) {
+            if (!isset($lineItems[$position->getIdentifier()])) {
+                continue;
+            }
+
             $deliveryData['positions'][] = [
                 'id' => self::getId($position),
                 'price' => $position->getPrice(),

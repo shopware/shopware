@@ -4,16 +4,16 @@ namespace Shopware\Core\Content\Sitemap\Service;
 
 use League\Flysystem\FilesystemOperator;
 use Psr\Cache\CacheItemPoolInterface;
+use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Content\Sitemap\Event\SitemapGeneratedEvent;
-use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
 use Shopware\Core\Content\Sitemap\Provider\AbstractUrlProvider;
+use Shopware\Core\Content\Sitemap\SitemapException;
 use Shopware\Core\Content\Sitemap\Struct\SitemapGenerationResult;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('discovery')]
@@ -25,9 +25,9 @@ class SitemapExporter implements SitemapExporterInterface
     private array $sitemapHandles = [];
 
     /**
-     * @internal
-     *
      * @param iterable<AbstractUrlProvider> $urlProvider
+     *
+     * @internal
      */
     public function __construct(
         private readonly iterable $urlProvider,
@@ -35,7 +35,8 @@ class SitemapExporter implements SitemapExporterInterface
         private readonly int $batchSize,
         private readonly FilesystemOperator $filesystem,
         private readonly SitemapHandleFactoryInterface $sitemapHandleFactory,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly CartRuleLoader $ruleLoader,
     ) {
     }
 
@@ -44,6 +45,7 @@ class SitemapExporter implements SitemapExporterInterface
      */
     public function generate(SalesChannelContext $context, bool $force = false, ?string $lastProvider = null, ?int $offset = null): SitemapGenerationResult
     {
+        $this->refreshContextRules($context);
         $this->lock($context, $force);
 
         try {
@@ -81,7 +83,7 @@ class SitemapExporter implements SitemapExporterInterface
         $key = $this->generateCacheKeyForSalesChannel($salesChannelContext);
         $item = $this->cache->getItem($key);
         if ($item->isHit() && !$force) {
-            throw new AlreadyLockedException($salesChannelContext);
+            throw SitemapException::sitemapAlreadyLocked($salesChannelContext);
         }
 
         $item->set(true);
@@ -91,6 +93,21 @@ class SitemapExporter implements SitemapExporterInterface
     private function unlock(SalesChannelContext $salesChannelContext): void
     {
         $this->cache->deleteItem($this->generateCacheKeyForSalesChannel($salesChannelContext));
+    }
+
+    /**
+     * Ensure that the rules are loaded for the current context in case that the SalesChannelContext was created from
+     * Factory and is missing the attached rules.
+     */
+    private function refreshContextRules(SalesChannelContext $salesChannelContext): SalesChannelContext
+    {
+        if (\count($salesChannelContext->getRuleIds()) > 0) {
+            return $salesChannelContext;
+        }
+
+        $this->ruleLoader->loadByToken($salesChannelContext, $salesChannelContext->getToken());
+
+        return $salesChannelContext;
     }
 
     private function generateCacheKeyForSalesChannel(SalesChannelContext $salesChannelContext): string
@@ -135,7 +152,7 @@ class SitemapExporter implements SitemapExporterInterface
         }
 
         if (empty($sitemapHandles)) {
-            throw new InvalidDomainException('Empty domain');
+            throw SitemapException::invalidDomain();
         }
 
         $this->sitemapHandles = $sitemapHandles;

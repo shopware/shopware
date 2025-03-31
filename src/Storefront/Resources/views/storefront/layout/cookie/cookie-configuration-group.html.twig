@@ -9,12 +9,25 @@
             } only %}
 
             {% if cookieGroup.entries is not empty or cookieGroup.snippet_description is defined %}
-                <div class="offcanvas-cookie-entries">
-                    {% sw_icon 'arrow-head-right' style {
-                        size: 'sm',
-                        ariaHidden: false,
-                        ariaLabel: 'general.expand'|trans
-                    } %}
+
+                {% set cookieGroupName = cookieGroup.snippet_name|replace({'cookie.': ''}) %}
+                {% set cookieGroupId = 'offcanvas-cookie-entries-' ~ cookieGroupName %}
+
+                {% block cookie_configuration_group_collapse_button %}
+                    <button type="button"
+                            aria-label="{{ 'general.expand'|trans|sw_sanitize }}"
+                            aria-controls="{{ cookieGroupId }}"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#{{ cookieGroupId }}"
+                            class="btn btn-link-inline offcanvas-cookie-entries-toggle">
+
+                        {% sw_icon 'arrow-head-right' style {
+                            size: 'sm',
+                        } %}
+                    </button>
+                {% endblock %}
+
+                <div id="{{ cookieGroupId }}" class="offcanvas-cookie-entries collapse">
 
                     {% if cookieGroup.snippet_description %}
                         <p>{{ cookieGroup.snippet_description|trans|sw_sanitize }}</p>

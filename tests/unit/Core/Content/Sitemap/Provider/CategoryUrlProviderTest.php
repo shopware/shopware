@@ -17,9 +17,13 @@ use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
@@ -48,6 +52,8 @@ class CategoryUrlProviderTest extends TestCase
 
     private (QueryBuilder&MockObject)|null $queryBuilder = null;
 
+    private SalesChannelRepository&MockObject $salesChannelRepository;
+
     protected function setUp(): void
     {
         $this->configHandler = $this->createMock(ConfigHandler::class);
@@ -56,6 +62,7 @@ class CategoryUrlProviderTest extends TestCase
         $this->iteratorFactory = $this->createMock(IteratorFactory::class);
         $this->router = $this->createMock(RouterInterface::class);
         $this->ids = new IdsCollection();
+        $this->salesChannelRepository = $this->createMock(SalesChannelRepository::class);
         $this->categoryResultIncrement = 0;
     }
 
@@ -161,6 +168,53 @@ class CategoryUrlProviderTest extends TestCase
         static::assertSame($andWhereConditions, $whereConditions);
     }
 
+    public function testExcludeInactiveCategories(): void
+    {
+        $categoryResult1 = $this->createCategoryResult();
+        $categoryResult2 = $this->createCategoryResult();
+        $queryResult = new Result(
+            new ArrayResult(
+                array_keys($categoryResult1),
+                [
+                    array_values($categoryResult1),
+                    array_values($categoryResult2),
+                ]
+            ),
+            $this->connection
+        );
+        $this->initServices($queryResult);
+        static::assertNotNull($this->queryBuilder);
+        $context = Generator::generateSalesChannelContext();
+
+        $excludedEntity = new CategoryEntity();
+        $excludedEntity->setActive(false);
+        $excludedEntity->setId($this->ids->get('category-1'));
+
+        $this->salesChannelRepository->method('search')->willReturn(
+            new EntitySearchResult(
+                CategoryEntity::class,
+                1,
+                new EntityCollection([
+                    $excludedEntity,
+                ]),
+                null,
+                new Criteria(),
+                $context->getContext()
+            )
+        );
+
+        $provider = $this->getCategoryUrlProvider();
+        $urlResult = $provider->getUrls($context, 100, 50);
+
+        $urls = $urlResult->getUrls();
+        static::assertCount(1, $urls);
+
+        $url = array_shift($urls);
+        static::assertInstanceOf(Url::class, $url);
+        static::assertSame($this->ids->get('category-2'), $url->getIdentifier());
+        static::assertSame('category/2/detail', $url->getLoc());
+    }
+
     /**
      * @param array<array{resource: class-string, salesChannelId: string, identifier: string}>|null $excludedUrls
      */
@@ -195,7 +249,8 @@ class CategoryUrlProviderTest extends TestCase
             $this->connection,
             $this->definition,
             $this->iteratorFactory,
-            $this->router
+            $this->router,
+            $this->salesChannelRepository
         );
     }
 

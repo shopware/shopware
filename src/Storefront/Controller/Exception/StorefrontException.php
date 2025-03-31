@@ -2,9 +2,11 @@
 
 namespace Shopware\Storefront\Controller\Exception;
 
+use Shopware\Core\Content\Newsletter\Exception\SalesChannelDomainNotFoundException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Error\Error as TwigError;
 
@@ -20,6 +22,7 @@ class StorefrontException extends HttpException
      * @deprecated tag:v6.8.0 - Will be replaced by `ProductException::PRODUCT_REVIEW_NOT_ACTIVE`
      */
     final public const PRODUCT_REVIEW_NOT_ACTIVE = 'STOREFRONT__REVIEW_NOT_ACTIVE';
+    final public const SALES_CHANNEL_DOMAIN_NOT_FOUND = 'STOREFRONT__SALES_CHANNEL_DOMAIN_NOT_FOUND';
 
     private const CUSTOM_APP_PATH = 'custom/apps/';
 
@@ -103,6 +106,23 @@ class StorefrontException extends HttpException
             Response::HTTP_FORBIDDEN,
             self::PRODUCT_REVIEW_NOT_ACTIVE,
             'Reviews not activated'
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return self
+     */
+    public static function domainNotFound(SalesChannelEntity $salesChannel): self|SalesChannelDomainNotFoundException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new SalesChannelDomainNotFoundException($salesChannel);
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::SALES_CHANNEL_DOMAIN_NOT_FOUND,
+            'No domain found for sales channel {{ salesChannel }}',
+            ['salesChannel' => $salesChannel->getTranslation('name')],
         );
     }
 }

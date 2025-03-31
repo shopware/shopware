@@ -24,6 +24,14 @@ export default {
             from: 'swOrderDetailOnReloadEntityData',
             default: null,
         },
+        swOrderDetailOnSaveAndReload: {
+            from: 'swOrderDetailOnSaveAndReload',
+            default: null,
+        },
+        swOrderDetailHandleCartErrors: {
+            from: 'swOrderDetailHandleCartErrors',
+            default: null,
+        },
         repositoryFactory: {
             from: 'repositoryFactory',
             default: null,
@@ -42,6 +50,7 @@ export default {
         'error',
         'loading-change',
         'reload-entity-data',
+        'save-and-reload',
     ],
 
     mixins: [
@@ -60,6 +69,7 @@ export default {
         return {
             promotionError: null,
             disabledAutoPromotions: false,
+            promotionUpdates: [],
         };
     },
 
@@ -67,6 +77,8 @@ export default {
         order() {
             return Store.get('swOrderDetail').order;
         },
+
+        isOrderLoading: () => Store.get('swOrderDetail').isLoading,
 
         versionContext() {
             return Store.get('swOrderDetail').versionContext;
@@ -88,10 +100,16 @@ export default {
             return this.order.lineItems.filter((item) => item.type === 'promotion' && item.referencedId !== null);
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         automaticPromotions() {
             return this.order.lineItems.filter((item) => item.type === 'promotion' && item.referencedId === null);
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         promotionCodeTags: {
             get() {
                 return this.manualPromotions.map((item) => item.payload);
@@ -121,21 +139,44 @@ export default {
             },
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         hasAutomaticPromotions() {
             return this.automaticPromotions.length > 0;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         changesetGenerator() {
             return new ChangesetGenerator();
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         *
+         * @returns {boolean}
+         */
         hasOrderUnsavedChanges() {
             return this.changesetGenerator.generate(this.order).changes !== null;
+        },
+
+        promotionsRemoved() {
+            return this.promotionUpdates.filter((e) => e.messageKey === 'promotion-discount-deleted');
+        },
+
+        promotionsAdded() {
+            return this.promotionUpdates.filter((e) => e.messageKey === 'promotion-discount-added');
         },
     },
 
     watch: {
-        // Validate if switch can be toggled
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         *
+         * Validate if switch can be toggled
+         */
         disabledAutoPromotions(newState, oldState) {
             // To prevent recursion when value is set in next tick
             if (oldState === this.hasAutomaticPromotions) {
@@ -145,6 +186,9 @@ export default {
             this.toggleAutomaticPromotions(newState);
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         automaticPromotions() {
             // Sync value with database
             this.disabledAutoPromotions = !this.hasAutomaticPromotions;
@@ -156,26 +200,44 @@ export default {
     },
 
     methods: {
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         createdComponent() {
             this.disabledAutoPromotions = !this.hasAutomaticPromotions;
         },
 
         emitEntityData() {
-            this.$emit('reload-entity-data');
-
             if (this.swOrderDetailOnReloadEntityData) {
                 this.swOrderDetailOnReloadEntityData();
+            } else {
+                this.$emit('reload-entity-data');
             }
         },
 
         emitLoadingChange(state) {
-            this.$emit('loading-change', state);
-
             if (this.swOrderDetailOnLoadingChange) {
                 this.swOrderDetailOnLoadingChange(state);
+            } else {
+                this.$emit('loading-change', state);
             }
         },
 
+        /**
+         * To prevent losing unsaved changes on reloading the order,
+         * we need to save the **versioned** order beforehand.
+         */
+        async saveAndReload() {
+            if (this.swOrderDetailOnSaveAndReload) {
+                await this.swOrderDetailOnSaveAndReload();
+            } else {
+                this.$emit('save-and-reload');
+            }
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         handleUnsavedOrderChangesResponse() {
             this.createNotificationWarning({
                 message: this.$tc('sw-order.detailBase.textUnsavedChanges', 0),
@@ -184,13 +246,17 @@ export default {
 
         handleError(error) {
             this.emitLoadingChange(false);
-            this.$emit('error', error);
 
             if (this.swOrderDetailOnError) {
                 this.swOrderDetailOnError(error);
+            } else {
+                this.$emit('error', error);
             }
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement. See `applyAutomaticPromotions` for an alternative
+         */
         deleteAutomaticPromotions() {
             if (this.automaticPromotions.length === 0) {
                 return Promise.resolve();
@@ -208,45 +274,50 @@ export default {
                         });
                     });
                 })
-                .catch(this.handleError);
+                .catch(this.handleError.bind(this));
         },
 
-        toggleAutomaticPromotions(state) {
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement. See `applyAutomaticPromotions` for an alternative
+         */
+        async toggleAutomaticPromotions(state) {
             this.emitLoadingChange(true);
 
             if (this.hasOrderUnsavedChanges) {
                 this.emitLoadingChange(false);
-
                 this.handleUnsavedOrderChangesResponse();
+
                 this.$nextTick(() => {
                     this.disabledAutoPromotions = !state;
                 });
 
-                return;
+                return Promise.resolve();
             }
 
-            this.deleteAutomaticPromotions()
-                .then(() => {
-                    this.orderService.toggleAutomaticPromotions(this.order.id, this.order.versionId, state);
-                })
-                .then(this.handlePromotionResponse)
-                .catch(this.handleError);
+            await this.saveAndReload();
+            await this.deleteAutomaticPromotions();
+
+            return this.orderService.toggleAutomaticPromotions(this.order.id, this.order.versionId, state)
+                .then(this.handlePromotionResponse.bind(this))
+                .catch(this.handleError.bind(this));
         },
 
-        onSubmitCode(code) {
+        async applyAutomaticPromotions() {
+            await this.saveAndReload();
+
+            return this.orderService.applyAutomaticPromotions(this.order.id, this.order.versionId)
+                .then(this.handlePromotionResponse.bind(this))
+                .catch(this.handleError.bind(this));
+        },
+
+        async onSubmitCode(code) {
             this.emitLoadingChange(true);
 
-            if (this.hasOrderUnsavedChanges) {
-                this.emitLoadingChange(false);
-                this.handleUnsavedOrderChangesResponse();
+            await this.saveAndReload();
 
-                return;
-            }
-
-            this.orderService
-                .addPromotionToOrder(this.order.id, this.order.versionId, code)
-                .then(this.handlePromotionResponse)
-                .catch(this.handleError);
+            return this.orderService.addPromotionToOrder(this.order.id, this.order.versionId, code)
+                .then(this.handlePromotionResponse.bind(this))
+                .catch(this.handleError.bind(this));
         },
 
         handlePromotionResponse(response) {
@@ -256,7 +327,21 @@ export default {
                 return;
             }
 
-            Object.values(response?.data?.errors).forEach((value) => {
+            const [errors, promotionErrors] = response.data.errors.reduce(([general, promotion], e) => {
+                return ['promotion-discount-deleted', 'promotion-discount-added'].includes(e.messageKey)
+                    ? [general, [...promotion, e]]
+                    : [[...general, e], promotion];
+            }, [[], []]);
+
+            this.promotionUpdates = promotionErrors;
+            response.data.errors = errors;
+
+            if (this.swOrderDetailHandleCartErrors) {
+                this.swOrderDetailHandleCartErrors(response);
+                return;
+            }
+
+            Object.values(response.data.errors).forEach((value) => {
                 switch (value.level) {
                     case 0: {
                         this.createNotificationInfo({
@@ -282,26 +367,27 @@ export default {
             });
         },
 
-        onRemoveExistingCode(removedItem) {
+        async onRemoveExistingCode(removedItem) {
             this.emitLoadingChange(true);
-
-            if (this.hasOrderUnsavedChanges) {
-                this.emitLoadingChange(false);
-                this.handleUnsavedOrderChangesResponse();
-
-                return;
-            }
 
             const lineItem = this.order.lineItems.find((item) => {
                 return item.type === 'promotion' && item.payload.code === removedItem.code;
             });
 
-            this.orderLineItemRepository
-                .delete(lineItem.id, this.versionContext)
-                .then(this.emitEntityData)
-                .catch(this.handleError);
+            await this.saveAndReload();
+
+            return this.orderLineItemRepository.delete(lineItem.id, this.versionContext)
+                .then(this.emitEntityData.bind(this))
+                .catch(this.handleError.bind(this));
         },
 
+        dismissPromotionUpdates() {
+            this.promotionUpdates = [];
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         getLineItemByPromotionCode(code) {
             return this.order.lineItems.find((item) => {
                 return item.type === 'promotion' && item.payload.code === code;

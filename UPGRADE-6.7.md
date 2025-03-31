@@ -81,6 +81,18 @@ Shopware.Store.register({
 
 For more information refer to the [docs](https://developer.shopware.com/docs/resources/references/adr/2024-06-17-replace-vuex-with-pinia.html#replace-vuex-with-pinia).
 
+## vue-i18n v10 Update
+We have updated `vue-i18n` to version 10, which introduces a significant change by removing the `tc` function. In Shopware, `$tc` remains available on Vue components, but it now internally references the `t` function from `vue-i18n`. 
+
+### Key Considerations
+- While this change works for most use cases, some specific function overloads are no longer supported.
+- For a comprehensive list of deprecated features and migration strategies, refer to the official [vue-i18n migration guide](https://vue-i18n.intlify.dev/guide/migration/breaking10#deprecate-tc-and-tc-for-legacy-api-mode).
+
+### Recommended Actions
+- Review your existing translation calls
+- Test components that heavily rely on translation methods
+- Consider updating to the recommended `t` function where possible
+
 # Cache Rework
 **Note:** Those changes can be activated separately with the `cache_rework` feature flag.
 
@@ -2628,6 +2640,11 @@ foreach($storefrontPluginConfig->getAssetPaths() as $relativePath) {
 
 ## Removal of `showStagingBanner` Twig variable
 The global `showStagingBanner` Twig variable was removed. Use `shopware.showStagingBanner` instead.
+
+## Removal of `setTwig` method in `StorefrontController`
+The method `Shopware\Storefront\Controller\StorefrontController::setTwig` has been removed.
+Remove the `setTwig` call from the services config files.
+There is no further change required.
 
 ## Removal of deprecated product review loading logic in Storefront
 * The service `\Shopware\Storefront\Page\Product\Review\ProductReviewLoader` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader` instead.

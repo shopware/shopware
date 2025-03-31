@@ -243,13 +243,8 @@
         </mt-textarea>
         {% endblock %}
 
+        <!-- @deprecated tag:v6.8.0 - Block will be removed -->
         {% block sw_order_detail_details_order_promotion %}
-        <sw-order-promotion-field
-            class="sw-order-detail-details__promotion"
-            @loading-change="updateLoading"
-            @reload-entity-data="reloadEntityData"
-            @error="showError"
-        />
         {% endblock %}
 
     </sw-order-details-state-card>

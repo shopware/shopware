@@ -41,13 +41,15 @@ use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
  *
- * @phpstan-type OrderSettings array{accountType: string, isCountryCompanyTaxFree: bool, setOrderDelivery: bool, setShippingCountry: bool, setEuCountry: bool}
+ * @phpstan-type OrderSettings array{accountType: string, isCountryCompanyTaxFree: bool, setOrderDelivery: bool, setShippingCountry: bool, setEuCountry: bool, shouldCheckVatIdPattern: bool, validVat: bool}
  * @phpstan-type InvoiceConfig array{displayAdditionalNoteDelivery: bool, deliveryCountries: array<string>}
  */
 #[Package('after-sales')]
@@ -92,6 +94,26 @@ class InvoiceRendererTest extends TestCase
         $orderRepositoryMock = $this->createMock(EntityRepository::class);
         $orderRepositoryMock->method('search')->willReturn($orderSearchResult);
 
+        $validator = $this->createMock(ValidatorInterface::class);
+        if (isset($orderSettings['shouldCheckVatIdPattern']) && $orderSettings['shouldCheckVatIdPattern']) {
+            $validator->method('validate')->willReturnCallback(function () use ($orderSettings) {
+                if ($orderSettings['validVat']) {
+                    return new ConstraintViolationList();
+                }
+
+                return new ConstraintViolationList([
+                    new ConstraintViolation(
+                        'VAT ID is invalid',
+                        null,
+                        [],
+                        'vat',
+                        'vatId',
+                        'invalid'
+                    )],
+                );
+            });
+        }
+
         $invoiceRenderer = new InvoiceRenderer(
             $orderRepositoryMock,
             $documentConfigLoaderMock,
@@ -99,7 +121,7 @@ class InvoiceRendererTest extends TestCase
             $this->createMock(NumberRangeValueGeneratorInterface::class),
             $connectionMock,
             $this->createMock(DocumentFileRendererRegistry::class),
-            $this->createMock(ValidatorInterface::class),
+            $validator,
         );
 
         $operations = [
@@ -185,6 +207,7 @@ class InvoiceRendererTest extends TestCase
             $this->createMock(NumberRangeValueGeneratorInterface::class),
             $connectionMock,
             $this->createMock(DocumentFileRendererRegistry::class),
+            $this->createMock(ValidatorInterface::class),
         );
 
         $operations = [
@@ -237,6 +260,7 @@ class InvoiceRendererTest extends TestCase
             $this->createMock(NumberRangeValueGeneratorInterface::class),
             $connectionMock,
             $this->createMock(DocumentFileRendererRegistry::class),
+            $this->createMock(ValidatorInterface::class),
         );
 
         $operations = [
@@ -360,6 +384,40 @@ class InvoiceRendererTest extends TestCase
             ],
             'expectedResult' => false,
         ];
+
+        yield 'will return false because VAT is invalid' => [
+            'orderSettings' => [
+                'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+                'isCountryCompanyTaxFree' => true,
+                'setOrderDelivery' => true,
+                'setShippingCountry' => true,
+                'setEuCountry' => true,
+                'shouldCheckVatIdPattern' => true,
+                'validVat' => false,
+            ],
+            'config' => [
+                'displayAdditionalNoteDelivery' => true,
+                'fileTypes' => ['pdf', 'html'],
+            ],
+            'expectedResult' => false,
+        ];
+
+        yield 'will return true because VAT is valid' => [
+            'orderSettings' => [
+                'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+                'isCountryCompanyTaxFree' => true,
+                'setOrderDelivery' => true,
+                'setShippingCountry' => true,
+                'setEuCountry' => true,
+                'shouldCheckVatIdPattern' => true,
+                'validVat' => true,
+            ],
+            'config' => [
+                'displayAdditionalNoteDelivery' => true,
+                'fileTypes' => ['pdf', 'html'],
+            ],
+            'expectedResult' => true,
+        ];
     }
 
     /**
@@ -411,6 +469,8 @@ class InvoiceRendererTest extends TestCase
             $country->setCompanyTax(new TaxFreeConfig($orderSettings['isCountryCompanyTaxFree'], Defaults::CURRENCY, 0));
             $address = new OrderAddressEntity();
             $address->setCountry($country);
+            $country->setCheckVatIdPattern($orderSettings['shouldCheckVatIdPattern'] ?? false);
+            $address->setVatId('VAT123');
             $delivery->setShippingOrderAddress($address);
         }
 

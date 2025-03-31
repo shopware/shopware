@@ -44,6 +44,10 @@ class CategoryUrlProviderTest extends TestCase
 
     private readonly IdsCollection $ids;
 
+    private int $categoryResultIncrement;
+
+    private (QueryBuilder&MockObject)|null $queryBuilder = null;
+
     protected function setUp(): void
     {
         $this->configHandler = $this->createMock(ConfigHandler::class);
@@ -52,8 +56,7 @@ class CategoryUrlProviderTest extends TestCase
         $this->iteratorFactory = $this->createMock(IteratorFactory::class);
         $this->router = $this->createMock(RouterInterface::class);
         $this->ids = new IdsCollection();
-
-        $this->initServices();
+        $this->categoryResultIncrement = 0;
     }
 
     public function testGetDecorated(): void
@@ -70,6 +73,20 @@ class CategoryUrlProviderTest extends TestCase
 
     public function testGetCategoryUrls(): void
     {
+        $categoryResult1 = $this->createCategoryResult();
+        $categoryResult2 = $this->createCategoryResult();
+        $queryResult = new Result(
+            new ArrayResult(
+                array_keys($categoryResult1),
+                [
+                    array_values($categoryResult1),
+                    array_values($categoryResult2),
+                ]
+            ),
+            $this->connection
+        );
+        $this->initServices($queryResult);
+        static::assertNotNull($this->queryBuilder);
         $context = Generator::generateSalesChannelContext();
 
         $provider = $this->getCategoryUrlProvider();
@@ -89,8 +106,68 @@ class CategoryUrlProviderTest extends TestCase
         static::assertSame('category/2/detail', $url->getLoc());
     }
 
-    private function initServices(): void
+    public function testEmptyUrlResult(): void
     {
+        $categoryRowNames = array_keys($this->createCategoryResult());
+        $queryResult = new Result(
+            new ArrayResult($categoryRowNames, []),
+            $this->connection
+        );
+        $this->initServices($queryResult);
+        static::assertNotNull($this->queryBuilder);
+        $context = Generator::generateSalesChannelContext();
+
+        $provider = $this->getCategoryUrlProvider();
+        $urlResult = $provider->getUrls($context, 100, 50);
+
+        $urls = $urlResult->getUrls();
+        static::assertCount(0, $urls);
+    }
+
+    public function testEmptyExcludedUrls(): void
+    {
+        $categoryRowNames = array_keys($this->createCategoryResult());
+        $queryResult = new Result(
+            new ArrayResult($categoryRowNames, []),
+            $this->connection
+        );
+        $this->initServices($queryResult, []);
+        static::assertNotNull($this->queryBuilder);
+        $this->configHandler->method('get')->willReturn([]);
+        $context = Generator::generateSalesChannelContext();
+
+        $provider = $this->getCategoryUrlProvider();
+
+        $andWhereConditions = [];
+        $this->queryBuilder->method('andWhere')
+            ->willReturnCallback(function ($condition) use (&$andWhereConditions) {
+                $andWhereConditions[] = $condition;
+
+                return $this->queryBuilder;
+            });
+
+        $provider->getUrls($context, 100, 50);
+        static::assertNotCount(0, $andWhereConditions);
+
+        $notInWhereConditions = $whereConditions = [];
+        array_walk($andWhereConditions, function ($condition) use (&$notInWhereConditions, &$whereConditions): void {
+            if (str_starts_with($condition, '`category`.id NOT IN (')) {
+                $notInWhereConditions[] = $condition;
+            } else {
+                $whereConditions[] = $condition;
+            }
+        });
+        static::assertCount(0, $notInWhereConditions);
+        static::assertSame($andWhereConditions, $whereConditions);
+    }
+
+    /**
+     * @param array<array{resource: class-string, salesChannelId: string, identifier: string}>|null $excludedUrls
+     */
+    private function initServices(
+        Result $categoryQueryResult,
+        ?array $excludedUrls = null
+    ): void {
         $this->connection->method('fetchAllAssociative')->willReturn([
             [
                 'foreign_key' => $this->ids->get('category-1'),
@@ -100,40 +177,47 @@ class CategoryUrlProviderTest extends TestCase
 
         $this->router->method('generate')->willReturn('category/2/detail');
 
-        $queryBuilder = $this->createMock(QueryBuilder::class);
-        $queryBuilder->method('executeQuery')->willReturn(new Result(
-            new ArrayResult(
-                [
-                    'increment',
-                    'id',
-                    'created_at',
-                    'updated_at',
-                ],
-                [
-                    [
-                        1,
-                        $this->ids->get('category-1'),
-                        '2021-01-01 00:00:00',
-                        null,
-                    ],
-                    [
-                        2,
-                        $this->ids->get('category-2'),
-                        '2021-01-01 00:00:00',
-                        null,
-                    ],
-                ]
-            ),
-            $this->connection
-        ));
+        $this->queryBuilder = $this->createMock(QueryBuilder::class);
+        $this->queryBuilder->method('executeQuery')->willReturn($categoryQueryResult);
 
         $query = $this->createMock(IterableQuery::class);
-        $query->method('getQuery')->willReturn($queryBuilder);
+        $query->method('getQuery')->willReturn($this->queryBuilder);
 
-        $this->iteratorFactory->method('createIterator')
-            ->willReturn($query);
+        $this->iteratorFactory->method('createIterator')->willReturn($query);
+        $this->configHandler->method('get')
+            ->willReturn($excludedUrls ?? $this->getDefaultExcludedUrls());
+    }
 
-        $this->configHandler->method('get')->willReturn([
+    private function getCategoryUrlProvider(): CategoryUrlProvider
+    {
+        return new CategoryUrlProvider(
+            $this->configHandler,
+            $this->connection,
+            $this->definition,
+            $this->iteratorFactory,
+            $this->router
+        );
+    }
+
+    /**
+     * @return array{increment: int, id: string, created_at: string, updated_at: ?string}
+     */
+    private function createCategoryResult(): array
+    {
+        return [
+            'increment' => ++$this->categoryResultIncrement,
+            'id' => $this->ids->get('category-' . $this->categoryResultIncrement),
+            'created_at' => '2021-01-01 00:00:00',
+            'updated_at' => null,
+        ];
+    }
+
+    /**
+     * @return array<array{resource: class-string, salesChannelId: string, identifier: string}>
+     */
+    private function getDefaultExcludedUrls(): array
+    {
+        return [
             [
                 'resource' => CategoryEntity::class,
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
@@ -149,17 +233,6 @@ class CategoryUrlProviderTest extends TestCase
                 'salesChannelId' => Uuid::randomHex(),
                 'identifier' => $this->ids->get('product-3'),
             ],
-        ]);
-    }
-
-    private function getCategoryUrlProvider(): CategoryUrlProvider
-    {
-        return new CategoryUrlProvider(
-            $this->configHandler,
-            $this->connection,
-            $this->definition,
-            $this->iteratorFactory,
-            $this->router
-        );
+        ];
     }
 }

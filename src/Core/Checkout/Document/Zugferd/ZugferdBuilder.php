@@ -40,10 +40,10 @@ class ZugferdBuilder
             throw DocumentException::generationError('Customer not found');
         }
 
+        $deliveryDate = $order->getPrimaryOrderDelivery()?->getShippingDateLatest();
+
         if (!Feature::isActive('v6.8.0.0')) {
             $deliveryDate = $order->getDeliveries()?->first()?->getShippingDateLatest();
-        } else {
-            $deliveryDate = $order->getPrimaryOrderDelivery()?->getShippingDateLatest();
         }
 
         if ($deliveryDate instanceof \DateTimeImmutable) {

@@ -408,13 +408,13 @@
                                 :variant="getVariantFromPaymentState(item)"
                                 appearance="pill"
                             >
-                                {{ item.transactions.last().stateMachineState.translated.name }}
+                                {{ transaction(item).stateMachineState.translated.name }}
                             </sw-label>
                         </template>
                         {% endblock %}
 
                         {% block sw_order_list_bulk_edit_grid_columns_delivery_state %}
-                        <template #column-deliveries[0].stateMachineState.name="{ item }">
+                        <template #column-getDelivery(item).stateMachineState.name="{ item }">
                             <sw-label
                                 v-if="getDelivery(item)"
                                 :variant="getVariantFromDeliveryState(item)"

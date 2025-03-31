@@ -11,15 +11,15 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\AddColumnTrait;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Migration\V6_7\Migration1728040169AddPrimaryOrderDeliveryAndTransaction;
+use Shopware\Core\Migration\V6_7\Migration1728040170AddPrimaryOrderTransaction;
 use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(Migration1728040169AddPrimaryOrderDeliveryAndTransaction::class)]
-class Migration1728040169AddPrimaryOrderDeliveryAndTransactionTest extends TestCase
+#[CoversClass(Migration1728040170AddPrimaryOrderTransaction::class)]
+class Migration1728040170AddPrimaryOrderTransactionTest extends TestCase
 {
     use AddColumnTrait;
     use KernelTestBehaviour;
@@ -38,7 +38,7 @@ class Migration1728040169AddPrimaryOrderDeliveryAndTransactionTest extends TestC
 
     public function testGetCreationTimestamp(): void
     {
-        static::assertSame(1728040169, (new Migration1728040169AddPrimaryOrderDeliveryAndTransaction())->getCreationTimestamp());
+        static::assertSame(1728040170, (new Migration1728040170AddPrimaryOrderTransaction())->getCreationTimestamp());
     }
 
     public function testMigration(): void
@@ -53,8 +53,8 @@ class Migration1728040169AddPrimaryOrderDeliveryAndTransactionTest extends TestC
         $manager = $this->connection->createSchemaManager();
         $columns = $manager->listTableColumns(OrderDefinition::ENTITY_NAME);
 
-        static::assertArrayHasKey('primary_order_delivery_id', $columns);
         static::assertArrayHasKey('primary_order_transaction_id', $columns);
+        static::assertArrayHasKey('primary_order_transaction_version_id', $columns);
 
         $query = $this->connection->createQueryBuilder();
         $query->select('*');
@@ -63,14 +63,13 @@ class Migration1728040169AddPrimaryOrderDeliveryAndTransactionTest extends TestC
 
         foreach ($result as $row) {
             static::assertNotNull($row['primary_order_transaction_id']);
-            static::assertNotNull($row['primary_order_delivery_id']);
+            static::assertNotNull($row['primary_order_transaction_version_id']);
         }
     }
 
     private function prepareOldDatabaseEntry(): void
     {
         $orderId = Uuid::fromHexToBytes(Uuid::randomHex());
-        $defaultShippingMethodId = $this->connection->executeQuery('SELECT id FROM shipping_method WHERE active = 1')->fetchOne();
         $defaultPaymentMethodId = $this->connection->executeQuery('SELECT id FROM payment_method WHERE active = 1 ORDER BY `position`')->fetchOne();
 
         $machineId = static::getContainer()->get(Connection::class)
@@ -104,23 +103,6 @@ class Migration1728040169AddPrimaryOrderDeliveryAndTransactionTest extends TestC
         );
 
         $this->connection->insert(
-            '`order_delivery`',
-            [
-                'id' => Uuid::fromHexToBytes(Uuid::randomHex()),
-                'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-                'order_id' => $orderId,
-                'order_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-                'state_id' => $stateId,
-                'shipping_method_id' => $defaultShippingMethodId,
-                'tracking_codes' => '["code"]',
-                'shipping_date_earliest' => '2020-01-01',
-                'shipping_date_latest' => '2025-01-01',
-                'shipping_costs' => '{}',
-                'created_at' => '2020-01-01',
-            ]
-        );
-
-        $this->connection->insert(
             '`order_transaction`',
             [
                 'id' => Uuid::fromHexToBytes(Uuid::randomHex()),
@@ -137,21 +119,12 @@ class Migration1728040169AddPrimaryOrderDeliveryAndTransactionTest extends TestC
 
     private function migrate(): void
     {
-        (new Migration1728040169AddPrimaryOrderDeliveryAndTransaction())->update($this->connection);
+        (new Migration1728040170AddPrimaryOrderTransaction())->update($this->connection);
     }
 
     private function rollback(): void
     {
-        $this->dropIndexIfExists($this->connection, 'order', 'uidx.order.primary_order_delivery');
         $this->dropIndexIfExists($this->connection, 'order', 'uidx.order.primary_order_transaction');
-
-        if ($this->columnExists($this->connection, 'order', 'primary_order_delivery_id')) {
-            $this->connection->executeStatement('ALTER TABLE `order` DROP COLUMN `primary_order_delivery_id`');
-        }
-
-        if ($this->columnExists($this->connection, 'order', 'primary_order_delivery_version_id')) {
-            $this->connection->executeStatement('ALTER TABLE `order` DROP COLUMN `primary_order_delivery_version_id`');
-        }
 
         if ($this->columnExists($this->connection, 'order', 'primary_order_transaction_id')) {
             $this->connection->executeStatement('ALTER TABLE `order` DROP COLUMN `primary_order_transaction_id`');

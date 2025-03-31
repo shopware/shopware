@@ -58,10 +58,10 @@ abstract class AbstractDocumentRenderer
             return false;
         }
 
+        $orderDelivery = $order->getPrimaryOrderDelivery();
+
         if (!Feature::isActive('v6.8.0.0')) {
             $orderDelivery = $order->getDeliveries()?->first();
-        } else {
-            $orderDelivery = $order->getPrimaryOrderDelivery();
         }
 
         if (!$orderDelivery) {

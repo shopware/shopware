@@ -79,14 +79,14 @@ class SalesChannelContextRestorer
             $options[SalesChannelContextService::PAYMENT_METHOD_ID] = $paymentMethodId;
         }
 
+        $shippingMethodId = $order->getPrimaryOrderDelivery()?->getShippingMethodId();
+
         if (!Feature::isActive('v6.8.0.0')) {
-            $delivery = $order->getDeliveries() !== null ? $order->getDeliveries()->first() : null;
-        } else {
-            $delivery = $order->getDeliveries() !== null ? $order->getPrimaryOrderDelivery() : null;
+            $shippingMethodId = $order->getDeliveries()?->first()?->getShippingMethodId();
         }
 
-        if ($delivery !== null) {
-            $options[SalesChannelContextService::SHIPPING_METHOD_ID] = $delivery->getShippingMethodId();
+        if ($shippingMethodId !== null) {
+            $options[SalesChannelContextService::SHIPPING_METHOD_ID] = $shippingMethodId;
         }
 
         $options = array_merge($options, $overrideOptions);
@@ -175,6 +175,8 @@ class SalesChannelContextRestorer
     private function getOrderById(string $orderId, Context $context): ?OrderEntity
     {
         $criteria = (new Criteria([$orderId]))
+            ->addAssociation('primaryOrderTransaction')
+            ->addAssociation('primaryOrderDelivery')
             ->addAssociation('lineItems')
             ->addAssociation('currency')
             ->addAssociation('deliveries')
@@ -213,6 +215,10 @@ class SalesChannelContextRestorer
             return $transaction->getPaymentMethodId();
         }
 
-        return $transactions->last() ? $transactions->last()->getPaymentMethodId() : null;
+        if (!Feature::isActive('v6.8.0.0')) {
+            return $transactions->last() ? $transactions->last()->getPaymentMethodId() : null;
+        }
+
+        return $order->getPrimaryOrderTransaction()?->getPaymentMethodId();
     }
 }

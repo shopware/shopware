@@ -110,15 +110,15 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
             if ($machine === self::ORDER) {
                 $machineId = $orderId;
             } elseif ($machine === self::ORDER_DELIVERY) {
-                $machineId = $this->getMachineIdFromOrderDelivery($orderId);
+                $machineId = $this->getMachineIdFromOrderDelivery($orderId, $context);
             } else {
                 $machineId = $this->getMachineId($machine, $orderId);
             }
         } else {
             $machineId = match ($machine) {
                 self::ORDER => $orderId,
-                self::ORDER_DELIVERY => $this->getMachineIdFromOrderDelivery($orderId),
-                self::ORDER_TRANSACTION => $this->getMachineIdFromOrderTransaction($orderId),
+                self::ORDER_DELIVERY => $this->getMachineIdFromOrderDelivery($orderId, $context),
+                self::ORDER_TRANSACTION => $this->getMachineIdFromOrderTransaction($orderId, $context),
                 default => $this->getMachineId($machine, $orderId),
             };
         }
@@ -161,13 +161,13 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
         ) ?: null;
     }
 
-    private function getMachineIdFromOrderDelivery(string $orderId): ?string
+    private function getMachineIdFromOrderDelivery(string $orderId, Context $context): ?string
     {
         return $this->connection->fetchOne(
             'SELECT LOWER(HEX(id)) FROM ' . self::ORDER_DELIVERY . ' WHERE order_id = :id AND version_id = :version ORDER BY JSON_EXTRACT(shipping_costs, \'$.totalPrice\') DESC',
             [
                 'id' => Uuid::fromHexToBytes($orderId),
-                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                'version' => Uuid::fromHexToBytes($context->getVersionId()),
             ],
         ) ?: null;
     }
@@ -224,13 +224,13 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
         return $id ?: null;
     }
 
-    private function getMachineIdFromOrderTransaction(string $orderId): ?string
+    private function getMachineIdFromOrderTransaction(string $orderId, Context $context): ?string
     {
         return $this->connection->fetchOne(
             'SELECT LOWER(HEX(id)) FROM ' . self::ORDER_TRANSACTION . ' WHERE order_id = :id AND version_id = :version ORDER BY created_at DESC',
             [
                 'id' => Uuid::fromHexToBytes($orderId),
-                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                'version' => Uuid::fromHexToBytes($context->getVersionId()),
             ]
         ) ?: null;
     }

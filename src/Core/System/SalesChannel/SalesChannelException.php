@@ -37,11 +37,8 @@ class SalesChannelException extends HttpException
     final public const SALES_CHANNEL_CONTEXT_PERMISSIONS_LOCKED = 'SYSTEM__SALES_CHANNEL_CONTEXT_PERMISSIONS_LOCKED';
     final public const ENCODING_INVALID_STRUCT_EXCEPTION = 'SYSTEM__ENCODING_INVALID_STRUCT_EXCEPTION';
     final public const ENCODING_MISSING_AGGREGATION_EXCEPTION = 'SYSTEM__ENCODING_MISSING_AGGREGATION_EXCEPTION';
-
     final public const ORDER_NOT_FOUND_CODE = 'SYSTEM__ORDER_NOT_FOUND_CODE';
-
     final public const MISSING_ORDER_ASSOCIATION_CODE = 'SYSTEM__MISSING_ORDER_ASSOCIATION_CODE';
-
     private const INVALID_UUID_MESSAGE_TEMPLATE = 'Provided %s is not a valid UUID';
 
     public static function salesChannelNotFound(string $salesChannelId): self

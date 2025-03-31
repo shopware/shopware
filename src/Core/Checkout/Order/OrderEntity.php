@@ -97,7 +97,7 @@ class OrderEntity extends Entity
 
     protected ?OrderTransactionEntity $primaryOrderTransaction = null;
 
-    protected ?string $primaryOrderTransactionId;
+    protected ?string $primaryOrderTransactionId = null;
 
     protected ?string $primaryOrderTransactionVersionId = null;
 

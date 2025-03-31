@@ -147,7 +147,7 @@ class OrderConverter
 
             // In order to reference the primary order delivery we need to set ids. The primary order delivery is the
             // order delivery with the highest shipping costs (i.e. _not_ a shipping discount).
-            if ($cart->getDeliveries()->count() > 0) {
+            if (!$cart->getBehavior()?->isRecalculation() && $cart->getDeliveries()->count() > 0) {
                 usort(
                     $data['deliveries'],
                     function (array $deliveryA, array $deliveryB) {
@@ -188,7 +188,7 @@ class OrderConverter
                 $context->getContext()
             );
 
-            if ($cart->getTransactions()->count() > 0) {
+            if (!$cart->getBehavior()?->isRecalculation() && $cart->getTransactions()->count() > 0) {
                 $primaryOrderTransactionId = Uuid::randomHex();
                 $data['transactions'][0]['id'] = $primaryOrderTransactionId;
                 $data['primaryOrderTransactionId'] = $primaryOrderTransactionId;
@@ -327,16 +327,6 @@ class OrderConverter
             SalesChannelContextService::VERSION_ID => $context->getVersionId(),
         ];
 
-        if (!Feature::isActive('v6.8.0.0')) {
-            $delivery = $order->getDeliveries()?->first();
-        } else {
-            $delivery = $order->getPrimaryOrderDelivery();
-        }
-
-        if ($delivery !== null) {
-            $options[SalesChannelContextService::SHIPPING_METHOD_ID] = $delivery->getShippingMethodId();
-        }
-
         if ($billingAddressId) {
             $options[SalesChannelContextService::BILLING_ADDRESS_ID] = $billingAddressId;
         }
@@ -345,10 +335,10 @@ class OrderConverter
             $options[SalesChannelContextService::SHIPPING_ADDRESS_ID] = $shippingAddressId;
         }
 
+        $shippingMethodId = $order->getPrimaryOrderDelivery()?->getShippingMethodId();
+
         if (!Feature::isActive('v6.8.0.0')) {
             $shippingMethodId = $order->getDeliveries()?->first()?->getShippingMethodId();
-        } else {
-            $shippingMethodId = $order->getPrimaryOrderDelivery()?->getShippingMethodId();
         }
 
         if ($shippingMethodId !== null) {

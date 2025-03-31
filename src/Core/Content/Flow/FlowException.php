@@ -8,7 +8,6 @@ use Shopware\Core\Content\Flow\Exception\CustomTriggerByNameNotFoundException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\StateMachine\StateMachineException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('after-sales')]
@@ -19,7 +18,6 @@ class FlowException extends HttpException
     final public const FLOW_ACTION_TRANSACTION_COMMIT_FAILED = 'FLOW_ACTION_TRANSACTION_COMMIT_FAILED';
     final public const FLOW_ACTION_TRANSACTION_UNCAUGHT_EXCEPTION = 'FLOW_ACTION_TRANSACTION_UNCAUGHT_EXCEPTION';
     final public const CUSTOM_TRIGGER_BY_NAME_NOT_FOUND = 'FLOW_ACTION_CUSTOM_TRIGGER_BY_NAME_NOT_FOUND';
-
     final public const FLOW_ACTION_STATE_MACHINE_NOT_FOUND = 'FLOW_ACTION_STATE_MACHINE_NOT_FOUND';
 
     /**
@@ -76,15 +74,8 @@ class FlowException extends HttpException
         };
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
-    public static function stateMachineNotFound(string $stateMachineName): self|StateMachineException
+    public static function stateMachineNotFound(string $stateMachineName): self
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return StateMachineException::stateMachineNotFound($stateMachineName);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::FLOW_ACTION_STATE_MACHINE_NOT_FOUND,

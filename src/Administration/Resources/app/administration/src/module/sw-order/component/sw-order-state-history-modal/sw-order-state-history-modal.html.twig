@@ -59,6 +59,7 @@
         {% block sw_order_state_history_modal_content_columns_transaction_state %}
         <template #column-transaction="{ item }">
             <sw-label
+                v-if="item.transaction"
                 :variant="getVariantState('order_transaction', item.transaction)"
                 appearance="badged"
             >

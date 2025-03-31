@@ -33,4 +33,4 @@ Get the first order delivery with `primaryOrderDelivery` so you should replace m
 Get the latest order transaction with `primaryOrderTransaction` so you should replace methods like `transaction.last()`
 ___
 # Next Major Version Changes
-If only one order delivery or order transaction is required, the reference will be via the `primaryOrderDelivery` or `primaryOrderTransaction`.
+For user interfaces that display only one delivery & transaction, there is now a new reference in the order for a `primaryOrderDelivery` or `primaryOrderTransaction`. If an extension modifies or adds new deliveries or transactions, this should be taken into account. By default, the reference will behave like default Shopware behavior, meaning `delivery.first()` and `transaction.last()`.

@@ -142,22 +142,20 @@ export default {
                 .addAssociation('addresses.country')
                 .addAssociation('addresses.countryState')
                 .addAssociation('documents.documentType')
-                .addAssociation('tags');
+                .addAssociation('tags')
+                .addAssociation('primaryOrderTransaction')
+                .addAssociation('primaryOrderTransaction.paymentMethod')
+                .addAssociation('primaryOrderTransaction.stateMachineState')
+                .addAssociation('primaryOrderDelivery')
+                .addAssociation('primaryOrderDelivery.shippingMethod')
+                .addAssociation('primaryOrderDelivery.stateMachineState')
+                .addAssociation('primaryOrderDelivery.shippingOrderAddress.country');
 
             if (!Shopware.Feature.isActive('v6.8.0.0')) {
                 criteria
                     .addAssociation('deliveries.shippingMethod')
                     .addAssociation('deliveries.shippingOrderAddress')
                     .addAssociation('transactions.paymentMethod');
-            } else {
-                criteria
-                    .addAssociation('primaryOrderTransaction')
-                    .addAssociation('primaryOrderTransaction.paymentMethod')
-                    .addAssociation('primaryOrderTransaction.stateMachineState')
-                    .addAssociation('primaryOrderDelivery')
-                    .addAssociation('primaryOrderDelivery.shippingMethod')
-                    .addAssociation('primaryOrderDelivery.stateMachineState')
-                    .addAssociation('primaryOrderDelivery.shippingOrderAddress.country');
             }
 
             criteria.addAssociation('stateMachineState');
@@ -324,10 +322,10 @@ export default {
                 };
 
                 if (addressMapping.type === 'shipping') {
+                    mapping.deliveryId = this.order.primaryOrderDeliveryId;
+
                     if (!Shopware.Feature.isActive('v6.8.0.0')) {
                         mapping.deliveryId = this.order.deliveries[0].id;
-                    } else {
-                        mapping.deliveryId = this.order.primaryOrderDeliveryId;
                     }
                 }
 

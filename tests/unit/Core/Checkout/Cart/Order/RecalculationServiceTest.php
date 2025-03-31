@@ -39,6 +39,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -190,18 +191,12 @@ class RecalculationServiceTest extends TestCase
 
     public function testAddProductToOrder(): void
     {
-        $deliveryId = Uuid::randomHex();
-
-        $deliveryEntity = new OrderDeliveryEntity();
-        $deliveryEntity->setId($deliveryId);
-        $deliveryEntity->setStateId(Uuid::randomHex());
-
-        $deliveries = new OrderDeliveryCollection([$deliveryEntity]);
+        $delivery = $this->orderDeliveryEntity();
 
         $order = $this->orderEntity();
-        $order->setDeliveries($deliveries);
-        $order->setPrimaryOrderDeliveryId($deliveryId);
-        $order->setPrimaryOrderDelivery($deliveryEntity);
+        $order->setDeliveries(new OrderDeliveryCollection([$delivery]));
+        $order->setPrimaryOrderDeliveryId($delivery->getId());
+        $order->setPrimaryOrderDelivery($delivery);
 
         $entityRepository = $this->createMock(EntityRepository::class);
         $entityRepository->method('search')->willReturnOnConsecutiveCalls(
@@ -289,16 +284,8 @@ class RecalculationServiceTest extends TestCase
 
     public function testAssertProcessorsCalledWithLiveVersion(): void
     {
-        $deliveryId = Uuid::randomHex();
-
-        $deliveryEntity = new OrderDeliveryEntity();
-        $deliveryEntity->setId($deliveryId);
-        $deliveryEntity->setStateId(Uuid::randomHex());
-
-        $deliveries = new OrderDeliveryCollection([$deliveryEntity]);
-
         $order = $this->orderEntity();
-        $order->setDeliveries($deliveries);
+        $order->setDeliveries(new OrderDeliveryCollection([$this->orderDeliveryEntity()]));
 
         $entityRepository = $this->createMock(EntityRepository::class);
         $entityRepository->method('search')->willReturnOnConsecutiveCalls(

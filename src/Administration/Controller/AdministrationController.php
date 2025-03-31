@@ -32,6 +32,7 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -284,6 +285,20 @@ class AdministrationController extends AbstractController
         );
     }
 
+       #[Route(path: '/api/translations/iso-locale-codes', name: 'api.translations.iso-locale-codes', methods: ['GET'])]
+    public function getIsoLocaleCodes(): JsonResponse
+    {
+        $finder = (new Finder())
+            ->directories()
+            ->in('../custom/translations/translations')
+            ->depth(0);
+
+        $isoCodes = [];
+        foreach ($finder as $dir) {
+            $isoCodes[] = $dir->getBasename();
+        }
+        return new JsonResponse(['isoCodes' => $isoCodes]);
+    }
     private function fetchLanguageIdByName(string $isoCode, Connection $connection): ?string
     {
         $languageId = $connection->fetchOne(

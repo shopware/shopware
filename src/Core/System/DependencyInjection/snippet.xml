@@ -9,6 +9,10 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\System\Snippet\Aggregate\SnippetSetLocale\SnippetSetLocaleDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
         <service id="Shopware\Core\System\Snippet\SnippetDefinition">
             <tag name="shopware.entity.definition"/>
         </service>

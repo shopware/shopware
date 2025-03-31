@@ -29,6 +29,8 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
     {
         $this->loadPluginSnippets($snippetFileCollection);
 
+        $this->loadRepositorySnippets($snippetFileCollection);
+
         $this->loadAppSnippets($snippetFileCollection);
     }
 
@@ -138,5 +140,21 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         }
 
         return $authors[$bundle::class] ?? '';
+    }
+
+    private function loadRepositorySnippets(SnippetFileCollection $snippetFileCollection): void
+    {
+        $repositorySnippetFileLoader = new RepositorySnippetFileLoader('../custom/translations/');
+        $repositorySnippetFileLoader->ensureDirectoryExists('../custom/translations/');
+        $snippetFiles = $repositorySnippetFileLoader->loadSnippetFilesFromRepository();
+
+
+        foreach ($snippetFiles as $snippetFile) {
+            if ($snippetFileCollection->hasFileForPath($snippetFile->getPath())) {
+                continue;
+            }
+
+            $snippetFileCollection->add($snippetFile);
+        }
     }
 }

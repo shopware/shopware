@@ -99,6 +99,8 @@ class SnippetFinder implements SnippetFinderInterface
             $paths[] = $bundlePath;
         }
 
+        $paths = array_merge($paths, $this->getCustomTranslationPaths());
+
         return $paths;
     }
 
@@ -113,9 +115,9 @@ class SnippetFinder implements SnippetFinderInterface
             ->ignoreDotFiles(true)
             ->ignoreVCS(true)
             ->ignoreUnreadableDirs()
-            ->name(\sprintf('%s.json', $locale))
-            ->in($this->getBundlePaths());
-
+            ->name(\sprintf('administration.json'))
+            //->in($this->getBundlePaths());
+            ->in([$this->kernel->getProjectDir() . '/custom/translations/translations/' . $locale]);
         $iterator = $finder->getIterator();
         $files = [];
 
@@ -235,5 +237,14 @@ class SnippetFinder implements SnippetFinderInterface
             $intersections,
             fn ($key) => !\in_array($key, self::ALLOWED_INTERSECTING_FIRST_LEVEL_SNIPPET_KEYS, true)
         ));
+    }
+
+    private function getCustomTranslationPaths(): array
+    {
+        $translationsPath = $this->kernel->getProjectDir() . '/custom/translations/*';
+        if (file_exists($translationsPath)) {
+            return [$translationsPath];
+        }
+        return [];
     }
 }

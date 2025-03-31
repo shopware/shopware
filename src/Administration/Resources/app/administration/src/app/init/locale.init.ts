@@ -11,12 +11,21 @@ export default async function initializeLocaleService() {
     localeFactory.register('de-DE', {});
     localeFactory.register('en-GB', {});
 
+
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const snippetService = Shopware.Service('snippetService');
 
     if (snippetService) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
         await snippetService.getSnippets(localeFactory);
+
+        const isoLocaleCodes = await snippetService.getIsoLocaleCodes();
+
+        isoLocaleCodes.isoCodes.forEach((isoCountryCode: string) => {
+            if(localeFactory.getLocaleByName(isoCountryCode) === false) {
+                localeFactory.register(isoCountryCode, {});
+            }
+        });
     }
 
     return localeFactory;

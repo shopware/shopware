@@ -427,6 +427,36 @@
                 {% endblock %}
             </sw-card>
             {% endblock %}
+
+            <sw-card
+                title="Import Snippet sets"
+            >
+                <p>Import community-created snippet collections directly from our <a>GitHub repository for translations</a>.<br> Please note that these are beta versions and may contain errors, though they are updated daily.</p>
+                <br>
+                <sw-multi-select
+                    v-model:value="selectedDirectory"
+                    :options="directories"
+                    label="Select Snippet Sets"
+                >
+
+                </sw-multi-select>
+
+                <sw-checkbox-field
+                    v-model="keepSnippetsUpToDate"
+                    label="Keep these snippets up to date"
+                >
+
+                </sw-checkbox-field>
+
+                <sw-button-process
+                    variant="primary"
+                    @click="onSave"
+                    :is-loading="isLoading"
+                    :process-success="isSaveSuccessful"
+                >
+                    Save and Import
+                </sw-button-process>
+            </sw-card>
         </sw-card-view>
     </template>
     {% endblock %}

@@ -36,7 +36,17 @@ export default {
             showCloneModal: false,
             snippetsEditable: false,
             selection: {},
+            isSaveSuccessful: false,
+            keepSnippetsUpToDate: false,
+            directories: [],
+            selectedDirectory: null,
+
+            selectedLocales: [],
         };
+    },
+    created() {
+        this.fetchDirectories();
+        this.fetchSelectedDirectories();
     },
 
     metaInfo() {
@@ -48,6 +58,9 @@ export default {
     computed: {
         snippetSetRepository() {
             return this.repositoryFactory.create('snippet_set');
+        },
+        snippet_set_locale() {
+            return this.repositoryFactory.create('snippet_set_locale');
         },
 
         snippetSetCriteria() {
@@ -76,25 +89,58 @@ export default {
     },
 
     methods: {
-        getList() {
-            this.isLoading = true;
 
-            return this.loadBaseFiles().then(() => {
-                return this.snippetSetRepository.search(this.snippetSetCriteria).then((response) => {
-                    this.total = response.total;
-                    this.snippetSets = response;
-                    this.isLoading = false;
+
+
+        async languageExists(isoCode) {
+            const languageRepository = this.repositoryFactory.create('language');
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('localeId', await this.getLocaleIdByIso(isoCode)));
+
+            const languages = await languageRepository.search(criteria);
+            return languages.length > 0;
+        },
+        async createLanguage(isoCode) {
+            if (await this.languageExists(isoCode)) {
+                this.createNotificationInfo({
+                    message: this.$tc('Language already exists', 0, { name: isoCode.toUpperCase() }),
                 });
-            });
+                return;
+            }
+
+            const languageRepository = this.repositoryFactory.create('language');
+            const newLanguage = languageRepository.create();
+            newLanguage.name = isoCode.toUpperCase();
+            newLanguage.localeId = await this.getLocaleIdByIso(isoCode);
+            newLanguage.translationCodeId = newLanguage.localeId;
+
+            try {
+                await languageRepository.save(newLanguage);
+                this.createNotificationSuccess({
+                    message: this.$tc('Erfolgreich', 0, { name: newLanguage.name }),
+                });
+            } catch (error) {
+                this.createNotificationError({
+                    message: this.$tc('Fehler', 0, { name: newLanguage.name }),
+                });
+            }
         },
 
-        loadBaseFiles() {
-            return this.snippetSetService.getBaseFiles().then((response) => {
-                this.baseFiles = response.items;
-            });
+        async getLocaleIdByIso(isoCode) {
+            const localeRepository = this.repositoryFactory.create('locale');
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('code', isoCode));
+
+            const locales = await localeRepository.search(criteria);
+            if (locales.length > 0) {
+                return locales[0].id;
+            }
+
+
+            return 'default-locale-id';
         },
 
-        onAddSnippetSet() {
+        async onAddSnippetSet() {
             const newSnippetSet = this.snippetSetRepository.create();
             newSnippetSet.baseFile = Object.values(this.baseFiles)[0].name;
 
@@ -125,9 +171,107 @@ export default {
 
                 return true;
             });
+
+            const isoCode = newSnippetSet.baseFile.split('.')[1];
+            await this.createLanguage(isoCode);
         },
 
-        onInlineEditSave(item) {
+
+        async fetchDirectories() {
+            const owner = 'shopware';
+            const repo = 'translations';
+            const url = `https://api.github.com/repos/${owner}/${repo}/git/trees/3dc0e06f86e7dbe47e6685928cacd49462614963?ref=main`;
+            try {
+                const response = await fetch(url, {});
+                const data = await response.json();
+                this.directories = data.tree.map((item) => {
+                    return {
+                        value: item.path,
+                        label: item.path,
+                    };
+                });
+            } catch (error) {
+                console.error('Error fetching directories:', error);
+            }
+        },
+
+        async fetchSelectedDirectories() {
+            const snippetSetLocaleRepository = this.repositoryFactory.create('snippet_set_locale');
+            const localeRepository = this.repositoryFactory.create('locale');
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('id', this.snippetSets[0].id));
+
+            try {
+                const snippetSetLocales = await snippetSetLocaleRepository.search(criteria);
+                const localePromises = snippetSetLocales.map(async (snippetSetLocale) => {
+                    const locale = await localeRepository.get(snippetSetLocale.localeId);
+                    return locale.code;
+                });
+
+                this.selectedDirectory = await Promise.all(localePromises);
+            } catch (error) {
+                console.error('Error fetching selected directories:', error);
+            }
+        },
+
+        async onSave() {
+            this.isLoading = true;
+            const snippetSetLocaleRepository = this.repositoryFactory.create('snippet_set_locale');
+            const localeRepository = this.repositoryFactory.create('locale');
+
+            try {
+                const localePromises = this.selectedDirectory.map(async (isoCode) => {
+                    const criteria = new Criteria();
+                    criteria.addFilter(Criteria.equals('code', isoCode));
+                    const locales = await localeRepository.search(criteria);
+                    return locales.length > 0 ? locales[0].id : null;
+                });
+
+                const localeIds = await Promise.all(localePromises);
+
+                const savePromises = localeIds.map(async (selectedLocaleId, index) => {
+                    if (selectedLocaleId) {
+                        const snippetSetLocale = snippetSetLocaleRepository.create();
+                        snippetSetLocale.snippetSetId = this.snippetSets[0].id;
+                        snippetSetLocale.localeId = selectedLocaleId;
+                        try {
+                            await snippetSetLocaleRepository.save(snippetSetLocale);
+                            this.isSaveSuccessful = true;
+                        } catch (error) {
+                            console.error('Error saving snippet set locale:', error);
+                        }
+                    }
+                });
+
+                await Promise.all(savePromises);
+            } catch (error) {
+                console.error('Error processing selected directories:', error);
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+
+        getList() {
+            this.isLoading = true;
+
+            return this.loadBaseFiles().then(() => {
+                return this.snippetSetRepository.search(this.snippetSetCriteria).then((response) => {
+                    this.total = response.total;
+                    this.snippetSets = response;
+                    this.isLoading = false;
+                });
+            });
+        },
+
+        loadBaseFiles() {
+            return this.snippetSetService.getBaseFiles().then((response) => {
+                this.baseFiles = response.items;
+            });
+        },
+
+
+        async onInlineEditSave(item) {
             this.isLoading = true;
 
             const match = Object.values(this.baseFiles).find((element) => {
@@ -136,6 +280,9 @@ export default {
 
             if (match && match.iso !== null) {
                 item.iso = match.iso;
+
+                const isoCode = item.baseFile.split('.')[1];
+                await this.createLanguage(isoCode);
 
                 this.snippetSetRepository.save(item)
                     .then(() => {

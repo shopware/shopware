@@ -63,6 +63,16 @@ class SnippetApiService extends ApiService {
                 });
             });
     }
+
+    async getIsoLocaleCodes() {
+        const headers = this.getBasicHeaders();
+
+        return this.httpClient
+            .get('/translations/iso-locale-codes', { headers })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

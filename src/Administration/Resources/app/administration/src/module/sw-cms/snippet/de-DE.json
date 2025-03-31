@@ -216,7 +216,6 @@
             "horizontalAlignRight": "Rechts"
           },
           "helpText": {
-            "autoSlide": "Wegen mangelnder Barrierefreiheit temporär deaktiviert.",
             "autoplayTimeout": "Die Anzeigezeit eines einzelnen Bildes in Millisekunden.",
             "speed": "Die Dauer der Wechselanimation in Millisekunden.",
             "displayMode": "<strong>Original:</strong> Das Bild wird in seiner ursprünglichen Auflösung erhalten oder auf die aktuelle Breite der CMS-Seite verkleinert.<br><br><strong>Skaliert:</strong> Das Bild wird ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert.<br><br><strong>Zugeschnitten:</strong> Das Bild wird auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte maximale Höhe zugeschnitten."
@@ -230,6 +229,8 @@
             "options": "Optionen"
           },
           "infoText": {
+            "autoSlideTitle": "Bedenken hinsichtlich der Barrierefreiheit",
+            "autoSlide": "Das Aktivieren dieser Funktion kann dazu führen, dass Teile Deiner Storefront für Benutzer mit Einschränkungen unzugänglich werden. Die Nichteinhaltung der in Deiner Gerichtsbarkeit geltenden Barrierefreiheitsgesetze (z.B. Europäisches Barrierefreiheitsgesetz) kann juristisch verfolgt werden. Indem Sie fortfahren, erkennen Sie dieses Risiko an und übernehmen die volle Verantwortung.",
             "listingElement": "Die Produktdaten für dieses Element werden automatisiert über die Kategoriezuweisung befüllt. Der Inhalt zeigt nur eine ungefähre Vorschau."
           }
         },

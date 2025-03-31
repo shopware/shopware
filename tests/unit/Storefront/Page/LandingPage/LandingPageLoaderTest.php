@@ -115,6 +115,7 @@ class LandingPageLoaderTest extends TestCase
         $page = $landingPageLoader->load($request, $salesChannelContext);
         $metaInformation = $page->getMetaInformation();
 
+        static::assertNotNull($metaInformation);
         static::assertEquals($metaInformation->getMetaTitle(), $expected['metaTitle']);
         static::assertEquals($metaInformation->getMetaDescription(), $expected['metaDescription']);
         static::assertEquals($metaInformation->getMetaKeywords(), $expected['metaKeywords']);
@@ -141,6 +142,7 @@ class LandingPageLoaderTest extends TestCase
         $page = $landingPageLoader->load($request, $salesChannelContext);
         $metaInformation = $page->getMetaInformation();
 
+        static::assertNotNull($metaInformation);
         static::assertEquals($metaInformation->getMetaTitle(), $expected['metaTitle']);
         static::assertEquals($metaInformation->getMetaDescription(), $expected['metaDescription']);
         static::assertEquals($metaInformation->getMetaKeywords(), $expected['metaKeywords']);
@@ -165,6 +167,9 @@ class LandingPageLoaderTest extends TestCase
         );
     }
 
+    /**
+     * @param array<string> $translated
+     */
     private function getLandingPageLoaderWithTranslated(string $landingPageId, array $translated, Request $request, SalesChannelContext $salesChannelContext): LandingPageLoader
     {
         $productId = Uuid::randomHex();

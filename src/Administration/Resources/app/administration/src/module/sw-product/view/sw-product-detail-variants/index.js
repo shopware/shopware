@@ -34,6 +34,7 @@ export default {
             defaultTab: 'all',
             activeTab: 'all',
             configSettingGroups: [],
+            limit: 100,
         };
     },
 
@@ -154,12 +155,13 @@ export default {
                 (group) => group.option.groupId,
             );
 
-            const criteria = new Criteria(1, null);
+            const criteria = new Criteria(1, this.limit);
+
             if (groupIds.length) {
                 criteria.addFilter(Criteria.equalsAny('id', groupIds));
             }
 
-            this.configSettingGroups = await this.groupRepository.search(criteria);
+            this.configSettingGroups = await this.loadAllPropertyGroups(criteria);
         },
 
         loadOptions() {
@@ -180,13 +182,12 @@ export default {
 
         loadGroups() {
             return new Promise((resolve) => {
-                this.$nextTick().then(() => {
-                    const groupCriteria = new Criteria(1, null);
+                this.$nextTick().then(async () => {
+                    // Fetch the first page to get total groups and also use its data
+                    const groupCriteria = new Criteria(1, this.limit);
 
-                    this.groupRepository.search(groupCriteria).then((searchResult) => {
-                        this.groups = searchResult;
-                        resolve();
-                    });
+                    this.groups = await this.loadAllPropertyGroups(groupCriteria);
+                    resolve();
                 });
             });
         },
@@ -269,6 +270,25 @@ export default {
             }
 
             this.productProperties.splice(0, this.productProperties.length, ...newProperties);
+        },
+
+        async loadAllPropertyGroups(criteria) {
+            const initialResult = await this.groupRepository.search(criteria);
+            const totalGroups = initialResult.total;
+            const limit = initialResult.length;
+
+            const totalPages = Math.ceil(totalGroups / limit);
+
+            const promises = [];
+            // eslint-disable-next-line no-plusplus
+            for (let page = 2; page <= totalPages; page++) {
+                const nextCriteria = new Criteria(page, limit);
+                promises.push(this.groupRepository.search(nextCriteria));
+            }
+
+            const results = await Promise.all(promises);
+
+            return [initialResult, ...results].flatMap((result) => result);
         },
     },
 };

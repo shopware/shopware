@@ -215,7 +215,7 @@ export default {
 
         getItemName(product) {
             const name = product.name ? product.name : product.translated.name;
-            if(name){
+            if (name) {
                 return name;
             }
 

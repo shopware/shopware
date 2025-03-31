@@ -5,4 +5,4 @@ author_email: sascha.heilmeier@netlogix.de
 author_github: @scarbous
 ---
 # Core
-* Added map `fileHash` independent of a  `MetadataLoaderInterface` is supported
+* Added save `fileHash` independent of used `MetadataLoader` in media metadata

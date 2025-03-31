@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute;
 use Shopware\Core\Framework\Context;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -43,6 +45,10 @@ class ProductReviewSaveRouteTest extends TestCase
         $this->config = new StaticSystemConfigService([
             'test' => [
                 'core.listing.showReview' => true,
+                'core.basicInformation.email' => 'noreply@example.com',
+            ],
+            'testReviewNotActive' => [
+                'core.listing.showReview' => false,
                 'core.basicInformation.email' => 'noreply@example.com',
             ],
         ]);
@@ -78,7 +84,7 @@ class ProductReviewSaveRouteTest extends TestCase
         $salesChannel->setId('test');
 
         $salesChannelContext->expects($this->once())->method('getCustomer')->willReturn($customer);
-        $salesChannelContext->expects($this->exactly(3))->method('getSalesChannelId')->willReturn($salesChannel->getId());
+        $salesChannelContext->expects($this->exactly(1))->method('getSalesChannelId')->willReturn($salesChannel->getId());
         $salesChannelContext->expects($this->exactly(1))->method('getLanguageId')->willReturn($context->getLanguageId());
         $salesChannelContext->expects($this->exactly(3))->method('getContext')->willReturn($context);
 
@@ -128,5 +134,21 @@ class ProductReviewSaveRouteTest extends TestCase
             ->with($event, ReviewFormEvent::EVENT_NAME);
 
         $this->route->save($productId, $data, $salesChannelContext);
+    }
+
+    public function testSaveReviewDeactivated(): void
+    {
+        $ids = new IdsCollection();
+
+        $this->expectExceptionObject(ProductException::reviewNotActive());
+
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->expects($this->exactly(1))->method('getSalesChannelId')->willReturn('testReviewNotActive');
+
+        $this->route->save(
+            $ids->get('productId'),
+            new RequestDataBag(['test' => 'test']),
+            $salesChannelContext,
+        );
     }
 }

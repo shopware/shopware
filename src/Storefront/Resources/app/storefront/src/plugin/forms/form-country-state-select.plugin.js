@@ -1,4 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
+/** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
 
 /**
@@ -22,6 +23,7 @@ export default class CountryStateSelectPlugin extends Plugin {
     };
 
     init() {
+        /** @deprecated tag:v6.8.0 - initClient is deprecated because client instance is no longer needed. Use native fetch API instead. */
         this.initClient();
         this.initSelects();
 
@@ -32,7 +34,9 @@ export default class CountryStateSelectPlugin extends Plugin {
         }
     }
 
+    /** @deprecated tag:v6.8.0 - initClient is deprecated because client instance is no longer needed. Use native fetch API instead. */
     initClient() {
+        /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._client = new HttpClient();
     }
 
@@ -96,14 +100,16 @@ export default class CountryStateSelectPlugin extends Plugin {
     requestStateData(countryId, countryStateId = null, stateRequired = false) {
         const payload = JSON.stringify({ countryId });
 
-        this._client.post(
-            window.router['frontend.country.country-data'],
-            payload,
-            (response) => {
-                const responseData = JSON.parse(response);
-                this._updateStateSelect(responseData.states, stateRequired, countryStateId);
-            }
-        );
+        fetch(window.router['frontend.country.country-data'], {
+            method: 'POST',
+            body: payload,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(response => response.json())
+            .then(content => this._updateStateSelect(content.states, stateRequired, countryStateId));
     }
 
     /**

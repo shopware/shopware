@@ -1,6 +1,7 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading-indicator.util';
 import FormSerializeUtil from 'src/utility/form/form-serialize.util';
+/** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
 import Debouncer from 'src/helper/debouncer.helper';
 
@@ -52,6 +53,7 @@ export default class FormAutoSubmitPlugin extends Plugin {
             throw new Error(`No form found for the plugin: ${this.constructor.name}`);
         }
 
+        /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._client = new HttpClient();
 
         if (this.options.useAjax) {
@@ -175,7 +177,13 @@ export default class FormAutoSubmitPlugin extends Plugin {
         const data = FormSerializeUtil.serialize(this._form);
         const action = this._form.getAttribute('action');
 
-        this._client.post(action, data, this._onAfterAjaxSubmit.bind(this));
+        fetch(action, {
+            method: 'POST',
+            body: data,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
+            .then(response => response.text())
+            .then(content => this._onAfterAjaxSubmit(content));
     }
 
     /**

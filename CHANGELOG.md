@@ -1,6 +1,9 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.3
+*  [ANA-217 - Add shopware.usage_data.collection_enabled config to improve usage of shopware.usage_data.gateway.dispatch_enabled](./changelog/release-6-6-10-3/2025-02-28-add-shopware-usage-data-collection-enabled-config-to-improve-usage-of-shopware-usage-data-gateway-dispatch-enabled.md)
+
 ## 6.6.10.2
 *  [#6964 - Fix updates for Composer plugins](./changelog/release-6-6-10-2/2025-03-03-fix-updates-for-composer-plugins.md)
 *  [#7153 - Put ajax modal buttons behind accessibility flag](./changelog/release-6-6-10-2/2025-03-03-put-ajax-modal-buttons-behind-accessibility-flag.md)

@@ -31,10 +31,10 @@
         {% endblock %}
 
         {% block page_checkout_cart_product_table %}
-            {# @deprecated tag:v6.8.0 - Will listing to new core.cart.columnTaxInsteadUnitPrice config #}
-            {% set showTaxPrice = false %}
-            {% if feature('v6.8.0.0') %}
-                {% set showTaxPrice = config('core.cart.columnTaxInsteadUnitPrice') %}
+            {% set showTaxPrice = config('core.cart.columnTaxInsteadUnitPrice') %}
+            {# @deprecated tag:v6.8.0 - Will listening to core.cart.columnTaxInsteadUnitPrice instead #}
+            {% if not feature('v6.8.0.0') %}
+                {% set showTaxPrice = false %}
             {% endif %}
             {% set showSubtotal = config('core.cart.showSubtotal') %}
 

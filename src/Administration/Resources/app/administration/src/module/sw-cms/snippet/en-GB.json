@@ -247,7 +247,8 @@
           "label": {
             "minHeight": "Minimum height",
             "minHeightHelpText": "Enter the minimum height with your desired unit. For example: 200px",
-            "isDecorative": "Mark image as decorative",
+            "isDecorative": "Mark images as decorative",
+            "isDecorativeHelpText": "When this option is enabled, the image information will not be read out by screen readers.",
             "linkNewTab": "Open link in new tab",
             "linkTo": "Link target"
           },

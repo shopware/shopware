@@ -7,12 +7,6 @@ body:
           value: |
               Thanks for taking the time to fill out this bug report!
     - type: input
-      id: php-version
-      attributes:
-          label: PHP Version
-      validations:
-          required: true
-    - type: input
       id: shopware-version
       attributes:
           label: Shopware Version
@@ -31,6 +25,7 @@ body:
             - Extension:CMS-Professional
             - Extension:Custom-Products
             - Extension:DHL-App
+            - Extension:Digital-Sales-Room
             - Extension:Dynamic-Access
             - Extension:Elle-Theme
             - Extension:Emporium-Theme

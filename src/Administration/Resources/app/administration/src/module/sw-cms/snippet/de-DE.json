@@ -230,7 +230,7 @@
           },
           "infoText": {
             "autoSlideTitle": "Bedenken hinsichtlich der Barrierefreiheit",
-            "autoSlide": "Das Aktivieren dieser Funktion kann dazu führen, dass Teile Deiner Storefront für Benutzer mit Einschränkungen unzugänglich werden. Die Nichteinhaltung der in Deiner Gerichtsbarkeit geltenden Barrierefreiheitsgesetze (z.B. Europäisches Barrierefreiheitsgesetz) kann juristisch verfolgt werden. Indem Sie fortfahren, erkennen Sie dieses Risiko an und übernehmen die volle Verantwortung.",
+            "autoSlide": "Das Aktivieren dieser Funktion kann dazu führen, dass Teile Deiner Storefront für Menschen mit Einschränkungen nicht zugänglich sind. Dies kann eine Nichteinhaltung der in Deiner Gerichtsbarkeit geltenden Barrierefreiheitsgesetze darstellen (z.B. des Europäischen Rechtsakts zur Barrierefreiheit). Mit dem Fortfahren erkennst Du dieses Risiko an und übernimmst die volle Verantwortung.",
             "listingElement": "Die Produktdaten für dieses Element werden automatisiert über die Kategoriezuweisung befüllt. Der Inhalt zeigt nur eine ungefähre Vorschau."
           }
         },
@@ -247,7 +247,8 @@
           "label": {
             "minHeight": "Minimale Höhe",
             "minHeightHelpText": "Gib die Mindesthöhe in der gewünschten Einheit an. Zum Beispiel: 200px",
-            "isDecorative": "Bild als ausschließlich dekorativ kennzeichen",
+            "isDecorative": "Bilder als ausschließlich dekorativ kennzeichen",
+            "isDecorativeHelpText": "Wenn diese Option eingeschaltet wird, werden die Bildinformationen nicht von Screenreadern vorgelesen.",
             "linkNewTab": "Link in neuem Tab öffnen",
             "linkTo": "Linkziel"
           },

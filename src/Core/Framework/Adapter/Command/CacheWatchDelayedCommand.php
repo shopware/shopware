@@ -36,6 +36,12 @@ class CacheWatchDelayedCommand extends Command
             return self::FAILURE;
         }
 
+        if ($this->container->has('shopware.cache.invalidator.storage.redis_adapter')) {
+            $output->writeln('Redis cache invalidation is not configured.');
+
+            return self::FAILURE;
+        }
+
         $this->dispatcher->addListener(ConsoleEvents::SIGNAL, function (ConsoleSignalEvent $event): void {
             $signal = $event->getHandlingSignal();
             $event->setExitCode(0);
@@ -45,8 +51,11 @@ class CacheWatchDelayedCommand extends Command
             }
         });
 
-        $before = $this->container
-            ->get('shopware.cache.invalidator.storage.redis_adapter')
+        /** @var \Redis $adapter */
+        /** @phpstan-ignore symfonyContainer.serviceNotFound */
+        $adapter = $this->container->get('shopware.cache.invalidator.storage.redis_adapter');
+
+        $before = $adapter
             ->sMembers('invalidation');
 
         $section = $output->section();
@@ -56,8 +65,7 @@ class CacheWatchDelayedCommand extends Command
 
         // @phpstan-ignore-next-line
         while (true) {
-            $current = $this->container
-                ->get('shopware.cache.invalidator.storage.redis_adapter')
+            $current = $adapter
                 ->sMembers('invalidation');
 
             if ($before !== $current) {

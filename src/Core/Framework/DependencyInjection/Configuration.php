@@ -404,7 +404,7 @@ class Configuration implements ConfigurationInterface
                                     ->defaultValue('mysql')
                                 ->end()
                                 ->scalarNode('connection')
-                                    ->defaultValue('')
+                                    ->defaultValue(null)
                                 ->end()
                             ->end()
                         ->end()

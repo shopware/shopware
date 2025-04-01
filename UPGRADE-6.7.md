@@ -2795,6 +2795,15 @@ Alternatively you can use the `cache:clear:all` command to clear all caches (inc
 
 ## Cache ID loaded by Database is removed
 
-Prior Shopware 6.7, the cache ID was loaded by the database from the `app_config` table and created complete different caches using that. This was used in earlier Shopware versions to clear the cache rapidly without having to clear the whole cache.
+Prior Shopware 6.7, the cache ID was loaded by the database from the `app_config` table and created complete different caches using that. 
+This was used in earlier Shopware versions to clear the cache rapidly without having to clear the whole cache.
 You can still set `SHOPWARE_CACHE_ID` as an environment variable to set the cache ID.
+
+## Removal of RSA JWT secrets
+
+The custom JWT secrets where removed, instead the JWTs will now be signed with the `APP_SECRET`. Therefore, please make sure that the `APP_SECRET` environment variable is at least 32 characters long. You can use the `bin/console system:generate-app-secret` command to generate a valid secret.
+
+This means the `shopware.api.jwt_key.use_app_secret` configuration is no longer available, as that is the only behavior now.
+Additionally, the `system:generate-jwt-secret` command was removed, as it is not needed anymore.
+
 </details>

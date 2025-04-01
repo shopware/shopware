@@ -23,6 +23,9 @@ return [
         // Can be removed before RC release
         'Shopware\\\\Core\\\\Framework\\\\Log\\\\LogEntryEntity.* array|null',
 
+        // Incorrectly deprecated
+        'The return type of Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentException.* changed from self',
+
         // Expected to be appended when new event is added
         'Value of constant Shopware\\\\Core\\\\Framework\\\\Webhook\\\\Hookable',
 

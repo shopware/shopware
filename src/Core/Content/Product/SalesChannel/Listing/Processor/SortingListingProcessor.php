@@ -95,30 +95,23 @@ class SortingListingProcessor extends AbstractListingProcessor
         $criteria->setTitle('product-listing::load-sortings');
         /** @var string[] $availableSortings */
         $availableSortings = $request->get('availableSortings');
-        $availableSortingsById = [];
+        var_dump($availableSortings);
 
         if ($availableSortings) {
-            arsort($availableSortings, \SORT_DESC | \SORT_NUMERIC);
-            $availableSortingsFilter = array_keys($availableSortings);
+            $sortings = new ProductSortingCollection();
+            /** @var ProductSortingEntity $availableSorting */
+            foreach ($availableSortings as $availableSorting) {
+                $sortings->add($availableSorting);
+            }
 
-            $availableSortingsById = array_filter($availableSortingsFilter, fn ($filter) => Uuid::isValid($filter));
-
-            $filter = new EqualsAnyFilter('id', $availableSortingsById);
-
-            $criteria->addFilter($filter);
+            return $sortings;
         }
 
         $criteria
             ->addFilter(new EqualsFilter('active', true))
             ->addSorting(new FieldSorting('priority', 'DESC'));
 
-        $sortings = $this->sortingRepository->search($criteria, $context)->getEntities();
-
-        if ($availableSortingsById) {
-            $sortings->sortByIdArray($availableSortingsById);
-        }
-
-        return $sortings;
+        return $this->sortingRepository->search($criteria, $context)->getEntities();
     }
 
     private function getDefaultSortingKey(string $key, SalesChannelContext $context): ?string

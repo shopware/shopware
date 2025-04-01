@@ -14,8 +14,13 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\PriceListingFilter
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\PropertyListingFilterHandler;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\RatingListingFilterHandler;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ShippingFreeListingFilterHandler;
+use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
+use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -61,8 +66,9 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         $this->restrictFilters($slot, $request);
 
         if ($this->isCustomSorting($slot)) {
-            $this->restrictSortings($request, $slot);
-            $this->addDefaultSorting($request, $slot, $context);
+            $allSortingOptions = $this->getAllActiveSortingOptions($context);
+            $this->restrictSortings($request, $slot, $allSortingOptions);
+            $this->addDefaultSorting($request, $slot, $allSortingOptions);
         }
 
         $navigationId = $this->getNavigationId($request, $context);
@@ -92,6 +98,19 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         return $salesChannelContext->getSalesChannel()->getNavigationCategoryId();
     }
 
+    /**
+     * @return EntityCollection<ProductSortingEntity>
+     */
+    private function getAllActiveSortingOptions(SalesChannelContext $context): EntityCollection
+    {
+        $criteria = new Criteria();
+        $criteria
+            ->addFilter(new EqualsFilter('active', true))
+            ->addSorting(new FieldSorting('priority', 'DESC'));
+
+        return $this->sortingRepository->search($criteria, $context->getContext())->getEntities();
+    }
+
     private function isCustomSorting(CmsSlotEntity $slot): bool
     {
         $config = $slot->getTranslation('config');
@@ -103,7 +122,10 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         return false;
     }
 
-    private function addDefaultSorting(Request $request, CmsSlotEntity $slot, SalesChannelContext $context): void
+    /**
+     * @param EntityCollection<ProductSortingEntity> $sortCollection
+     */
+    private function addDefaultSorting(Request $request, CmsSlotEntity $slot, EntityCollection $sortCollection): void
     {
         if ($request->get('order')) {
             return;
@@ -111,11 +133,18 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 
         $config = $slot->getTranslation('config');
 
-        if ($config && isset($config['defaultSorting']) && isset($config['defaultSorting']['value']) && $config['defaultSorting']['value']) {
+        if (isset($config['defaultSorting']['value']) && $config && $config['defaultSorting']['value']) {
             $defaultSortingValue = $config['defaultSorting']['value'];
-            $criteria = new Criteria([$defaultSortingValue]);
+            foreach ($sortCollection as $sorting) {
+                if ($sorting->get('key') === $defaultSortingValue) {
+                    $defaultSortingKey = $sorting->get('key');
+                    break;
+                }
+            }
 
-            $request->request->set('order', $this->sortingRepository->search($criteria, $context->getContext())->first()?->get('key'));
+            if (isset($defaultSortingKey)) {
+                $request->request->set('order', $defaultSortingKey);
+            }
 
             return;
         }
@@ -129,13 +158,23 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
                 return;
             }
 
-            $criteria = new Criteria([$sortingId]);
+            foreach ($sortCollection as $sorting) {
+                if ($sorting->getId() === $sortingId) {
+                    $customSortingKey = $sorting->getKey();
+                    break;
+                }
+            }
 
-            $request->request->set('order', $this->sortingRepository->search($criteria, $context->getContext())->first()?->get('key'));
+            if (isset($customSortingKey)) {
+                $request->request->set('order', $customSortingKey);
+            }
         }
     }
 
-    private function restrictSortings(Request $request, CmsSlotEntity $slot): void
+    /**
+     * @param EntityCollection<ProductSortingEntity> $sortCollection
+     */
+    private function restrictSortings(Request $request, CmsSlotEntity $slot, EntityCollection $sortCollection): void
     {
         $config = $slot->getTranslation('config');
 
@@ -143,7 +182,18 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
             return;
         }
 
-        $request->request->set('availableSortings', $config['availableSortings']['value']);
+        $customSorting = new ProductSortingCollection();
+        foreach ($sortCollection as $sorting) {
+            $customSortingIds = $config['availableSortings']['value'];
+            foreach ($customSortingIds as $customSortingId => $customSortingPriority) {
+                if ($sorting->getId() === $customSortingId) {
+                    $customSorting->add($sorting);
+                }
+            }
+
+        }
+
+        $request->request->set('availableSortings', $customSorting->getElements());
     }
 
     private function restrictFilters(CmsSlotEntity $slot, Request $request): void

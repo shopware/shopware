@@ -236,6 +236,7 @@
                                 class="sw-cms-el-config-image-slider__settings-link-tab"
                                 :name="sliderItem.mediaId"
                                 :label="$tc('sw-cms.elements.image.config.label.linkNewTab')"
+                                bordered
                             />
                             {% endblock %}
                         </div>
@@ -243,9 +244,11 @@
                     {% endblock %}
 
                     <mt-switch
-                        class="sw-cms-el-config-image-slider__is-decorative"
+                        class="sw-cms-el-config-image-slider__settings-is-decorative"
                         :checked="element.config.isDecorative.value"
                         :label="$tc('sw-cms.elements.image.config.label.isDecorative')"
+                        :help-text="$tc('sw-cms.elements.image.config.label.isDecorativeHelpText')"
+                        bordered
                         @change="onChangeIsDecorative"
                     />
                 </div>

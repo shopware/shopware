@@ -6,5 +6,5 @@ author_email: f.frank@shopware.com
 author_github: @ffrank913
 ---
 # Storefront
-* Fixed AR viewer.
+* Changed AR viewer.
 ___

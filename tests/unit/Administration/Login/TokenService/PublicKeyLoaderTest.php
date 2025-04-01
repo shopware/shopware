@@ -36,12 +36,12 @@ class PublicKeyLoaderTest extends TestCase
             $this->createCache()
         );
 
-        $publicKey = $publicKeyLoader->loadPublicKey(self::PUBLIC_KEY_IDS[0]);
+        $publicKey = $publicKeyLoader->loadPublicKey(JwksIds::KEY_ID_ONE);
 
         $result = $publicKey->contents();
 
         static::assertStringStartsWith('-----BEGIN PUBLIC KEY-----', $result);
-        static::assertStringContainsString('MBswDQYJKoZIhvcNAQEBBQADCgAwBwIBAAICEIM=', $result);
+        static::assertStringContainsString('MC8wDQYJKoZIhvcNAQEBBQADHgAwGwIVdGhpcyBpcyBhIHNpbXBsZSB0ZXN0AgIQ', $result);
         static::assertStringEndsWith('-----END PUBLIC KEY-----', $result);
     }
 
@@ -53,7 +53,7 @@ class PublicKeyLoaderTest extends TestCase
             $this->createCache('cache_key', true, $this->getJwks())
         );
 
-        $publicKey = $publicKeyLoader->loadPublicKey(self::PUBLIC_KEY_IDS[1]);
+        $publicKey = $publicKeyLoader->loadPublicKey(JwksIds::KEY_ID_TWO);
 
         $result = $publicKey->contents();
 
@@ -82,7 +82,7 @@ class PublicKeyLoaderTest extends TestCase
         $result = $publicKey->contents();
 
         static::assertStringStartsWith('-----BEGIN PUBLIC KEY-----', $result);
-        static::assertStringContainsString('MBswDQYJKoZIhvcNAQEBBQADCgAwBwIBAAICEIM=', $result);
+        static::assertStringContainsString('MC8wDQYJKoZIhvcNAQEBBQADHgAwGwIVdGhpcyBpcyBhIHNpbXBsZSB0ZXN0AgIQ', $result);
         static::assertStringEndsWith('-----END PUBLIC KEY-----', $result);
     }
 

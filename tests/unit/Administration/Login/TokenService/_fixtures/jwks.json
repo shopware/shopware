@@ -5,7 +5,7 @@
       "kty": "RSA",
       "kid": "b16b070d-28e4-4759-9c51-d43730dda8fa",
       "alg": "RS256",
-      "n": "YXNkYXNkYXNkYXNkYXNk",
+      "n": "dGhpcyBpcyBhIHNpbXBsZSB0ZXN0",
       "e": "ABCD"
     },
     {

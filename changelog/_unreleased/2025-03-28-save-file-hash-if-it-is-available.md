@@ -5,4 +5,4 @@ author_email: sascha.heilmeier@netlogix.de
 author_github: @scarbous
 ---
 # Core
-* Added save `fileHash` independent of used `MetadataLoader` in media metadata
+* Added saving of `fileHash` independently of the `MetadataLoader`, ensuring it is stored in media metadata, not just images.

@@ -122,30 +122,34 @@ class ApiRoutesHaveASchemaTest extends TestCase
         $missingRoutes = [];
 
         foreach ($this->routes as $route) {
+            $path = $route->getPath();
+            $subPath = \substr($path, \strlen('/api'));
+            if ($this->isOAuthRoute($subPath)) {
+                unset($schemaRoutes[$subPath]);
+                continue;
+            }
             if (!$this->isCoreRoute($route)) {
                 continue;
             }
-            $path = $route->getPath();
             if (!$this->isAdminApi($path)) {
                 continue;
             }
-            $path = \substr($path, \strlen('/api'));
-            if (\array_key_exists($path, $schemaRoutes)) {
-                $this->checkExperimentalState($route, $schemaRoutes[$path]);
-                unset($schemaRoutes[$path]);
+            if (\array_key_exists($subPath, $schemaRoutes)) {
+                $this->checkExperimentalState($route, $schemaRoutes[$subPath]);
+                unset($schemaRoutes[$subPath]);
 
                 continue;
             }
             if ($this->isRepositoryCrudRoute($route)) {
-                $listPath = str_replace('{path}', '', $path);
-                $crudPath = str_replace('{path}', '{id}', $path);
+                $listPath = str_replace('{path}', '', $subPath);
+                $crudPath = str_replace('{path}', '{id}', $subPath);
                 unset($schemaRoutes[$listPath]);
                 unset($schemaRoutes[$crudPath]);
 
                 continue;
             }
 
-            $missingRoutes[] = $path;
+            $missingRoutes[] = $subPath;
         }
         sort($missingRoutes);
 
@@ -167,6 +171,11 @@ class ApiRoutesHaveASchemaTest extends TestCase
     private function isAdminApi(string $path): bool
     {
         return str_starts_with($path, '/api');
+    }
+
+    private function isOAuthRoute(string $path): bool
+    {
+        return str_starts_with($path, '/oauth/sso');
     }
 
     private function isRepositoryCrudRoute(Route $route): bool

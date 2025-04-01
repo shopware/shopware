@@ -19,10 +19,6 @@ All blocks of this template are available in the template which renders this tem
                     <span class="company-address-small">{{ addressParts|join(' - ') }}</span><br><br>
                 {% endset %}
 
-                {% if config.displayCompanyAddress and address is not empty %}
-                    {{ address }}
-                {% endif %}
-
                 {% sw_include '@Framework/snippets/render.html.twig' with {
                     format: billingAddress.country.translated.addressFormat,
                     address: billingAddress

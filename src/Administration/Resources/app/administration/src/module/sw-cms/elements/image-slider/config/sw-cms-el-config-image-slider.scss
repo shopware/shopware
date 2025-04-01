@@ -32,6 +32,14 @@
         }
     }
 
+    &__settings-link-container {
+        margin: 0 0 var(--scale-size-22) 0;
+    }
+
+    &__settings-is-decorative {
+        margin: 0;
+    }
+
     .sw-cms-el-config-image-slider__settings-link-input {
         margin-bottom: 0;
     }

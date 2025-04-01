@@ -2816,4 +2816,11 @@ The fine-grained caching mechanism for system-config, snippets and theme config 
 Removed `SQL_SET_DEFAULT_SESSION_VARIABLES` env variable. It has no effect anymore. 
 The previously optional performance tweaks to MySQL are now enforced on connection buildup inside the `\Shopware\Core\Framework\Adapter\Database\MySQLFactory`.
 
+## Removal of RSA JWT secrets
+
+The custom JWT secrets where removed, instead the JWTs will now be signed with the `APP_SECRET`. Therefore, please make sure that the `APP_SECRET` environment variable is at least 32 characters long. You can use the `bin/console system:generate-app-secret` command to generate a valid secret.
+
+This means the `shopware.api.jwt_key.use_app_secret` configuration is no longer available, as that is the only behavior now.
+Additionally, the `system:generate-jwt-secret` command was removed, as it is not needed anymore.
+
 </details>

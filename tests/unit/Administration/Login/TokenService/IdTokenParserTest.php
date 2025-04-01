@@ -12,6 +12,7 @@ use Shopware\Administration\Login\TokenService\PublicKeyLoader;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Tests\Integration\Administration\Login\Helper\FakeTokenGenerator;
+use Shopware\Tests\Unit\Administration\Login\TokenService\_fixtures\JwksIds;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\Clock\ClockInterface;
@@ -28,7 +29,7 @@ class IdTokenParserTest extends TestCase
 {
     public function testParse(): void
     {
-        $idToken = (new FakeTokenGenerator())->generate('742be0d0-038a-4f1a-b70d-d1ecabc2af05');
+        $idToken = (new FakeTokenGenerator())->generate(JwksIds::KEY_ID_TWO);
 
         $idTokenParser = new IdTokenParser(
             $this->createPublicKeyLoader(),
@@ -51,7 +52,7 @@ class IdTokenParserTest extends TestCase
 
     public function testParseWithInvalidTokenShouldThrowException(): void
     {
-        $idToken = (new FakeTokenGenerator())->generate('742be0d0-038a-4f1a-b70d-d1ecabc2af05');
+        $idToken = (new FakeTokenGenerator())->generate(JwksIds::KEY_ID_TWO);
 
         $idTokenParser = new IdTokenParser(
             $this->createPublicKeyLoader(),

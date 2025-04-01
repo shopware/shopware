@@ -26,6 +26,7 @@ use Shopware\Core\Test\Stub\Checkout\Payment\Cart\Token\TestSigner;
 use Shopware\Tests\Integration\Administration\Login\Helper\FakeTokenGenerator;
 use Shopware\Tests\Integration\Administration\Login\Helper\FakeUserInstaller;
 use Shopware\Tests\Integration\Administration\Login\Helper\ValidUserServiceCreator;
+use Shopware\Tests\Unit\Administration\Login\TokenService\_fixtures\JwksIds;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -46,7 +47,7 @@ class ShopwareGrantTypeTest extends TestCase
     public function testRespondToAccessTokenRequest(): void
     {
         $email = 'test@shopware.com';
-        $idToken = (new FakeTokenGenerator())->setEmail($email)->generate('b16b070d-28e4-4759-9c51-d43730dda8fa');
+        $idToken = (new FakeTokenGenerator())->setEmail($email)->generate(JwksIds::KEY_ID_ONE);
 
         $fakeUserInstall = new FakeUserInstaller($this->getContainer()->get(Connection::class));
         $fakeUserInstall->installBaseUserData(Uuid::randomHex(), $email);

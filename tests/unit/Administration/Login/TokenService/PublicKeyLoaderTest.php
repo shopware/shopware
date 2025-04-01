@@ -9,6 +9,7 @@ use Shopware\Administration\Login\Exception\LoginException;
 use Shopware\Administration\Login\TokenService\PublicKeyLoader;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Unit\Administration\Login\TokenService\_fixtures\JwksIds;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,8 +24,8 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 class PublicKeyLoaderTest extends TestCase
 {
     private const PUBLIC_KEY_IDS = [
-        'b16b070d-28e4-4759-9c51-d43730dda8fa',
-        '742be0d0-038a-4f1a-b70d-d1ecabc2af05',
+        JwksIds::KEY_ID_ONE,
+        JwksIds::KEY_ID_TWO,
     ];
 
     public function testLoadPublicKey(): void

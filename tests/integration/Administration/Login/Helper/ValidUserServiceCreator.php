@@ -125,7 +125,6 @@ class ValidUserServiceCreator
             callOriginalClone: false,
             cloneArguments: false,
             allowMockingUnknownTypes: false,
-            returnValueGeneration: false,
         );
 
         assert($mock instanceof $originalClassName);

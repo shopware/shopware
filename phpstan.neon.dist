@@ -240,3 +240,7 @@ parameters:
         - # PhpStan does not recognize that the LoginException is thrown deeper in the stack
             message: '#Dead catch - Shopware\\Administration\\Login\\Exception\\LoginException is never thrown in the try block.#'
             path: src/Administration/Controller/AdminAuthController.php
+
+        - # For ValidUserServiceCreator we need to create mocks
+            message: '#Method PHPUnit\\Framework\\MockObject\\Generator\\Generator::testDouble\(\) invoked with named argument .* not allowed because of \@no-named-arguments.#'
+            path: tests/integration/Administration/Login/Helper/ValidUserServiceCreator.php

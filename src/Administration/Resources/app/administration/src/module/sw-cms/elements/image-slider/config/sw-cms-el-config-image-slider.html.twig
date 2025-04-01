@@ -177,7 +177,7 @@
                                     class="sw-cms-el-config-image-slider__setting-auto-slide"
                                     :label="$t('sw-cms.elements.general.config.label.autoSlide')"
                                     bordered
-                                    @change:checked="onChangeAutoSlide"
+                                    @update:model-value="onChangeAutoSlide"
                                 />
                                 {% endblock %}
                             </div>
@@ -245,11 +245,11 @@
 
                     <mt-switch
                         class="sw-cms-el-config-image-slider__settings-is-decorative"
-                        :checked="element.config.isDecorative.value"
+                        :model-value="element.config.isDecorative.value"
                         :label="$t('sw-cms.elements.image.config.label.isDecorative')"
                         :help-text="$t('sw-cms.elements.image.config.label.isDecorativeHelpText')"
                         bordered
-                        @change="onChangeIsDecorative"
+                        @update:model-value="onChangeIsDecorative"
                     />
                 </div>
             </sw-container>

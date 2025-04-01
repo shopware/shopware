@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Controller\Exception;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Controller\Exception\StorefrontException;
 use Twig\Error\Error as TwigError;
 use Twig\Source;
@@ -64,6 +65,10 @@ class StorefrontExceptionTest extends TestCase
         static::assertSame('Symfony render implementation changed. Providing a response is no longer supported', $res->getMessage());
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testDontHaveTwigInjected(): void
     {
         $res = StorefrontException::dontHaveTwigInjected('Example\Class');

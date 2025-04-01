@@ -465,6 +465,7 @@
     "summaryTotalPriceRounded": "Rounded total",
     "summaryNetPrice": "Net total",
     "summaryTax": "plus %rate%% VAT",
+    "summaryTaxLabeled": "plus %rate%% %label%",
     "summaryOffCanvasLabel": "Shopping cart summary",
     "proceedLink": "Go to checkout",
     "addressEqualText": "Same as shipping address",

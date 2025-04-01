@@ -117,7 +117,7 @@ class ValidUserServiceCreator
 
     private function createMock(string $originalClassName): MockObject
     {
-        $mock = (new MockGenerator)->testDouble(
+        $mock = (new MockGenerator())->testDouble(
             $originalClassName,
             true,
             true,
@@ -127,8 +127,8 @@ class ValidUserServiceCreator
             allowMockingUnknownTypes: false,
         );
 
-        assert($mock instanceof $originalClassName);
-        assert($mock instanceof MockObject);
+        \assert($mock instanceof $originalClassName);
+        \assert($mock instanceof MockObject);
 
         return $mock;
     }

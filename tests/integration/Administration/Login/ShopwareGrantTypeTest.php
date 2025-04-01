@@ -85,6 +85,7 @@ class ShopwareGrantTypeTest extends TestCase
         $result = $responseResult->generateHttpResponse(new Psr7Response());
 
         $responseBodyData = \json_decode($result->getBody()->__toString(), true);
+        static::assertIsArray($responseBodyData);
 
         static::assertArrayHasKey('token_type', $responseBodyData);
         static::assertArrayHasKey('expires_in', $responseBodyData);

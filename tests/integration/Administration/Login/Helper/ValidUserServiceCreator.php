@@ -4,7 +4,8 @@ namespace Shopware\Tests\Integration\Administration\Login\Helper;
 
 use Doctrine\DBAL\Connection;
 use Lcobucci\JWT\Validator as ValidatorInterface;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\MockObject\Generator\Generator as MockGenerator;
+use PHPUnit\Framework\MockObject\MockObject;
 use Shopware\Administration\Login\Config\LoginConfigService;
 use Shopware\Administration\Login\TokenService\IdTokenParser;
 use Shopware\Administration\Login\TokenService\PublicKeyLoader;
@@ -21,14 +22,9 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  * @internal
  */
 #[Package('after-sales')]
-class ValidUserServiceCreator extends TestCase
+class ValidUserServiceCreator
 {
     use KernelTestBehaviour;
-
-    public function __construct()
-    {
-        parent::__construct('name');
-    }
 
     public function create(): UserService
     {
@@ -40,10 +36,13 @@ class ValidUserServiceCreator extends TestCase
             $this->createCache()
         );
 
+        $clockInterface = $this->createMock(ClockInterface::class);
+        \assert($clockInterface instanceof ClockInterface);
+
         $idTokenParser = new IdTokenParser(
             $publicKeyLoader,
             $this->createLoginConfigService(),
-            $this->createMock(ClockInterface::class)
+            $clockInterface
         );
 
         $validator = $this->createMock(ValidatorInterface::class);
@@ -59,7 +58,7 @@ class ValidUserServiceCreator extends TestCase
     private function createClient(): HttpClientInterface
     {
         $jwks = \file_get_contents(__DIR__ . '/../../../../unit/Administration/Login/TokenService/_fixtures/jwks.json');
-        static::assertIsString($jwks);
+        \assert(\is_string($jwks));
 
         $response = $this->createMock(ResponseInterface::class);
         $response->method('getContent')->willReturn($jwks);
@@ -110,5 +109,22 @@ class ValidUserServiceCreator extends TestCase
         $cache->method('getItem')->willReturnOnConsecutiveCalls($cacheItem, $emptyCacheItem);
 
         return $cache;
+    }
+
+    private function createMock(string $originalClassName): MockObject
+    {
+        $mock = (new MockGenerator)->testDouble(
+            $originalClassName,
+            true,
+            callOriginalConstructor: false,
+            callOriginalClone: false,
+            cloneArguments: false,
+            allowMockingUnknownTypes: false,
+        );
+
+        assert($mock instanceof $originalClassName);
+        assert($mock instanceof MockObject);
+
+        return $mock;
     }
 }

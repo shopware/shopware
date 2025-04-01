@@ -190,7 +190,6 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
                     $customSorting->add($sorting);
                 }
             }
-
         }
 
         $request->request->set('availableSortings', $customSorting->getElements());

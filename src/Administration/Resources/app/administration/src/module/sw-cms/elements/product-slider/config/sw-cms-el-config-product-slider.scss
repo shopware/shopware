@@ -14,6 +14,11 @@
         }
     }
 
+    &__tab-settings-rotate-switch,
+    &__tab-settings-rotate-autoplay {
+        margin-bottom: 0;
+    }
+
     .sw-select-result .sw-select-result__result-item-text {
         display: block;
 

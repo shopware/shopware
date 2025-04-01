@@ -4,14 +4,13 @@
     {% set blockId = block.id %}
 
     <div class="cms-element-{{ element.type }}{% if sliderConfig.displayMode.value == "standard" and sliderConfig.verticalAlign.value %} has-vertical-alignment{% endif %}">
-        {# @todo NEXT-40267 - Re-implement autoplay, when tiny-slider solution has been replaced #}
         {% set baseSliderOptions = {
             slider: {
                 controls: sliderConfig.navigationArrows.value in visibleValues,
                 nav: sliderConfig.navigationDots.value in visibleValues,
                 navPosition: 'bottom',
                 mouseDrag: true,
-                autoplay: false,
+                autoplay: sliderConfig.autoSlide.value,
                 autoplayButtonOutput: false,
                 autoplayTimeout: sliderConfig.autoplayTimeout.value,
                 speed: sliderConfig.speed.value,
@@ -24,12 +23,13 @@
             {% if config.verticalAlign.value %}
                 <div class="cms-element-alignment{% if sliderConfig.verticalAlign.value == "center" %} align-self-center{% elseif sliderConfig.verticalAlign.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
             {% endif %}
-                <div class="base-slider image-slider{% if sliderConfig.navigationArrows.value == "outside" %} has-nav-outside{% endif %}{% if sliderConfig.navigationDots.value == "outside" %} has-dots-outside{% endif %}"
-                     data-base-slider="true"
-                     data-base-slider-options='{{ baseSliderOptions|json_encode }}'
-                     role="region"
-                     aria-label="{{ 'component.cms.imageGallery.ariaLabel'|trans({ '%total%': element.data.sliderItems|length })|sw_sanitize }}"
-                     tabindex="0"
+                <div
+                    class="base-slider image-slider{% if sliderConfig.navigationArrows.value == "outside" %} has-nav-outside{% endif %}{% if sliderConfig.navigationDots.value == "outside" %} has-dots-outside{% endif %}"
+                    data-base-slider="true"
+                    data-base-slider-options='{{ baseSliderOptions|json_encode }}'
+                    role="region"
+                    aria-label="{{ 'component.cms.imageGallery.ariaLabel'|trans({ '%total%': element.data.sliderItems|length })|sw_sanitize }}"
+                    tabindex="0"
                 >
 
                     {% block element_image_slider_inner %}

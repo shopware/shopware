@@ -98,7 +98,7 @@
                 :to="{ name: column.routerLink, params: { id: item.id } }"
             >
                 <sw-product-variant-info :variations="item.variation">
-                    {{ item.name || item.translated.name }}
+                    {{ getItemName(item) }}
                 </sw-product-variant-info>
             </router-link>
         </template>

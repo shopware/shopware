@@ -148,6 +148,7 @@ export default {
                     ...defaultMailerSettings,
                     'core.mailerSettings.emailAgent': 'local',
                     'core.mailerSettings.disableDelivery': this.mailerSettings['core.mailerSettings.disableDelivery'],
+                    'core.mailerSettings.sendMailOptions': this.mailerSettings['core.mailerSettings.sendMailOptions'],
                 };
             }
 

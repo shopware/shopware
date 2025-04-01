@@ -201,6 +201,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
             'core.mailerSettings.senderAddress': null,
             'core.mailerSettings.deliveryAddress': null,
             'core.mailerSettings.disableDelivery': true,
+            'core.mailerSettings.sendMailOptions': '-bs',
         });
     });
 

@@ -23,11 +23,6 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 #[CoversClass(PublicKeyLoader::class)]
 class PublicKeyLoaderTest extends TestCase
 {
-    private const PUBLIC_KEY_IDS = [
-        JwksIds::KEY_ID_ONE,
-        JwksIds::KEY_ID_TWO,
-    ];
-
     public function testLoadPublicKey(): void
     {
         $publicKeyLoader = new PublicKeyLoader(
@@ -77,7 +72,7 @@ class PublicKeyLoaderTest extends TestCase
             $this->createCache('cache_key', true, $cachedKeys, true)
         );
 
-        $publicKey = $publicKeyLoader->loadPublicKey(self::PUBLIC_KEY_IDS[0]);
+        $publicKey = $publicKeyLoader->loadPublicKey(JwksIds::KEY_ID_ONE);
 
         $result = $publicKey->contents();
 
@@ -102,7 +97,7 @@ class PublicKeyLoaderTest extends TestCase
         );
 
         try {
-            $publicKeyLoader->loadPublicKey(self::PUBLIC_KEY_IDS[1]);
+            $publicKeyLoader->loadPublicKey(JwksIds::KEY_ID_TWO);
         } catch (LoginException $loginException) {
             static::assertSame('Public key not found', $loginException->getMessage());
             static::assertSame('LOGIN__PUBLIC_KEY_NOT_FOUND', $loginException->getErrorCode());

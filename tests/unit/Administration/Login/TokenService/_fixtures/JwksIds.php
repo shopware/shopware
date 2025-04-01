@@ -2,6 +2,12 @@
 
 namespace Shopware\Tests\Unit\Administration\Login\TokenService\_fixtures;
 
+use Shopware\Core\Framework\Log\Package;
+
+/**
+ * @internal
+ */
+#[Package('after-sales')]
 class JwksIds
 {
     /**

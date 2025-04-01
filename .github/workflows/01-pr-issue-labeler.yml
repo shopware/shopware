@@ -5,9 +5,76 @@ on:
 - issues
 
 jobs:
-  build:
+  label:
     runs-on: ubuntu-24.04
     steps:
-    - uses: srvaroa/labeler@v1.13.0
+    - uses: srvaroa/labeler@0a20eccb8c94a1ee0bed5f16859aece1c45c3e55 # 1.13.0
       env:
         GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+  apply-team-label:
+    runs-on: ubuntu-24.04
+    if: github.event_name == 'issues' && ( github.event.action == 'opened' || github.event.action == 'reopened' )
+    env:
+      TEAM_LABEL: "domain/customer-support"
+    permissions:
+      id-token: write
+      issues: write
+    steps:
+      - id: sts
+        continue-on-error: true
+        uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
+        with:
+          scope: shopware
+          identity: ReadCollaborators
+      -  uses: tspascoal/get-user-teams-membership@57e9f42acd78f4d0f496b3be4368fc5f62696662 # 3
+         id: actorTeams
+         with:
+            username: ${{ github.actor }}
+            GITHUB_TOKEN: ${{ steps.sts.outputs.token }}
+      - name: debug
+        if: runner.debug
+        run: |
+          echo "${{ github.actor }} is member of teams: ${{ steps.actorTeams.outputs.teams }}"
+      - if: ${{ contains(steps.actorTeams.outputs.teams, 'customer-support') }}
+        uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+        with:
+          script: |
+            const issueNumber = context.payload.issue.number;
+            const teamLabel = process.env.TEAM_LABEL;
+
+            const response = await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              labels: [teamLabel],
+            });
+          
+            if (response.status !== 200) {
+              throw new Error(`Failed to add label ${teamLabel} to issue #${issueNumber}`);
+            }
+
+  move-to-wip:
+    runs-on: ubuntu-24.04
+    if: github.event.action == 'reopened'
+    permissions:
+      id-token: write
+      issues: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+      - id: sts
+        continue-on-error: true
+        uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
+        with:
+          scope: shopware
+          identity: ManageProjects
+      - shell: bash
+        run: npm ci --prefix .github/bin/js/
+      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+        with:
+          github-token: ${{ steps.sts.outputs.token }}
+          script: |
+            const { setStatusInProjects } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
+            await setStatusInProjects({github, core, context}, { fromStatus: "Done", toStatus: "in progress" })

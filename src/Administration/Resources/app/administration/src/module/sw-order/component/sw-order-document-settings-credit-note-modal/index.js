@@ -39,6 +39,24 @@ export default {
         documentPreconditionsFulfilled() {
             return this.highlightedItems.length !== 0 && this.documentConfig.custom.invoiceNumber;
         },
+
+        documentNumber: {
+            get() {
+                return String(this.documentConfig.documentNumber);
+            },
+            set(value) {
+                this.documentConfig.documentNumber = Number(value);
+            },
+        },
+
+        invoiceNumberOptions() {
+            return this.invoiceNumbers.map((item) => {
+                return {
+                    label: String(item),
+                    value: item,
+                };
+            });
+        },
     },
 
     created() {

@@ -143,6 +143,15 @@ Component.register('sw-pagination', {
 
             return possibleSteps;
         },
+
+        possibleStepsOptions() {
+            return this.possibleSteps.map((step) => {
+                return {
+                    value: String(step),
+                    label: String(step),
+                };
+            });
+        },
     },
 
     watch: {

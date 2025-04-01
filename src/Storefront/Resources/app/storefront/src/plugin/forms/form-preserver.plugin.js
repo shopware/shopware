@@ -1,5 +1,4 @@
 import Debouncer from 'src/helper/debouncer.helper';
-import DomAccess from 'src/helper/dom-access.helper';
 import Plugin from 'src/plugin-system/plugin.class';
 import Storage from 'src/helper/storage/storage.helper';
 
@@ -19,6 +18,7 @@ export default class FormPreserverPlugin extends Plugin {
         /**
          * Indicates whether to throw an error if no form elements are found or not
          *
+         * @deprecated tag:v6.8.0 - Option becomes obsolete.
          * @type boolean
          */
         strictMode: false,
@@ -32,7 +32,7 @@ export default class FormPreserverPlugin extends Plugin {
 
         /**
          * Form element types which should be preserved with a delay once the input event is triggered.
-         * Other types are preserved on the change event immediately. By default these types are:
+         * Other types are preserved on the change event immediately. By default, these types are:
          * ['checkbox', 'color', 'radio', 'select-one', 'select-multiple']
          *
          * @type Array
@@ -62,7 +62,7 @@ export default class FormPreserverPlugin extends Plugin {
      */
     _prepareElements() {
         let formElements = this.el.elements;
-        const outSideFormElements = DomAccess.querySelectorAll(document, `:not(form) > [form="${this.el.id}"]`, this.options.strictMode);
+        const outSideFormElements = document.querySelectorAll(`:not(form) > [form="${this.el.id}"]`);
 
         formElements = Array.from(formElements);
         this.formElements = formElements.concat(Array.from(outSideFormElements));

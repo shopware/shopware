@@ -35,7 +35,6 @@
     {% block sw_customer_list_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_customer_list_smart_bar_actions_add %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
@@ -45,6 +44,7 @@
             class="sw-customer-list__button-create"
             variant="primary"
             :disabled="!acl.can('customer.creator') || undefined"
+            size="default"
             @click="$router.push({ name: 'sw.customer.create' })"
         >
             {{ $tc('sw-customer.list.buttonAddCustomer') }}
@@ -103,8 +103,9 @@
                     {% block sw_customer_list_grid_inline_edit_name %}
                     <template v-if="isInlineEdit">
                         {% block sw_customer_list_grid_inline_edit_first_name %}
-                        <sw-text-field
-                            v-model:value="item.firstName"
+
+                        <mt-text-field
+                            v-model="item.firstName"
                             name="sw-field--item-firstName"
                             class="sw-customer-list__inline-edit-first-name"
                             :size="compact ? 'small' : 'default'"
@@ -112,8 +113,9 @@
                         {% endblock %}
 
                         {% block sw_customer_list_grid_inline_edit_last_name %}
-                        <sw-text-field
-                            v-model:value="item.lastName"
+
+                        <mt-text-field
+                            v-model="item.lastName"
                             name="sw-field--item-lastName"
                             class="sw-customer-list__inline-edit-last-name"
                             :size="compact ? 'small' : 'default'"
@@ -190,8 +192,8 @@
                 <template #column-active="{ item, isInlineEdit }">
                     {% block sw_customer_list_grid_columns_active_inline_edit %}
                     <template v-if="isInlineEdit">
-                        <sw-checkbox-field
-                            v-model:value="item.active"
+                        <mt-checkbox
+                            v-model:checked="item.active"
                             name="sw-field--item-active"
                         />
                     </template>
@@ -199,16 +201,16 @@
 
                     {% block sw_customer_list_grid_columns_active_content %}
                     <template v-else>
-                        <sw-icon
+                        <mt-icon
                             v-if="item.active"
                             name="regular-checkmark-xs"
-                            small
+                            size="16px"
                             class="is--active"
                         />
-                        <sw-icon
+                        <mt-icon
                             v-else
                             name="regular-times-s"
-                            small
+                            size="16px"
                             class="is--inactive"
                         />
                     </template>
@@ -271,9 +273,9 @@
                         <template #modal-footer>
 
                             {% block sw_customer_list_delete_modal_cancel %}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 size="small"
+                                variant="secondary"
                                 @click="onCloseDeleteModal"
                             >
                                 {{ $tc('global.default.cancel') }}
@@ -281,7 +283,6 @@
                             {% endblock %}
 
                             {% block sw_customer_list_delete_modal_confirm %}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 variant="critical"
                                 size="small"
@@ -367,7 +368,7 @@
                 >
                     <template #icon>
                         <img
-                            :src="assetFilter('/administration/static/img/empty-states/customer-empty-state.svg')"
+                            :src="assetFilter('/administration/administration/static/img/empty-states/customer-empty-state.svg')"
                             :alt="$tc('sw-empty-state.messageNoResultTitle')"
                         >
                     </template>
@@ -389,7 +390,7 @@
                 >
                     <template #icon>
                         <img
-                            :src="assetFilter('/administration/static/img/empty-states/customer-empty-state.svg')"
+                            :src="assetFilter('/administration/administration/static/img/empty-states/customer-empty-state.svg')"
                             :alt="$tc('sw-customer.list.messageEmpty')"
                         >
                     </template>

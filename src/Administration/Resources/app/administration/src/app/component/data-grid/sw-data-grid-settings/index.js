@@ -80,10 +80,12 @@ Component.register('sw-data-grid-settings', {
 
     methods: {
         onChangeCompactMode(value) {
+            this.currentCompact = value;
             this.$emit('change-compact-mode', value);
         },
 
         onChangePreviews(value) {
+            this.currentPreviews = value;
             this.$emit('change-preview-images', value);
         },
 

@@ -89,7 +89,7 @@ class AppLoaderTest extends TestCase
         InstalledVersions::reload($modified);
 
         $loggerMock = $this->createMock(LoggerInterface::class);
-        $loggerMock->expects(static::once())->method('error');
+        $loggerMock->expects($this->once())->method('error');
 
         $appLoader = new AppLoader(
             __DIR__,
@@ -102,7 +102,7 @@ class AppLoaderTest extends TestCase
     public function testLoadShouldLoadOnlyValidPlugin(): void
     {
         $loggerMock = $this->createMock(LoggerInterface::class);
-        $loggerMock->expects(static::exactly(2))->method('error');
+        $loggerMock->expects($this->exactly(2))->method('error');
 
         $appLoader = new AppLoader(
             __DIR__ . '/_fixtures/appDirValidationTest',
@@ -119,7 +119,7 @@ class AppLoaderTest extends TestCase
     public function testLoadLocalManifest(): void
     {
         $loggerMock = $this->createMock(LoggerInterface::class);
-        $loggerMock->expects(static::exactly(2))->method('error');
+        $loggerMock->expects($this->exactly(2))->method('error');
 
         $appLoader = new AppLoader(
             __DIR__ . '/_fixtures/appDirValidationTest',

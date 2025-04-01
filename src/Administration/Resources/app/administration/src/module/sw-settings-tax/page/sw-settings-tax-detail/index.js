@@ -237,7 +237,7 @@ export default {
         onChangeDefaultTaxRate() {
             const newDefaultTax = !this.isDefaultTaxRate ? this.taxId : '';
 
-            this.$set(this.config, 'core.tax.defaultTaxRate', newDefaultTax);
+            this.config['core.tax.defaultTaxRate'] = newDefaultTax;
             this.changeDefaultTaxRate = false;
         },
     },

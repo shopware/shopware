@@ -21,7 +21,7 @@ class PackageTest extends TestCase
 
     public function testNonExistingClass(): void
     {
-        static::assertNull(Package::getPackageName('asdjkfljasdlkfjdas'));
+        static::assertNull(Package::getPackageName('fooBarTest'));
     }
 
     public function testNoPackageAttribute(): void

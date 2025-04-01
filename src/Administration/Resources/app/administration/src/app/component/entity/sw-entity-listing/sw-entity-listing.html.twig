@@ -75,9 +75,9 @@
 
     <template #modal-footer>
         <slot name="bulk-modal-cancel">
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="showBulkDeleteModal = false"
             >
                 {{ $tc('global.default.cancel') }}
@@ -88,7 +88,6 @@
             name="bulk-modal-delete-items"
             v-bind="{ isBulkLoading, deleteItems }"
         >
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 variant="critical"
                 size="small"
@@ -180,9 +179,9 @@
                 name="delete-modal-cancel"
                 v-bind="{ item }"
             >
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="small"
+                    variant="secondary"
                     @click="closeModal"
                 >
                     {{ $tc('global.default.cancel') }}
@@ -193,7 +192,6 @@
                 name="delete-modal-delete-item"
                 v-bind="{ item }"
             >
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     variant="critical"
                     size="small"

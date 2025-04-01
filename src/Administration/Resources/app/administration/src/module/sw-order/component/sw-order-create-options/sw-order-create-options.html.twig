@@ -9,11 +9,12 @@
     {% endblock %}
 
     {% block sw_order_create_options_order_switch_disable_auto_promotion %}
-    <sw-switch-field
+
+    <mt-switch
         class="sw-order-create-options__disable-auto-promotion"
-        :value="disabledAutoPromotion"
+        :checked="disabledAutoPromotion"
         :label="$tc('sw-order.createBase.labelToggleAutomaticPromotions')"
-        @update:value="onToggleAutoPromotion"
+        @change="onToggleAutoPromotion"
     />
     {% endblock %}
 
@@ -127,19 +128,19 @@
         />
         {% endblock %}
 
-        <sw-number-field
-            v-model:value="shippingCost"
+        <mt-number-field
+            v-model="shippingCost"
             class="sw-order-create-options__shipping-cost"
             :label="$tc('sw-order.initialModal.options.labelShippingCosts')"
-            @update:value="onChangeShippingCost"
+            @update:model-value="onChangeShippingCost"
         >
             <template #suffix>
                 {{ currency.symbol }}
             </template>
-        </sw-number-field>
+        </mt-number-field>
 
-        <sw-switch-field
-            v-model:value="isSameAsBillingAddress"
+        <mt-switch
+            v-model="isSameAsBillingAddress"
             name="sw-field--isSameAsBillingAddress"
             :label="$tc('sw-order.initialModal.options.labelSameAsBillingAddress')"
         />

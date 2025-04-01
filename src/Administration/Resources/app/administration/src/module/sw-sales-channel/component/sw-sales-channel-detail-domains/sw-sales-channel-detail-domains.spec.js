@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { MtUrlField } from '@shopware-ag/meteor-component-library';
 
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
@@ -15,14 +16,13 @@ async function createWrapper(customProps = {}, domains = []) {
         {
             global: {
                 stubs: {
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot></slot><slot name="grid"></slot></div>',
                     },
                     'sw-data-grid': await wrapTestComponent('sw-data-grid', {
                         sync: true,
                     }),
                     'sw-context-menu-item': true,
-                    'sw-icon': true,
                     'sw-context-button': true,
                     'sw-modal': await wrapTestComponent('sw-modal', {
                         sync: true,
@@ -33,7 +33,6 @@ async function createWrapper(customProps = {}, domains = []) {
                     'sw-container': {
                         template: '<div class="sw-container"><slot></slot></div>',
                     },
-                    'sw-url-field': true,
                     'sw-select-base': true,
                     'sw-select-result-list': true,
                     'sw-checkbox-field': true,
@@ -46,6 +45,7 @@ async function createWrapper(customProps = {}, domains = []) {
                     'sw-highlight-text': true,
                     'sw-select-result': true,
                     'sw-provide': { template: `<slot/>`, inheritAttrs: false },
+                    'mt-url-field': MtUrlField,
                 },
                 provide: {
                     repositoryFactory: {

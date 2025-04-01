@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class CustomerSalutationRule extends Rule
@@ -21,6 +21,8 @@ class CustomerSalutationRule extends Rule
 
     /**
      * @param list<string>|null $salutationIds
+     *
+     * @internal
      */
     public function __construct(
         public string $operator = self::OPERATOR_EQ,

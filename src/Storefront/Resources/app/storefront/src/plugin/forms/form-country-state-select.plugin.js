@@ -1,5 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
-import DomAccess from 'src/helper/dom-access.helper';
+/** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
 
 /**
@@ -9,21 +9,21 @@ export default class CountryStateSelectPlugin extends Plugin {
 
     static options = {
         countrySelectSelector: '.country-select',
-        initialCountryAttribute: 'initial-country-id',
+        initialCountryAttribute: 'data-initial-country-id',
         countryStateSelectSelector: '.country-state-select',
-        initialCountryStateAttribute: 'initial-country-state-id',
+        initialCountryStateAttribute: 'data-initial-country-state-id',
         countryStatePlaceholderSelector: '[data-placeholder-option="true"]',
         vatIdFieldInput: '#vatIds',
         zipcodeFieldInput: '[data-input-name="zipcodeInput"]',
-        vatIdRequired: 'vat-id-required',
-        stateRequired: 'state-required',
-        zipcodeRequired: 'zipcode-required',
-        zipcodeLabel: '#zipcodeLabel',
+        vatIdRequired: 'data-vat-id-required',
+        stateRequired: 'data-state-required',
+        zipcodeRequired: 'data-zipcode-required',
         scopeElementSelector: null,
         prefix: null,
     };
 
     init() {
+        /** @deprecated tag:v6.8.0 - initClient is deprecated because client instance is no longer needed. Use native fetch API instead. */
         this.initClient();
         this.initSelects();
 
@@ -34,7 +34,9 @@ export default class CountryStateSelectPlugin extends Plugin {
         }
     }
 
+    /** @deprecated tag:v6.8.0 - initClient is deprecated because client instance is no longer needed. Use native fetch API instead. */
     initClient() {
+        /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._client = new HttpClient();
     }
 
@@ -42,21 +44,21 @@ export default class CountryStateSelectPlugin extends Plugin {
         this.scopeElement = this.el;
 
         if (this.options.scopeElementSelector) {
-            this.scopeElement = DomAccess.querySelector(document, this.options.scopeElementSelector);
+            this.scopeElement = document.querySelector(this.options.scopeElementSelector);
         }
 
         const { countrySelectSelector, countryStateSelectSelector, initialCountryAttribute, initialCountryStateAttribute } = CountryStateSelectPlugin.options;
-        const countrySelect = DomAccess.querySelector(this.scopeElement, countrySelectSelector);
-        const countryStateSelect = DomAccess.querySelector(this.scopeElement, countryStateSelectSelector);
-        const initialCountryId = DomAccess.getDataAttribute(countrySelect, initialCountryAttribute, false);
-        const initialCountryStateId = DomAccess.getDataAttribute(countryStateSelect, initialCountryStateAttribute, false);
+        const countrySelect = this.scopeElement.querySelector(countrySelectSelector);
+        const countryStateSelect = this.scopeElement.querySelector(countryStateSelectSelector);
+        const initialCountryId = countrySelect.getAttribute(initialCountryAttribute);
+        const initialCountryStateId = countryStateSelect.getAttribute(initialCountryStateAttribute);
         const countrySelectCurrentOption = countrySelect.options[countrySelect.selectedIndex];
-        const vatIdRequired = !!DomAccess.getDataAttribute(countrySelectCurrentOption, this.options.vatIdRequired, false);
+        const vatIdRequired = !!countrySelectCurrentOption.getAttribute(this.options.vatIdRequired);
         const vatIdInput = document.querySelector(this.options.vatIdFieldInput);
-        const stateRequired = !!DomAccess.getDataAttribute(countrySelectCurrentOption, this.options.stateRequired, false);
+        const stateRequired = !!countrySelectCurrentOption.getAttribute(this.options.stateRequired);
 
-        const zipcodeInputs = DomAccess.querySelectorAll(this.scopeElement, this.options.zipcodeFieldInput, false);
-        const zipcodeRequired = !!DomAccess.getDataAttribute(countrySelectCurrentOption, this.options.zipcodeRequired, false);
+        const zipcodeInputs = this.scopeElement.querySelectorAll(this.options.zipcodeFieldInput);
+        const zipcodeRequired = !!countrySelectCurrentOption.getAttribute(this.options.zipcodeRequired);
 
         countrySelect.addEventListener('change', this.onChangeCountry.bind(this));
 
@@ -80,13 +82,13 @@ export default class CountryStateSelectPlugin extends Plugin {
         const countryId = event.target.value;
 
         const countrySelect = event.target.options[event.target.selectedIndex];
-        const stateRequired = !!DomAccess.getDataAttribute(countrySelect, this.options.stateRequired);
+        const stateRequired = !!countrySelect.getAttribute(this.options.stateRequired);
         this.requestStateData(countryId, null, stateRequired);
-        const vatIdRequired = DomAccess.getDataAttribute(countrySelect, this.options.vatIdRequired);
+        const vatIdRequired = countrySelect.getAttribute(this.options.vatIdRequired);
         const vatIdInput = document.querySelector(this.options.vatIdFieldInput);
 
-        const zipcodeInputs = DomAccess.querySelectorAll(this.scopeElement, this.options.zipcodeFieldInput, false);
-        const zipcodeRequired = !!DomAccess.getDataAttribute(countrySelect, this.options.zipcodeRequired, false);
+        const zipcodeInputs = this.scopeElement.querySelectorAll(this.options.zipcodeFieldInput);
+        const zipcodeRequired = !!countrySelect.getAttribute(this.options.zipcodeRequired);
 
         this._updateZipcodeFields(zipcodeInputs, zipcodeRequired);
 
@@ -98,14 +100,16 @@ export default class CountryStateSelectPlugin extends Plugin {
     requestStateData(countryId, countryStateId = null, stateRequired = false) {
         const payload = JSON.stringify({ countryId });
 
-        this._client.post(
-            window.router['frontend.country.country-data'],
-            payload,
-            (response) => {
-                const responseData = JSON.parse(response);
-                this._updateStateSelect(responseData.states, stateRequired, countryStateId);
-            }
-        );
+        fetch(window.router['frontend.country.country-data'], {
+            method: 'POST',
+            body: payload,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(response => response.json())
+            .then(content => this._updateStateSelect(content.states, stateRequired, countryStateId));
     }
 
     /**
@@ -149,7 +153,7 @@ export default class CountryStateSelectPlugin extends Plugin {
     }
 
     _updateStateSelect(states, stateRequired, countryStateId) {
-        const countryStateSelect = DomAccess.querySelector(this.scopeElement, this.options.countryStateSelectSelector);
+        const countryStateSelect = this.scopeElement.querySelector(this.options.countryStateSelectSelector);
         const placeholder = countryStateSelect.querySelector(this.options.countryStatePlaceholderSelector);
 
         this._removeStateOptions(countryStateSelect);
@@ -169,7 +173,7 @@ export default class CountryStateSelectPlugin extends Plugin {
         let stateSelect = countryStateSelect;
 
         if (!countryStateSelect) {
-            stateSelect = DomAccess.querySelector(this.scopeElement, this.options.countryStateSelectSelector);
+            stateSelect = this.scopeElement.querySelector(this.options.countryStateSelectSelector);
         }
 
         stateSelect.querySelectorAll(optionSelector).forEach((option) => option.remove());
@@ -179,7 +183,7 @@ export default class CountryStateSelectPlugin extends Plugin {
         let stateSelect = countryStateSelect;
 
         if (!countryStateSelect) {
-            stateSelect = DomAccess.querySelector(this.scopeElement, this.options.countryStateSelectSelector);
+            stateSelect = this.scopeElement.querySelector(this.options.countryStateSelectSelector);
         }
 
         if (states.length === 0) {
@@ -210,7 +214,7 @@ export default class CountryStateSelectPlugin extends Plugin {
     }
 
     _getFormFieldToggleInstance() {
-        const toggleField = DomAccess.querySelector(document, '[data-form-field-toggle-target=".js-form-field-toggle-shipping-address"]', false);
+        const toggleField = document.querySelector('[data-form-field-toggle-target=".js-form-field-toggle-shipping-address"]');
         if (!toggleField) {
             return;
         }
@@ -222,12 +226,12 @@ export default class CountryStateSelectPlugin extends Plugin {
         this._differentShippingCheckbox = event.target.checked;
 
         const scopeElementSelector = this._differentShippingCheckbox ? '.register-shipping' : '.register-billing';
-        const scopeElement = DomAccess.querySelector(document, scopeElementSelector);
+        const scopeElement = document.querySelector(scopeElementSelector);
 
-        const countrySelect = DomAccess.querySelector(scopeElement, this.options.countrySelectSelector);
+        const countrySelect = scopeElement.querySelector(this.options.countrySelectSelector);
         const countrySelectCurrentOption = countrySelect.options[countrySelect.selectedIndex];
 
-        const vatIdRequired = !!DomAccess.getDataAttribute(countrySelectCurrentOption, this.options.vatIdRequired, false);
+        const vatIdRequired = !!countrySelectCurrentOption.getAttribute(this.options.vatIdRequired);
         const vatIdInput = document.querySelector(this.options.vatIdFieldInput);
 
         if (!vatIdInput) {

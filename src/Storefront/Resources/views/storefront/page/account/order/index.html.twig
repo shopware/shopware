@@ -1,6 +1,6 @@
 {% sw_extends '@Storefront/storefront/page/checkout/confirm/index.html.twig' %}
 
-{% block base_header %}
+{% block base_esi_header %}
     {% sw_include '@Storefront/storefront/page/account/order/header.html.twig' %}
 {% endblock %}
 
@@ -30,8 +30,9 @@
 {% endblock %}
 
 {% block page_checkout_confirm_tos_control %}
-    {{ 'checkout.confirmTermsReminderText'|trans({
-        '%url%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') })
+    {{ 'checkout.confirmTermsReminderTextModal'|trans({
+        '%tosModalTagOpen%': '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path('frontend.cms.page', { id: config('core.basicInformation.tosPage') }) ~ '">',
+        '%tosModalTagClose%': '</button>'
     })|raw }}
 {% endblock %}
 
@@ -132,6 +133,6 @@
     </div>
 {% endblock %}
 
-{% block base_footer %}
+{% block base_esi_footer %}
     {% sw_include '@Storefront/storefront/layout/footer/footer-minimal.html.twig' %}
 {% endblock %}

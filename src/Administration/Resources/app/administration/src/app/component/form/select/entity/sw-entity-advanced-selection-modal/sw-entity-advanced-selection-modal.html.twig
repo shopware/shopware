@@ -6,9 +6,8 @@
     :title="modalTitle"
     @modal-close="$emit('modal-close')"
 >
-
     {% block sw_entity_advanced_selection_modal_content_card %}
-    <sw-card
+    <mt-card
         class="sw-entity-advanced-selection-modal__content"
         position-identifier="sw-entity-advanced-selection-modal-content"
         :large="true"
@@ -25,19 +24,25 @@
                 <template #filter>
                     <div class="sw-entity-advanced-selection-modal__filter-list-button">
                         {% block sw_entity_advanced_selection_modal_toolbar_filter_button %}
-                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                         <mt-button
                             size="small"
+                            variant="secondary"
                             @click="filterWindowOpen = !filterWindowOpen"
                         >
-                            <sw-icon
-                                name="regular-filter-s"
-                                small
-                            />
+                            <template #iconFront>
+                                <mt-icon
+                                    name="regular-filter-s"
+                                    size="16px"
+                                />
+                            </template>
+
                             <i
                                 v-if="activeFilterNumber > 0"
                                 class="sw-entity-advanced-selection-modal__filter-badge"
-                            >{{ activeFilterNumber }}</i>
+                            >
+                                {{ activeFilterNumber }}
+                            </i>
+
                             {{ $tc('global.sw-entity-advanced-selection-modal.filter') }}
                         </mt-button>
                         {% endblock %}
@@ -52,7 +57,6 @@
 
                             {% block sw_entity_advanced_selection_modal_toolbar_filter_panel_filters %}
                             <div class="sw-entity-advanced-selection-modal__filter-panel">
-                                {# TODO - NEXT-20791 : remove store-key property. Filters should not be stored somewhere #}
                                 <sw-filter-panel
                                     ref="filterPanel"
                                     class="sw-entity-advanced-selection-modal__filter-panel"
@@ -160,15 +164,15 @@
             </sw-empty-state>
             {% endblock %}
         </template>
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     <template #modal-footer>
         {% block sw_entity_advanced_selection_modal_button_cancel %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             size="small"
             class="sw-entity-advanced-selection-modal__button-cancel"
+            variant="secondary"
             @click="$emit('modal-close')"
         >
             {{ $tc('global.default.cancel') }}
@@ -176,7 +180,6 @@
         {% endblock %}
 
         {% block sw_entity_advanced_selection_modal_button_apply %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             variant="primary"
             size="small"

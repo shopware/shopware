@@ -20,12 +20,6 @@ async function createWrapper() {
                     <input type="text" :value="value" @input="$emit('update:value', $event.target.value)" />
                 `,
                     },
-                    'sw-password-field': {
-                        props: ['value'],
-                        template: `
-<input type="password" :value="value" @input="$emit('update:value', $event.target.value)" />
-`,
-                    },
                     'sw-skeleton': true,
                     'sw-avatar': true,
                     'sw-meteor-card': {
@@ -103,8 +97,8 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
         expect(loginStatus.exists()).toBe(false);
 
         // get fields
-        const shopwareIdField = wrapper.get('.sw-extension-my-extensions-account__shopware-id-field');
-        const passwordField = wrapper.get('.sw-extension-my-extensions-account__password-field');
+        const shopwareIdField = wrapper.get('.sw-extension-my-extensions-account__shopware-id-field input');
+        const passwordField = wrapper.findByLabel('sw-extension.my-extensions.account.passwordLabel');
         const loginButton = wrapper.find('.sw-extension-my-extensions-account__login-button');
 
         // enter credentials

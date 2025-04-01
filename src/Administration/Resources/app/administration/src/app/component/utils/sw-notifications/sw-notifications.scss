@@ -12,18 +12,20 @@ $sw-notifications-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     width: $sw-notifications-width;
     z-index: $sw-notifications-z-index;
     max-height: calc(100% - #{$sw-notifications-gap});
-    overflow: hidden;
 
-    .sw-notification__alert--system {
-        color-scheme: dark;
+    .mt-banner {
+        background-color: var(--color-elevation-surface-overlay);
+        border-color: var(--color-border-primary-default);
+        box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 6%);
     }
 
     .mt-banner__message {
         width: 100%;
+        color: var(--color-text-primary-default);
     }
 
-    .mt-button {
-        flex: 1;
+    .mt-banner .mt-banner__close {
+        color: var(--color-icon-primary-default);
     }
 
     &__actions {
@@ -35,18 +37,20 @@ $sw-notifications-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 // Vue.js Transitions
-.sw-notifications-slide-fade-enter-active {
-    transition: all $sw-notifications-transition;
+.sw-notifications-slide-fade-move,
+.sw-notifications-slide-fade-enter-active,
+.sw-notifications-slide-fade-leave-active, {
+    transition: transform $sw-notifications-transition;
 }
 
 // Vue.js Transitions
 .sw-notifications-slide-fade-leave-active {
-    transition: all $sw-notifications-transition;
+    position: absolute;
+    width: $sw-notifications-width;
 }
 
 // Vue.js Transitions
-.sw-notifications-slide-fade-enter,
+.sw-notifications-slide-fade-enter-from,
 .sw-notifications-slide-fade-leave-to {
-    transform: translateX(50px);
-    opacity: 0;
+    transform: translateX(calc($sw-notifications-gap * 2) + $sw-notifications-width);
 }

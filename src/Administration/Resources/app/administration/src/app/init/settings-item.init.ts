@@ -1,13 +1,10 @@
-const { Feature } = Shopware;
-
 /**
  * @private
  * @sw-package framework
  */
 export default function initializeSettingItems(): void {
     Shopware.ExtensionAPI.handle('settingsItemAdd', async (settingsItemConfig, additionalInformation) => {
-        let allowedTabs = [
-            'shop',
+        const allowedTabs = [
             'general',
             'localization',
             'customer',
@@ -18,15 +15,6 @@ export default function initializeSettingItems(): void {
             'account',
             'plugins',
         ];
-
-        // @deprecated tag:v6.7.0 - Remove condition and make allowedTabs constant
-        if (!Feature.isActive('v6.7.0.0')) {
-            allowedTabs = [
-                'shop',
-                'system',
-                'plugins',
-            ];
-        }
 
         const extension = Object.values(Shopware.Store.get('extensions').extensionsState).find((ext) =>
             ext.baseUrl.startsWith(additionalInformation._event_.origin),
@@ -59,7 +47,16 @@ export default function initializeSettingItems(): void {
                 }
 
                 Shopware.Store.get('settingsItems').addItem({
-                    group: group as 'shop' | 'system' | 'plugins',
+                    group: group as
+                        | 'general'
+                        | 'localization'
+                        | 'customer'
+                        | 'commerce'
+                        | 'content'
+                        | 'automation'
+                        | 'system'
+                        | 'account'
+                        | 'plugins',
                     icon: settingsItemConfig.icon,
                     id: settingsItemConfig.locationId,
                     label: settingsItemConfig.label,

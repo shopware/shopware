@@ -3,40 +3,21 @@
     {% block sw_text_editor_toolbar_button_link_menu_content %}
     <div class="sw-text-editor-toolbar-button__link-menu-content">
         {% block sw_text_editor_toolbar_button_link_menu_content_type %}
-        <sw-select-field
-            :value="linkCategory"
+        <mt-select
+            :model-value="linkCategory"
             :label="$tc('sw-text-editor-toolbar.link.labelType')"
             require
-            @update:value="onSelectFieldChange"
-        >
-            {% block sw_text_editor_toolbar_button_link_menu_content_type_options %}
-            <option value="link">
-                {{ $tc('sw-text-editor-toolbar.link.labelUrl') }}
-            </option>
-            <option value="detail">
-                {{ $tc('sw-text-editor-toolbar.link.labelProduct') }}
-            </option>
-            <option value="navigation">
-                {{ $tc('sw-text-editor-toolbar.link.labelCategory') }}
-            </option>
-            <option value="media">
-                {{ $tc('sw-text-editor-toolbar.link.labelMedia') }}
-            </option>
-            <option value="email">
-                {{ $tc('sw-text-editor-toolbar.link.labelEmail') }}
-            </option>
-            <option value="phone">
-                {{ $tc('sw-text-editor-toolbar.link.labelPhoneNumber') }}
-            </option>
-            {% endblock %}
-        </sw-select-field>
+            :options="linkCategoryOptions"
+            @update:model-value="onSelectFieldChange"
+        />
         {% endblock %}
 
         {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs %}
         {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs_link %}
-        <sw-text-field
+
+        <mt-text-field
             v-if="linkCategory === 'link'"
-            v-model:value="linkTarget"
+            v-model="linkTarget"
             :label="$tc('sw-text-editor-toolbar.link.linkTo')"
             :placeholder="$tc('sw-text-editor-toolbar.link.placeholder')"
             name="sw-field--linkTarget"
@@ -44,9 +25,10 @@
         {% endblock %}
 
         {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs_phone %}
-        <sw-text-field
+
+        <mt-text-field
             v-else-if="linkCategory === 'phone'"
-            v-model:value="linkTarget"
+            v-model="linkTarget"
             :label="$tc('sw-text-editor-toolbar.link.linkTo')"
             :placeholder="$tc('sw-text-editor-toolbar.link.placeholderPhoneNumber')"
             name="sw-field--linkTarget"
@@ -54,9 +36,9 @@
         {% endblock %}
 
         {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs_email %}
-        <sw-email-field
+        <mt-email-field
             v-else-if="linkCategory === 'email'"
-            v-model:value="linkTarget"
+            v-model="linkTarget"
             :label="$tc('sw-text-editor-toolbar.link.linkTo')"
             :placeholder="$tc('sw-text-editor-toolbar.link.placeholderEmail')"
             name="sw-field--linkTarget"
@@ -102,28 +84,30 @@
         {% endblock %}
 
         {% block sw_text_editor_toolbar_button_link_menu_content_type_opens_new_tab %}
-        <sw-switch-field
+
+        <mt-switch
             v-if="!['phone', 'email'].includes(linkCategory)"
-            v-model:value="opensNewTab"
+            v-model="opensNewTab"
             class="sw-text-editor-toolbar-button__link-menu-switch sw-text-editor-toolbar-button__link-menu-new-tab"
             :label="$tc('sw-text-editor-toolbar.link.openInNewTab')"
-            no-margin-top
+            remove-top-margin
         />
         {% endblock %}
 
         {% block sw_text_editor_toolbar_button_link_menu_content_type_display_as_button %}
-        <sw-switch-field
-            v-model:value="displayAsButton"
+
+        <mt-switch
+            v-model="displayAsButton"
             class="sw-text-editor-toolbar-button__link-menu-switch sw-text-editor-toolbar-button__link-menu-display-button"
             :label="$tc('sw-text-editor-toolbar.link.displayAsButton')"
-            no-margin-top
+            remove-top-margin
         />
         {% endblock %}
 
         {% block sw_text_editor_toolbar_button_link_menu_content_type_button_type %}
-        <sw-select-field
+        <mt-select
             v-if="displayAsButton"
-            v-model:value="buttonVariant"
+            v-model="buttonVariant"
             class="sw-text-editor-link-menu__button-variant"
             :label="$tc('sw-text-editor-toolbar.link.buttonVariant')"
             :options="buttonVariantList"
@@ -136,7 +120,6 @@
     {% block sw_text_editor_toolbar_button_link_menu_buttons %}
     <div class="sw-text-editor-toolbar-button__link-menu-buttons">
         {% block sw_text_editor_toolbar_button_link_menu_button_remove %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             class="sw-text-editor-toolbar-button__link-menu-buttons-button-remove"
             variant="critical"
@@ -150,7 +133,6 @@
         {% endblock %}
 
         {% block sw_text_editor_toolbar_button_link_menu_button_insert %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             class="sw-text-editor-toolbar-button__link-menu-buttons-button-insert"
             variant="primary"

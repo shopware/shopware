@@ -27,7 +27,7 @@ class AppConfigReaderTest extends TestCase
         $sourceResolver = new StaticSourceResolver(['TestApp' => $fs]);
 
         $configReader = $this->createMock(ConfigReader::class);
-        $configReader->expects(static::once())
+        $configReader->expects($this->once())
             ->method('read')
             ->with('/app-root/Resources/config/config.xml')
             ->willReturn([
@@ -52,7 +52,7 @@ class AppConfigReaderTest extends TestCase
         $sourceResolver = new StaticSourceResolver(['TestApp' => $fs]);
 
         $configReader = $this->createMock(ConfigReader::class);
-        $configReader->expects(static::never())->method('read');
+        $configReader->expects($this->never())->method('read');
 
         $appConfigReader = new AppConfigReader($sourceResolver, $configReader);
         static::assertNull($appConfigReader->read($app));

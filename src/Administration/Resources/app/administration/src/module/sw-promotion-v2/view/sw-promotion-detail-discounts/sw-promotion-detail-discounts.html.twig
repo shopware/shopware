@@ -6,7 +6,6 @@
         position-identifier="sw-promotion-detail-discounts"
     >
         {% block sw_promotion_detail_discounts_actions_add %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
@@ -16,6 +15,7 @@
             :is-loading="isLoading"
             ghost
             :disabled="(promotion && promotion.hasOrders) || !acl.can('promotion.editor')"
+            variant="secondary"
             @click="onAddDiscount"
         >
             {{ $tc('sw-promotion.detail.main.discounts.buttonAddDiscount') }}

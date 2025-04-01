@@ -8,12 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class CalculatedCheapestPrice extends CalculatedPrice
 {
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $hasRange = false;
+    protected bool $hasRange = false;
 
     protected ?string $variantId = null;
 

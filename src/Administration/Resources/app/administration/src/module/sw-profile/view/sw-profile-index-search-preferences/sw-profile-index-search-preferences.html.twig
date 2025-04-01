@@ -1,6 +1,6 @@
 {% block sw_profile_index_search_preferences %}
 <div class="sw-profile-index-search-preferences">
-    <sw-card
+    <mt-card
         v-if="adminEsEnable"
         class="sw-card-elasticsearch-enabled"
         position-identifier="sw-card-elasticsearch-enabled"
@@ -12,10 +12,10 @@
         >
             {{ $tc('sw-profile.tabSearchPreferences.alert_elasticsearch.text') }}
         </mt-banner>
-    </sw-card>
+    </mt-card>
 
     {% block sw_profile_index_search_preferences_searchable_elements %}
-    <sw-card
+    <mt-card
         class="sw-profile-index-search-preferences-searchable-elements"
         position-identifier="sw-profile-index-search-preferences"
         :title="$tc('sw-profile.tabSearchPreferences.cardSearchableElements.title')"
@@ -35,9 +35,9 @@
                 gap="8px"
             >
                 {% block sw_profile_index_search_preferences_searchable_elements_button_select %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     class="sw-profile-index-search-preferences-searchable-elements__button-select-all"
+                    variant="secondary"
                     @click="onSelect(true)"
                 >
                     {{ $tc('sw-profile.tabSearchPreferences.cardSearchableElements.buttonSelect') }}
@@ -45,9 +45,9 @@
                 {% endblock %}
 
                 {% block sw_profile_index_search_preferences_searchable_elements_button_deselect %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     class="sw-profile-index-search-preferences-searchable-elements__button-deselect-all"
+                    variant="secondary"
                     @click="onSelect(false)"
                 >
                     {{ $tc('sw-profile.tabSearchPreferences.cardSearchableElements.buttonDeselect') }}
@@ -55,9 +55,9 @@
                 {% endblock %}
 
                 {% block sw_profile_index_search_preferences_searchable_elements_button_reset %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     class="sw-profile-index-search-preferences-searchable-elements__button-reset-to-default"
+                    variant="secondary"
                     @click="onReset"
                 >
                     {{ $tc('sw-profile.tabSearchPreferences.cardSearchableElements.buttonReset') }}
@@ -75,10 +75,10 @@
                 >
                     <li class="sw-profile-index-search-preferences-searchable-elements__entity-field">
                         <!-- eslint-disable vue/attributes-order -->
-                        <sw-checkbox-field
-                            v-model:value="searchPreference._searchable"
+                        <mt-checkbox
+                            v-model:checked="searchPreference._searchable"
                             :label="getModuleTitle(searchPreference.entityName)"
-                            @update:value="onChangeSearchPreference(searchPreference)"
+                            @update:checked="onChangeSearchPreference(searchPreference)"
                             name="sw-field--searchPreference-_searchable"
                         />
                         <ul class="sw-profile-index-search-preferences-searchable-elements__entity">
@@ -87,8 +87,8 @@
                                 :key="field.fieldName"
                                 class="sw-profile-index-search-preferences-searchable-elements__entity-field"
                             >
-                                <sw-checkbox-field
-                                    v-model:value="field._searchable"
+                                <mt-checkbox
+                                    v-model:checked="field._searchable"
                                     name="sw-field--field-_searchable"
                                     :label="$tc(`sw-profile.tabSearchPreferences.modules.${searchPreference.entityName}.${field.fieldName}`)"
                                     :disabled="adminEsEnable || !searchPreference._searchable"
@@ -101,7 +101,7 @@
             {% endblock %}
         </sw-container>
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>
 {% endblock %}

@@ -7,7 +7,6 @@ import SwExtensionIcon from 'src/app/asyncComponent/extension/sw-extension-icon'
 import InvalidActionButtonParameterError from '../../../../core/service/api/errors/InvalidActionButtonParameterError';
 import { createRouter, actionButtonData, actionResultData } from './_fixtures/app-action.fixtures';
 import 'src/app/component/app/sw-app-actions';
-import 'src/app/component/base/sw-icon';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/app/sw-app-action-button';
 import 'src/app/component/context-menu/sw-context-button';
@@ -79,20 +78,12 @@ describe('sw-app-actions', () => {
     beforeAll(async () => {
         stubs = {
             'sw-app-action-button': await Shopware.Component.build('sw-app-action-button'),
-            'sw-icon': await Shopware.Component.build('sw-icon'),
-            'sw-icon-deprecated': true,
             'sw-context-button': await Shopware.Component.build('sw-context-button'),
             'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
             'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
-            'icons-solid-ellipsis-h-s': {
-                template: '<span class="sw-icon sw-icon--solid-ellipsis-h-s"></span>',
-            },
             'sw-popover': await Shopware.Component.build('sw-popover'),
             'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
             'sw-modal': true,
-            'icons-regular-times-s': {
-                template: '<span class="sw-icon sw-icon--regular-times-s"></span>',
-            },
             'sw-extension-icon': await Shopware.Component.build('sw-extension-icon'),
             'sw-checkbox-field': true,
             'mt-floating-ui': true,

@@ -1,5 +1,5 @@
 {% block sw_settings_shipping_price_matrix %}
-<sw-card
+<mt-card
     :title="cardTitle"
     :is-loading="isLoading"
     class="sw-settings-shipping-price-matrix"
@@ -38,11 +38,11 @@
         {% endblock %}
 
         {% block sw_settings_shipping_price_matrix_topbar_new_price %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             size="x-small"
             class="sw-settings-shipping-price-matrix__top-container-add-new-rule"
-            :variant="!showDataGrid ? '': 'ghost'"
+            variant="primary"
+            :ghost="showDataGrid"
             :disabled="!showDataGrid || disabled"
             @click="onAddNewShippingPrice"
         >
@@ -129,8 +129,8 @@
         <template
             #column-quantityStart="{ item, itemIndex, compact }"
         >
-            <sw-number-field
-                v-model:value="item.quantityStart"
+            <mt-number-field
+                v-model="item.quantityStart"
                 :disabled="disabled"
                 :name="`sw-field--${item.id}-quantity-start`"
                 :number-type="numberFieldType"
@@ -145,8 +145,8 @@
         <template
             #column-quantityEnd="{ item, itemIndex, compact }"
         >
-            <sw-number-field
-                v-model:value="item.quantityEnd"
+            <mt-number-field
+                v-model="item.quantityEnd"
                 :disabled="disabled"
                 :name="`sw-field--${item.id}-quantity-end`"
                 :number-type="numberFieldType"
@@ -155,7 +155,7 @@
                 :validation="item.quantityEnd === null || item.quantityEnd > item.quantityStart"
                 :min="item.quantityStart"
                 :digits="3"
-                @update:value="onQuantityEndChange(item)"
+                @update:model-value="onQuantityEndChange(item)"
             />
         </template>
         {% endblock %}
@@ -183,16 +183,16 @@
                         @inheritance-remove="props.removeInheritance"
                     />
 
-                    <sw-number-field
-                        v-model:value="props.currentValue.gross"
+                    <mt-number-field
+                        v-model="props.currentValue.gross"
                         :name="`sw-field--${item.id}-${currency.id}-gross`"
                         :size="compact ? 'small' : 'default'"
                         class="sw-settings-shipping-price-matrix__price-input"
                         :digits="50"
                         :disabled="props.isInherited || disabled"
                     />
-                    <sw-number-field
-                        v-model:value="props.currentValue.net"
+                    <mt-number-field
+                        v-model="props.currentValue.net"
                         :name="`sw-field--${item.id}-${currency.id}-net`"
                         :size="compact ? 'small' : 'default'"
                         class="sw-settings-shipping-price-matrix__price-input"
@@ -222,11 +222,11 @@
         v-if="showDataGrid && !showAllPrices"
         class="sw-settings-shipping-price-matrix__price-load-all"
     >
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             ghost
             size="small"
             class="sw-settings-shipping-price-matrix__price-load-all-button"
+            variant="secondary"
             @click="updateShowAllPrices"
         >
             {{ $tc('sw-settings-shipping.priceMatrix.buttonLoadAllPrices') }}
@@ -269,6 +269,7 @@
             <sw-select-rule-create
                 size="small"
                 :disabled="disabled"
+                :rule-filter="shippingRuleFilterCriteria"
                 :placeholder="$tc('sw-settings-shipping.priceMatrix.chooseCustomRule')"
                 rule-aware-group-key="shippingMethodPriceCalculations"
                 :restricted-rule-ids="usedCalculationRules"
@@ -305,9 +306,9 @@
         {% block sw_settings_shipping_price_matrix_delete_modal_footer %}
         <template #modal-footer>
             {% block sw_settings_shipping_price_matrix_delete_modal_cancel %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCloseDeleteModal"
             >
                 {{ $tc('global.default.cancel') }}
@@ -315,7 +316,6 @@
             {% endblock %}
 
             {% block sw_settings_shipping_price_matrix_delete_modal_confirm %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 variant="critical"
                 size="small"
@@ -328,5 +328,5 @@
         {% endblock %}
     </sw-modal>
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

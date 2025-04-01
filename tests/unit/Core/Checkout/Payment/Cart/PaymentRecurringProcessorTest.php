@@ -71,14 +71,14 @@ class PaymentRecurringProcessorTest extends TestCase
 
         $stateLoader = $this->createMock(InitialStateIdLoader::class);
         $stateLoader
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('get')
             ->with(OrderTransactionStates::STATE_MACHINE)
             ->willReturn('initial_state_id');
 
         $registry = $this->createMock(PaymentHandlerRegistry::class);
         $registry
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getPaymentMethodHandler')
             ->with('bar')
             ->willReturn(null);
@@ -118,21 +118,21 @@ class PaymentRecurringProcessorTest extends TestCase
 
         $stateLoader = $this->createMock(InitialStateIdLoader::class);
         $stateLoader
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('get')
             ->with(OrderTransactionStates::STATE_MACHINE)
             ->willReturn('initial_state_id');
 
         $handler = $this->createMock(AbstractPaymentHandler::class);
         $handler
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('supports')
             ->with(PaymentHandlerType::RECURRING, 'bar', Context::createDefaultContext())
             ->willReturn(false);
 
         $registry = $this->createMock(PaymentHandlerRegistry::class);
         $registry
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getPaymentMethodHandler')
             ->with('bar')
             ->willReturn($handler);
@@ -172,7 +172,7 @@ class PaymentRecurringProcessorTest extends TestCase
 
         $stateLoader = $this->createMock(InitialStateIdLoader::class);
         $stateLoader
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('get')
             ->with(OrderTransactionStates::STATE_MACHINE)
             ->willReturn('initial_state_id');
@@ -181,26 +181,26 @@ class PaymentRecurringProcessorTest extends TestCase
 
         $handler = $this->createMock(AbstractPaymentHandler::class);
         $handler
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('supports')
             ->with(PaymentHandlerType::RECURRING, 'bar', Context::createDefaultContext())
             ->willReturn(true);
         $handler
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('recurring')
             ->with($struct, Context::createDefaultContext())
             ->willThrowException(PaymentException::recurringInterrupted($transaction->getId(), 'error_foo'));
 
         $registry = $this->createMock(PaymentHandlerRegistry::class);
         $registry
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getPaymentMethodHandler')
             ->with('bar')
             ->willReturn($handler);
 
         $stateHandler = $this->createMock(OrderTransactionStateHandler::class);
         $stateHandler
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fail')
             ->with($transaction->getId(), Context::createDefaultContext());
 

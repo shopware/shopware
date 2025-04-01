@@ -33,7 +33,7 @@ async function createWrapper(privileges = []) {
                     'sw-card-view': {
                         template: '<div><slot></slot></div>',
                     },
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot name="grid"></slot></div>',
                     },
                     'sw-context-menu-item': true,
@@ -65,7 +65,6 @@ async function createWrapper(privileges = []) {
                     'sw-empty-state': true,
                     'router-link': true,
                     'sw-search-bar': true,
-                    'sw-icon': true,
                     'sw-language-info': true,
                     'sw-language-switch': true,
                 },

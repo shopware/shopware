@@ -10,7 +10,7 @@
         <div class="sw-app-wrong-app-url-modal__content-description">
             <img
                 class="sw-app-wrong-app-url-modal__content-image"
-                :src="assetFilter('administration/static/img/empty-states/extensions-empty-state.svg')"
+                :src="assetFilter('administration/administration/static/img/empty-states/extensions-empty-state.svg')"
                 alt=""
             >
             <h3>{{ $tc('sw-app.component.sw-app-wrong-app-url-modal.explanationHeader') }}</h3>
@@ -22,11 +22,11 @@
                 {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.textGetSupport') }}
             </div>
 
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 class="sw-app-wrong-app-url-modal__content-link-button"
                 ghost
                 :link="$tc('sw-app.component.sw-app-wrong-app-url-modal.linkToDocsArticle')"
+                variant="secondary"
             >
                 {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.labelLearnMoreButton') }}
             </mt-button>

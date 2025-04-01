@@ -25,7 +25,7 @@
                 @click="onOpenDetail(item.id)"
                 @keydown.enter="onOpenDetail(item.id)"
             >
-                <sw-icon
+                <mt-icon
                     v-if="item.iconName"
                     :name="item.iconName"
                 />
@@ -66,7 +66,6 @@
             class="sw-sales-channel-modal-grid__actions"
             label="actions"
         >
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-tooltip="{
                     message: $tc('sw-sales-channel.modal.messageNoProductStreams'),

@@ -25,9 +25,10 @@ async function createWrapper() {
                 stubs: {
                     'sw-usage-data-consent-banner': await wrapTestComponent('sw-usage-data-consent-banner'),
                     'sw-extension-component-section': true,
-                    'sw-icon': true,
                     'sw-internal-link': true,
-                    'i18n-t': true,
+                    'i18n-t': {
+                        template: '<div class="i18n-stub"><slot></slot></div>',
+                    },
                     'sw-help-text': true,
                     'sw-external-link': true,
                 },

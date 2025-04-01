@@ -1,5 +1,5 @@
 {% block sw_customer_detail_order_card %}
-<sw-card
+<mt-card
     class="sw-customer-detail-order"
     position-identifier="sw-customer-detail-order"
 >
@@ -12,7 +12,6 @@
         >
             <template #filter>
                 {% block sw_customer_detail_order_add_button %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
@@ -22,11 +21,12 @@
                     class="sw-customer-detail-order__add-order-action"
                     size="small"
                     :disabled="!acl.can('order.creator')"
+                    variant="secondary"
                     @click="navigateToCreateOrder"
                 >
-                    <sw-icon
+                    <mt-icon
                         name="regular-plus-circle-s"
-                        small
+                        size="16px"
                     />
                     {{ $tc('sw-customer.detailOrder.buttonCreateOrder') }}
                 </mt-button>
@@ -98,14 +98,13 @@
         >
             <template #icon>
                 <img
-                    :src="assetFilter('/administration/static/img/empty-states/order-empty-state.svg')"
+                    :src="assetFilter('/administration/administration/static/img/empty-states/order-empty-state.svg')"
                     :alt="emptyTitle"
                 >
             </template>
 
             <template #actions>
                 {% block sw_customer_detail_order_card_grid_empty_state_action %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
@@ -115,6 +114,7 @@
                     ghost
                     class="sw-customer-detail-order__add-order-action"
                     :disabled="!acl.can('order.creator')"
+                    variant="secondary"
                     @click="navigateToCreateOrder"
                 >
                     {{ $tc('sw-customer.detailOrder.buttonCreateOrder') }}
@@ -124,5 +124,5 @@
         </sw-empty-state>
     </template>
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

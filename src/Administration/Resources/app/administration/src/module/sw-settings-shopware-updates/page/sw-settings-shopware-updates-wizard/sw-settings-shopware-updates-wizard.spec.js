@@ -138,8 +138,6 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                         ),
                         'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                         'sw-card-view': await wrapTestComponent('sw-card-view'),
-                        'sw-card': await wrapTestComponent('sw-card'),
-                        'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                         'sw-ignore-class': true,
                         'sw-settings-shopware-updates-info': {
                             template: '<div></div>',
@@ -148,9 +146,6 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                             template: '<div></div>',
                         },
                         'sw-loader': {
-                            template: '<div></div>',
-                        },
-                        'sw-icon': {
                             template: '<div></div>',
                         },
                         'router-link': {
@@ -163,7 +158,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                         'sw-modal': {
                             template: '<div><slot name="modal-footer"></slot></div>',
                         },
-                        'sw-progress-bar': true,
+                        'mt-progress-bar': true,
                         'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                         'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', {
                             sync: true,

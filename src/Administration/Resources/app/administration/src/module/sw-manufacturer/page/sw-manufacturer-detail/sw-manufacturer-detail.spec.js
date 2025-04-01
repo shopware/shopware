@@ -60,8 +60,8 @@ async function createWrapper(privileges = []) {
                 'mt-text-editor': {
                     template: '<div class="mt-text-editor"/>',
                 },
-                'sw-card': {
-                    template: '<div class="sw-card"><slot /></div>',
+                'mt-card': {
+                    template: '<div class="mt-card"><slot /></div>',
                 },
                 'sw-text-field': {
                     template: '<div class="sw-field"/>',
@@ -150,7 +150,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
         expect(logoUpload.exists()).toBeTruthy();
         expect(logoUpload.attributes('disabled')).toBeFalsy();
 
-        const elements = wrapper.findAll('.sw-field');
+        const elements = wrapper.findAll('.mt-field');
         expect(elements).toHaveLength(2);
         elements.forEach((el) => expect(el.attributes().disabled).toBeUndefined());
 
@@ -167,9 +167,9 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
         expect(logoUpload.exists()).toBeTruthy();
         expect(logoUpload.attributes('disabled')).toBeTruthy();
 
-        const elements = wrapper.findAll('.sw-field');
+        const elements = wrapper.findAllComponents('.mt-field');
         expect(elements).toHaveLength(2);
-        elements.forEach((el) => expect(el.attributes().disabled).toBe('true'));
+        elements.forEach((el) => expect(el.props().disabled).toBe(true));
 
         const textEditor = wrapper.find('.mt-text-editor');
         expect(textEditor.exists()).toBeTruthy();

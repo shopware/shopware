@@ -8,11 +8,9 @@
     {% block component_line_item_unit_price_inner %}
         <div class="line-item-unit-price-value">
             {% if displayMode === 'order' %}
-                {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed in the shopping cart summary. #}
-                {{ lineItem.price.unitPrice|currency(order.currency.isoCode) }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %}
+                {{ lineItem.price.unitPrice|currency(order.currency.isoCode) }}
             {% else %}
-                {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed in the shopping cart summary. #}
-                {{ lineItem.price.unitPrice|currency }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %}
+                {{ lineItem.price.unitPrice|currency }}
             {% endif %}
             {# Setting aria-hidden="true" because for screen reader it is already labelled by "line-item-unit-price-label" #}
             <span class="line-item-unit-price-value-descriptor" aria-hidden="true"> / {{ 'checkout.lineItemUnitPriceDescriptor'|trans|sw_sanitize }}</span>

@@ -7,11 +7,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxAdjustmentCalculator;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(TaxAdjustmentCalculator::class)]
+#[Package('checkout')]
 class TaxAdjustmentCalculatorTest extends TestCase
 {
     public function testCalculateGrossTaxesActuallyCalculatesNetTaxes(): void

@@ -46,7 +46,6 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                             template: '<div class="sw-context-button"><slot></slot></div>',
                         },
                         'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                        'sw-icon': true,
                         'sw-media-url-form': true,
                         'sw-media-preview-v2': true,
                         'sw-upload-listener': true,

@@ -40,6 +40,7 @@ class TaxProviderResponseTest extends TestCase
                         'tax' => 2.0,
                         'taxRate' => 2.0,
                         'price' => 2.0,
+                        'label' => 'some tax',
                     ],
                     [
                         'tax' => 3.0,
@@ -74,6 +75,7 @@ class TaxProviderResponseTest extends TestCase
                     'tax' => 7.0,
                     'taxRate' => 7.0,
                     'price' => 7.0,
+                    'label' => 'some other tax',
                 ],
                 [
                     'tax' => 8.0,
@@ -91,7 +93,7 @@ class TaxProviderResponseTest extends TestCase
         static::assertArrayHasKey($this->ids->get('line-item-2'), $response->getLineItemTaxes());
 
         static::assertEquals(new CalculatedTax(1.0, 1.0, 1.0), $response->getLineItemTaxes()[$this->ids->get('line-item-1')]->getAt(0));
-        static::assertEquals(new CalculatedTax(2.0, 2.0, 2.0), $response->getLineItemTaxes()[$this->ids->get('line-item-2')]->getAt(0));
+        static::assertEquals(new CalculatedTax(2.0, 2.0, 2.0, 'some tax'), $response->getLineItemTaxes()[$this->ids->get('line-item-2')]->getAt(0));
         static::assertEquals(new CalculatedTax(3.0, 3.0, 3.0), $response->getLineItemTaxes()[$this->ids->get('line-item-2')]->getAt(1));
 
         static::assertNotNull($response->getDeliveryTaxes());
@@ -105,7 +107,7 @@ class TaxProviderResponseTest extends TestCase
 
         static::assertNotNull($response->getCartPriceTaxes());
         static::assertCount(2, $response->getCartPriceTaxes());
-        static::assertEquals(new CalculatedTax(7.0, 7.0, 7.0), $response->getCartPriceTaxes()->getAt(0));
+        static::assertEquals(new CalculatedTax(7.0, 7.0, 7.0, 'some other tax'), $response->getCartPriceTaxes()->getAt(0));
         static::assertEquals(new CalculatedTax(8.0, 8.0, 8.0), $response->getCartPriceTaxes()->getAt(1));
     }
 

@@ -29,7 +29,7 @@
             v-if="selectedFile === null"
             class="sw-file-input__upload-caption"
         >
-            <sw-icon name="regular-cloud-upload" />
+            <mt-icon name="regular-cloud-upload" />
             <slot name="caption-label">
                 {{ $tc('global.sw-file-input.caption') }}
             </slot>
@@ -49,21 +49,21 @@
                 <span class="sw-file-input__file-headline">
                     {{ selectedFile.name }}
                 </span>
-                <sw-icon
+                <mt-icon
                     class="sw-file-input__remove-icon"
                     name="regular-times-xs"
-                    small
+                    size="16px"
                     @click="onRemoveIconClick"
                 />
             </div>
 
             {% block sw_file_input_regular_choose_button %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 class="sw-file-input__button"
                 ghost
                 size="small"
                 :disabled="disabled || undefined"
+                variant="secondary"
                 @click="onChooseButtonClick"
             >
                 {{ $tc('global.sw-file-input.buttonChoose') }}

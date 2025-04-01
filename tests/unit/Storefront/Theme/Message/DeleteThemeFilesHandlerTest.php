@@ -23,10 +23,10 @@ class DeleteThemeFilesHandlerTest extends TestCase
         $message = new DeleteThemeFilesMessage($currentPath, 'salesChannel', 'theme');
 
         $filesystem = $this->createMock(FilesystemOperator::class);
-        $filesystem->expects(static::once())->method('deleteDirectory')->with('theme' . \DIRECTORY_SEPARATOR . $currentPath);
+        $filesystem->expects($this->once())->method('deleteDirectory')->with('theme' . \DIRECTORY_SEPARATOR . $currentPath);
 
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
-        $cacheInvalidator->expects(static::once())->method('invalidate')->with(['theme_scripts_' . $currentPath]);
+        $cacheInvalidator->expects($this->once())->method('invalidate')->with(['theme_scripts_' . $currentPath]);
 
         $handler = new DeleteThemeFilesHandler(
             $filesystem,
@@ -47,7 +47,7 @@ class DeleteThemeFilesHandlerTest extends TestCase
         $message = new DeleteThemeFilesMessage($currentPath, 'salesChannel', 'theme');
 
         $filesystem = $this->createMock(FilesystemOperator::class);
-        $filesystem->expects(static::never())->method('deleteDirectory');
+        $filesystem->expects($this->never())->method('deleteDirectory');
 
         $handler = new DeleteThemeFilesHandler(
             $filesystem,

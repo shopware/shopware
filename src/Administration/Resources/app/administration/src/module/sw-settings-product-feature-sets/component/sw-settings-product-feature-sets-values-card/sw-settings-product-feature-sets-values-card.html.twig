@@ -1,5 +1,5 @@
 {% block sw_product_feature_set_card %}
-<sw-card
+<mt-card
     :title="$tc('sw-settings-product-feature-sets.valuesCard.cardTitle')"
     class="sw-settings-product-feature-sets-values-card"
     position-identifier="sw-settings-product-feature-sets-values-card"
@@ -29,29 +29,29 @@
                     {% endblock %}
 
                     {% block sw_product_feature_set_toolbar_delete %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         :disabled="deleteButtonDisabled || !allowEdit || undefined"
                         square
                         size="small"
                         class="sw-product-feature-set__delete-button"
+                        variant="secondary"
                         @click="onDeleteFields"
                     >
-                        <sw-icon
+                        <mt-icon
                             name="regular-trash"
-                            small
+                            size="16px"
                         />
                     </mt-button>
                     {% endblock %}
 
                     {% block sw_product_feature_set_toolbar_add %}
                     <sw-container>
-                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                         <mt-button
                             :disabled="isLoading || !allowEdit || undefined"
                             ghost
                             size="small"
                             class="sw-product-feature-set__add-button"
+                            variant="secondary"
                             @click="onAddField"
                         >
                             {{ $tc('sw-settings-product-feature-sets.valuesCard.labelCreateNew') }}
@@ -113,7 +113,7 @@
         <div class="sw-settings-product-feature-set-card__empty-state">
             {% block sw_product_feature_set_card_empty_state_image %}
             <img
-                :src="assetFilter('administration/static/img/empty-states/settings-empty-state.svg')"
+                :src="assetFilter('administration/administration/static/img/empty-states/settings-empty-state.svg')"
                 alt=""
             >
             {% endblock %}
@@ -130,11 +130,11 @@
             {% endblock %}
 
             {% block sw_product_feature_set_card_empty_state_button %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 ghost
                 size="small"
                 :disabled="disabled || undefined"
+                variant="secondary"
                 @click="showModal = true"
             >
                 {{ $tc('sw-settings-product-feature-sets.valuesCard.labelCreateNew') }}
@@ -153,5 +153,5 @@
     />
     {% endblock %}
 
-</sw-card>
+</mt-card>
 {% endblock %}

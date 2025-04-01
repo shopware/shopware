@@ -37,14 +37,10 @@ async function createWrapper() {
                 'sw-pagination': await wrapTestComponent('sw-pagination'),
                 'sw-grid-row': await wrapTestComponent('sw-grid-row'),
                 'sw-grid-column': await wrapTestComponent('sw-grid-column'),
-                'sw-icon': {
-                    template: '<div></div>',
-                },
                 'sw-checkbox-field': {
                     template: '<div class="checkbox"></div>',
                 },
                 'sw-empty-state': true,
-                'mt-text-field': true,
                 'sw-field-copyable': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
@@ -353,7 +349,7 @@ describe('components/base/sw-property-search', () => {
 
         jest.useFakeTimers();
 
-        const searchInput = wrapper.find('.sw-block-field__block input');
+        const searchInput = wrapper.find('.mt-block-field__block input');
         await searchInput.setValue('test');
         await searchInput.trigger('input');
 
@@ -386,7 +382,7 @@ describe('components/base/sw-property-search', () => {
 
         jest.useFakeTimers();
 
-        const searchInput = wrapper.find('.sw-block-field__block input');
+        const searchInput = wrapper.find('.mt-block-field__block input');
         await searchInput.setValue('property-A');
         await searchInput.trigger('input');
 

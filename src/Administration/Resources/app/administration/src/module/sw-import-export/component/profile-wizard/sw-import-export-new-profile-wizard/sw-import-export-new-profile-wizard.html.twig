@@ -51,7 +51,6 @@
     <template #footer-right-button>
         <div class="sw-import-export-new-profile-wizard__footer-right-button-group">
             {% block sw_import_export_new_profile_wizard_footer_right_button_finish %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-if="showNextButton"
                 size="small"
@@ -65,10 +64,10 @@
 
             <template v-else>
                 {% block sw_import_export_new_profile_wizard_footer_right_button_skip %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     v-if="showCsvSkipButton"
                     size="small"
+                    variant="secondary"
                     @click="onNextPage"
                 >
                     {{ $tc('sw-import-export.profile.skipCsvUpload') }}
@@ -76,7 +75,6 @@
                 {% endblock %}
 
                 {% block sw_import_export_new_profile_wizard_footer_right_button_next %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     size="small"
                     variant="primary"
@@ -118,9 +116,9 @@
 
         {% block sw_import_export_new_profile_wizard_violation_modal_footer %}
         <template #modal-footer>
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="resetViolations"
             >
                 {{ $tc('sw-import-export.profile.closeViolation') }}

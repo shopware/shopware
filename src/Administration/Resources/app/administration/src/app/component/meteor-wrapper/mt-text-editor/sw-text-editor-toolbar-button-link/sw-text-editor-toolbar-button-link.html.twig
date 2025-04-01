@@ -18,7 +18,10 @@
         <template #default>
             <mt-loader v-if="isLoading" />
 
-            <div v-else class="sw-text-editor__link-modal">
+            <div
+                v-else
+                class="sw-text-editor__link-modal"
+            >
                 <mt-select
                     :label="$t('sw-text-editor-toolbar-button-link.linkType')"
                     :options="linkOptions"
@@ -123,7 +126,10 @@
                 </div>
 
                 <div class="sw-text-editor__link-modal-footer-right">
-                    <mt-modal-close as="mt-button" variant="secondary">
+                    <mt-modal-close
+                        as="mt-button"
+                        variant="secondary"
+                    >
                         {{ $t("global.default.cancel") }}
                     </mt-modal-close>
 

@@ -49,9 +49,9 @@ async function createWrapper(privileges = []) {
                     },
                 },
                 stubs: {
-                    'sw-card': {
+                    'mt-card': {
                         template: `
-                    <div class="sw-card">
+                    <div class="mt-card">
                         <slot name="title"></slot>
                         <slot name="tabs"></slot>
                         <slot name="toolbar"></slot>
@@ -76,7 +76,7 @@ async function createWrapper(privileges = []) {
                     </div>
                 `,
                     },
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-data-grid': {
                         props: ['dataSource'],
                         template: `
@@ -213,7 +213,7 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
 
         const taxRuleDataGrid = wrapper.find('.sw-data-grid');
 
-        const taxRateField = taxRuleDataGrid.find('sw-number-field-stub');
+        const taxRateField = taxRuleDataGrid.find('mt-number-field-stub');
 
         expect(taxRateField.attributes('digits')).toBe('3');
     });

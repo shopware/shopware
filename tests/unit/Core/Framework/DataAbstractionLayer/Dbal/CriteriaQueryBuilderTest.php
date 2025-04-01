@@ -54,16 +54,16 @@ class CriteriaQueryBuilderTest extends TestCase
         $parserResult = new ParseResult();
         $parserResult->addWhere('IF(`order`.`name` LIKE :param_018f75fcb173706bb1e5a16110f13c1d, \'500\', 0)');
         $parserResult->addWhere('IF(`order`.`description` LIKE :param_018f766366cf70ce8e487d3cc1b513a6, \'250\', 0)');
-        $parser->expects(static::once())->method('parseRanking')->willReturn($parserResult);
+        $parser->expects($this->once())->method('parseRanking')->willReturn($parserResult);
 
         $whereParserResult1 = new ParseResult();
         $whereParserResult2 = new ParseResult();
         $whereParserResult1->addWhere('`order`.`name` LIKE :param_018f75fcb173706bb1e5a16110f13c1d');
         $whereParserResult2->addWhere('`order`.`description` LIKE :param_018f766366cf70ce8e487d3cc1b513a6');
-        $parser->expects(static::exactly(3))->method('parse')->willReturnOnConsecutiveCalls(new ParseResult(), $whereParserResult1, $whereParserResult2);
+        $parser->expects($this->exactly(3))->method('parse')->willReturnOnConsecutiveCalls(new ParseResult(), $whereParserResult1, $whereParserResult2);
 
         $helper = $this->createMock(EntityDefinitionQueryHelper::class);
-        $helper->expects(static::once())->method('getBaseQuery')->willReturn($queryBuilder);
+        $helper->expects($this->once())->method('getBaseQuery')->willReturn($queryBuilder);
 
         $builder = new CriteriaQueryBuilder(
             $parser,
@@ -101,7 +101,7 @@ class CriteriaQueryBuilderTest extends TestCase
         $parserResult->addWhere('IF(`order`.`name` LIKE :param_018f75fcb173706bb1e5a16110f13c1d, \'500\', 0)');
 
         $parser = $this->createMock(SqlQueryParser::class);
-        $parser->expects(static::once())->method('parseRanking')->willReturn($parserResult);
+        $parser->expects($this->once())->method('parseRanking')->willReturn($parserResult);
 
         $parser->method('parse')->willReturn(new ParseResult());
 

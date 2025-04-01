@@ -10,10 +10,11 @@
     {% block sw_settings_payment_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_payment_detail_actions_abort %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="tooltipCancel"
             :disabled="isLoading || undefined"
+            variant="secondary"
+            size="default"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
@@ -63,7 +64,7 @@
                 {% endblock %}
 
                 {% block sw_settings_payment_detail_content_card %}
-                <sw-card
+                <mt-card
                     position-identifier="sw-settings-payment-detail-content"
                     :title="$tc('sw-settings-payment.detail.titleCard')"
                     :is-loading="isLoading"
@@ -81,8 +82,9 @@
                             gap="0px 30px"
                         >
                             {% block sw_settings_payment_detail_content_field_name %}
-                            <sw-text-field
-                                v-model:value="paymentMethod.name"
+
+                            <mt-text-field
+                                v-model="paymentMethod.name"
                                 name="sw-field--paymentMethod-name"
                                 class="sw-settings-payment-detail__field-name"
                                 required
@@ -94,8 +96,9 @@
                             {% endblock %}
 
                             {% block sw_settings_payment_detail_content_field_technical_name %}
-                            <sw-text-field
-                                v-model:value="paymentMethod.technicalName"
+
+                            <mt-text-field
+                                v-model="paymentMethod.technicalName"
                                 name="sw-field--paymentMethod-technicalName"
                                 class="sw-settings-payment-detail__field-technical-name"
                                 required
@@ -106,14 +109,14 @@
                                 :help-text="$tc('sw-settings-payment.detail.helpTextTechnicalName')"
                             >
                                 <template #hint>
-                                    <span v-if="technicalNameIsProvided">{{ $tc('sw-settings-payment.detail.hintTextTechnicalNameIsProvided', { name: paymentMethod.translated.name ?? paymentMethod.name }) }}</span>
+                                    <span v-if="technicalNameIsProvided">{{ $tc('sw-settings-payment.detail.hintTextTechnicalNameIsProvided', { name: paymentMethod.translated?.name ?? paymentMethod.name }) }}</span>
                                 </template>
-                            </sw-text-field>
+                            </mt-text-field>
                             {% endblock %}
 
                             {% block sw_settings_payment_detail_content_field_position %}
-                            <sw-number-field
-                                v-model:value="paymentMethod.position"
+                            <mt-number-field
+                                v-model="paymentMethod.position"
                                 name="sw-field--paymentMethod-position"
                                 class="sw-settings-payment-detail__field-position"
                                 :disabled="!acl.can('payment.editor') || undefined"
@@ -128,11 +131,11 @@
                             gap="0px 30px"
                         >
                             {% block sw_settings_payment_detail_base_content_field_description %}
-                            <sw-textarea-field
-                                v-model:value="paymentMethod.description"
+                            <mt-textarea
+                                v-model="paymentMethod.description"
                                 name="sw-field--paymentMethod-description"
                                 :disabled="!acl.can('payment.editor') || undefined"
-                                :value="paymentMethod.description"
+                                :model-value="paymentMethod.description"
                                 class="sw-settings-payment-detail__description"
                                 :label="$tc('sw-settings-payment.detail.labelDescription')"
                                 :placeholder="placeholder(paymentMethod, 'description', $tc('sw-settings-payment.detail.placeholderDescription'))"
@@ -166,8 +169,9 @@
                             gap="0px 30px"
                         >
                             {% block sw_settings_payment_detail_content_field_active %}
-                            <sw-switch-field
-                                v-model:value="paymentMethod.active"
+
+                            <mt-switch
+                                v-model="paymentMethod.active"
                                 name="sw-field--paymentMethod-active"
                                 class="sw-settings-payment-detail__field-active"
                                 :disabled="!acl.can('payment.editor') || undefined"
@@ -176,8 +180,9 @@
                             {% endblock %}
 
                             {% block sw_settings_payment_detail_content_field_after_order_enabled %}
-                            <sw-switch-field
-                                v-model:value="paymentMethod.afterOrderEnabled"
+
+                            <mt-switch
+                                v-model="paymentMethod.afterOrderEnabled"
                                 name="sw-field--paymentMethod-afterOrderEnabled"
                                 class="sw-settings-payment-detail__field-after-order"
                                 :disabled="!acl.can('payment.editor') || undefined"
@@ -186,11 +191,11 @@
                             {% endblock %}
                         </sw-container>
                     </template>
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_settings_payment_detail_top_rule %}
-                <sw-card
+                <mt-card
                     class="sw-settings-payment-detail__condition_container"
                     position-identifier="sw-settings-payment-detail-condition-container"
                     :title="$tc('sw-settings-payment.detail.topRule')"
@@ -209,11 +214,11 @@
                         @dismiss-rule="onDismissRule"
                     />
                     {% endblock %}
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_settings_payment_detail_custom_field_sets %}
-                <sw-card
+                <mt-card
                     v-if="showCustomFields"
                     position-identifier="sw-settings-payment-detail-custom-field-sets"
                     :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
@@ -224,11 +229,11 @@
                         :disabled="!acl.can('payment.editor') || undefined"
                         :sets="customFieldSets"
                     />
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_settings_payment_detail_delete_payment_method %}
-                <sw-card
+                <mt-card
                     v-if="!isNewPaymentMethod && acl.can('payment.deleter')"
                     position-identifier="sw-settings-payment-detail-delete"
                     class="sw-settings-payment-detail-delete"
@@ -243,7 +248,6 @@
                     </mt-banner>
 
                     <div class="sw-settings-payment-detail-delete__container">
-                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                         <mt-button
                             variant="critical"
                             ghost
@@ -253,7 +257,7 @@
                             {{ $tc('sw-settings-payment.detail.delete.textButton') }}
                         </mt-button>
                     </div>
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_settings_payment_detail_delete_modal %}
@@ -275,9 +279,9 @@
                     {% block sw_settings_payment_detail_delete_modal_footer %}
                     <template #modal-footer>
                         {% block sw_settings_payment_detail_reset_modal_cancel %}
-                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                         <mt-button
                             size="small"
+                            variant="secondary"
                             @click="showDeleteModal = false"
                         >
                             {{ $tc('global.default.cancel') }}
@@ -285,7 +289,6 @@
                         {% endblock %}
 
                         {% block sw_settings_payment_detail_reset_modal_confirm %}
-                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                         <mt-button
                             :disabled="deletionInProcess || undefined"
                             variant="critical"

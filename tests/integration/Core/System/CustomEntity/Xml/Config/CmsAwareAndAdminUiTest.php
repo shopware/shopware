@@ -26,7 +26,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal
  */
 #[Group('slow')]
-#[Group('skip-paratest')]
 class CmsAwareAndAdminUiTest extends TestCase
 {
     use KernelTestBehaviour;

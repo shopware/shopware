@@ -25,20 +25,21 @@
 
     <template #content>
         <sw-card-view>
-            <sw-card
+            <mt-card
                 v-if="!isLoading"
                 position-identifier="sw-settings-units-content"
             >
-                <sw-text-field
-                    v-model:value="unit.name"
+
+                <mt-text-field
+                    v-model="unit.name"
                     name="sw-field--unit-name"
                     :label="$tc('sw-settings-units.detail.fieldLabels.name')"
                     :error="unitNameError"
                     required
                 />
 
-                <sw-text-field
-                    v-model:value="unit.shortCode"
+                <mt-text-field
+                    v-model="unit.shortCode"
                     name="sw-field--unit-shortCode"
                     :label="$tc('sw-settings-units.detail.fieldLabels.shortCode')"
                     :error="unitShortCodeError"
@@ -49,7 +50,7 @@
                     :sets="customFieldSets"
                     :disabled="!acl.can('unit.editor')"
                 />
-            </sw-card>
+            </mt-card>
 
             <sw-skeleton v-else />
         </sw-card-view>

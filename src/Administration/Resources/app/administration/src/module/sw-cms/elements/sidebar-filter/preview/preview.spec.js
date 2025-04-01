@@ -8,13 +8,6 @@ async function createWrapper() {
         await wrapTestComponent('sw-cms-el-preview-sidebar-filter', {
             sync: true,
         }),
-        {
-            global: {
-                stubs: {
-                    'sw-icon': await wrapTestComponent('sw-icon'),
-                },
-            },
-        },
     );
 }
 

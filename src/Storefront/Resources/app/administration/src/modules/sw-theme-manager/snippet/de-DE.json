@@ -19,8 +19,6 @@
       "labelSortByUpdatedDsc": "Bearbeitungsdatum, absteigend"
     },
     "themeListItem": {
-      "edit": "Bearbeiten",
-      "delete": "Löschen",
       "rename": "Umbenennen",
       "duplicate": "Duplizieren",
       "emptyText": "Kein Theme zugewiesen",
@@ -31,9 +29,6 @@
     },
     "modal": {
       "textDeleteInfo": "Möchtest Du das Theme \"{themeName}\" wirklich löschen?",
-      "buttonCancel":  "Abbrechen",
-      "buttonDelete": "Löschen",
-      "buttonClose": "Schließen",
       "errorModalTitle": "Theme kann nicht kompiliert werden",
       "modalTitleDuplicate": "Duplikat erstellen",
       "labelDuplicateThemeName": "Name des Duplikates",
@@ -48,7 +43,6 @@
       "modalTextResetInfo": "Bist du sicher, dass du das Theme auf die Standardeinstellungen zurücksetzen möchtest?",
       "modalTextResetAssigned": "Dies kann das Aussehen Deines Shops verändern.",
       "modalTitleReset": "Theme zurücksetzen",
-      "buttonSave": "Speichern",
       "modalTitleSave": "Theme speichern",
       "textSaveInfo": "Möchtest du die Änderungen wirklich speichern? Dies wird das Aussehen Deiner Shops verändern.",
       "addToMediaLabel": "Zu {name} hinzufügen",
@@ -69,18 +63,14 @@
       "gridHeaderAssignment": "Zugewiesene Verkaufskanäle"
     },
     "actions": {
-      "edit": "Bearbeiten",
-      "save": "Speichern",
       "saveClean": "Bereinigen",
       "saveCleanToolTip": "Die aktuellen Werte werden komplett neu gespeichert. Zu nutzen, wenn Felder gelöscht wurden oder ihren Typ geändert haben.",
       "validate": "Validieren",
       "validateToolTip": "Die gesamte Konfiguration validieren. Die Änderungen werden noch nicht gespeichert!",
       "rename": "Umbenennen",
-      "delete": "Löschen",
       "duplicate": "Duplikat erstellen",
       "useImageAs": "Benutze Bild als",
       "buttonReset": "Theme zurücksetzen",
-      "buttonCancel": "Abbrechen",
       "buttonUseTheme": "Theme benutzen",
       "deleteDisabledToolTip": "Das Theme ist noch mindestens einem Verkaufskanal zugewiesen."
     },
@@ -123,7 +113,6 @@
       }
     },
     "themeModal": {
-      "actionCancel": "Abbrechen",
       "actionConfirm": "Theme ändern",
       "modalTitle": "Theme auswählen",
       "modalSubtitle": "Das Theme zu ändern, kann die Darstellung Deines Shops ändern.",

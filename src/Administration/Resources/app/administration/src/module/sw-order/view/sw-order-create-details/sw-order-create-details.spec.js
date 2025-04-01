@@ -20,7 +20,7 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-card-view': true,
-                'sw-card': {
+                'mt-card': {
                     template: `
                         <div class="sw-card__content">
                             <slot name="grid"></slot>
@@ -32,11 +32,10 @@ async function createWrapper() {
                 'sw-order-customer-address-select': true,
                 'sw-entity-single-select': true,
                 'sw-container': true,
-                'sw-number-field': true,
+                'mt-number-field': true,
                 'sw-datepicker': true,
                 'sw-text-field': true,
                 'sw-order-promotion-tag-field': true,
-                'sw-switch-field': true,
             },
             provide: {
                 cartStoreService: {},

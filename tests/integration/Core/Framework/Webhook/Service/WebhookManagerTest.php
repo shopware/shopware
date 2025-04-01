@@ -459,7 +459,7 @@ class WebhookManagerTest extends TestCase
 
         $this->getManager(adminWorkerEnabled: false)->dispatch($event);
 
-        $this->createMock(MessageBusInterface::class)->expects(static::never())
+        $this->createMock(MessageBusInterface::class)->expects($this->never())
             ->method('dispatch');
 
         $request = $this->getLastRequest();
@@ -569,7 +569,7 @@ class WebhookManagerTest extends TestCase
             'handler' => new MockHandler([]),
         ]);
 
-        $this->createMock(MessageBusInterface::class)->expects(static::never())
+        $this->createMock(MessageBusInterface::class)->expects($this->never())
             ->method('dispatch');
 
         $this->getManager($client)->dispatch($event);
@@ -871,7 +871,7 @@ class WebhookManagerTest extends TestCase
 
         $shopwareVersion = Kernel::SHOPWARE_FALLBACK_VERSION;
 
-        $this->bus->expects(static::once())
+        $this->bus->expects($this->once())
             ->method('dispatch')
             ->with(static::callback(function (WebhookEventMessage $message) use ($payload, $appId, $webhookId, $shopwareVersion) {
                 $actualPayload = $message->getPayload();
@@ -923,7 +923,7 @@ class WebhookManagerTest extends TestCase
 
         $webhookEventId = Uuid::randomHex();
         $shopwareVersion = Kernel::SHOPWARE_FALLBACK_VERSION;
-        $this->bus->expects(static::once())
+        $this->bus->expects($this->once())
             ->method('dispatch')
             ->with(static::callback(function (WebhookEventMessage $message) use ($payload, $webhookId, $shopwareVersion) {
                 $actualPayload = $message->getPayload();
@@ -962,10 +962,10 @@ class WebhookManagerTest extends TestCase
      * @param list<array{id?: string, name: string, event_name: string, url: string}>|null $webhooks
      * @param array<string, list<string>>|null $permissions
      */
-    private function createApp(?string $appId = null, bool $active = true, ?string $aclRoleId = null, ?array $webhooks = null, ?array $permissions = null): void
+    private function createApp(?string $appId = null, ?string $name = null, bool $active = true, ?string $aclRoleId = null, ?array $webhooks = null, ?array $permissions = null): void
     {
         $app = [
-            'name' => 'SwagApp',
+            'name' => $name ?? 'SwagApp',
             'active' => $active,
             'path' => __DIR__ . '/../Manifest/_fixtures/test',
             'version' => '0.0.1',
@@ -1058,6 +1058,7 @@ class WebhookManagerTest extends TestCase
     ): WebhookManager {
         return new WebhookManager(
             static::getContainer()->get(WebhookLoader::class),
+            static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get(Connection::class),
             static::getContainer()->get(HookableEventFactory::class),
             static::getContainer()->get(AppLocaleProvider::class),

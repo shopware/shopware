@@ -41,7 +41,6 @@ async function createWrapper(back = null, push = jest.fn()) {
                 'sw-app-topbar-button': true,
                 'sw-notification-center': true,
                 'sw-help-center-v2': true,
-                'sw-icon': true,
                 'sw-app-actions': true,
             },
             mocks: {

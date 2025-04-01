@@ -24,8 +24,6 @@ async function createWrapper() {
                 contextStoreService: {},
             },
             stubs: {
-                'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-avatar': true,
                 'sw-entity-single-select': true,
                 'sw-text-field': true,
@@ -36,13 +34,11 @@ async function createWrapper() {
                 'sw-card-view': true,
                 'sw-button-process': true,
                 'sw-email-field': true,
-                'sw-password-field': true,
                 'sw-entity-tag-select': true,
                 'sw-card-section': await wrapTestComponent('sw-card-section'),
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-single-select': true,
                 'sw-customer-imitate-customer-modal': true,
-                'sw-icon': true,
                 'sw-label': true,
                 'sw-extension-component-section': true,
                 'sw-ai-copilot-badge': true,
@@ -90,8 +86,8 @@ describe('module/sw-customer/page/sw-customer-card', () => {
                 accountType: 'business',
             },
         });
-        expect(wrapper.find('[label="sw-customer.card.labelCompany"]').exists()).toBeTruthy();
-        expect(wrapper.find('[label="sw-customer.card.labelVatId"]').exists()).toBeTruthy();
+        expect(wrapper.find('[aria-label="sw-customer.card.labelCompany"]').exists()).toBeTruthy();
+        expect(wrapper.find('[aria-label="sw-customer.card.labelVatId"]').exists()).toBeTruthy();
     });
 
     it('should hide vat fields when switching to private type', async () => {

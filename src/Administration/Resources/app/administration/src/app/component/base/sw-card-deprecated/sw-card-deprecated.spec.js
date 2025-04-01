@@ -11,7 +11,6 @@ async function createWrapper(additionalOptions = {}) {
             stubs: {
                 'sw-context-button': await wrapTestComponent('sw-context-button'),
                 'sw-loader': true,
-                'sw-icon': true,
                 'sw-popover': await wrapTestComponent('sw-popover'),
                 'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),

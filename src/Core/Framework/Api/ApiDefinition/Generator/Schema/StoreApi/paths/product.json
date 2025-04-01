@@ -1,5 +1,5 @@
 {
-    "openapi": "3.0.0",
+    "openapi": "3.1.0",
     "info": [],
     "paths": {
         "/product/{productId}/cross-selling": {
@@ -29,6 +29,13 @@
                             "type": "string",
                             "pattern": "^[0-9a-f]{32}$"
                         }
+                    },
+                    {
+                        "name": "sw-include-seo-urls",
+                        "in": "header",
+                        "description": "Instructs Shopware to try and resolve SEO URLs for the given navigation item",
+                        "required": false,
+                        "schema": { "type": "boolean" }
                     }
                 ],
                 "responses": {
@@ -165,6 +172,9 @@
                                 "schema": {
                                     "allOf": [
                                         {
+                                            "required": [
+                                                "elements"
+                                            ],
                                             "properties": {
                                                 "elements": {
                                                     "type": "array",
@@ -387,11 +397,22 @@
                                 ],
                                 "properties": {
                                     "options": {
-                                        "description": "The options parameter for the variant to find.",
-                                        "type": "array",
-                                        "items": {
-                                            "type": "string"
-                                        }
+                                        "oneOf": [
+                                            {
+                                                "description": "The options parameter for the variant to find.",
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            {
+                                                "description": "The options parameter as a map of groupId => optionId.",
+                                                "type": "object",
+                                                "additionalProperties": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        ]
                                     },
                                     "switchedGroup": {
                                         "description": "The id of the option group that has been switched.",

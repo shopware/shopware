@@ -50,12 +50,12 @@
             </div>
             <div v-if="active==='addresses'">
                 {% block sw_order_address_modal_tabs_content_select_address %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     v-for="address in availableAddresses"
                     :key="address.id"
                     block
                     :class="addressButtonClasses(address.id)"
+                    variant="secondary"
                     @click="onExistingAddressSelected(address)"
                 >
                     {{ address.company }} <br>
@@ -74,9 +74,9 @@
     {% block sw_order_address_modal_actions %}
     <template #modal-footer>
         {% block sw_order_address_modal_action_close %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             size="small"
+            variant="secondary"
             @click="onClose"
         >
             {{ $tc('global.default.cancel') }}
@@ -84,7 +84,6 @@
         {% endblock %}
 
         {% block sw_order_address_modal_actions_apply %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             variant="primary"
             size="small"

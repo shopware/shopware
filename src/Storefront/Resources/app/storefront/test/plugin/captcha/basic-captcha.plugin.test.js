@@ -1,6 +1,5 @@
 import BasicCaptchaPlugin from 'src/plugin/captcha/basic-captcha.plugin';
 import FormValidation from 'src/helper/form-validation.helper';
-import Feature from 'src/helper/feature.helper';
 
 describe('BasicCaptchaPlugin tests', () => {
     let basicCaptchaPlugin;
@@ -19,9 +18,6 @@ describe('BasicCaptchaPlugin tests', () => {
             </form>
         `;
 
-        window.Feature = Feature;
-        window.Feature.init({ 'ACCESSIBILITY_TWEAKS': true });
-
         window.validationMessages = {
             required: 'Input should not be empty.',
             email: 'Invalid email address.',
@@ -33,6 +29,12 @@ describe('BasicCaptchaPlugin tests', () => {
 
         // Create spy elements
         window.PluginManager.initializePlugins = jest.fn();
+
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                text: () => Promise.resolve('captcha_img'),
+            })
+        );
 
         captchaElement = document.getElementById('basic-captcha');
     });
@@ -50,14 +52,12 @@ describe('BasicCaptchaPlugin tests', () => {
 
         basicCaptchaPlugin = new BasicCaptchaPlugin(captchaElement);
 
-        const httpClientSpy = jest.spyOn(basicCaptchaPlugin._httpClient, 'get');
         const reloadButton = basicCaptchaPlugin.el.querySelector(basicCaptchaPlugin.options.captchaRefreshIconId);
 
         reloadButton.click();
 
         // One call on initialization and one on reload button click.
         expect(captchaReloadSpy).toHaveBeenCalledTimes(2);
-        expect(httpClientSpy).toHaveBeenCalled();
     });
 
     test('Form submit should be prevented if captcha is invalid', async () => {
@@ -65,6 +65,7 @@ describe('BasicCaptchaPlugin tests', () => {
 
         global.fetch = jest.fn(() =>
             Promise.resolve({
+                text: () => Promise.resolve('captcha_img'),
                 json: () => Promise.resolve({
                     type: 'danger',
                     error: 'invalid_captcha',
@@ -90,6 +91,7 @@ describe('BasicCaptchaPlugin tests', () => {
 
         global.fetch = jest.fn(() =>
             Promise.resolve({
+                text: () => Promise.resolve('captcha_img'),
                 json: () => Promise.resolve({
                     session: {},
                 }),

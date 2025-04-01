@@ -117,9 +117,9 @@ async function createWrapper() {
                     },
                 },
                 'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
-                'sw-card': {
+                'mt-card': {
                     template: `
-                        <div class="sw-card">
+                        <div class="mt-card">
                             <slot></slot>
                             <slot name="title"></slot>
                             <slot name="grid"></slot>
@@ -164,7 +164,6 @@ async function createWrapper() {
                 'sw-product-add-properties-modal': true,
                 'sw-loader': true,
                 'sw-simple-search-field': true,
-                'sw-icon': true,
                 'sw-label': true,
                 'sw-help-text': true,
             },

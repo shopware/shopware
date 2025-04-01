@@ -75,7 +75,6 @@ describe('components/utils/sw-duplicated-media-v2', () => {
                     },
                     'sw-container': true,
                     'sw-media-preview-v2': true,
-                    'sw-icon': true,
                     'sw-radio-field': await wrapTestComponent('sw-radio-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-field-error': true,

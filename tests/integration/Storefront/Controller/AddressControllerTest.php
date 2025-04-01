@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
@@ -689,10 +688,6 @@ class AddressControllerTest extends TestCase
             'customerNumber' => '12345',
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
         $context = Context::createDefaultContext();
 
         /** @var EntityRepository<CustomerCollection> $repo */
@@ -765,13 +760,6 @@ class AddressControllerTest extends TestCase
                 'customerNumber' => 'not',
             ],
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $paymentMethodId = $this->getValidPaymentMethodId();
-            foreach ($customers as &$customer) {
-                $customer['defaultPaymentMethodId'] = $paymentMethodId;
-            }
-        }
 
         $this->customerRepository->create($customers, Context::createDefaultContext());
 

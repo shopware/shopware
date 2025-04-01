@@ -20,9 +20,10 @@
     <template #smart-bar-actions>
 
         {% block sw_settings_delivery_time_detail_smart_bar_actions_cancel %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="tooltipCancel"
+            variant="secondary"
+            size="default"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
@@ -61,15 +62,16 @@
                 {% endblock %}
 
                 {% block sw_settings_delivery_time_detail_form %}
-                <sw-card
+                <mt-card
                     :is-loading="isLoading"
                     position-identifier="sw-settings-delivery-time-detail-form"
                 >
                     <template v-if="deliveryTime">
 
                         {% block sw_settings_delivery_time_detail_name_field %}
-                        <sw-text-field
-                            v-model:value="deliveryTime.name"
+
+                        <mt-text-field
+                            v-model="deliveryTime.name"
                             name="sw-field--deliveryTime-name"
                             :label="$tc('sw-settings-delivery-time.detail.labelName')"
                             :error="deliveryTimeNameError"
@@ -99,25 +101,29 @@
                         >
 
                             {% block sw_settings_delivery_time_detail_min_field %}
-                            <sw-number-field
-                                v-model:value="deliveryTime.min"
+                            <mt-number-field
+                                v-model="deliveryTime.min"
                                 name="sw-field--deliveryTime-min"
                                 :label="$tc('sw-settings-delivery-time.detail.labelMin')"
                                 :error="deliveryTimeMinError || invalidMinError"
                                 :min="0"
                                 :max="deliveryTime.max"
+                                :step="1"
+                                number-type="int"
                                 :disabled="!acl.can('delivery_times.editor') || undefined"
                                 required
                             />
                             {% endblock %}
 
                             {% block sw_settings_delivery_time_detail_max_field %}
-                            <sw-number-field
-                                v-model:value="deliveryTime.max"
+                            <mt-number-field
+                                v-model="deliveryTime.max"
                                 name="sw-field--deliveryTime-max"
                                 :label="$tc('sw-settings-delivery-time.detail.labelMax')"
                                 :error="deliveryTimeMaxError"
                                 :min="deliveryTime.min"
+                                :step="1"
+                                number-type="int"
                                 :disabled="!acl.can('delivery_times.editor') || undefined"
                                 required
                             />
@@ -125,11 +131,11 @@
                         </sw-container>
                         {% endblock %}
                     </template>
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_settings_delivery_time_detail_custom_field_sets %}
-                <sw-card
+                <mt-card
                     v-if="showCustomFields"
                     position-identifier="sw-settings-delivery-time-detail-custom-field-sets"
                     :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
@@ -140,7 +146,7 @@
                         :disabled="!acl.can('delivery_times.editor') || undefined"
                         :sets="customFieldSets"
                     />
-                </sw-card>
+                </mt-card>
                 {% endblock %}
             </template>
         </sw-card-view>

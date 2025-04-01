@@ -18,14 +18,14 @@
         align-items: center;
         font-size: $font-size-xxs;
 
-        .sw-progress-bar {
+        .mt-progress-bar {
             height: 4px;
 
-            .sw-progress-bar__value {
-                background-color: #667f99;
+            .mt-progress-bar__fill {
+                background: #667f99;
             }
 
-            .sw-progress-bar__total {
+            .mt-progress-bar__track {
                 background: $color-gray-200;
             }
         }

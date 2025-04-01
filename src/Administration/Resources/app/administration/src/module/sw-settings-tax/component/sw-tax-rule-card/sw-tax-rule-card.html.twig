@@ -1,5 +1,5 @@
 {% block sw_tax_rule_card %}
-<sw-card
+<mt-card
     :title="$tc('sw-settings-tax.taxRuleCard.cardTitle')"
     class="sw-tax-rule-card"
     position-identifier="sw-tax-rule"
@@ -21,7 +21,6 @@
                 >
                     <template #filter>
                         {% block sw_tax_rule_card_header_create_rule_button %}
-                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                         <mt-button
                             v-tooltip.bottom="{
                                 message: $tc('sw-privileges.tooltip.warning'),
@@ -31,6 +30,7 @@
                             class="sw-tax-rule-grid-button"
                             size="small"
                             :disabled="!acl.can('tax.editor') || undefined"
+                            variant="secondary"
                             @click="showModal = true"
                         >
 
@@ -65,8 +65,8 @@
                 {% block sw_settings_tax_rule_grid_column_tax_rate %}
                 <template #column-taxRate="{ item, isInlineEdit, compact }">
                     <template v-if="isInlineEdit">
-                        <sw-number-field
-                            v-model:value="item.taxRate"
+                        <mt-number-field
+                            v-model="item.taxRate"
                             :digits="3"
                             :size="compact ? 'small' : 'default'"
                         >
@@ -75,7 +75,7 @@
                                     <span v-html="$sanitize($tc('sw-settings-tax.general.taxRateSymbol'))"></span>
                                 </span>
                             </template>
-                        </sw-number-field>
+                        </mt-number-field>
                     </template>
                     <template v-else>
                         {{ item.taxRate }}%
@@ -151,9 +151,9 @@
                         {% block sw_settings_tax_list_delete_modal_footer %}
                         <template #modal-footer>
                             {% block sw_settings_tax_list_delete_modal_cancel %}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 size="small"
+                                variant="secondary"
                                 @click="onCloseDeleteModal"
                             >
                                 {{ $tc('global.default.cancel') }}
@@ -161,7 +161,6 @@
                             {% endblock %}
 
                             {% block sw_settings_tax_list_delete_modal_confirm %}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 variant="critical"
                                 size="small"
@@ -206,7 +205,7 @@
         <div class="sw-settings-tax-rule-card__empty-state">
             {% block sw_tax_rule_card_empty_state_image %}
             <img
-                :src="assetFilter('administration/static/img/empty-states/settings-empty-state.svg')"
+                :src="assetFilter('administration/administration/static/img/empty-states/settings-empty-state.svg')"
                 alt=""
             >
             {% endblock %}
@@ -223,7 +222,6 @@
             {% endblock %}
 
             {% block sw_tax_rule_card_empty_state_button %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-tooltip.bottom="{
                     message: $tc('sw-privileges.tooltip.warning'),
@@ -234,6 +232,7 @@
                 ghost
                 size="small"
                 :disabled="disabled || !acl.can('tax.editor') || undefined"
+                variant="secondary"
                 @click="showModal = true"
             >
                 {{ $tc('sw-settings-tax.taxRuleCard.labelCreateNew') }}
@@ -242,5 +241,5 @@
         </div>
     </template>
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

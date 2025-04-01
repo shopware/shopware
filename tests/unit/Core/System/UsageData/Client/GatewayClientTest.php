@@ -28,7 +28,6 @@ class GatewayClientTest extends TestCase
         $gatewayClient = new GatewayClient(
             $client,
             $this->createMock(ShopIdProvider::class),
-            true
         );
 
         static::assertTrue($gatewayClient->isGatewayAllowsPush());
@@ -45,24 +44,6 @@ class GatewayClientTest extends TestCase
         $gatewayClient = new GatewayClient(
             $client,
             $this->createMock(ShopIdProvider::class),
-            true
-        );
-
-        static::assertFalse($gatewayClient->isGatewayAllowsPush());
-    }
-
-    public function testGatewayDoesNotAllowPushInDevEnvironment(): void
-    {
-        $client = new MockHttpClient(function (): MockResponse {
-            $gatewayKillSwitchOn = json_encode(['killswitch' => false], \JSON_THROW_ON_ERROR);
-
-            return new MockResponse($gatewayKillSwitchOn);
-        });
-
-        $gatewayClient = new GatewayClient(
-            $client,
-            $this->createMock(ShopIdProvider::class),
-            false
         );
 
         static::assertFalse($gatewayClient->isGatewayAllowsPush());

@@ -10,13 +10,16 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class IsCompanyRule extends Rule
 {
     final public const RULE_NAME = 'customerIsCompany';
 
+    /**
+     * @internal
+     */
     public function __construct(
         protected bool $isCompany = true
     ) {

@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -37,6 +38,7 @@ class PaymentHandlerIdentifierSubscriberTest extends TestCase
             $this->getPaymentMethod(AppPaymentHandler::class),
         ];
 
+        /** @var EntityLoadedEvent<PaymentMethodEntity|PartialEntity> $event */
         $event = new EntityLoadedEvent(
             new PaymentMethodDefinition(),
             $paymentMethods,
@@ -46,7 +48,6 @@ class PaymentHandlerIdentifierSubscriberTest extends TestCase
         $subscriber = new PaymentHandlerIdentifierSubscriber();
         $subscriber->formatHandlerIdentifier($event);
 
-        /** @var array<PaymentMethodEntity> $methods */
         $methods = $event->getEntities();
 
         static::assertContainsOnlyInstancesOf(PaymentMethodEntity::class, $methods);
@@ -61,6 +62,7 @@ class PaymentHandlerIdentifierSubscriberTest extends TestCase
             $this->getPaymentMethod('foo'),
         ];
 
+        /** @var EntityLoadedEvent<PaymentMethodEntity|PartialEntity> $event */
         $event = new EntityLoadedEvent(
             new PaymentMethodDefinition(),
             $paymentMethods,
@@ -70,7 +72,6 @@ class PaymentHandlerIdentifierSubscriberTest extends TestCase
         $subscriber = new PaymentHandlerIdentifierSubscriber();
         $subscriber->formatHandlerIdentifier($event);
 
-        /** @var array<PaymentMethodEntity> $methods */
         $methods = $event->getEntities();
 
         static::assertContainsOnlyInstancesOf(PaymentMethodEntity::class, $methods);

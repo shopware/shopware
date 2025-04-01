@@ -3,8 +3,8 @@
  */
 
 import Plugin from 'src/plugin-system/plugin.class';
+/** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
-import DomAccess from 'src/helper/dom-access.helper';
 import ElementReplaceHelper from 'src/helper/element-replace.helper';
 import Debouncer from 'src/helper/debouncer.helper';
 
@@ -43,24 +43,23 @@ export default class ListingPlugin extends Plugin {
     init() {
         this._registry = [];
 
+        /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this.httpClient = new HttpClient();
 
         this._urlFilterParams = Object.fromEntries(new URLSearchParams(window.location.search).entries());
 
-        this._filterPanel = DomAccess.querySelector(document, this.options.filterPanelSelector, false);
+        this._filterPanel = document.querySelector(this.options.filterPanelSelector);
         this._filterPanelActive = !!this._filterPanel;
 
         // Init functionality for the filter panel
         if (this._filterPanelActive) {
             this._showResetAll = false;
-            this.activeFilterContainer = DomAccess.querySelector(
-                document,
-                this.options.activeFilterContainerSelector
+            this.activeFilterContainer = document.querySelector(this.options.activeFilterContainerSelector
             );
-            this.ariaLiveContainer = DomAccess.querySelector(document, this.options.ariaLiveSelector, false);
+            this.ariaLiveContainer = document.querySelector(this.options.ariaLiveSelector);
         }
 
-        this._cmsProductListingWrapper = DomAccess.querySelector(document, this.options.cmsProductListingWrapperSelector, false);
+        this._cmsProductListingWrapper = document.querySelector(this.options.cmsProductListingWrapperSelector);
         this._cmsProductListingWrapperActive = !!this._cmsProductListingWrapper;
 
         this._allFiltersInitializedDebounce = Debouncer.debounce(this.sendDisabledFiltersRequest.bind(this), 100);
@@ -266,7 +265,7 @@ export default class ListingPlugin extends Plugin {
 
         this.activeFilterContainer.innerHTML = labelHtml;
 
-        const resetButtons = DomAccess.querySelectorAll(this.activeFilterContainer, this.options.activeFilterLabelSelector, false);
+        const resetButtons = this.activeFilterContainer.querySelectorAll(this.options.activeFilterLabelSelector);
 
         if (labelHtml.length) {
             this._registerLabelEvents(resetButtons);
@@ -287,9 +286,7 @@ export default class ListingPlugin extends Plugin {
     createResetAllButton() {
         this.activeFilterContainer.insertAdjacentHTML('beforeend', this.getResetAllButtonTemplate());
 
-        const resetAllButtonEl = DomAccess.querySelector(
-            this.activeFilterContainer,
-            this.options.resetAllFilterButtonSelector
+        const resetAllButtonEl = this.activeFilterContainer.querySelector(this.options.resetAllFilterButtonSelector
         );
 
         resetAllButtonEl.removeEventListener('click', this.resetAllFilter.bind(this));
@@ -337,6 +334,7 @@ export default class ListingPlugin extends Plugin {
         <button
             class="${this.options.activeFilterLabelClasses}"
             data-id="${label.id}"
+            title="${this.options.snippets.removeFilterAriaLabel}: ${label.label}"
             aria-label="${this.options.snippets.removeFilterAriaLabel}: ${label.label}">
             ${this.getLabelPreviewTemplate(label)}
             ${label.label}
@@ -418,18 +416,22 @@ export default class ListingPlugin extends Plugin {
             this.sendDisabledFiltersRequest();
         }
 
-        this.httpClient.get(`${this.options.dataUrl}?${filterParams}`, (response) => {
-            this.renderResponse(response);
+        fetch(`${this.options.dataUrl}?${filterParams}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
+            .then((response) => response.text())
+            .then((response) => {
+                this.renderResponse(response);
 
-            if (this._filterPanelActive) {
-                this.removeLoadingIndicatorClass();
-                this._updateAriaLive();
-            }
+                if (this._filterPanelActive) {
+                    this.removeLoadingIndicatorClass();
+                    this._updateAriaLive();
+                }
 
-            if (this._cmsProductListingWrapperActive) {
-                this.removeLoadingElementLoaderClass();
-            }
-        });
+                if (this._cmsProductListingWrapperActive) {
+                    this.removeLoadingElementLoaderClass();
+                }
+            });
     }
 
     /**
@@ -450,15 +452,17 @@ export default class ListingPlugin extends Plugin {
         const filterParams = this._getDisabledFiltersParamsFromParams(mapped);
         const paramsString = new URLSearchParams(filterParams).toString();
 
-        this.httpClient.get(`${this.options.filterUrl}?${paramsString}`, (response) => {
-            const filter =  JSON.parse(response);
-
-            this._registry.forEach((item) => {
-                if (typeof item.refreshDisabledState === 'function') {
-                    item.refreshDisabledState(filter, filterParams);
-                }
+        fetch(`${this.options.filterUrl}?${paramsString}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
+            .then(response => response.json())
+            .then(filter => {
+                this._registry.forEach((item) => {
+                    if (typeof item.refreshDisabledState === 'function') {
+                        item.refreshDisabledState(filter, filterParams);
+                    }
+                });
             });
-        });
     }
 
     /**
@@ -467,7 +471,7 @@ export default class ListingPlugin extends Plugin {
      * @param {String} response - HTML of filtered product data.
      */
     renderResponse(response) {
-        ElementReplaceHelper.replaceFromMarkup(response, this.options.cmsProductListingSelector, false);
+        ElementReplaceHelper.replaceFromMarkup(response, this.options.cmsProductListingSelector);
 
         this._registry.forEach((item) => {
             if (typeof item.afterContentChange === 'function') {

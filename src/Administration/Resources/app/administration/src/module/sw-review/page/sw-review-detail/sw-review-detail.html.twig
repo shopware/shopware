@@ -11,9 +11,10 @@
     <template #smart-bar-actions>
 
         {% block sw_review_detail_actions_abort %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip.bottom="tooltipCancel"
+            variant="secondary"
+            size="default"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
@@ -47,7 +48,7 @@
             <template v-else>
 
                 {% block sw_review_detail_basic_info_card %}
-                <sw-card
+                <mt-card
                     v-if="review"
                     position-identifier="sw-review-detail-basic-info"
                     :title="$tc('sw-review.detail.cardTitleReviewInfo')"
@@ -213,10 +214,10 @@
                         </sw-container>
                     </template>
                     {% endblock %}
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
-                <sw-card
+                <mt-card
                     v-if="review"
                     position-identifier="sw-review-detail-properties"
                     class="sw-review-properties"
@@ -245,8 +246,9 @@
                         {% endblock %}
 
                         {% block sw_review_detail_description_list_status %}
-                        <sw-switch-field
-                            v-model:value="review.status"
+
+                        <mt-switch
+                            v-model="review.status"
                             name="sw-field--review-status"
                             class="status-switch"
                             :disabled="!acl.can('review.editor') || undefined"
@@ -256,17 +258,16 @@
                         {% endblock %}
                     </sw-container>
                     {% endblock %}
-                </sw-card>
-
-                <sw-card
+                </mt-card>
+                <mt-card
                     v-if="review"
                     position-identifier="sw-review-detail-comment"
                     :title="$tc('sw-review.detail.labelComment')"
                 >
 
                     {% block sw_review_detail_basic_info_card_comment %}
-                    <sw-textarea-field
-                        v-model:value="review.comment"
+                    <mt-textarea
+                        v-model="review.comment"
                         name="sw-field--review-comment"
                         class="sw-review__comment-field"
                         :disabled="!acl.can('review.editor') || undefined"
@@ -274,10 +275,10 @@
                         :placeholder="$tc('sw-review.detail.placeholderComment')"
                     />
                     {% endblock %}
-                </sw-card>
+                </mt-card>
 
                 {% block sw_review_detail_custom_field_sets %}
-                <sw-card
+                <mt-card
                     v-if="showCustomFields"
                     position-identifier="sw-review-detail-custom-field-sets"
                     :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
@@ -287,7 +288,7 @@
                         :disabled="!acl.can('review.editor')"
                         :sets="customFieldSets"
                     />
-                </sw-card>
+                </mt-card>
                 {% endblock %}
             </template>
         </sw-card-view>

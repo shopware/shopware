@@ -3,7 +3,6 @@ import { tns } from 'tiny-slider';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 import SliderSettingsHelper from 'src/plugin/slider/helper/slider-settings.helper';
 import BaseSliderPlugin from 'src/plugin/slider/base-slider.plugin';
-import DomAccess from 'src/helper/dom-access.helper';
 
 export default class GallerySliderPlugin extends BaseSliderPlugin {
     static options = deepmerge(BaseSliderPlugin.options, {
@@ -176,7 +175,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
      * @private
      */
     _onDotClick(event) {
-        const currentIndex = DomAccess.getDataAttribute(event.target, this.options.navDotDataAttr);
+        const currentIndex = event.target.getAttribute(this.options.navDotDataAttr);
 
         this._slider.goTo(currentIndex - 1);
     }

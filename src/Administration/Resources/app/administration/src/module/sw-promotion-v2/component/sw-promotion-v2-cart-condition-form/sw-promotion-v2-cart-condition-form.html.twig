@@ -17,8 +17,9 @@
     {% endblock %}
 
     {% block sw_promotion_v2_cart_condition_form_use_setgroups_field %}
-    <sw-switch-field
-        v-model:value="promotion.useSetGroups"
+
+    <mt-switch
+        v-model="promotion.useSetGroups"
         class="sw-promotion-v2-cart-condition-form__use-setgroups"
         :disabled="!acl.can('promotion.editor')"
         :label="$tc('sw-promotion-v2.detail.conditions.setgroups.switchGroupsEnabled')"
@@ -28,7 +29,7 @@
     <template v-if="promotion.useSetGroups">
 
         {% block sw_promotion_v2_cart_condition_setgroup_card %}
-        <sw-card
+        <mt-card
             v-for="(group, index) in promotion.setgroups"
             :id="`sw-promotion-v2-cart-condition-form__setgroup-card-${index + 1}`"
             :key="group.id"
@@ -77,25 +78,18 @@
                 gap="0px 30px"
             >
                 {% block sw_promotion_v2_cart_condition_setgroup_mode_field %}
-                <sw-select-field
-                    v-model:value="group.packagerKey"
+                <mt-select
+                    v-model="group.packagerKey"
                     class="sw-promotion-v2-cart-condition-form__setgroup-mode"
                     :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelMode')"
                     :disabled="isEditingDisabled"
-                >
-                    <option
-                        v-for="packager in packagers"
-                        :key="packager.key"
-                        :value="packager.key"
-                    >
-                        {{ packager.name }}
-                    </option>
-                </sw-select-field>
+                    :options="packagerOptions"
+                />
                 {% endblock %}
 
                 {% block sw_promotion_v2_cart_condition_setgroup_value_field %}
-                <sw-number-field
-                    v-model:value="group.value"
+                <mt-number-field
+                    v-model="group.value"
                     class="sw-promotion-v2-cart-condition-form__setgroup-value"
                     :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelValue')"
                     :disabled="isEditingDisabled"
@@ -109,20 +103,13 @@
                 gap="0px 30px"
             >
                 {% block sw_promotion_v2_cart_condition_setgroup_sorting_field %}
-                <sw-select-field
-                    v-model:value="group.sorterKey"
+                <mt-select
+                    v-model="group.sorterKey"
                     class="sw-promotion-v2-cart-condition-form__setgroup-sorting"
                     :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelSorting')"
                     :disabled="isEditingDisabled"
-                >
-                    <option
-                        v-for="sorter in sorters"
-                        :key="sorter.key"
-                        :value="sorter.key"
-                    >
-                        {{ sorter.name }}
-                    </option>
-                </sw-select-field>
+                    :options="sorterOptions"
+                />
                 {% endblock %}
 
             </sw-container>
@@ -146,16 +133,16 @@
                 {% endblock %}
 
             </sw-container>
-        </sw-card>
+        </mt-card>
         {% endblock %}
 
         {% block sw_promotion_v2_cart_condition_add_group_button %}
         <div class="sw-promotion-v2-cart-condition-form__add-group-button-container">
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 ghost
                 class="sw-promotion-v2-cart-condition-form__add-group-button"
                 :disabled="isEditingDisabled"
+                variant="secondary"
                 @click="addSetGroup"
             >
                 {{ $tc('sw-promotion-v2.detail.conditions.setgroups.buttonAddGroup') }}

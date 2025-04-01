@@ -68,7 +68,7 @@
         justify-content: space-between;
     }
 
-    .sw-icon {
+    .mt-icon {
         &.is--inactive {
             color: $color-crimson-500;
         }
@@ -117,7 +117,7 @@
             height: 32px;
             line-height: 16px;
 
-            .sw-icon {
+            .mt-icon {
                 @include square(15px);
             }
         }

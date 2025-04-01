@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Constraint\Callback;
 use PHPUnit\Framework\Constraint\IsEqual;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Notification\NotificationService;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
@@ -15,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
@@ -269,6 +269,7 @@ class ThemeTest extends TestCase
                 'fields' => [
                     'some-custom' => [
                         'editable' => false,
+                        'type' => 'text',
                     ],
                 ],
             ]
@@ -297,7 +298,7 @@ class ThemeTest extends TestCase
         $someCustom = [
             'name' => 'some-custom',
             'label' => null,
-            'type' => null,
+            'type' => 'text',
             'value' => null,
             'editable' => false,
             'block' => null,
@@ -537,7 +538,7 @@ class ThemeTest extends TestCase
         $_expectedColor = '';
         $_expectedTheme = '';
         $themeCompilerMock = $this->createMock(ThemeCompiler::class);
-        $themeCompilerMock->expects(static::exactly(2))
+        $themeCompilerMock->expects($this->exactly(2))
             ->method('compileTheme')
             ->with(
                 new IsEqual(TestDefaults::SALES_CHANNEL),
@@ -904,6 +905,7 @@ class ThemeTest extends TestCase
             [
                 [
                     'id' => $id,
+                    'type' => 'text',
                     'parentThemeId' => $parentTheme->getId(),
                     'name' => $name,
                     'technicalName' => $name,

@@ -1,5 +1,5 @@
 {% block sw_sales_channel_detail_domains %}
-<sw-card
+<mt-card
     :title="$tc('sw-sales-channel.detail.titleDomains')"
     class="sw-sales-channel-detail-domains"
     position-identifier="sw-sales-channel-detail-domains"
@@ -16,11 +16,11 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_domains_add_button %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             size="small"
             :disabled="disableEdit || undefined"
             class="sw-sales-channel-detail__button-domain-add"
+            variant="secondary"
             @click="onClickOpenCreateDomainModal"
         >
             {{ $tc('sw-sales-channel.detail.buttonAddDomain') }}
@@ -116,14 +116,14 @@
             gap="0px 30px"
         >
             {% block sw_sales_channel_detail_domains_input_url %}
-            <sw-url-field
-                v-model:value="currentDomain.url"
+            <mt-url-field
+                v-model="currentDomain.url"
                 type="text"
                 omit-url-hash
                 omit-url-search
                 :label="$tc('sw-sales-channel.detail.labelInputUrl')"
                 :error="error"
-                @update:value="onInput"
+                @update:model-value="onInput"
             />
             {% endblock %}
 
@@ -185,9 +185,9 @@
 
         <template #modal-footer>
             {% block sw_sales_channel_detail_domains_create_action_cancel %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCloseCreateDomainModal"
             >
                 {{ $tc('global.default.cancel') }}
@@ -195,7 +195,6 @@
             {% endblock %}
 
             {% block sw_sales_channel_detail_domains_create_action_create %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
                 variant="primary"
@@ -224,9 +223,9 @@
         {% block sw_sales_channel_detail_domains_delete_modal_footer %}
         <template #modal-footer>
             {% block sw_sales_channel_detail_domains_delete_modal_abort %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCloseDeleteDomainModal"
             >
                 {{ $tc('global.default.cancel') }}
@@ -234,7 +233,6 @@
             {% endblock %}
 
             {% block sw_sales_channel_detail_domains_delete_modal_confirm %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 size="small"
                 variant="critical"
@@ -247,5 +245,5 @@
         {% endblock %}
     </sw-modal>
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

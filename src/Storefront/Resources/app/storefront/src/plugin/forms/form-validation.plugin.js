@@ -1,5 +1,4 @@
 import Plugin from 'src/plugin-system/plugin.class';
-import DomAccess from 'src/helper/dom-access.helper';
 import Debouncer from 'src/helper/debouncer.helper';
 
 /**
@@ -119,7 +118,7 @@ export default class FormValidation extends Plugin {
      * @private
      */
     _registerValidationListener(attribute, listener, events) {
-        const fields = DomAccess.querySelectorAll(this.el, `[${attribute}]`, false);
+        const fields = this.el.querySelectorAll(`[${attribute}]`);
         if (fields) {
             fields.forEach(field => {
                 events.forEach(event => {
@@ -158,8 +157,8 @@ export default class FormValidation extends Plugin {
      * @private
      */
     _onValidateEqualTrigger(event) {
-        const selector = DomAccess.getDataAttribute(event.target, this.options.equalAttr);
-        const fields = DomAccess.querySelectorAll(this.el, `[${this.options.equalAttr}='${selector}']`);
+        const selector = event.target.getAttribute(this.options.equalAttr);
+        const fields = this.el.querySelectorAll(`[${this.options.equalAttr}='${selector}']`);
         const confirmField = fields[1];
         const confirmFieldValue = confirmField.value.trim();
 
@@ -181,8 +180,8 @@ export default class FormValidation extends Plugin {
      * @private
      */
     _onValidateEqual(event) {
-        const selector = DomAccess.getDataAttribute(event.target, this.options.equalAttr);
-        const fields = DomAccess.querySelectorAll(this.el, `[${this.options.equalAttr}='${selector}']`);
+        const selector = event.target.getAttribute(this.options.equalAttr);
+        const fields = this.el.querySelectorAll(`[${this.options.equalAttr}='${selector}']`);
 
         let valid = true;
 
@@ -215,7 +214,7 @@ export default class FormValidation extends Plugin {
     _onValidateLength(event) {
         const field = event.target;
         const value = field.value.trim();
-        const expectedLength = DomAccess.getDataAttribute(event.target, this.options.lengthAttr);
+        const expectedLength = event.target.getAttribute(this.options.lengthAttr);
         const formText = field.nextElementSibling;
 
         if (value.length < expectedLength) {
@@ -288,7 +287,7 @@ export default class FormValidation extends Plugin {
             parent.classList.add(this.options.styleCls);
         }
 
-        const message = DomAccess.getDataAttribute(field, `${attribute}-message`, false);
+        const message = field.getAttribute(`${attribute}-message`);
 
         if (message) {
             if (!parent.querySelector('.js-validation-message')) {
@@ -337,7 +336,7 @@ export default class FormValidation extends Plugin {
         }
 
         if (parent) {
-            const message = DomAccess.querySelector(parent, `.js-validation-message[data-type=${attribute}]`, false);
+            const message = parent.querySelector(`.js-validation-message[data-type=${attribute}]`);
             if (message) {
                 message.remove();
             }

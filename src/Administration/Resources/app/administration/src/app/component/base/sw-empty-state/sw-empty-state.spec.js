@@ -10,14 +10,11 @@ describe('components/base/sw-empty-state', () => {
     beforeEach(async () => {
         wrapper = mount(await wrapTestComponent('sw-empty-state'), {
             global: {
-                stubs: {
-                    'sw-icon': true,
-                },
                 mocks: {
                     $route: {
                         meta: {
                             $module: {
-                                icon: 'default-symbol-content',
+                                icon: 'regular-content',
                                 description: 'Foo bar',
                             },
                         },

@@ -21,6 +21,8 @@ class ProductExportException extends HttpException
     public const PRODUCT_EXPORT_NOT_FOUND = 'CONTENT__PRODUCT_EXPORT_EMPTY';
     public const SALES_CHANNEL_NOT_ALLOWED_EXCEPTION = 'PRODUCT_EXPORT_SALES_CHANNEL_NOT_ALLOWED_EXCEPTION';
 
+    public const SALES_CHANNEL_DOMAIN_NOT_FOUND_EXCEPTION = 'PRODUCT_EXPORT__SALES_CHANNEL_DOMAIN_NOT_FOUND_EXCEPTION';
+
     public static function templateBodyNotSet(): ProductExportException
     {
         return new self(Response::HTTP_BAD_REQUEST, self::TEMPLATE_BODY_NOT_SET, 'Template body not set');
@@ -65,6 +67,16 @@ class ProductExportException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::SALES_CHANNEL_NOT_ALLOWED_EXCEPTION,
             'Only sales channels from type "Storefront" can be used for exports.'
+        );
+    }
+
+    public static function salesChannelDomainNotFound(string $productExportId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SALES_CHANNEL_DOMAIN_NOT_FOUND_EXCEPTION,
+            'No sales channel domain found for product export with id {{ productExportId }}',
+            ['productExportId' => $productExportId]
         );
     }
 

@@ -249,17 +249,14 @@ async function createWrapper() {
                     sync: true,
                 }),
                 'sw-data-grid-settings': true,
-                'sw-icon': await await wrapTestComponent('sw-icon', {
-                    sync: true,
-                }),
                 'sw-product-variant-info': await wrapTestComponent('sw-product-variant-info', { sync: true }),
-                'sw-switch-field': true,
+
                 'router-link': {
                     template: '<a class="router-link" href="#"><slot></slot></a>',
                     props: ['to'],
                 },
-                'sw-number-field': {
-                    template: '<input class="sw-number-field" type="number" v-model="value" />',
+                'mt-number-field': {
+                    template: '<input class="mt-number-field" type="number" v-model="value" />',
                     props: {
                         value: 0,
                         size: 'default',
@@ -285,7 +282,6 @@ async function createWrapper() {
                 'sw-data-grid-skeleton': true,
                 'sw-base-field': true,
                 'sw-field-error': true,
-                'sw-icon-deprecated': true,
                 'sw-highlight-text': true,
                 'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },

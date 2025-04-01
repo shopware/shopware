@@ -66,6 +66,8 @@ class ValidUserServiceCreator
         $client = $this->createMock(HttpClientInterface::class);
         $client->method('request')->willReturn($response);
 
+        \assert($client instanceof HttpClientInterface);
+
         return $client;
     }
 
@@ -108,6 +110,8 @@ class ValidUserServiceCreator
 
         $cache->method('getItem')->willReturnOnConsecutiveCalls($cacheItem, $emptyCacheItem);
 
+        \assert($cache instanceof AdapterInterface);
+
         return $cache;
     }
 
@@ -116,10 +120,12 @@ class ValidUserServiceCreator
         $mock = (new MockGenerator)->testDouble(
             $originalClassName,
             true,
+            true,
             callOriginalConstructor: false,
             callOriginalClone: false,
             cloneArguments: false,
             allowMockingUnknownTypes: false,
+            returnValueGeneration: false,
         );
 
         assert($mock instanceof $originalClassName);

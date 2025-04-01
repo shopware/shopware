@@ -61,7 +61,7 @@ export default class VueAdapter extends ViewAdapter {
 
         const vuexRoot = State._store;
         // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-        const i18n = this.initLocales() as I18n<{}, {}, {}, string, true>;
+        const i18n = this.initLocales();
 
         // add router to View
         this.router = router;
@@ -273,6 +273,8 @@ export default class VueAdapter extends ViewAdapter {
             'MtModalRoot',
             'MtModalClose',
             'MtUrlField',
+            'MtSearch',
+            'MtLink',
         ];
 
         meteorComponents.forEach((componentName) => {
@@ -533,7 +535,7 @@ export default class VueAdapter extends ViewAdapter {
             sync: true,
             messages,
             allowComposition: true,
-        };
+        } as const;
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         const i18n = createI18n(options);
@@ -541,7 +543,7 @@ export default class VueAdapter extends ViewAdapter {
         Shopware.Vue.watch(
             useSession().currentLocale,
             (currentLocale: string | null) => {
-                i18n.global.locale = currentLocale ?? '';
+                i18n.global.locale.value = currentLocale ?? '';
             },
             { immediate: true },
         );

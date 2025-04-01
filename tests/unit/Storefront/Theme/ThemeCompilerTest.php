@@ -496,7 +496,7 @@ PHP_EOL,
 
         $fs = new StaticFilesystem(['Resources/assets' => 'directory']);
 
-        $this->themeFilesystemResolver->expects(static::once())
+        $this->themeFilesystemResolver->expects($this->once())
             ->method('getFilesystemForStorefrontConfig')
             ->with($config)
             ->willReturn($fs);
@@ -550,7 +550,7 @@ PHP_EOL,
         $this->filesystem->createDirectory('theme/9a11a759d278b4a55cb5e2c3414733c1');
         $this->filesystem->write('theme/9a11a759d278b4a55cb5e2c3414733c1/all.js', '');
 
-        $this->scssPhpCompiler->expects(static::once())->method('compileString')->willThrowException(new \Exception());
+        $this->scssPhpCompiler->expects($this->once())->method('compileString')->willThrowException(new \Exception());
 
         $compiler = $this->getThemeCompiler();
 
@@ -590,15 +590,15 @@ PHP_EOL,
         $this->filesystem->createDirectory('theme/current');
         $this->filesystem->write('theme/current/all.js', '');
 
-        $this->copyBatchInputFactory->expects(static::never())
+        $this->copyBatchInputFactory->expects($this->never())
             ->method('fromDirectory');
 
-        $this->scssPhpCompiler->expects(static::once())->method('compileString')->willThrowException(new \Exception());
+        $this->scssPhpCompiler->expects($this->once())->method('compileString')->willThrowException(new \Exception());
 
         $this->pathBuilder = $this->createMock(MD5ThemePathBuilder::class);
         $this->pathBuilder->method('assemblePath')->willReturn('current');
         $this->pathBuilder->method('generateNewPath')->willReturn('new');
-        $this->pathBuilder->expects(static::never())->method('saveSeed');
+        $this->pathBuilder->expects($this->never())->method('saveSeed');
 
         $compiler = $this->getThemeCompiler();
 
@@ -636,18 +636,18 @@ PHP_EOL,
         $this->filesystem->createDirectory('theme/current');
         $this->filesystem->write('theme/current/all.js', '');
 
-        $this->scssPhpCompiler->expects(static::once())->method('compileString')->willReturn('');
+        $this->scssPhpCompiler->expects($this->once())->method('compileString')->willReturn('');
 
         $this->pathBuilder = $this->createMock(MD5ThemePathBuilder::class);
         $this->pathBuilder->method('assemblePath')->willReturn('current');
-        $this->pathBuilder->expects(static::once())
+        $this->pathBuilder->expects($this->once())
             ->method('generateNewPath')
             ->with(
                 TestDefaults::SALES_CHANNEL,
                 'test'
             )
             ->willReturn('new');
-        $this->pathBuilder->expects(static::once())
+        $this->pathBuilder->expects($this->once())
             ->method('saveSeed')
             ->with(TestDefaults::SALES_CHANNEL, 'test');
 
@@ -657,7 +657,7 @@ PHP_EOL,
         $expectedEnvelop = new Envelope($expectedMessage, $expectedStamps);
 
         $this->messageBus = $this->createMock(MessageBus::class);
-        $this->messageBus->expects(static::once())
+        $this->messageBus->expects($this->once())
             ->method('dispatch')
             ->with($expectedMessage, $expectedStamps)
             ->willReturn($expectedEnvelop);
@@ -691,9 +691,9 @@ PHP_EOL,
         $this->filesystem->createDirectory($distLocation);
         $this->filesystem->write($distLocation . '/test-theme.js', '');
 
-        $this->scssPhpCompiler->expects(static::once())->method('compileString')->willReturn('');
+        $this->scssPhpCompiler->expects($this->once())->method('compileString')->willReturn('');
 
-        $this->logger->expects(static::once())->method('error');
+        $this->logger->expects($this->once())->method('error');
 
         $this->setEnvVars([
             'V6_6_0_0' => 1,
@@ -710,7 +710,7 @@ PHP_EOL,
 
         $sourceResolver = new StaticSourceResolver($filesystems);
 
-        $this->themeFilesystemResolver->expects(static::exactly(\count($filesystems)))
+        $this->themeFilesystemResolver->expects($this->exactly(\count($filesystems)))
             ->method('getFilesystemForStorefrontConfig')
             ->willReturnCallback(fn (StorefrontPluginConfiguration $config) => $filesystems[$config->getTechnicalName()]);
 

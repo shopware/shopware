@@ -135,7 +135,7 @@ class ProductListingRouteTest extends TestCase
         $eventDispatcher = new EventDispatcher();
 
         $listener = $this->createMock(CallableClass::class);
-        $listener->expects(static::exactly(2))->method('__invoke');
+        $listener->expects($this->exactly(2))->method('__invoke');
         $eventDispatcher->addListener(ProductListingCriteriaExtension::NAME . '.pre', $listener);
         $eventDispatcher->addListener(ProductListingCriteriaExtension::NAME . '.post', $listener);
 

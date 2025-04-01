@@ -2,8 +2,8 @@
     <sw-modal
         class="sw-theme-modal"
         @modal-close="closeModal"
-        :title="$tc('sw-theme-manager.themeModal.modalTitle')"
-        :subtitle="$tc('sw-theme-manager.themeModal.modalSubtitle')"
+        :title="$t('sw-theme-manager.themeModal.modalTitle')"
+        :subtitle="$t('sw-theme-manager.themeModal.modalSubtitle')"
     >
 
         {% block sw_theme_modal_header %}
@@ -13,7 +13,7 @@
                         <sw-simple-search-field
                             class="sw-theme-modal__header-search"
                             variant="form"
-                            :placeholder="$tc('sw-theme-manager.general.placeholderSearchBar')"
+                            :placeholder="$t('sw-theme-manager.general.placeholderSearchBar')"
                             @search-term-change="onSearch"
                         ></sw-simple-search-field>
                     </sw-container>
@@ -56,10 +56,10 @@
         {% block sw_theme_modal_footer %}
             <template #modal-footer>
                 <sw-button @click="closeModal">
-                    {{ $tc('sw-theme-manager.themeModal.actionCancel') }}
+                    {{ $t('global.default.cancel') }}
                 </sw-button>
                 <sw-button @click="selectLayout" variant="primary">
-                    {{ $tc('sw-theme-manager.themeModal.actionConfirm') }}
+                    {{ $t('sw-theme-manager.themeModal.actionConfirm') }}
                 </sw-button>
             </template>
         {% endblock %}

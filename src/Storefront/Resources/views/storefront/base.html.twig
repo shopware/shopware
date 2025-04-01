@@ -1,17 +1,14 @@
 {# @sw-package framework #}
-
-{# Set variable to "true" to enable HMR (hot page reloading) mode #}
-{% set isHMRMode = app.request.headers.get('hot-reload-mode') and app.environment == 'dev' %}
-
-{% block base_doctype %}
-<!DOCTYPE html>
-{% endblock %}
+{% block base_doctype %}<!DOCTYPE html>{% endblock %}
 
 {% block base_html %}
 <html lang="{{ context.languageInfo.localeCode }}"
       itemscope="itemscope"
       itemtype="https://schema.org/WebPage">
 {% endblock %}
+
+{# Set variable to "true" to enable HMR (hot page reloading) mode #}
+{% set isHMRMode = app.request.headers.get('hot-reload-mode') and app.environment == 'dev' %}
 
 {% block base_head %}
     {% sw_include '@Storefront/storefront/layout/meta.html.twig' %}
@@ -38,7 +35,9 @@
             </noscript>
         {% endblock %}
 
-        {{ render_esi(url('frontend.header')) }}
+        {% block base_esi_header %}
+            {{ render_esi(url('frontend.header')) }}
+        {% endblock %}
 
         {% block base_navigation_styling %}
             {% sw_include '@Storefront/storefront/layout/navigation/active-styling.html.twig' %}
@@ -74,7 +73,9 @@
             </main>
         {% endblock %}
 
-        {{ render_esi(url('frontend.footer')) }}
+        {% block base_esi_footer %}
+            {{ render_esi(url('frontend.footer')) }}
+        {% endblock %}
 
     {% endblock %}
 

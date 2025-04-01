@@ -34,7 +34,7 @@ jobs:
           shopware-repository: ${{ github.repository }}
       - name: Run PHPUnit
         run: |
-          ./vendor/bin/phpunit --group=redis
+          ./vendor/bin/phpunit --group=redis --testsuite migration,unit,integration,devops
 
   admin:
     uses: ./.github/workflows/admin.yml
@@ -70,14 +70,20 @@ jobs:
     if: github.repository == 'shopware/shopware' && github.ref == 'refs/heads/trunk'
     permissions:
       id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        branch:
+          - "6.6.x"
+          - "6.7.0.0"
     steps:
       - name: Delay
         run: sleep 20m
-      - uses: octo-sts/action@v1.0.0
+      - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
         id: sts
         with:
           scope: shopware
           identity: ShopwareNightly
       - env:
           GH_TOKEN: ${{ steps.sts.outputs.token }}
-        run: gh workflow run "${{ github.workflow }}" --repo "${{ github.repository }}" --ref "6.6.x"
+        run: gh workflow run "${{ github.workflow }}" --repo "${{ github.repository }}" --ref "${{ matrix.branch }}"

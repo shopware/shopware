@@ -7,11 +7,13 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(CashRounding::class)]
+#[Package('checkout')]
 class CashRoundingTest extends TestCase
 {
     #[DataProvider('provider_german')]

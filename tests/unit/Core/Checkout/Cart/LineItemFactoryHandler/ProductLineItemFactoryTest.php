@@ -86,7 +86,7 @@ class ProductLineItemFactoryTest extends TestCase
 
         $priceDefinitionFactory = $this->createMock(PriceDefinitionFactory::class);
         $priceDefinitionFactory
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('factory')
             ->with(
                 static::equalTo($context->getContext()),

@@ -36,7 +36,7 @@ class SystemConfigValidatorTest extends TestCase
         );
 
         $configurationServiceMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getConfiguration')
             ->willReturn($formConfigs);
 

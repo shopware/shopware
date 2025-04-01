@@ -1,5 +1,6 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import Debouncer from 'src/helper/debouncer.helper';
+/** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
 import ButtonLoadingIndicator from 'src/utility/loading-indicator/button-loading-indicator.util';
 import DeviceDetection from 'src/helper/device-detection.helper';
@@ -32,6 +33,7 @@ export default class SearchWidgetPlugin extends Plugin {
             return;
         }
 
+        /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._client = new HttpClient();
 
         // initialize the arrow navigation
@@ -72,6 +74,10 @@ export default class SearchWidgetPlugin extends Plugin {
         // add click event listener to close button
         this._closeButton.addEventListener('click', this._onCloseButtonClick.bind(this));
 
+        // add focus event listener to close button
+        this._closeButton.addEventListener('focus', () => {
+            document.querySelector(this.options.searchWidgetResultSelector).classList.add('d-none');
+        });
     }
 
     _handleSearchEvent(event) {
@@ -110,7 +116,6 @@ export default class SearchWidgetPlugin extends Plugin {
      */
     _suggest(value) {
         const url = this._url + encodeURIComponent(value);
-        this._client.abort();
 
         // init loading indicator
         const indicator = new ButtonLoadingIndicator(this._submitButton);
@@ -118,18 +123,22 @@ export default class SearchWidgetPlugin extends Plugin {
 
         this.$emitter.publish('beforeSearch');
 
-        this._client.get(url, (response) => {
-            // remove existing search results popover first
-            this._clearSuggestResults();
+        fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
+            .then(response => response.text())
+            .then(content => {
+                // remove existing search results popover first
+                this._clearSuggestResults();
 
-            // remove indicator
-            indicator.remove();
+                // remove indicator
+                indicator.remove();
 
-            // attach search results to the DOM
-            this.el.insertAdjacentHTML('beforeend', response);
+                // attach search results to the DOM
+                this.el.insertAdjacentHTML('beforeend', content);
 
-            this.$emitter.publish('afterSuggest');
-        });
+                this.$emitter.publish('afterSuggest');
+            });
     }
 
     /**
@@ -174,8 +183,7 @@ export default class SearchWidgetPlugin extends Plugin {
      * @private
      */
     _onCloseButtonClick() {
-        this._clearSuggestResults();
-
+        this._inputField.value = '';
         this._inputField.focus();
     }
 

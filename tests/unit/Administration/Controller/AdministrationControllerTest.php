@@ -87,15 +87,15 @@ class AdministrationControllerTest extends TestCase
 
     public function testIndexPerformsOnSearchOfCurrency(): void
     {
-        $this->parameterBag->expects(static::any())->method('has')->willReturn(true);
-        $this->parameterBag->expects(static::any())->method('get')->willReturn(true);
+        $this->parameterBag->expects($this->any())->method('has')->willReturn(true);
+        $this->parameterBag->expects($this->any())->method('get')->willReturn(true);
 
         $controller = $this->createAdministrationController();
 
         $container = new Container();
         $twig = $this->createMock(Environment::class);
 
-        $twig->expects(static::once())->method('render')
+        $twig->expects($this->once())->method('render')
             ->willReturnArgument(0)
             ->with(
                 '',
@@ -124,7 +124,7 @@ class AdministrationControllerTest extends TestCase
         $currency->setIsoCode('fakeIsoCode');
         $currencyCollection->add($currency);
 
-        $this->currencyRepository->expects(static::once())->method('search')->willReturn(
+        $this->currencyRepository->expects($this->once())->method('search')->willReturn(
             new EntitySearchResult(
                 'currency',
                 1,
@@ -245,7 +245,7 @@ class AdministrationControllerTest extends TestCase
     {
         $controller = $this->createAdministrationController();
 
-        $this->fileSystemOperator->expects(static::once())
+        $this->fileSystemOperator->expects($this->once())
             ->method('read')
             ->with('bundles/foo/meteor-app/index.html')
             ->willThrowException(new UnableToReadFile());
@@ -260,7 +260,7 @@ class AdministrationControllerTest extends TestCase
         $controller = $this->createAdministrationController();
 
         $fileContent = '<html><head></head><body></body></html>';
-        $this->fileSystemOperator->expects(static::once())
+        $this->fileSystemOperator->expects($this->once())
             ->method('read')
             ->with('bundles/foo/meteor-app/index.html')
             ->willReturn($fileContent);
@@ -275,12 +275,12 @@ class AdministrationControllerTest extends TestCase
         $controller = $this->createAdministrationController();
 
         $fileContent = '<html><head><base href="__$ASSET_BASE_PATH$__" /></head><body></body></html>';
-        $this->fileSystemOperator->expects(static::once())
+        $this->fileSystemOperator->expects($this->once())
             ->method('read')
             ->with('bundles/foo/meteor-app/index.html')
             ->willReturn($fileContent);
 
-        $this->fileSystemOperator->expects(static::once())
+        $this->fileSystemOperator->expects($this->once())
             ->method('publicUrl')
             ->with('/')
             ->willReturn('http://localhost/bundles/');
@@ -299,7 +299,7 @@ class AdministrationControllerTest extends TestCase
     {
         $this->expectExceptionObject(RoutingException::languageNotFound($this->context->getLanguageId()));
 
-        $this->connection->expects(static::once())->method('fetchOne')->willReturn(false);
+        $this->connection->expects($this->once())->method('fetchOne')->willReturn(false);
         $controller = $this->createAdministrationController();
 
         $controller->resetExcludedSearchTerm($this->context);
@@ -315,17 +315,17 @@ class AdministrationControllerTest extends TestCase
         $excludedTerms = $this->getExcludedTerms($sourceLanguage);
         $searchConfigId = Uuid::randomHex();
 
-        $this->connection->expects(static::any())->method('fetchOne')
+        $this->connection->expects($this->any())->method('fetchOne')
             ->willReturnOnConsecutiveCalls($searchConfigId, $deLanguageId, $enLanguageId);
 
         if ($sourceLanguage === null) {
-            $this->eventDispatcher->expects(static::once())->method('dispatch')
+            $this->eventDispatcher->expects($this->once())->method('dispatch')
                 ->willReturn(new PreResetExcludedSearchTermEvent($searchConfigId, $excludedTerms, $context));
         } else {
-            $this->eventDispatcher->expects(static::never())->method('dispatch');
+            $this->eventDispatcher->expects($this->never())->method('dispatch');
         }
 
-        $this->connection->expects(static::once())->method('executeStatement')
+        $this->connection->expects($this->once())->method('executeStatement')
             ->with(
                 'UPDATE `product_search_config` SET `excluded_terms` = :excludedTerms WHERE `id` = :id',
                 [
@@ -353,7 +353,7 @@ class AdministrationControllerTest extends TestCase
 
     public function testSanitizeHtmlInvokesSanitizerWhenFieldIsEmpty(): void
     {
-        $this->htmlSanitizer->expects(static::once())->method('sanitize')->willReturn('');
+        $this->htmlSanitizer->expects($this->once())->method('sanitize')->willReturn('');
 
         $controller = $this->createAdministrationController();
         $response = $controller->sanitizeHtml(new Request([], ['html' => '<br/>', 'field' => '']), $this->context);
@@ -370,7 +370,7 @@ class AdministrationControllerTest extends TestCase
 
         $entityDefinition = new TestEntityDefinition();
         $entityDefinition->compile($this->definitionRegistry);
-        $this->definitionRegistry->expects(static::once())->method('getByEntityName')->willReturn($entityDefinition);
+        $this->definitionRegistry->expects($this->once())->method('getByEntityName')->willReturn($entityDefinition);
 
         $controller = $this->createAdministrationController();
         $controller->sanitizeHtml(new Request([], ['html' => '<br/>', 'field' => $field]), $this->context);
@@ -380,7 +380,7 @@ class AdministrationControllerTest extends TestCase
     {
         $entityDefinition = new TestEntityDefinition();
         $entityDefinition->compile($this->definitionRegistry);
-        $this->definitionRegistry->expects(static::once())->method('getByEntityName')->willReturn($entityDefinition);
+        $this->definitionRegistry->expects($this->once())->method('getByEntityName')->willReturn($entityDefinition);
 
         $controller = $this->createAdministrationController();
         $response = $controller->sanitizeHtml(new Request([], ['html' => '<p>test</p>', 'field' => 'test_entity.id']), $this->context);
@@ -395,7 +395,7 @@ class AdministrationControllerTest extends TestCase
         $html = '<p>test</p>';
         $entityDefinition = new TestEntityDefinition();
         $entityDefinition->compile($this->definitionRegistry);
-        $this->definitionRegistry->expects(static::once())->method('getByEntityName')->willReturn($entityDefinition);
+        $this->definitionRegistry->expects($this->once())->method('getByEntityName')->willReturn($entityDefinition);
 
         $controller = $this->createAdministrationController();
         $response = $controller->sanitizeHtml(new Request([], ['html' => $html, 'field' => 'test_entity.idAllowHtml']), $this->context);
@@ -410,9 +410,9 @@ class AdministrationControllerTest extends TestCase
         $sanitized = 'test';
         $entityDefinition = new TestEntityDefinition();
         $entityDefinition->compile($this->definitionRegistry);
-        $this->definitionRegistry->expects(static::once())->method('getByEntityName')->willReturn($entityDefinition);
+        $this->definitionRegistry->expects($this->once())->method('getByEntityName')->willReturn($entityDefinition);
 
-        $this->htmlSanitizer->expects(static::once())->method('sanitize')->willReturn($sanitized);
+        $this->htmlSanitizer->expects($this->once())->method('sanitize')->willReturn($sanitized);
 
         $controller = $this->createAdministrationController();
         $response = $controller->sanitizeHtml(

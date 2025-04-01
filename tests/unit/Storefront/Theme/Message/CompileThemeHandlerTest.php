@@ -4,9 +4,9 @@ namespace Shopware\Tests\Unit\Storefront\Theme\Message;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Notification\NotificationService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -32,7 +32,7 @@ class CompileThemeHandlerTest extends TestCase
         $context = Context::createDefaultContext();
         $message = new CompileThemeMessage(TestDefaults::SALES_CHANNEL, $themeId, true, $context);
 
-        $themeCompilerMock->expects(static::once())->method('compileTheme');
+        $themeCompilerMock->expects($this->once())->method('compileTheme');
 
         $scEntity = new SalesChannelEntity();
         $scEntity->setUniqueIdentifier(Uuid::randomHex());

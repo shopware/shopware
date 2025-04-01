@@ -66,7 +66,7 @@ class PluginManagerSingleton {
      *
      * @param {string} pluginName
      * @param {Plugin} pluginClass
-     * @param {string|NodeList|HTMLElement} selector
+     * @param {string|NodeList|HTMLElement|HTMLDocument} selector
      * @param {Object} options
      *
      * @returns {*}
@@ -190,7 +190,7 @@ class PluginManagerSingleton {
      * @returns {Map|null}
      */
     static getPluginInstancesFromElement(el) {
-        if (!(el instanceof HTMLElement)) {
+        if (!(el instanceof Node)) {
             throw new Error('Passed element is not an Html element!');
         }
 
@@ -279,7 +279,7 @@ class PluginManagerSingleton {
 
                 let selector = entry.selector;
 
-                if (selector instanceof HTMLElement) {
+                if (selector instanceof Node) {
                     queue.push({ pluginName: pluginName, pluginClassPromise: plugin.get('class') });
                     continue;
                 }
@@ -330,7 +330,7 @@ class PluginManagerSingleton {
         }
 
         let needsFetch = false;
-        if (selector instanceof HTMLElement) {
+        if (selector instanceof Node) {
             needsFetch = true;
         }
 
@@ -394,7 +394,7 @@ class PluginManagerSingleton {
      * @param {string} pluginName
      */
     _initializePlugin(pluginClass, selector, options, pluginName = false) {
-        if (selector instanceof HTMLElement) {
+        if (selector instanceof Node) {
             return PluginManagerSingleton._initializePluginOnElement(selector, pluginClass, options, pluginName);
         }
 

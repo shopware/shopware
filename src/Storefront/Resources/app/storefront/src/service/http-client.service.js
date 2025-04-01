@@ -1,5 +1,6 @@
 /**
  * @sw-package framework
+ * @deprecated tag:v6.8.0 - Use native fetch() API directly. Remove this class.
  */
 export default class HttpClient {
     constructor() {

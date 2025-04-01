@@ -34,6 +34,12 @@ Contains styles for the search suggest popover in the shop header.
 }
 
 .search-suggest-product {
+    border-bottom: 1px solid $border-color;
+
+    &:last-child {
+        border-bottom: 0;
+    }
+
     &.is-active {
         .search-suggest-product-link {
             color: $primary;
@@ -51,6 +57,12 @@ Contains styles for the search suggest popover in the shop header.
 .search-suggest-product-link {
     display: block;
     padding: $spacer-sm 0;
+    color: $body-color;
+    text-decoration: none;
+
+    &:hover {
+        color: $primary;
+    }
 }
 
 .search-suggest-product-name {

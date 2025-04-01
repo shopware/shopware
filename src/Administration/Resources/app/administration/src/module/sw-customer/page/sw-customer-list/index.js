@@ -32,8 +32,17 @@ export default {
             sortDirection: 'DESC',
             isLoading: false,
             showDeleteModal: false,
+            /**
+             * @deprecated tag:v6.8.0 - will be removed without replacement
+             */
             filterLoading: false,
+            /**
+             * @deprecated tag:v6.8.0 - will be removed without replacement
+             */
             availableAffiliateCodes: [],
+            /**
+             * @deprecated tag:v6.8.0 - will be removed without replacement
+             */
             availableCampaignCodes: [],
             filterCriteria: [],
             defaultFilters: [
@@ -95,6 +104,9 @@ export default {
             return defaultCriteria;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         filterSelectCriteria() {
             const criteria = new Criteria(1, 1);
             criteria.addFilter(
@@ -122,21 +134,19 @@ export default {
                 },
                 'affiliate-code-filter': {
                     property: 'affiliateCode',
-                    type: 'multi-select-filter',
+                    type: 'string-filter',
                     label: this.$tc('sw-customer.filter.affiliateCode.label'),
                     placeholder: this.$tc('sw-customer.filter.affiliateCode.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
-                    options: this.availableAffiliateCodes,
                 },
                 'campaign-code-filter': {
                     property: 'campaignCode',
-                    type: 'multi-select-filter',
+                    type: 'string-filter',
                     label: this.$tc('sw-customer.filter.campaignCode.label'),
                     placeholder: this.$tc('sw-customer.filter.campaignCode.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
-                    options: this.availableCampaignCodes,
                 },
                 'customer-group-request-filter': {
                     property: 'requestedGroupId',
@@ -209,8 +219,11 @@ export default {
     },
 
     methods: {
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         createdComponent() {
-            return this.loadFilterValues();
+            return Promise.resolve();
         },
 
         onInlineEditSave(promise, customer) {
@@ -386,6 +399,9 @@ export default {
             return columns;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         loadFilterValues() {
             this.filterLoading = true;
 

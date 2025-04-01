@@ -23,7 +23,7 @@ class RefreshIndexSubscriberTest extends TestCase
     public function testHandedWithSkipOption(): void
     {
         $registry = $this->createMock(AdminSearchRegistry::class);
-        $registry->expects(static::once())->method('iterate')->with(new AdminIndexingBehavior(false, ['product']));
+        $registry->expects($this->once())->method('iterate')->with(new AdminIndexingBehavior(false, ['product']));
 
         $subscriber = new RefreshIndexSubscriber($registry);
         $subscriber->handled(new RefreshIndexEvent(false, ['product']));
@@ -32,7 +32,7 @@ class RefreshIndexSubscriberTest extends TestCase
     public function testHandedWithOnlyOption(): void
     {
         $registry = $this->createMock(AdminSearchRegistry::class);
-        $registry->expects(static::once())->method('iterate')->with(new AdminIndexingBehavior(false, [], ['product']));
+        $registry->expects($this->once())->method('iterate')->with(new AdminIndexingBehavior(false, [], ['product']));
 
         $subscriber = new RefreshIndexSubscriber($registry);
         $subscriber->handled(new RefreshIndexEvent(false, [], ['product']));

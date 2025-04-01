@@ -150,6 +150,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.isLoading = true;
 
             if (!this.customEntityData) {
+                // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
                 return Promise.reject();
             }
 

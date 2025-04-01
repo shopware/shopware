@@ -40,7 +40,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
 
         $storeApiCustomFieldMapper = $this->createMock(StoreApiCustomFieldMapper::class);
         $storeApiCustomFieldMapper
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('map')
             ->with('customer', $customFields)
             ->willReturn(['test1' => '1']);

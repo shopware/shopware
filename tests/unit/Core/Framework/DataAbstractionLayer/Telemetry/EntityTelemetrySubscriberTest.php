@@ -28,7 +28,7 @@ class EntityTelemetrySubscriberTest extends TestCase
 
         $event = new EntitySearchedEvent($criteria, $this->createMock(EntityDefinition::class), Context::createDefaultContext());
         $meter = $this->createMock(Meter::class);
-        $meter->expects(static::once())
+        $meter->expects($this->once())
             ->method('emit')
             ->with(static::callback(function (ConfiguredMetric $metric) {
                 return $metric->name === 'dal.associations.count' && $metric->value === 2;

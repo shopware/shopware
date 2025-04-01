@@ -61,16 +61,18 @@ class IconCacheTwigFilterTest extends TestCase
 
         $rendered = $controller->testRenderStorefront('@StorefrontTest/test/base.html.twig', $salesChannelContext);
 
-        static::assertEquals(str_replace(' ', '', '<span class="icon icon-minus-large icon-xs icon-filter-panel-item-toggle">
+        static::assertEquals(str_replace(' ', '', '<span class="icon icon-minus-large icon-xs icon-filter-panel-item-toggle" aria-hidden="true">
                             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" viewBox="0 0 16 16"><defs><path id="icons-solid-minus-large" d="M2 9h12c.5523 0 1-.4477 1-1s-.4477-1-1-1H2c-.5523 0-1 .4477-1 1s.4477 1 1 1z" /></defs><use xlink:href="#icons-solid-minus-large" fill="#758CA3" fill-rule="evenodd" /></svg>
-            </span><span class="icon icon-minus-large icon-xs icon-filter-panel-item-toggle">
+            </span><span class="icon icon-minus-large icon-xs icon-filter-panel-item-toggle" aria-hidden="true">
                             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" viewBox="0 0 16 16"><use xlink:href="#icons-solid-minus-large" fill="#758CA3" fill-rule="evenodd" /></svg>
-            </span><span class="icon icon-minus-small">
+            </span><span class="icon icon-minus-small" aria-hidden="true">
                             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" viewBox="0 0 16 16"><defs><path id="icons-solid-minus-small" d="M4.8571 9h6.2858C11.6162 9 12 8.5523 12 8s-.3838-1-.8571-1H4.857C4.3838 7 4 7.4477 4 8s.3838 1 .8571 1z" /></defs><use xlink:href="#icons-solid-minus-small" fill="#758CA3" fill-rule="evenodd" /></svg>
-            </span><span class="icon icon-minus">
+            </span><span class="icon icon-minus" aria-hidden="true">
                             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" viewBox="0 0 16 16"><defs><path id="icons-solid-minus" d="M2.8571 9H13.143c.4732 0 .857-.4477.857-1s-.3838-1-.8571-1H2.857C2.3838 7 2 7.4477 2 8s.3838 1 .8571 1z" /></defs><use xlink:href="#icons-solid-minus" fill="#758CA3" fill-rule="evenodd" /></svg>
-            </span><span class="icon icon-minus">
+            </span><span class="icon icon-minus" aria-hidden="true">
                             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24" viewBox="0 0 24 24"><defs><path id="icons-default-minus" d="M3 13h18c.5523 0 1-.4477 1-1s-.4477-1-1-1H3c-.5523 0-1 .4477-1 1s.4477 1 1 1z" /></defs><use xlink:href="#icons-default-minus" fill="#758CA3" fill-rule="evenodd" /></svg>
+            </span><span class="iconicon-minus">
+                            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24" viewBox="002424"><use xlink:href="#icons-default-minus" fill="#758CA3" fill-rule="evenodd"/></svg>
             </span>'), str_replace(' ', '', $rendered->getContent() ?: ''));
     }
 
@@ -113,7 +115,7 @@ class IconCacheTwigFilterTest extends TestCase
         $twig = new Environment($loader, ['cache' => false]);
 
         $kernel = $this->createMock(Kernel::class);
-        $kernel->expects(static::any())
+        $kernel->expects($this->any())
             ->method('getBundles')
             ->willReturn($bundles);
 
@@ -123,7 +125,7 @@ class IconCacheTwigFilterTest extends TestCase
             ->willReturn(['Storefront' => 0]);
 
         $scopeDetector = $this->createMock(TemplateScopeDetector::class);
-        $scopeDetector->expects(static::any())
+        $scopeDetector->expects($this->any())
             ->method('getScopes')
             ->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 

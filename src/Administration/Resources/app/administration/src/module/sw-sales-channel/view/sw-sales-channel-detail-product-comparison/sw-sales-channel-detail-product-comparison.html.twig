@@ -74,7 +74,8 @@
             {% block sw_sales_channel_detail_product_comparison_actions_test_button %}
             <sw-button-process
                 size="small"
-                variant="ghost"
+                variant="primary"
+                ghost
                 class="sw-sales-channel-detail-product-comparison__button sw-sales-channel-detail-product-comparison__test-action"
                 :is-loading="isLoadingValidate"
                 :disabled="isLoadingValidate || (!productExport.headerTemplate && !productExport.bodyTemplate && !productExport.footerTemplate)"
@@ -88,7 +89,8 @@
             {% block sw_sales_channel_detail_product_comparison_actions_preview_button %}
             <sw-button-process
                 size="small"
-                variant="ghost"
+                variant="primary"
+                ghost
                 class="sw-sales-channel-detail-product-comparison__button sw-sales-channel-detail-product-comparison__preview-action"
                 :is-loading="isLoadingPreview"
                 :disabled="isLoadingPreview || (!productExport.headerTemplate && !productExport.bodyTemplate && !productExport.footerTemplate)"

@@ -174,17 +174,11 @@ export default {
 
     methods: {
         createdComponent() {
-            this.$emit('update-loading', true);
-            if (this.swOrderDetailOnLoadingChange) {
-                this.swOrderDetailOnLoadingChange(true);
-            }
+            this.loadingChange(true);
 
             this.customFieldSetRepository.search(this.customFieldSetCriteria).then((result) => {
                 this.customFieldSets = result;
-                this.$emit('update-loading', false);
-                if (this.swOrderDetailOnLoadingChange) {
-                    this.swOrderDetailOnLoadingChange(false);
-                }
+                this.loadingChange(false);
             });
         },
 
@@ -195,46 +189,56 @@ export default {
             this.saveAndRecalculate();
         },
 
+        loadingChange(loading) {
+            if (this.swOrderDetailOnLoadingChange) {
+                this.swOrderDetailOnLoadingChange(loading);
+            } else {
+                this.$emit('update-loading', loading);
+            }
+        },
+
         saveAndRecalculate() {
-            this.$emit('save-and-recalculate');
             if (this.swOrderDetailOnSaveAndRecalculate) {
                 this.swOrderDetailOnSaveAndRecalculate();
+            } else {
+                this.$emit('save-and-recalculate');
             }
         },
 
         saveAndReload() {
-            this.$emit('save-and-reload');
             if (this.swOrderDetailOnSaveAndReload) {
                 this.swOrderDetailOnSaveAndReload();
+            } else {
+                this.$emit('save-and-reload');
             }
         },
 
         onSaveEdits() {
-            this.$emit('save-edits');
             if (this.swOrderDetailOnSaveEdits) {
                 this.swOrderDetailOnSaveEdits();
+            } else {
+                this.$emit('save-edits');
             }
         },
 
         reloadEntityData() {
-            this.$emit('reload-entity-data');
             if (this.swOrderDetailOnReloadEntityData) {
                 this.swOrderDetailOnReloadEntityData();
+            } else {
+                this.$emit('reload-entity-data');
             }
         },
 
         showError(error) {
-            this.$emit('error', error);
             if (this.swOrderDetailOnError) {
                 this.swOrderDetailOnError(error);
+            } else {
+                this.$emit('error', error);
             }
         },
 
         updateLoading(loadingValue) {
-            Store.get('swOrderDetail').setLoading([
-                'order',
-                loadingValue,
-            ]);
+            Store.get('swOrderDetail').setLoading(['order', loadingValue]);
         },
 
         validateTrackingCode(searchTerm) {

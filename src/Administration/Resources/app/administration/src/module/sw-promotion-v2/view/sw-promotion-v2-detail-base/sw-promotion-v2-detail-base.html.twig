@@ -30,6 +30,9 @@
                 v-model="promotion.priority"
                 :disabled="!acl.can('promotion.editor')"
                 :label="$tc('sw-promotion-v2.detail.base.general.priorityLabel')"
+                :step="1"
+                :min="0"
+                number-type="int"
                 :help-text="$tc('sw-promotion-v2.detail.base.general.helpTextPriority')"
             />
         </sw-container>

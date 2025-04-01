@@ -253,7 +253,7 @@
           "trackingId": {
             "label": "Tracking ID",
             "placeHolder": "Enter tracking ID...",
-            "helpText": "When logged in to your Google Analytics account, you will be given access to a tracking ID, which should look like this: G-XXXXXXXXXX"
+            "helpText": "When logged into your Google Analytics account, you will receive a tracking ID in the format `G-XXXXXXXXXX`. If you want to use the Google Tag Manager, then use an ID which starts with `GTM-`. The storefront then automatically includes the Google Tag Manager script: `https://www.googletagmanager.com/gtm.js?id=...`. Otherwise, it uses `https://www.googletagmanager.com/gtag/js?id=...`."
           },
           "active": {
             "label": "Activate Google Analytics"

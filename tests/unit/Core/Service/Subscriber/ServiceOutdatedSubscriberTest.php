@@ -30,7 +30,7 @@ class ServiceOutdatedSubscriberTest extends TestCase
     {
         $context = new Context(new SystemSource());
         $serviceLifecycle = static::createMock(ServiceLifecycle::class);
-        $serviceLifecycle->expects(static::once())
+        $serviceLifecycle->expects($this->once())
             ->method('update')
             ->with('MyCoolService', $context);
 

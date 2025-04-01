@@ -149,14 +149,14 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
         ]);
         await wrapper.setProps({
             taxId: '12345',
-        })
+        });
         await flushPromises();
 
         // Look for defaultTaxRate switch
         const defaultTaxRateSwitch = wrapper.find('.sw-settings-tax-detail__default-tax-rate');
-        await defaultTaxRateSwitch.find('input').setValue(true)
+        await defaultTaxRateSwitch.find('input').setValue(true);
 
         // Check if config value is set to the default tax id
         expect(wrapper.vm.config['core.tax.defaultTaxRate']).toBe('12345');
-    })
+    });
 });

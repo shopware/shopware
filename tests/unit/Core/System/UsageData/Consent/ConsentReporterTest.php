@@ -153,7 +153,7 @@ class ConsentReporterTest extends TestCase
     public function testReportConsentDoesNotThrowExceptionIfGatewayIsNotAvailable(): void
     {
         $httpClient = $this->createMock(HttpClientInterface::class);
-        $httpClient->expects(static::once())
+        $httpClient->expects($this->once())
             ->method('request')
             ->willThrowException(new TransportException('Gateway not available'));
 

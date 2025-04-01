@@ -28,7 +28,7 @@ class IdTokenParserTest extends TestCase
 {
     public function testParse(): void
     {
-        $idToken = (new FakeTokenGenerator())->generate('b16b070d-28e4-4759-9c51-d43730dda8fa');
+        $idToken = (new FakeTokenGenerator())->generate('742be0d0-038a-4f1a-b70d-d1ecabc2af05');
 
         $idTokenParser = new IdTokenParser(
             $this->createPublicKeyLoader(),
@@ -51,7 +51,7 @@ class IdTokenParserTest extends TestCase
 
     public function testParseWithInvalidTokenShouldThrowException(): void
     {
-        $idToken = (new FakeTokenGenerator())->generate('b16b070d-28e4-4759-9c51-d43730dda8fa');
+        $idToken = (new FakeTokenGenerator())->generate('742be0d0-038a-4f1a-b70d-d1ecabc2af05');
 
         $idTokenParser = new IdTokenParser(
             $this->createPublicKeyLoader(),

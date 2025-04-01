@@ -33,7 +33,7 @@ class ExternalTokenServiceTest extends TestCase
     private function createExternalTokenService(string $token): ExternalTokenService
     {
         $responseInterface = $this->createMock(ResponseInterface::class);
-        $responseInterface->expects(static::once())->method('getContent')->willReturn(
+        $responseInterface->expects($this->once())->method('getContent')->willReturn(
             \json_encode(
                 [
                     'id_token' => $token,
@@ -47,7 +47,7 @@ class ExternalTokenServiceTest extends TestCase
         );
 
         $client = $this->createMock(HttpClientInterface::class);
-        $client->expects(static::once())->method('request')->willReturn($responseInterface);
+        $client->expects($this->once())->method('request')->willReturn($responseInterface);
 
         $loginConfigService = new LoginConfigService(
             [

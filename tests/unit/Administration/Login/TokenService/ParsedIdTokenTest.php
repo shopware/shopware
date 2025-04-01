@@ -50,7 +50,7 @@ class ParsedIdTokenTest extends TestCase
     }
 
     /**
-     * @return array<string, array<int, Dataset|string>>
+     * @return array<string, array<int, DataSet|string>>
      */
     public static function invalidData(): array
     {

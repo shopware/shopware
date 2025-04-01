@@ -119,7 +119,7 @@ class PublicKeyLoaderTest extends TestCase
         $response->method('getContent')->willReturn($data);
 
         $client = $this->createMock(HttpClientInterface::class);
-        $client->expects($shouldBeCalled ? static::once() : static::never())->method('request')->willReturn($response);
+        $client->expects($shouldBeCalled ? $this->once() : $this->never())->method('request')->willReturn($response);
 
         return $client;
     }
@@ -165,7 +165,7 @@ class PublicKeyLoaderTest extends TestCase
         $emptyCacheItem = $createCacheItem('any', null, false);
 
         $cache->method('getItem')->willReturnOnConsecutiveCalls($cacheItem, $emptyCacheItem);
-        $cache->expects($shouldCallClearCache ? static::once() : static::never())->method('clear');
+        $cache->expects($shouldCallClearCache ? $this->once() : $this->never())->method('clear');
 
         return $cache;
     }

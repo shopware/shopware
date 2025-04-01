@@ -73,8 +73,16 @@ class StorefrontException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement as it is unused
+     */
     public static function dontHaveTwigInjected(string $class): self
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0')
+        );
+
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::CLASS_DONT_HAVE_TWIG_INJECTED,
